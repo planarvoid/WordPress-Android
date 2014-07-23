@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,62 +18,40 @@ public class PlayerOverlayControllerTest {
     private PlayerOverlayController controller;
 
     @Mock private OverlayAnimator overlayAnimator;
-    @Mock private PlaySessionStateProvider playSessionController;
+    @Mock private PlaySessionStateProvider playStateProvider;
     @Mock private View overlay;
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlayerOverlayController(overlayAnimator, playSessionController);
+        controller = new PlayerOverlayController(overlay, overlayAnimator, playStateProvider);
     }
 
     @Test
-    public void showSessionShouldHideOverlay() {
-        controller.showSessionActiveState(overlay);
+    public void shouldHideOverlayOnSetExpandedWhilePlaying() {
+        when(playStateProvider.isPlaying()).thenReturn(true);
+        controller.setExpandedAndUpdate();
         verify(overlayAnimator).hideOverlay(overlay);
     }
 
     @Test
-    public void showSessionWhenDarkeningShouldNotHideOverlay() {
-        controller.darken(overlay);
-        controller.showSessionActiveState(overlay);
-
-        verify(overlayAnimator, never()).hideOverlay(overlay);
-    }
-
-    @Test
-    public void showSessionActivateOnPlayStateShouldHideOverlay() {
-        controller.showSessionActiveState(overlay);
-
-        verify(overlayAnimator).hideOverlay(overlay);
-    }
-
-    @Test
-    public void shouldHideOverlayWhenSessionIsPlaying() {
-        when(playSessionController.isPlaying()).thenReturn(true);
-        controller.hideOverlay(overlay);
-
-        verify(overlayAnimator).hideOverlay(overlay);
-    }
-
-    @Test
-    public void shouldNotHideOverlayWhenSessionIsIdle() {
-        when(playSessionController.isPlaying()).thenReturn(false);
-        controller.hideOverlay(overlay);
-
-        verify(overlayAnimator, never()).hideOverlay(overlay);
-    }
-
-    @Test
-    public void showIdleStateShouldShowOverlay() {
-        controller.showIdleState(overlay);
-
+    public void shouldShowOverlayOnSetExpandedWhileNotPlaying() {
+        when(playStateProvider.isPlaying()).thenReturn(false);
+        controller.setExpandedAndUpdate();
         verify(overlayAnimator).showOverlay(overlay);
     }
 
     @Test
-    public void darkenShouldShowOverlay() {
-        controller.darken(overlay);
-
+    public void shouldShowOverlayOnSetCollapsedWhilePlaying() {
+        when(playStateProvider.isPlaying()).thenReturn(true);
+        controller.setCollapsedAndUpdate();
         verify(overlayAnimator).showOverlay(overlay);
     }
+
+    @Test
+    public void shouldShowOverlayOnSetCollapsedWhileNotPlaying() {
+        when(playStateProvider.isPlaying()).thenReturn(false);
+        controller.setCollapsedAndUpdate();
+        verify(overlayAnimator).showOverlay(overlay);
+    }
+
 }

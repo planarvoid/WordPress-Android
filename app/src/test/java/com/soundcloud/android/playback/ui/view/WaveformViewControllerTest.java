@@ -1,9 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
-import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -49,9 +47,9 @@ public class WaveformViewControllerTest {
 
     private WaveformViewController waveformViewController;
 
-    @Mock private ScrubControllerFactory scrubControllerFactory;
+    @Mock private ScrubController.Factory scrubControllerFactory;
     @Mock private ScrubController scrubController;
-    @Mock private ProgressAnimationControllerFactory progressAnimationControllerFactory;
+    @Mock private ProgressController.Factory progressAnimationControllerFactory;
     @Mock private WaveformView waveformView;
     @Mock private ImageView leftWaveform;
     @Mock private ImageView rightWaveform;
@@ -84,7 +82,7 @@ public class WaveformViewControllerTest {
 
         when(waveformResult.getWaveformData()).thenReturn(waveformData);
 
-        waveformViewController = new WaveformViewControllerFactory(scrubControllerFactory, progressAnimationControllerFactory,
+        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
                Schedulers.immediate()).create(waveformView);
     }
 

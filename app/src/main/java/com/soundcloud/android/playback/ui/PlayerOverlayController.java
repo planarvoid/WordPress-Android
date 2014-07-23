@@ -5,39 +5,54 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import android.view.View;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 class PlayerOverlayController {
 
     private final OverlayAnimator overlayAnimator;
     private final PlaySessionStateProvider playSessionStateProvider;
-
+    private final View overlay;
     private boolean isCollapsed;
 
     @Inject
-    public PlayerOverlayController(OverlayAnimator overlayAnimator, PlaySessionStateProvider playSessionStateProvider) {
+    public PlayerOverlayController(View overlay,
+                                   OverlayAnimator overlayAnimator,
+                                   PlaySessionStateProvider playSessionStateProvider) {
+        this.overlay = overlay;
         this.overlayAnimator = overlayAnimator;
         this.playSessionStateProvider = playSessionStateProvider;
     }
 
-    public void showSessionActiveState(View overlay) {
-        if (!isCollapsed) {
-            overlayAnimator.hideOverlay(overlay);
-        }
-    }
-
-    public void hideOverlay(View overlay) {
-        isCollapsed = false;
-        if (playSessionStateProvider.isPlaying()) {
-            overlayAnimator.hideOverlay(overlay);
-        }
-    }
-
-    public void showIdleState(View overlay) {
-        overlayAnimator.showOverlay(overlay);
-    }
-
-    public void darken(View overlay) {
+    public void setCollapsedAndUpdate() {
         isCollapsed = true;
-        overlayAnimator.showOverlay(overlay);
+        update();
+    }
+
+    public void setExpandedAndUpdate() {
+        isCollapsed = false;
+        update();
+    }
+
+    public void update() {
+        if (!isCollapsed && playSessionStateProvider.isPlaying()) {
+            overlayAnimator.hideOverlay(overlay);
+        } else {
+            overlayAnimator.showOverlay(overlay);
+        }
+    }
+
+    public static class Factory {
+        private final Provider<OverlayAnimator> overlayAnimatorProvider;
+        private final PlaySessionStateProvider playSessionStateProvider;
+
+        @Inject
+        Factory(Provider<OverlayAnimator> overlayAnimatorProvider, PlaySessionStateProvider playSessionController) {
+            this.overlayAnimatorProvider = overlayAnimatorProvider;
+            this.playSessionStateProvider = playSessionController;
+        }
+
+        public PlayerOverlayController create(View overlay) {
+            return new PlayerOverlayController(overlay, overlayAnimatorProvider.get(), playSessionStateProvider);
+        }
     }
 }

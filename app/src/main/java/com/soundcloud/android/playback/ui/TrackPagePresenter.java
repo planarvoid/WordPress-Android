@@ -1,19 +1,17 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
-import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
+import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -35,20 +33,23 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     private final ImageOperations imageOperations;
     private final WaveformOperations waveformOperations;
     private final TrackPageListener listener;
-    private final WaveformViewControllerFactory waveformControllerFactory;
-    private final PlayerArtworkControllerFactory artworkControllerFactory;
+    private final WaveformViewController.Factory waveformControllerFactory;
+    private final PlayerArtworkController.Factory artworkControllerFactory;
+    private final PlayerOverlayController.Factory playerOverlayControllerFactory;
 
     @Inject
     public TrackPagePresenter(Resources resources, ImageOperations imageOperations,
                               WaveformOperations waveformOperations, TrackPageListener listener,
-                              WaveformViewControllerFactory waveformControllerFactory,
-                              PlayerArtworkControllerFactory artworkControllerFactory) {
+                              WaveformViewController.Factory waveformControllerFactory,
+                              PlayerArtworkController.Factory artworkControllerFactory,
+                              PlayerOverlayController.Factory playerOverlayControllerFactory) {
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
+        this.playerOverlayControllerFactory = playerOverlayControllerFactory;
     }
 
     @Override
@@ -153,6 +154,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         } else {
             holder.artworkController.showIdleState();
         }
+        holder.playerOverlayController.update();
         setTextBackgrounds(holder, state.playSessionIsActive());
     }
 
@@ -163,7 +165,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     public void clearScrubState(View trackView) {
-        getViewHolder(trackView).waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+        TrackPageHolder holder = getViewHolder(trackView);
+        holder.waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
     }
 
     @Override
@@ -177,7 +180,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.GONE);
         holder.waveformController.setWaveformVisibility(isPlaying);
-        holder.artworkController.hideOverlay();
+        holder.playerOverlayController.setExpandedAndUpdate();
         holder.waveformController.setWaveformVisibility(true);
         setVisibility(holder.getFullScreenViews(), true);
     }
@@ -185,7 +188,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     public void setCollapsed(View trackView) {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.VISIBLE);
-        holder.artworkController.darken();
+        holder.playerOverlayController.setCollapsedAndUpdate();
         holder.waveformController.setWaveformVisibility(false);
         setVisibility(holder.getFullScreenViews(), false);
     }
@@ -215,6 +218,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
+        holder.artworkOverlay = holder.artworkView.findViewById(R.id.artwork_overlay);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
@@ -234,6 +238,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveform);
         holder.artworkController = artworkControllerFactory.create(holder.artworkView);
+        holder.playerOverlayController = playerOverlayControllerFactory.create(holder.artworkOverlay);
         holder.waveformController.addScrubListener(holder.artworkController);
         holder.waveformController.addScrubListener(holder.timestamp);
 
@@ -256,6 +261,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;
+        PlayerOverlayController playerOverlayController;
         ToggleButton likeToggle;
         View more;
         View close;
@@ -270,6 +276,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         ToggleButton footerPlayToggle;
         TextView footerTitle;
         TextView footerUser;
+        View artworkOverlay;
 
         public View[] getOnClickViews() {
             return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch, playButton, footer, footerPlayToggle };

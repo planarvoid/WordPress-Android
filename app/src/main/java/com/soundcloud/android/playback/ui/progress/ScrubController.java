@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import static com.soundcloud.android.playback.ui.progress.SeekHandler.SeekHandlerFactory;
-
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
@@ -59,7 +57,7 @@ public class ScrubController {
     }
 
     ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations,
-                    SeekHandlerFactory seekHandlerFactory) {
+                    SeekHandler.Factory seekHandlerFactory) {
 
         this.playbackOperations = playbackOperations;
         this.seekHandler = seekHandlerFactory.create(this);
@@ -132,13 +130,13 @@ public class ScrubController {
         return scrubState == SCRUB_STATE_SCRUBBING || seekHandler.hasMessages(MSG_PERFORM_SEEK);
     }
 
-    public static class ScrubControllerFactory {
+    public static class Factory {
 
         private final PlaybackOperations playbackOperations;
-        private final SeekHandlerFactory seekHandlerFactory;
+        private final SeekHandler.Factory seekHandlerFactory;
 
         @Inject
-        public ScrubControllerFactory(PlaybackOperations playbackOperations, SeekHandlerFactory seekHandlerFactory) {
+        public Factory(PlaybackOperations playbackOperations, SeekHandler.Factory seekHandlerFactory) {
             this.playbackOperations = playbackOperations;
             this.seekHandlerFactory = seekHandlerFactory;
         }

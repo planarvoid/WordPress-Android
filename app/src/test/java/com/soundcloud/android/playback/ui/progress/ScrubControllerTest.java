@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import static com.soundcloud.android.playback.ui.progress.SeekHandler.SeekHandlerFactory;
 import static com.soundcloud.android.view.ListenableHorizontalScrollView.OnScrollListener;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -30,7 +29,7 @@ public class ScrubControllerTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ProgressHelper progressHelper;
     @Mock private ScrubController.OnScrubListener scrubListener;
-    @Mock private SeekHandlerFactory seekHandlerFactory;
+    @Mock private SeekHandler.Factory seekHandlerFactory;
     @Mock private SeekHandler seekHandler;
 
     private Message message;

@@ -26,10 +26,11 @@ class SeekHandler extends Handler {
         }
     }
 
-    static class SeekHandlerFactory {
+    static class Factory {
 
         @Inject
-        SeekHandlerFactory() {
+        Factory() {
+            // Required by Dagger.
         }
 
         SeekHandler create(ScrubController scrubController){

@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -17,7 +16,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.playback.ui.view.WaveformViewControllerFactory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -41,26 +39,18 @@ public class TrackPagePresenterTest {
 
     private static final int DURATION = 123456;
 
-    @Mock
-    private Resources resources;
-    @Mock
-    private ImageOperations imageOperations;
-    @Mock
-    private WaveformOperations waveformOperations;
-    @Mock
-    private TrackPageListener listener;
-    @Mock
-    private ViewGroup container;
-    @Mock
-    private WaveformViewControllerFactory waveformFactory;
-    @Mock
-    private WaveformViewController waveformViewController;
-    @Mock
-    private PlayerArtworkControllerFactory artworkFactory;
-    @Mock
-    private PlayerArtworkController artworkController;
-    @Mock
-    private PlaybackProgress playbackProgress;
+    @Mock private Resources resources;
+    @Mock private ImageOperations imageOperations;
+    @Mock private WaveformOperations waveformOperations;
+    @Mock private TrackPageListener listener;
+    @Mock private ViewGroup container;
+    @Mock private WaveformViewController.Factory waveformFactory;
+    @Mock private WaveformViewController waveformViewController;
+    @Mock private PlayerArtworkController.Factory artworkFactory;
+    @Mock private PlayerArtworkController artworkController;
+    @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
+    @Mock private PlayerOverlayController playerVisualStateController;
+    @Mock private PlaybackProgress playbackProgress;
 
     private TrackPagePresenter presenter;
     private View trackView;
@@ -68,10 +58,11 @@ public class TrackPagePresenterTest {
     @Before
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
-        presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory, artworkFactory);
+        presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory, artworkFactory, playerVisualStateControllerFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
+        when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
         trackView = presenter.createItemView(container);
     }
 

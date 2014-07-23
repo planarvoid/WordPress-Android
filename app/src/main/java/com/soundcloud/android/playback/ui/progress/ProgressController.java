@@ -83,10 +83,10 @@ public class ProgressController {
 
     }
 
-    public static class ProgressAnimationControllerFactory {
+    public static class Factory {
 
         @Inject
-        public ProgressAnimationControllerFactory() {
+        public Factory() {
             // Required by Dagger
         }
 

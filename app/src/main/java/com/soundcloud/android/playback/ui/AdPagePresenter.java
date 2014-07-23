@@ -23,27 +23,31 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final PlayerOverlayController artworkController;
+    private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final AdPageListener listener;
 
     @Inject
-    public AdPagePresenter(ImageOperations imageOperations, Resources resources, PlayerOverlayController playerOverlayController, AdPageListener listener) {
+    public AdPagePresenter(ImageOperations imageOperations, Resources resources,
+                           PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.artworkController = playerOverlayController;
+        this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.listener = listener;
     }
-
 
     @Override
     public View createItemView(ViewGroup container) {
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
-        adView.setTag(new Holder(adView));
+        adView.setTag(new Holder(adView, playerOverlayControllerFactory));
         return adView;
     }
 
     @Override
     public View clearItemView(View convertView) {
+        final Holder holder = getViewHolder(convertView);
+        holder.footerAdvertiser.setText(ScTextUtils.EMPTY_STRING);
+        holder.previewTitle.setText(ScTextUtils.EMPTY_STRING);
+        holder.artworkView.setImageDrawable(null);
         return convertView;
     }
 
@@ -102,17 +106,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
 
         holder.playButton.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
-        setArtworkPlayState(holder, stateTransition);
-    }
-
-    private void setArtworkPlayState(Holder holder, Playa.StateTransition stateTransition) {
-        if (stateTransition.playSessionIsActive()) {
-            artworkController.hideOverlay(holder.artworkIdleOverlay);
-        } else {
-            artworkController.darken(holder.artworkIdleOverlay);
-        }
+        holder.playerOverlayController.update();
     }
 
     @Override
@@ -124,14 +119,14 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         Holder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.GONE);
         setVisibility(holder.getFullScreenViews(), true);
-        artworkController.hideOverlay(holder.artworkIdleOverlay);
+        holder.playerOverlayController.setExpandedAndUpdate();
     }
 
     public void setCollapsed(View trackView) {
         Holder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.VISIBLE);
         setVisibility(holder.getFullScreenViews(), false);
-        artworkController.darken(holder.artworkIdleOverlay);
+        holder.playerOverlayController.setCollapsedAndUpdate();
     }
 
     private void setClickListener(View[] views, View.OnClickListener listener) {
@@ -166,7 +161,9 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final TextView footerAdvertiser;
         private final TextView footerAdvertisement;
 
-        Holder(View adView) {
+        private final PlayerOverlayController playerOverlayController;
+
+        Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
             playButton = adView.findViewById(R.id.player_play);
@@ -180,6 +177,8 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             footer = adView.findViewById(R.id.footer_controls);
             footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
             footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
+
+            playerOverlayController = playerOverlayControllerFactory.create(artworkIdleOverlay);
         }
 
         public View[] getOnClickViews() {

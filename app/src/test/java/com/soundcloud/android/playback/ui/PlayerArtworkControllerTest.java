@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.ui.PlayerArtworkController.PlayerArtworkControllerFactory;
-import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -26,25 +24,17 @@ import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 
-import javax.inject.Provider;
-
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerArtworkControllerTest {
     private PlayerArtworkController playerArtworkController;
 
-    @Mock private ProgressAnimationControllerFactory animationControllerFactory;
+    @Mock private ProgressController.Factory animationControllerFactory;
     @Mock private PlayerTrackArtworkView playerTrackArtworkView;
     @Mock private ProgressController progressController;
     @Mock private ImageView wrappedImageView;
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-    private final Provider<PlayerOverlayController> overlayControllerProvider = new Provider<PlayerOverlayController>() {
-        @Override
-        public PlayerOverlayController get() {
-            return new PlayerOverlayController(new OverlayAnimator(), playSessionStateProvider);
-        }
-    };;
 
     @Before
     public void setUp() throws Exception {
@@ -52,7 +42,7 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
-        playerArtworkController = new PlayerArtworkControllerFactory(animationControllerFactory, overlayControllerProvider, playSessionStateProvider).create(playerTrackArtworkView);
+        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playSessionStateProvider).create(playerTrackArtworkView);
     }
 
     @Test

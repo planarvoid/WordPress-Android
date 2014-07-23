@@ -8,10 +8,8 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -32,26 +30,13 @@ public class AdPagePresenterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
+    @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayController, pageListener);
+        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener);
         adView = presenter.createItemView(new FrameLayout(Robolectric.application));
         presenter.bindItemView(adView, buildAd());
-    }
-
-    @Test
-    public void shouldHideOverlayOnPlayingState() {
-        presenter.setPlayState(adView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET), true);
-
-        verify(playerOverlayController).hideOverlay(adView.findViewById(R.id.artwork_overlay));
-    }
-
-    @Test
-    public void shouldShowOverlayOnIdleState() {
-        presenter.setPlayState(adView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TrackUrn.NOT_SET), true);
-
-        verify(playerOverlayController).darken(adView.findViewById(R.id.artwork_overlay));
     }
 
     @Test
@@ -80,6 +65,20 @@ public class AdPagePresenterTest {
         adView.findViewById(R.id.artwork_overlay).performClick();
 
         verify(pageListener).onTogglePlay();
+    }
+
+    @Test
+    public void playerCloseOnPlayerCloseClick() {
+        adView.findViewById(R.id.player_close).performClick();
+
+        verify(pageListener).onPlayerClose();
+    }
+
+    @Test
+    public void footerTapOnFooterControlsClick() {
+        adView.findViewById(R.id.footer_controls).performClick();
+
+        verify(pageListener).onFooterTap();
     }
 
     @Test

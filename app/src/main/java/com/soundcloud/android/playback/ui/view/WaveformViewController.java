@@ -1,9 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
-import static com.soundcloud.android.playback.ui.progress.ProgressController.ProgressAnimationControllerFactory;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
-import static com.soundcloud.android.playback.ui.progress.ScrubController.ScrubControllerFactory;
 
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -23,6 +21,9 @@ import rx.subscriptions.Subscriptions;
 import android.graphics.Bitmap;
 import android.util.Pair;
 import android.view.View;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
 
@@ -48,8 +49,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
 
     WaveformViewController(WaveformView waveform,
-                           ProgressAnimationControllerFactory animationControllerFactory,
-                           final ScrubControllerFactory scrubControllerFactory, Scheduler graphicsScheduler){
+                           ProgressController.Factory animationControllerFactory,
+                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler){
         this.waveformView = waveform;
         this.graphicsScheduler = graphicsScheduler;
         this.waveformWidthRatio = waveform.getWidthRatio();
@@ -211,4 +212,21 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         }
     }
 
+    public static class Factory {
+        private final ProgressController.Factory animationControllerFactory;
+        private final Scheduler scheduler;
+        private final ScrubController.Factory scrubControllerFactory;
+
+        @Inject
+        Factory(ScrubController.Factory scrubControllerFactory,
+                ProgressController.Factory animationControllerFactory,
+                @Named("GraphicsScheduler") Scheduler scheduler) {
+            this.scrubControllerFactory = scrubControllerFactory;
+            this.animationControllerFactory = animationControllerFactory;
+            this.scheduler = scheduler;
+        }
+        public WaveformViewController create(WaveformView waveformView){
+            return new WaveformViewController(waveformView, animationControllerFactory,scrubControllerFactory, scheduler);
+        }
+    }
 }
