@@ -4,7 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -37,7 +37,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
-    private final PlaySessionController playSessionController;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final TrackOperations trackOperations;
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
@@ -56,13 +56,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter,
-                      AdPagePresenter adPagePresenter, EventBus eventBus) {
+    TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
+                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter, AdPagePresenter adPagePresenter,
+                      EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
-        this.playSessionController = playSessionController;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.adPagePresenter = adPagePresenter;
         this.eventBus = eventBus;
     }
@@ -225,7 +225,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private void updateProgress(final PagePresenter presenter, final View trackView, final TrackUrn urn) {
-        presenter.setProgress(trackView, playSessionController.getCurrentProgress(urn));
+        presenter.setProgress(trackView, playSessionStateProvider.getCurrentProgress(urn));
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
@@ -286,7 +286,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
-                presenter.setExpanded(trackPage, playSessionController.isPlaying());
+                presenter.setExpanded(trackPage, playSessionStateProvider.isPlaying());
             } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
                 presenter.setCollapsed(trackPage);
             }

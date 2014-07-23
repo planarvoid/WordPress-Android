@@ -4,7 +4,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class PlayerOverlayControllerTest {
     private PlayerOverlayController controller;
 
     @Mock private OverlayAnimator overlayAnimator;
-    @Mock private PlaySessionController playSessionController;
+    @Mock private PlaySessionStateProvider playSessionController;
     @Mock private View overlay;
 
     @Before

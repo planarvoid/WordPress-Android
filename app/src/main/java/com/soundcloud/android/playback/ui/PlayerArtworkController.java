@@ -8,7 +8,7 @@ import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnW
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -25,7 +25,7 @@ import javax.inject.Provider;
 public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener, ImageListener {
     private final PlayerTrackArtworkView artworkView;
     private final PlayerOverlayController playerOverlayController;
-    private final PlaySessionController playSessionController;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final ImageView wrappedImageView;
     private final ProgressController progressController;
     private final View artworkIdleOverlay;
@@ -35,10 +35,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
 
-    public PlayerArtworkController(PlayerTrackArtworkView artworkView, ProgressAnimationControllerFactory animationControllerFactory, PlayerOverlayController playerOverlayController, PlaySessionController playSessionController) {
+    public PlayerArtworkController(PlayerTrackArtworkView artworkView, ProgressAnimationControllerFactory animationControllerFactory,
+                                   PlayerOverlayController playerOverlayController, PlaySessionStateProvider playSessionStateProvider) {
         this.artworkView = artworkView;
         this.playerOverlayController = playerOverlayController;
-        this.playSessionController = playSessionController;
+        this.playSessionStateProvider = playSessionStateProvider;
         wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
         progressController = animationControllerFactory.create(wrappedImageView);
         artworkIdleOverlay = artworkView.findViewById(R.id.artwork_overlay);
@@ -83,7 +84,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         } else {
             hideOverlay();
         }
-        if (newScrubState == SCRUB_STATE_CANCELLED && playSessionController.isPlaying()) {
+        if (newScrubState == SCRUB_STATE_CANCELLED && playSessionStateProvider.isPlaying()) {
             progressController.startProgressAnimation(latestProgress);
         }
     }
@@ -141,17 +142,20 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     public static class PlayerArtworkControllerFactory {
         private final ProgressAnimationControllerFactory animationControllerFactory;
         private final Provider<PlayerOverlayController> overlayControllerProvider;
-        private final PlaySessionController playSessionController;
+        private final PlaySessionStateProvider playSessionStateProvider;
 
         @Inject
-        PlayerArtworkControllerFactory(ProgressAnimationControllerFactory animationControllerFactory, Provider<PlayerOverlayController> overlayControllerProvider, PlaySessionController playSessionController) {
+        PlayerArtworkControllerFactory(ProgressAnimationControllerFactory animationControllerFactory,
+                                       Provider<PlayerOverlayController> overlayControllerProvider,
+                                       PlaySessionStateProvider playSessionStateProvider) {
             this.animationControllerFactory = animationControllerFactory;
             this.overlayControllerProvider = overlayControllerProvider;
-            this.playSessionController = playSessionController;
+            this.playSessionStateProvider = playSessionStateProvider;
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
-            return new PlayerArtworkController(artworkView, animationControllerFactory, overlayControllerProvider.get(), playSessionController);
+            return new PlayerArtworkController(artworkView, animationControllerFactory, overlayControllerProvider.get(),
+                    playSessionStateProvider);
         }
     }
 }

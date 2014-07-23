@@ -10,13 +10,12 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -29,6 +28,7 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -57,18 +57,16 @@ public class PlaybackOperationsTest {
     private PublicApiPlaylist playlist;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private ScModelManager modelManager;
-    @Mock
-    private TrackStorage trackStorage;
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private FeatureFlags featureFlags;
+    @Mock private ScModelManager modelManager;
+    @Mock private TrackStorage trackStorage;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setUp() throws Exception {
-        playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage, playQueueManager,
+        playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
+                playQueueManager, playSessionStateProvider,
                 featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
@@ -280,6 +278,24 @@ public class PlaybackOperationsTest {
         playbackOperations.setPlayQueuePosition(5);
 
         verify(playQueueManager).setPosition(5);
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsTrueIfProgressLessThatThreeSeconds() {
+        when(playSessionStateProvider.getCurrentProgress()).thenReturn(new PlaybackProgress(2999L, 42000L));
+        expect(playbackOperations.isProgressWithinTrackChangeThreshold()).toBeTrue();
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsFalseIfProgressEqualToThreeSeconds() {
+        when(playSessionStateProvider.getCurrentProgress()).thenReturn(new PlaybackProgress(3000L, 42000L));
+        expect(playbackOperations.isProgressWithinTrackChangeThreshold()).toBeFalse();
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsFalseIfProgressMoreThanThreeSeconds() {
+        when(playSessionStateProvider.getCurrentProgress()).thenReturn(new PlaybackProgress(3001L, 42000L));
+        expect(playbackOperations.isProgressWithinTrackChangeThreshold()).toBeFalse();
     }
 
     @Test

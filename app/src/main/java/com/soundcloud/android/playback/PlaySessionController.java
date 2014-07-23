@@ -3,11 +3,9 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
-import com.google.common.collect.Maps;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -27,13 +25,10 @@ import android.graphics.Bitmap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionController {
 
-    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private final Resources resources;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
@@ -41,19 +36,15 @@ public class PlaySessionController {
     private final PlayQueueManager playQueueManager;
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
+    private final PlaySessionStateProvider playSessionStateProvider;
 
     private Subscription currentTrackSubscription = Subscriptions.empty();
-    private StateTransition lastStateTransition = StateTransition.DEFAULT;
-
-    private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
     private PublicApiTrack currentPlayQueueTrack; // the track that is currently set in the queue
-
-    private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
                                  PlayQueueManager playQueueManager, LegacyTrackOperations trackOperations, Lazy<IRemoteAudioManager> audioManager,
-                                 ImageOperations imageOperations) {
+                                 ImageOperations imageOperations, PlaySessionStateProvider playSessionStateProvider) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
@@ -61,33 +52,12 @@ public class PlaySessionController {
         this.trackOperations = trackOperations;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueTrackSubscriber());
-        eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
-    }
-
-    public boolean isPlayingTrack(PublicApiTrack track) {
-        return isPlayingTrack(track.getUrn());
-    }
-
-    public boolean isPlayingTrack(TrackUrn trackUrn) {
-        return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
-    }
-
-    public boolean isPlaying() {
-        return lastStateTransition.playSessionIsActive();
-    }
-
-    public PlaybackProgress getCurrentProgress(TrackUrn trackUrn) {
-        final PlaybackProgress playbackProgress = progressMap.get(trackUrn);
-        return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
-    }
-
-    public boolean isProgressWithinTrackChangeThreshold() {
-        return getCurrentProgress(currentPlayingUrn).getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
+        eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK,  new PlayQueueTrackSubscriber());
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
@@ -95,34 +65,17 @@ public class PlaySessionController {
         public void onNext(StateTransition stateTransition) {
 
             if (!StateTransition.DEFAULT.equals(stateTransition)) {
-
-                final boolean isTrackChange = currentPlayingUrn != null &&
-                        !stateTransition.isForTrack(currentPlayingUrn);
-
-                if (isTrackChange && stateTransition.playSessionIsActive()) {
-                    progressMap.clear();
-                }
-
-                lastStateTransition = stateTransition;
-                currentPlayingUrn = stateTransition.getTrackUrn();
-                progressMap.put(currentPlayingUrn, stateTransition.getProgress());
-
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
 
-                if (isTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
+                if ((stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
                     if (stateTransition.trackEnded()) {
                         if (!playQueueManager.autoNextTrack()) {
-                            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(currentPlayingUrn));
+                            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
                         }
                     }
-                    saveProgress(stateTransition);
                 }
             }
         }
-    }
-
-    private void saveProgress(StateTransition stateTransition) {
-        playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
     }
 
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
@@ -133,17 +86,9 @@ public class PlaySessionController {
                     .loadTrack(event.getCurrentTrackUrn().numericId, AndroidSchedulers.mainThread())
                     .subscribe(new CurrentTrackSubscriber());
 
-            if (lastStateTransition.playSessionIsActive()) {
-                progressMap.clear();
+            if (playSessionStateProvider.isPlaying()) {
                 playbackOperations.playCurrent();
             }
-        }
-    }
-
-    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
-        @Override
-        public void onNext(PlaybackProgressEvent progress) {
-            progressMap.put(progress.getTrackUrn(), progress.getPlaybackProgress());
         }
     }
 

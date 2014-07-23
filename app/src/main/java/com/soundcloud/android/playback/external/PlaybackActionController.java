@@ -1,23 +1,23 @@
 package com.soundcloud.android.playback.external;
 
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
 
 public class PlaybackActionController {
 
     private final PlaybackOperations playbackOperations;
-    private final PlaySessionController playSessionController;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final EventBus eventBus;
 
     @Inject
-    public PlaybackActionController(PlaybackOperations playbackOperations, PlaySessionController playSessionController, EventBus eventBus) {
+    public PlaybackActionController(PlaybackOperations playbackOperations, PlaySessionStateProvider playSessionStateProvider, EventBus eventBus) {
         this.playbackOperations = playbackOperations;
-        this.playSessionController = playSessionController;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.eventBus = eventBus;
     }
 
@@ -29,7 +29,7 @@ public class PlaybackActionController {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(source));
             playbackOperations.nextTrack();
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.toggle(source, playSessionController.isPlaying()));
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.toggle(source, playSessionStateProvider.isPlaying()));
             playbackOperations.togglePlayback();
         } else if (PlaybackAction.CLOSE.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.close(source));
@@ -38,7 +38,7 @@ public class PlaybackActionController {
     }
 
     private void previousTrackOnInitialPlaybackProgress() {
-        if (playSessionController.isProgressWithinTrackChangeThreshold()) {
+        if (playbackOperations.isProgressWithinTrackChangeThreshold()) {
             playbackOperations.previousTrack();
         } else {
             playbackOperations.restartPlayback();

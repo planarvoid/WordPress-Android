@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -38,11 +38,11 @@ public class PlayerArtworkControllerTest {
     @Mock private ImageView wrappedImageView;
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
-    @Mock private PlaySessionController playSessionController;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
     private final Provider<PlayerOverlayController> overlayControllerProvider = new Provider<PlayerOverlayController>() {
         @Override
         public PlayerOverlayController get() {
-            return new PlayerOverlayController(new OverlayAnimator(), playSessionController);
+            return new PlayerOverlayController(new OverlayAnimator(), playSessionStateProvider);
         }
     };;
 
@@ -52,7 +52,7 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
-        playerArtworkController = new PlayerArtworkControllerFactory(animationControllerFactory, overlayControllerProvider, playSessionController).create(playerTrackArtworkView);
+        playerArtworkController = new PlayerArtworkControllerFactory(animationControllerFactory, overlayControllerProvider, playSessionStateProvider).create(playerTrackArtworkView);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class PlayerArtworkControllerTest {
 
     @Test
     public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
-        when(playSessionController.isPlaying()).thenReturn(true);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         playerArtworkController.showPlayingState(playbackProgress);
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 

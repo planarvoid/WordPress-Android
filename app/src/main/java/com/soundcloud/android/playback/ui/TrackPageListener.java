@@ -1,25 +1,21 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
 
 class TrackPageListener {
 
     private final PlaybackOperations playbackOperations;
-    private final PlaySessionController playSessionController;
     private final EventBus eventBus;
 
     @Inject
     public TrackPageListener(PlaybackOperations playbackOperations,
-                             PlaySessionController playSessionController,
                              EventBus eventBus) {
         this.playbackOperations = playbackOperations;
-        this.playSessionController = playSessionController;
         this.eventBus = eventBus;
     }
 
@@ -44,7 +40,7 @@ class TrackPageListener {
     }
 
     private void previousTrackOnInitialSecondsOfProgress() {
-        if (playSessionController.isProgressWithinTrackChangeThreshold()) {
+        if (playbackOperations.isProgressWithinTrackChangeThreshold()) {
             playbackOperations.previousTrack();
         } else {
             playbackOperations.restartPlayback();

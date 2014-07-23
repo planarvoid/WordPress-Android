@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -25,16 +25,16 @@ public class PlaybackActionControllerTest {
     @Mock
     private PlaybackOperations playbackOperations;
     @Mock
-    private PlaySessionController playSessionController;
+    private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setup() {
-        controller = new PlaybackActionController(playbackOperations, playSessionController, eventBus);
+        controller = new PlaybackActionController(playbackOperations, playSessionStateProvider, eventBus);
     }
 
     @Test
     public void shouldGoToPreviousTrackWhenPreviousPlaybackActionIsHandledIsProgressWithinTrackChangeThreshold() throws Exception {
-        when(playSessionController.isProgressWithinTrackChangeThreshold()).thenReturn(true);
+        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(true);
 
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
@@ -43,7 +43,7 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldRestartPlaybackWhenPreviousPlaybackActionIsHandledisProgressNotWithinTrackChangeThreshold() throws Exception {
-        when(playSessionController.isProgressWithinTrackChangeThreshold()).thenReturn(false);
+        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(false);
 
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
@@ -100,7 +100,7 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldTrackTogglePlayEventWithSource() {
-        when(playSessionController.isPlaying()).thenReturn(false);
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
@@ -110,7 +110,7 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldTrackTogglePauseEventWithSource() {
-        when(playSessionController.isPlaying()).thenReturn(true);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -19,7 +18,6 @@ import org.mockito.Mock;
 public class TrackPageListenerTest {
 
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private PlaySessionController playSessionController;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -27,7 +25,7 @@ public class TrackPageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playbackOperations, playSessionController, eventBus);
+        listener = new TrackPageListener(playbackOperations, eventBus);
     }
 
     @Test
@@ -54,7 +52,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void shouldPerformPreviousActionIsProgressWithinTrackChangeThreshold() {
-        when(playSessionController.isProgressWithinTrackChangeThreshold()).thenReturn(true);
+        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(true);
 
         listener.onPrevious();
 
@@ -63,7 +61,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void shouldRestartPlaybackOnPreviousIsProgressNotWithinTrackChangeThreshold() {
-        when(playSessionController.isProgressWithinTrackChangeThreshold()).thenReturn(false);
+        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(false);
 
         listener.onPrevious();
 

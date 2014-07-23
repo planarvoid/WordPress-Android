@@ -19,7 +19,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -49,7 +49,7 @@ public class PlayerWidgetControllerTest {
     @Mock
     private PlayerWidgetPresenter playerWidgetPresenter;
     @Mock
-    private PlaySessionController playSessionController;
+    private PlaySessionStateProvider playSessionStateProvider;
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
@@ -63,7 +63,7 @@ public class PlayerWidgetControllerTest {
         when(context.getApplicationContext()).thenReturn(context);
         controller = new PlayerWidgetController(context,
                 playerWidgetPresenter,
-                playSessionController,
+                playSessionStateProvider,
                 playQueueManager,
                 trackOperations,
                 soundAssocicationOps, eventBus);
@@ -189,7 +189,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterWithCurrentPlayStateIfIsPlayingOnUpdate() {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TrackUrn.forTrack(1L));
-        when(playSessionController.isPlaying()).thenReturn(true);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
 
         controller.update();
@@ -200,7 +200,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterWithCurrentPlayStateIfIsNotPlayingOnUpdate() {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TrackUrn.forTrack(1L));
-        when(playSessionController.isPlaying()).thenReturn(false);
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
         when(trackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
 
         controller.update();

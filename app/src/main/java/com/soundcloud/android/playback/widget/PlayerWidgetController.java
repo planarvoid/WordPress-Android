@@ -10,7 +10,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -34,7 +34,7 @@ public class PlayerWidgetController {
 
     private final Context context;
     private final PlayerWidgetPresenter presenter;
-    private final PlaySessionController playSessionController;
+    private final PlaySessionStateProvider playSessionsStateProvider;
     private final PlayQueueManager playQueueManager;
     private final LegacyTrackOperations trackOperations;
     private final SoundAssociationOperations soundAssociationOps;
@@ -42,11 +42,11 @@ public class PlayerWidgetController {
 
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
-                                  PlaySessionController playSessionController, PlayQueueManager playQueueManager,
+                                  PlaySessionStateProvider playSessionsStateProvider, PlayQueueManager playQueueManager,
                                   LegacyTrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
         this.context = context;
         this.presenter = presenter;
-        this.playSessionController = playSessionController;
+        this.playSessionsStateProvider = playSessionsStateProvider;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.soundAssociationOps = soundAssocicationOps;
@@ -67,7 +67,7 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayState() {
-        presenter.updatePlayState(context, playSessionController.isPlaying());
+        presenter.updatePlayState(context, playSessionsStateProvider.isPlaying());
     }
 
     private void updatePlayableInformation() {

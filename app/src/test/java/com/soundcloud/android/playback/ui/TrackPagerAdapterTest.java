@@ -19,7 +19,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -50,7 +50,7 @@ public class TrackPagerAdapterTest {
     private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaySessionController playSessionController;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private TrackOperations trackOperations;
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private AdPagePresenter adPagePresenter;
@@ -67,7 +67,7 @@ public class TrackPagerAdapterTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionController, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
         final View mockedView1 = mock(View.class);
         final View mockedView2 = mock(View.class);
         when(trackPagePresenter.createItemView(container)).thenReturn(mockedView1, mockedView2);
@@ -279,8 +279,8 @@ public class TrackPagerAdapterTest {
         View secondTrack = getPageView(2, secondUrn);
         when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
         when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
-        when(playSessionController.getCurrentProgress(firstUrn)).thenReturn(firstProgress);
-        when(playSessionController.getCurrentProgress(secondUrn)).thenReturn(secondProgress);
+        when(playSessionStateProvider.getCurrentProgress(firstUrn)).thenReturn(firstProgress);
+        when(playSessionStateProvider.getCurrentProgress(secondUrn)).thenReturn(secondProgress);
 
         adapter.onTrackChange();
 

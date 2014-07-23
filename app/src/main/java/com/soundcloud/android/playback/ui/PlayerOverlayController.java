@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 
 import android.view.View;
 
@@ -9,14 +9,14 @@ import javax.inject.Inject;
 class PlayerOverlayController {
 
     private final OverlayAnimator overlayAnimator;
-    private final PlaySessionController playSessionController;
+    private final PlaySessionStateProvider playSessionStateProvider;
 
     private boolean isCollapsed;
 
     @Inject
-    public PlayerOverlayController(OverlayAnimator overlayAnimator, PlaySessionController playSessionController) {
+    public PlayerOverlayController(OverlayAnimator overlayAnimator, PlaySessionStateProvider playSessionStateProvider) {
         this.overlayAnimator = overlayAnimator;
-        this.playSessionController = playSessionController;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     public void showSessionActiveState(View overlay) {
@@ -27,7 +27,7 @@ class PlayerOverlayController {
 
     public void hideOverlay(View overlay) {
         isCollapsed = false;
-        if (playSessionController.isPlaying()) {
+        if (playSessionStateProvider.isPlaying()) {
             overlayAnimator.hideOverlay(overlay);
         }
     }

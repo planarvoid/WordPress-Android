@@ -12,7 +12,6 @@ import com.google.common.base.Predicate;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -59,6 +58,8 @@ public class PlaySessionControllerTest {
     private ImageOperations imageOperations;
     @Mock
     private Bitmap bitmap;
+    @Mock
+    private PlaySessionStateProvider playSessionStateProvider;
 
     private PlaySessionController controller;
     private TestEventBus eventBus = new TestEventBus();
@@ -67,7 +68,8 @@ public class PlaySessionControllerTest {
     @Before
     public void setUp() throws Exception {
         when(audioManagerProvider.get()).thenReturn(audioManager);
-        controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackOperations, audioManagerProvider, imageOperations);
+        controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackOperations,
+                audioManagerProvider, imageOperations, playSessionStateProvider);
         controller.subscribe();
 
         when(playQueueManager.getCurrentTrackId()).thenReturn(TRACK_ID);
@@ -75,29 +77,8 @@ public class PlaySessionControllerTest {
     }
 
     @Test
-    public void isPlayingTrackReturnsFalseIfNoPlayStateEventIsReceived() {
-        expect(controller.isPlayingTrack(TRACK)).toBeFalse();
-    }
-
-    @Test
-    public void isPlayingTrackReturnsTrueIfLastTransitionHappenedOnTheTargetTrack() {
-        sendIdleStateEvent();
-
-        expect(controller.isPlayingTrack(TRACK)).toBeTrue();
-    }
-
-    @Test
-    public void isGetCurrentProgressReturns0IfCurrentTrackDidNotStartPlaying() {
-        sendIdleStateEvent();
-
-        expect(controller.getCurrentProgress(TRACK_URN).getPosition()).toEqual(0L);
-    }
-
-    @Test
     public void playQueueTrackChangedHandlerCallsPlayCurrentOnPlaybackOperationsIfThePlayerIsInPlaySession() {
-        final Playa.StateTransition lastTransition = Mockito.mock(Playa.StateTransition.class);
-        when(lastTransition.playSessionIsActive()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK.getUrn()));
 
         verify(playbackOperations).playCurrent();
@@ -147,50 +128,7 @@ public class PlaySessionControllerTest {
         verify(playbackOperations, never()).playCurrent();
     }
 
-    @Test
-    public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
-        
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.getCurrentProgress(TRACK_URN)).toBe(playbackProgressEvent.getPlaybackProgress());
-    }
 
-    @Test
-    public void returnsEmptyProgressByUrnIfNoProgressReceived() throws Exception {
-        expect(controller.getCurrentProgress(TRACK_URN)).toEqual(PlaybackProgress.empty());
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsTrueIfProgressLessThatThreeSeconds() {
-        sendIdleStateEvent();
-        final PlaybackProgress playbackProgress = new PlaybackProgress(2999L, 42L);
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(playbackProgress, TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.isProgressWithinTrackChangeThreshold()).toBeTrue();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsFalseIfProgressEqualToThreeSeconds() {
-        sendIdleStateEvent();
-        final PlaybackProgress playbackProgress = new PlaybackProgress(3000L, 42L);
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(playbackProgress, TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.isProgressWithinTrackChangeThreshold()).toBeFalse();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsFalseIfProgressMoreThanThreeSeconds() {
-        sendIdleStateEvent();
-        final PlaybackProgress playbackProgress = new PlaybackProgress(3001L, 42L);
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(playbackProgress, TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(controller.isProgressWithinTrackChangeThreshold()).toBeFalse();
-    }
-
-    private void sendIdleStateEvent() {
-        final Playa.StateTransition lastTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-    }
 
     @Test
     public void onStateTransitionDoesNotTryToAdvanceTracksIfTrackNotEnded() throws Exception {
@@ -217,38 +155,6 @@ public class PlaySessionControllerTest {
                 return event.getNewState() == Playa.PlayaState.IDLE && event.getReason() == Playa.Reason.PLAY_QUEUE_COMPLETE;
             }
         })).toNumber(1);
-    }
-
-    @Test
-    public void onStateTransitionForPlayStoresPlayingTrackProgress() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 1, 456));
-
-        TrackUrn nextTrackUrn = Urn.forTrack(321);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, nextTrackUrn, 123, 456));
-
-        expect(controller.getCurrentProgress(nextTrackUrn)).toEqual(new PlaybackProgress(123, 456));
-    }
-
-    @Test
-    public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, TRACK_URN, 123, 456));
-        verify(playQueueManager).saveCurrentProgress(0);
-    }
-
-    @Test
-    public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN, 123, 456));
-        verify(playQueueManager).saveCurrentProgress(123);
-    }
-
-    @Test
-    public void onStateTransitionForWithConsecutivePlaylistEventsSavesProgressOnTrackChange() {
-        final Playa.StateTransition state1 = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(1L));
-        final Playa.StateTransition state2 = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(2L), 123, 456);
-
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state1);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state2);
-        verify(playQueueManager).saveCurrentProgress(123);
     }
 
     @Test
