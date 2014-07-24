@@ -2,8 +2,10 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -17,6 +19,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
@@ -43,16 +46,23 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
 
-
     private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
     private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(EXPECTED_TRACKVIEW_COUNT);
+
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
         public Boolean call(PlaybackProgressEvent progressEvent) {
             return playQueueManager.isCurrentTrack(progressEvent.getTrackUrn());
         }
     };
+    private final Action1<PlayableChangedEvent> invalidateTrackCacheAction = new Action1<PlayableChangedEvent>() {
+        @Override
+        public void call(PlayableChangedEvent playableChangedEvent) {
+            trackObservableCache.remove((TrackUrn) playableChangedEvent.getUrn());
+        }
+    };
+
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
@@ -144,6 +154,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus
+                .queue(EventQueue.PLAYABLE_CHANGED)
+                .filter(PlayableChangedEvent.IS_TRACK_FILTER)
+                .doOnNext(invalidateTrackCacheAction)
+                .filter(new PlayableChangeEventIntendedViewFilter(trackPage))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new PlayableChangedSubscriber(presenter, trackPage)));
+        subscription.add(eventBus
                 .queue(EventQueue.PLAYBACK_PROGRESS)
                 .filter(currentTrackFilter)
                 .filter(new ProgressEventIntendedViewFilter(trackPage))
@@ -220,8 +237,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).trackUrn);
     }
 
-    private Boolean isTrackRelatedToView(View trackPage, TrackUrn trackUrn) {
-        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(trackUrn);
+    private Boolean isTrackRelatedToView(View trackPage, Urn urn) {
+        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(urn);
     }
 
     private void updateProgress(final PagePresenter presenter, final View trackView, final TrackUrn urn) {
@@ -230,17 +247,17 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
         private final PagePresenter presenter;
-        private final View trackView;
+        private final View trackPage;
 
-        private TrackSubscriber(PagePresenter presenter, View trackView) {
+        private TrackSubscriber(PagePresenter presenter, View trackPage) {
             this.presenter = presenter;
-            this.trackView = trackView;
+            this.trackPage = trackPage;
         }
 
         @Override
         public void onNext(PropertySet track) {
-            presenter.bindItemView(trackView, track);
-            updateProgress(presenter, trackView, track.get(TrackProperty.URN));
+            presenter.bindItemView(trackPage, track);
+            updateProgress(presenter, trackPage, track.get(TrackProperty.URN));
         }
     }
 
@@ -293,6 +310,21 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+        private final PagePresenter presenter;
+        private final View trackPage;
+
+        public PlayableChangedSubscriber(PagePresenter presenter, View trackPage) {
+            this.presenter = presenter;
+            this.trackPage = trackPage;
+        }
+
+        @Override
+        public void onNext(PlayableChangedEvent event) {
+            presenter.updateAssociations(trackPage, event.getChangeSet());
+        }
+    }
+
     private final class ProgressEventIntendedViewFilter implements Func1<PlaybackProgressEvent, Boolean> {
         private final View trackPage;
 
@@ -303,6 +335,19 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         @Override
         public Boolean call(PlaybackProgressEvent progressEvent) {
             return isTrackRelatedToView(trackPage, progressEvent.getTrackUrn());
+        }
+    }
+
+    private final class PlayableChangeEventIntendedViewFilter implements Func1<PlayableChangedEvent, Boolean> {
+        private final View trackPage;
+
+        private PlayableChangeEventIntendedViewFilter(View trackPage) {
+            this.trackPage = trackPage;
+        }
+
+        @Override
+        public Boolean call(PlayableChangedEvent event) {
+            return isTrackRelatedToView(trackPage, event.getUrn());
         }
     }
 
@@ -328,4 +373,5 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             this.trackUrn = trackUrn;
         }
     }
+
 }

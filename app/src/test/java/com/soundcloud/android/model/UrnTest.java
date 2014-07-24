@@ -73,6 +73,17 @@ public class UrnTest {
     }
 
     @Test
+    public void isTrackShouldBeTrueForTrackAndSound() {
+        expect(Urn.parse("soundcloud:sounds:123").isTrack()).toBeTrue();
+        expect(Urn.parse("soundcloud:tracks:123").isTrack()).toBeTrue();
+    }
+
+    @Test
+    public void isTrackShouldBeFalseForPlaylist() {
+        expect(Urn.parse("soundcloud:playlists:123").isTrack()).toBeFalse();
+    }
+
+    @Test
     public void isValidUrnShouldReturnTrueForValidSoundUrn() throws Exception {
         expect(Urn.isValidUrn(Uri.parse("soundcloud:sounds:123"))).toBeTrue();
         expect(Urn.isValidUrn(Uri.parse("soundcloud:tracks:123"))).toBeTrue();
