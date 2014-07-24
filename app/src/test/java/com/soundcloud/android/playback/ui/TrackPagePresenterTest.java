@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -19,6 +20,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -73,6 +75,7 @@ public class TrackPagePresenterTest {
     public void bindItemViewSetsCheckedStateFromTrackData() throws CreateModelException {
         populateTrackPage();
         expect(getHolder(trackView).likeToggle).toBeChecked();
+        expect(getHolder(trackView).likeToggle).toBeEnabled();
     }
 
     @Test
@@ -225,12 +228,32 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
+        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_LIKED.bind(true));
+        getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
+
+        presenter.updateAssociations(trackView, changeSet);
+
+        expect(getHolder(trackView).likeToggle).toBeChecked();
+        expect(getHolder(trackView).likeToggle).toBeEnabled();
+    }
+
+    @Test
     public void toggleLikeOnTrackCallsListenerWithLikeStatus() throws CreateModelException {
         populateTrackPage();
 
         getHolder(trackView).likeToggle.performClick();
 
         verify(listener).onToggleLike(false);
+    }
+
+    @Test
+    public void toggleLikeOnTrackDisabledTheToggle() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).likeToggle.performClick();
+
+        expect(getHolder(trackView).likeToggle).not.toBeEnabled();
     }
 
     @Test

@@ -5,6 +5,7 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -86,6 +87,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     private void updateLikeStatus(View view) {
         boolean isLike = ((Checkable) view).isChecked();
         listener.onToggleLike(isLike);
+        view.setEnabled(false);
     }
 
     @Override
@@ -122,6 +124,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.user.setText(ScTextUtils.EMPTY_STRING);
         holder.title.setText(ScTextUtils.EMPTY_STRING);
         holder.likeToggle.setChecked(false);
+        holder.likeToggle.setEnabled(true);
 
         holder.waveformController.reset();
         holder.artworkController.getImageView().setImageDrawable(null);
@@ -132,14 +135,23 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void setPlayState(View trackView, StateTransition stateTransition, boolean isCurrentTrack) {
-        final TrackPageHolder holder = getViewHolder(trackView);
+    public void setPlayState(View trackPage, StateTransition stateTransition, boolean isCurrentTrack) {
+        final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
 
         setVisibility(holder.getPlayControls(), !playSessionIsActive);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
         setViewPlayState(holder, stateTransition, isCurrentTrack);
+    }
+
+    @Override
+    public void updateAssociations(View trackPage, PropertySet changeSet) {
+        final TrackPageHolder holder = getViewHolder(trackPage);
+        if (changeSet.contains(PlayableProperty.IS_LIKED)) {
+            holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
+            holder.likeToggle.setEnabled(true);
+        }
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
@@ -180,8 +192,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void setProgress(View trackView, PlaybackProgress progress) {
-        for (ProgressAware view : getViewHolder(trackView).getProgressAwareViews()){
+    public void setProgress(View trackPage, PlaybackProgress progress) {
+        for (ProgressAware view : getViewHolder(trackPage).getProgressAwareViews()) {
             view.setProgress(progress);
         }
     }

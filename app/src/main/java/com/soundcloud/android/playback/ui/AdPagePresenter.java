@@ -94,10 +94,10 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void setProgress(View trackView, PlaybackProgress progress) {
+    public void setProgress(View trackPage, PlaybackProgress progress) {
         int secondsUntilSkip = SKIP_DURATION_SEC - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
         String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        getViewHolder(trackView).timeUntilSkip.setText(formattedTime);
+        getViewHolder(trackPage).timeUntilSkip.setText(formattedTime);
     }
 
     @Override
@@ -108,6 +108,11 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         holder.playButton.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
         holder.playerOverlayController.update();
+    }
+
+    @Override
+    public void updateAssociations(View trackPage, PropertySet changeSet) {
+        // No-op
     }
 
     @Override
