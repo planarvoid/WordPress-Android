@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -241,21 +240,21 @@ public class PlayQueueManagerTest {
     public void shouldSaveCurrentPositionWhenSettingNonEmptyPlayQueue() {
         int currentPosition = 5;
         TrackUrn currentUrn = Urn.forTrack(3L);
-        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(currentPosition)).thenReturn(currentUrn);
 
         playQueueManager.setNewPlayQueue(playQueue, currentPosition, playSessionSource);
-        verify(playQueueOperations).saveQueue(playQueue, currentPosition, currentUrn, playSessionSource, 0);
+        verify(playQueueOperations).saveQueue(playQueue);
     }
 
     @Test
     public void shouldStoreTracksWhenSettingNewPlayQueue() {
         TrackUrn currentUrn = Urn.forTrack(3L);
-        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(0)).thenReturn(currentUrn);
 
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 0L);
+        verify(playQueueOperations).saveQueue(playQueue);
     }
 
     @Test
@@ -267,14 +266,14 @@ public class PlayQueueManagerTest {
     @Test
     public void saveProgressSavesPlayQueueInfoUsingPlayQueueOperations() {
         TrackUrn currentUrn = Urn.forTrack(3L);
-        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(0)).thenReturn(currentUrn);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         playQueueManager.saveCurrentProgress(123L);
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
-        inOrder.verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 0L);
-        inOrder.verify(playQueueOperations).saveQueue(playQueue, 0, currentUrn, playSessionSource, 123L);
+        inOrder.verify(playQueueOperations).savePositionInfo(0, currentUrn, playSessionSource, 0L);
+        inOrder.verify(playQueueOperations).savePositionInfo(0, currentUrn, playSessionSource, 123L);
     }
 
     @Test
@@ -284,23 +283,36 @@ public class PlayQueueManagerTest {
         playQueueManager.saveCurrentProgress(12L);
 
         ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
-        verify(playQueueOperations, times(2)).saveQueue(captor.capture(), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        verify(playQueueOperations, times(1)).saveQueue(captor.capture());
         expect(captor.getValue().size()).toBe(1);
     }
 
     @Test
     public void saveProgressUpdatesSavePositionIfAdIsRemovedFromQueue() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
-        playQueueManager.insertAudioAd(audioAd);
-
+        playQueueManager.insertAudioAd(TestHelper.getModelFactory().createModel(AudioAd.class));
         playQueueManager.setPosition(3);
+
         playQueueManager.saveCurrentProgress(12L);
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         // Saves first time when we call setNewPlayQueue
-        inOrder.verify(playQueueOperations).saveQueue(any(PlayQueue.class), eq(1), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
-        inOrder.verify(playQueueOperations).saveQueue(any(PlayQueue.class), eq(2), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+    }
+
+    @Test
+    public void saveProgressIgnoresPositionIfCurrentlyPlayingAd() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.insertAudioAd(TestHelper.getModelFactory().createModel(AudioAd.class));
+        playQueueManager.setPosition(2);
+
+        playQueueManager.saveCurrentProgress(12L);
+
+        InOrder inOrder = Mockito.inOrder(playQueueOperations);
+        // Saves first time when we call setNewPlayQueue
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(TrackUrn.class), any(PlaySessionSource.class), eq(0L));
     }
 
     @Test
@@ -651,7 +663,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.loadPlayQueue();
-        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));
     }
 
     @Test
@@ -700,6 +712,27 @@ public class PlayQueueManagerTest {
         playQueueManager.fetchTracksRelatedToCurrentTrack();
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+    }
+
+    @Test
+    public void relatedTrackLoadShouldCauseQueueToBeSaved() throws Exception {
+        final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        final TrackUrn trackUrn = Urn.forTrack(123L);
+        final RecommendedTracksCollection related = new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123");
+        when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(related));
+
+        final PlayQueue playQueueOrig = PlayQueue.fromIdList(Lists.newArrayList(123L), playSessionSource);
+        final PlayQueue expPlayQueue1 = playQueueOrig.copy();
+        final PlayQueue expPlayQueue2 = playQueueOrig.copy();
+        expPlayQueue2.addTrack(apiTrack.getUrn(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(), "123");
+
+        playQueueManager.setNewPlayQueue(playQueueOrig, playSessionSource);
+        playQueueManager.fetchTracksRelatedToCurrentTrack();
+
+        InOrder inOrder = Mockito.inOrder(playQueueOperations);
+        inOrder.verify(playQueueOperations).saveQueue(eq(expPlayQueue1));
+        inOrder.verify(playQueueOperations).saveQueue(eq(expPlayQueue2));
+
     }
 
     @Test

@@ -91,6 +91,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             currentPosition = position;
             setNewPlayQueueInternal(playQueue, playSessionSource);
         }
+        saveQueue();
         saveCurrentProgress(0L);
     }
 
@@ -203,19 +204,24 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void saveCurrentProgress(long currentTrackProgress) {
-        if (playQueue.isEmpty()) {
-            return;
+        if (playQueue.hasItems()) {
+            final int savePosition = getPositionToBeSaved();
+            final long progress = getProgressToBeSaved(currentTrackProgress);
+            playQueueOperations.savePositionInfo(savePosition, getCurrentTrackUrn(), playSessionSource, progress);
+            playbackProgressInfo = new PlaybackProgressInfo(getCurrentTrackId(), progress);
         }
-        int savePosition = currentPosition;
-        PlayQueue saveQueue = playQueue.copy();
-        if (adTrackPosition != Consts.NOT_SET) {
-            saveQueue.remove(adTrackPosition);
-            if (adTrackPosition <= currentPosition) {
-                savePosition--;
-            }
+    }
+
+    private int getPositionToBeSaved() {
+        if (adTrackPosition != Consts.NOT_SET && adTrackPosition < currentPosition) {
+            return currentPosition - 1;
         }
-        playQueueOperations.saveQueue(saveQueue, savePosition, getCurrentTrackUrn(), playSessionSource, currentTrackProgress);
-        playbackProgressInfo = new PlaybackProgressInfo(getCurrentTrackId(), currentTrackProgress);
+        return currentPosition;
+    }
+
+    private long getProgressToBeSaved(long currentTrackProgress) {
+        // we will always have a next track when playing an ad. Start at the beginning of that.
+        return adTrackPosition == currentPosition ? 0 : currentTrackProgress;
     }
 
     /**
@@ -374,6 +380,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         if (gotRecommendedTracks){
             setNewRelatedLoadingState(FetchRecommendedState.IDLE);
             publishQueueUpdate();
+            saveQueue();
         } else {
             setNewRelatedLoadingState(FetchRecommendedState.EMPTY);
         }
@@ -382,6 +389,16 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     @Override
     public void onError(Throwable e) {
         setNewRelatedLoadingState(FetchRecommendedState.ERROR);
+    }
+
+    private void saveQueue() {
+        if (playQueue.hasItems()) {
+            PlayQueue saveQueue = playQueue.copy();
+            if (adTrackPosition != Consts.NOT_SET) {
+                saveQueue.remove(adTrackPosition);
+            }
+            playQueueOperations.saveQueue(saveQueue);
+        }
     }
 
     private void setNewRelatedLoadingState(FetchRecommendedState fetchState) {

@@ -23,7 +23,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -126,14 +125,11 @@ public class PlayQueueOperationsTest {
     }
 
     @Test
-    public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
-        TrackUrn currentTrackUrn = Urn.forTrack(123);
-        int currentPosition = 4;
-
-        expect(playQueueOperations.saveQueue(playQueue, currentPosition, currentTrackUrn, playSessionSource, 200L)).not.toBeNull();
+    public void savePositionInfoShouldWritePlayQueueMetaDataToPreferences() throws Exception {
+        playQueueOperations.savePositionInfo(8, Urn.forTrack(456), playSessionSource, 200L);
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);
-        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 123L);
-        verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 4);
+        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 456L);
+        verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 8);
         verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG, ORIGIN_PAGE);
         verify(sharedPreferencesEditor).putLong(PlaySessionSource.PREF_KEY_PLAYLIST_ID, playlist.getId());
     }
@@ -143,7 +139,7 @@ public class PlayQueueOperationsTest {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
 
-        playQueueOperations.saveQueue(playQueue, 0, Urn.forTrack(123L), playSessionSource, 200L);
+        playQueueOperations.saveQueue(playQueue);
 
         expect(observable.subscribedTo()).toBeTrue();
     }

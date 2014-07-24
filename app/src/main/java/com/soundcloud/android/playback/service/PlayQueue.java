@@ -65,6 +65,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueueItems.isEmpty();
     }
 
+    public boolean hasItems() {
+        return !playQueueItems.isEmpty();
+    }
+
     public TrackUrn getUrn(int position){
         return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : TrackUrn.NOT_SET;
     }

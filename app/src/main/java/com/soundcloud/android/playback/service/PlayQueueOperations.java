@@ -82,7 +82,11 @@ public class PlayQueueOperations {
         return null;
     }
 
-    public Subscription saveQueue(PlayQueue playQueue, int position, TrackUrn currentUrn, PlaySessionSource playSessionSource, long seekPosition) {
+    public Subscription saveQueue(PlayQueue playQueue) {
+        return fireAndForget(playQueueStorage.storeAsync(playQueue));
+    }
+
+    public void savePositionInfo(int position, TrackUrn currentUrn, PlaySessionSource playSessionSource, long seekPosition){
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // TODO: migrate the preferences to store the URN, not the ID
@@ -93,8 +97,6 @@ public class PlayQueueOperations {
         playSessionSource.saveToPreferences(editor);
 
         editor.apply();
-
-        return fireAndForget(playQueueStorage.storeAsync(playQueue));
     }
 
     public void clear() {
