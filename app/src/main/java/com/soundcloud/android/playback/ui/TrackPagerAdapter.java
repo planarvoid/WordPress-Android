@@ -56,6 +56,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             return playQueueManager.isCurrentTrack(progressEvent.getTrackUrn());
         }
     };
+
     private final Action1<PlayableChangedEvent> invalidateTrackCacheAction = new Action1<PlayableChangedEvent>() {
         @Override
         public void call(PlayableChangedEvent playableChangedEvent) {
@@ -89,11 +90,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (playQueueManager.isAudioAdAtPosition(position)) {
-            return TYPE_AD_VIEW;
-        } else {
-            return TYPE_TRACK_VIEW;
-        }
+        return playQueueManager.isAudioAdAtPosition(position) ? TYPE_AD_VIEW : TYPE_TRACK_VIEW;
     }
 
     @Override
@@ -117,9 +114,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             subscribeToPlayEvents(presenter, contentView);
         }
 
-        getSoundObservable(viewData)
-                .filter(new TrackIntendedViewFilter(contentView))
-                .subscribe(new TrackSubscriber(presenter, contentView));
+        getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
     }
 
@@ -157,13 +152,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 .queue(EventQueue.PLAYABLE_CHANGED)
                 .filter(PlayableChangedEvent.IS_TRACK_FILTER)
                 .doOnNext(invalidateTrackCacheAction)
-                .filter(new PlayableChangeEventIntendedViewFilter(trackPage))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlayableChangedSubscriber(presenter, trackPage)));
         subscription.add(eventBus
                 .queue(EventQueue.PLAYBACK_PROGRESS)
                 .filter(currentTrackFilter)
-                .filter(new ProgressEventIntendedViewFilter(trackPage))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaybackProgressSubscriber(presenter, trackPage)));
         return trackPage;
@@ -256,8 +249,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         @Override
         public void onNext(PropertySet track) {
-            presenter.bindItemView(trackPage, track);
-            updateProgress(presenter, trackPage, track.get(TrackProperty.URN));
+            TrackUrn trackUrn = track.get(TrackProperty.URN);
+            if (isTrackRelatedToView(trackPage, trackUrn)) {
+                presenter.bindItemView(trackPage, track);
+                updateProgress(presenter, trackPage, trackUrn);
+            }
         }
     }
 
@@ -287,7 +283,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         @Override
         public void onNext(PlaybackProgressEvent progress) {
-            presenter.setProgress(trackPage, progress.getPlaybackProgress());
+            if (isTrackRelatedToView(trackPage, progress.getTrackUrn())) {
+                presenter.setProgress(trackPage, progress.getPlaybackProgress());
+            }
         }
     }
 
@@ -321,46 +319,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         @Override
         public void onNext(PlayableChangedEvent event) {
-            presenter.updateAssociations(trackPage, event.getChangeSet());
-        }
-    }
-
-    private final class ProgressEventIntendedViewFilter implements Func1<PlaybackProgressEvent, Boolean> {
-        private final View trackPage;
-
-        private ProgressEventIntendedViewFilter(View trackPage) {
-            this.trackPage = trackPage;
-        }
-
-        @Override
-        public Boolean call(PlaybackProgressEvent progressEvent) {
-            return isTrackRelatedToView(trackPage, progressEvent.getTrackUrn());
-        }
-    }
-
-    private final class PlayableChangeEventIntendedViewFilter implements Func1<PlayableChangedEvent, Boolean> {
-        private final View trackPage;
-
-        private PlayableChangeEventIntendedViewFilter(View trackPage) {
-            this.trackPage = trackPage;
-        }
-
-        @Override
-        public Boolean call(PlayableChangedEvent event) {
-            return isTrackRelatedToView(trackPage, event.getUrn());
-        }
-    }
-
-    private final class TrackIntendedViewFilter implements Func1<PropertySet, Boolean> {
-        private final View trackPage;
-
-        private TrackIntendedViewFilter(View trackPage) {
-            this.trackPage = trackPage;
-        }
-
-        @Override
-        public Boolean call(PropertySet track) {
-            return isTrackRelatedToView(trackPage, track.get(TrackProperty.URN));
+            if (isTrackRelatedToView(trackPage, event.getUrn())) {
+                presenter.updateAssociations(trackPage, event.getChangeSet());
+            }
         }
     }
 
