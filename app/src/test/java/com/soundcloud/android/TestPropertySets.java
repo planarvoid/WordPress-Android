@@ -17,4 +17,15 @@ public class TestPropertySets {
         );
     }
 
+    public static PropertySet forPlayerTrack() {
+        return PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
+                PlayableProperty.TITLE.bind("someone's favorite song"),
+                PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
+                PlayableProperty.DURATION.bind(123456),
+                PlayableProperty.IS_LIKED.bind(true)
+        );
+    }
+
 }

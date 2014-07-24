@@ -22,6 +22,7 @@ import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -73,9 +74,18 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.player_bottom_close:
                 listener.onPlayerClose();
                 break;
+            case R.id.track_page_like:
+                updateLikeStatus(view);
+                break;
             default:
-                throw new IllegalArgumentException("Unexpected view ID");
+                throw new IllegalArgumentException("Unexpected view ID: "
+                        + resources.getResourceName(view.getId()));
         }
+    }
+
+    private void updateLikeStatus(View view) {
+        boolean isLike = ((Checkable) view).isChecked();
+        listener.onToggleLike(isLike);
     }
 
     @Override
@@ -279,7 +289,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         View artworkOverlay;
 
         public View[] getOnClickViews() {
-            return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch, playButton, footer, footerPlayToggle };
+            return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch, playButton, footer,
+                    footerPlayToggle, likeToggle };
         }
 
         public View[] getFullScreenViews() {

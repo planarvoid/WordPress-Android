@@ -1,23 +1,33 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPageListenerTest {
 
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private SoundAssociationOperations soundAssociationOperations;
+    @Mock private PlayQueueManager playQueueManager;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -25,13 +35,23 @@ public class TrackPageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playbackOperations, eventBus);
+        listener = new TrackPageListener(playbackOperations, soundAssociationOperations, playQueueManager, eventBus);
     }
 
     @Test
     public void onTogglePlayTogglesPlaybackViaPlaybackOperations() {
         listener.onTogglePlay();
         verify(playbackOperations).togglePlayback();
+    }
+
+    @Test
+    public void onToggleLikeTogglesLikeViaAssociationOperations() {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(soundAssociationOperations.toggleTrackLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleLike(true);
+
+        verify(soundAssociationOperations).toggleTrackLike(Urn.forTrack(123L), true);
     }
 
     @Test

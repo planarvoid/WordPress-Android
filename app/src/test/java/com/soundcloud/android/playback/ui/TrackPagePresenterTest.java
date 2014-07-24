@@ -8,9 +8,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -18,10 +17,8 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -228,6 +225,15 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void toggleLikeOnTrackCallsListenerWithLikeStatus() throws CreateModelException {
+        populateTrackPage();
+
+        getHolder(trackView).likeToggle.performClick();
+
+        verify(listener).onToggleLike(false);
+    }
+
+    @Test
     public void togglePlayOnFooterToggleClick() throws CreateModelException {
         populateTrackPage();
 
@@ -300,17 +306,6 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() throws CreateModelException {
-        presenter.bindItemView(trackView, buildTrack());
-    }
-
-    private PropertySet buildTrack() {
-        return PropertySet.from(
-                TrackProperty.URN.bind(Urn.forTrack(123L)),
-                TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
-                PlayableProperty.TITLE.bind("someone's favorite song"),
-                PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
-                PlayableProperty.DURATION.bind(DURATION),
-                PlayableProperty.IS_LIKED.bind(true)
-        );
+        presenter.bindItemView(trackView, TestPropertySets.forPlayerTrack());
     }
 }
