@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
@@ -30,4 +31,7 @@ public class PlayerAd {
         return String.format(resources.getString(R.string.next_up), "Monetizable track (creator name)");
     }
 
+    TrackUrn getMonetizableTrack() {
+        return source.get(AdProperty.MONETIZABLE_TRACK_URN);
+    }
 }

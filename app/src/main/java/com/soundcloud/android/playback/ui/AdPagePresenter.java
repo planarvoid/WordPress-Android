@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
@@ -58,13 +59,20 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     private void bindItemView(View view, PlayerAd playerAd) {
         final Holder holder = getViewHolder(view);
+        displayAdvertisement(playerAd, holder);
+        displayPreview(playerAd, holder);
+        setClickListener(holder.getOnClickViews(), this);
+    }
+
+    private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
         holder.footerAdvertiser.setText(playerAd.getAdvertiser());
-        holder.previewTitle.setText(playerAd.getPreviewTitle());
+        imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
+    }
 
-        imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView,
-                resources.getDrawable(R.drawable.placeholder));
-        setClickListener(holder.getOnClickViews(), this);
+    private void displayPreview(PlayerAd playerAd, Holder holder) {
+        holder.previewTitle.setText(playerAd.getPreviewTitle());
+        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), ApiImageSize.SMALL, holder.previewArtwork);
     }
 
     @Override
@@ -167,6 +175,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final TextView footerAdvertisement;
 
         private final PlayerOverlayController playerOverlayController;
+        public final ImageView previewArtwork;
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
@@ -175,6 +184,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_close);
             previewTitle = (TextView) adView.findViewById(R.id.preview_title);
+            previewArtwork = ((ImageView) adView.findViewById(R.id.preview_artwork));
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
             learnMore = adView.findViewById(R.id.learn_more);
             whyAds = adView.findViewById(R.id.why_ads);
