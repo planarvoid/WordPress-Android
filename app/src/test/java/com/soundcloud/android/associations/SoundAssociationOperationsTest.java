@@ -90,7 +90,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
 
-        operations.like(track).subscribe(observer);
+        operations.toggleLike(true, track).subscribe(observer);
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(trackLike);
@@ -104,7 +104,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
 
-        operations.like(track).subscribe(observer);
+        operations.toggleLike(true, track).subscribe(observer);
 
         PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
@@ -116,7 +116,7 @@ public class SoundAssociationOperationsTest {
     public void whenLikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.like(new PublicApiTrack(1L)).subscribe(observer);
+        operations.toggleLike(true, new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -130,7 +130,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
 
-        operations.unlike(track).subscribe(observer);
+        operations.toggleLike(false, track).subscribe(observer);
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(trackUnlike);
@@ -144,7 +144,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
 
-        operations.unlike(track).subscribe(observer);
+        operations.toggleLike(false, track).subscribe(observer);
 
         PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
@@ -156,7 +156,7 @@ public class SoundAssociationOperationsTest {
     public void whenUnlikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.unlike(new PublicApiTrack(1L)).subscribe(observer);
+        operations.toggleLike(false, new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -173,7 +173,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), response404)));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
 
-        operations.unlike(track).subscribe(observer);
+        operations.toggleLike(false, track).subscribe(observer);
 
         verify(observer).onNext(trackUnlike);
     }
@@ -186,7 +186,7 @@ public class SoundAssociationOperationsTest {
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), emptyResponse)));
 
-        operations.unlike(track).subscribe(observer);
+        operations.toggleLike(false, track).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
     }
@@ -199,7 +199,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(playlist)).thenReturn(Observable.just(like));
 
-        operations.like(playlist).subscribe(observer);
+        operations.toggleLike(true, playlist).subscribe(observer);
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(like);
@@ -213,7 +213,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.removeLikeAsync(playlist)).thenReturn(Observable.just(unlike));
 
-        operations.unlike(playlist).subscribe(observer);
+        operations.toggleLike(false, playlist).subscribe(observer);
 
         verify(observer).onNext(unlike);
     }
@@ -249,7 +249,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(repost));
 
-        operations.repost(track).subscribe(observer);
+        operations.toggleRepost(true, track).subscribe(observer);
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(repost);
@@ -263,7 +263,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(repost));
 
-        operations.repost(track).subscribe(observer);
+        operations.toggleRepost(true, track).subscribe(observer);
 
         PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
@@ -275,7 +275,7 @@ public class SoundAssociationOperationsTest {
     public void whenRepostingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.repost(new PublicApiTrack(1L)).subscribe(observer);
+        operations.toggleRepost(true, new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -289,7 +289,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(unrepost));
 
-        operations.unrepost(track).subscribe(observer);
+        operations.toggleRepost(false, track).subscribe(observer);
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(unrepost);
@@ -303,7 +303,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(unrepost));
 
-        operations.unrepost(track).subscribe(observer);
+        operations.toggleRepost(false, track).subscribe(observer);
 
         PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
@@ -315,7 +315,7 @@ public class SoundAssociationOperationsTest {
     public void whenUnrepostingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
 
-        operations.unrepost(new PublicApiTrack(1L)).subscribe(observer);
+        operations.toggleRepost(false, new PublicApiTrack(1L)).subscribe(observer);
 
         verify(observer).onError(any(Exception.class));
         expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
@@ -332,7 +332,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), response404)));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(unrepost));
 
-        operations.unrepost(track).subscribe(observer);
+        operations.toggleRepost(false, track).subscribe(observer);
 
         verify(observer).onNext(unrepost);
     }
@@ -345,7 +345,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(playlist)).thenReturn(Observable.just(repost));
 
-        operations.repost(playlist).subscribe(observer);
+        operations.toggleRepost(true, playlist).subscribe(observer);
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(repost);
@@ -359,7 +359,7 @@ public class SoundAssociationOperationsTest {
                 .thenReturn(Observable.just(response));
         when(storage.removeRepostAsync(playlist)).thenReturn(Observable.just(unrepost));
 
-        operations.unrepost(playlist).subscribe(observer);
+        operations.toggleRepost(false, playlist).subscribe(observer);
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(observer).onNext(unrepost);

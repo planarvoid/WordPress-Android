@@ -93,15 +93,13 @@ public class SoundAssociationOperations {
         return addLike ? like(playable) : unlike(playable);
     }
 
-    @Deprecated
-    public Observable<SoundAssociation> like(final Playable playable) {
+    private Observable<SoundAssociation> like(final Playable playable) {
         logPlayable("LIKE", playable);
         return httpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
                 .doOnCompleted(handleLikeStateChanged(playable, true));
     }
 
-    @Deprecated
-    public Observable<SoundAssociation> unlike(final Playable playable) {
+    private Observable<SoundAssociation> unlike(final Playable playable) {
         logPlayable("UNLIKE", playable);
         return httpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
                 .onErrorResumeNext(handle404(soundAssocStorage.removeLikeAsync(playable)))
@@ -165,13 +163,13 @@ public class SoundAssociationOperations {
         return addRepost ? repost(playable) : unrepost(playable);
     }
 
-    public Observable<SoundAssociation> repost(final Playable playable) {
+    private Observable<SoundAssociation> repost(final Playable playable) {
         logPlayable("REPOST", playable);
         return httpClient.fetchResponse(buildRequestForReposts(playable, true)).mergeMap(mapAddRepostResponse(playable))
                 .doOnCompleted(handleRepostStateChanged(playable, true));
     }
 
-    public Observable<SoundAssociation> unrepost(final Playable playable) {
+    private Observable<SoundAssociation> unrepost(final Playable playable) {
         logPlayable("UNREPOST", playable);
         return httpClient.fetchResponse(buildRequestForReposts(playable, false)).mergeMap(mapRemoveRepostResponse(playable))
                 .onErrorResumeNext(handle404(soundAssocStorage.removeRepostAsync(playable)))
