@@ -105,7 +105,8 @@ public class AdPagePresenterTest {
                 PlayableProperty.CREATOR_NAME.bind("Advertiser"),
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 AdProperty.ARTWORK.bind(Uri.EMPTY),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY)
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY),
+                AdProperty.MONETIZABLE_TRACK_URN.bind(Urn.forTrack(123L))
         );
     }
 }
