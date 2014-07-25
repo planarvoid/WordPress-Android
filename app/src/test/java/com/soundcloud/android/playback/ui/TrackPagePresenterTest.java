@@ -75,7 +75,6 @@ public class TrackPagePresenterTest {
     public void bindItemViewSetsInitialLikeStatesFromTrackData() {
         populateTrackPage();
         expect(getHolder(trackView).likeToggle).toBeChecked();
-        expect(getHolder(trackView).likeToggle).toBeEnabled();
         expect(getHolder(trackView).likeToggle).toHaveText("1");
     }
 
@@ -236,7 +235,6 @@ public class TrackPagePresenterTest {
         presenter.updateAssociations(trackView, changeSet);
 
         expect(getHolder(trackView).likeToggle).toBeChecked();
-        expect(getHolder(trackView).likeToggle).toBeEnabled();
     }
 
     @Test
@@ -255,15 +253,6 @@ public class TrackPagePresenterTest {
         getHolder(trackView).likeToggle.performClick();
 
         verify(listener).onToggleLike(false);
-    }
-
-    @Test
-    public void toggleLikeOnTrackDisabledTheToggle() {
-        populateTrackPage();
-
-        getHolder(trackView).likeToggle.performClick();
-
-        expect(getHolder(trackView).likeToggle).not.toBeEnabled();
     }
 
     @Test

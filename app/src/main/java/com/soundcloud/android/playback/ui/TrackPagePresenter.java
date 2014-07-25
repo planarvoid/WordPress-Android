@@ -146,7 +146,6 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final TrackPageHolder holder = getViewHolder(trackPage);
         if (changeSet.contains(PlayableProperty.IS_LIKED)) {
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
-            holder.likeToggle.setEnabled(true);
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
             setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
@@ -156,7 +155,6 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     private void updateLikeStatus(View view) {
         boolean isLike = ((Checkable) view).isChecked();
         listener.onToggleLike(isLike);
-        view.setEnabled(false);
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
