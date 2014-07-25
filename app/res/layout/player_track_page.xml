@@ -1,53 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView
-            android:id="@+id/track_page_artwork"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+        android:id="@+id/track_page_artwork"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <include layout="@layout/player_gradient"/>
-    <include layout="@layout/player_footer_controls"/>
+    <include layout="@layout/player_gradient" />
 
-    <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/track_page_user"
-            style="@style/PlayerUser"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="64dp"/>
+    <include layout="@layout/player_footer_controls" />
 
     <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/track_page_title"
-            style="@style/PlayerTitle"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_below="@id/track_page_user"/>
+        android:id="@+id/track_page_user"
+        style="@style/PlayerUser"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="64dp" />
 
-    <include layout="@layout/player_expanded_close_control"/>
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/track_page_title"
+        style="@style/PlayerTitle"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_below="@id/track_page_user" />
 
+    <include layout="@layout/player_expanded_close_control" />
 
     <View
-            android:id="@+id/center_point"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_centerInParent="true"/>
+        android:id="@+id/center_point"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
 
     <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_below="@id/center_point"
-            android:layout_above="@+id/player_bottom_close"
-            android:layout_marginTop="20dp">
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/center_point"
+        android:layout_above="@+id/player_bottom_close"
+        android:layout_marginTop="20dp">
+
         <com.soundcloud.android.playback.ui.view.WaveformView
-                android:id="@+id/track_page_waveform"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/player_waveform_height"
-                style="@style/Waveform"
-                android:visibility="gone" />
+            android:id="@+id/track_page_waveform"
+            style="@style/Waveform"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_waveform_height"
+            android:visibility="gone" />
     </FrameLayout>
 
     <com.soundcloud.android.playback.ui.view.TimestampView
@@ -58,51 +59,51 @@
         android:layout_marginTop="@dimen/waveform_baseline" />
 
     <LinearLayout
-            android:id="@id/player_bottom_close"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_footer_control"
-            android:layout_alignParentBottom="true"
-            android:gravity="right|center_vertical"
-            android:paddingRight="16dp">
+        android:id="@id/player_bottom_close"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_footer_control"
+        android:layout_alignParentBottom="true"
+        android:gravity="right|center_vertical"
+        android:paddingRight="16dp">
 
         <ToggleButton
-                android:id="@+id/track_page_like"
-                style="@style/PlayerLike"
-                android:layout_marginRight="16dp"/>
+            android:id="@+id/track_page_like"
+            style="@style/PlayerLike"
+            android:layout_marginRight="8dp" />
 
         <Button
-                android:id="@+id/track_page_more"
-                style="@style/PlayerMore"/>
+            android:id="@+id/track_page_more"
+            style="@style/PlayerMore" />
     </LinearLayout>
 
     <Button
-            android:id="@+id/player_play"
-            android:layout_centerInParent="true"
-            style="@style/PlayerToggle"/>
+        android:id="@+id/player_play"
+        android:layout_centerInParent="true"
+        style="@style/PlayerToggle" />
 
     <FrameLayout
-            android:id="@+id/track_page_next"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            style="@style/PlayerSkipTouchTarget">
+        android:id="@+id/track_page_next"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        style="@style/PlayerSkipTouchTarget">
 
         <Button
-                android:id="@+id/player_next"
-                android:layout_gravity="left|center_vertical"
-                style="@style/PlayerNext"/>
+            android:id="@+id/player_next"
+            android:layout_gravity="left|center_vertical"
+            style="@style/PlayerNext" />
     </FrameLayout>
 
 
     <FrameLayout
-            android:id="@+id/track_page_previous"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            style="@style/PlayerSkipTouchTarget">
+        android:id="@+id/track_page_previous"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        style="@style/PlayerSkipTouchTarget">
 
         <Button
-                android:id="@+id/player_previous"
-                android:layout_gravity="right|center_vertical"
-                style="@style/PlayerPrevious"/>
+            android:id="@+id/player_previous"
+            android:layout_gravity="right|center_vertical"
+            style="@style/PlayerPrevious" />
     </FrameLayout>
 
 </RelativeLayout>

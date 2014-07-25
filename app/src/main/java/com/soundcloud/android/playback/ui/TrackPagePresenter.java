@@ -84,12 +84,6 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
-    private void updateLikeStatus(View view) {
-        boolean isLike = ((Checkable) view).isChecked();
-        listener.onToggleLike(isLike);
-        view.setEnabled(false);
-    }
-
     @Override
     public View createItemView(ViewGroup container) {
         final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
@@ -111,6 +105,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());
+
+        setLikeCount(holder, track.getLikeCount());
         holder.likeToggle.setChecked(track.isUserLike());
 
         holder.footerUser.setText(track.getUserName());
@@ -152,6 +148,19 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
             holder.likeToggle.setEnabled(true);
         }
+        if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
+            setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
+        }
+    }
+
+    private void updateLikeStatus(View view) {
+        boolean isLike = ((Checkable) view).isChecked();
+        listener.onToggleLike(isLike);
+        view.setEnabled(false);
+    }
+
+    private void setLikeCount(TrackPageHolder holder, int count) {
+        holder.likeToggle.setText(ScTextUtils.shortenLargeNumber(count));
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {

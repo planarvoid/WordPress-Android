@@ -66,16 +66,17 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void bindItemViewSetsDurationOnWaveformController() throws CreateModelException {
+    public void bindItemViewSetsDurationOnWaveformController()  {
         populateTrackPage();
         verify(waveformViewController).setDuration(DURATION);
     }
 
     @Test
-    public void bindItemViewSetsCheckedStateFromTrackData() throws CreateModelException {
+    public void bindItemViewSetsInitialLikeStatesFromTrackData() {
         populateTrackPage();
         expect(getHolder(trackView).likeToggle).toBeChecked();
         expect(getHolder(trackView).likeToggle).toBeEnabled();
+        expect(getHolder(trackView).likeToggle).toHaveText("1");
     }
 
     @Test
@@ -216,13 +217,13 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void setProgressSetsProgressOnWaveformController() throws CreateModelException {
+    public void setProgressSetsProgressOnWaveformController() {
         presenter.setProgress(trackView, playbackProgress);
         verify(waveformViewController).setProgress(playbackProgress);
     }
 
     @Test
-    public void setProgressSetsProgressOnArtworkController() throws CreateModelException {
+    public void setProgressSetsProgressOnArtworkController() {
         presenter.setProgress(trackView, playbackProgress);
         verify(artworkController).setProgress(playbackProgress);
     }
@@ -239,7 +240,16 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void toggleLikeOnTrackCallsListenerWithLikeStatus() throws CreateModelException {
+    public void updateAssociationsWithLikedCountPropertyUpdatesLikeCount() {
+        PropertySet changeSet = PropertySet.from(PlayableProperty.LIKES_COUNT.bind(4123));
+
+        presenter.updateAssociations(trackView, changeSet);
+
+        expect(getHolder(trackView).likeToggle).toHaveText("4k+");
+    }
+
+    @Test
+    public void toggleLikeOnTrackCallsListenerWithLikeStatus() {
         populateTrackPage();
 
         getHolder(trackView).likeToggle.performClick();
@@ -248,7 +258,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void toggleLikeOnTrackDisabledTheToggle() throws CreateModelException {
+    public void toggleLikeOnTrackDisabledTheToggle() {
         populateTrackPage();
 
         getHolder(trackView).likeToggle.performClick();
@@ -257,7 +267,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void togglePlayOnFooterToggleClick() throws CreateModelException {
+    public void togglePlayOnFooterToggleClick() {
         populateTrackPage();
 
         getHolder(trackView).footerPlayToggle.performClick();
@@ -266,7 +276,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void togglePlayOnTrackPageArtworkClick() throws CreateModelException {
+    public void togglePlayOnTrackPageArtworkClick() {
         populateTrackPage();
 
         getHolder(trackView).artworkView.performClick();
@@ -275,7 +285,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void nextOnTrackPagerNextClick() throws CreateModelException {
+    public void nextOnTrackPagerNextClick() {
         populateTrackPage();
 
         getHolder(trackView).nextTouch.performClick();
@@ -284,7 +294,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void nextOnTrackPagerPreviousClick() throws CreateModelException {
+    public void nextOnTrackPagerPreviousClick() {
         populateTrackPage();
 
         getHolder(trackView).previousTouch.performClick();
@@ -293,7 +303,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void footerTapOnFooterControlsClick() throws CreateModelException {
+    public void footerTapOnFooterControlsClick() {
         populateTrackPage();
 
         getHolder(trackView).footer.performClick();
@@ -302,7 +312,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void playerCloseOnPlayerCloseClick() throws CreateModelException {
+    public void playerCloseOnPlayerCloseClick() {
         populateTrackPage();
 
         getHolder(trackView).close.performClick();
@@ -311,7 +321,7 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void playerCloseOnPlayerBottomCloseClick() throws CreateModelException {
+    public void playerCloseOnPlayerBottomCloseClick() {
         populateTrackPage();
 
         getHolder(trackView).bottomClose.performClick();
@@ -328,7 +338,7 @@ public class TrackPagePresenterTest {
         return (TrackPageHolder) trackView.getTag();
     }
 
-    private void populateTrackPage() throws CreateModelException {
+    private void populateTrackPage() {
         presenter.bindItemView(trackView, TestPropertySets.forPlayerTrack());
     }
 }

@@ -37,4 +37,8 @@ class PlayerTrack {
         return source.get(PlayableProperty.IS_LIKED);
     }
 
+    int getLikeCount() {
+        return source.get(PlayableProperty.LIKES_COUNT);
+    }
+
 }

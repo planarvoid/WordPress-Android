@@ -24,7 +24,8 @@ public class TestPropertySets {
                 PlayableProperty.TITLE.bind("someone's favorite song"),
                 PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
                 PlayableProperty.DURATION.bind(123456),
-                PlayableProperty.IS_LIKED.bind(true)
+                PlayableProperty.IS_LIKED.bind(true),
+                PlayableProperty.LIKES_COUNT.bind(1)
         );
     }
 
