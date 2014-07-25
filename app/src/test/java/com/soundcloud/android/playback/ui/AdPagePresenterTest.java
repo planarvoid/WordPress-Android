@@ -34,7 +34,7 @@ public class AdPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener);
+        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
         adView = presenter.createItemView(new FrameLayout(Robolectric.application));
         presenter.bindItemView(adView, buildAd());
     }

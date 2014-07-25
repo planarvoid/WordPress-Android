@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +27,16 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
     private final Resources resources;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final AdPageListener listener;
+    private final Context context;
 
     @Inject
     public AdPagePresenter(ImageOperations imageOperations, Resources resources,
-                           PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener) {
+                           PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener, Context context) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.listener = listener;
+        this.context = context;
     }
 
     @Override
@@ -72,7 +75,11 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     private void displayPreview(PlayerAd playerAd, Holder holder) {
         holder.previewTitle.setText(playerAd.getPreviewTitle());
-        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), ApiImageSize.SMALL, holder.previewArtwork);
+        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), getOptimizedImageSize(), holder.previewArtwork);
+    }
+
+    private ApiImageSize getOptimizedImageSize() {
+        return ApiImageSize.getListItemImageSize(context);
     }
 
     @Override
