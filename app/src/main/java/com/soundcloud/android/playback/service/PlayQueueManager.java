@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -331,7 +332,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
         adTrackPosition = getNextPosition();
         playQueue.insertAudioAd(audioAd, adTrackPosition);
-        this.adMetaData = audioAd.toPropertySet();
+        this.adMetaData = audioAd
+                .toPropertySet()
+                .put(AdProperty.MONETIZABLE_TRACK_URN, playQueue.getUrn(adTrackPosition + 1));
         publishQueueUpdate();
     }
 

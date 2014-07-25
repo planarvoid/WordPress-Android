@@ -34,7 +34,7 @@ public class AdPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener);
+        presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
         adView = presenter.createItemView(new FrameLayout(Robolectric.application));
         presenter.bindItemView(adView, buildAd());
     }
@@ -105,7 +105,8 @@ public class AdPagePresenterTest {
                 PlayableProperty.CREATOR_NAME.bind("Advertiser"),
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 AdProperty.ARTWORK.bind(Uri.EMPTY),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY)
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY),
+                AdProperty.MONETIZABLE_TRACK_URN.bind(Urn.forTrack(123L))
         );
     }
 }

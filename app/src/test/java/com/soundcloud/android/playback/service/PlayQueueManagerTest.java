@@ -16,6 +16,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -56,18 +57,12 @@ public class PlayQueueManagerTest {
     private PlayQueueManager playQueueManager;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private Context context;
-    @Mock
-    private PlayQueue playQueue;
-    @Mock
-    private ScModelManager modelManager;
-    @Mock
-    private SharedPreferences sharedPreferences;
-    @Mock
-    private SharedPreferences.Editor sharedPreferencesEditor;
-    @Mock
-    private PlayQueueOperations playQueueOperations;
+    @Mock private Context context;
+    @Mock private PlayQueue playQueue;
+    @Mock private ScModelManager modelManager;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences.Editor sharedPreferencesEditor;
+    @Mock private PlayQueueOperations playQueueOperations;
 
     private PublicApiPlaylist playlist;
     private PlaySessionSource playSessionSource;
@@ -80,6 +75,8 @@ public class PlayQueueManagerTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
+
+        when(playQueue.getUrn(3)).thenReturn(TrackUrn.forTrack(369L));
 
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
@@ -505,7 +502,9 @@ public class PlayQueueManagerTest {
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
-        expect(playQueueManager.getAudioAd()).toEqual(audioAd.toPropertySet());
+        expect(playQueueManager.getAudioAd()).toEqual(audioAd
+                .toPropertySet()
+                .put(AdProperty.MONETIZABLE_TRACK_URN, playQueue.getUrn(3)));
     }
 
     @Test
