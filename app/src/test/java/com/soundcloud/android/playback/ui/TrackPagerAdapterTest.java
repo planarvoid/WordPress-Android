@@ -19,6 +19,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -49,6 +50,7 @@ import android.view.ViewGroup;
 public class TrackPagerAdapterTest {
 
     private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    private static final TrackUrn MONETIZABLE_TRACK_URN = Urn.forTrack(456L);
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
@@ -60,7 +62,6 @@ public class TrackPagerAdapterTest {
 
     @Captor private ArgumentCaptor<PropertySet> captorPropertySet;
 
-    private TrackUrn trackUrn = Urn.forTrack(123L);
     private TestEventBus eventBus;
     private TrackPagerAdapter adapter;
     private PropertySet track;
@@ -73,6 +74,12 @@ public class TrackPagerAdapterTest {
         final View mockedView2 = mock(View.class);
         when(trackPagePresenter.createItemView(container)).thenReturn(mockedView1, mockedView2);
         track = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
+
+        when(trackOperations.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
+                PropertySet.from(
+                        TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
+                        PlayableProperty.TITLE.bind("title"),
+                        PlayableProperty.CREATOR_NAME.bind("artist"))));
     }
 
     @Test
@@ -102,7 +109,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
         final View currentTrackView = getPageView();
-        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE, trackUrn);
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -117,7 +124,7 @@ public class TrackPagerAdapterTest {
         final View viewForOtherTrack = getPageView(4, Urn.forTrack(234L));
 
         Mockito.reset(trackPagePresenter);
-        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE, trackUrn);
+        StateTransition state = new StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true);
@@ -254,29 +261,14 @@ public class TrackPagerAdapterTest {
     @Test
     public void shouldBindAdViewForAudioAds() {
         setupAudioAd();
-        final View pageView = getPageView();
-
-        verify(adPagePresenter).bindItemView(eq(pageView), any(PropertySet.class));
-    }
-
-    @Test
-    public void shouldBindAdViewWithAdPropertiesForAudioAds() {
-        PropertySet adPropertySet = PropertySet.create().put(AdProperty.ARTWORK, Uri.parse("http://artwork.com"));
-        setupAudioAd(adPropertySet);
         View pageView = getPageView();
 
         verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
-        expect(captorPropertySet.getValue().get(AdProperty.ARTWORK)).toBe(adPropertySet.get(AdProperty.ARTWORK));
-    }
-
-    @Test
-    public void shouldBindAdViewWithoutAdPropertiesForTracks() {
-        View pageView = getPageView();
-
-        verify(trackPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
-
-        expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeFalse();
+        expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeTrue();
+        expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);
+        expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_TITLE)).toEqual("title");
+        expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_CREATOR)).toEqual("artist");
     }
 
     @Test
@@ -367,7 +359,9 @@ public class TrackPagerAdapterTest {
     }
 
     private void setupAudioAd() {
-        setupAudioAd(PropertySet.create());
+        setupAudioAd(PropertySet.from(
+                AdProperty.ARTWORK.bind(Uri.parse("http://artwork.com")),
+                AdProperty.MONETIZABLE_TRACK_URN.bind(MONETIZABLE_TRACK_URN)));
     }
 
     private void setupAudioAd(PropertySet propertySet) {

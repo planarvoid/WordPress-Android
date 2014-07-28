@@ -9,4 +9,6 @@ public class AdProperty {
     public static final Property<Uri> CLICK_THROUGH_LINK = Property.of(Uri.class);
     public static final Property<Uri> ARTWORK = Property.of(Uri.class);
     public static final Property<TrackUrn> MONETIZABLE_TRACK_URN =  Property.of(TrackUrn.class);
+    public static final Property<String> MONETIZABLE_TRACK_TITLE =  Property.of(String.class);
+    public static final Property<String> MONETIZABLE_TRACK_CREATOR =  Property.of(String.class);
 }

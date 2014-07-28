@@ -28,7 +28,9 @@ public class PlayerAd {
     }
 
     String getPreviewTitle() {
-        return String.format(resources.getString(R.string.next_up), "Monetizable track (creator name)");
+        final String nextTrackTitle = source.get(AdProperty.MONETIZABLE_TRACK_TITLE);
+        final String nextTrackCreator = source.get(AdProperty.MONETIZABLE_TRACK_CREATOR);
+        return resources.getString(R.string.next_up, nextTrackTitle, nextTrackCreator);
     }
 
     TrackUrn getMonetizableTrack() {

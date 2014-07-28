@@ -1,10 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -21,6 +23,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
@@ -136,13 +139,16 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private Observable<PropertySet> getAdObservable(TrackUrn urn, final PropertySet audioAd) {
-        return getTrackObservable(urn)
-                .map(new Func1<PropertySet, PropertySet>() {
-                    @Override
-                    public PropertySet call(PropertySet propertySet) {
-                        return propertySet.merge(audioAd);
-                    }
-                });
+        // merge together audio ad track data and track data from the upcoming monetizable track
+        return Observable.zip(getTrackObservable(urn), getTrackObservable(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN)),
+                new Func2<PropertySet, PropertySet, PropertySet>() {
+            @Override
+            public PropertySet call(PropertySet audioAdTrack, PropertySet monetizableTrack) {
+                return audioAdTrack.merge(audioAd)
+                        .put(AdProperty.MONETIZABLE_TRACK_TITLE, monetizableTrack.get(PlayableProperty.TITLE))
+                        .put(AdProperty.MONETIZABLE_TRACK_CREATOR, monetizableTrack.get(PlayableProperty.CREATOR_NAME));
+            }
+        });
     }
 
     private View subscribeToPlayEvents(PagePresenter presenter, View trackPage) {
