@@ -2,9 +2,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/add_to_playlist"
-          android:title="@string/add_to_playlist"/>
+          android:visible="false"
+          android:title="@string/add_to_playlist" />
     <item android:id="@+id/share"
-          android:title="@string/share"/>
+          android:title="@string/share" />
     <item android:id="@+id/repost"
-          android:title="@string/repost"/>
+          android:visible="false"
+          android:title="@string/repost" />
 </menu>
