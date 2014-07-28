@@ -43,6 +43,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
         cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount());
+        cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
 
         final long id = insertInto(Table.SOUNDS, cv);
         track.setId(id);

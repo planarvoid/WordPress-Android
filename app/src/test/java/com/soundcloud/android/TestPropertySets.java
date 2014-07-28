@@ -21,11 +21,12 @@ public class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
-                PlayableProperty.TITLE.bind("someone's favorite song"),
-                PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
+                PlayableProperty.TITLE.bind("dubstep anthem"),
+                PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 PlayableProperty.DURATION.bind(123456),
                 PlayableProperty.IS_LIKED.bind(true),
-                PlayableProperty.LIKES_COUNT.bind(1)
+                PlayableProperty.LIKES_COUNT.bind(1),
+                PlayableProperty.PERMALINK_URL.bind("http://permalink.url")
         );
     }
 

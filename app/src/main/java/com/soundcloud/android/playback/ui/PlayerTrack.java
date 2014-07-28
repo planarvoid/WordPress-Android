@@ -13,6 +13,10 @@ class PlayerTrack {
         this.source = source;
     }
 
+    public String getPermalinkUrl() {
+        return source.get(PlayableProperty.PERMALINK_URL);
+    }
+
     TrackUrn getUrn() {
         return source.get(TrackProperty.URN);
     }

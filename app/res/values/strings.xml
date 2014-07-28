@@ -202,5 +202,7 @@
     <string name="add_to_playlist">Add to playlist</string>
     <string name="share">Share</string>
     <string name="repost">Repost</string>
+    <string name="share_by"> by %s</string>
+    <string name="share_on_soundcloud"> on SoundCloud</string>
 
 </resources>

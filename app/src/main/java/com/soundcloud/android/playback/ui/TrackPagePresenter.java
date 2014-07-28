@@ -105,6 +105,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());
+        holder.trackMenuController.setTrack(track);
 
         setLikeCount(holder, track.getLikeCount());
         holder.likeToggle.setChecked(track.isUserLike());
@@ -271,14 +272,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.addScrubListener(holder.artworkController);
         holder.waveformController.addScrubListener(holder.timestamp);
 
-        final PopupMenu popupMenu = new PopupMenu(trackView.getContext(), holder.more);
-        popupMenu.inflate(R.menu.player_page_actions);
-        holder.more.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupMenu.show();
-            }
-        });
+        holder.trackMenuController = new TrackMenuController(trackView.getContext(), holder.more);
+
         trackView.setTag(holder);
     }
 
@@ -287,6 +282,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         JaggedTextView title;
         JaggedTextView user;
         WaveformViewController waveformController;
+        TrackMenuController trackMenuController;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;
