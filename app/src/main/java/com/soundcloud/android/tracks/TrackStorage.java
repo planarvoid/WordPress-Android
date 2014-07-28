@@ -24,6 +24,8 @@ import javax.inject.Inject;
 
 public class TrackStorage {
 
+    private static final String SHARING_PRIVATE = "private";
+
     private final DatabaseScheduler scheduler;
 
     @Inject
@@ -44,6 +46,7 @@ public class TrackStorage {
                         SoundView.WAVEFORM_URL,
                         SoundView.MONETIZABLE,
                         SoundView.PERMALINK_URL,
+                        SoundView.SHARING,
                         exists(soundAssociationQuery(LIKE, loggedInUserUrn.numericId)).as(SoundView.USER_LIKE),
                         exists(soundAssociationQuery(REPOST, loggedInUserUrn.numericId)).as(SoundView.USER_REPOST)
                 ).whereEq(SoundView._ID, trackUrn.numericId);
@@ -80,6 +83,8 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
             final long creatorId = cursorReader.getLong(SoundView.USER_ID);
             propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? UserUrn.NOT_SET : Urn.forUser(creatorId));
+            final String sharing = cursorReader.getString(SoundView.SHARING);
+            propertySet.put(PlayableProperty.IS_PRIVATE, sharing.equalsIgnoreCase(SHARING_PRIVATE));
 
             return propertySet;
         }

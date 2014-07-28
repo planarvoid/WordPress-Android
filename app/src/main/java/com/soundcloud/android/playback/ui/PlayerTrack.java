@@ -13,10 +13,6 @@ class PlayerTrack {
         this.source = source;
     }
 
-    public String getPermalinkUrl() {
-        return source.get(PlayableProperty.PERMALINK_URL);
-    }
-
     TrackUrn getUrn() {
         return source.get(TrackProperty.URN);
     }
@@ -45,4 +41,11 @@ class PlayerTrack {
         return source.get(PlayableProperty.LIKES_COUNT);
     }
 
+    public String getPermalinkUrl() {
+        return source.get(PlayableProperty.PERMALINK_URL);
+    }
+
+    public boolean isPrivate() {
+        return source.get(PlayableProperty.IS_PRIVATE);
+    }
 }

@@ -9,20 +9,23 @@ import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
 
+import javax.annotation.Nullable;
+
 public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     public static final String SHARE_TYPE = "text/plain";
 
     private final Context context;
-    private Intent shareIntent;
+    private final PopupMenu popupMenu;
+    @Nullable private Intent shareIntent;
 
     TrackMenuController(Context context, View anchorView) {
         this.context = context;
-        setupMenu(context, anchorView);
+        this.popupMenu = new PopupMenu(context, anchorView);
+        setupMenu(anchorView);
     }
 
-    private void setupMenu(Context context, View anchorView) {
-        final PopupMenu popupMenu = new PopupMenu(context, anchorView);
+    private void setupMenu(View anchorView) {
         popupMenu.inflate(R.menu.player_page_actions);
         popupMenu.setOnMenuItemClickListener(this);
         anchorView.setOnClickListener(new View.OnClickListener() {
@@ -36,13 +39,26 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         if (menuItem.getItemId() == R.id.share) {
-            context.startActivity(shareIntent);
+            if (shareIntent != null) {
+                context.startActivity(shareIntent);
+            }
             return true;
         }
         return false;
     }
 
     public void setTrack(PlayerTrack track) {
+        MenuItem shareItem = popupMenu.getMenu().findItem(R.id.share);
+        if (track.isPrivate()) {
+            shareIntent = null;
+            shareItem.setEnabled(false);
+        } else {
+            buildShareIntent(track);
+            shareItem.setEnabled(true);
+        }
+    }
+
+    private void buildShareIntent(PlayerTrack track) {
         shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);

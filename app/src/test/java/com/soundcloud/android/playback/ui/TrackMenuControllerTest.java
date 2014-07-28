@@ -51,6 +51,7 @@ public class TrackMenuControllerTest {
         PlayerTrack withoutUser = new PlayerTrack(PropertySet.from(
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind(""),
+                PlayableProperty.IS_PRIVATE.bind(false),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url")));
         controller.setTrack(withoutUser);
 
@@ -59,6 +60,22 @@ public class TrackMenuControllerTest {
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.getPermalinkUrl());
         expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem on SoundCloud");
+    }
+
+    @Test
+    public void doesNotSendShareIntentForPrivateTracks() {
+        MenuItem share = mock(MenuItem.class);
+        when(share.getItemId()).thenReturn(R.id.share);
+        PlayerTrack privateTrack = new PlayerTrack(PropertySet.from(
+                PlayableProperty.IS_PRIVATE.bind(true),
+                PlayableProperty.TITLE.bind("dubstep anthem"),
+                PlayableProperty.CREATOR_NAME.bind(""),
+                PlayableProperty.PERMALINK_URL.bind("http://permalink.url")));
+        controller.setTrack(privateTrack);
+
+        controller.onMenuItemClick(share);
+
+        expect(shadowOf(Robolectric.application).getNextStartedActivity()).toBeNull();
     }
 
 }

@@ -51,6 +51,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
                 PlayableProperty.LIKES_COUNT.bind(track.getStats().getLikesCount()),
                 TrackProperty.MONETIZABLE.bind(track.isMonetizable()),
                 PlayableProperty.IS_LIKED.bind(false),
-                PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl()));
+                PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl()),
+                PlayableProperty.IS_PRIVATE.bind(false));
     }
 }
