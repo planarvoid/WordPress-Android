@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -29,7 +30,8 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
 
-        final ExploreScreen screen = NavigationHelper.openExploreFromMenu(this);
+        final StreamScreen streamScreen = new StreamScreen(solo);
+        final ExploreScreen screen = NavigationHelper.openExploreFromMenu(streamScreen);
         playerElement = PlayerHelper.openPlayer(this, screen);
         PlayerHelper.skipToAd(playerElement);    }
 

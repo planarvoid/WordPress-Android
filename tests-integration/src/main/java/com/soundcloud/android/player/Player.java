@@ -8,6 +8,7 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -148,7 +149,8 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     private void playExploreTrack() {
-        playerElement = PlayerHelper.openPlayer(this, NavigationHelper.openExploreFromMenu(this));
+        final StreamScreen streamScreen = new StreamScreen(solo);
+        playerElement = PlayerHelper.openPlayer(this, NavigationHelper.openExploreFromMenu(streamScreen));
     }
 
     private void playSingleTrack(){
