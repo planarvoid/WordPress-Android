@@ -18,12 +18,12 @@ import com.soundcloud.android.tests.helpers.NavigationHelper;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class PlayerTest extends ActivityTestCase<MainActivity> {
+public class Player extends ActivityTestCase<MainActivity> {
     private StreamScreen streamScreen;
     private SearchResultsScreen searchResultsScreen;
     private VisualPlayerElement player;
 
-    public PlayerTest() {
+    public Player() {
         super(MainActivity.class);
     }
 
