@@ -54,13 +54,13 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         assertThat(playerElement, is(Playing()));
     }
 
-    public void ignoreSkipShouldBeDisplayedAfter15sec() throws Exception {
+    public void testSkipShouldBeDisplayedAfter15sec() throws Exception {
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.waitForSkipAdButton();
         assertThat(playerElement, is(SkipAllowed()));
     }
 
-    public void ignoreSkipAdShouldStartTheMonetizableTrack() throws Exception {
+    public void testSkipAdShouldStartTheMonetizableTrack() throws Exception {
         playerElement.waitForSkipAdButton();
         String adTrackTitle = playerElement.getTrackTitle();
         playerElement.tapSkipAd();
