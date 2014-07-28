@@ -15,10 +15,6 @@ import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.helpers.NavigationHelper;
 import com.soundcloud.android.tests.helpers.PlayerHelper;
 
-/*
- * We ignore all this test until we have a way
- * to get audio ads with the CI environnement.
- */
 public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     private VisualPlayerElement playerElement;
@@ -37,18 +33,18 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         playerElement = PlayerHelper.openPlayer(this, screen);
         PlayerHelper.skipToAd(playerElement);    }
 
-    public void ignoreTestSkipIsNotAllowedOnAd() throws Exception {
+    public void testSkipIsNotAllowedOnAd() throws Exception {
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
-    public void ignoreTestTappingArtworkPausesAd() {
+    public void testTappingArtworkPausesAd() {
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(Playing())));
     }
 
-    public void ignoreTestTappingArtworkTwiceResumePlayingAd() {
+    public void testTappingArtworkTwiceResumePlayingAd() {
         playerElement.clickArtwork();
         playerElement.clickArtwork();
         assertThat(playerElement, is(Playing()));
