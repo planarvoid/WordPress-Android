@@ -13,6 +13,11 @@ public class LegacyPlayerController implements PlayerController {
     }
 
     @Override
+    public boolean handleBackPressed() {
+        return false;
+    }
+
+    @Override
     public void onResume() {
         // Do nothing
     }

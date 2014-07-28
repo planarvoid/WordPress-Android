@@ -29,10 +29,10 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
                 categoryFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.holder, categoryFragment)
+                        .add(R.id.container, categoryFragment)
                         .commit();
             } else {
-                categoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
+                categoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.container);
             }
         }
     }

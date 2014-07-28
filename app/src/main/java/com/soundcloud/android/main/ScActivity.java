@@ -395,7 +395,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
      * Convenience method to get the content id for usage in one-off fragments
      */
     public static int getContentHolderViewId() {
-        return R.id.holder;
+        return R.id.container;
     }
 
     private void safeUnregisterReceiver(BroadcastReceiver receiver) {

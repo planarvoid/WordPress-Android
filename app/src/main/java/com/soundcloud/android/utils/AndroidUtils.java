@@ -1,5 +1,7 @@
 package com.soundcloud.android.utils;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -11,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
@@ -178,6 +181,10 @@ public final class AndroidUtils {
             }
         }
         return returnKeysSortedByValue(map);
+    }
+
+    public static void assertOnUiThread(String message) {
+        checkState(Looper.getMainLooper().getThread() == Thread.currentThread(), String.format(message + "[ %s ]", Thread.currentThread()));
     }
 
     /* package */

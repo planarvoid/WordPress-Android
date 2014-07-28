@@ -52,6 +52,15 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
     }
 
     @Override
+    public boolean handleBackPressed() {
+        if (isExpanded()) {
+            collapse();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean isExpanded() {
         return slidingPanel.isPanelExpanded();
     }

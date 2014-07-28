@@ -9,11 +9,14 @@ public interface PlayerController {
 
     void attach(Activity activity, ActionBarController actionBarController);
 
+
     boolean isExpanded();
 
     void collapse();
 
     void onResume();
+
+    boolean handleBackPressed();
 
     void onPause();
 

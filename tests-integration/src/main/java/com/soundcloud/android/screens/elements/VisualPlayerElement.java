@@ -38,8 +38,8 @@ public class VisualPlayerElement extends Element implements PlayerElement {
         return solo.findElement(With.id(R.id.track_page_next));
     }
 
-    private ViewElement playerContainer() {
-        return solo.findElement(With.id(R.id.player_root));
+    private ViewElement trackContainer() {
+        return solo.findElement(With.id(R.id.player_track_pager));
     }
 
     private ViewElement closeButton() {
@@ -147,6 +147,6 @@ public class VisualPlayerElement extends Element implements PlayerElement {
 
     @Override
     public boolean isVisible() {
-        return playerContainer().isVisible();
+        return trackContainer().isVisible();
     }
 }

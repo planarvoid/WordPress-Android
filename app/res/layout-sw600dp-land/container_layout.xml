@@ -7,7 +7,7 @@
     <View style="@style/MarginLeft"/>
 
     <FrameLayout
-            android:id="@+id/holder"
+            android:id="@+id/container"
             style="@style/MarginedContent"/>
 
     <View style="@style/MarginRight"/>

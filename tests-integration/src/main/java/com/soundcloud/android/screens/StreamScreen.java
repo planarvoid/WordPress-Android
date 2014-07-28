@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.StreamList;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
@@ -27,6 +26,11 @@ public class StreamScreen extends Screen {
     @Override
     protected Class getActivity() {
         return ACTIVITY;
+    }
+
+    public void clickFirstItem() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.findElement(With.id(android.R.id.list)).click();
     }
 
     private StreamList streamList() {

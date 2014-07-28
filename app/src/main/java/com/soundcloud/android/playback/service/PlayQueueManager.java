@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
@@ -30,7 +30,6 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Looper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,6 +39,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public static final String PLAYQUEUE_CHANGED_ACTION = "com.soundcloud.android.playlistchanged";
     public static final String RELATED_LOAD_STATE_CHANGED_ACTION = "com.soundcloud.android.related.changed";
+    private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
 
     private final Context context;
 
@@ -78,13 +78,14 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         this.modelManager = modelManager;
     }
 
+
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
         setNewPlayQueue(playQueue, 0, playSessionSource);
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, int position, PlaySessionSource playSessionSource) {
-        Preconditions.checkState(Looper.getMainLooper().getThread() == Thread.currentThread(),
-                "Play queues must be set from the main thread only");
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
 
         if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
             setPosition(position);
@@ -194,6 +195,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
         stopLoadingOperations();
 
         this.adTrackPosition = Consts.NOT_SET;
@@ -225,10 +227,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return adTrackPosition == currentPosition ? 0 : currentTrackProgress;
     }
 
-    /**
-     * @return last stored seek pos of the current track in queue, or -1 if there is no reload
-     */
     public void loadPlayQueue() {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
+        
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         currentPosition = playQueueOperations.getLastStoredPlayPosition();
         if (playQueueObservable == null) {
@@ -317,6 +318,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void clearAll() {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
+        
         playQueueOperations.clear();
         playQueue = PlayQueue.empty();
         playSessionSource = PlaySessionSource.EMPTY;
@@ -327,6 +330,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void insertAudioAd(AudioAd audioAd) {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
+        
         if (adTrackPosition != Consts.NOT_SET) {
             throw new IllegalStateException("Existing AudioAd must be cleared before inserting a new one");
         }
@@ -339,6 +344,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void clearAudioAd() {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
+        
         if (adTrackPosition != Consts.NOT_SET && adTrackPosition != currentPosition) {
             removeAd(adTrackPosition);
             publishQueueUpdate();

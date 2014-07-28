@@ -15,7 +15,7 @@ public class IsVisible extends TypeSafeMatcher<UIView> {
     }
 
     public void describeTo(Description description) {
-        description.appendText("not visible");
+        description.appendText("visible");
     }
 
     @Factory

@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.helpers;
 
+import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 
 public class NavigationHelper {
@@ -9,4 +11,7 @@ public class NavigationHelper {
         return activityTestCase.getMenuScreen().open().clickExplore();
     }
 
+    public static PlaylistTagsScreen openSearch(Screen screen) throws Exception {
+        return screen.actionBar().clickSearchButton();
+    }
 }

@@ -276,6 +276,25 @@ public class SlidingPlayerControllerTest {
         verifyZeroInteractions(decorView);
     }
 
+    @Test
+    public void onBackPressedShouldDoNothingWhenPlayerIsCollapsed() {
+        attachController();
+        collapsePanel();
+
+        expect(controller.handleBackPressed()).toBeFalse();
+        verify(slidingPanel, never()).collapsePanel();
+    }
+
+    @Test
+    public void onBackPressedShouldCollapsedWhenPlayerIsExpanded() {
+        attachController();
+        expandPanel();
+
+        expect(controller.handleBackPressed()).toBeTrue();
+        verify(slidingPanel).collapsePanel();
+    }
+
+
     private void attachController() {
         controller.attach(activity, actionBarController);
     }
@@ -284,12 +303,14 @@ public class SlidingPlayerControllerTest {
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.3f);
+        when(slidingPanel.isPanelExpanded()).thenReturn(false);
     }
 
     private void expandPanel() {
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.7f);
+        when(slidingPanel.isPanelExpanded()).thenReturn(true);
     }
 
 }

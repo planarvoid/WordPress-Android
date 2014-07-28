@@ -102,9 +102,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public void onBackPressed() {
-        if (playerController.isExpanded()) {
-            playerController.collapse();
-        } else {
+        if (!playerController.handleBackPressed()) {
             super.onBackPressed();
         }
     }

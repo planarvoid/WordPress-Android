@@ -38,15 +38,11 @@ import java.util.Collections;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistTagsFragmentTest {
 
-    @Mock
-    private SearchOperations searchOperations;
-    @Mock
-    private SearchActionBarController actionBarController;
-    @Mock
-    private EmptyViewController emptyViewController;
+    @Mock private SearchOperations searchOperations;
+    @Mock private SearchActionBarController actionBarController;
+    @Mock private EmptyViewController emptyViewController;
 
-    @InjectMocks
-    private PlaylistTagsFragment fragment;
+    @InjectMocks private PlaylistTagsFragment fragment;
 
     private TestEventBus eventBus = new TestEventBus();
 

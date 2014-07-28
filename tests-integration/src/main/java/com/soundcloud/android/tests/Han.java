@@ -1,10 +1,7 @@
 package com.soundcloud.android.tests;
 
 import static com.google.common.collect.Collections2.filter;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -12,18 +9,15 @@ import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.tests.with.With;
-import junit.framework.AssertionFailedError;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 

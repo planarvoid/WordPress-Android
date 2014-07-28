@@ -2,14 +2,17 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.screen.ScreenPresenter;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -18,6 +21,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
+
+import javax.inject.Inject;
 
 public class SearchActivity extends ScActivity implements PlaylistTagsFragment.TagEventsListener {
 
@@ -30,6 +35,8 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     private SearchActionBarController searchActionBarController;
     private String query;
+    @Inject PlayerController playerController;
+    @Inject ScreenPresenter presenter;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
@@ -50,11 +57,20 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     @SuppressWarnings("unused")
-    public SearchActivity() {}
+    public SearchActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+        presenter.attach(this);
+    }
 
     @VisibleForTesting
     SearchActivity(SearchActionBarController searchActionBarController) {
+        this();
         this.searchActionBarController = searchActionBarController;
+    }
+
+    @Override
+    protected void setContentView() {
+        presenter.setBaseLayout();
     }
 
     @Override
@@ -62,7 +78,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         boolean isShowingResults = getSupportFragmentManager().getBackStackEntryCount() > 0;
         if (isShowingResults) {
             searchActionBarController.clearQuery();
-        } else {
+        } else if (!playerController.handleBackPressed()) {
             super.onBackPressed();
         }
     }
@@ -70,13 +86,27 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.container_layout);
 
         if (savedInstanceState == null) {
             handleIntent();
         } else if (savedInstanceState.containsKey(STATE_QUERY)) {
             query = savedInstanceState.getString(STATE_QUERY);
         }
+
+        playerController.attach(this, actionBarController);
+        playerController.restoreState(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        playerController.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        playerController.onPause();
     }
 
     @Override
@@ -99,6 +129,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(STATE_QUERY, searchActionBarController.getQuery());
         super.onSaveInstanceState(outState);
+        playerController.storeState(outState);
     }
 
     @Override
@@ -111,7 +142,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     private void addPlaylistTagsFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.holder, new PlaylistTagsFragment(), PlaylistTagsFragment.TAG)
+                .replace(R.id.container, new PlaylistTagsFragment(), PlaylistTagsFragment.TAG)
                 .commit();
     }
 
@@ -119,7 +150,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         FragmentManager manager = getSupportFragmentManager();
 
         manager.beginTransaction()
-                .replace(R.id.holder, fragment, tag)
+                .replace(R.id.container, fragment, tag)
                 .addToBackStack(tag)
                 .commit();
     }
