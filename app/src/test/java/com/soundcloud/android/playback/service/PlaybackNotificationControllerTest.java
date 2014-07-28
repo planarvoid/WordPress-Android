@@ -104,6 +104,15 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
+    public void serviceDestroyedEventCancelsAnyCurrentNotification() {
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
+
+        verify(notificationManager).cancel(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID);
+    }
+
+    @Test
     public void playQueueEventCreatesNewNotificationFromNewPlayQueueEvent() {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
