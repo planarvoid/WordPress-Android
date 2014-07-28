@@ -1,21 +1,18 @@
-package com.soundcloud.android.explore;
-
-import static com.soundcloud.android.tests.TestUser.testUser;
+package com.soundcloud.android.explore.genres;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
-public class ExploreGenres extends ActivityTestCase<MainActivity> {
+public class Explore extends ActivityTestCase<MainActivity> {
     private MainScreen mainScreen;
     private ExploreScreen exploreScreen;
     private ExploreGenreCategoryScreen categoryScreen;
 
-    public ExploreGenres() {
+    public Explore() {
         super(MainActivity.class);
     }
 
@@ -25,7 +22,6 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
         super.setUp();
         mainScreen = new MainScreen(solo);
         exploreScreen = mainScreen.openExploreFromMenu();
-
     }
 
     public void testElectronicMusicCategoryHasContent(){
