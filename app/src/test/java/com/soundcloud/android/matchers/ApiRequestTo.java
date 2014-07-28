@@ -1,5 +1,7 @@
 package com.soundcloud.android.matchers;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.api.APIRequest;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
@@ -14,6 +16,7 @@ public class ApiRequestTo extends ArgumentMatcher<APIRequest> {
     private Map<String, String> expectedQueryParams = new HashMap<String, String>();
     private boolean queryMatchError;
     private APIRequest request;
+    private Object content;
 
     public ApiRequestTo(String expectedMethod, String expectedPath, boolean isMobileApi) {
         this.expectedMethod = expectedMethod;
@@ -26,7 +29,7 @@ public class ApiRequestTo extends ArgumentMatcher<APIRequest> {
         if (argument instanceof APIRequest) {
             this.request = (APIRequest) argument;
 
-            boolean queryMatches = true;
+            boolean queryMatches;
             for (Map.Entry<String, String> param : expectedQueryParams.entrySet()) {
                 queryMatches = request.getQueryParameters().containsEntry(param.getKey(), param.getValue());
                 if (!queryMatches) {
@@ -35,15 +38,36 @@ public class ApiRequestTo extends ArgumentMatcher<APIRequest> {
                 }
             }
 
-            return request.getEncodedPath().equals(expectedPath) &&
+            return contentMatches() &&
+                    request.getEncodedPath().equals(expectedPath) &&
                     request.getMethod().equalsIgnoreCase(expectedMethod) &&
                     request.isPrivate() == isMobileApi;
         }
         return false;
     }
 
+    private boolean contentMatches() {
+        if (request.getContent() == null) {
+            return content == null;
+
+        } else if (content == null) {
+            return false;
+
+        } else if (content instanceof Iterable) {
+            return request.getContent() instanceof Iterable
+                    && Iterables.elementsEqual((Iterable) content, (Iterable) request.getContent());
+        } else {
+            return Objects.equal(request.getContent(), content);
+        }
+    }
+
     public ApiRequestTo withQueryParam(String key, String value) {
         expectedQueryParams.put(key, value);
+        return this;
+    }
+
+    public ApiRequestTo withContent(Object content){
+        this.content = content;
         return this;
     }
 

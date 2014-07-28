@@ -12,18 +12,17 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -110,20 +109,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             skippy.seek(fromPos);
             skippy.resume();
         } else {
-            logPlayCount(track);
             numberOfAttemptedPlaysBeforeDecoderError++;
             currentStreamUrl = trackUrl;
             skippy.play(currentStreamUrl, fromPos);
         }
-    }
-
-    protected void logPlayCount(PublicApiTrack track) {
-        playbackOperations.logPlay(track.getUrn()).subscribe(new DefaultSubscriber<TrackUrn>() {
-            @Override
-            public void onNext(TrackUrn trackUrn) {
-                Log.d(TAG, "Play count logged successfully for track " + trackUrn);
-            }
-        });
     }
 
     @Override

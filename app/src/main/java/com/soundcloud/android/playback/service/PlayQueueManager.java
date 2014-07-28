@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -95,6 +96,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
         saveQueue();
         saveCurrentProgress(0L);
+
+        fireAndForget(playQueueOperations.fetchAndStorePolicies(playQueue.getTrackUrns()));
     }
 
     @Deprecated

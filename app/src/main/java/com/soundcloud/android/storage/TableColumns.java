@@ -57,6 +57,7 @@ public final class TableColumns {
         public static final String TRACK_COUNT = "track_count";
         public static final String PLAYLIST_TYPE = "playlist_type";
         public static final String MONETIZABLE = "monetizable";
+        public static final String POLICY = "policy";
 
         public static final int TYPE_TRACK    = 0;
         public static final int TYPE_PLAYLIST = 1;
@@ -66,7 +67,8 @@ public final class TableColumns {
                 ARTWORK_URL, WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAMABLE,
                 COMMENTABLE, SHARING, LICENSE, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
-                USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED, TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, MONETIZABLE
+                USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED, TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE,
+                MONETIZABLE, POLICY
         };
     }
 
@@ -280,6 +282,7 @@ public final class TableColumns {
         public static final String TRACKS_URI = Sounds.TRACKS_URI;
         public static final String TRACK_COUNT = Sounds.TRACK_COUNT;
         public static final String MONETIZABLE = Sounds.MONETIZABLE;
+        public static final String POLICY = Sounds.POLICY;
 
         public static final String USER_ID = "sound_user_id";
         public static final String USERNAME = "sound_user_username";

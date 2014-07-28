@@ -30,14 +30,14 @@ public class AdsController {
     private Observable<AudioAd> currentObservable;
     private Subscription audioAdSubscription = Subscriptions.empty();
 
-    private final Func1<PlayQueueEvent, Boolean> isQueueUpdateFilter = new Func1<PlayQueueEvent, Boolean>() {
+    private final Func1<PlayQueueEvent, Boolean> isQueueUpdate = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
             return playQueueEvent.isQueueUpdate();
         }
     };
 
-    private final Func1<Object, Boolean> hasNextNonAudioAdTrackFilter = new Func1<Object, Boolean>() {
+    private final Func1<Object, Boolean> hasNextNonAudioAdTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
             return currentObservable == null
@@ -47,14 +47,14 @@ public class AdsController {
         }
     };
 
-    private final Func1<PropertySet, Boolean> isMonetizeableFilter = new Func1<PropertySet, Boolean>() {
+    private final Func1<PropertySet, Boolean> isMonetizable = new Func1<PropertySet, Boolean>() {
         @Override
         public Boolean call(PropertySet propertySet) {
             return propertySet.get(TrackProperty.MONETIZABLE);
         }
     };
 
-    private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAdFunction = new Func1<PropertySet, Observable<AudioAd>>() {
+    private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAd = new Func1<PropertySet, Observable<AudioAd>>() {
         @Override
         public Observable<AudioAd> call(PropertySet propertySet) {
             return adsOperations.audioAd(propertySet.get(TrackProperty.URN));
@@ -81,12 +81,12 @@ public class AdsController {
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
                 .doOnNext(resetAudioAd)
-                .filter(hasNextNonAudioAdTrackFilter)
+                .filter(hasNextNonAudioAdTrack)
                 .subscribe(new PlayQueueSubscriber());
 
         eventBus.queue(EventQueue.PLAY_QUEUE)
-                .filter(isQueueUpdateFilter)
-                .filter(hasNextNonAudioAdTrackFilter)
+                .filter(isQueueUpdate)
+                .filter(hasNextNonAudioAdTrack)
                 .subscribe(new PlayQueueSubscriber());
     }
 
@@ -94,8 +94,8 @@ public class AdsController {
         @Override
         public void onNext(Object event) {
             currentObservable = trackOperations.track(playQueueManager.getNextTrackUrn())
-                    .filter(isMonetizeableFilter)
-                    .mergeMap(fetchAudioAdFunction)
+                    .filter(isMonetizable)
+                    .mergeMap(fetchAudioAd)
                     .observeOn(AndroidSchedulers.mainThread());
             audioAdSubscription = currentObservable.subscribe(new AudioAdSubscriber(playQueueManager.getCurrentPosition()));
         }

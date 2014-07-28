@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
@@ -21,7 +23,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlayQueueOperations {
 
@@ -40,6 +44,13 @@ public class PlayQueueOperations {
         @Override
         public void call(RecommendedTracksCollection collection) {
             fireAndForget(trackWriteStorage.storeTracksAsync(collection.getCollection()));
+        }
+    };
+
+    private final Action1<Map<TrackUrn,String>> storePolicies = new Action1<Map<TrackUrn, String>>() {
+        @Override
+        public void call(Map<TrackUrn, String> policiesMap) {
+            fireAndForget(trackWriteStorage.storePoliciesAsync(policiesMap));
         }
     };
 
@@ -117,4 +128,25 @@ public class PlayQueueOperations {
 
         return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
     }
+
+    public Observable<Map<TrackUrn,String>> fetchAndStorePolicies(List<TrackUrn> trackUrns){
+        final APIRequest<UrnToPolicyMap> request = SoundCloudAPIRequest.RequestBuilder.<UrnToPolicyMap>post(APIEndpoints.POLICIES.path())
+                .withContent(transformUrnsToStrings(trackUrns))
+                .forPrivateAPI(1)
+                .forResource(TypeToken.of(UrnToPolicyMap.class)).build();
+
+        final Observable<Map<TrackUrn, String>> mapObservable = rxHttpClient.fetchModels(request);
+        return mapObservable.doOnNext(storePolicies);
+    }
+
+    private List<String> transformUrnsToStrings(List<TrackUrn> trackUrns) {
+        return Lists.transform(trackUrns, new Function<TrackUrn, String>() {
+            @Override
+            public String apply(TrackUrn input) {
+                return input.toString();
+            }
+        });
+    }
+
+    private static class UrnToPolicyMap extends HashMap<TrackUrn, String> { }
 }

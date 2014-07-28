@@ -7,6 +7,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
+import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
@@ -17,12 +19,14 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
@@ -46,8 +50,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Inject EventBus eventBus;
     @Inject PlayQueueManager playQueueManager;
-    @Inject LegacyTrackOperations trackOperations;
+    @Inject @Deprecated LegacyTrackOperations legacyTrackOperations;
+    @Inject TrackOperations trackOperations;
     @Inject AccountOperations accountOperations;
+    @Inject PlaybackServiceOperations playbackServiceOperations;
     @Inject StreamPlaya streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
@@ -129,15 +135,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @VisibleForTesting
     PlaybackService(PlayQueueManager playQueueManager,
-                    EventBus eventBus, LegacyTrackOperations trackOperations,
+                    EventBus eventBus, LegacyTrackOperations legacyTrackOperations,
+                    TrackOperations trackOperations,
                     AccountOperations accountOperations,
+                    PlaybackServiceOperations playbackServiceOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     FeatureFlags featureFlags, PlaybackNotificationController playbackNotificationController) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
+        this.legacyTrackOperations = legacyTrackOperations;
         this.trackOperations = trackOperations;
         this.accountOperations = accountOperations;
+        this.playbackServiceOperations = playbackServiceOperations;
         this.streamPlayer = streamPlaya;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
@@ -357,7 +367,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
 
             loadTrackSubscription.unsubscribe();
-            loadTrackSubscription = trackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread())
+            loadTrackSubscription = legacyTrackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread())
                     .subscribe(new TrackInformationSubscriber());
         }
     }
@@ -391,7 +401,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 currentTrack = track;
 
                 notifyChange(Broadcasts.META_CHANGED);
-                final Observable<PublicApiTrack> trackObservable = trackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
+                final Observable<PublicApiTrack> trackObservable = legacyTrackOperations.loadStreamableTrack(currentTrack.getId(), AndroidSchedulers.mainThread());
 
                 streamableTrackSubscription.unsubscribe();
                 streamableTrackSubscription = trackObservable
@@ -410,7 +420,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         @Override
         public void onNext(PublicApiTrack track) {
-            fireAndForget(trackOperations.markTrackAsPlayed(track));
+            fireAndForget(legacyTrackOperations.markTrackAsPlayed(track));
             startTrack(track);
         }
     };
@@ -421,13 +431,30 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "startTrack("+track.title+")");
 
         final PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
-        if (resumeInfo != null && resumeInfo.getTrackId() == track.getId()){
+        if (resumeInfo != null && resumeInfo.getTrackId() == track.getId() && resumeInfo.getTime() > 0){
             streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
+            logPlayCount(currentTrack.getUrn());
             streamPlayer.play(currentTrack);
         }
     }
 
+    protected void logPlayCount(TrackUrn trackUrn) {
+        trackOperations.track(trackUrn).mergeMap(new Func1<PropertySet, Observable<TrackUrn>>() {
+            @Override
+            public Observable<TrackUrn> call(PropertySet propertySet) {
+                return playbackServiceOperations.logPlay(
+                        propertySet.get(TrackProperty.URN),
+                        propertySet.get(TrackProperty.POLICY)
+                );
+            }
+        }).subscribe(new DefaultSubscriber<TrackUrn>() {
+            @Override
+            public void onNext(TrackUrn trackUrn) {
+                Log.d(TAG, "Play count logged successfully for track " + trackUrn);
+            }
+        });
+    }
 
 
     /* package */ void play() {

@@ -15,6 +15,7 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 public class TrackWriteStorage {
 
@@ -40,6 +41,21 @@ public class TrackWriteStorage {
                 for (ApiTrack track : tracks) {
                     step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser())));
                     step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track)));
+                }
+            }
+        };
+    }
+
+    public Observable<TxnResult> storePoliciesAsync(final Map<TrackUrn, String> policies){
+        return scheduler.scheduleTransaction(storePoliciesTransaction(policies));
+    }
+
+    private PropellerDatabase.Transaction storePoliciesTransaction(final Map<TrackUrn, String> policies){
+        return new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                for (Map.Entry<TrackUrn, String> entry : policies.entrySet()) {
+                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildPolicyContentValues(entry)));
                 }
             }
         };
@@ -71,6 +87,13 @@ public class TrackWriteStorage {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Users._ID, user.getId())
                 .put(TableColumns.Users.USERNAME, user.getUsername())
+                .get();
+    }
+
+    private ContentValues buildPolicyContentValues(Map.Entry<TrackUrn, String> policyEntry) {
+        return ContentValuesBuilder.values()
+                .put(TableColumns.Sounds._ID, policyEntry.getKey().numericId)
+                .put(TableColumns.Sounds.POLICY, policyEntry.getValue())
                 .get();
     }
 

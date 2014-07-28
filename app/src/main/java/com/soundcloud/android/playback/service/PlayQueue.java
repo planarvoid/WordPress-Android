@@ -100,6 +100,16 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return trackIds;
     }
 
+    List<TrackUrn> getTrackUrns() {
+        List<TrackUrn> trackUrns = Lists.transform(playQueueItems, new Function<PlayQueueItem, TrackUrn>() {
+            @Override
+            public TrackUrn apply(PlayQueueItem input) {
+                return input.getTrackUrn();
+            }
+        });
+        return trackUrns;
+    }
+
     private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource) {
         return Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Override

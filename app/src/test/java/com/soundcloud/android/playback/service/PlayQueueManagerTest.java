@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -48,6 +49,7 @@ import android.content.SharedPreferences;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
@@ -75,6 +77,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
+        when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<Map<TrackUrn, String>>empty());
 
         when(playQueue.getUrn(3)).thenReturn(TrackUrn.forTrack(369L));
 

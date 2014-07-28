@@ -3,8 +3,9 @@ package com.soundcloud.android.playback.service.skippy;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
-import static com.soundcloud.android.skippy.Skippy.*;
 import static com.soundcloud.android.skippy.Skippy.Error;
+import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
+import static com.soundcloud.android.skippy.Skippy.PlayListener;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
@@ -22,18 +23,17 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
 
 import android.os.Message;
 
@@ -89,7 +88,6 @@ public class SkippyAdapterTest {
 
         final TrackUrn trackUrn = Urn.forTrack(1L);
         when(track.getUrn()).thenReturn(trackUrn);
-        when(playbackOperations.logPlay(trackUrn)).thenReturn(Observable.just(trackUrn));
         when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(listener.requestAudioFocus()).thenReturn(true);
@@ -129,19 +127,10 @@ public class SkippyAdapterTest {
         verify(stateChangeHandler).removeMessages(0);
     }
 
-    @Test
-    public void playLogsPlayThroughPlaybackOperations() {
-        TestObservables.MockObservable<TrackUrn> mockObservable = TestObservables.emptyObservable();
-        when(playbackOperations.logPlay(track.getUrn())).thenReturn(mockObservable);
-        skippyAdapter.play(track);
-        expect(mockObservable.subscribedTo()).toBeTrue();
-    }
-
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenTryingToPlay() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         skippyAdapter.play(new PublicApiTrack(1L));
-
     }
 
     @Test

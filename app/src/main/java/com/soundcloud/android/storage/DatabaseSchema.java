@@ -40,6 +40,7 @@ final class DatabaseSchema {
             "playlist_type VARCHAR(255)," +
             "user_id INTEGER," +
             "monetizable BOOLEAN DEFAULT 0," +
+            "policy TEXT," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
@@ -255,6 +256,7 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.TRACKS_URI + " as " + TableColumns.SoundView.TRACKS_URI +
             ",Sounds." + TableColumns.Sounds.TRACK_COUNT + " as " + TableColumns.SoundView.TRACK_COUNT +
             ",Sounds." + TableColumns.Sounds.MONETIZABLE + " as " + TableColumns.SoundView.MONETIZABLE +
+            ",Sounds." + TableColumns.Sounds.POLICY + " as " + TableColumns.SoundView.POLICY +
             ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +

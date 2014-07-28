@@ -24,6 +24,7 @@ public enum APIEndpoints {
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     AUDIO_AD("/tracks/%s/ads/audio"),
+    POLICIES("/policies/tracks"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

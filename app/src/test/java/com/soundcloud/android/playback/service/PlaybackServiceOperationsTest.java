@@ -73,11 +73,11 @@ public class PlaybackServiceOperationsTest {
         APIResponse response = mock(APIResponse.class);
 
         when(rxHttpClient.fetchResponse(argThat(isMobileApiRequestTo("POST", "/tracks/soundcloud%3Asounds%3A1/plays")
-                .withQueryParam("client_id", "12345")))).thenReturn(Observable.just(response));
+                .withQueryParam("client_id", "12345").withQueryParam("policy", "allowed")))).thenReturn(Observable.just(response));
         when(httpProperties.getClientId()).thenReturn("12345");
         when(response.getStatusCode()).thenReturn(302);
 
-        playbackServiceOperations.logPlay(track.getUrn()).subscribe(observer);
+        playbackServiceOperations.logPlay(track.getUrn(), "allowed").subscribe(observer);
         verify(observer).onNext(track.getUrn());
 
     }

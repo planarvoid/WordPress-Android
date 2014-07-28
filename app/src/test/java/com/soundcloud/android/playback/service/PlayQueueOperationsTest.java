@@ -1,12 +1,16 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -19,10 +23,12 @@ import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -32,7 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 
@@ -40,8 +45,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueOperationsTest {
@@ -169,7 +176,7 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void getRelatedTracksShouldEmitTracksFromSuggestions() throws CreateModelException {
-        Observer<ModelCollection<ApiTrack>> relatedObserver = Mockito.mock(Observer.class);
+        Observer<ModelCollection<ApiTrack>> relatedObserver = mock(Observer.class);
 
         ApiTrack suggestion1 = TestHelper.getModelFactory().createModel(ApiTrack.class);
         ApiTrack suggestion2 = TestHelper.getModelFactory().createModel(ApiTrack.class);
@@ -199,6 +206,19 @@ public class PlayQueueOperationsTest {
 
         final List<ApiTrack> resources = Arrays.asList(collection.getCollection().get(0));
         verify(trackWriteStorage).storeTracksAsync(resources);
+    }
+
+    @Test
+    public void fetchAndStorePoliciesMakeGetRequestToRelatedTracksEndpoint() {
+        HashMap retMap = mock(HashMap.class);
+
+        final ApiRequestTo expectedRequest = isMobileApiRequestTo("POST", APIEndpoints.POLICIES.path());
+        expectedRequest.withContent(Lists.newArrayList("soundcloud:sounds:123"));
+
+        when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(retMap));
+        when(trackWriteStorage.storePoliciesAsync(anyMap())).thenReturn(Observable.<TxnResult>empty());
+        final Map<TrackUrn, String> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
+        expect(first).toBe(retMap);
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {

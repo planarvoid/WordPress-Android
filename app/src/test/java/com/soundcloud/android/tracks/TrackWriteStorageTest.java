@@ -21,7 +21,9 @@ import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackWriteStorageTest extends StorageIntegrationTest {
@@ -94,6 +96,21 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldStoreListOfPolicies() throws Exception {
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
+        Map<TrackUrn, String> policies = new HashMap<TrackUrn, String>(2);
+        policies.put(TrackUrn.forTrack(1L), "allowed");
+        policies.put(TrackUrn.forTrack(2L), "monetizable");
+        policies.put(TrackUrn.forTrack(3L), "something");
+
+        storage.storePoliciesAsync(policies).subscribe(observer);
+
+        expectPolicyInserted(TrackUrn.forTrack(1L), "allowed");
+        expectPolicyInserted(TrackUrn.forTrack(2L), "monetizable");
+        expectPolicyInserted(TrackUrn.forTrack(3L), "something");
+    }
+
+    @Test
     public void storingListOfApiMobileTracksEmitsTransactionResult() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<ApiTrack> tracks = Arrays.asList(
@@ -107,6 +124,22 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         TxnResult result = observer.getOnNextEvents().get(0);
         assertThat(result.success(), is(true));
         assertThat(result.getResults().size(), is(4));
+    }
+
+    @Test
+    public void storingListOfPoliciesEmitsTransactionResult() throws Exception {
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
+        Map<TrackUrn, String> policies = new HashMap<TrackUrn, String>(2);
+        policies.put(TrackUrn.forTrack(1L), "allowed");
+        policies.put(TrackUrn.forTrack(2L), "monetizable");
+
+        storage.storePoliciesAsync(policies).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents().size(), is(1));
+        assertThat(observer.getOnCompletedEvents().size(), is(1));
+        TxnResult result = observer.getOnNextEvents().get(0);
+        assertThat(result.success(), is(true));
+        assertThat(result.getResults().size(), is(2));
     }
 
     private void expectTrackInserted(ApiTrack track) {
@@ -135,6 +168,13 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         assertThat(select(from(Table.SOUND_VIEW.name)
                         .whereEq(TableColumns.SoundView.USER_ID, user.getId())
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
+        ), counts(1));
+    }
+
+    private void expectPolicyInserted(TrackUrn trackUrn, String policy) {
+        assertThat(select(from(Table.SOUND_VIEW.name)
+                        .whereEq(TableColumns.SoundView._ID, trackUrn.numericId)
+                        .whereEq(TableColumns.SoundView.POLICY, policy)
         ), counts(1));
     }
 }

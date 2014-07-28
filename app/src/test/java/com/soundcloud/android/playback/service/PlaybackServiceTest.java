@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,10 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowService;
@@ -54,9 +59,13 @@ public class PlaybackServiceTest {
     @Mock
     private PlayQueueManager playQueueManager;
     @Mock
-    private LegacyTrackOperations trackOperations;
+    private LegacyTrackOperations legacyTrackOperations;
+    @Mock
+    private TrackOperations trackOperations;
     @Mock
     private AccountOperations accountOperations;
+    @Mock
+    private PlaybackServiceOperations playbackServiceOperations;
     @Mock
     private ImageOperations imageOperations;
     @Mock
@@ -80,8 +89,8 @@ public class PlaybackServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations,
-                accountOperations, streamPlayer,
+        playbackService = new PlaybackService(playQueueManager, eventBus, legacyTrackOperations, trackOperations,
+                accountOperations, playbackServiceOperations, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider, featureFlags, playbackNotificationController);
 
 
@@ -90,7 +99,7 @@ public class PlaybackServiceTest {
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
         when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
-        when(trackOperations.markTrackAsPlayed(track)).thenReturn(Observable.just(track));
+        when(legacyTrackOperations.markTrackAsPlayed(track)).thenReturn(Observable.just(track));
     }
 
     @Test
@@ -182,7 +191,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onProgressPublishesAProgressEventIfVisualPlayerEnabled() throws Exception {
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         playbackService.onCreate();
         playbackService.openCurrent(track);
@@ -201,9 +210,37 @@ public class PlaybackServiceTest {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         final TestObservables.MockObservable<PublicApiTrack> trackMockObservable = TestObservables.emptyObservable();
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(trackMockObservable);
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(trackMockObservable);
         playbackService.openCurrent(new PublicApiTrack());
         expect(trackMockObservable.subscribedTo()).toBeTrue();
+    }
+
+    @Test
+    public void openCurrentWithStreamableTrackCallsPlayOnStreamPlayer() throws Exception {
+        playbackService.onCreate();
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(playbackServiceOperations.logPlay(any(TrackUrn.class), anyString())).thenReturn(Observable.<TrackUrn>empty());
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>empty());
+
+        playbackService.openCurrent(track);
+
+        verify(streamPlayer).play(track);
+    }
+
+    @Test
+    public void startingPlaybackLogsPlayCount() throws Exception {
+        playbackService.onCreate();
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        final PropertySet trackPropertySet = PropertySet.from(TrackProperty.URN.bind(track.getUrn()), TrackProperty.POLICY.bind("monetizable"));
+        when(trackOperations.track(track.getUrn())).thenReturn(Observable.just(trackPropertySet));
+        final TestObservables.MockObservable mock = TestObservables.emptyObservable();
+        when(playbackServiceOperations.logPlay(track.getUrn(), "monetizable")).thenReturn(mock);
+
+        playbackService.openCurrent(track);
+
+        expect(mock.subscribedTo()).toBeTrue();
     }
 
     @Test
@@ -214,12 +251,12 @@ public class PlaybackServiceTest {
         final Subscription subscription = Mockito.mock(Subscription.class);
         final Observable<PublicApiTrack> observable = TestObservables.fromSubscription(subscription);
 
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(observable);
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(observable);
 
         playbackService.openCurrent(new PublicApiTrack());
 
         // we need to setup a different observable or we will get an undesired unsubscribe from the extra subscription
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(TestObservables.<PublicApiTrack>emptyObservable());
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(TestObservables.<PublicApiTrack>emptyObservable());
         playbackService.openCurrent(new PublicApiTrack());
 
         verify(subscription).unsubscribe();
@@ -237,7 +274,7 @@ public class PlaybackServiceTest {
         playbackService.onCreate();
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, track.getUrn()));
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
         playbackService.openCurrent(new PublicApiTrack());
 
         playbackService.stop();
@@ -254,7 +291,7 @@ public class PlaybackServiceTest {
         playbackService.onCreate();
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, track.getUrn()));
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.<PublicApiTrack>empty());
         when(playbackNotificationController.playingNotification()).thenReturn(Observable.just(Mockito.mock(Notification.class)));
         playbackService.openCurrent(track);
 
@@ -286,7 +323,7 @@ public class PlaybackServiceTest {
     @Test
     public void seekWithValidPercentCallsSeekOnStreamPlaya() throws Exception {
         playbackService.onCreate();
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
 
         playbackService.openCurrent(track);
@@ -297,7 +334,7 @@ public class PlaybackServiceTest {
     @Test
     public void seekWithValidPercentReturnsStreamPlayaSeekValue() throws Exception {
         playbackService.onCreate();
-        when(trackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(streamPlayer.seek(500L, true)).thenReturn(500L);
 

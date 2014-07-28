@@ -13,6 +13,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.HttpProperties;
+import com.soundcloud.android.api.json.SoundCloudModule;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -141,10 +142,11 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
 
     public final static ObjectMapper buildObjectMapper() {
-        return new ObjectMapper().
-                configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
-                setDateFormat(new CloudDateFormat());
+        return new ObjectMapper()
+                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .registerModule(new SoundCloudModule())
+                .setDateFormat(new CloudDateFormat());
     }
 
     @Override
