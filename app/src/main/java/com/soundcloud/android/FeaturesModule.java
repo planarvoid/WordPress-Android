@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.accounts.AccountsModule;
+import com.soundcloud.android.activities.ActivitiesModule;
 import com.soundcloud.android.associations.LikesModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.main.MainModule;
@@ -13,6 +14,7 @@ import dagger.Module;
 
 @Module(includes = {
         AccountsModule.class,
+        ActivitiesModule.class,
         SearchModule.class,
         ExploreModule.class,
         LikesModule.class,
