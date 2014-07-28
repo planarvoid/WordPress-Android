@@ -8,7 +8,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.screen.ScreenPresenter;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -16,9 +18,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import javax.inject.Inject;
+
 public class PlaylistDetailActivity extends ScActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
+
+    @Inject PlayerController playerController;
+    @Inject ScreenPresenter presenter;
 
     @Deprecated
     public static void start(Context context, @NotNull PublicApiPlaylist playlist, ScModelManager modelManager, Screen screen) {
@@ -38,6 +45,7 @@ public class PlaylistDetailActivity extends ScActivity {
 
     public PlaylistDetailActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        presenter.attach(this);
     }
 
     @Override
@@ -45,18 +53,25 @@ public class PlaylistDetailActivity extends ScActivity {
         super.onCreate(savedInstanceState);
 
         setTitle(R.string.activity_title_playlist);
-        setContentView(R.layout.playlist_activity);
 
         if (savedInstanceState == null) {
             createFragmentForPlaylist();
         }
+
+        playerController.attach(this, actionBarController);
+        playerController.restoreState(savedInstanceState);
     }
 
     private void createFragmentForPlaylist() {
         Bundle extras = getIntent().getExtras();
         Log.d(LOG_TAG, "(Re-)creating fragment for " + extras.getParcelable(PublicApiPlaylist.EXTRA_URN));
         Fragment fragment = PlaylistFragment.create(extras);
-        getSupportFragmentManager().beginTransaction().replace(R.id.playlist_tracks_fragment, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+    }
+
+    @Override
+    protected void setContentView() {
+        presenter.setBaseLayout();
     }
 
     @Override
@@ -65,5 +80,25 @@ public class PlaylistDetailActivity extends ScActivity {
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYLIST_DETAILS.get());
         }
+        playerController.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        playerController.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        playerController.storeState(outState);
     }
 }
