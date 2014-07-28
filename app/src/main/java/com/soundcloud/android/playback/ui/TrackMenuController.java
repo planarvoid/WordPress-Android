@@ -13,7 +13,7 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     public static final String SHARE_TYPE = "text/plain";
 
-    private Context context;
+    private final Context context;
     private Intent shareIntent;
 
     TrackMenuController(Context context, View anchorView) {
@@ -35,10 +35,9 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.share:
-                context.startActivity(shareIntent);
-                return true;
+        if (menuItem.getItemId() == R.id.share) {
+            context.startActivity(shareIntent);
+            return true;
         }
         return false;
     }
