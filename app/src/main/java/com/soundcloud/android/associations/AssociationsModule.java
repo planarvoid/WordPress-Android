@@ -9,7 +9,13 @@ import com.soundcloud.android.sync.SyncStateManager;
 import dagger.Module;
 import dagger.Provides;
 
-@Module(addsTo = ApplicationModule.class, library = true)
+@Module(
+        addsTo = ApplicationModule.class,
+        library = true,
+        injects = {
+                WhoToFollowActivity.class
+        }
+)
 public class AssociationsModule {
 
     @Provides
