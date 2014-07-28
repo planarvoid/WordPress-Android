@@ -38,6 +38,8 @@ public class VisualPlayerElement extends Element implements PlayerElement {
         return solo.findElement(With.id(R.id.track_page_next));
     }
 
+    public ViewElement skipAd() {return solo.findElement(With.id(R.id.skip_ad));};
+
     private ViewElement trackContainer() {
         return solo.findElement(With.id(R.id.player_track_pager));
     }
@@ -105,6 +107,11 @@ public class VisualPlayerElement extends Element implements PlayerElement {
         waiter.waitForPlayerPage();
     }
 
+    public void tapSkipAd() {
+        skipAd().click();
+        waiter.waitForPlayerPage();
+    }
+
     @Override
     public void swipeNext() {
         solo.swipeLeft(0.4f);
@@ -123,6 +130,10 @@ public class VisualPlayerElement extends Element implements PlayerElement {
 
     public void waitForContent() {
         waiter.waitForContent(getViewPager());
+    }
+
+    public void waitForSkipAdButton() {
+        waiter.waitForElement(R.id.skip_ad);
     }
 
     private ViewPager getViewPager() {

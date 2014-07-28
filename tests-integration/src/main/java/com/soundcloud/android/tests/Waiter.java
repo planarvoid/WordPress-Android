@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests;
 
 import com.robotium.solo.Condition;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;

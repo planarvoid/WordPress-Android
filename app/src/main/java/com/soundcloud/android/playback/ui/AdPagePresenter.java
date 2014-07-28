@@ -103,16 +103,34 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.why_ads:
                 listener.onAboutAds();
                 break;
+            case R.id.skip_ad:
+                listener.skipAd();
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID");
         }
     }
 
     @Override
-    public void setProgress(View trackPage, PlaybackProgress progress) {
-        int secondsUntilSkip = SKIP_DURATION_SEC - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
+    public void setProgress(View adView, PlaybackProgress progress) {
+        final int secondsUntilSkip = SKIP_DURATION_SEC - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
+        final boolean canSkip = secondsUntilSkip <= 0;
+
+        final Holder viewHolder = getViewHolder(adView);
+        toggleSkip(viewHolder, canSkip);
+        if (!canSkip) {
+            updateCountDown(viewHolder, secondsUntilSkip);
+        }
+    }
+
+    private void toggleSkip(Holder viewHolder, boolean canSkip) {
+        viewHolder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
+        viewHolder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+    }
+
+    private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
         String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        getViewHolder(trackPage).timeUntilSkip.setText(formattedTime);
+        viewHolder.timeUntilSkip.setText(formattedTime);
     }
 
     @Override
@@ -174,6 +192,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final View close;
         private final TextView previewTitle;
         private final TextView timeUntilSkip;
+        private final View skipAd;
         private final View learnMore;
         private final View whyAds;
         // Footer player
@@ -193,6 +212,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             previewTitle = (TextView) adView.findViewById(R.id.preview_title);
             previewArtwork = ((ImageView) adView.findViewById(R.id.preview_artwork));
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
+            skipAd = adView.findViewById(R.id.skip_ad);
             learnMore = adView.findViewById(R.id.learn_more);
             whyAds = adView.findViewById(R.id.why_ads);
 
@@ -204,9 +224,11 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         }
 
         public View[] getOnClickViews() {
-            return new View[] { artworkView, artworkIdleOverlay, playButton,
-                    learnMore, whyAds,
-                    footerPlayToggle, close, footer };
+            return new View[] {
+                    artworkView, artworkIdleOverlay, playButton,
+                    learnMore, whyAds, skipAd,
+                    footerPlayToggle, close, footer
+            };
         }
 
         public View[] getFullScreenViews() {

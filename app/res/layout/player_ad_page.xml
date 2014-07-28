@@ -60,9 +60,9 @@
 
             <TextView
                     android:id="@+id/skip_ad"
-                    style="@style/AdText.NextUp"
+                    style="@style/AdText.NextUp.Skip"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="@string/skip_ad"
                     android:visibility="gone"/>
 
@@ -76,7 +76,6 @@
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/preview_artwork_container"
                 android:layout_toLeftOf="@id/skip_container" />
-
     </RelativeLayout>
 
 

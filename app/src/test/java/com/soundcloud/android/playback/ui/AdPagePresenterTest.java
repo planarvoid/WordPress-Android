@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -8,6 +9,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -20,6 +22,9 @@ import org.mockito.Mock;
 import android.net.Uri;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AdPagePresenterTest {
@@ -89,6 +94,13 @@ public class AdPagePresenterTest {
     }
 
     @Test
+    public void clickSkipAdShouldSkipAd() {
+        adView.findViewById(R.id.skip_ad).performClick();
+
+        verify(pageListener).skipAd();
+    }
+
+    @Test
     public void showAboutAdsOnWhyAdsClick() {
         adView.findViewById(R.id.why_ads).performClick();
 
@@ -98,6 +110,44 @@ public class AdPagePresenterTest {
     @Test(expected = IllegalArgumentException.class)
     public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
         presenter.onClick(mock(View.class));
+    }
+
+    @Test
+    public void setProgressShouldInitiallySetATimerTo15sec() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 30));
+
+        expect(skipAd()).toBeGone();
+        expect(timeUntilSkip()).toBeVisible();
+        expect(timeUntilSkip().getText()).toEqual("15 sec.");
+    }
+
+    @Test
+    public void setProgressShouldUpdateTimeUntilSkipAccordingToPosition() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 30));
+
+        expect(skipAd()).toBeGone();
+        expect(timeUntilSkip()).toBeVisible();
+        expect(timeUntilSkip().getText()).toEqual("8 sec.");
+    }
+
+    @Test
+    public void setProgressShouldDisplayEnableSkipAdAfter15sec() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 15, 30));
+
+        expect(timeUntilSkip()).toBeGone();
+        expect(skipAd()).toBeVisible();
+    }
+
+    private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
+        return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
+    }
+
+    private TextView timeUntilSkip() {
+        return ((TextView) adView.findViewById(R.id.time_until_skip));
+    }
+
+    private View skipAd() {
+        return adView.findViewById(R.id.skip_ad);
     }
 
     private PropertySet buildAd() {

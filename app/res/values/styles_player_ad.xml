@@ -11,6 +11,10 @@
     <style name="AdText.NextUp">
         <item name="android:textSize">14sp</item>
     </style>
+    <style name="AdText.NextUp.Skip">
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:drawableRight">@drawable/btn_player_ad_skip</item>
+    </style>
     <style name="AdText.NextUp.Track">
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
