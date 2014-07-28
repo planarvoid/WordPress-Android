@@ -1,9 +1,8 @@
 package com.soundcloud.android.screens.elements;
 
 
-import static junit.framework.Assert.assertEquals;
-
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
@@ -16,16 +15,16 @@ import android.os.Build;
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
 
-import java.util.List;
-
 public class ActionBarElement extends Element {
 
     private static final int SEARCH_SELECTOR = R.id.action_search;
     private static final int TITLE = Resources.getSystem().getIdentifier( "action_bar_title", "id", "android");
     private static final int CONTAINER = Resources.getSystem().getIdentifier( "action_bar_container", "id", "android");
+    private final Han testDriver;
 
     public ActionBarElement(Han solo) {
         super(solo);
+        testDriver = solo;
     }
 
     public String getTitle() {
@@ -53,6 +52,11 @@ public class ActionBarElement extends Element {
             solo.findElement(With.id(SEARCH_SELECTOR)).click();
         }
         return new PlaylistTagsScreen(solo);
+    }
+
+    public ActivitiesScreen clickActivityOverflowButton() {
+        testDriver.clickOnActionBarItem(R.id.action_activity);
+        return new ActivitiesScreen(testDriver);
     }
 
     public SearchResultsScreen doSearch(String query) {
