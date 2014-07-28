@@ -25,6 +25,7 @@ import org.apache.http.HttpStatus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -73,53 +74,66 @@ public class SoundAssociationOperations {
          * model manager and the collections table.
          */
         return legacyTrackOperations.loadTrack(trackUrn.numericId, AndroidSchedulers.mainThread())
-                .mergeMap(new Func1<PublicApiTrack, Observable<SoundAssociation>>() {
+                .mergeMap(new Func1<PublicApiTrack, Observable<PropertySet>>() {
                     @Override
-                    public Observable<SoundAssociation> call(PublicApiTrack track) {
+                    public Observable<PropertySet> call(PublicApiTrack track) {
                         return toggleLike(addLike, track);
-                    }
-                }).map(new Func1<SoundAssociation, PropertySet>() {
-                    @Override
-                    public PropertySet call(SoundAssociation soundAssociation) {
-                        return PropertySet.from(
-                                PlayableProperty.IS_LIKED.bind(soundAssociation.getPlayable().user_like),
-                                PlayableProperty.LIKES_COUNT.bind(soundAssociation.getPlayable().likes_count));
                     }
                 });
     }
 
     @Deprecated
-    public Observable<SoundAssociation> toggleLike(boolean addLike, final Playable playable) {
-        return addLike ? like(playable) : unlike(playable);
+    public Observable<PropertySet> toggleLike(final boolean addLike, final Playable playable) {
+        logPlayable(addLike ? "LIKE" : "UNLIKE", playable);
+        return updateLikeState(playable, addLike)
+                .mergeMap(new Func1<SoundAssociation, Observable<PropertySet>>() {
+                    @Override
+                    public Observable<PropertySet> call(SoundAssociation soundAssociation) {
+                        APIRequest apiRequest = buildRequestForLike(playable, addLike);
+                        return httpClient.fetchResponse(apiRequest)
+                                .map(playableToPropertySetFunc(playable))
+                                .onErrorResumeNext(handleInvalidUnlike(playable))
+                                .onErrorResumeNext(updateLikeState(playable, !addLike)
+                                                .map(playableToPropertySetFunc(playable))
+                                );
+
+                    }
+                });
     }
 
-    private Observable<SoundAssociation> like(final Playable playable) {
-        logPlayable("LIKE", playable);
-        return httpClient.fetchResponse(buildRequestForLike(playable, true)).mergeMap(mapAddLikeResponse(playable))
-                .doOnCompleted(handleLikeStateChanged(playable, true));
+    private Observable<SoundAssociation> updateLikeState(Playable playable, boolean addLike) {
+        Observable<SoundAssociation> updateObservable = addLike
+                ? soundAssocStorage.addLikeAsync(playable)
+                : soundAssocStorage.removeLikeAsync(playable);
+        return updateObservable.doOnNext(cacheAndPublishLike());
     }
 
-    private Observable<SoundAssociation> unlike(final Playable playable) {
-        logPlayable("UNLIKE", playable);
-        return httpClient.fetchResponse(buildRequestForLike(playable, false)).mergeMap(mapRemoveLikeResponse(playable))
-                .onErrorResumeNext(handle404(soundAssocStorage.removeLikeAsync(playable)))
-                .doOnCompleted(handleLikeStateChanged(playable, false));
-    }
-
-    // If a like has already been removed server side, and it hasn't synced back to the client, it can happen
-    // that we're trying to remove a like that doesn't exist anymore. This action recovers from this scenarion
-    // by removing the like locally and then resuming as usual.
-    private Func1<Throwable, Observable<? extends SoundAssociation>> handle404(
-            final Observable<SoundAssociation> fallbackRemovalFunction) {
-        return new Func1<Throwable, Observable<? extends SoundAssociation>>() {
+    private Action1<SoundAssociation> cacheAndPublishLike() {
+        return new Action1<SoundAssociation>() {
             @Override
-            public Observable<? extends SoundAssociation> call(Throwable throwable) {
+            public void call(SoundAssociation soundAssociation) {
+                Playable updated = soundAssociation.getPlayable();
+                logPlayable("CACHE/PUBLISH", updated);
+                modelManager.cache(updated, PublicApiResource.CacheUpdateMode.NONE);
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(updated.getUrn(), updated.user_like, updated.likes_count));
+            }
+        };
+    }
+
+    /*
+     * A like could have been removed on the server but not yet synced to the client.
+     * If we unliked and get a 404 then do not revert because client is already in correct state.
+     */
+    private Func1<Throwable, Observable<PropertySet>> handleInvalidUnlike(final Playable playable) {
+        return new Func1<Throwable, Observable<PropertySet>>() {
+            @Override
+            public Observable<PropertySet> call(Throwable throwable) {
                 if (throwable instanceof APIRequestException) {
                     APIRequestException requestException = (APIRequestException) throwable;
                     if (requestException.response() != null
                             && requestException.response().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                        Log.d(TAG, "not found; force removing association");
-                        return fallbackRemovalFunction;
+                        Log.d(TAG, "Unliking a track that was not liked on server. Already in correct state.");
+                        return Observable.just(createPropertySetFromLike(playable));
                     }
                 }
                 // forward error as usual
@@ -128,24 +142,19 @@ public class SoundAssociationOperations {
         };
     }
 
-    private Func1<APIResponse, Observable<SoundAssociation>> mapAddLikeResponse(final Playable playable) {
-        return new Func1<APIResponse, Observable<SoundAssociation>>() {
+    private Func1<Object, PropertySet> playableToPropertySetFunc(final Playable playable) {
+        return new Func1<Object, PropertySet>() {
             @Override
-            public Observable<SoundAssociation> call(APIResponse response) {
-                logPlayable("STORE", playable);
-                return soundAssocStorage.addLikeAsync(playable);
+            public PropertySet call(Object soundAssociation) {
+                return createPropertySetFromLike(playable);
             }
         };
     }
 
-    private Func1<APIResponse, Observable<SoundAssociation>> mapRemoveLikeResponse(final Playable playable) {
-        return new Func1<APIResponse, Observable<SoundAssociation>>() {
-            @Override
-            public Observable<SoundAssociation> call(APIResponse response) {
-                logPlayable("REMOVE", playable);
-                return soundAssocStorage.removeLikeAsync(playable);
-            }
-        };
+    private PropertySet createPropertySetFromLike(Playable playable) {
+        return PropertySet.from(
+                PlayableProperty.IS_LIKED.bind(playable.user_like),
+                PlayableProperty.LIKES_COUNT.bind(playable.likes_count));
     }
 
     private APIRequest buildRequestForLike(final Playable playable, final boolean likeAdded) {
@@ -203,16 +212,24 @@ public class SoundAssociationOperations {
         };
     }
 
-    // FIXME: the playable is written on a BG thread and read on the UI thread,
-    // this might cause thread visibility issues.
-    private Action0 handleLikeStateChanged(final Playable playable, final boolean isLiked) {
-        return new Action0() {
+    // If a like has already been removed server side, and it hasn't synced back to the client, it can happen
+    // that we're trying to remove a like that doesn't exist anymore. This action recovers from this scenarion
+    // by removing the like locally and then resuming as usual.
+    private Func1<Throwable, Observable<? extends SoundAssociation>> handle404(
+            final Observable<SoundAssociation> fallbackRemovalFunction) {
+        return new Func1<Throwable, Observable<? extends SoundAssociation>>() {
             @Override
-            public void call() {
-                logPlayable("CACHE/PUBLISH", playable);
-                modelManager.cache(playable, PublicApiResource.CacheUpdateMode.NONE);
-                Log.d(TAG, "publishing playable change event");
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(playable.getUrn(), isLiked, playable.likes_count));
+            public Observable<? extends SoundAssociation> call(Throwable throwable) {
+                if (throwable instanceof APIRequestException) {
+                    APIRequestException requestException = (APIRequestException) throwable;
+                    if (requestException.response() != null
+                            && requestException.response().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                        Log.d(TAG, "not found; force removing association");
+                        return fallbackRemovalFunction;
+                    }
+                }
+                // forward error as usual
+                return Observable.error(throwable);
             }
         };
     }

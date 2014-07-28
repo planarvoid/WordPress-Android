@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +71,7 @@ public class EngagementsControllerTest {
         controller.setPlayable(new PublicApiTrack(1L));
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
+                .thenReturn(Observable.just(PropertySet.create()));
         rootView.findViewById(R.id.toggle_like).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
@@ -83,7 +84,7 @@ public class EngagementsControllerTest {
         controller.setPlayable(new PublicApiTrack(1L));
 
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
+                .thenReturn(Observable.just(PropertySet.create()));
         ToggleButton likeToggle = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         likeToggle.setChecked(true);
         likeToggle.performClick();
@@ -149,30 +150,12 @@ public class EngagementsControllerTest {
 
         track.user_like = true;
         when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(track)));
+                .thenReturn(Observable.just(PropertySet.create()));
 
         likeButton.performClick();
 
         verify(soundAssocOps).toggleLike(eq(true), refEq(track));
         expect(likeButton.isChecked()).toBeTrue();
-    }
-
-    @Test
-    public void shouldResetLikeButtonToPreviousStateWhenLikingFails() {
-        PublicApiTrack track = new PublicApiTrack();
-        controller.setPlayable(track);
-
-        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        expect(likeButton.isChecked()).toBeFalse();
-
-        when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.<SoundAssociation>error(new Exception()));
-
-        likeButton.performClick();
-
-        verify(soundAssocOps).toggleLike(eq(true), refEq(track));
-        expect(likeButton.isChecked()).toBeFalse();
-        expect(likeButton.isEnabled()).toBeTrue();
     }
 
     @Test

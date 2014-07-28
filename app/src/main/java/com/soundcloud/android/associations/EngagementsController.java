@@ -1,5 +1,7 @@
 package com.soundcloud.android.associations;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
@@ -85,13 +87,7 @@ public class EngagementsController {
                     if (playable != null) {
                         eventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(toggleLike.isChecked(),
                                 EngagementsController.this.originProvider.getScreenTag(), playable));
-
-                        toggleLike.setEnabled(false);
-                        subscription.add(
-                                soundAssociationOps.toggleLike(toggleLike.isChecked(), playable)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new ResetToggleButton(toggleLike))
-                        );
+                        fireAndForget(soundAssociationOps.toggleLike(toggleLike.isChecked(), playable));
                     }
                 }
             });

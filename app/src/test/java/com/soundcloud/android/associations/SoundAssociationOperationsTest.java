@@ -50,24 +50,33 @@ public class SoundAssociationOperationsTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private SoundAssociationStorage storage;
-    @Mock
-    private RxHttpClient httpClient;
-    @Mock
-    private ScModelManager modelManager;
-    @Mock
-    private Observer observer;
-    @Mock
-    private APIResponse response;
-    @Mock
-    private LegacyTrackOperations legacyTrackOperations;
-    @Captor
-    private ArgumentCaptor<PlayableChangedEvent> eventCaptor;
+    @Mock private SoundAssociationStorage storage;
+    @Mock private RxHttpClient httpClient;
+    @Mock private ScModelManager modelManager;
+    @Mock private Observer observer;
+    @Mock private APIResponse response;
+    @Mock private LegacyTrackOperations legacyTrackOperations;
+    @Captor private ArgumentCaptor<PlayableChangedEvent> eventCaptor;
+
+    private SoundAssociation trackLike;
+    private SoundAssociation trackUnlike;
 
     @Before
     public void setUp() throws Exception {
         operations = new SoundAssociationOperations(eventBus, storage, httpClient, modelManager, legacyTrackOperations);
+        setupTestAssociations();
+    }
+
+    private void setupTestAssociations() {
+        final PublicApiTrack liked = new PublicApiTrack(1L);
+        liked.likes_count = 1;
+        liked.user_like = true;
+        trackLike = new SoundAssociation(liked);
+
+        final PublicApiTrack unliked = new PublicApiTrack(1L);
+        unliked.likes_count = 0;
+        unliked.user_like = false;
+        trackUnlike = new SoundAssociation(unliked);
     }
 
     @Test
@@ -85,7 +94,6 @@ public class SoundAssociationOperationsTest {
     @Test
     public void likingATrackShouldSendPUTRequestToApiAndThenStoreTheAssociation() throws Exception {
         final PublicApiTrack track = new PublicApiTrack(1L);
-        final SoundAssociation trackLike = new SoundAssociation(track);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
@@ -93,7 +101,7 @@ public class SoundAssociationOperationsTest {
         operations.toggleLike(true, track).subscribe(observer);
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
-        verify(observer).onNext(trackLike);
+        verify(storage).addLikeAsync(track);
     }
 
     @Test
@@ -113,13 +121,20 @@ public class SoundAssociationOperationsTest {
     }
 
     @Test
-    public void whenLikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
+    public void whenLikingATrackFailsTheRevertedPlayableChangeIsPublished() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
+        when(storage.addLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackLike));
+        when(storage.removeLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackUnlike));
 
         operations.toggleLike(true, new PublicApiTrack(1L)).subscribe(observer);
 
-        verify(observer).onError(any(Exception.class));
-        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
+        PropertySet changes = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        expect(changes.get(PlayableProperty.IS_LIKED)).toBe(true);
+        expect(changes.get(PlayableProperty.LIKES_COUNT)).toBe(1);
+
+        PropertySet reverted = eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        expect(reverted.get(PlayableProperty.IS_LIKED)).toBe(false);
+        expect(reverted.get(PlayableProperty.LIKES_COUNT)).toBe(0);
     }
 
     @Test
@@ -133,7 +148,7 @@ public class SoundAssociationOperationsTest {
         operations.toggleLike(false, track).subscribe(observer);
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
-        verify(observer).onNext(trackUnlike);
+        verify(storage).removeLikeAsync(track);
     }
 
     @Test
@@ -153,42 +168,20 @@ public class SoundAssociationOperationsTest {
     }
 
     @Test
-    public void whenUnlikingATrackFailsItShouldNotPublishChangeEvent() throws Exception {
+    public void whenUnlikingATrackFailsTheRevertedPlayableChangeIsPublished() throws Exception {
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
+        when(storage.addLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackLike));
+        when(storage.removeLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackUnlike));
 
         operations.toggleLike(false, new PublicApiTrack(1L)).subscribe(observer);
 
-        verify(observer).onError(any(Exception.class));
-        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toBeEmpty();
-    }
+        PropertySet reverted = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        expect(reverted.get(PlayableProperty.IS_LIKED)).toBe(false);
+        expect(reverted.get(PlayableProperty.LIKES_COUNT)).toBe(0);
 
-    @Test
-    public void whenUnlikingATrackFailsBecauseItWasAlreadyRemovedFromServerItShouldBeRemovedFromStorageToo() {
-        final PublicApiTrack track = new PublicApiTrack(1L);
-        final SoundAssociation trackUnlike = new SoundAssociation(track);
-
-        APIResponse response404 = mock(APIResponse.class);
-        when(response404.getStatusCode()).thenReturn(404);
-        when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
-                .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), response404)));
-        when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
-
-        operations.toggleLike(false, track).subscribe(observer);
-
-        verify(observer).onNext(trackUnlike);
-    }
-
-    @Test
-    public void whenUnlikingATrackFailsBecauseThereIsNoNetworkTheErrorShouldBePropagated() {
-        final PublicApiTrack track = new PublicApiTrack(1L);
-        APIResponse emptyResponse = mock(APIResponse.class);
-        when(emptyResponse.getStatusCode()).thenThrow(new NullPointerException());
-        when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
-                .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), emptyResponse)));
-
-        operations.toggleLike(false, track).subscribe(observer);
-
-        verify(observer).onError(any(Exception.class));
+        PropertySet changes = eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        expect(changes.get(PlayableProperty.IS_LIKED)).toBe(true);
+        expect(changes.get(PlayableProperty.LIKES_COUNT)).toBe(1);
     }
 
     @Test
@@ -202,7 +195,7 @@ public class SoundAssociationOperationsTest {
         operations.toggleLike(true, playlist).subscribe(observer);
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
-        verify(observer).onNext(like);
+        verify(storage).addLikeAsync(playlist);
     }
 
     @Test
@@ -215,7 +208,28 @@ public class SoundAssociationOperationsTest {
 
         operations.toggleLike(false, playlist).subscribe(observer);
 
-        verify(observer).onNext(unlike);
+        verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
+        verify(storage).removeLikeAsync(playlist);
+    }
+
+    @Test
+    public void whenUnlikingATrackFailsBecauseItWasAlreadyUnlikedDoNotRevertUnlike() {
+        final PublicApiTrack track = new PublicApiTrack(1L);
+        final SoundAssociation revertUnlike = new SoundAssociation(track);
+
+        APIResponse response404 = mock(APIResponse.class);
+        when(response404.getStatusCode()).thenReturn(404);
+        when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/1"))))
+                .thenReturn(Observable.<APIResponse>error(APIRequestException.badResponse(mock(APIRequest.class), response404)));
+        when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
+        when(storage.addLikeAsync(track)).thenReturn(Observable.just(revertUnlike));
+
+        operations.toggleLike(false, track).subscribe(observer);
+
+        verify(storage).removeLikeAsync(track);
+        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toNumber(1);
+        PropertySet changes = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        expect(changes.get(PlayableProperty.IS_LIKED)).toBe(false);
     }
 
     @Test
@@ -225,10 +239,12 @@ public class SoundAssociationOperationsTest {
         track.user_like = true;
         track.likes_count = 12;
         SoundAssociation trackLike = new SoundAssociation(track);
+
         when(legacyTrackOperations.loadTrack(eq(1L), any(Scheduler.class))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/1"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
+        when(storage.removeLikeAsync(track)).thenReturn(Observable.<SoundAssociation>never());
 
         Observable<PropertySet> result = operations.toggleTrackLike(trackUrn, true);
 
