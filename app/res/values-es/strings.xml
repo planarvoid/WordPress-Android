@@ -271,6 +271,12 @@
 
     <!-- Visual Player -->
     <string name="add_to_playlist">Añadir a lista</string>
-    <string name="share">Compartir</string>
     <string name="repost">Republicar</string>
+
+    <!-- Audio ads -->
+    <string name="advertisement">PUBLICIDAD</string>
+    <string name="learn_more">SABER MÁS</string>
+    <string name="why_ads">¿Por qué publicidad?</string>
+    <string name="skip_ad">Saltar publicidad</string>
+    <string name="next_up">Siguiente: %s</string>
 </resources>
