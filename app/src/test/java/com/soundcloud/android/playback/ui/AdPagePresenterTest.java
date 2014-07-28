@@ -156,7 +156,9 @@ public class AdPagePresenterTest {
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 AdProperty.ARTWORK.bind(Uri.EMPTY),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(Urn.forTrack(123L))
+                AdProperty.MONETIZABLE_TRACK_URN.bind(Urn.forTrack(123L)),
+                AdProperty.MONETIZABLE_TRACK_TITLE.bind("track"),
+                AdProperty.MONETIZABLE_TRACK_CREATOR.bind("artist")
         );
     }
 }
