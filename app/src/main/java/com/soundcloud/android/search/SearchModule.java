@@ -12,6 +12,7 @@ import dagger.Provides;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 TabbedSearchFragment.class,
+                SearchActivity.class,
                 SearchResultsFragment.class,
                 PlaylistTagsFragment.class,
                 PlaylistResultsFragment.class

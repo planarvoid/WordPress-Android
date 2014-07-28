@@ -6,7 +6,6 @@ import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.search.SearchActivity;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
@@ -15,7 +14,6 @@ import javax.inject.Named;
 
 @Module(addsTo = ApplicationModule.class, injects = {
         PlayerActivity.class,
-        SearchActivity.class,
         ActivitiesActivity.class,
         PlayerFragment.class,
         PlaybackActionReceiver.class,
