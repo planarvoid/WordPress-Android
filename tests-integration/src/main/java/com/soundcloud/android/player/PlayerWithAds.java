@@ -30,11 +30,12 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
     public void setUp() throws Exception {
         TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
-
-        final StreamScreen streamScreen = new StreamScreen(solo);
-        final ExploreScreen screen = NavigationHelper.openExploreFromMenu(streamScreen);
-        playerElement = PlayerHelper.openPlayer(this, screen);
-        PlayerHelper.skipToAd(playerElement);
+        if(!shouldSkip()) {
+            final StreamScreen streamScreen = new StreamScreen(solo);
+            final ExploreScreen screen = NavigationHelper.openExploreFromMenu(streamScreen);
+            playerElement = PlayerHelper.openPlayer(this, screen);
+            PlayerHelper.skipToAd(playerElement);
+        }
     }
 
     public void testSkipIsNotAllowedOnAd() throws Exception {

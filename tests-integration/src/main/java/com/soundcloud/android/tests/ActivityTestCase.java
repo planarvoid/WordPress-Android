@@ -115,7 +115,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         this.dependency = dependency;
     }
 
-    private boolean shouldSkip() {
+    protected boolean shouldSkip() {
         return dependency != null && getFeatureFlags().isDisabled(dependency);
     }
 
