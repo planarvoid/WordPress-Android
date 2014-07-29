@@ -1,12 +1,15 @@
 package com.soundcloud.android.deeplinks;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -16,13 +19,15 @@ import java.lang.ref.WeakReference;
 
 public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     private static final String TAG = ResolveFetchTask.class.getSimpleName();
+    private final ContentResolver contentResolver;
 
     private WeakReference<FetchModelTask.Listener<PublicApiResource>> listener;
     private PublicCloudAPI api;
     private Uri unresolvedUrl;
 
-    public ResolveFetchTask(PublicCloudAPI api) {
+    public ResolveFetchTask(PublicCloudAPI api, ContentResolver contentResolver) {
         this.api = api;
+        this.contentResolver = contentResolver;
     }
 
     @Override
@@ -61,7 +66,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
         return new FetchModelTask(api){
             @Override
             protected void persist(PublicApiResource scResource) {
-                // TODO: since we don't know which type of resource we're fetching, not sure how to persist it
+                new BulkStorage(contentResolver).bulkInsert(Lists.newArrayList(scResource));
             }
         }.resolve(request);
     }

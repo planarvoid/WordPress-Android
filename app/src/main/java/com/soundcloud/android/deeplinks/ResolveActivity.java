@@ -81,7 +81,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     private void fetchData(Uri data) {
         findViewById(R.id.progress).setVisibility(View.VISIBLE);
-        resolveTask = new ResolveFetchTask(oldCloudAPI);
+        resolveTask = new ResolveFetchTask(oldCloudAPI, getContentResolver());
         resolveTask.setListener(this);
         resolveTask.execute(data);
     }
