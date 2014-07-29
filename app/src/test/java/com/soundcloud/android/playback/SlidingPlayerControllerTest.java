@@ -157,6 +157,16 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
+    public void showPanelWhenShowPlayerEventIsReceived() {
+        attachController();
+        controller.onResume();
+
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
+
+        verify(slidingPanel).showPanel();
+    }
+
+    @Test
     public void doesntInteractWithActionBarIfBundleIsNullOnRestoreState() {
         controller.restoreState(null);
 

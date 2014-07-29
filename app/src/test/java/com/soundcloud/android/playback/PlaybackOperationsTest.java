@@ -363,6 +363,14 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void playPlaylistFiresShowPlayerEvent() {
+        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
+
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.SHOW_PLAYER);
+    }
+
+    @Test
     public void playFromIdsShuffledSetsPlayQueueOnPlayQueueManagerWithGivenTrackIdList() {
         final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
         playbackOperations.playFromIdListShuffled(Robolectric.application, idsOrig, Screen.YOUR_LIKES);

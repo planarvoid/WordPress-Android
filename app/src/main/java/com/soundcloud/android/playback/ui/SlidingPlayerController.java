@@ -145,6 +145,8 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
                 slidingPanel.expandPanel();
             } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
                 slidingPanel.collapsePanel();
+            } else if (event.getKind() == PlayerUIEvent.SHOW_PLAYER) {
+                slidingPanel.showPanel();
             }
         }
     }

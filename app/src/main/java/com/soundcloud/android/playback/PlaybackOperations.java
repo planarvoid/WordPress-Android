@@ -126,6 +126,7 @@ public class PlaybackOperations {
             }
         });
         startPlaySession(trackIds, 0, playSessionSource);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
     }
 
     @Deprecated
