@@ -2,23 +2,24 @@ package com.soundcloud.android.profile;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -26,6 +27,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
@@ -140,7 +142,26 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         }
     }
 
+    @Override
+    public void addItems(List<PublicApiResource> newItems) {
+        super.addItems(newItems);
+        this.propertySets.addAll(toPropertySets(newItems));
+    }
+
+    @Override
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
+        for (int i = 0; i < propertySets.size(); i++) {
+            final PropertySet originalPropertySet = propertySets.get(i);
+            final Urn key = originalPropertySet.get(PlayableProperty.URN);
+            if (updatedItems.containsKey(key)){
+                propertySets.set(i, toPropertySetKeepingReposterInfo(updatedItems.get(key), originalPropertySet));
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     private List<PropertySet> toPropertySets(List<? extends PublicApiResource> items) {
+        final List<PropertySet> propertySets = Lists.newArrayListWithExpectedSize(items.size());
         for (PublicApiResource resource : items) {
             if (resource instanceof SoundAssociation) {
                 final PropertySet propertySet = toPropertySet((SoundAssociation) resource);
@@ -161,24 +182,6 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         }
 
         return propertySet;
-    }
-
-    @Override
-    public void addItems(List<PublicApiResource> newItems) {
-        super.addItems(newItems);
-        this.propertySets.addAll(toPropertySets(newItems));
-    }
-
-    @Override
-    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
-        for (int i = 0; i < propertySets.size(); i++) {
-            final PropertySet originalPropertySet = propertySets.get(i);
-            final Urn key = originalPropertySet.get(PlayableProperty.URN);
-            if (updatedItems.containsKey(key)){
-                propertySets.set(i, toPropertySetKeepingReposterInfo(updatedItems.get(key), originalPropertySet));
-            }
-        }
-        notifyDataSetChanged();
     }
 
     private PropertySet toPropertySetKeepingReposterInfo(PublicApiResource resource, PropertySet originalPropertySet) {
