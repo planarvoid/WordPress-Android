@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.collect.Lists;
 import com.localytics.android.Constants;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,11 +17,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Module(addsTo = ApplicationModule.class, injects = SoundCloudApplication.class)
 public class AnalyticsModule {
+
+    private static final int EXPECTED_ANALYTICS_PROVIDERS = 3;
 
     @Provides
     @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
@@ -37,10 +39,15 @@ public class AnalyticsModule {
         // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
         // initialiation of AnalyticsEngine, so we do not register them unless we're running on a real device
         if (applicationProperties.isRunningOnDalvik()) {
-            return Lists.newArrayList(
-                    new LocalyticsAnalyticsProvider(context, analyticsProperties, accountOperations.getLoggedInUserId()),
-                    new EventLoggerAnalyticsProvider(eventLogger, eventLoggerParamsBuilder),
-                    new ComScoreAnalyticsProvider(context));
+            ArrayList<AnalyticsProvider> providers = new ArrayList<AnalyticsProvider>(EXPECTED_ANALYTICS_PROVIDERS);
+            providers.add(new LocalyticsAnalyticsProvider(context, analyticsProperties, accountOperations.getLoggedInUserId()));
+            providers.add(new EventLoggerAnalyticsProvider(eventLogger, eventLoggerParamsBuilder));
+            try {
+                providers.add(new ComScoreAnalyticsProvider(context));
+            } catch (Exception e) {
+                SoundCloudApplication.handleSilentException("Error during Comscore library init", e);
+            }
+            return providers;
         } else {
             return Collections.emptyList();
         }
