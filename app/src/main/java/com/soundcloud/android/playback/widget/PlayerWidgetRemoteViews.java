@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -46,19 +46,25 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
     /* package */ void linkButtonsWidget(Context context, TrackUrn trackUrn, UserUrn userUrn, boolean userLike) {
         linkPlayerControls(context);
 
-        final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-        setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, PENDING_INTENT_REQUEST_CODE, player, 0));
+        setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context,
+                PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
         if (!trackUrn.equals(TrackUrn.NOT_SET)) {
 
             final Intent userProfile = ProfileActivity.getIntent(context, userUrn);
             setOnClickPendingIntent(R.id.user_txt, PendingIntent.getActivity(context,
-                    PENDING_INTENT_REQUEST_CODE, userProfile, PendingIntent.FLAG_UPDATE_CURRENT));
+                    PENDING_INTENT_REQUEST_CODE, userProfile, PendingIntent.FLAG_CANCEL_CURRENT));
 
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
             toggleLike.putExtra(PlayerWidgetController.EXTRA_IS_LIKE, userLike);
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,
-                    PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
+                    PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_CANCEL_CURRENT));
         }
+    }
+
+    private Intent createLaunchIntent(Context context, TrackUrn trackUrn) {
+        return new Intent(context, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
+                .putExtra(MainActivity.EXPAND_PLAYER, !trackUrn.equals(TrackUrn.NOT_SET));
     }
 
     private void linkPlayerControls(Context context) {

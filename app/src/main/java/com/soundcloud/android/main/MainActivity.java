@@ -13,6 +13,7 @@ import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
@@ -129,6 +130,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
             lastTitle = getSupportActionBar().getTitle();
+        }
+
+        if (intent.getBooleanExtra(EXPAND_PLAYER, false)) {
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
         }
     }
 
