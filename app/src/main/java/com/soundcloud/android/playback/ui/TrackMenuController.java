@@ -71,9 +71,9 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     }
 
     private String buildSubject(PlayerTrack track) {
-        final StringBuilder sb = new StringBuilder(track.getTitle());
+        final StringBuilder sb = new StringBuilder(track.getTitle()).append(" ");
         if (ScTextUtils.isNotBlank(track.getUserName())) {
-            sb.append(context.getString(R.string.share_by, track.getUserName()));
+            sb.append(context.getString(R.string.share_by, track.getUserName())).append(" ");
         }
         sb.append(context.getString(R.string.share_on_soundcloud));
         return sb.toString();
