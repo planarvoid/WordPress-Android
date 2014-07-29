@@ -54,6 +54,10 @@ class SoundStreamStorage {
                 )
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereLt(ActivityView.CREATED_AT, timestamp)
+                // TODO: poor man's check to remove orphaned tracks and playlists;
+                // We need to address this properly with a schema refactor, cf:
+                // https://github.com/soundcloud/SoundCloud-Android/issues/1524
+                .where(SoundView.TITLE + " IS NOT NULL")
                 .limit(limit);
 
         return scheduler.scheduleQuery(query).map(new StreamItemMapper());
