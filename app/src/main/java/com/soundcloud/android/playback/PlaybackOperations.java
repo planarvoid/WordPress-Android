@@ -7,6 +7,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -318,11 +319,16 @@ public class PlaybackOperations {
     }
 
     private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, TrackUrn initialTrack) {
-        final int updatedPosition;
+        int updatedPosition;
         if (startPosition < idList.size() && idList.get(startPosition) == initialTrack.numericId) {
             updatedPosition = startPosition;
         } else {
             updatedPosition = idList.indexOf(initialTrack.numericId);
+        }
+
+        if (updatedPosition < 0) {
+            SoundCloudApplication.handleSilentException(null, new IllegalStateException("Attempting to play an adapter track that's not in the list"));
+            updatedPosition = 0;
         }
 
         return getDeduplicatedIdList(idList, updatedPosition);
