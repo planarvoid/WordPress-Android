@@ -14,6 +14,7 @@ public interface Playa {
 
     void play(PublicApiTrack track);
     void play(PublicApiTrack track, long fromPos);
+    void playUninterrupted(PublicApiTrack track);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);

@@ -116,6 +116,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 .subscribe(new MediaPlayerDataSourceObserver());
     }
 
+    @Override
+    public void playUninterrupted(PublicApiTrack track) {
+        // Not implemented for MediaPlayer
+        play(track);
+    }
+
     private class MediaPlayerDataSourceObserver extends DefaultSubscriber<Uri> {
         @Override
         public void onError(Throwable e) {

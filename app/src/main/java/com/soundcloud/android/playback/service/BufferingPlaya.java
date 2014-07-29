@@ -21,6 +21,11 @@ public class BufferingPlaya implements Playa {
     }
 
     @Override
+    public void playUninterrupted(PublicApiTrack track) {
+
+    }
+
+    @Override
     public boolean resume() {
         return true;
     }

@@ -365,14 +365,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (!playQueueManager.isQueueEmpty()) {
             streamPlayer.startBufferingMode(playQueueManager.getCurrentTrackUrn());
 
-
             loadTrackSubscription.unsubscribe();
             loadTrackSubscription = legacyTrackOperations.loadTrack(playQueueManager.getCurrentTrackId(), AndroidSchedulers.mainThread())
-                    .subscribe(new TrackInformationSubscriber());
+                    .subscribe(new TrackInformationSubscriber(playQueueManager.isCurrentTrackAudioAd()));
         }
     }
 
     private class TrackInformationSubscriber extends DefaultSubscriber<PublicApiTrack> {
+        private final boolean playUninterrupted;
+
+        public TrackInformationSubscriber(boolean playUninterrupted) {
+            this.playUninterrupted = playUninterrupted;
+        }
+
         @Override
         public void onError(Throwable throwable) {
             onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
@@ -380,7 +385,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         @Override
         public void onNext(PublicApiTrack track) {
-            openCurrent(track);
+            openCurrent(track, playUninterrupted);
         }
     }
 
@@ -389,13 +394,17 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ void openCurrent(PublicApiTrack track) {
+        openCurrent(track, false);
+    }
+
+    /* package */ void openCurrent(PublicApiTrack track, boolean playUninterrupted) {
         if (track != null) {
             suppressNotifications = false;
             waitingForPlaylist = false;
 
             if (track.equals(currentTrack) && track.isStreamable()) {
                 if (!streamPlayer.isPlayerPlaying()) {
-                    startTrack(track);
+                    startTrack(track, playUninterrupted);
                 }
             } else { // new track
                 currentTrack = track;
@@ -405,7 +414,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
                 streamableTrackSubscription.unsubscribe();
                 streamableTrackSubscription = trackObservable
-                        .observeOn(AndroidSchedulers.mainThread()).subscribe(new StreamableTrackInformationSubscriber());
+                        .observeOn(AndroidSchedulers.mainThread()).subscribe(new StreamableTrackInformationSubscriber(playUninterrupted));
             }
         } else {
             Log.e(TAG, "openCurrent with no available track");
@@ -413,6 +422,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private class StreamableTrackInformationSubscriber extends DefaultSubscriber<PublicApiTrack> {
+        private boolean playUninterrupted;
+
+        private StreamableTrackInformationSubscriber(boolean playUninterrupted) {
+            this.playUninterrupted = playUninterrupted;
+        }
+
         @Override
         public void onError(Throwable e) {
             onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, getCurrentTrackUrn()));
@@ -421,20 +436,28 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         @Override
         public void onNext(PublicApiTrack track) {
             fireAndForget(legacyTrackOperations.markTrackAsPlayed(track));
-            startTrack(track);
+            startTrack(track, playUninterrupted);
         }
     };
 
-    private void startTrack(PublicApiTrack track) {
+    private void startTrack(PublicApiTrack track, boolean playUninterrupted) {
         // set current track again as it may have been fetched from the api. This is not necessary with modelmanager, but will be going forward
         currentTrack = track;
         Log.d(TAG, "startTrack("+track.title+")");
 
         final PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
-        if (resumeInfo != null && resumeInfo.getTrackId() == track.getId() && resumeInfo.getTime() > 0){
+        if (!playUninterrupted && resumeInfo != null && resumeInfo.shouldResumeTrack(track.getUrn())){
             streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
-            logPlayCount(currentTrack.getUrn());
+            playCurrentTrackFromStart(playUninterrupted);
+        }
+    }
+
+    private void playCurrentTrackFromStart(boolean playUninterrupted) {
+        logPlayCount(currentTrack.getUrn());
+        if (playUninterrupted){
+            streamPlayer.playUninterrupted(currentTrack);
+        } else {
             streamPlayer.play(currentTrack);
         }
     }

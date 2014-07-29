@@ -41,6 +41,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
     private static final String DEBUG_EXTRA = "Experimental Player";
+    public static final long POSITION_START = 0L;
     private int numberOfAttemptedPlaysBeforeDecoderError;
 
     private final EventBus eventBus;
@@ -76,11 +77,20 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void play(PublicApiTrack track) {
-        play(track, 0);
+        play(track, POSITION_START);
     }
 
     @Override
     public void play(PublicApiTrack track, long fromPos) {
+        play(track, fromPos, false);
+    }
+
+    @Override
+    public void playUninterrupted(PublicApiTrack track) {
+        play(track, POSITION_START, true);
+    }
+
+    private void play(PublicApiTrack track, long fromPos, boolean uninterrupted) {
         currentTrackUrn = track.getUrn();
 
         if (!accountOperations.isUserLoggedIn()) {
@@ -89,7 +99,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         // TODO : move audiofocus requesting into PlaybackService when we kill MediaPlayer
         if (playaListener == null){
-            Log.e(TAG,"No Player Listener, unable to request audio focus");
+            Log.e(TAG, "No Player Listener, unable to request audio focus");
             return;
         }
 
@@ -111,7 +121,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         } else {
             numberOfAttemptedPlaysBeforeDecoderError++;
             currentStreamUrl = trackUrl;
-            skippy.play(currentStreamUrl, fromPos);
+
+            if (uninterrupted){
+                skippy.playAd(currentStreamUrl, fromPos);
+            } else {
+                skippy.play(currentStreamUrl, fromPos);
+            }
+
         }
     }
 

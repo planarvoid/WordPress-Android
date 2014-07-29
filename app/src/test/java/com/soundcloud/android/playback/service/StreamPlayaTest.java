@@ -111,6 +111,22 @@ public class StreamPlayaTest {
         verify(skippyAdapter).play(track);
     }
 
+
+    @Test
+    public void playUninterruptedCallsPlayUrlOnMediaPlayerByDefault() throws Exception {
+        instantiateStreamPlaya();
+        streamPlayerWrapper.playUninterrupted(track);
+        verify(mediaPlayerAdapter).playUninterrupted(track);
+    }
+
+    @Test
+    public void playUninterruptedCallsPlayUrlOnSkippyPlayerIfPreferenceSet() throws Exception {
+        instantiateStreamPlaya();
+        when(sharedPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false)).thenReturn(true);
+        streamPlayerWrapper.playUninterrupted(track);
+        verify(skippyAdapter).playUninterrupted(track);
+    }
+
     @Test
     public void playUrlCallsPlayUrlOnSkippyPlayerIfConsecutiveMPPlaysAt0() throws Exception {
         instantiateStreamPlaya();

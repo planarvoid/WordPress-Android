@@ -105,6 +105,13 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     @Override
+    public void playUninterrupted(PublicApiTrack track) {
+        trackPlaybackInfo = new TrackPlaybackInfo(track, 0L);
+        configureNextPlayaToUseViaPreferences();
+        currentPlaya.playUninterrupted(track);
+    }
+
+    @Override
     public boolean resume() {
         return currentPlaya.resume();
     }

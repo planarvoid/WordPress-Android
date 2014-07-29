@@ -122,6 +122,12 @@ public class SkippyAdapterTest {
     }
 
     @Test
+    public void playUninterruptedUsesPlayAd() throws Exception {
+        skippyAdapter.playUninterrupted(track);
+        verify(skippy).playAd(STREAM_URL, 0);
+    }
+
+    @Test
     public void playRemovesStateChangeMessagesFromHandler() {
         skippyAdapter.play(track);
         verify(stateChangeHandler).removeMessages(0);

@@ -229,6 +229,22 @@ public class PlaybackServiceTest {
     }
 
     @Test
+    public void openCurrentWithAudioAdCallsPlayUninterruptedOnStreamPlayer() throws Exception {
+        playbackService.onCreate();
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+        when(legacyTrackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(playbackServiceOperations.logPlay(any(TrackUrn.class), anyString())).thenReturn(Observable.<TrackUrn>empty());
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>empty());
+
+        playbackService.openCurrent();
+
+        verify(streamPlayer).playUninterrupted(track);
+    }
+
+    @Test
     public void startingPlaybackLogsPlayCount() throws Exception {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
