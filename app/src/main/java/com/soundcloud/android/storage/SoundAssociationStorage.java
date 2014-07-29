@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -50,12 +51,13 @@ public class SoundAssociationStorage extends ScheduledOperations {
      */
     public SoundAssociation addLike(Playable playable) {
         playable.user_like = true;
-        playable.likes_count = Math.max(1, playable.likes_count + 1);
+        playable.likes_count = getUpdatedCountForAddition(playable.likes_count);
         SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
         likesDAO.create(like);
         return like;
     }
+
 
     public Observable<SoundAssociation> addLikeAsync(final Playable playable) {
         return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
@@ -73,7 +75,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
      */
     public SoundAssociation removeLike(Playable playable) {
         playable.user_like = false;
-        playable.likes_count = Math.max(0, playable.likes_count - 1);
+        playable.likes_count = getUpdatedCountForRemoval(playable.likes_count);
         SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
         likesDAO.delete(like);
@@ -97,7 +99,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
      */
     public SoundAssociation addRepost(Playable playable) {
         playable.user_repost = true;
-        playable.reposts_count = Math.max(1, playable.reposts_count + 1);
+        playable.reposts_count = getUpdatedCountForAddition(playable.reposts_count);
         SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
         repostsDAO.create(repost);
@@ -120,7 +122,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
      */
     public SoundAssociation removeRepost(Playable playable) {
         playable.user_repost = false;
-        playable.reposts_count = Math.max(0, playable.reposts_count - 1);
+        playable.reposts_count = getUpdatedCountForRemoval(playable.reposts_count);
         SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
         repostsDAO.delete(repost);
@@ -203,6 +205,14 @@ public class SoundAssociationStorage extends ScheduledOperations {
                 observer.onCompleted();
             }
         }));
+    }
+
+    private int getUpdatedCountForAddition(int originalCount){
+        return originalCount == Consts.NOT_SET ? Consts.NOT_SET : originalCount + 1;
+    }
+
+    private int getUpdatedCountForRemoval(int originalCount){
+        return originalCount == Consts.NOT_SET ? Consts.NOT_SET : Math.max(0, originalCount - 1);
     }
 
     /**

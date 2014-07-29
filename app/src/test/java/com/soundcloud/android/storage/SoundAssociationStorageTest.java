@@ -3,6 +3,7 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Sets;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -10,9 +11,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncerTest;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class SoundAssociationStorageTest {
     }
 
     @Test
-    public void shouldStoreLikeAndUpdateLikesCountForUninitializedTrack() {
+    public void shouldStoreLikeAndNotUpdateLikesCountForUninitializedTrack() {
         PublicApiTrack track = new PublicApiTrack(1);
         expect(Content.ME_LIKES).toHaveCount(0);
 
@@ -60,7 +61,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(1);
         final PublicApiTrack storedTrack = TestHelper.reload(track);
-        expect(storedTrack.likes_count).toBe(1);
+        expect(storedTrack.likes_count).toBe(Consts.NOT_SET);
         expect(storedTrack.user_like).toBeTrue();
     }
 
@@ -81,7 +82,19 @@ public class SoundAssociationStorageTest {
     }
 
     @Test
-    public void shouldRemoveLikeAndUpdateLikesCountForUninitializedTrack() {
+    public void shouldNotMakeLikesCountNegative() {
+        PublicApiTrack track = new PublicApiTrack(1);
+        track.likes_count = 0;
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
+
+        storage.removeLike(track);
+
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
+        expect(storedTrack.likes_count).toBe(0);
+    }
+
+    @Test
+    public void shouldRemoveLikeAndNotUpdateLikesCountForUninitializedTrack() {
         PublicApiTrack track = new PublicApiTrack(1);
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -90,7 +103,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_LIKES).toHaveCount(0);
         final PublicApiTrack storedTrack = TestHelper.reload(track);
-        expect(storedTrack.likes_count).toBe(0);
+        expect(storedTrack.likes_count).toBe(Consts.NOT_SET);
         expect(storedTrack.user_like).toBeFalse();
     }
 
@@ -118,12 +131,12 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
         final PublicApiTrack storedTrack = TestHelper.reload(track);
-        expect(storedTrack.reposts_count).toBe(1);
+        expect(storedTrack.reposts_count).toBe(Consts.NOT_SET);
         expect(storedTrack.user_repost).toBeTrue();
     }
 
     @Test
-    public void shouldRemoveRepostAndUpdateLikesCount() {
+    public void shouldRemoveRepostAndUpdateCount() {
         PublicApiTrack track = new PublicApiTrack(1);
         track.reposts_count = 1;
         track.user_repost = true;
@@ -139,6 +152,18 @@ public class SoundAssociationStorageTest {
     }
 
     @Test
+    public void shouldNotMakeRepostCountNegative() {
+        PublicApiTrack track = new PublicApiTrack(1);
+        track.reposts_count = 0;
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
+
+        storage.removeRepost(track);
+
+        final PublicApiTrack storedTrack = TestHelper.reload(track);
+        expect(storedTrack.reposts_count).toBe(0);
+    }
+
+    @Test
     public void shouldRemoveRepostAndUpdateLikesCountForUninitializedTrack() {
         PublicApiTrack track = new PublicApiTrack(1);
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
@@ -148,7 +173,7 @@ public class SoundAssociationStorageTest {
 
         expect(Content.ME_REPOSTS).toHaveCount(0);
         final PublicApiTrack storedTrack = TestHelper.reload(track);
-        expect(storedTrack.reposts_count).toBe(0);
+        expect(storedTrack.reposts_count).toBe(Consts.NOT_SET);
         expect(storedTrack.user_repost).toBeFalse();
     }
 
