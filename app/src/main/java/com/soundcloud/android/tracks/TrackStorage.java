@@ -25,6 +25,7 @@ import javax.inject.Inject;
 public class TrackStorage {
 
     private static final String SHARING_PRIVATE = "private";
+    private static final String POLICY_ALLOWED = "allowed";
 
     private final DatabaseScheduler scheduler;
 
@@ -77,7 +78,6 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.MONETIZABLE));
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
-            propertySet.put(TrackProperty.POLICY, cursorReader.getString(SoundView.POLICY));
             propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
@@ -87,6 +87,8 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? UserUrn.NOT_SET : Urn.forUser(creatorId));
             final String sharing = cursorReader.getString(SoundView.SHARING);
             propertySet.put(PlayableProperty.IS_PRIVATE, sharing.equalsIgnoreCase(SHARING_PRIVATE));
+            final String policy = cursorReader.getString(SoundView.POLICY);
+            propertySet.put(TrackProperty.POLICY, policy == null ? POLICY_ALLOWED : policy);
 
             return propertySet;
         }
