@@ -1,5 +1,8 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.playback.service.Playa.Reason;
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -30,8 +33,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
+import rx.schedulers.Schedulers;
+import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AdsControllerTest {
@@ -47,11 +53,13 @@ public class AdsControllerTest {
     @Mock private AccountOperations accountOperations;
 
     private TestEventBus eventBus = new TestEventBus();
+    private TestScheduler scheduler = Schedulers.test();
     private AudioAd audioAd;
 
     @Before
     public void setUp() throws Exception {
-        AdsController adsController = new AdsController(eventBus, adsOperations, playQueueManager, trackOperations);
+
+        AdsController adsController = new AdsController(eventBus, adsOperations, playQueueManager, trackOperations, scheduler);
         adsController.subscribe();
         audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
     }
@@ -191,7 +199,7 @@ public class AdsControllerTest {
     }
 
     @Test
-    public void unsubscribesFromCurrentAdFetchOnPlayQueueEvent() throws Exception {
+    public void unsubscribesFromCurrentAdFetchOnPlayQueueEvent() {
         Subscription adFetchSubscription = mock(Subscription.class);
 
         when(playQueueManager.hasNextTrack()).thenReturn(true);
@@ -204,4 +212,64 @@ public class AdsControllerTest {
 
         verify(adFetchSubscription).unsubscribe();
     }
+
+    @Test
+    public void playStateChangedEventWhenBufferingAndAdAutoAdvancesTrackAfterTimeout() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+
+        verify(playQueueManager, never()).autoNextTrack();
+        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        verify(playQueueManager).autoNextTrack();
+    }
+
+    @Test
+    public void playStateChangedEventForBufferingNormalTrackDoesNotAdvanceAfterTimeout() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+
+        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void playEventUnsubscribesFromSkipAd() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
+        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void trackChangeEventUnsubscribesFromSkipAd() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
+        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void playbackErrorEventCausesAdToBeSkipped() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+
+        verify(playQueueManager).autoNextTrack();
+    }
+
+    @Test
+    public void playbackErrorDoesNotSkipNormalTrack() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
 }

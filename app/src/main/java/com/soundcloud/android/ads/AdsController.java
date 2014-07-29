@@ -4,12 +4,14 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -18,17 +20,21 @@ import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class AdsController {
 
+    public static final int SKIP_DELAY_SECS = 3;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
+    private final Scheduler scheduler;
 
     private Observable<AudioAd> currentObservable;
     private Subscription audioAdSubscription = Subscriptions.empty();
+    private Subscription skipAdSubscription = Subscriptions.empty();
 
     private final Func1<PlayQueueEvent, Boolean> isQueueUpdate = new Func1<PlayQueueEvent, Boolean>() {
         @Override
@@ -44,6 +50,13 @@ public class AdsController {
                     && playQueueManager.hasNextTrack()
                     && !playQueueManager.isNextTrackAudioAd()
                     && !playQueueManager.isCurrentTrackAudioAd();
+        }
+    };
+
+    private final Func1<Playa.StateTransition, Boolean> isBufferingAudioAd = new Func1<Playa.StateTransition, Boolean>() {
+        @Override
+        public Boolean call(Playa.StateTransition state) {
+            return state.isBuffering() && playQueueManager.isCurrentTrackAudioAd();
         }
     };
 
@@ -66,16 +79,36 @@ public class AdsController {
         public void call(CurrentPlayQueueTrackEvent event) {
             currentObservable = null;
             audioAdSubscription.unsubscribe();
+            skipAdSubscription.unsubscribe();
             playQueueManager.clearAudioAd();
         }
     };
 
+    private Action1<Playa.StateTransition> unsubscribeSkipAd = new Action1<Playa.StateTransition>() {
+        @Override
+        public void call(Playa.StateTransition stateTransition) {
+            if (stateTransition.isPlayerPlaying()) {
+                skipAdSubscription.unsubscribe();
+            } else if (stateTransition.wasError() && playQueueManager.isCurrentTrackAudioAd()) {
+                skipAdSubscription.unsubscribe();
+                playQueueManager.autoNextTrack();
+            }
+        }
+    };
+
     @Inject
-    public AdsController(EventBus eventBus, AdsOperations adsOperations, PlayQueueManager playQueueManager, TrackOperations trackOperations) {
+    public AdsController(EventBus eventBus, AdsOperations adsOperations, PlayQueueManager playQueueManager,
+                         TrackOperations trackOperations) {
+        this(eventBus, adsOperations, playQueueManager, trackOperations, AndroidSchedulers.mainThread());
+    }
+
+    public AdsController(EventBus eventBus, AdsOperations adsOperations, PlayQueueManager playQueueManager,
+                         TrackOperations trackOperations, Scheduler scheduler) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
+        this.scheduler = scheduler;
     }
 
     public void subscribe() {
@@ -88,6 +121,11 @@ public class AdsController {
                 .filter(isQueueUpdate)
                 .filter(hasNextNonAudioAdTrack)
                 .subscribe(new PlayQueueSubscriber());
+
+        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .doOnNext(unsubscribeSkipAd)
+                .filter(isBufferingAudioAd)
+                .subscribe(new PlaybackStateSubscriber());
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<Object> {
@@ -121,4 +159,18 @@ public class AdsController {
         }
     }
 
+    private class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+
+        @Override
+        public void onNext(Playa.StateTransition state) {
+            skipAdSubscription.unsubscribe();
+            skipAdSubscription = Observable.timer(SKIP_DELAY_SECS, TimeUnit.SECONDS, scheduler)
+                    .subscribe(new Action1<Long>() {
+                        @Override
+                        public void call(Long time) {
+                            playQueueManager.autoNextTrack();
+                        }
+                    });
+        }
+    }
 }
