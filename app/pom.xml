@@ -239,7 +239,7 @@
         <dependency>
             <groupId>com.comscore</groupId>
             <artifactId>comscore</artifactId>
-            <version>2.1309.19</version>
+            <version>2.1403.17</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.dagger</groupId>
