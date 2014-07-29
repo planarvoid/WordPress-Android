@@ -51,7 +51,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private CharSequence lastTitle;
     private int lastSelection = NO_SELECTION;
 
-    @Inject SoundCloudApplication application;
     @Inject ScreenPresenter presenter;
     @Inject UserOperations userOperations;
     @Inject FeatureFlags featureFlags;
