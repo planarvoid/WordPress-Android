@@ -16,7 +16,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 26;
+    public static final int DATABASE_VERSION = 27;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -121,6 +121,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 26:
                             success = upgradeTo26(db, oldVersion);
+                            break;
+                        case 27:
+                            success = upgradeTo27(db, oldVersion);
                             break;
                         default:
                             break;
@@ -471,6 +474,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             SoundCloudApplication.handleSilentException("error during upgrade26 " +
+                    "(from " + oldVersion + ")", exception);
+        }
+        return false;
+    }
+
+    // made SoundAssiciationView inner join
+    private static boolean upgradeTo27(SQLiteDatabase database, int oldVersion) {
+        try {
+            Table.SOUND_ASSOCIATION_VIEW.recreate(database);
+            return true;
+        } catch (SQLException exception) {
+            SoundCloudApplication.handleSilentException("error during upgrade27 " +
                     "(from " + oldVersion + ")", exception);
         }
         return false;

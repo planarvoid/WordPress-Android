@@ -10,11 +10,12 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncerTest;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +53,18 @@ public class SoundAssociationStorageTest {
     }
 
     @Test
-    public void shouldStoreLikeAndUpdateLikesCountForUninitializedTrack() {
+    public void shouldNotReturnLikeIfTrackRemoved() {
+        storage.addLike(new PublicApiTrack(1));
+        expect(Content.ME_LIKES).toHaveCount(1);
+
+        ContentResolver resolver = Robolectric.application.getContentResolver();
+        expect(resolver.delete(Content.TRACK.forId(1), null, null)).toBe(1);
+
+        expect(Content.ME_LIKES).toHaveCount(0);
+    }
+
+    @Test
+     public void shouldStoreLikeAndUpdateLikesCountForUninitializedTrack() {
         PublicApiTrack track = new PublicApiTrack(1);
         expect(Content.ME_LIKES).toHaveCount(0);
 

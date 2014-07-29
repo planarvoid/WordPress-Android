@@ -259,9 +259,8 @@ public class PublicApiTrack extends Playable {
 
     public PropertySet toPropertySet() {
         final PropertySet bindings = super.toPropertySet();
-        bindings.put(PlayableProperty.DURATION, duration);
-        bindings.put(PlayableProperty.TITLE, title);
         bindings.put(TrackProperty.URN, Urn.forTrack(getId()));
+        bindings.put(PlayableProperty.DURATION, duration);
         bindings.put(TrackProperty.PLAY_COUNT, playback_count);
         return bindings;
     }
