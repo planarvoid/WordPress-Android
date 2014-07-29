@@ -58,6 +58,10 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
         }
     }
 
+    public void dismiss() {
+        popupMenu.dismiss();
+    }
+
     private void buildShareIntent(PlayerTrack track) {
         shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);

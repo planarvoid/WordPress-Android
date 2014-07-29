@@ -171,7 +171,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     void onTrackChange() {
         for (View view : trackByViews.keySet()) {
             if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
-                trackPagePresenter.clearScrubState(view);
+                trackPagePresenter.onPageChange(view);
                 updateProgress(trackPagePresenter, view, trackByViews.get(view).trackUrn);
             }
         }

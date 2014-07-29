@@ -278,7 +278,7 @@ public class TrackPagerAdapterTest {
 
         adapter.onTrackChange();
 
-        verify(trackPagePresenter).clearScrubState(currentPageView);
+        verify(trackPagePresenter).onPageChange(currentPageView);
     }
 
     @Test

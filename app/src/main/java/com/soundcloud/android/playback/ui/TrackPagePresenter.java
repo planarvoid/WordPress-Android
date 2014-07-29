@@ -104,7 +104,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());
-        holder.trackMenuController.setTrack(track);
+        holder.menuController.setTrack(track);
 
         setLikeCount(holder, track.getLikeCount());
         holder.likeToggle.setChecked(track.isUserLike());
@@ -193,9 +193,10 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.timestamp.showBackground(visible);
     }
 
-    public void clearScrubState(View trackView) {
+    public void onPageChange(View trackView) {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+        holder.menuController.dismiss();
     }
 
     @Override
@@ -271,7 +272,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.addScrubListener(holder.artworkController);
         holder.waveformController.addScrubListener(holder.timestamp);
 
-        holder.trackMenuController = new TrackMenuController(trackView.getContext(), holder.more);
+        holder.menuController = new TrackMenuController(trackView.getContext(), holder.more);
 
         trackView.setTag(holder);
     }
@@ -281,7 +282,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         JaggedTextView title;
         JaggedTextView user;
         WaveformViewController waveformController;
-        TrackMenuController trackMenuController;
+        TrackMenuController menuController;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;

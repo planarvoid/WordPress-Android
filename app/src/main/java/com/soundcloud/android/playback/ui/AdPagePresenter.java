@@ -149,7 +149,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void clearScrubState(View key) {
+    public void onPageChange(View key) {
         // No-op
     }
 
