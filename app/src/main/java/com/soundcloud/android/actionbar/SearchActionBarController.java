@@ -5,11 +5,15 @@ import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +40,7 @@ public class SearchActionBarController extends ActionBarController {
     private SearchView searchView;
 
     private final PublicCloudAPI publicApi;
+    private final PlaybackOperations playbackOperations;
     private final SearchCallback searchCallback;
 
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
@@ -53,20 +58,38 @@ public class SearchActionBarController extends ActionBarController {
                 performSearch(query, true);
                 searchView.setSuggestionsAdapter(null);
             } else {
-                final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
-
-                final SearchEvent event = SearchEvent.searchSuggestion(
-                        Content.match(itemUri), suggestionsAdapter.isLocalResult(position));
-                eventBus.publish(EventQueue.SEARCH, event);
-
-                final Intent intent = new Intent(Intent.ACTION_VIEW);
-                Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
-                activity.startActivity(intent.setData(itemUri));
+                launchSuggestion(position);
             }
-
             return true;
         }
     };
+
+    private void launchSuggestion(int position) {
+        final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
+        trackSuggestion(position, itemUri);
+
+        final Urn urn = suggestionsAdapter.getUrn(position);
+        if (urn.isTrack()) {
+            playTrack(urn);
+        } else {
+            final Intent intent = new Intent(Intent.ACTION_VIEW);
+            Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
+            activity.startActivity(intent.setData(itemUri));
+        }
+    }
+
+    private void playTrack(Urn urn) {
+        playbackOperations.startPlaybackWithRecommendations((TrackUrn) urn, Screen.SEARCH_SUGGESTIONS);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        clearFocus();
+        searchView.setSuggestionsAdapter(null);
+    }
+
+    private void trackSuggestion(int position, Uri itemUri) {
+        final SearchEvent event = SearchEvent.searchSuggestion(
+                Content.match(itemUri), suggestionsAdapter.isLocalResult(position));
+        eventBus.publish(EventQueue.SEARCH, event);
+    }
 
     public interface SearchCallback {
         void performTextSearch(String query);
@@ -75,10 +98,11 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     public SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
-                                     SearchCallback searchCallback, EventBus eventBus) {
+                                     SearchCallback searchCallback, PlaybackOperations playbackOperations, EventBus eventBus) {
         super(owner, eventBus);
         publicApi = publicCloudAPI;
         this.searchCallback = searchCallback;
+        this.playbackOperations = playbackOperations;
     }
 
     public void onDestroy() {

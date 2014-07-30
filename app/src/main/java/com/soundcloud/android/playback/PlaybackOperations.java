@@ -175,11 +175,11 @@ public class PlaybackOperations {
 
     public void startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
         modelManager.cache(track);
-        startPlaybackWithRecommendations(track.getId(), screen);
+        startPlaybackWithRecommendations(track.getUrn(), screen);
     }
 
-    public void startPlaybackWithRecommendations(long id, Screen screen) {
-        startPlaySession(Lists.newArrayList(id), 0, new PlaySessionSource(screen), true);
+    public void startPlaybackWithRecommendations(TrackUrn urn, Screen screen) {
+        startPlaySession(Lists.newArrayList(urn.numericId), 0, new PlaySessionSource(screen), true);
     }
 
     public void togglePlayback() {

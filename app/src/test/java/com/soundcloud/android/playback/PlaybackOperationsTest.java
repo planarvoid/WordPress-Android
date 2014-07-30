@@ -50,6 +50,7 @@ public class PlaybackOperationsTest {
 
     private static final String EXPLORE_VERSION = "explore-version";
     private static final Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
+    public static final TrackUrn TRACK_URN = Urn.forTrack(123L);
 
     private PlaybackOperations playbackOperations;
 
@@ -536,19 +537,19 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startPlaybackWithRecommendationsByIdSetsPlayQueueOnPlayQueueManager() throws Exception {
-        playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdOpensCurrentThroughPlaybackService() throws Exception {
-        playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN);
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdCallsFetchRelatedOnPlayQueueManager() throws Exception {
-        playbackOperations.startPlaybackWithRecommendations(123L, ORIGIN_SCREEN);
+        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN);
         verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
 
@@ -582,8 +583,8 @@ public class PlaybackOperationsTest {
     @Test
     public void playTracksShouldOpenLegacyPlayerWithGivenTrackIfVisualPlayerDisabled() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+        final Observable<TrackUrn> tracks = Observable.just(TRACK_URN);
+        playbackOperations.playTracks(Robolectric.application, TRACK_URN, tracks, 0, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -596,8 +597,8 @@ public class PlaybackOperationsTest {
     @Test
     public void playTracksShouldNotOpenLegacyPlayerIfVisualPlayerEnabled() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+        final Observable<TrackUrn> tracks = Observable.just(TRACK_URN);
+        playbackOperations.playTracks(Robolectric.application, TRACK_URN, tracks, 0, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -607,9 +608,9 @@ public class PlaybackOperationsTest {
     @Test
     public void playTracksShouldOpenLegacyPlayerButNotRestartServiceWhenTrackAlreadyPlaying() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
-        when(playQueueManager.isCurrentTrack(Urn.forTrack(123L))).thenReturn(true);
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+        when(playQueueManager.isCurrentTrack(TRACK_URN)).thenReturn(true);
+        final Observable<TrackUrn> tracks = Observable.just(TRACK_URN);
+        playbackOperations.playTracks(Robolectric.application, TRACK_URN, tracks, 0, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).not.toBeNull();
@@ -620,8 +621,8 @@ public class PlaybackOperationsTest {
     @Test
     public void playTracksShouldFirePlayerExpandedEvent() {
         when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+        final Observable<TrackUrn> tracks = Observable.just(TRACK_URN);
+        playbackOperations.playTracks(Robolectric.application, TRACK_URN, tracks, 0, ORIGIN_SCREEN);
 
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);

@@ -18,6 +18,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -32,6 +33,7 @@ import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
@@ -343,7 +345,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             if (intent.getData() != null) {
                 final long id = UriUtils.getLastSegmentAsLong(intent.getData());
                 playQueue = new PlayQueueView(id);
-                playbackOperations.startPlaybackWithRecommendations(id, Screen.fromIntent(intent, Screen.DEEPLINK));
+                playbackOperations.startPlaybackWithRecommendations(Urn.forTrack(id), Screen.fromIntent(intent, Screen.DEEPLINK));
             }
 
         } else if (intent.hasExtra(PublicApiTrack.EXTRA_ID)) {

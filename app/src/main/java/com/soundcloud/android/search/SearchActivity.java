@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -37,6 +38,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private String query;
     @Inject PlayerController playerController;
     @Inject ScreenPresenter presenter;
+    @Inject PlaybackOperations playbackOperations;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
@@ -135,7 +137,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     protected ActionBarController createActionBarController() {
         if (searchActionBarController == null) {
-            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), searchCallback, eventBus);
+            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), searchCallback, playbackOperations, eventBus);
         }
         return searchActionBarController;
     }

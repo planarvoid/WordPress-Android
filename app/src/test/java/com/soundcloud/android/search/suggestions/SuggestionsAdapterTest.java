@@ -11,8 +11,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.SearchSuggestions;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.api.Request;
@@ -43,17 +45,10 @@ public class SuggestionsAdapterTest {
 
     private SuggestionsAdapter adapter;
 
-    @Mock
-    private PublicApi mockApi;
-
-    @Mock
-    private ContentResolver contentResolver;
-
-    @Mock
-    private Cursor cursor;
-
-    @Mock
-    private Context context;
+    @Mock private PublicApi mockApi;
+    @Mock private ContentResolver contentResolver;
+    @Mock private Cursor cursor;
+    @Mock private Context context;
 
     @Before
     public void setup() {
@@ -66,7 +61,6 @@ public class SuggestionsAdapterTest {
         expect(matcher.find()).toBeTrue();
         expect(matcher.start(2)).toEqual(0);
         expect(matcher.end(2)).toEqual(3);
-
     }
 
     @Test
@@ -120,6 +114,28 @@ public class SuggestionsAdapterTest {
     }
 
     @Test
+    public void shouldGetTrackUrnForTrackItemPosition() {
+        mockCursorTrackId();
+        createAdapter();
+
+        Urn urn = adapter.getUrn(0);
+
+        expect(urn.isTrack()).toBeTrue();
+        expect(urn.numericId).toEqual(1L);
+    }
+
+    @Test
+    public void shouldGetUserUrnForUserItemPosition() {
+        mockCursorUserId();
+        createAdapter();
+
+        Urn urn = adapter.getUrn(0);
+
+        expect(urn.isUser()).toBeTrue();
+        expect(urn.numericId).toEqual(1L);
+    }
+
+    @Test
     public void shouldReportCorrectSourceForPosition() throws IOException {
         mockPublicApi("suggest_mixed.json");
         mockCursorSource(1);
@@ -142,6 +158,20 @@ public class SuggestionsAdapterTest {
         final int fakeSourceColumn = 2;
         when(cursor.getColumnIndex(SuggestionsAdapter.LOCAL)).thenReturn(fakeSourceColumn);
         when(cursor.getInt(fakeSourceColumn)).thenReturn(isLocal);
+    }
+
+    private void mockCursorTrackId() {
+        mockCursorContentType(Content.TRACK.forId(1L));
+        final int fakeIdColumn = 3;
+        when(cursor.getColumnIndex(TableColumns.Suggestions.ID)).thenReturn(fakeIdColumn);
+        when(cursor.getLong(fakeIdColumn)).thenReturn(1L);
+    }
+
+    private void mockCursorUserId() {
+        mockCursorContentType(Content.USER.forId(1L));
+        final int fakeIdColumn = 3;
+        when(cursor.getColumnIndex(TableColumns.Suggestions.ID)).thenReturn(fakeIdColumn);
+        when(cursor.getLong(fakeIdColumn)).thenReturn(1L);
     }
 
     private void mockContext() {

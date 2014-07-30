@@ -137,7 +137,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     public Uri getItemIntentData(int position) {
-        Cursor cursor = (Cursor) getItem(position);
+        final Cursor cursor = (Cursor) getItem(position);
         final String data = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
         cursor.close();
         return Uri.parse(data);
@@ -156,8 +156,23 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         return position == 0;
     }
 
+    public Urn getUrn(int position) {
+        final Cursor cursor = (Cursor) getItem(position);
+        final long id = cursor.getLong(cursor.getColumnIndex(TableColumns.Suggestions.ID));
+        cursor.close();
+
+        switch (getItemViewType(position)) {
+            case TYPE_TRACK:
+                return Urn.forTrack(id);
+            case TYPE_USER:
+                return Urn.forUser(id);
+            default:
+                throw new IllegalStateException("View type is neither a track or a user");
+        }
+    }
+
     public boolean isLocalResult(int position) {
-        Cursor cursor = (Cursor) getItem(position);
+        final Cursor cursor = (Cursor) getItem(position);
         final int isLocal = cursor.getInt(cursor.getColumnIndex(LOCAL));
         cursor.close();
         return isLocal == 1;

@@ -84,6 +84,11 @@ public class UrnTest {
     }
 
     @Test
+    public void isUserShouldBeTrueForUser() {
+        expect(Urn.parse("soundcloud:users:123").isUser()).toBeTrue();
+    }
+
+    @Test
     public void isValidUrnShouldReturnTrueForValidSoundUrn() throws Exception {
         expect(Urn.isValidUrn(Uri.parse("soundcloud:sounds:123"))).toBeTrue();
         expect(Urn.isValidUrn(Uri.parse("soundcloud:tracks:123"))).toBeTrue();
