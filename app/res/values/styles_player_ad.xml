@@ -10,6 +10,7 @@
     </style>
     <style name="AdText.NextUp">
         <item name="android:textSize">14sp</item>
+        <item name="android:layout_gravity">center</item>
     </style>
     <style name="AdText.NextUp.Skip">
         <item name="android:textColor">@drawable/txt_white_states</item>
@@ -19,7 +20,6 @@
     <style name="AdText.NextUp.Track">
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
-        <item name="android:layout_marginRight">16dp</item>
     </style>
     <style name="AdButton">
         <item name="android:textColor">@drawable/txt_white_states</item>
@@ -38,6 +38,11 @@
     </style>
 
     <style name="AdPreview">
+        <item name="android:layout_marginLeft">16dip</item>
+        <item name="android:layout_marginBottom">16dip</item>
+    </style>
+
+    <style name="SkipContainer">
         <item name="android:layout_marginLeft">16dip</item>
         <item name="android:layout_marginRight">18dip</item>
         <item name="android:layout_marginBottom">16dip</item>

@@ -22,11 +22,37 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true" />
 
+    <FrameLayout
+            android:id="@+id/skip_container"
+            style="@style/SkipContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true">
+
+        <TextView
+                android:id="@+id/time_until_skip"
+                style="@style/AdText.NextUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                android:id="@+id/skip_ad"
+                style="@style/AdText.NextUp.Skip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/skip_ad"
+                android:visibility="gone"/>
+
+    </FrameLayout>
+
     <RelativeLayout
             style="@style/AdPreview"
             android:layout_width="match_parent"
             android:layout_height="32dp"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@id/skip_container">
 
         <FrameLayout
                 android:id="@+id/preview_artwork_container"
@@ -45,37 +71,13 @@
                     android:layout_height="match_parent"/>
         </FrameLayout>
 
-        <FrameLayout
-                android:id="@+id/skip_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true">
-
-            <TextView
-                    android:id="@+id/time_until_skip"
-                    style="@style/AdText.NextUp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-            <TextView
-                    android:id="@+id/skip_ad"
-                    style="@style/AdText.NextUp.Skip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/skip_ad"
-                    android:visibility="gone"/>
-
-        </FrameLayout>
-
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/preview_title"
                 style="@style/AdText.NextUp.Track"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/preview_artwork_container"
-                android:layout_toLeftOf="@id/skip_container" />
+                android:layout_toRightOf="@id/preview_artwork_container" />
     </RelativeLayout>
 
 
