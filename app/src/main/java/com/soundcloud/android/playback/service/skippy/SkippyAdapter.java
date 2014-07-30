@@ -71,7 +71,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     public boolean init(Context context) {
-        return skippy.init(context);
+        return skippy.init(context, null);
     }
 
     @Override
