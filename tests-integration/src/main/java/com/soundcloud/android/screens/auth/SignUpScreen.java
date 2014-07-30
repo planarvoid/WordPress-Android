@@ -37,6 +37,10 @@ public class SignUpScreen extends Screen {
         return testDriver.findElement(With.id(R.id.btn_signup));
     }
 
+    private ViewElement skipButton() {
+        return testDriver.findElement(With.id(R.id.btn_skip));
+    }
+
     private ViewElement acceptTermsButton() {
         return testDriver.findElement(With.id(R.id.btn_accept_terms));
     }
@@ -63,6 +67,7 @@ public class SignUpScreen extends Screen {
 
     public void acceptTerms() {
         acceptTermsButton().click();
+        waiter.waitForElement(R.id.btn_skip);
         waiter.waitForLogInDialog();
     }
 
