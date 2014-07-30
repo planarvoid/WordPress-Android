@@ -81,7 +81,6 @@ public class SearchActionBarController extends ActionBarController {
         this.searchCallback = searchCallback;
     }
 
-    @Override
     public void onDestroy() {
         // Suggestions adapter has to stop handler thread
         if (suggestionsAdapter != null) suggestionsAdapter.onDestroy();

@@ -39,14 +39,6 @@ public class ActionBarController {
         this.eventBus = eventBus;
     }
 
-    public void onResume() {
-        /** nop, used by {@link NowPlayingActionBarController#onResume()} ()} **/
-    }
-
-    public void onPause() {
-        /** nop, used by {@link NowPlayingActionBarController#onPause()} ()} **/
-    }
-
     public void onDestroy() {
         /** nop, used by {@link SearchActionBarController#onDestroy()} ()} **/
     }
@@ -55,8 +47,7 @@ public class ActionBarController {
      * This must be passed through by the activity in order to configure based on search state
      */
     public void onCreateOptionsMenu(Menu menu) {
-        ActionBar actionBar = owner.getActivity().getSupportActionBar();
-        setActionBarDefaultOptions(actionBar);
+        owner.restoreActionBar();
         final int menuResourceId = owner.getMenuResourceId();
         if (menuResourceId > 0) owner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
     }
@@ -99,9 +90,5 @@ public class ActionBarController {
 
     private void startActivity(Class target) {
         owner.getActivity().startActivity(new Intent(owner.getActivity(), target));
-    }
-
-    protected void setActionBarDefaultOptions(ActionBar actionBar) {
-        owner.restoreActionBar();
     }
 }

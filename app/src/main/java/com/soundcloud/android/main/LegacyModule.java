@@ -1,7 +1,6 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.actionbar.NowPlayingProgressBar;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.associations.TrackInteractionActivity;
@@ -24,8 +23,7 @@ import dagger.Module;
                 TrackInteractionActivity.class,
                 MyTracksAdapter.class,
                 WaveformControllerLayout.class,
-                WaveformControllerLayoutLand.class,
-                NowPlayingProgressBar.class
+                WaveformControllerLayoutLand.class
         }, includes = AssociationsModule.class)
 
 /**

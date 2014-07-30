@@ -213,13 +213,4 @@ public class UIEventTest {
         expect(uiEvent.getKind()).toEqual(10);
         expect(uiEventAttributes.get("page")).toEqual("search");
     }
-
-    @Test
-    public void shouldCreateEventFromPlayerShortcutNavigation() throws Exception {
-        UIEvent uiEvent = UIEvent.fromPlayerShortcut();
-        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
-        expect(uiEventAttributes.get("page")).toEqual("player_shortcut");
-    }
-
 }

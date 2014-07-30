@@ -7,14 +7,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -125,7 +124,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected ActionBarController createActionBarController() {
-        return new NowPlayingActionBarController(this, eventBus);
+        return new ActionBarController(this, eventBus);
     }
 
     public void restoreActionBar() {
@@ -172,9 +171,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         }
 
         isForeground = true;
-        if (actionBarController != null) {
-            actionBarController.onResume();
-        }
     }
 
     @Override
@@ -184,9 +180,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         safeUnregisterReceiver(unauthoriedRequestReceiver);
         isForeground = false;
         onCreateCalled = false;
-        if (actionBarController != null) {
-            actionBarController.onPause();
-        }
         super.onPause();
     }
 

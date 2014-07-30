@@ -92,10 +92,6 @@ public final class UIEvent {
         return new UIEvent(NAVIGATION).putAttribute("page", "search");
     }
 
-    public static UIEvent fromPlayerShortcut() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "player_shortcut");
-    }
-
     private static String getPlayableType(Playable playable) {
         return (playable instanceof PublicApiTrack ? "track" : "playlist");
     }
