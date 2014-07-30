@@ -225,7 +225,7 @@ public class PlaybackOperations {
         List<Long> shuffled = Lists.newArrayList(ids);
         Collections.shuffle(shuffled);
         startPlaySession(shuffled, 0, new PlaySessionSource(screen));
-        openLegacyPlayer(activityContext, shuffled.get(0));
+        showPlayer(activityContext, TrackUrn.forTrack(shuffled.get(0)));
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {

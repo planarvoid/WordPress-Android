@@ -396,6 +396,14 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void playFromIdsShuffledShouldOpenThePlayer() {
+        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+        playbackOperations.playFromIdListShuffled(Robolectric.application, Lists.newArrayList(1L), Screen.YOUR_LIKES);
+
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toBe(PlayerUIEvent.EXPAND_PLAYER);
+    }
+
+    @Test
     public void playFromIdsShuffledOpensCurrentTrackThroughPlaybackService() {
         final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
         playbackOperations.playFromIdListShuffled(Robolectric.application, idsOrig, Screen.YOUR_LIKES);
