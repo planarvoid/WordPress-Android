@@ -10,6 +10,7 @@ import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -26,6 +27,7 @@ import rx.Observable;
 public class TrackPageListenerTest {
 
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private SoundAssociationOperations soundAssociationOperations;
     @Mock private PlayQueueManager playQueueManager;
 
@@ -35,7 +37,8 @@ public class TrackPageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playbackOperations, soundAssociationOperations, playQueueManager, eventBus);
+        listener = new TrackPageListener(playbackOperations, playSessionStateProvider,
+                soundAssociationOperations, playQueueManager, eventBus);
     }
 
     @Test
@@ -72,7 +75,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void shouldPerformPreviousActionIsProgressWithinTrackChangeThreshold() {
-        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(true);
+        when(playSessionStateProvider.isProgressWithinTrackChangeThreshold()).thenReturn(true);
 
         listener.onPrevious();
 
@@ -81,7 +84,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void shouldRestartPlaybackOnPreviousIsProgressNotWithinTrackChangeThreshold() {
-        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(false);
+        when(playSessionStateProvider.isProgressWithinTrackChangeThreshold()).thenReturn(false);
 
         listener.onPrevious();
 

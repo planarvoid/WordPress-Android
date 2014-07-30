@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -12,16 +13,18 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import javax.inject.Inject;
 
 class TrackPageListener {
-
     private final PlaybackOperations playbackOperations;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final SoundAssociationOperations associationOperations;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
 
     @Inject
-    public TrackPageListener(PlaybackOperations playbackOperations, SoundAssociationOperations associationOperations,
+    public TrackPageListener(PlaybackOperations playbackOperations, PlaySessionStateProvider playSessionStateProvider,
+                             SoundAssociationOperations associationOperations,
                              PlayQueueManager playQueueManager, EventBus eventBus) {
         this.playbackOperations = playbackOperations;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.associationOperations = associationOperations;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
@@ -52,7 +55,7 @@ class TrackPageListener {
     }
 
     private void previousTrackOnInitialSecondsOfProgress() {
-        if (playbackOperations.isProgressWithinTrackChangeThreshold()) {
+        if (playSessionStateProvider.isProgressWithinTrackChangeThreshold()) {
             playbackOperations.previousTrack();
         } else {
             playbackOperations.restartPlayback();

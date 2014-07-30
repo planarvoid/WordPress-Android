@@ -38,7 +38,7 @@ public class PlaybackActionController {
     }
 
     private void previousTrackOnInitialPlaybackProgress() {
-        if (playbackOperations.isProgressWithinTrackChangeThreshold()) {
+        if (playSessionStateProvider.isProgressWithinTrackChangeThreshold()) {
             playbackOperations.previousTrack();
         } else {
             playbackOperations.restartPlayback();

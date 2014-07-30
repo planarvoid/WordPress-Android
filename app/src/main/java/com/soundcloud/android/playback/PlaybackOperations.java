@@ -8,17 +8,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -29,6 +28,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -49,12 +49,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 // TODO, move to playback package level
 public class PlaybackOperations {
 
-    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
         @Override
         public boolean apply(ScModel input) {
@@ -69,19 +67,17 @@ public class PlaybackOperations {
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
-    private PlaySessionStateProvider playSessionStateProvider;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
-                              PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
+                              PlayQueueManager playQueueManager,
                               FeatureFlags featureFlags, EventBus eventBus) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
-        this.playSessionStateProvider = playSessionStateProvider;
         this.featureFlags = featureFlags;
         this.eventBus = eventBus;
     }
@@ -192,10 +188,6 @@ public class PlaybackOperations {
 
     public void setPlayQueuePosition(int position) {
         playQueueManager.setPosition(position);
-    }
-
-    public boolean isProgressWithinTrackChangeThreshold() {
-        return playSessionStateProvider.getCurrentProgress().getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
     }
 
     public void previousTrack() {

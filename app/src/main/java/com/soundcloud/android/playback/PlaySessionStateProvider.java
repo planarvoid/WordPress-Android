@@ -15,10 +15,11 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionStateProvider {
-
+    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
     private final Func1<Playa.StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<Playa.StateTransition, Boolean>() {
         @Override
@@ -68,6 +69,10 @@ public class PlaySessionStateProvider {
 
     public boolean hasCurrentProgress(TrackUrn trackUrn) {
         return progressMap.containsKey(trackUrn);
+    }
+
+    public boolean isProgressWithinTrackChangeThreshold() {
+        return getCurrentProgress().getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {

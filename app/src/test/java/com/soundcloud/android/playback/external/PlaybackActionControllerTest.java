@@ -34,7 +34,7 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldGoToPreviousTrackWhenPreviousPlaybackActionIsHandledIsProgressWithinTrackChangeThreshold() throws Exception {
-        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(true);
+        when(playSessionStateProvider.isProgressWithinTrackChangeThreshold()).thenReturn(true);
 
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
@@ -43,7 +43,7 @@ public class PlaybackActionControllerTest {
 
     @Test
     public void shouldRestartPlaybackWhenPreviousPlaybackActionIsHandledisProgressNotWithinTrackChangeThreshold() throws Exception {
-        when(playbackOperations.isProgressWithinTrackChangeThreshold()).thenReturn(false);
+        when(playSessionStateProvider.isProgressWithinTrackChangeThreshold()).thenReturn(false);
 
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 

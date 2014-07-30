@@ -67,7 +67,7 @@ public class PlaybackOperationsTest {
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider,
+                playQueueManager,
                 featureFlags, eventBus);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
@@ -279,24 +279,6 @@ public class PlaybackOperationsTest {
         playbackOperations.setPlayQueuePosition(5);
 
         verify(playQueueManager).setPosition(5);
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsTrueIfProgressLessThatThreeSeconds() {
-        when(playSessionStateProvider.getCurrentProgress()).thenReturn(new PlaybackProgress(2999L, 42000L));
-        expect(playbackOperations.isProgressWithinTrackChangeThreshold()).toBeTrue();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsFalseIfProgressEqualToThreeSeconds() {
-        when(playSessionStateProvider.getCurrentProgress()).thenReturn(new PlaybackProgress(3000L, 42000L));
-        expect(playbackOperations.isProgressWithinTrackChangeThreshold()).toBeFalse();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsFalseIfProgressMoreThanThreeSeconds() {
-        when(playSessionStateProvider.getCurrentProgress()).thenReturn(new PlaybackProgress(3001L, 42000L));
-        expect(playbackOperations.isProgressWithinTrackChangeThreshold()).toBeFalse();
     }
 
     @Test

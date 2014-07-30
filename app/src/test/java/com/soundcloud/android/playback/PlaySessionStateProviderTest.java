@@ -134,4 +134,31 @@ public class PlaySessionStateProviderTest {
 
         expect(provider.hasCurrentProgress(Urn.forTrack(2L))).toBeTrue();
     }
+
+    @Test
+    public void isProgressInitialSecondsReturnsTrueIfProgressLessThatThreeSeconds() {
+        sendIdleStateEvent();
+
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(2999L, 42000L), TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
+        expect(provider.isProgressWithinTrackChangeThreshold()).toBeTrue();
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsFalseIfProgressEqualToThreeSeconds() {
+        sendIdleStateEvent();
+
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(3000L, 42000L), TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
+        expect(provider.isProgressWithinTrackChangeThreshold()).toBeFalse();
+    }
+
+    @Test
+    public void isProgressInitialSecondsReturnsFalseIfProgressMoreThanThreeSeconds() {
+        sendIdleStateEvent();
+
+        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(3001L, 42000L), TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
+        expect(provider.isProgressWithinTrackChangeThreshold()).toBeFalse();
+    }
 }
