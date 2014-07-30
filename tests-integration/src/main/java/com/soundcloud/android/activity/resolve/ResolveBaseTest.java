@@ -30,6 +30,7 @@ public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> 
     }
 
     public VisualPlayerElement getPlayerElement() {
+        waiter.waitForExpandedPlayer();
         return new VisualPlayerElement(solo);
     }
 }
