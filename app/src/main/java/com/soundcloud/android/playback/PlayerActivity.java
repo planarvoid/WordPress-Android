@@ -33,7 +33,6 @@ import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
