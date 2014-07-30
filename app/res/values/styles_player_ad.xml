@@ -22,10 +22,10 @@
     </style>
     <style name="AdButton">
         <item name="android:textColor">@drawable/txt_white_states</item>
-        <item name="android:textStyle">bold</item>
     </style>
     <style name="AdButton.WhyAds">
         <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
     <style name="AdButton.LearnMore">
         <item name="android:textSize">14sp</item>
@@ -38,7 +38,7 @@
 
     <style name="AdPreview">
         <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginRight">16dip</item>
+        <item name="android:layout_marginRight">18dip</item>
         <item name="android:layout_marginBottom">16dip</item>
     </style>
 
