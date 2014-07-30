@@ -66,6 +66,10 @@ public class PlaySessionStateProvider {
         return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
     }
 
+    public boolean hasCurrentProgress(TrackUrn trackUrn) {
+        return progressMap.containsKey(trackUrn);
+    }
+
     private class PlayStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
         @Override
         public void onNext(Playa.StateTransition stateTransition) {
@@ -78,7 +82,10 @@ public class PlaySessionStateProvider {
 
             lastStateTransition = stateTransition;
             currentPlayingUrn = stateTransition.getTrackUrn();
-            progressMap.put(currentPlayingUrn, stateTransition.getProgress());
+
+            if (stateTransition.getProgress().isDurationValid()) {
+                progressMap.put(currentPlayingUrn, stateTransition.getProgress());
+            }
 
             if (isTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
                 saveProgress(stateTransition);

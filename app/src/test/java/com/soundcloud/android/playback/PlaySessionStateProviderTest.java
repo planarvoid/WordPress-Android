@@ -117,5 +117,21 @@ public class PlaySessionStateProviderTest {
         verify(playQueueManager).saveCurrentProgress(123);
     }
 
+    @Test
+    public void onStateTransitionShouldNotStoreCurrentProgressIfDurationIsInvalid() {
+        final Playa.StateTransition state = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(2L), 123, 0);
 
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+
+        expect(provider.hasCurrentProgress(Urn.forTrack(2L))).toBeFalse();
+    }
+
+    @Test
+    public void onStateTransitionShouldStoreCurrentProgressIfDurationIsValid() {
+        final Playa.StateTransition state = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.forTrack(2L), 123, 1);
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+
+        expect(provider.hasCurrentProgress(Urn.forTrack(2L))).toBeTrue();
+    }
 }

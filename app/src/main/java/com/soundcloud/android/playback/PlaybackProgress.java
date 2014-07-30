@@ -22,6 +22,10 @@ public class PlaybackProgress {
         return position == 0 && duration == 0;
     }
 
+    public boolean isDurationValid() {
+        return duration > 0;
+    }
+
     public long getDuration() {
         return duration;
     }

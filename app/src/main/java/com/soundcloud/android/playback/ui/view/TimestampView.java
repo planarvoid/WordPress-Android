@@ -43,7 +43,7 @@ public class TimestampView extends RelativeLayout implements ProgressAware, OnSc
 
     @Override
     public void setProgress(PlaybackProgress progress) {
-        if (!progress.equals(PlaybackProgress.empty()) && progress.getDuration() != duration) {
+        if (progress.isDurationValid() && progress.getDuration() != duration) {
             duration = progress.getDuration();
         }
         if (!suppressProgress) {

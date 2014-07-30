@@ -240,8 +240,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(urn);
     }
 
-    private void updateProgress(final PagePresenter presenter, final View trackView, final TrackUrn urn) {
-        presenter.setProgress(trackView, playSessionStateProvider.getCurrentProgress(urn));
+    private void updateProgress(PagePresenter presenter, View trackView, TrackUrn urn) {
+        if (playSessionStateProvider.hasCurrentProgress(urn)) {
+            presenter.setProgress(trackView, playSessionStateProvider.getCurrentProgress(urn));
+        }
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {

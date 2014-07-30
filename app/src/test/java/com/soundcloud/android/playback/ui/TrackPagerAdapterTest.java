@@ -292,7 +292,9 @@ public class TrackPagerAdapterTest {
         View secondTrack = getPageView(2, secondUrn);
         when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
         when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
+        when(playSessionStateProvider.hasCurrentProgress(firstUrn)).thenReturn(true);
         when(playSessionStateProvider.getCurrentProgress(firstUrn)).thenReturn(firstProgress);
+        when(playSessionStateProvider.hasCurrentProgress(secondUrn)).thenReturn(true);
         when(playSessionStateProvider.getCurrentProgress(secondUrn)).thenReturn(secondProgress);
 
         adapter.onTrackChange();
@@ -300,6 +302,18 @@ public class TrackPagerAdapterTest {
         verify(trackPagePresenter).setProgress(firstTrack, firstProgress);
         verify(trackPagePresenter).setProgress(secondTrack, secondProgress);
         verify(adPagePresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
+    }
+
+    @Test
+    public void shouldNotSetProgressOnReceivingTrackIfCurrentProgressIsNotAvailable() {
+        View trackPage = getPageView(0, TRACK_URN);
+        getPageView(1, TRACK_URN);
+        when(trackPagePresenter.accept(trackPage)).thenReturn(true);
+        when(playSessionStateProvider.hasCurrentProgress(TRACK_URN)).thenReturn(false);
+
+        adapter.onTrackChange();
+
+        verify(trackPagePresenter, never()).setProgress(eq(trackPage), any(PlaybackProgress.class));
     }
 
     @Test

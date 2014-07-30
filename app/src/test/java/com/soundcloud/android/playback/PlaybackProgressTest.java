@@ -42,4 +42,22 @@ public class PlaybackProgressTest {
         PlaybackProgress event = new PlaybackProgress(31L, 100L);
         expect(event.getTimeLeft()).toEqual(69L);
     }
+
+    @Test
+    public void durationIsInvalidDurationIsZero() {
+        PlaybackProgress event = new PlaybackProgress(31L, 0L);
+        expect(event.isDurationValid()).toBeFalse();
+    }
+
+    @Test
+    public void durationIsInvalidDurationIsInferiorToZero() {
+        PlaybackProgress event = new PlaybackProgress(31L, -1L);
+        expect(event.isDurationValid()).toBeFalse();
+    }
+
+    @Test
+    public void durationIsValidDurationIsSuperiorToZero() {
+        PlaybackProgress event = new PlaybackProgress(31L, 1L);
+        expect(event.isDurationValid()).toBeTrue();
+    }
 }

@@ -68,7 +68,7 @@ public class TimestampViewTest {
     }
 
     @Test
-    public void doesNotUpdateDurationIfProgressEventIsEmpty() {
+    public void doesNotUpdateDurationIfProgressEventDurationIsInvalid() {
         timestampView.setInitialProgress(MINUTES_10);
 
         timestampView.setProgress(PlaybackProgress.empty());

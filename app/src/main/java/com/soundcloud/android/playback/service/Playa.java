@@ -48,7 +48,7 @@ public interface Playa {
         }
 
         public StateTransition(PlayaState newState, Reason reason, TrackUrn trackUrn) {
-            this(newState, reason, trackUrn, 0, 1);
+            this(newState, reason, trackUrn, 0, 0);
         }
 
         public StateTransition(PlayaState newState, Reason reason, TrackUrn trackUrn, long currentProgress, long duration) {
