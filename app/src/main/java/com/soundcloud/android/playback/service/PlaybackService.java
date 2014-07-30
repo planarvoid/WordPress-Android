@@ -374,7 +374,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private class TrackInformationSubscriber extends DefaultSubscriber<PublicApiTrack> {
         private final boolean playUninterrupted;
 
-        public TrackInformationSubscriber(boolean playUninterrupted) {
+        TrackInformationSubscriber(boolean playUninterrupted) {
             this.playUninterrupted = playUninterrupted;
         }
 
@@ -398,7 +398,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ void openCurrent(PublicApiTrack track, boolean playUninterrupted) {
-        if (track != null) {
+        if (track == null) {
+            Log.e(TAG, "openCurrent with no available track");
+        } else {
             suppressNotifications = false;
             waitingForPlaylist = false;
 
@@ -416,15 +418,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 streamableTrackSubscription = trackObservable
                         .observeOn(AndroidSchedulers.mainThread()).subscribe(new StreamableTrackInformationSubscriber(playUninterrupted));
             }
-        } else {
-            Log.e(TAG, "openCurrent with no available track");
         }
     }
 
     private class StreamableTrackInformationSubscriber extends DefaultSubscriber<PublicApiTrack> {
-        private boolean playUninterrupted;
+        private final boolean playUninterrupted;
 
-        private StreamableTrackInformationSubscriber(boolean playUninterrupted) {
+        StreamableTrackInformationSubscriber(boolean playUninterrupted) {
             this.playUninterrupted = playUninterrupted;
         }
 

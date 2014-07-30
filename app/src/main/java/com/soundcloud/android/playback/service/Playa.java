@@ -10,6 +10,8 @@ import android.content.Intent;
 
 import java.util.EnumSet;
 
+// TODO, extract transitions/reason/error codes to their own classes
+@SuppressWarnings({"PMD.ExcessivePublicCount"})
 public interface Playa {
 
     void play(PublicApiTrack track);

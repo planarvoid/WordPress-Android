@@ -4,6 +4,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 
 import javax.inject.Inject;
 
+// this class is getting deleted
+@SuppressWarnings({"PMD.UncommentedEmptyMethod"})
 public class BufferingPlaya implements Playa {
 
     @Inject
