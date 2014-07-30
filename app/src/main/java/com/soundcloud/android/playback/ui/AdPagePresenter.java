@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -20,9 +21,7 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class AdPagePresenter implements PagePresenter, View.OnClickListener {
-    private final static int SKIP_DURATION_SEC = 15;
-
+class AdPagePresenter implements PagePresenter, View.OnClickListener {
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -44,7 +43,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
-        updateCountDown(holder, SKIP_DURATION_SEC);
+        updateCountDown(holder, AdConstants.UNSKIPPABLE_TIME_SECS);
         return adView;
     }
 
@@ -115,7 +114,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void setProgress(View adView, PlaybackProgress progress) {
-        final int secondsUntilSkip = SKIP_DURATION_SEC - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
+        final int secondsUntilSkip = AdConstants.UNSKIPPABLE_TIME_SECS - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
         final boolean canSkip = secondsUntilSkip <= 0;
 
         final Holder viewHolder = getViewHolder(adView);

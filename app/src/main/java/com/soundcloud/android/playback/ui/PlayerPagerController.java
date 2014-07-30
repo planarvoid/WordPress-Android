@@ -2,13 +2,19 @@ package com.soundcloud.android.playback.ui;
 
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.support.v4.view.ViewPager;
@@ -16,16 +22,24 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlayerPagerController implements ViewPager.OnPageChangeListener {
+class PlayerPagerController implements ViewPager.OnPageChangeListener {
 
     private final TrackPagerAdapter adapter;
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final PlaybackOperations playbackOperations;
     private final PlayerPresenter presenter;
+    private final Observable<PlaybackProgressEvent> checkAdProgress;
     private CompositeSubscription subscription;
-    private ViewPager trackPager;
+    private PlayerTrackPager trackPager;
     private boolean shouldChangeTrackOnIdle;
+
+    private final Action1<PlaybackProgressEvent> unlockPager = new Action1<PlaybackProgressEvent>() {
+        @Override
+        public void call(PlaybackProgressEvent ignored) {
+            trackPager.setPagingEnabled(true);
+        }
+    };
 
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
@@ -34,10 +48,17 @@ public class PlayerPagerController implements ViewPager.OnPageChangeListener {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
+
+        checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(new Func1<PlaybackProgressEvent, Boolean>() {
+            @Override
+            public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
+                return playbackProgressEvent.getPlaybackProgress().getPosition() >= AdConstants.UNSKIPPABLE_TIME_MS;
+            }
+        });
     }
 
     void onViewCreated(View view) {
-        setPager((ViewPager) view.findViewById(R.id.player_track_pager));
+        setPager((PlayerTrackPager) view.findViewById(R.id.player_track_pager));
 
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
@@ -50,7 +71,7 @@ public class PlayerPagerController implements ViewPager.OnPageChangeListener {
         ObjectAnimator.clearAllAnimations();
     }
 
-    private void setPager(ViewPager trackPager) {
+    private void setPager(PlayerTrackPager trackPager) {
         this.presenter.initialize(trackPager);
         this.trackPager = trackPager;
         this.trackPager.setOnPageChangeListener(this);
@@ -79,6 +100,11 @@ public class PlayerPagerController implements ViewPager.OnPageChangeListener {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
             setQueuePosition(playQueueManager.getCurrentPosition());
+
+            if (playQueueManager.isCurrentTrackAudioAd()){
+                trackPager.setPagingEnabled(false);
+                subscription.add(checkAdProgress.subscribe(unlockPager));
+            }
         }
     }
 

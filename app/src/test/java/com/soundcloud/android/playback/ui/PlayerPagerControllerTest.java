@@ -7,12 +7,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -32,7 +36,7 @@ public class PlayerPagerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private View container;
-    @Mock private ViewPager viewPager;
+    @Mock private PlayerTrackPager viewPager;
 
     private PlayerPagerController controller;
 
@@ -162,4 +166,35 @@ public class PlayerPagerControllerTest {
         verify(adapter).onTrackChange(); // times(1)
     }
 
+
+    @Test
+    public void trackChangeEventWhenAdIsPlayingDisablesViewPager() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+
+        verify(viewPager).setPagingEnabled(false);
+    }
+
+    @Test
+    public void progressEventLessThanTimeoutWhilePlayingAdDoesNotEnablePaging() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 1L);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, TrackUrn.NOT_SET));
+
+        verify(viewPager, never()).setPagingEnabled(true);
+    }
+
+    @Test
+    public void progressEventEqualToTimeoutWhilePlayingAdEnablesPaging() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, TrackUrn.NOT_SET));
+
+        verify(viewPager).setPagingEnabled(true);
+    }
 }

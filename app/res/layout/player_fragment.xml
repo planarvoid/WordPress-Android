@@ -11,7 +11,7 @@
         android:layout_height="@dimen/player_strip"
         android:background="@color/sc_orange" />
 
-    <com.soundcloud.android.view.SafeViewPager
+    <com.soundcloud.android.playback.ui.view.PlayerTrackPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/player_track_pager"

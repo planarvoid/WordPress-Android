@@ -4,8 +4,9 @@
     <ImageView
             android:id="@+id/track_page_artwork"
             style="@style/PlayerAdArtwork"/>
-    <View android:id="@+id/artwork_overlay"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:background="@color/artwork_overlay"/>
+    <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
+            android:id="@+id/artwork_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/artwork_overlay"/>
 </merge>
