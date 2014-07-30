@@ -3,16 +3,12 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
-import com.soundcloud.android.preferences.DeveloperPreferences;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.tracks.TrackUrn;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import javax.inject.Inject;
 
@@ -31,8 +27,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private final SkippyAdapter skippyPlayaDelegate;
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences playbackPreferences;
-    private final FeatureFlags featureFlags;
-    private final PlayerSwitcherInfo playerSwitcherInfo;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -43,15 +37,13 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, FeatureFlags featureFlags, PlayerSwitcherInfo playerSwitcherInfo){
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya){
         playbackPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
         currentPlaya = bufferingPlayaDelegate;
-        this.featureFlags = featureFlags;
 
-        this.playerSwitcherInfo = playerSwitcherInfo;
 
         if (!skippyFailedToInitialize) {
             skippyFailedToInitialize = !skippyPlayaDelegate.init(context);
@@ -92,21 +84,21 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Override
     public void play(PublicApiTrack track) {
-        trackPlaybackInfo = new TrackPlaybackInfo(track, 0L);
+        trackPlaybackInfo = new TrackPlaybackInfo(track);
         configureNextPlayaToUseViaPreferences();
         currentPlaya.play(track);
     }
 
     @Override
     public void play(PublicApiTrack track, long fromPos) {
-        trackPlaybackInfo = new TrackPlaybackInfo(track, fromPos);
+        trackPlaybackInfo = new TrackPlaybackInfo(track);
         configureNextPlayaToUseViaPreferences();
         currentPlaya.play(track, fromPos);
     }
 
     @Override
     public void playUninterrupted(PublicApiTrack track) {
-        trackPlaybackInfo = new TrackPlaybackInfo(track, 0L);
+        trackPlaybackInfo = new TrackPlaybackInfo(track);
         configureNextPlayaToUseViaPreferences();
         currentPlaya.playUninterrupted(track);
     }
@@ -171,18 +163,9 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Override
     public void onPlaystateChanged(StateTransition stateTransition) {
-        if (isUsingSkippyPlaya() && stateTransition.wasError() && !isInForceSkippyMode()) {
-            Log.i(TAG, "Falling back to MediaPlayer");
-
-            final long progress = skippyPlayaDelegate.getProgress();
-            configureNextPlayaToUse(mediaPlayaDelegate);
-            mediaPlayaDelegate.play(trackPlaybackInfo.getTrack(), progress);
-
-        } else {
-            Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when passing state");
-            lastStateTransition = stateTransition;
-            playaListener.onPlaystateChanged(stateTransition);
-        }
+        Preconditions.checkNotNull(playaListener, "Stream Player Listener is unexpectedly null when passing state");
+        lastStateTransition = stateTransition;
+        playaListener.onPlaystateChanged(stateTransition);
     }
 
     @Override
@@ -238,68 +221,19 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
             return mediaPlayaDelegate;
         }
 
-        if (isInForceSkippyMode()) {
-            return skippyPlayaDelegate;
-        } else if (lastPlaya == skippyPlayaDelegate){
+        return skippyPlayaDelegate;
 
-            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveSkippyPlays()) {
-                return mediaPlayaDelegate;
-            } else {
-                return skippyPlayaDelegate;
-            }
-        } else {
-            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveMpPlays()) {
-                return skippyPlayaDelegate;
-            } else {
-                return mediaPlayaDelegate;
-            }
-        }
-
-    }
-
-    private boolean isUsingSkippyPlaya() {
-        return currentPlaya == skippyPlayaDelegate;
-    }
-
-    private boolean isInForceSkippyMode() {
-        return featureFlags.isEnabled(Feature.VISUAL_PLAYER) ||
-                playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false) ||
-                playerSwitcherInfo.getMaxConsecutiveMpPlays() <= 0;
-    }
-
-    public static class PlayerSwitcherInfo {
-        private final int skippyCount;
-        private final int mpCount;
-
-        public PlayerSwitcherInfo(int maxConsecutiveMpPlays, int maxConsecutiveSkippyPlays) {
-            this.mpCount = maxConsecutiveMpPlays;
-            this.skippyCount = maxConsecutiveSkippyPlays;
-        }
-
-        public int getMaxConsecutiveSkippyPlays() {
-            return skippyCount;
-        }
-
-        public int getMaxConsecutiveMpPlays() {
-            return mpCount;
-        }
     }
 
     private static class TrackPlaybackInfo {
         private final PublicApiTrack track;
-        private final long startPosition;
 
-        private TrackPlaybackInfo(PublicApiTrack track, long startPosition) {
+        private TrackPlaybackInfo(PublicApiTrack track) {
             this.track = track;
-            this.startPosition = startPosition;
         }
 
         public PublicApiTrack getTrack() {
             return track;
-        }
-
-        public long getStartPosition() {
-            return startPosition;
         }
     }
 }

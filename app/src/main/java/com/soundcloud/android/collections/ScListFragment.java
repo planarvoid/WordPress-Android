@@ -11,28 +11,23 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.adapters.PostsAdapter;
-import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -40,8 +35,11 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
+import com.soundcloud.android.view.adapters.PostsAdapter;
+import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -102,8 +100,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Nullable private CollectionTask refreshTask;
     @Nullable private LocalCollection localCollection;
     private ChangeObserver changeObserver;
-    private boolean ignorePlaybackStatus, keepGoing, pendingSync;
-    private boolean legacyPlayer;
+    private boolean keepGoing, pendingSync;
     private CollectionTask appendTask;
     protected String nextHref;
 
@@ -117,7 +114,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private Subscription userEventSubscription = Subscriptions.empty();
 
-    @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject ImageOperations imageOperations;
     @Inject EventBus eventBus;
@@ -171,7 +167,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        legacyPlayer = new FeatureFlags(activity.getResources()).isDisabled(Feature.VISUAL_PLAYER);
 
         if (contentUri == null) {
             // only should happen once
@@ -281,7 +276,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onStop() {
         super.onStop();
         stopListening();
-        ignorePlaybackStatus = false;
         retainedListPosition = listView.getFirstVisiblePosition();
     }
 
@@ -414,11 +408,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         final ScBaseAdapter adapter = getListAdapter();
-        if (adapter == null) return;
-
-        if (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen()) ==
-                ScBaseAdapter.ItemClickResults.LEAVING) {
-            ignorePlaybackStatus = true;
+        if (adapter != null) {
+            adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen());
         }
     }
 
@@ -821,7 +812,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         @Override
         public void onReceive(Context context, Intent intent) {
             final ScBaseAdapter adapter = getListAdapter();
-            if (ignorePlaybackStatus && legacyPlayer) return;
 
             final String action = intent.getAction();
             if (Broadcasts.META_CHANGED.equals(action)

@@ -31,8 +31,6 @@
     <string name="playback_error_logging">Registro de errores de reproducción: %s</string>
     <string name="enabled">Activado</string>
     <string name="disabled">Desactivado</string>
-    <string name="player_track_unavailable">Este sonido ya no está disponible</string>
-
     <string name="uploader_event_processing">Procesando</string>
     <string name="uploader_event_processing_percent">Procesando: %d%%</string>
     <string name="uploader_event_not_yet_uploading">Subida no iniciada aún</string>
@@ -157,10 +155,6 @@
     <string name="accessibility_like_action">Me gusta</string>
     <string name="accessibility_repost_action">Republicar</string>
     <string name="accessibility_comment_action">Comentar</string>
-    <string name="accessibility_next_track">Siguiente pista</string>
-    <string name="accessibility_toggle_playback">Activar repetición</string>
-    <string name="accessibility_previous_track">Pista anterior</string>
-
     <string name="playlist_info_header_text">Esta lista contiene %1$s, tiempo total: %2$s</string>
     <string name="imprint">Grabar</string>
 
@@ -232,12 +226,7 @@
     <string name="error_no_internet">No hay Internet.</string>
     <string name="error_connect_and_try_again">Conéctate y vuelve a intentarlo.</string>
 
-    <string name="player_no_recommended_tracks">No se han encontrado pistas relacionadas. Intenta explorar algo nuevo.</string>
-
     <string name="appending_failed">Error al cargar. Toca para volver a intentarlo.</string>
-
-    <string name="player_fetching_related_message_1">Solo un segundo</string>
-    <string name="player_fetching_related_message_2">Estamos obteniendo tu próxima pista</string>
 
     <string name="navigation_drawer_open">Abre el panel de navegación</string>
     <string name="navigation_drawer_close">Cierra el panel de navegación</string>

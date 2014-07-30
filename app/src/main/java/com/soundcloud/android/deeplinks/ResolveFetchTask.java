@@ -44,7 +44,6 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolving uri "+uri+" remotely");
-
         Uri resolvedUri = new ResolveTask(api).resolve(uri);
         if (resolvedUri != null) {
             try {

@@ -7,7 +7,7 @@ import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
 
-public class VisualPlayerElement extends Element implements PlayerElement {
+public class VisualPlayerElement extends Element {
 
     public VisualPlayerElement(Han solo) {
         super(solo);
@@ -112,7 +112,6 @@ public class VisualPlayerElement extends Element implements PlayerElement {
         waiter.waitForPlayerPage();
     }
 
-    @Override
     public void swipeNext() {
         solo.swipeLeft(0.4f);
         waiter.waitForPlayerPage();
@@ -123,7 +122,6 @@ public class VisualPlayerElement extends Element implements PlayerElement {
         waiter.waitForPlayerPage();
     }
 
-    @Override
     public String getTrackTitle() {
         return trackTitle().getText();
     }

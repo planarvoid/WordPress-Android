@@ -8,7 +8,6 @@ import com.soundcloud.android.creators.upload.UploadMonitorActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.preferences.AccountSettingsActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -46,19 +45,6 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
 
     public void ignore_testStream() throws Exception {
         assertActivityStarted(MainActivity.class, Actions.STREAM);
-    }
-
-    public void ignore_testPlayer() throws Exception {
-        assertActivityStarted(PlayerActivity.class, Actions.PLAYER);
-        assertActivityStarted(PlayerActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
-    }
-
-    public void ignore_testPlayWithPlaylist() throws Exception {
-        assertActivityStarted(PlayerActivity.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
-    }
-
-    public void ignore_testPlayEmpty() throws Exception {
-        assertActivityStarted(PlayerActivity.class, Actions.PLAY);
     }
 
     public void ignore_testShare() throws Exception {

@@ -6,8 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +23,6 @@ public class ScreenPresenterTest {
 
     private ScreenPresenter presenter;
 
-    @Mock private FeatureFlags featureFlags;
-
     @Mock private ActionBarActivity activity;
     @Mock private LayoutInflater inflater;
     @Mock private View layout;
@@ -36,7 +32,7 @@ public class ScreenPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new ScreenPresenter(featureFlags);
+        presenter = new ScreenPresenter();
         presenter.attach(activity);
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
@@ -44,17 +40,14 @@ public class ScreenPresenterTest {
     }
 
     @Test
-    public void shouldRequestActionBarOverlayFeatureOnSettingLayoutIfVisualPlayerFlagIsEnabled() {
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
-
+    public void shouldRequestActionBarOverlayFeatureOnSettingLayout() {
         presenter.setBaseLayout();
 
         verify(activity).supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
     }
 
     @Test
-    public void shouldSetActivityLayoutOnSetBaseLayoutAndVisualPlayerFlagIsEnabled() {
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+    public void shouldSetActivityLayoutOnSetBaseLayout() {
         when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
 
         presenter.setBaseLayout();
@@ -63,29 +56,8 @@ public class ScreenPresenterTest {
     }
 
     @Test
-    public void shouldSetActivityLayoutOnSetBaseLayoutAndVisualPlayerFlagIsDisabled() {
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
-        when(inflater.inflate(R.layout.base_legacy, null)).thenReturn(layout);
-
-        presenter.setBaseLayout();
-
-        verify(activity).setContentView(layout);
-    }
-
-    @Test
-    public void shouldSetActivityLayoutOnSetBaseDrawerLayoutAndVisualPlayerFlagIsEnabled() {
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
+    public void shouldSetActivityLayoutOnSetBaseDrawerLayout() {
         when(inflater.inflate(R.layout.base_with_drawer, null)).thenReturn(layout);
-
-        presenter.setBaseDrawerLayout();
-
-        verify(activity).setContentView(layout);
-    }
-
-    @Test
-    public void shouldSetActivityLayoutOnSetBaseDrawerLayoutAndVisualPlayerFlagIsDisabled() {
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(false);
-        when(inflater.inflate(R.layout.base_with_drawer_legacy, null)).thenReturn(layout);
 
         presenter.setBaseDrawerLayout();
 

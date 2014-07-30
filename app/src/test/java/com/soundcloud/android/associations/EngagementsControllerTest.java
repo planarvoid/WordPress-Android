@@ -55,7 +55,7 @@ public class EngagementsControllerTest {
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
+        rootView = (ViewGroup) inflater.inflate(R.layout.playlist_action_bar, null);
         controller = new EngagementsController(eventBus, soundAssocOps, accountOperations);
         controller.bindView(rootView);
         controller.startListeningForChanges();

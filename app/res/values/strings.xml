@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="legal">Legal</string>
     <string name="legal_summary">Legal information</string>
@@ -77,10 +78,6 @@
     <string name="accessibility_like_action">Like</string>
     <string name="accessibility_repost_action">Repost</string>
     <string name="accessibility_comment_action">Comment</string>
-    <string name="accessibility_next_track">Next track</string>
-    <string name="accessibility_toggle_playback">Toggle playback</string>
-    <string name="accessibility_previous_track">Previous Track</string>
-
     <string name="playlist_info_header_text">This playlist contains %1$s, total time: %2$s</string>
     <string name="imprint">Imprint</string>
 
@@ -161,12 +158,7 @@
     <string name="error_no_internet">No Internet.</string>
     <string name="error_connect_and_try_again">Connect and try again.</string>
 
-    <string name="player_no_recommended_tracks">No related tracks found. Try exploring something new.</string>
-
     <string name="appending_failed">Loading error. Tap to try again</string>
-
-    <string name="player_fetching_related_message_1">Just a second</string>
-    <string name="player_fetching_related_message_2">We\'re getting your next track</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

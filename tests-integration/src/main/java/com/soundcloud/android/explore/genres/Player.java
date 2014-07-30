@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
@@ -30,7 +29,6 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Feature.VISUAL_PLAYER);
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         streamScreen = new StreamScreen(solo);

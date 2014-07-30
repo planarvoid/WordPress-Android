@@ -2,10 +2,10 @@ package com.soundcloud.android.screens.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
 
@@ -70,10 +70,10 @@ public class ExploreScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public LegacyPlayerScreen playPopularTrack(int trackNumber) {
+    public VisualPlayerElement playPopularTrack(int trackNumber) {
         View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
         testDriver.wrap(view).click();
-        return new LegacyPlayerScreen(testDriver);
+        return new VisualPlayerElement(testDriver);
     }
 
     public void playFirstTrack() {

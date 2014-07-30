@@ -15,8 +15,7 @@ import android.content.res.Resources;
 @RunWith(SoundCloudTestRunner.class)
 public class FeatureFlagsTest {
 
-    @Mock
-    private Resources resources;
+    @Mock private Resources resources;
 
     private FeatureFlags featureFlags;
 
@@ -29,16 +28,16 @@ public class FeatureFlagsTest {
     public void shouldBeEnabledWhenResourceValueIsTrue() {
         when(resources.getBoolean(anyInt())).thenReturn(true);
 
-        expect(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).toBeTrue();
-        expect(featureFlags.isDisabled(Feature.VISUAL_PLAYER)).toBeFalse();
+        expect(featureFlags.isEnabled(Feature.TEST_FEATURE)).toBeTrue();
+        expect(featureFlags.isDisabled(Feature.TEST_FEATURE)).toBeFalse();
     }
 
     @Test
     public void shouldBeDisabledWhenResourceValueIsFalse() {
         when(resources.getBoolean(anyInt())).thenReturn(false);
 
-        expect(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).toBeFalse();
-        expect(featureFlags.isDisabled(Feature.VISUAL_PLAYER)).toBeTrue();
+        expect(featureFlags.isEnabled(Feature.TEST_FEATURE)).toBeFalse();
+        expect(featureFlags.isDisabled(Feature.TEST_FEATURE)).toBeTrue();
     }
 
 }

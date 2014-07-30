@@ -15,8 +15,6 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
@@ -83,15 +81,13 @@ public class PlaybackServiceTest {
     @Mock
     private Playa.StateTransition stateTransition;
     @Mock
-    private FeatureFlags featureFlags;
-    @Mock
     private PlaybackNotificationController playbackNotificationController;
 
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(playQueueManager, eventBus, legacyTrackOperations, trackOperations,
                 accountOperations, playbackServiceOperations, streamPlayer,
-                playbackReceiverFactory, audioManagerProvider, featureFlags, playbackNotificationController);
+                playbackReceiverFactory, audioManagerProvider, playbackNotificationController);
 
 
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
@@ -181,22 +177,12 @@ public class PlaybackServiceTest {
     }
 
     @Test
-    public void onProgressDoesNotPublishProgressEvent() throws Exception {
-        playbackService.onCreate();
-
-        playbackService.onProgressEvent(123L, 456L);
-
-        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PROGRESS);
-    }
-
-    @Test
-    public void onProgressPublishesAProgressEventIfVisualPlayerEnabled() throws Exception {
+    public void onProgressPublishesAProgressEvent() throws Exception {
         when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         playbackService.onCreate();
         playbackService.openCurrent(track);
 
-        when(featureFlags.isEnabled(Feature.VISUAL_PLAYER)).thenReturn(true);
         playbackService.onProgressEvent(123L, 456L);
 
         PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);

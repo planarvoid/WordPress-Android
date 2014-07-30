@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <dimen name="tab_text_size">12sp</dimen>
@@ -32,24 +32,10 @@
     <dimen name="list_text_margin_left">5dip</dimen>
 
     <!-- can't change one of these without change them all -->
-    <dimen name="player_time_height">28dp</dimen>
-    <dimen name="player_portrait_half_wave_height">50dip</dimen>
-    <dimen name="player_transport_height">60dp</dimen>
     <!-- end of can't change one of these without change them all -->
-
-    <dimen name="player_info_button_margin">0dp</dimen>
-
-    <dimen name="player_time_padding_left_right">5dp</dimen>
-    <dimen name="player_time_padding_top_bottom">3dp</dimen>
 
     <dimen name="player_time_text_size">10sp</dimen>
     <dimen name="player_time_text_instructions_size">12sp</dimen>
-
-    <dimen name="player_time_comment_height">90dip</dimen>
-    <dimen name="player_time_comment_width">140dip</dimen>
-
-    <dimen name="player_avatar_bar_height">10dip</dimen>
-    <dimen name="player_avatar_bar_height_land">32dip</dimen>
 
     <dimen name="player_comment_bar_txt_size">16sp</dimen>
 
@@ -141,9 +127,7 @@
 
     <dimen name="empty_message_margin_left_right">20dp</dimen>
 
-    <dimen name="player_time_width">10dp</dimen><!-- will correspond to the arrow height -->
-    <dimen name="player_time_bottom_margin">-10dp</dimen><!-- will correspond to the arrow height -->
-
+    <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 
     <dimen name="navigation_drawer_width">240dp</dimen>

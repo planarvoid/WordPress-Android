@@ -7,18 +7,16 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +55,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject StreamPlaya streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
-    @Inject FeatureFlags featureFlags;
     @Inject PlaybackNotificationController playbackNotificationController;
 
     // XXX : would be great to not have these boolean states
@@ -141,7 +138,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     PlaybackServiceOperations playbackServiceOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
-                    FeatureFlags featureFlags, PlaybackNotificationController playbackNotificationController) {
+                    PlaybackNotificationController playbackNotificationController) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.legacyTrackOperations = legacyTrackOperations;
@@ -151,7 +148,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.streamPlayer = streamPlaya;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
-        this.featureFlags = featureFlags;
         this.playbackNotificationController = playbackNotificationController;
     }
 
@@ -321,11 +317,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onProgressEvent(long position, long duration) {
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)){
-            final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-            final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentTrack.getUrn());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
-        }
+        final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
+        final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentTrack.getUrn());
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
     }
 
     @Override

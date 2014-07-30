@@ -6,13 +6,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -43,8 +42,6 @@ public class EngagementsController {
     private ToggleButton toggleRepost;
     @Nullable
     private ImageButton shareButton;
-    @Nullable
-    private AddToPlaylistListener addToPlaylistListener;
 
     private Playable playable;
     private OriginProvider originProvider;
@@ -53,10 +50,6 @@ public class EngagementsController {
     private final EventBus eventBus;
 
     private CompositeSubscription subscription = new CompositeSubscription();
-
-    public interface AddToPlaylistListener {
-        void onAddToPlaylist(PublicApiTrack track);
-    }
 
     @Inject
     public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps,
@@ -128,18 +121,6 @@ public class EngagementsController {
                 }
             });
         }
-
-        ImageButton addToPlaylistBtn = (ImageButton) rootView.findViewById(R.id.btn_addToPlaylist);
-        if (addToPlaylistBtn != null) {
-            addToPlaylistBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (playable instanceof PublicApiTrack && addToPlaylistListener != null) {
-                        addToPlaylistListener.onAddToPlaylist((PublicApiTrack) playable);
-                    }
-                }
-            });
-        }
     }
 
     public void startListeningForChanges() {
@@ -167,10 +148,6 @@ public class EngagementsController {
 
     public void stopListeningForChanges() {
         subscription.unsubscribe();
-    }
-
-    public void setAddToPlaylistListener(AddToPlaylistListener listener) {
-        addToPlaylistListener = listener;
     }
 
     public void setOriginProvider(OriginProvider originProvider) {

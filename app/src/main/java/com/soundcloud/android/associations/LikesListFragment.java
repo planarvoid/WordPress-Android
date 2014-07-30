@@ -96,7 +96,7 @@ public class LikesListFragment extends ScListFragment {
         headerView.findViewById(R.id.shuffle_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playbackOperations.playFromIdListShuffled(getActivity(), likedTrackIds, Screen.SIDE_MENU_LIKES);
+                playbackOperations.playFromIdListShuffled(likedTrackIds, Screen.SIDE_MENU_LIKES);
                 eventBus.publish(EventQueue.UI, UIEvent.fromShuffleMyLikes());
             }
         });

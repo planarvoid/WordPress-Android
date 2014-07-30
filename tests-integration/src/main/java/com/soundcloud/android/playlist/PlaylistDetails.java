@@ -7,10 +7,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTestCase;
 
 public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
@@ -43,7 +43,7 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
     }
 
     public void testHeaderPlayClickShouldNotOpenPlayer() {
-        LegacyPlayerScreen playerScreen = new LegacyPlayerScreen(solo);
+        VisualPlayerElement playerScreen = new VisualPlayerElement(solo);
         playlistDetailsScreen.clickHeaderPlay();
         assertThat(playerScreen, is(not(Visible())));
 

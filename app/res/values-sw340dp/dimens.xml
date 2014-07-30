@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
-    <dimen name="player_info_button_margin">10dp</dimen>
-
-</resources>
+    </resources>

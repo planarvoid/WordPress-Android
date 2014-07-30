@@ -6,9 +6,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.screens.LegacyPlayerScreen;
-import com.soundcloud.android.screens.elements.PlayerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.net.Uri;
 
@@ -17,18 +15,10 @@ public class ResolveTrackSoundCloudUriTest extends ResolveBaseTest {
     private static final String TRACK_NAME = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
 
     public void testShouldOpenPlayerScreenAndLoadRecommendations() throws Exception {
-        // TODO : no recommendation for the visual player ?
-        if (featureFlags.isDisabled(Feature.VISUAL_PLAYER)) {
-            waiter.waitForContentAndRetryIfLoadingFailed();
-            if (featureFlags.isEnabled(Feature.VISUAL_PLAYER) == false) {
-                // Trick (?)
-                new LegacyPlayerScreen(solo).stopPlayback();
-            }
-            final PlayerElement playerElement = getPlayerElement();
-            assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
-            playerElement.swipeNext();
-            assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(TRACK_NAME))));
-        }
+        final VisualPlayerElement playerElement = getPlayerElement();
+        assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
+        playerElement.swipeNext();
+        assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(TRACK_NAME))));
     }
 
     @Override

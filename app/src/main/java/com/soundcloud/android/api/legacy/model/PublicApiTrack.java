@@ -8,26 +8,24 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.json.Views;
+import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -541,11 +539,6 @@ public class PublicApiTrack extends Playable {
     @Override
     public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
-    }
-
-    @Override
-    public Intent getViewIntent() {
-        return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }
 
     public PublicApiTrack updateFrom(PublicApiTrack updatedItem, CacheUpdateMode cacheUpdateMode) {

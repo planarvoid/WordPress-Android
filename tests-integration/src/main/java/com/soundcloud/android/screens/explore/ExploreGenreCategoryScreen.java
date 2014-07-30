@@ -2,8 +2,8 @@ package com.soundcloud.android.screens.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.explore.ExploreTracksCategoryActivity;
-import com.soundcloud.android.screens.LegacyPlayerScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
 
 import android.view.View;
@@ -29,9 +29,9 @@ public class ExploreGenreCategoryScreen extends Screen {
         return textView.getText().toString();
     }
 
-    public LegacyPlayerScreen playTrack(int index) {
+    public VisualPlayerElement playTrack(int index) {
         testDriver.wrap(tracksList().getChildAt(index)).click();
-        return new LegacyPlayerScreen(testDriver);
+        return new VisualPlayerElement(testDriver);
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {

@@ -13,7 +13,6 @@ import rx.Scheduler;
 import javax.inject.Named;
 
 @Module(addsTo = ApplicationModule.class, injects = {
-        PlayerActivity.class,
         ActivitiesActivity.class,
         PlayerFragment.class,
         PlaybackActionReceiver.class,

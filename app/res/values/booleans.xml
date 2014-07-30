@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <bool name="player_time_show_arrow">true</bool>
     <bool name="split_screen_details_pages">false</bool>
 </resources>

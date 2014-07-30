@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
@@ -23,7 +22,6 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     public PlayerWithAds() {
         super(MainActivity.class);
-        setDependsOn(Feature.VISUAL_PLAYER);
     }
 
     @Override

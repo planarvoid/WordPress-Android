@@ -3,12 +3,8 @@ package com.soundcloud.android;
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
 import com.soundcloud.android.api.ApiModule;
-import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.rx.eventbus.DefaultEventBus;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.waveform.WaveformData;
+import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
@@ -16,14 +12,15 @@ import com.soundcloud.android.playback.service.RichNotificationPresenter;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
-import com.soundcloud.android.playback.ui.LegacyPlayerController;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.eventbus.DefaultEventBus;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.waveform.WaveformData;
 import dagger.Module;
 import dagger.Provides;
 
@@ -37,8 +34,8 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.v4.util.LruCache;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.util.LruCache;
 import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 
@@ -130,7 +127,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public NotificationCompat.Builder provideNotificationBuilder(Context context){
+    public NotificationCompat.Builder provideNotificationBuilder(Context context) {
         return new NotificationCompat.Builder(context);
     }
 
@@ -141,7 +138,7 @@ public class ApplicationModule {
                                                                               Provider<NotificationCompat.Builder> builder) {
         if (applicationProperties.shouldUseBigNotifications()) {
             return new BigPlaybackNotificationPresenter(context, factory, builder);
-        } else if (applicationProperties.shouldUseRichNotifications()){
+        } else if (applicationProperties.shouldUseRichNotifications()) {
             return new RichNotificationPresenter(context, factory, builder);
         } else {
             return new PlaybackNotificationPresenter(context, builder);
@@ -164,16 +161,12 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    public LruCache<TrackUrn, WaveformData> provideWaveformCache(){
+    public LruCache<TrackUrn, WaveformData> provideWaveformCache() {
         return new LruCache<TrackUrn, WaveformData>(DEFAULT_WAVEFORM_CACHE_SIZE);
     }
 
     @Provides
-    PlayerController providePlayerController(FeatureFlags featureFlags, PlayQueueManager playQueueManager, EventBus eventBus) {
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            return new SlidingPlayerController(playQueueManager, eventBus);
-        } else {
-            return new LegacyPlayerController();
-        }
+    PlayerController providePlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
+        return new SlidingPlayerController(playQueueManager, eventBus);
     }
 }

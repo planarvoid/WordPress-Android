@@ -4,7 +4,6 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORIT
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
@@ -29,8 +28,6 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
@@ -90,7 +87,6 @@ public class SoundCloudApplication extends Application {
     @Inject PlaybackSessionAnalyticsController playSessionAnalyticsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject PlaybackNotificationController playbackNotificationController;
-    @Inject FeatureFlags featureFlags;
     @Inject SkippyFactory skippyFactory;
 
     // we need this object to exist througout the life time of the app,
@@ -107,12 +103,6 @@ public class SoundCloudApplication extends Application {
                 new LegacyModule(),
                 new FeaturesModule(),
                 new PlaybackServiceModule());
-    }
-
-    @VisibleForTesting
-    SoundCloudApplication(EventBus eventBus, AccountOperations accountOperations) {
-        this.eventBus = eventBus;
-        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -162,9 +152,7 @@ public class SoundCloudApplication extends Application {
         playSessionAnalyticsController.subscribe();
         playbackNotificationController.subscribe();
 
-        if (featureFlags.isEnabled(Feature.VISUAL_PLAYER)) {
-            adsController.subscribe();
-        }
+        adsController.subscribe();
     }
 
     private void registerRxGlobalErrorHandler() {

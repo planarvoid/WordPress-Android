@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="117" android:versionName="14.07.16" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="117" android:versionName="14.07.30" package="com.soundcloud.android">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="19"/>
@@ -217,44 +217,6 @@
         <activity android:name=".onboarding.auth.FacebookSSOActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
         <activity android:configChanges="orientation|keyboardHidden" android:label="Connect" android:name=".onboarding.auth.ConnectActivity" android:theme="@style/Theme.SoundCloud.NoActionBar">
-        </activity>
-
-        <activity android:label="@string/title_now_playing" android:launchMode="singleTask" android:name=".playback.PlayerActivity" android:theme="@style/Theme.SoundCloud" android:windowSoftInputMode="adjustPan">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PLAYER"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-
-            <!-- play with content uri, e.g. ME_STREAM -->
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PLAY"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:host="com.soundcloud.android.provider.ScContentProvider" android:scheme="content"/>
-            </intent-filter>
-
-
-            <!-- play with playlist uri -->
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PLAY"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:host="com.soundcloud.android.provider.ScContentProvider" android:scheme="content"/>
-                <data android:mimeType="vnd.soundcloud.playable/playlist"/>
-            </intent-filter>
-
-            <!-- play with track extra -->
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.PLAY"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-
-            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.landing.Home"/>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:mimeType="vnd.soundcloud.playable/track"/>
-            </intent-filter>
         </activity>
 
         <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud.NoBg">

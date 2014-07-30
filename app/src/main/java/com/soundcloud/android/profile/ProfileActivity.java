@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -19,9 +20,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.playback.ui.PlayerController;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
@@ -82,7 +81,6 @@ public class ProfileActivity extends ScActivity implements
     @Inject PublicCloudAPI oldCloudAPI;
     @Inject FollowingOperations followingOperations;
     @Inject UserStorage userStorage;
-    @Inject FeatureFlags featureFlags;
     @Inject PlayerController playerController;
     @Inject ScreenPresenter presenter;
 

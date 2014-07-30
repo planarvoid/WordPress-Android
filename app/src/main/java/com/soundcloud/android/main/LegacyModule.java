@@ -5,8 +5,6 @@ import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.playback.views.WaveformControllerLayout;
-import com.soundcloud.android.playback.views.WaveformControllerLayoutLand;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
@@ -21,14 +19,12 @@ import dagger.Module;
                 SoundAdapter.class,
                 PostsAdapter.class,
                 TrackInteractionActivity.class,
-                MyTracksAdapter.class,
-                WaveformControllerLayout.class,
-                WaveformControllerLayoutLand.class
+                MyTracksAdapter.class
         }, includes = AssociationsModule.class)
 
 /**
  * Module for legacy classes that need direct injection but are not currently part of injected activities/fragments.
- * We should add to this only when absoultely necessary but should utlimately refactor these features to use injection
+ * We should add to this only when absolutely necessary but should ultimately refactor these features to use injection
  */
 @Deprecated
 public class LegacyModule {

@@ -11,5 +11,4 @@
     <string name="api_host">api.soundcloud.com</string>
 
     <!-- Feature flags -->
-    <bool name="feature_visual_player">false</bool>
 </resources>

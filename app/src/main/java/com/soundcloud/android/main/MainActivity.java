@@ -20,7 +20,6 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamFragment;
@@ -54,7 +53,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Inject ScreenPresenter presenter;
     @Inject UserOperations userOperations;
-    @Inject FeatureFlags featureFlags;
     @Inject PlayerController playerController;
 
     private final CompositeSubscription subscription = new CompositeSubscription();

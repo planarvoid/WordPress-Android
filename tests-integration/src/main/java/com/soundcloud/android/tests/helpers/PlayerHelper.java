@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.helpers;
 
-import com.soundcloud.android.screens.elements.PlayerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -18,7 +17,7 @@ public class PlayerHelper {
         return playerElement;
     }
 
-    public static void skipToAd(PlayerElement playerElement) {
+    public static void skipToAd(VisualPlayerElement playerElement) {
         playerElement.swipeNext();
     }
 
