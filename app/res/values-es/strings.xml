@@ -141,8 +141,6 @@
 
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
 
-    <string name="accessibility_action_bar_waveform">Mostrar pista de reproducción actual</string>
-
     <plurals name="accessibility_stats_likes">
         <item quantity="one">1 me gusta</item>
         <item quantity="other">%d me gusta</item>
