@@ -51,7 +51,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
     @Override
     public View clearItemView(View convertView) {
         final Holder holder = getViewHolder(convertView);
-        holder.footerAdvertiser.setText(ScTextUtils.EMPTY_STRING);
+        holder.footerAdTitle.setText(ScTextUtils.EMPTY_STRING);
         holder.previewTitle.setText(ScTextUtils.EMPTY_STRING);
         holder.artworkView.setImageDrawable(null);
         return convertView;
@@ -71,7 +71,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
-        holder.footerAdvertiser.setText(playerAd.getAdvertiser());
+        holder.footerAdTitle.setText(playerAd.getAdTitle());
         imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
     }
 
@@ -199,7 +199,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final View whyAds;
         // Footer player
         private final View footer;
-        private final TextView footerAdvertiser;
+        private final TextView footerAdTitle;
         private final TextView footerAdvertisement;
 
         private final PlayerOverlayController playerOverlayController;
@@ -219,7 +219,7 @@ public class AdPagePresenter implements PagePresenter, View.OnClickListener {
             whyAds = adView.findViewById(R.id.why_ads);
 
             footer = adView.findViewById(R.id.footer_controls);
-            footerAdvertiser = (TextView) adView.findViewById(R.id.footer_title);
+            footerAdTitle = (TextView) adView.findViewById(R.id.footer_title);
             footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
 
             playerOverlayController = playerOverlayControllerFactory.create(artworkIdleOverlay);

@@ -23,8 +23,8 @@ public class PlayerAd {
         return source.get(AdProperty.ARTWORK);
     }
 
-    String getAdvertiser() {
-        return source.get(PlayableProperty.CREATOR_NAME);
+    String getAdTitle() {
+        return source.get(PlayableProperty.TITLE);
     }
 
     String getPreviewTitle() {
