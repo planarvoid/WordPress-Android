@@ -18,6 +18,7 @@ import com.soundcloud.android.tests.helpers.PlayerHelper;
 public class Player extends ActivityTestCase<MainActivity> {
 
     private VisualPlayerElement playerElement;
+    private StreamScreen streamScreen;
 
     public Player() {
         super(MainActivity.class);
@@ -29,6 +30,7 @@ public class Player extends ActivityTestCase<MainActivity> {
 
         super.setUp();
         playerElement = null;
+        streamScreen = new StreamScreen(solo);
     }
 
     public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() throws Exception {
@@ -90,7 +92,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testSkippingWithNextAndPreviousChangesTrack() throws Exception {
-        playExploreTrack();
+        playerElement = streamScreen.clickFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
         playerElement.clickArtwork();
 
@@ -101,7 +103,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testSkippingWithNextAndPreviousChangesTrackWhilePlaying() throws Exception {
-        playExploreTrack();
+        playerElement = streamScreen.clickFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
 
         playerElement.tapTrackPageNext();
@@ -161,5 +163,6 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     private void playTrackFromLikes() {
         playerElement = menuScreen.open().clickLikes().clickItem(1);
+        waiter.waitForExpandedPlayer();
     }
 }
