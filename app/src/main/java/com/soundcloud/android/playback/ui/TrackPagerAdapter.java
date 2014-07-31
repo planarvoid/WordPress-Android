@@ -242,7 +242,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private void updateProgress(PagePresenter presenter, View trackView, TrackUrn urn) {
         if (playSessionStateProvider.hasCurrentProgress(urn)) {
-            presenter.setProgress(trackView, playSessionStateProvider.getCurrentProgress(urn));
+            presenter.setProgress(trackView, playSessionStateProvider.getLastProgressByUrn(urn));
         }
     }
 

@@ -59,11 +59,7 @@ class TrackPageListener {
     }
 
     private void previousTrackOnInitialSecondsOfProgress() {
-        if (playSessionStateProvider.isProgressWithinTrackChangeThreshold()) {
-            playbackOperations.previousTrack();
-        } else {
-            playbackOperations.restartPlayback();
-        }
+        playbackOperations.previousTrack();
     }
 
 }

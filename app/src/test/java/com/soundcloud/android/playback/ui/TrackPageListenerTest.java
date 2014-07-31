@@ -92,21 +92,9 @@ public class TrackPageListenerTest {
     }
 
     @Test
-    public void shouldPerformPreviousActionIsProgressWithinTrackChangeThreshold() {
-        when(playSessionStateProvider.isProgressWithinTrackChangeThreshold()).thenReturn(true);
-
+    public void shouldPerformPreviousAction() {
         listener.onPrevious();
 
         verify(playbackOperations).previousTrack();
     }
-
-    @Test
-    public void shouldRestartPlaybackOnPreviousIsProgressNotWithinTrackChangeThreshold() {
-        when(playSessionStateProvider.isProgressWithinTrackChangeThreshold()).thenReturn(false);
-
-        listener.onPrevious();
-
-        verify(playbackOperations).restartPlayback();
-    }
-
 }

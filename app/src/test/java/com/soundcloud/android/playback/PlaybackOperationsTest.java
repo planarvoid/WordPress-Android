@@ -3,11 +3,13 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -63,8 +65,7 @@ public class PlaybackOperationsTest {
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager,
-                eventBus);
+                playQueueManager, eventBus, playSessionStateProvider);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
@@ -244,21 +245,105 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void shouldPerformPreviousAction() {
+     public void previousTrackCallsMoveToPreviousTrackOnPlayQueueManagerIfProgressLessThanTolerance() {
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(2999L, 5000));
+
         playbackOperations.previousTrack();
 
         verify(playQueueManager).moveToPreviousTrack();
     }
 
     @Test
-    public void shouldPerformNextAction() {
+    public void previousTrackCallsMoveToPreviousTrackOnPlayQueueManagerIfProgressEqualToleranceAndPlayingAudioAd() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        playbackOperations.previousTrack();
+
+        verify(playQueueManager).moveToPreviousTrack();
+    }
+
+    @Test
+    public void previousTrackSeeksToZeroIfProgressEqualToTolerance() {
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
+
+        playbackOperations.previousTrack();
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent sentIntent = application.getNextStartedService();
+        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
+        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(0L);
+    }
+
+    @Test
+    public void previousTrackSeeksToZeroIfProgressGreaterThanTolerance() {
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3001L, 5000));
+
+        playbackOperations.previousTrack();
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent sentIntent = application.getNextStartedService();
+        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
+        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(0L);
+    }
+
+    @Test
+    public void previousTrackCallsPreviousTrackIfPlayingAudioAdWithProgressEqualToTimeout() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
+
+        playbackOperations.previousTrack();
+
+        verify(playQueueManager).moveToPreviousTrack();
+    }
+
+    @Test
+    public void previousTrackDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        playbackOperations.previousTrack();
+
+        verify(playQueueManager, never()).moveToPreviousTrack();
+    }
+
+    @Test
+    public void nextTrackCallsNextTrackOnPlayQueueManager() {
         playbackOperations.nextTrack();
 
         verify(playQueueManager).nextTrack();
     }
 
     @Test
-    public void shouldSeekToProvidedPosition() {
+    public void nextTrackCallsNextTrackIfPlayingAudioAdWithProgressEqualToTimeout() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        playbackOperations.nextTrack();
+
+        verify(playQueueManager).nextTrack();
+    }
+
+    @Test
+    public void nextTrackDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        playbackOperations.nextTrack();
+
+        verify(playQueueManager, never()).nextTrack();
+    }
+
+
+    @Test
+    public void seeksToProvidedPosition() {
         playbackOperations.seek(350L);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -268,13 +353,29 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void shouldRestartPlayback() {
-        playbackOperations.restartPlayback();
+    public void seekSeeksToProvidedPositionIfPlayingAudioAdWithProgressEqualTimeout() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        playbackOperations.seek(350L);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent sentIntent = application.getNextStartedService();
         expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
-        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 55L)).toEqual(0L);
+        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(350L);
+    }
+
+    @Test
+    public void seekDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
+        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        playbackOperations.seek(350L);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService()).toBeNull();
     }
 
     @Test

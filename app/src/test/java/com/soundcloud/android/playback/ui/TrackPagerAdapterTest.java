@@ -293,9 +293,9 @@ public class TrackPagerAdapterTest {
         when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
         when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
         when(playSessionStateProvider.hasCurrentProgress(firstUrn)).thenReturn(true);
-        when(playSessionStateProvider.getCurrentProgress(firstUrn)).thenReturn(firstProgress);
+        when(playSessionStateProvider.getLastProgressByUrn(firstUrn)).thenReturn(firstProgress);
         when(playSessionStateProvider.hasCurrentProgress(secondUrn)).thenReturn(true);
-        when(playSessionStateProvider.getCurrentProgress(secondUrn)).thenReturn(secondProgress);
+        when(playSessionStateProvider.getLastProgressByUrn(secondUrn)).thenReturn(secondProgress);
 
         adapter.onTrackChange();
 

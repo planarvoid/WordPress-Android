@@ -15,11 +15,15 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+
+/**
+ * Stores the current play session state. Can be queried for recent state, recent progress, and info about the current
+ * track being played back.
+ */
 
 @Singleton
 public class PlaySessionStateProvider {
-    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
+
     private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
     private final Func1<Playa.StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<Playa.StateTransition, Boolean>() {
         @Override
@@ -58,21 +62,22 @@ public class PlaySessionStateProvider {
         return lastStateTransition.playSessionIsActive();
     }
 
-    public PlaybackProgress getCurrentProgress() {
-        return getCurrentProgress(currentPlayingUrn);
+    public PlaybackProgress getLastProgressEvent() {
+        return getLastProgressByUrn(currentPlayingUrn);
     }
 
-    public PlaybackProgress getCurrentProgress(TrackUrn trackUrn) {
+    public PlaybackProgress getCurrentPlayQueueTrackProgress() {
+        final PlaybackProgress playbackProgress = progressMap.get(playQueueManager.getCurrentTrackUrn());
+        return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
+    }
+
+    public PlaybackProgress getLastProgressByUrn(TrackUrn trackUrn) {
         final PlaybackProgress playbackProgress = progressMap.get(trackUrn);
         return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
     }
 
     public boolean hasCurrentProgress(TrackUrn trackUrn) {
         return progressMap.containsKey(trackUrn);
-    }
-
-    public boolean isProgressWithinTrackChangeThreshold() {
-        return getCurrentProgress().getPosition() < PROGRESS_THRESHOLD_FOR_TRACK_CHANGE;
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {

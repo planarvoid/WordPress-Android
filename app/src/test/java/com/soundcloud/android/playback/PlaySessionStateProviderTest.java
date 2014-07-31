@@ -64,7 +64,7 @@ public class PlaySessionStateProviderTest {
     public void isGetCurrentProgressReturns0IfCurrentTrackDidNotStartPlaying() {
         sendIdleStateEvent();
 
-        expect(provider.getCurrentProgress(TRACK_URN).getPosition()).toEqual(0L);
+        expect(provider.getLastProgressByUrn(TRACK_URN).getPosition()).toEqual(0L);
     }
 
     @Test
@@ -72,12 +72,12 @@ public class PlaySessionStateProviderTest {
 
         final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(1L, 2L), TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(provider.getCurrentProgress(TRACK_URN)).toBe(playbackProgressEvent.getPlaybackProgress());
+        expect(provider.getLastProgressByUrn(TRACK_URN)).toBe(playbackProgressEvent.getPlaybackProgress());
     }
 
     @Test
     public void returnsEmptyProgressByUrnIfNoProgressReceived() throws Exception {
-        expect(provider.getCurrentProgress(TRACK_URN)).toEqual(PlaybackProgress.empty());
+        expect(provider.getLastProgressByUrn(TRACK_URN)).toEqual(PlaybackProgress.empty());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PlaySessionStateProviderTest {
         TrackUrn nextTrackUrn = Urn.forTrack(321);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, nextTrackUrn, 123, 456));
 
-        expect(provider.getCurrentProgress(nextTrackUrn)).toEqual(new PlaybackProgress(123, 456));
+        expect(provider.getLastProgressByUrn(nextTrackUrn)).toEqual(new PlaybackProgress(123, 456));
     }
 
     private void sendIdleStateEvent() {
@@ -133,32 +133,5 @@ public class PlaySessionStateProviderTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         expect(provider.hasCurrentProgress(Urn.forTrack(2L))).toBeTrue();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsTrueIfProgressLessThatThreeSeconds() {
-        sendIdleStateEvent();
-
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(2999L, 42000L), TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(provider.isProgressWithinTrackChangeThreshold()).toBeTrue();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsFalseIfProgressEqualToThreeSeconds() {
-        sendIdleStateEvent();
-
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(3000L, 42000L), TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(provider.isProgressWithinTrackChangeThreshold()).toBeFalse();
-    }
-
-    @Test
-    public void isProgressInitialSecondsReturnsFalseIfProgressMoreThanThreeSeconds() {
-        sendIdleStateEvent();
-
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(new PlaybackProgress(3001L, 42000L), TRACK_URN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        expect(provider.isProgressWithinTrackChangeThreshold()).toBeFalse();
     }
 }

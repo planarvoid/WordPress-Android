@@ -6,6 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -46,9 +47,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 // TODO, move to playback package level
 public class PlaybackOperations {
+    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
 
     private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
         @Override
@@ -65,16 +68,17 @@ public class PlaybackOperations {
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
+    private final PlaySessionStateProvider playSessionStateProvider;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
-                              PlayQueueManager playQueueManager,
-                              EventBus eventBus) {
+                              PlayQueueManager playQueueManager, EventBus eventBus, PlaySessionStateProvider playSessionStateProvider) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     /**
@@ -186,15 +190,20 @@ public class PlaybackOperations {
     }
 
     public void previousTrack() {
-        playQueueManager.moveToPreviousTrack();
+        if (!shouldDisableSkipping()) {
+            if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
+                    && !playQueueManager.isCurrentTrackAudioAd()){
+                seek(SEEK_POSITION_RESET);
+            } else {
+                playQueueManager.moveToPreviousTrack();
+            }
+        }
     }
 
     public void nextTrack() {
-        playQueueManager.nextTrack();
-    }
-
-    public void restartPlayback() {
-        seek(SEEK_POSITION_RESET);
+        if (!shouldDisableSkipping()){
+            playQueueManager.nextTrack();
+        }
     }
 
     public void stopService() {
@@ -202,10 +211,16 @@ public class PlaybackOperations {
     }
 
     public void seek(long position) {
+        if (!shouldDisableSkipping()){
+            Intent intent = new Intent(PlaybackService.Actions.SEEK);
+            intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
+            context.startService(intent);
+        }
+    }
 
-        Intent intent = new Intent(PlaybackService.Actions.SEEK);
-        intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
-        context.startService(intent);
+    private boolean shouldDisableSkipping(){
+        return playQueueManager.isCurrentTrackAudioAd() &&
+                playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
     public void playFromIdListShuffled(List<Long> ids, Screen screen) {
