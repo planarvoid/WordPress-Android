@@ -51,7 +51,7 @@ class TrackPageListener {
     }
 
     public void onToggleLike(boolean isLike) {
-        fireAndForget(associationOperations.toggleTrackLike(playQueueManager.getCurrentTrackUrn(), isLike));
+        fireAndForget(associationOperations.toggleLike(playQueueManager.getCurrentTrackUrn(), isLike));
     }
 
     private void previousTrackOnInitialSecondsOfProgress() {

@@ -216,11 +216,11 @@ public class PlayerWidgetControllerTest {
         PropertySet track = TestPropertySets.forWidgetTrack();
         when(playQueueManager.isCurrentTrack(any(TrackUrn.class))).thenReturn(true);
         when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
-        when(soundAssocicationOps.toggleTrackLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
+        when(soundAssocicationOps.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
 
         controller.handleToggleLikeAction(true);
 
-        verify(soundAssocicationOps).toggleTrackLike(Urn.forTrack(123L), false);
+        verify(soundAssocicationOps).toggleLike(Urn.forTrack(123L), false);
     }
 
 }

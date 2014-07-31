@@ -19,7 +19,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -80,7 +79,7 @@ public class EngagementsController {
                     if (playable != null) {
                         eventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(toggleLike.isChecked(),
                                 EngagementsController.this.originProvider.getScreenTag(), playable));
-                        fireAndForget(soundAssociationOps.toggleLike(toggleLike.isChecked(), playable));
+                        fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), toggleLike.isChecked()));
                     }
                 }
             });
@@ -94,13 +93,7 @@ public class EngagementsController {
                     if (playable != null) {
                         eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
                                 EngagementsController.this.originProvider.getScreenTag(), playable));
-
-                        toggleRepost.setEnabled(false);
-                        subscription.add(
-                                soundAssociationOps.toggleRepost(toggleRepost.isChecked(), playable)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new ResetToggleButton(toggleRepost))
-                        );
+                        fireAndForget(soundAssociationOps.toggleRepost(playable.getUrn(), toggleRepost.isChecked()));
                     }
                 }
             });
@@ -199,7 +192,6 @@ public class EngagementsController {
                                     int checkedStringId) {
         if (button == null) return;
         Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
-        button.setEnabled(true);
         final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
@@ -226,18 +218,4 @@ public class EngagementsController {
         }
     }
 
-    private static final class ResetToggleButton extends DefaultSubscriber<SoundAssociation> {
-        private final ToggleButton toggleButton;
-
-        private ResetToggleButton(ToggleButton toggleButton) {
-            this.toggleButton = toggleButton;
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            toggleButton.setChecked(!toggleButton.isChecked());
-            toggleButton.setEnabled(true);
-            super.onError(e);
-        }
-    }
 }

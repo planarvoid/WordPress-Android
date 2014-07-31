@@ -96,7 +96,7 @@ public class PlayerWidgetController {
         return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
             public Observable<PropertySet> call(PropertySet track) {
-                return soundAssociationOps.toggleTrackLike(track.get(TrackProperty.URN), !isLiked);
+                return soundAssociationOps.toggleLike(track.get(TrackProperty.URN), !isLiked);
             }
         };
     }

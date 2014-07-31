@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -45,12 +46,9 @@ public class EngagementsControllerTest {
     private ViewGroup rootView;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private SoundAssociationOperations soundAssocOps;
-    @Mock
-    private Context context;
-    @Mock
-    private AccountOperations accountOperations;
+    @Mock private SoundAssociationOperations soundAssocOps;
+    @Mock private Context context;
+    @Mock private AccountOperations accountOperations;
 
     @Before
     public void setup() {
@@ -70,7 +68,7 @@ public class EngagementsControllerTest {
     public void shouldPublishUIEventWhenLikingPlayable() {
         controller.setPlayable(new PublicApiTrack(1L));
 
-        when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
+        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
         rootView.findViewById(R.id.toggle_like).performClick();
 
@@ -83,7 +81,7 @@ public class EngagementsControllerTest {
     public void shouldPublishUIEventWhenUnlikingPlayable() {
         controller.setPlayable(new PublicApiTrack(1L));
 
-        when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
+        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
         ToggleButton likeToggle = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         likeToggle.setChecked(true);
@@ -97,9 +95,9 @@ public class EngagementsControllerTest {
     @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
         controller.setPlayable(new PublicApiTrack(1L));
+        when(soundAssocOps.toggleRepost(any(TrackUrn.class), anyBoolean()))
+                .thenReturn(Observable.just(PropertySet.create()));
 
-        when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
         rootView.findViewById(R.id.toggle_repost).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
@@ -110,10 +108,10 @@ public class EngagementsControllerTest {
     @Test
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
         controller.setPlayable(new PublicApiTrack(1L));
-
-        when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(new PublicApiTrack())));
+        when(soundAssocOps.toggleRepost(any(TrackUrn.class), anyBoolean()))
+                .thenReturn(Observable.just(PropertySet.create()));
         ToggleButton repostToggle = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
+
         repostToggle.setChecked(true);
         repostToggle.performClick();
 
@@ -121,7 +119,6 @@ public class EngagementsControllerTest {
         expect(uiEvent.getKind()).toBe(UIEvent.UNREPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
-
 
     @Test
     public void shouldPublishUIEventWhenSharingPlayable() {
@@ -149,12 +146,12 @@ public class EngagementsControllerTest {
         expect(likeButton.isChecked()).toBeFalse();
 
         track.user_like = true;
-        when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class)))
+        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
 
         likeButton.performClick();
 
-        verify(soundAssocOps).toggleLike(eq(true), refEq(track));
+        verify(soundAssocOps).toggleLike(eq(track.getUrn()), eq(true));
         expect(likeButton.isChecked()).toBeTrue();
     }
 
@@ -167,31 +164,12 @@ public class EngagementsControllerTest {
         expect(repostButton.isChecked()).toBeFalse();
 
         track.user_repost = true;
-        when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.just(new SoundAssociation(track)));
+        when(soundAssocOps.toggleRepost(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
         repostButton.performClick();
 
-        verify(soundAssocOps).toggleRepost(eq(true), refEq(track));
+        verify(soundAssocOps).toggleRepost(eq(track.getUrn()), eq(true));
         expect(repostButton.isChecked()).toBeTrue();
-    }
-
-    @Test
-    public void shouldResetRepostButtonToPreviousStateWhenRepostingFails() {
-        PublicApiTrack track = new PublicApiTrack();
-        controller.setPlayable(track);
-
-        ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        expect(repostButton.isChecked()).toBeFalse();
-
-        when(soundAssocOps.toggleRepost(anyBoolean(), any(Playable.class)))
-                .thenReturn(Observable.<SoundAssociation>error(new Exception()));
-
-        repostButton.performClick();
-
-        verify(soundAssocOps).toggleRepost(eq(true), refEq(track));
-        expect(repostButton.isChecked()).toBeFalse();
-        expect(repostButton.isEnabled()).toBeTrue();
     }
 
     @Test
@@ -204,7 +182,7 @@ public class EngagementsControllerTest {
 
         final Subscription likeSubscription = mock(Subscription.class);
         final Observable observable = TestObservables.fromSubscription(likeSubscription);
-        when(soundAssocOps.toggleLike(anyBoolean(), any(Playable.class))).thenReturn(observable);
+        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(observable);
 
         likeButton.performClick();
 

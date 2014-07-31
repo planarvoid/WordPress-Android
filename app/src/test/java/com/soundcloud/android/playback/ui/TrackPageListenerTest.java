@@ -50,11 +50,11 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeTogglesLikeViaAssociationOperations() {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
-        when(soundAssociationOperations.toggleTrackLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true);
 
-        verify(soundAssociationOperations).toggleTrackLike(Urn.forTrack(123L), true);
+        verify(soundAssociationOperations).toggleLike(Urn.forTrack(123L), true);
     }
 
     @Test
