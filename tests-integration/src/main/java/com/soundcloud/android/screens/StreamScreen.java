@@ -4,6 +4,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.StreamList;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.R;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
@@ -34,6 +35,12 @@ public class StreamScreen extends Screen {
     public void clickFirstItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(android.R.id.list)).click();
+    }
+
+    public void clickFirstTrack() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.findElement(With.id(android.R.id.list)).findElements(With.id(R.id.track_list_item)).get(0).click();
+
     }
 
     private StreamList streamList() {
