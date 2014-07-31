@@ -11,8 +11,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class APIResponse {

@@ -21,7 +21,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

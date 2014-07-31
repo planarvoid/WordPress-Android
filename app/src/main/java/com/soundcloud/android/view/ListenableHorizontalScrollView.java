@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.HorizontalScrollView;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class ListenableHorizontalScrollView extends HorizontalScrollView {
 

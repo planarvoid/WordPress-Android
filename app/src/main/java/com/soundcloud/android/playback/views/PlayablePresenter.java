@@ -15,7 +15,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class PlayablePresenter {
 

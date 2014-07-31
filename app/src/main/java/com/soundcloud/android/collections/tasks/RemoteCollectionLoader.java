@@ -16,7 +16,7 @@ import org.apache.http.HttpStatus;
 
 import android.util.Log;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 

@@ -28,7 +28,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 public class EngagementsController {
