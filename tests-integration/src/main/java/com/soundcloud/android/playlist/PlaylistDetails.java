@@ -43,9 +43,10 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
     }
 
     public void testHeaderPlayClickShouldNotOpenPlayer() {
-        VisualPlayerElement playerScreen = new VisualPlayerElement(solo);
+        VisualPlayerElement player = new VisualPlayerElement(solo);
+        assertThat(player, is(not(Visible())));
         playlistDetailsScreen.clickHeaderPlay();
-        assertThat(playerScreen, is(not(Visible())));
+        assertThat(player, is(Visible()));
 
         playlistDetailsScreen.clickHeaderPause();
         assertThat(playlistDetailsScreen, is(Visible()));
