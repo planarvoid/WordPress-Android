@@ -14,6 +14,7 @@ import rx.Observable;
 import rx.Subscription;
 
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +24,9 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-public class TrackInfoFragment extends Fragment {
+public class TrackInfoFragment extends DialogFragment {
 
-    static final String EXTRA_URN = "Urn";
+    private static final String EXTRA_URN = "Urn";
 
     @Inject TrackOperations trackOperations;
     @Inject EventBus eventBus;
@@ -37,6 +38,12 @@ public class TrackInfoFragment extends Fragment {
     private TextView usernameView;
     private TextView description;
     private ImageView artworkView;
+
+    public static Bundle createArgs(TrackUrn trackUrn) {
+        Bundle args = new Bundle();
+        args.putParcelable(EXTRA_URN, trackUrn);
+        return args;
+    }
 
     public static TrackInfoFragment create(Bundle args) {
         TrackInfoFragment fragment = new TrackInfoFragment();

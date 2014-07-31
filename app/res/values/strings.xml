@@ -88,8 +88,6 @@
     <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>
 
-    <string name="activity_title_track">Track</string>
-
     <string name="side_menu_playlists">Playlists</string>
     <string name="empty_playlist_title">Empty Playlist</string>
     <string name="empty_playlist_description">This playlist has no tracks yet</string>

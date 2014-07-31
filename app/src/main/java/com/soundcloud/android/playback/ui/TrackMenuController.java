@@ -7,9 +7,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
@@ -24,6 +27,8 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     private final FragmentActivity activity;
     private final PopupMenu popupMenu;
+    private final TrackPageListener trackPageListener;
+    private Bundle infoArgs;
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
     @Nullable private Intent shareIntent;
@@ -32,11 +37,13 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     private TrackMenuController(View anchorView,
                                 PlayQueueManager playQueueManager,
                                 SoundAssociationOperations associationOperations,
-                                FragmentActivity context) {
+                                FragmentActivity context,
+                                TrackPageListener trackPageListener) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.activity = context;
         this.popupMenu = new PopupMenu(activity, anchorView);
+        this.trackPageListener = trackPageListener;
         setupMenu(anchorView);
     }
 
@@ -67,6 +74,8 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
                 checkNotNull(track);
                 fireAndForget(associationOperations.toggleRepost(track.getUrn(), false));
                 return true;
+            case R.id.info:
+                TrackInfoFragment.create(infoArgs).show(((FragmentActivity) context).getSupportFragmentManager(), "frage");
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog();
                 return true;
@@ -84,6 +93,7 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     public void setTrack(PlayerTrack track) {
         this.track = track;
         setIsUserRepost(track.isUserRepost());
+        infoArgs = TrackInfoFragment.createArgs(track.getUrn());
 
         if (track.isPrivate()) {
             setMenuPrivacy(true);
@@ -130,15 +140,18 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
         private final PlayQueueManager playQueueManager;
         private final SoundAssociationOperations associationOperations;
+        private final TrackPageListener trackPageListener
+                ;
 
         @Inject
-        Factory(PlayQueueManager playQueueManager, SoundAssociationOperations associationOperations) {
+        Factory(PlayQueueManager playQueueManager, SoundAssociationOperations associationOperations, TrackPageListener trackPageListener) {
             this.playQueueManager = playQueueManager;
             this.associationOperations = associationOperations;
+            this.trackPageListener = trackPageListener;
         }
 
         TrackMenuController create(View anchorView) {
-            return new TrackMenuController(anchorView, playQueueManager, associationOperations, (FragmentActivity) anchorView.getContext());
+            return new TrackMenuController(anchorView, playQueueManager, associationOperations, (FragmentActivity) anchorView.getContext(), trackPageListener);
         }
     }
 }

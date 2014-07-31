@@ -5,7 +5,6 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                TrackInfoActivity.class,
                 TrackInfoFragment.class
         }
 )

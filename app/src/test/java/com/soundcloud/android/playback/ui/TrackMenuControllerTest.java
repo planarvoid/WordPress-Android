@@ -42,7 +42,7 @@ public class TrackMenuControllerTest {
     @Before
     public void setUp() throws Exception {
         track = new PlayerTrack(TestPropertySets.forPlayerTrack());
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps).create(new TextView(new FragmentActivity()));
+        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, trackPageListener).create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
         when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);

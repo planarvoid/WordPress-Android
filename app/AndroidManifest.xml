@@ -276,13 +276,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".tracks.TrackInfoActivity">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.TRACK"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
         <activity android:name=".associations.TrackInteractionActivity"/>
         <activity android:name=".search.SearchByTagActivity"/>
 
