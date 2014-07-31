@@ -21,7 +21,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController implements PlayerController, PanelSlideListener {
+public class SlidingPlayerController implements PanelSlideListener {
 
     private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
     private static final float EXPAND_THRESHOLD = 0.5f;
@@ -51,7 +51,6 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         slidingPanel.setEnableDragViewTouchEvents(true);
     }
 
-    @Override
     public boolean handleBackPressed() {
         if (isExpanded()) {
             collapse();
@@ -60,28 +59,23 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         return false;
     }
 
-    @Override
     public boolean isExpanded() {
         return slidingPanel.isPanelExpanded();
     }
 
-    @Override
     public void expand() {
         slidingPanel.expandPanel();
     }
 
-    @Override
     public void collapse() {
         slidingPanel.collapsePanel();
     }
 
-    @Override
     public void onResume() {
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
         refreshVisibility();
     }
 
-    @Override
     public void onPause() {
         subscription.unsubscribe();
     }
@@ -96,12 +90,10 @@ public class SlidingPlayerController implements PlayerController, PanelSlideList
         }
     }
 
-    @Override
     public void storeState(Bundle bundle) {
         bundle.putBoolean(EXTRA_PLAYER_EXPANDED, slidingPanel.isPanelExpanded());
     }
 
-    @Override
     public void restoreState(Bundle bundle) {
         if (bundle == null) {
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());

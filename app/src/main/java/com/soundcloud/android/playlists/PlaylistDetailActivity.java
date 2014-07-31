@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.playback.ui.PlayerController;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class PlaylistDetailActivity extends ScActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
 
-    @Inject PlayerController playerController;
+    @Inject SlidingPlayerController playerController;
     @Inject ScreenPresenter presenter;
 
     @Deprecated

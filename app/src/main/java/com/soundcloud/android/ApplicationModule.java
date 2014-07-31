@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.service.RichNotificationPresenter;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
-import com.soundcloud.android.playback.ui.PlayerController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -166,7 +165,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    PlayerController providePlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
+    SlidingPlayerController providePlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
         return new SlidingPlayerController(playQueueManager, eventBus);
     }
 }

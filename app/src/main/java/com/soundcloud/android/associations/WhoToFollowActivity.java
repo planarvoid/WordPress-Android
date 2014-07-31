@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playback.ui.PlayerController;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 
@@ -17,7 +17,7 @@ import android.os.Bundle;
 import javax.inject.Inject;
 
 public class WhoToFollowActivity extends ScActivity {
-    @Inject PlayerController playerController;
+    @Inject SlidingPlayerController playerController;
     @Inject ScreenPresenter presenter;
 
     public WhoToFollowActivity() {
