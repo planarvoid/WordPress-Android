@@ -111,13 +111,14 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testSwipingNextAndPreviousChangesTrack() throws Exception {
-        playExploreTrack();
+        playTrackFromLikes();
         String originalTrack = playerElement.getTrackTitle();
 
         playerElement.swipeNext();
         assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
         playerElement.swipePrevious();
-        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));    }
+        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
+    }
 
     public void testPlayerRemainsPausedWhenSkipping() throws Exception {
         playExploreTrack();
@@ -151,10 +152,14 @@ public class Player extends ActivityTestCase<MainActivity> {
         playerElement = PlayerHelper.openPlayer(this, NavigationHelper.openExploreFromMenu(streamScreen));
     }
 
-    private void playSingleTrack(){
+    private void playSingleTrack() {
         final ExploreScreen exploreScreen = menuScreen.open().clickExplore();
         exploreScreen.touchTrendingAudioTab();
         exploreScreen.playFirstTrack();
         playerElement = new VisualPlayerElement(solo);
+    }
+
+    private void playTrackFromLikes() {
+        playerElement = menuScreen.open().clickLikes().clickItem(1);
     }
 }
