@@ -79,6 +79,7 @@ public class TrackStorage {
             propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.MONETIZABLE));
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
             propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
+            propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
             final String creator = cursorReader.getString(SoundView.USERNAME);

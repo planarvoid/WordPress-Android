@@ -48,6 +48,24 @@ public class TrackPageListenerTest {
     }
 
     @Test
+    public void onRepostCallsToggleRepostOnAssociationOperationsWithTrue() {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(soundAssociationOperations.toggleRepost(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleRepost(true);
+        verify(soundAssociationOperations).toggleRepost(Urn.forTrack(123L), true);
+    }
+
+    @Test
+    public void onUnpostCallsToggleRepostOnAssociationOperationsWithFalse() {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(soundAssociationOperations.toggleRepost(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleRepost(false);
+        verify(soundAssociationOperations).toggleRepost(Urn.forTrack(123L), false);
+    }
+
+    @Test
     public void onToggleLikeTogglesLikeViaAssociationOperations() {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
         when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());

@@ -54,6 +54,10 @@ class TrackPageListener {
         fireAndForget(associationOperations.toggleLike(playQueueManager.getCurrentTrackUrn(), isLike));
     }
 
+    public void onToggleRepost(boolean isRepost) {
+        fireAndForget(associationOperations.toggleRepost(playQueueManager.getCurrentTrackUrn(), isRepost));
+    }
+
     private void previousTrackOnInitialSecondsOfProgress() {
         if (playSessionStateProvider.isProgressWithinTrackChangeThreshold()) {
             playbackOperations.previousTrack();

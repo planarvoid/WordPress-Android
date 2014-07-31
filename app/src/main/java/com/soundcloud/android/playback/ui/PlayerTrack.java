@@ -37,6 +37,10 @@ class PlayerTrack {
         return source.get(PlayableProperty.IS_LIKED);
     }
 
+    public boolean isUserRepost() {
+        return source.get(PlayableProperty.IS_REPOSTED);
+    }
+
     int getLikeCount() {
         return source.get(PlayableProperty.LIKES_COUNT);
     }

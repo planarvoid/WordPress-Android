@@ -27,7 +27,8 @@ public class TestPropertySets {
                 PlayableProperty.IS_LIKED.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
-                PlayableProperty.IS_PRIVATE.bind(false)
+                PlayableProperty.IS_PRIVATE.bind(false),
+                PlayableProperty.IS_REPOSTED.bind(false)
         );
     }
 

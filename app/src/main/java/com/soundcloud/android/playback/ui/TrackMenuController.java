@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
@@ -17,11 +18,13 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     private final Context context;
     private final PopupMenu popupMenu;
+    private final TrackPageListener trackPageListener;
     @Nullable private Intent shareIntent;
 
-    TrackMenuController(Context context, View anchorView) {
+    private TrackMenuController(Context context, View anchorView, TrackPageListener trackPageListener) {
         this.context = context;
         this.popupMenu = new PopupMenu(context, anchorView);
+        this.trackPageListener = trackPageListener;
         setupMenu(anchorView);
     }
 
@@ -38,24 +41,44 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.share) {
-            if (shareIntent != null) {
-                context.startActivity(shareIntent);
-            }
-            return true;
+        switch (menuItem.getItemId()) {
+            case R.id.share:
+                if (shareIntent != null) {
+                    context.startActivity(shareIntent);
+                }
+                return true;
+            case R.id.repost:
+                trackPageListener.onToggleRepost(true);
+                return true;
+            case R.id.unpost:
+                trackPageListener.onToggleRepost(false);
+                return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     public void setTrack(PlayerTrack track) {
-        MenuItem shareItem = popupMenu.getMenu().findItem(R.id.share);
+        setIsUserRepost(track.isUserRepost());
+
         if (track.isPrivate()) {
+            setMenuPrivacy(true);
             shareIntent = null;
-            shareItem.setEnabled(false);
         } else {
+            setMenuPrivacy(false);
             buildShareIntent(track);
-            shareItem.setEnabled(true);
         }
+    }
+
+    public void setIsUserRepost(boolean isUserRepost){
+        popupMenu.getMenu().findItem(R.id.unpost).setVisible(isUserRepost);
+        popupMenu.getMenu().findItem(R.id.repost).setVisible(!isUserRepost);
+    }
+
+    private void setMenuPrivacy(boolean isPrivate){
+        popupMenu.getMenu().findItem(R.id.share).setEnabled(!isPrivate);
+        popupMenu.getMenu().findItem(R.id.repost).setEnabled(!isPrivate);
+        popupMenu.getMenu().findItem(R.id.unpost).setEnabled(!isPrivate);
     }
 
     public void dismiss() {
@@ -78,5 +101,16 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
         sb.append(context.getString(R.string.share_on_soundcloud));
         return sb.toString();
     }
+
+    static class Factory {
+
+        @Inject
+        Factory() { }
+
+        TrackMenuController create(Context context, View anchorView, TrackPageListener trackPageListener) {
+            return new TrackMenuController(context, anchorView, trackPageListener);
+        }
+    }
+
 
 }

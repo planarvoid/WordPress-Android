@@ -37,13 +37,15 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
+    private final TrackMenuController.Factory trackMenuControllerFactory;
 
     @Inject
     public TrackPagePresenter(Resources resources, ImageOperations imageOperations,
                               WaveformOperations waveformOperations, TrackPageListener listener,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
-                              PlayerOverlayController.Factory playerOverlayControllerFactory) {
+                              PlayerOverlayController.Factory playerOverlayControllerFactory,
+                              TrackMenuController.Factory trackMenuControllerFactory) {
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.waveformOperations = waveformOperations;
@@ -51,6 +53,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
+        this.trackMenuControllerFactory = trackMenuControllerFactory;
     }
 
     @Override
@@ -149,6 +152,9 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
             setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
+        }
+        if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
+            holder.menuController.setIsUserRepost(changeSet.get(PlayableProperty.IS_REPOSTED));
         }
     }
 
@@ -272,7 +278,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.addScrubListener(holder.artworkController);
         holder.waveformController.addScrubListener(holder.timestamp);
 
-        holder.menuController = new TrackMenuController(trackView.getContext(), holder.more);
+        holder.menuController = trackMenuControllerFactory.create(trackView.getContext(), holder.more, listener);
 
         trackView.setTag(holder);
     }

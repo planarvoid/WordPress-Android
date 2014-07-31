@@ -53,6 +53,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
                 TrackProperty.POLICY.bind(track.getPolicy()),
                 PlayableProperty.IS_LIKED.bind(false),
                 PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl()),
-                PlayableProperty.IS_PRIVATE.bind(false));
+                PlayableProperty.IS_PRIVATE.bind(false),
+                PlayableProperty.IS_REPOSTED.bind(false));
     }
 }

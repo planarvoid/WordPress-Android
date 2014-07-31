@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.View;
@@ -49,6 +50,9 @@ public class TrackPagePresenterTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
     @Mock private PlayerOverlayController playerVisualStateController;
+
+    @Mock private TrackMenuController.Factory trackMenuControllerFactory;
+    @Mock private TrackMenuController trackMenuController;
     @Mock private PlaybackProgress playbackProgress;
 
     private TrackPagePresenter presenter;
@@ -57,11 +61,13 @@ public class TrackPagePresenterTest {
     @Before
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
-        presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory, artworkFactory, playerVisualStateControllerFactory);
+        presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory,
+                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
+        when(trackMenuControllerFactory.create(any(Context.class), any(View.class), eq(listener))).thenReturn(trackMenuController);
         trackView = presenter.createItemView(container);
     }
 
@@ -247,6 +253,15 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
+        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_REPOSTED.bind(true));
+
+        presenter.updateAssociations(trackView, changeSet);
+
+        verify(trackMenuController).setIsUserRepost(true);
+    }
+
+    @Test
     public void toggleLikeOnTrackCallsListenerWithLikeStatus() {
         populateTrackPage();
 
@@ -316,6 +331,16 @@ public class TrackPagePresenterTest {
         getHolder(trackView).bottomClose.performClick();
 
         verify(listener).onPlayerClose();
+    }
+
+    @Test
+    public void onPageChangeCallsDismissOnMenuController() throws Exception {
+        populateTrackPage();
+
+        presenter.onPageChange(trackView);
+
+        verify(trackMenuController).dismiss();
+
     }
 
     @Test(expected = IllegalArgumentException.class)

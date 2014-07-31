@@ -7,6 +7,7 @@
     <item android:id="@+id/share"
           android:title="@string/share" />
     <item android:id="@+id/repost"
-          android:visible="false"
           android:title="@string/repost" />
+    <item android:id="@+id/unpost"
+          android:title="@string/unpost" />
 </menu>
