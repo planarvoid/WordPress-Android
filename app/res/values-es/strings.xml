@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="btn_revert_to_original">Volver a original</string>
 
@@ -132,11 +133,7 @@
 
     <string name="info">Info</string>
 
-    <string name="no_info_available">No hay información disponible</string>
-
     <string name="crop_image_error">Se ha producido un error recortar la imagen.</string>
-    <string name="add_comment_no_connection">No se puede agregar comentario. Por favor, compruebe su conexión de datos y vuelva a intentarlo.</string>
-
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
 
     <plurals name="accessibility_stats_likes">

@@ -1,6 +1,5 @@
-<!-- generated with lolcatlizr at Tue Feb 28 2012 19:31:28 GMT+0000 (UTC) -->
-
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- generated with lolcatlizr at Tue Feb 28 2012 19:31:28 GMT+0000 (UTC) --><resources xmlns:tools="http://schemas.android.com/tools">
   <!--<string name="about">About</string>-->
   <string name="copyright_information">Copyright information</string>
   <string name="account_one_active">You can only have one active account</string>
@@ -52,9 +51,6 @@
   <string name="cloud_uploader_notification_finished_message">%s has been uploaded</string>
   <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
   <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
-  <string name="comment_hint_reply">Reply to %1$s at %2$s</string>
-  <string name="comment_hint_timed">Add comment at %s</string>
-  <string name="comment_hint_untimed">Add a comment</string>
   <string name="compressed">Compressed</string>
   <string name="configure">Configure</string>
   <string name="connect_failure">Failed connecting with %1$s</string>
@@ -292,18 +288,6 @@
   <string name="this_user">This user</string>
   <string name="track">sound</string>
   <string name="track_by">by</string>
-  <plurals name="track_info_commenters">
-    <item quantity="one">1 comment on this sound</item>
-    <item quantity="other">%d comments on this sound</item>
-  </plurals>
-  <plurals name="track_info_likers">
-    <item quantity="one">1 person liked it</item>
-    <item quantity="other">%d people liked it</item>
-  </plurals>
-  <plurals name="track_info_reposters">
-      <item quantity="one">1 person reposted it</item>
-      <item quantity="other">%d people reposted it</item>
-  </plurals>
   <string name="tracklist_item_shared_count_unavailable">Private</string>
   <string name="tracklist_item_shared_with_1_person">1 Person</string>
   <string name="tracklist_item_shared_with_x_people">%d People</string>

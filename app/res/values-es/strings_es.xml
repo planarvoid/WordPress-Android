@@ -1,6 +1,5 @@
-<!-- generated with lolcatlizr at Tue Feb 28 2012 20:23:43 GMT+0000 (UTC) -->
-
-<resources xmlns:xliff="http://schemas.android.com/apk/res/android">
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- generated with lolcatlizr at Tue Feb 28 2012 20:23:43 GMT+0000 (UTC) --><resources xmlns:xliff="http://schemas.android.com/apk/res/android">
   <!--<string name="about">Acerca de</string>-->
   <string name="copyright_information">Información sobre los derechos de autor</string>
   <string name="account_one_active">Solamente puedes tener una cuenta activa</string>
@@ -52,9 +51,6 @@
   <string name="cloud_uploader_notification_finished_message">%s se ha subido</string>
   <string name="cloud_uploader_notification_finished_ticker">Subida finalizada</string>
   <string name="cloud_uploader_notification_finished_title">Subida finalizada</string>
-  <string name="comment_hint_reply">Responder a %1$s en %2$s</string>
-  <string name="comment_hint_timed">Añadir comentario en %s</string>
-  <string name="comment_hint_untimed">Añada un comentario</string>
   <string name="compressed">Comprimido</string>
   <string name="configure">Configurar</string>
   <string name="connect_failure">Conexión con %1$s fallida</string>
@@ -289,14 +285,6 @@
   <string name="this_user">este usuario</string>
   <string name="track">sonido</string>
   <string name="track_by">por</string>
-  <plurals name="track_info_commenters">
-    <item quantity="one">1 comentario sobre este sonido</item>
-    <item quantity="other">%d comentarios sobre este sonido</item>
-  </plurals>
-  <plurals name="track_info_likers">
-    <item quantity="one">A 1 persona le gustó su sonido</item>
-    <item quantity="other">Le ha gustado a %d personas</item>
-  </plurals>
   <string name="tracklist_item_shared_count_unavailable">Privado</string>
   <string name="tracklist_item_shared_with_1_person">1 persona</string>
   <string name="tracklist_item_shared_with_x_people">%d personas</string>
