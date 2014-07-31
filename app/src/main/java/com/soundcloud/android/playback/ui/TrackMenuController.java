@@ -9,7 +9,7 @@ import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 
 public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {

@@ -30,7 +30,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
