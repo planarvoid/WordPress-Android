@@ -80,6 +80,13 @@ public class AdPagePresenterTest {
     }
 
     @Test
+    public void playerCloseOnPreviewContainerClick() {
+        adView.findViewById(R.id.preview_container).performClick();
+
+        verify(pageListener).onPlayerClose();
+    }
+
+    @Test
     public void footerTapOnFooterControlsClick() {
         adView.findViewById(R.id.footer_controls).performClick();
 

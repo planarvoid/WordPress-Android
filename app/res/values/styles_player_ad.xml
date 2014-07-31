@@ -11,15 +11,18 @@
     <style name="AdText.NextUp">
         <item name="android:textSize">14sp</item>
         <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
     </style>
     <style name="AdText.NextUp.Skip">
         <item name="android:textColor">@drawable/txt_white_states</item>
         <item name="android:drawablePadding">8dp</item>
         <item name="android:drawableRight">@drawable/btn_player_ad_skip</item>
     </style>
-    <style name="AdText.NextUp.Track">
+    <style name="AdText.NextUp.Title">
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginBottom">16dip</item>
     </style>
     <style name="AdButton">
         <item name="android:textColor">@drawable/txt_white_states</item>
@@ -37,15 +40,19 @@
         <item name="android:text">@string/learn_more</item>
     </style>
 
-    <style name="AdPreview">
+    <style name="PreviewArtwork">
+        <item name="android:layout_marginRight">8dp</item>
         <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginBottom">16dip</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+
+    <style name="PreviewArtworkOverlay">
+        <item name="android:background">@color/preview_artwork_overlay</item>
     </style>
 
     <style name="SkipContainer">
-        <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginRight">18dip</item>
-        <item name="android:layout_marginBottom">16dip</item>
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">18dip</item>
     </style>
 
 </resources>

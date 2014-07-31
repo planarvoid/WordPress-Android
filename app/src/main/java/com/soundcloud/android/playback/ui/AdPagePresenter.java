@@ -93,6 +93,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
                 listener.onTogglePlay();
                 break;
             case R.id.player_close:
+            case R.id.preview_container:
                 listener.onPlayerClose();
                 break;
             case R.id.footer_controls:
@@ -194,6 +195,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final TextView previewTitle;
         private final TextView timeUntilSkip;
         private final View skipAd;
+        private final View previewContainer;
         private final View learnMore;
         private final View whyAds;
         // Footer player
@@ -214,6 +216,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             previewArtwork = ((ImageView) adView.findViewById(R.id.preview_artwork));
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
             skipAd = adView.findViewById(R.id.skip_ad);
+            previewContainer = adView.findViewById(R.id.preview_container);
             learnMore = adView.findViewById(R.id.learn_more);
             whyAds = adView.findViewById(R.id.why_ads);
 
@@ -228,6 +231,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             return new View[] {
                     artworkView, artworkIdleOverlay, playButton,
                     learnMore, whyAds, skipAd,
+                    previewContainer,
                     footerPlayToggle, close, footer
             };
         }

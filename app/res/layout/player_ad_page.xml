@@ -25,45 +25,45 @@
     <FrameLayout
             android:id="@+id/skip_container"
             style="@style/SkipContainer"
+            android:clickable="true"
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
+            android:layout_height="@dimen/player_footer_control"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true">
+            android:layout_alignParentRight="true">
 
         <TextView
                 android:id="@+id/time_until_skip"
                 style="@style/AdText.NextUp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"/>
 
         <TextView
                 android:id="@+id/skip_ad"
                 style="@style/AdText.NextUp.Skip"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="@string/skip_ad"
                 android:visibility="gone"/>
 
     </FrameLayout>
 
     <RelativeLayout
-            style="@style/AdPreview"
+            android:id="@+id/preview_container"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
+            android:layout_height="@dimen/player_footer_control"
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@id/skip_container">
 
         <FrameLayout
                 android:id="@+id/preview_artwork_container"
+                style="@style/PreviewArtwork"
                 android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginRight="8dp">
+                android:layout_height="32dp">
 
             <View
+                    style="@style/PreviewArtworkOverlay"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/preview_artwork_overlay" />
+                    android:layout_height="match_parent" />
 
             <ImageView
                     android:id="@+id/preview_artwork"
@@ -73,11 +73,10 @@
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/preview_title"
-                style="@style/AdText.NextUp.Track"
+                style="@style/AdText.NextUp.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/preview_artwork_container" />
+                android:layout_toRightOf="@id/preview_artwork_container"/>
     </RelativeLayout>
 
 
