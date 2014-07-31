@@ -44,6 +44,10 @@ public class Waiter {
         return new ExpectedConditions(this, view);
     }
 
+    public ToastConditions expectToast() {
+        return new ToastConditions(this, solo);
+    }
+
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
         solo.getCurrentActivity().runOnUiThread(new Runnable() {
             Condition condition = new Condition() {

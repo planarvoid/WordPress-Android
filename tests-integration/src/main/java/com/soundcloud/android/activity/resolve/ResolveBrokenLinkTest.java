@@ -17,7 +17,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     }
 
     public void test_should_land_on_stream_if_cannot_resolve_deeplink() {
-        waiter.expect(solo.getToast()).toHaveText("There was a problem loading that url");
+        waiter.expectToast().toHaveText("There was a problem loading that url");
         assertThat(new StreamScreen(solo), is(Visible()));
     }
 }
