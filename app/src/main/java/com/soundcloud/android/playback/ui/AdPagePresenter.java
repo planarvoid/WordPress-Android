@@ -53,6 +53,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         holder.footerAdTitle.setText(ScTextUtils.EMPTY_STRING);
         holder.previewTitle.setText(ScTextUtils.EMPTY_STRING);
         holder.artworkView.setImageDrawable(null);
+        toggleSkip(holder, false);
         return convertView;
     }
 
