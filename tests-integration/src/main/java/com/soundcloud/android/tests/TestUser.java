@@ -75,6 +75,5 @@ public class TestUser {
     public static final TestUser emptyUser      = new TestUser("scEmpty",               "scemptyuser@gmail.com",        "s0undcl0ud");
     public static final TestUser followedUser   = new TestUser("android-followed",      "sctestfollowed@gmail.com",     "followed");
     public static final TestUser streamUser     = new TestUser("sofia-tester",          "scstreamuser@gmail.com",       "s0undcl0ud");
-
-
+    public static final TestUser privateUser    = new TestUser("privateTrackUser",      "privatetrackuser@gmail.com",   "S0undCl0ud");
 }

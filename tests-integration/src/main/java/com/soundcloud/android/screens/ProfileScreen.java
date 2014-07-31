@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
@@ -13,9 +14,10 @@ public class ProfileScreen extends Screen {
         super(solo);
     }
 
-    public void playTrack(int index) {
+    public VisualPlayerElement playTrack(int index) {
         tracks().get(index).click();
         waiter.waitForExpandedPlayer();
+        return new VisualPlayerElement(testDriver);
     }
 
     private java.util.List<ViewElement> tracks() {

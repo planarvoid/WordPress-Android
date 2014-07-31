@@ -158,4 +158,13 @@ public class VisualPlayerElement extends Element {
     public boolean isVisible() {
         return trackContainer().isVisible();
     }
+
+    public MenuElement clickMenu() {
+        menu().click();
+        return new MenuElement(solo);
+    }
+
+    private ViewElement menu(){
+       return solo.findElement(With.id(R.id.track_page_more));
+    }
 }
