@@ -61,6 +61,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @SuppressWarnings("unused")
     public SearchActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponent(playerController);
         presenter.attach(this);
     }
 
@@ -94,21 +95,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         } else if (savedInstanceState.containsKey(STATE_QUERY)) {
             query = savedInstanceState.getString(STATE_QUERY);
         }
-
-        playerController.attach(this, actionBarController);
-        playerController.restoreState(savedInstanceState);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        playerController.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        playerController.onPause();
     }
 
     @Override
@@ -125,13 +111,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
             searchActionBarController.setQuery(query);
         }
         return true;
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(STATE_QUERY, searchActionBarController.getQuery());
-        super.onSaveInstanceState(outState);
-        playerController.storeState(outState);
     }
 
     @Override

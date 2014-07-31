@@ -22,6 +22,7 @@ public class WhoToFollowActivity extends ScActivity {
 
     public WhoToFollowActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponent(playerController);
         presenter.attach(this);
     }
 
@@ -35,9 +36,6 @@ public class WhoToFollowActivity extends ScActivity {
                     .replace(getContentHolderViewId(), ScListFragment.newInstance(Content.SUGGESTED_USERS, Screen.WHO_TO_FOLLOW))
                     .commit();
         }
-
-        playerController.attach(this, actionBarController);
-        playerController.restoreState(savedInstanceState);
     }
 
     @Override
@@ -51,7 +49,6 @@ public class WhoToFollowActivity extends ScActivity {
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.WHO_TO_FOLLOW.get());
         }
-        playerController.onResume();
     }
 
     @Override
@@ -62,22 +59,9 @@ public class WhoToFollowActivity extends ScActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        playerController.onPause();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        playerController.storeState(outState);
-    }
-
-    @Override
     public boolean onSupportNavigateUp() {
         startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
         return true;
     }
-
 }

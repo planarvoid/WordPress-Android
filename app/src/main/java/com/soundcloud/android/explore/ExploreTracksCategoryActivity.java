@@ -17,6 +17,7 @@ public class ExploreTracksCategoryActivity extends ScActivity {
 
     public ExploreTracksCategoryActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponent(playerController);
         presenter.attach(this);
     }
 
@@ -36,9 +37,6 @@ public class ExploreTracksCategoryActivity extends ScActivity {
                     .replace(R.id.container, exploreTracksFragment)
                     .commit();
         }
-
-        playerController.attach(this, actionBarController);
-        playerController.restoreState(savedInstanceState);
     }
 
     @Override
@@ -47,28 +45,9 @@ public class ExploreTracksCategoryActivity extends ScActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        playerController.storeState(outState);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        playerController.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        playerController.onPause();
-    }
-
-    @Override
     public void onBackPressed() {
         if (!playerController.handleBackPressed()) {
             super.onBackPressed();
         }
     }
-
 }

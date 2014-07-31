@@ -168,7 +168,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void doesntInteractWithActionBarIfBundleIsNullOnRestoreState() {
-        controller.restoreState(null);
+        controller.onCreate(null);
 
         verifyZeroInteractions(actionBarController);
     }
@@ -179,7 +179,7 @@ public class SlidingPlayerControllerTest {
         Bundle bundle = new Bundle();
         bundle.putBoolean("player_expanded", true);
 
-        controller.restoreState(bundle);
+        controller.onCreate(bundle);
 
         verify(actionBarController).setVisible(false);
     }
@@ -190,7 +190,7 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
         Bundle bundle = new Bundle();
 
-        controller.storeState(bundle);
+        controller.onSaveInstanceState(bundle);
 
         expect(bundle.getBoolean("player_expanded")).toBeTrue();
     }
@@ -201,7 +201,7 @@ public class SlidingPlayerControllerTest {
         Bundle bundle = new Bundle();
         bundle.putBoolean("player_expanded", false);
 
-        controller.restoreState(bundle);
+        controller.onCreate(bundle);
 
         PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -209,7 +209,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void sendsCollapsedEventWhenRestoringExpandedStateWithNullBundle() {
-        controller.restoreState(null);
+        controller.onCreate(null);
 
         PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -221,7 +221,7 @@ public class SlidingPlayerControllerTest {
         Bundle bundle = new Bundle();
         bundle.putBoolean("player_expanded", true);
 
-        controller.restoreState(bundle);
+        controller.onCreate (bundle);
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);

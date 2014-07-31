@@ -45,6 +45,7 @@ public class PlaylistDetailActivity extends ScActivity {
 
     public PlaylistDetailActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponent(playerController);
         presenter.attach(this);
     }
 
@@ -57,9 +58,6 @@ public class PlaylistDetailActivity extends ScActivity {
         if (savedInstanceState == null) {
             createFragmentForPlaylist();
         }
-
-        playerController.attach(this, actionBarController);
-        playerController.restoreState(savedInstanceState);
     }
 
     private void createFragmentForPlaylist() {
@@ -80,13 +78,6 @@ public class PlaylistDetailActivity extends ScActivity {
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYLIST_DETAILS.get());
         }
-        playerController.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        playerController.onPause();
     }
 
     @Override
@@ -94,11 +85,5 @@ public class PlaylistDetailActivity extends ScActivity {
         if (!playerController.handleBackPressed()) {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        playerController.storeState(outState);
     }
 }

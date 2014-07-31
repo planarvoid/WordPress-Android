@@ -101,6 +101,7 @@ public class ProfileActivity extends ScActivity implements
 
     public ProfileActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponent(playerController);
         presenter.attach(this);
     }
 
@@ -174,9 +175,6 @@ public class ProfileActivity extends ScActivity implements
             // if the user is null at this stage there is nothing we can do, except finishing
             finish();
         }
-
-        playerController.attach(this, actionBarController);
-        playerController.restoreState(savedInstanceState);
     }
 
     @Override
@@ -221,24 +219,6 @@ public class ProfileActivity extends ScActivity implements
     public void onStop() {
         super.onStop();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(recordListener);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        playerController.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        playerController.onPause();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        playerController.storeState(outState);
     }
 
     @Override

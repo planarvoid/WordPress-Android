@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.main.DefaultLifecycleComponent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -21,7 +22,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultLifecycleComponent implements PanelSlideListener {
 
     private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
     private static final float EXPAND_THRESHOLD = 0.5f;
@@ -43,6 +44,7 @@ public class SlidingPlayerController implements PanelSlideListener {
         this.playQueueManager = playQueueManager;
     }
 
+    @Override
     public void attach(Activity activity, ActionBarController actionBarController) {
         this.actionBarController = actionBarController;
         this.activity = activity;
@@ -71,11 +73,13 @@ public class SlidingPlayerController implements PanelSlideListener {
         slidingPanel.collapsePanel();
     }
 
+    @Override
     public void onResume() {
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
         refreshVisibility();
     }
 
+    @Override
     public void onPause() {
         subscription.unsubscribe();
     }
@@ -90,11 +94,13 @@ public class SlidingPlayerController implements PanelSlideListener {
         }
     }
 
-    public void storeState(Bundle bundle) {
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
         bundle.putBoolean(EXTRA_PLAYER_EXPANDED, slidingPanel.isPanelExpanded());
     }
 
-    public void restoreState(Bundle bundle) {
+    @Override
+    public void onCreate(Bundle bundle) {
         if (bundle == null) {
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         } else {
@@ -144,17 +150,14 @@ public class SlidingPlayerController implements PanelSlideListener {
     }
 
     @Override
-    public void onPanelCollapsed(View panel) {}
+    public void onPanelCollapsed(View panel) {/* no-op */}
 
     @Override
-    public void onPanelExpanded(View panel) {}
+    public void onPanelExpanded(View panel) {/* no-op */}
 
     @Override
-    public void onPanelAnchored(View panel) {}
+    public void onPanelAnchored(View panel) {/* no-op */}
 
     @Override
-    public void onPanelHidden(View view) {
-
-    }
-
+    public void onPanelHidden(View view) {/* no-op */}
 }

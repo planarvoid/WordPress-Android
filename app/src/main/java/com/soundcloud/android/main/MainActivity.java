@@ -60,6 +60,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponent(playerController);
         presenter.attach(this);
     }
 
@@ -78,9 +79,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         } else {
             lastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
         }
-
-        playerController.attach(this, actionBarController);
-        playerController.restoreState(savedInstanceState);
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
@@ -138,7 +136,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     protected void onResume() {
         super.onResume();
-        playerController.onResume();
 
         if (!accountOperations.isUserLoggedIn()) {
             accountOperations.triggerLoginFlow(this);
@@ -148,12 +145,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (shouldTrackScreen()) {
             publishContentChangeEvent();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        playerController.onPause();
     }
 
     private void publishContentChangeEvent() {
@@ -208,7 +199,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, lastTitle);
-        playerController.storeState(savedInstanceState);
         navigationFragment.storeState(savedInstanceState);
     }
 
