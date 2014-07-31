@@ -5,7 +5,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import android.app.Activity;
 import android.os.Bundle;
 
-public abstract class DefaultLifecycleComponent implements LifecycleComponent {
+public abstract class DefaultLifeCycleComponent implements LifeCycleComponent {
 
     @Override
     public void attach(Activity activity, ActionBarController actionBarController) {

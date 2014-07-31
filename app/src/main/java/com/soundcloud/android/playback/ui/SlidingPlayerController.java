@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.main.DefaultLifecycleComponent;
+import com.soundcloud.android.main.DefaultLifeCycleComponent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -22,7 +22,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController extends DefaultLifecycleComponent implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultLifeCycleComponent implements PanelSlideListener {
 
     private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
     private static final float EXPAND_THRESHOLD = 0.5f;

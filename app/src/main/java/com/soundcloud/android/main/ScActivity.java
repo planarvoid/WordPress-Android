@@ -68,11 +68,11 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Nullable
     protected ActionBarController actionBarController;
     private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
-    private final LifecycleDispatcher lifecycleDispatcher = new LifecycleDispatcher();
-    private LifecycleDispatcher.Notifier lifeCycleNotifier;
+    private final LifeCycleDispatcher lifeCycleDispatcher = new LifeCycleDispatcher();
+    private LifeCycleDispatcher.Notifier lifeCycleNotifier;
 
-    protected void addLifeCycleComponent(LifecycleComponent lifecycleComponent) {
-        lifecycleDispatcher.add(lifecycleComponent);
+    protected void addLifeCycleComponent(LifeCycleComponent lifeCycleComponent) {
+        lifeCycleDispatcher.add(lifeCycleComponent);
     }
 
     @Override
@@ -99,7 +99,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         }
 
         onCreateCalled = true;
-        lifeCycleNotifier = lifecycleDispatcher.attach(this, actionBarController);
+        lifeCycleNotifier = lifeCycleDispatcher.attach(this, actionBarController);
 
         if (savedInstanceState != null) {
             isConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
