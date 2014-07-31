@@ -17,7 +17,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -46,6 +45,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
+
+
+@SuppressWarnings({"PMD.ExcessiveClassLength"})
 public class ScContentProvider extends ContentProvider {
     private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
@@ -617,13 +619,14 @@ public class ScContentProvider extends ContentProvider {
             case PLAYABLE_CLEANUP:
                 long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
                 if (userId > 0){
-                    final long start = System.currentTimeMillis();
-
-                    if (!(uri.getQueryParameter("ignore_ceiling").equals("true")) &&
+                    final String ignore_ceiling = uri.getQueryParameter("ignore_ceiling");
+                    if (!("true".equals(ignore_ceiling)) &&
                             getCountFromTable(db, Table.SOUNDS) < PLAYABLE_CACHE_CEILING){
                         log("Aborting track cleanup. Under ceiling");
                         return 0;
                     }
+
+                    final long start = System.currentTimeMillis();
 
                     // remove unassociated playlists
                     where = "_id NOT IN ("
@@ -1042,7 +1045,9 @@ public class ScContentProvider extends ContentProvider {
                 return cursor.getInt(0);
             }
         } finally {
-            if (cursor != null) cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
         return -1;
     }

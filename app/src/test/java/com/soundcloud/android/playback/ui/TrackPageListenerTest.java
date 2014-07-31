@@ -37,7 +37,7 @@ public class TrackPageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playbackOperations, playSessionStateProvider,
+        listener = new TrackPageListener(playbackOperations,
                 soundAssociationOperations, playQueueManager, eventBus);
     }
 

@@ -24,7 +24,7 @@ public class PlaybackActionController {
     public void handleAction(String action, String source) {
         if (PlaybackAction.PREVIOUS.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
-            previousTrackOnInitialPlaybackProgress();
+            playbackOperations.previousTrack();
         } else if (PlaybackAction.NEXT.equals(action)) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(source));
             playbackOperations.nextTrack();
@@ -35,10 +35,6 @@ public class PlaybackActionController {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.close(source));
             playbackOperations.stopService();
         }
-    }
-
-    private void previousTrackOnInitialPlaybackProgress() {
-        playbackOperations.previousTrack();
     }
 
 }

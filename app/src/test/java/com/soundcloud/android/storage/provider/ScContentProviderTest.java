@@ -94,7 +94,8 @@ public class ScContentProviderTest {
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(47);
 
-        resolver.update(Content.PLAYABLE_CLEANUP.uri.buildUpon().appendQueryParameter("ignore_ceiling", "true").build(), null, null, null);
+        final Uri build = Content.PLAYABLE_CLEANUP.uri.buildUpon().appendQueryParameter("ignore_ceiling", "true").build();
+        resolver.update(build, null, null, null);
         resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
 
         expect(Content.TRACKS).toHaveCount(56);
@@ -123,7 +124,8 @@ public class ScContentProviderTest {
 
         expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41); // playlist > track relational
 
-        resolver.update(Content.PLAYABLE_CLEANUP.uri, null, null, null);
+        final Uri build = Content.PLAYABLE_CLEANUP.uri.buildUpon().appendQueryParameter("ignore_ceiling", "true").build();
+        resolver.update(build, null, null, null);
         resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
 
         expect(Content.TRACKS).toHaveCount(15);
