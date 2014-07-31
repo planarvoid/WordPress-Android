@@ -29,7 +29,7 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         streamScreen = new StreamScreen(solo);
     }
