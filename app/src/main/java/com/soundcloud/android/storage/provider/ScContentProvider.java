@@ -17,6 +17,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -48,6 +49,7 @@ import java.util.List;
 public class ScContentProvider extends ContentProvider {
     private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
+    public static final int PLAYABLE_CACHE_CEILING = 5000;
 
     public static interface Parameter {
         String RANDOM           = "random";
@@ -617,6 +619,12 @@ public class ScContentProvider extends ContentProvider {
                 if (userId > 0){
                     final long start = System.currentTimeMillis();
 
+                    if (!(uri.getQueryParameter("ignore_ceiling").equals("true")) &&
+                            getCountFromTable(db, Table.SOUNDS) < PLAYABLE_CACHE_CEILING){
+                        log("Aborting track cleanup. Under ceiling");
+                        return 0;
+                    }
+
                     // remove unassociated playlists
                     where = "_id NOT IN ("
                             + "SELECT _id FROM " + Table.SOUNDS.name + " WHERE EXISTS("
@@ -1023,6 +1031,20 @@ public class ScContentProvider extends ContentProvider {
 
     private static interface DbOperation<V> {
         V execute();
+    }
+
+    private static int getCountFromTable(SQLiteDatabase db, Table table){
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("SELECT COUNT (*) FROM " + table.name, null);
+            if(cursor.getCount() > 0){
+                cursor.moveToFirst();
+                return cursor.getInt(0);
+            }
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return -1;
     }
 
     // don't die on disk i/o problems

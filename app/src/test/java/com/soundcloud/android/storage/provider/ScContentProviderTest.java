@@ -94,7 +94,7 @@ public class ScContentProviderTest {
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(47);
 
-        resolver.update(Content.PLAYABLE_CLEANUP.uri, null, null, null);
+        resolver.update(Content.PLAYABLE_CLEANUP.uri.buildUpon().appendQueryParameter("ignore_ceiling", "true").build(), null, null, null);
         resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
 
         expect(Content.TRACKS).toHaveCount(56);
