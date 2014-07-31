@@ -5,7 +5,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import android.app.Activity;
 import android.os.Bundle;
 
-@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
+@SuppressWarnings({"PMD.EmptyMethodInAbstractClassShouldBeAbstract", "PMD.CallSuperFirst"})
 public abstract class DefaultLifeCycleComponent implements LifeCycleComponent {
 
     @Override

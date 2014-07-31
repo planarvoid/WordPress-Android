@@ -22,6 +22,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
 public class SlidingPlayerController extends DefaultLifeCycleComponent implements PanelSlideListener {
 
     private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
