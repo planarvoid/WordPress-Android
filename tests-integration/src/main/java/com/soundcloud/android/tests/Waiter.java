@@ -170,6 +170,10 @@ public class Waiter {
         return solo.waitForCondition(new ByClassCondition(viewClass), this.TIMEOUT);
     }
 
+    public boolean waitForElements(int elementId) {
+        return solo.waitForCondition(new VisibleElementsCondition(elementId), this.NETWORK_TIMEOUT);
+    }
+
     private class VisibleElementCondition implements Condition {
         private int viewId;
 
@@ -186,6 +190,21 @@ public class Waiter {
             ViewElement view = solo.findElement(With.id(viewId));
             Log.i(TAG, "ViewID searched");
             return (view.isVisible());
+        }
+    }
+
+    private class VisibleElementsCondition implements Condition {
+        private int viewId;
+
+        VisibleElementsCondition(int id) {
+            viewId = id;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            List<ViewElement> elements = solo.findElements(With.id(viewId));
+            Log.i(TAG, "ViewID searched");
+            return (!elements.isEmpty());
         }
     }
 

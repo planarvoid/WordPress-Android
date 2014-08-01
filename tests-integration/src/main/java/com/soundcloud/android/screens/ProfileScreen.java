@@ -15,6 +15,7 @@ public class ProfileScreen extends Screen {
     }
 
     public VisualPlayerElement playTrack(int index) {
+        waiter.waitForElements(R.id.track_list_item);
         tracks().get(index).click();
         waiter.waitForExpandedPlayer();
         return new VisualPlayerElement(testDriver);
