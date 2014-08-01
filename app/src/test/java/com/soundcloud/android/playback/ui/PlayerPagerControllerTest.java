@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdConstants;
@@ -24,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -196,5 +198,43 @@ public class PlayerPagerControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, TrackUrn.NOT_SET));
 
         verify(viewPager).setPagingEnabled(true);
+    }
+
+    @Test
+    public void progressEventEqualToTimeoutWhilePlayingAdAfterOnDestroyViewDoesNothing() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+        controller.onDestroyView();
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, TrackUrn.NOT_SET));
+
+        verify(viewPager, never()).setPagingEnabled(true);
+    }
+
+    @Test
+    public void trackChangeEventEnablesPagingIfNotAudioAd() throws Exception {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+        Mockito.reset(viewPager);
+
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+
+        verify(viewPager).setPagingEnabled(true);
+    }
+
+    @Test
+    public void trackChangeEventPreventsPagerUnlockFromPreviousAudioAd() throws Exception {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
+        Mockito.reset(viewPager);
+
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, TrackUrn.NOT_SET));
+
+        verifyZeroInteractions(viewPager);
     }
 }
