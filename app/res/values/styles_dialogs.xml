@@ -26,6 +26,17 @@
         <item name="android:layout_height">match_parent</item>
     </style>
 
+    <style name="Theme.TrackInfoDialog" parent="Theme.ScDialog.Light">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
     <!-- styles for android-styled-dialogs library -->
     <style name="DialogStyleLight">
         <item name="titleTextColor">@color/dialog_title</item>

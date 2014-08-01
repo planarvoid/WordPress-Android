@@ -33,12 +33,8 @@ public class TrackOperations {
         return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
     }
 
-    public Observable<TrackDetails> trackDetailsWithUpdate(final TrackUrn trackUrn) {
-        return Observable.concat(trackDetails(trackUrn), apiTrack(trackUrn).map(apiTrackToDetails));
-    }
-
-    private Observable<TrackDetails> trackDetails(final TrackUrn trackUrn) {
-        return track(trackUrn).map(trackPropertyToDetails);
+    public Observable<PropertySet> trackDetailsWithUpdate(final TrackUrn trackUrn) {
+        return Observable.concat(track(trackUrn), apiTrack(trackUrn).map(apiTrackToPropertySet));
     }
 
     private Observable<PublicApiTrack> apiTrack(final TrackUrn trackUrn) {
@@ -50,17 +46,10 @@ public class TrackOperations {
         return rxHttpClient.fetchModels(request);
     }
 
-    private Func1<PropertySet, TrackDetails> trackPropertyToDetails = new Func1<PropertySet, TrackDetails>() {
+    private Func1<PublicApiTrack, PropertySet> apiTrackToPropertySet = new Func1<PublicApiTrack, PropertySet>() {
         @Override
-        public TrackDetails call(PropertySet bindings) {
-            return new TrackDetails(bindings);
-        }
-    };
-
-    private Func1<PublicApiTrack, TrackDetails> apiTrackToDetails = new Func1<PublicApiTrack, TrackDetails>() {
-        @Override
-        public TrackDetails call(PublicApiTrack track) {
-            return new TrackDetails(track);
+        public PropertySet call(PublicApiTrack track) {
+            return track.toPropertySet();
         }
     };
 }

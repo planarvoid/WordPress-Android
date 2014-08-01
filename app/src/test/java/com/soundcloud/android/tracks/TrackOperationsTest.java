@@ -63,9 +63,9 @@ public class TrackOperationsTest {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(propertySet));
 
-        final TrackDetails first = trackOperations.trackDetailsWithUpdate(trackUrn).toBlocking().first();
-        expect(first.getTitle()).toEqual(TITLE);
-        expect(first.getCreator()).toEqual(CREATOR);
+        final PropertySet first = trackOperations.trackDetailsWithUpdate(trackUrn).toBlocking().first();
+        expect(first.get(PlayableProperty.TITLE)).toEqual(TITLE);
+        expect(first.get(PlayableProperty.CREATOR_NAME)).toEqual(CREATOR);
     }
 
     @Test
@@ -77,9 +77,9 @@ public class TrackOperationsTest {
         when(rxHttpClient.fetchModels(argThat(isPublicApiRequestTo("GET", "/tracks/123")))).thenReturn(trackObservable);
         when(trackStorage.track(any(TrackUrn.class), any(UserUrn.class))).thenReturn(Observable.<PropertySet>empty());
 
-        final TrackDetails last = trackOperations.trackDetailsWithUpdate(trackUrn).toBlocking().last();
-        expect(last.getTitle()).toEqual(track.getTitle());
-        expect(last.getCreator()).toEqual(track.getUsername());
-        expect(last.getDescription()).toEqual(DESCRIPTION);
+        final PropertySet last = trackOperations.trackDetailsWithUpdate(trackUrn).toBlocking().last();
+        expect(last.get(PlayableProperty.TITLE)).toEqual(track.getTitle());
+        expect(last.get(PlayableProperty.CREATOR_NAME)).toEqual(track.getUsername());
+        expect(last.get(TrackProperty.DESCRIPTION)).toEqual(DESCRIPTION);
     }
 }
