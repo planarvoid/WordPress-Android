@@ -278,7 +278,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.addScrubListener(holder.artworkController);
         holder.waveformController.addScrubListener(holder.timestamp);
 
-        holder.menuController = trackMenuControllerFactory.create(trackView.getContext(), holder.more, listener);
+        holder.menuController = trackMenuControllerFactory.create(holder.more);
 
         trackView.setTag(holder);
     }

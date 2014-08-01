@@ -27,9 +27,9 @@ import java.util.List;
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
     private static Han solo;
-    public final int TIMEOUT = 10 * 1000;
-    public final int NETWORK_TIMEOUT = 120 * 1000;
-    private final int ELEMENT_TIMEOUT = 5 * 1000;
+    public static final int TIMEOUT = 10 * 1000;
+    public static final int NETWORK_TIMEOUT = 120 * 1000;
+    private static final int ELEMENT_TIMEOUT = 5 * 1000;
     private static final int SMALL_TIMEOUT = 500;
 
     public Waiter(Han driver) {

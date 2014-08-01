@@ -51,8 +51,4 @@ class TrackPageListener {
         fireAndForget(associationOperations.toggleLike(playQueueManager.getCurrentTrackUrn(), isLike));
     }
 
-    public void onToggleRepost(boolean isRepost) {
-        fireAndForget(associationOperations.toggleRepost(playQueueManager.getCurrentTrackUrn(), isRepost));
-    }
-
 }

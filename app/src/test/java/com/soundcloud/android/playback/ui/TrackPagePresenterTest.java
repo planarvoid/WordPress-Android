@@ -21,14 +21,12 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.View;
@@ -67,7 +65,7 @@ public class TrackPagePresenterTest {
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
-        when(trackMenuControllerFactory.create(any(Context.class), any(View.class), eq(listener))).thenReturn(trackMenuController);
+        when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
         trackView = presenter.createItemView(container);
     }
 

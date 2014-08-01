@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.AddToPlaylistsScreen;
 import com.soundcloud.android.screens.PlaylistScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 public class Player extends ActivityTestCase<MainActivity> {
     private VisualPlayerElement player;
     private StreamScreen streamScreen;
-    private PlaylistDetailsScreen playlistDetailsScreen;
 
     public Player() {
         super(MainActivity.class);
@@ -49,6 +48,19 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(player(), is(not(Visible())));
     }
 
+    public void testPlayerAddTrackToPlaylist() throws Exception {
+        menuScreen.open()
+                .clickLikes()
+                .clickItem(1)
+                .clickMenu()
+                .addToPlaylistItem()
+                .click();
+
+        final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
+        addToPlaylistsScreen.waitForDialog();
+        assertThat(addToPlaylistsScreen, is(Visible()));
+    }
+
     private VisualPlayerElement player() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (player == null) {
             player = new VisualPlayerElement(solo);
@@ -60,7 +72,6 @@ public class Player extends ActivityTestCase<MainActivity> {
         PlaylistScreen playlistScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistScreen.clickPlaylistAt(0);
-        playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
 
 }

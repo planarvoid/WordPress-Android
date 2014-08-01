@@ -1,10 +1,16 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 
-import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,15 +22,21 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     public static final String SHARE_TYPE = "text/plain";
 
-    private final Context context;
+    private final FragmentActivity activity;
     private final PopupMenu popupMenu;
-    private final TrackPageListener trackPageListener;
+    private final PlayQueueManager playQueueManager;
+    private final SoundAssociationOperations associationOperations;
     @Nullable private Intent shareIntent;
+    @Nullable private PlayerTrack track;
 
-    private TrackMenuController(Context context, View anchorView, TrackPageListener trackPageListener) {
-        this.context = context;
-        this.popupMenu = new PopupMenu(context, anchorView);
-        this.trackPageListener = trackPageListener;
+    private TrackMenuController(View anchorView,
+                                PlayQueueManager playQueueManager,
+                                SoundAssociationOperations associationOperations,
+                                FragmentActivity context) {
+        this.playQueueManager = playQueueManager;
+        this.associationOperations = associationOperations;
+        this.activity = context;
+        this.popupMenu = new PopupMenu(activity, anchorView);
         setupMenu(anchorView);
     }
 
@@ -44,21 +56,33 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
         switch (menuItem.getItemId()) {
             case R.id.share:
                 if (shareIntent != null) {
-                    context.startActivity(shareIntent);
+                    activity.startActivity(shareIntent);
                 }
                 return true;
             case R.id.repost:
-                trackPageListener.onToggleRepost(true);
+                checkNotNull(track);
+                fireAndForget(associationOperations.toggleRepost(track.getUrn(), true));
                 return true;
             case R.id.unpost:
-                trackPageListener.onToggleRepost(false);
+                checkNotNull(track);
+                fireAndForget(associationOperations.toggleRepost(track.getUrn(), false));
+                return true;
+            case R.id.add_to_playlist:
+                showAddToPlaylistDialog();
                 return true;
             default:
                 return false;
         }
     }
 
+    private void showAddToPlaylistDialog() {
+        checkNotNull(track);
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.toPropertySet(), playQueueManager.getScreenTag());
+        from.show(activity.getSupportFragmentManager(), "playlist_dialog");
+    }
+
     public void setTrack(PlayerTrack track) {
+        this.track = track;
         setIsUserRepost(track.isUserRepost());
 
         if (track.isPrivate()) {
@@ -96,21 +120,25 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     private String buildSubject(PlayerTrack track) {
         final StringBuilder sb = new StringBuilder(track.getTitle()).append(" ");
         if (ScTextUtils.isNotBlank(track.getUserName())) {
-            sb.append(context.getString(R.string.share_by, track.getUserName())).append(" ");
+            sb.append(activity.getString(R.string.share_by, track.getUserName())).append(" ");
         }
-        sb.append(context.getString(R.string.share_on_soundcloud));
+        sb.append(activity.getString(R.string.share_on_soundcloud));
         return sb.toString();
     }
 
     static class Factory {
 
-        @Inject
-        Factory() { }
+        private final PlayQueueManager playQueueManager;
+        private final SoundAssociationOperations associationOperations;
 
-        TrackMenuController create(Context context, View anchorView, TrackPageListener trackPageListener) {
-            return new TrackMenuController(context, anchorView, trackPageListener);
+        @Inject
+        Factory(PlayQueueManager playQueueManager, SoundAssociationOperations associationOperations) {
+            this.playQueueManager = playQueueManager;
+            this.associationOperations = associationOperations;
+        }
+
+        TrackMenuController create(View anchorView) {
+            return new TrackMenuController(anchorView, playQueueManager, associationOperations, (FragmentActivity) anchorView.getContext());
         }
     }
-
-
 }

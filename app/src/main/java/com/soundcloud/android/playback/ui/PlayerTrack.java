@@ -1,17 +1,19 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
-class PlayerTrack {
+class PlayerTrack implements PropertySetSource {
 
     private final PropertySet source;
 
     PlayerTrack(PropertySet source) {
         this.source = source;
     }
+
 
     TrackUrn getUrn() {
         return source.get(TrackProperty.URN);
@@ -51,5 +53,10 @@ class PlayerTrack {
 
     public boolean isPrivate() {
         return source.get(PlayableProperty.IS_PRIVATE);
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return source;
     }
 }

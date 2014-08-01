@@ -5,16 +5,18 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
 import android.app.Dialog;
@@ -54,10 +56,10 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     @Inject LegacyPlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
 
-    public static AddToPlaylistDialogFragment from(PublicApiTrack track, String originScreen) {
+    public static AddToPlaylistDialogFragment from(PropertySet track, String originScreen) {
         Bundle b = new Bundle();
-        b.putLong(KEY_TRACK_ID, track.getId());
-        b.putString(KEY_TRACK_TITLE, track.title);
+        b.putLong(KEY_TRACK_ID, track.get(TrackProperty.URN).numericId);
+        b.putString(KEY_TRACK_TITLE, track.get(PlayableProperty.TITLE));
         b.putString(KEY_ORIGIN_SCREEN, originScreen);
 
         AddToPlaylistDialogFragment fragment = new AddToPlaylistDialogFragment();

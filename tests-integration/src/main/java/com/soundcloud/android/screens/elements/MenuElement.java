@@ -17,12 +17,16 @@ public class MenuElement {
         testDriver = solo;
     }
 
-    public ViewElement shareItem() {
+    public ViewElement addToPlaylistItem() {
         return menuItems().get(0);
     }
 
-    public ViewElement repostItem() {
+    public ViewElement shareItem() {
         return menuItems().get(1);
+    }
+
+    public ViewElement repostItem() {
+        return menuItems().get(2);
     }
 
     private List<ViewElement> menuItems() {
