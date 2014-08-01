@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
@@ -25,9 +26,11 @@ public class SearchResultsScreen extends Screen {
         waiter.waitForFragmentByTag(FRAGMENT);
     }
 
-    public void clickFirstTrackItem() {
+    public VisualPlayerElement clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.track_list_item)).click();
+        waiter.waitForExpandedPlayer();
+        return new VisualPlayerElement(testDriver);
     }
 
     public void clickFirstPlaylistItem() {

@@ -51,9 +51,9 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
         NavigationHelper.openSearch(streamScreen());
         searchScreen().actionBar().doSearch("nasa");
-        searchScreen().clickFirstTrackItem();
+        player = searchScreen().clickFirstTrackItem();
 
-        assertThat(player(), is(Expanded()));
+        assertThat(player, is(Expanded()));
     }
 
     private VisualPlayerElement player() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
