@@ -16,14 +16,12 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -63,7 +61,7 @@ public class PlaylistFragmentTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private LegacyPlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
-    @Mock private EngagementsController engagementsController;
+    @Mock private PlaylistEngagementsController playlistEngagementsController;
     @Mock private ItemAdapter adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
@@ -71,7 +69,7 @@ public class PlaylistFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistFragment(controller, playbackOperations, playlistOperations, eventBus,
-                imageOperations, engagementsController, ptrController, playQueueManager);
+                imageOperations, playlistEngagementsController, ptrController, playQueueManager);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
 
@@ -173,7 +171,7 @@ public class PlaylistFragmentTest {
     @Test
      public void engagementsControllerStartsListeningInOnStart() throws Exception {
         fragment.onStart();
-        verify(engagementsController).startListeningForChanges();
+        verify(playlistEngagementsController).startListeningForChanges();
     }
 
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
@@ -196,7 +194,7 @@ public class PlaylistFragmentTest {
     public void engagementsControllerStopsListeningInOnStop() throws Exception {
         fragment.onStart(); // call on stop to avoid unregistered listener error
         fragment.onStop();
-        verify(engagementsController).stopListeningForChanges();
+        verify(playlistEngagementsController).stopListeningForChanges();
     }
 
     @Test
@@ -235,7 +233,7 @@ public class PlaylistFragmentTest {
     @Test
     public void setsPlayableOnEngagementsControllerWhenPlaylistIsReturned() throws Exception {
         createFragmentView();
-        verify(engagementsController).setPlayable(playlist);
+        verify(playlistEngagementsController).setPlayable(playlist);
     }
 
     @Test
@@ -245,9 +243,9 @@ public class PlaylistFragmentTest {
                 Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
 
-        InOrder inOrder = Mockito.inOrder(engagementsController);
-        inOrder.verify(engagementsController).setPlayable(playlist);
-        inOrder.verify(engagementsController).setPlayable(playlist2);
+        InOrder inOrder = Mockito.inOrder(playlistEngagementsController);
+        inOrder.verify(playlistEngagementsController).setPlayable(playlist);
+        inOrder.verify(playlistEngagementsController).setPlayable(playlist2);
     }
 
     @Test

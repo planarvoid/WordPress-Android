@@ -1,10 +1,9 @@
-package com.soundcloud.android.associations;
+package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,15 +13,14 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -40,9 +38,9 @@ import android.view.ViewGroup;
 import android.widget.ToggleButton;
 
 @RunWith(SoundCloudTestRunner.class)
-public class EngagementsControllerTest {
+public class PlaylistEngagementsControllerTest {
 
-    private EngagementsController controller;
+    private PlaylistEngagementsController controller;
     private ViewGroup rootView;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -54,7 +52,7 @@ public class EngagementsControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.playlist_action_bar, null);
-        controller = new EngagementsController(eventBus, soundAssocOps, accountOperations);
+        controller = new PlaylistEngagementsController(eventBus, soundAssocOps, accountOperations);
         controller.bindView(rootView);
         controller.startListeningForChanges();
     }

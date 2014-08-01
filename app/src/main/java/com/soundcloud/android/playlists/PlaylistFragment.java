@@ -10,7 +10,6 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.associations.EngagementsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -58,7 +57,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ImageOperations imageOperations;
-    @Inject EngagementsController engagementsController;
+    @Inject PlaylistEngagementsController playlistEngagementsController;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
@@ -107,7 +106,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      LegacyPlaylistOperations legacyPlaylistOperations,
                      EventBus eventBus,
                      ImageOperations imageOperations,
-                     EngagementsController engagementsController,
+                     PlaylistEngagementsController playlistEngagementsController,
                      PullToRefreshController pullToRefreshController,
                      PlayQueueManager playQueueManager) {
         this.controller = controller;
@@ -115,7 +114,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.legacyPlaylistOperations = legacyPlaylistOperations;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
-        this.engagementsController = engagementsController;
+        this.playlistEngagementsController = playlistEngagementsController;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
     }
@@ -193,13 +192,13 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onStart() {
         super.onStart();
-        engagementsController.startListeningForChanges();
+        playlistEngagementsController.startListeningForChanges();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        engagementsController.stopListeningForChanges();
+        playlistEngagementsController.stopListeningForChanges();
     }
 
     @Override
@@ -242,7 +241,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
                         ApiImageSize.getFullImageSize(getActivity().getResources()));
 
-        engagementsController.bindView(detailsView, new OriginProvider() {
+        playlistEngagementsController.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromBundle(getArguments()).get();
@@ -282,7 +281,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {
         playablePresenter.setPlayable(playlist);
-        engagementsController.setPlayable(playlist);
+        playlistEngagementsController.setPlayable(playlist);
         infoHeaderText.setText(createHeaderText(playlist));
 
         // don't register clicks before we have a valid playlist

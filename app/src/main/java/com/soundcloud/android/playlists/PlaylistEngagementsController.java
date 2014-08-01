@@ -1,4 +1,4 @@
-package com.soundcloud.android.associations;
+package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
@@ -7,7 +7,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -31,7 +31,7 @@ import android.widget.ToggleButton;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-public class EngagementsController {
+public class PlaylistEngagementsController {
 
     private Context context;
 
@@ -51,14 +51,14 @@ public class EngagementsController {
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    public EngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps,
-                                 AccountOperations accountOperations) {
+    public PlaylistEngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps,
+                                         AccountOperations accountOperations) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
         this.accountOperations = accountOperations;
     }
 
-    public void bindView(View rootView) {
+    void bindView(View rootView) {
         bindView(rootView, new OriginProvider() {
             @Override
             public String getScreenTag() {
@@ -67,7 +67,7 @@ public class EngagementsController {
         });
     }
 
-    public void bindView(View rootView, OriginProvider originProvider) {
+    void bindView(View rootView, OriginProvider originProvider) {
         context = rootView.getContext();
         this.originProvider = originProvider;
 
@@ -78,7 +78,7 @@ public class EngagementsController {
                 public void onClick(View view) {
                     if (playable != null) {
                         eventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(toggleLike.isChecked(),
-                                EngagementsController.this.originProvider.getScreenTag(), playable));
+                                PlaylistEngagementsController.this.originProvider.getScreenTag(), playable));
                         fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), toggleLike.isChecked()));
                     }
                 }
@@ -92,7 +92,7 @@ public class EngagementsController {
                 public void onClick(View view) {
                     if (playable != null) {
                         eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
-                                EngagementsController.this.originProvider.getScreenTag(), playable));
+                                PlaylistEngagementsController.this.originProvider.getScreenTag(), playable));
                         fireAndForget(soundAssociationOps.toggleRepost(playable.getUrn(), toggleRepost.isChecked()));
                     }
                 }
@@ -105,7 +105,7 @@ public class EngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (playable != null) {
-                        eventBus.publish(EventQueue.UI, UIEvent.fromShare(EngagementsController.this.originProvider.getScreenTag(), playable));
+                        eventBus.publish(EventQueue.UI, UIEvent.fromShare(PlaylistEngagementsController.this.originProvider.getScreenTag(), playable));
                         Intent shareIntent = playable.getShareIntent();
                         if (shareIntent != null) {
                             context.startActivity(shareIntent);
@@ -116,7 +116,7 @@ public class EngagementsController {
         }
     }
 
-    public void startListeningForChanges() {
+    void startListeningForChanges() {
         subscription = new CompositeSubscription();
         // make sure we pick up changes to the current playable that come via the event bus
         subscription.add(eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableChangedEvent>() {
@@ -139,15 +139,15 @@ public class EngagementsController {
         }));
     }
 
-    public void stopListeningForChanges() {
+    void stopListeningForChanges() {
         subscription.unsubscribe();
     }
 
-    public void setOriginProvider(OriginProvider originProvider) {
+    void setOriginProvider(OriginProvider originProvider) {
         this.originProvider = originProvider;
     }
 
-    public void setPlayable(@NotNull Playable playable) {
+    void setPlayable(@NotNull Playable playable) {
         Log.d("SoundAssociations", "playable changed! " + playable.getId());
         this.playable = playable;
 
