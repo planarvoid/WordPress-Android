@@ -96,7 +96,7 @@ public class NavigationDrawerFragmentTest {
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
@@ -106,7 +106,7 @@ public class NavigationDrawerFragmentTest {
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
@@ -115,8 +115,8 @@ public class NavigationDrawerFragmentTest {
     public void shouldIgnoreDrawerEventsUntilDrawerFullyLayouted() {
         fragment.onViewCreated(view, null);
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
         verifyZeroInteractions(drawerLayout);
     }

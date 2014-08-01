@@ -308,9 +308,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDING) {
                 presenter.setExpanded(trackPage, playSessionStateProvider.isPlaying());
-            } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
+            } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSING) {
                 presenter.setCollapsed(trackPage);
             }
         }

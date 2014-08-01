@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
@@ -147,6 +148,15 @@ public class Player extends ActivityTestCase<MainActivity> {
 
         playerElement.tapNext();
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
+    }
+
+    public void testUserButtonGoesToUserProfile() {
+        playSingleTrack();
+        String originalUser = playerElement.getTrackCreator();
+        playerElement.clickCreator();
+
+        ProfileScreen profileScreen = new ProfileScreen(solo);
+        assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
     private void playExploreTrack() {

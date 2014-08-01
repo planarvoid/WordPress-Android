@@ -19,7 +19,7 @@ public final class EventQueue {
     public static final Queue<PlaybackSessionEvent> PLAYBACK_SESSION = Queue.of(PlaybackSessionEvent.class).get();
     public static final Queue<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = Queue.of(PlaybackPerformanceEvent.class).get();
     public static final Queue<PlaybackErrorEvent> PLAYBACK_ERROR = Queue.of(PlaybackErrorEvent.class).get();
-    public static final Queue<PlayerUIEvent> PLAYER_UI = Queue.of(PlayerUIEvent.class).replay(PlayerUIEvent.fromPlayerCollapsed()).get();
+    public static final Queue<PlayerUIEvent> PLAYER_UI = Queue.of(PlayerUIEvent.class).replay(PlayerUIEvent.fromPlayerCollapsing()).get();
     public static final Queue<PlayQueueEvent> PLAY_QUEUE = Queue.of(PlayQueueEvent.class).get();
     public static final Queue<CurrentPlayQueueTrackEvent> PLAY_QUEUE_TRACK = Queue.of(CurrentPlayQueueTrackEvent.class).replay().get();
 }

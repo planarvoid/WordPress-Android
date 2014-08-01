@@ -103,14 +103,20 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     @Override
     public void onCreate(Bundle bundle) {
         if (bundle == null) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
         } else {
             boolean isExpanded = bundle.getBoolean(EXTRA_PLAYER_EXPANDED, false);
             actionBarController.setVisible(!isExpanded);
             dimSystemBars(isExpanded);
-            eventBus.publish(EventQueue.PLAYER_UI, isExpanded
-                    ? PlayerUIEvent.fromPlayerExpanded()
-                    : PlayerUIEvent.fromPlayerCollapsed());
+            if (isExpanded){
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+            } else {
+                // FIXME : We should not have to fire both of these, however the player only responds to Collapsing currently
+                // this can be fixed in the Smooth Transition story
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+            }
+
         }
     }
 
@@ -119,12 +125,12 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
             dimSystemBars(true);
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
             isExpanding = true;
         } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
             dimSystemBars(false);
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
             isExpanding = false;
         }
     }
@@ -151,7 +157,9 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     }
 
     @Override
-    public void onPanelCollapsed(View panel) {/* no-op */}
+    public void onPanelCollapsed(View panel) {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+    }
 
     @Override
     public void onPanelExpanded(View panel) {/* no-op */}

@@ -190,9 +190,9 @@ public class NavigationDrawerFragment extends NavigationFragment {
         @Override
         public void onNext(PlayerUIEvent event) {
             final int eventKind = event.getKind();
-            if (eventKind == PlayerUIEvent.PLAYER_EXPANDED) {
+            if (eventKind == PlayerUIEvent.PLAYER_EXPANDING) {
                 setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            } else if (eventKind == PlayerUIEvent.PLAYER_COLLAPSED) {
+            } else if (eventKind == PlayerUIEvent.PLAYER_COLLAPSING) {
                 setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
         }

@@ -52,6 +52,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.track_page_artwork));
     }
 
+    private ViewElement creator() {
+        return solo.findElement(With.id(R.id.track_page_user));
+    }
+
     private ViewElement footerPlayToggle() {
         return solo.findElement(With.id(R.id.footer_toggle));
     }
@@ -126,6 +130,10 @@ public class VisualPlayerElement extends Element {
         return trackTitle().getText();
     }
 
+    public String getTrackCreator() {
+        return creator().getText();
+    }
+
     public void waitForContent() {
         waiter.waitForContent(getViewPager());
     }
@@ -144,6 +152,10 @@ public class VisualPlayerElement extends Element {
 
     public void clickArtwork() {
         artwork().click();
+    }
+
+    public void clickCreator() {
+        creator().click();
     }
 
     public boolean isFooterInPlayingState() {

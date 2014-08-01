@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -19,6 +20,7 @@ import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -266,6 +268,16 @@ public class TrackPagePresenterTest {
         getHolder(trackView).likeToggle.performClick();
 
         verify(listener).onToggleLike(false);
+    }
+
+    @Test
+    public void clickUsernameCallsListenerOnClickUsernameWithActivityContext() {
+        populateTrackPage();
+
+        final JaggedTextView user = getHolder(trackView).user;
+        user.performClick();
+
+        verify(listener).onGotoUser(user.getContext(), Urn.forUser(456L));
     }
 
     @Test

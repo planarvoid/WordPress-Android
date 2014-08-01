@@ -13,11 +13,13 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,6 +82,11 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.track_page_like:
                 updateLikeStatus(view);
                 break;
+            case R.id.track_page_user:
+                final Context activityContext = view.getContext();
+                final UserUrn userUrn = (UserUrn) view.getTag();
+                listener.onGotoUser(activityContext, userUrn);
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
                         + resources.getResourceName(view.getId()));
@@ -100,8 +107,11 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
     private void bindItemView(View trackView, PlayerTrack track) {
         final TrackPageHolder holder = getViewHolder(trackView);
-        holder.user.setText(track.getUserName());
         holder.title.setText(track.getTitle());
+
+        holder.user.setText(track.getUserName());
+        holder.user.setTag(track.getUserUrn());
+
         imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources),
                 holder.artworkController.getImageView(), holder.artworkController.getImageListener());
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
@@ -311,7 +321,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
         public View[] getOnClickViews() {
             return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch, playButton, footer,
-                    footerPlayToggle, likeToggle };
+                    footerPlayToggle, likeToggle, user };
         }
 
         public View[] getFullScreenViews() {

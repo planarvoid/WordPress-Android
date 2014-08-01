@@ -192,7 +192,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void onPlayerExpandedEventSetsFullScreenPlayerMode() {
         View currentTrackView = getPageView();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
         InOrder inOrder = Mockito.inOrder(trackPagePresenter);
         inOrder.verify(trackPagePresenter).setCollapsed(currentTrackView);

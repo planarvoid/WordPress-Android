@@ -13,15 +13,20 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+
+import android.content.Intent;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPageListenerTest {
@@ -78,5 +83,28 @@ public class TrackPageListenerTest {
         listener.onPrevious();
 
         verify(playbackOperations).previousTrack();
+    }
+
+    @Test
+    public void onGotoUserPostsEventToClosePlayer() throws Exception {
+        UserUrn userUrn = Urn.forUser(42L);
+
+        listener.onGotoUser(Robolectric.application, userUrn);
+
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.COLLAPSE_PLAYER);
+    }
+
+    @Test
+    public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() throws Exception {
+        UserUrn userUrn = Urn.forUser(42L);
+
+        listener.onGotoUser(Robolectric.application, userUrn);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        final Intent nextStartedActivity = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
+        expect(nextStartedActivity).not.toBeNull();
+        expect(nextStartedActivity.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
+        expect(nextStartedActivity.getExtras().get("userUrn")).toEqual(UserUrn.forUser(42L));
     }
 }

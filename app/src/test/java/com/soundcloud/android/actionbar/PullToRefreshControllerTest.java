@@ -132,7 +132,7 @@ public class PullToRefreshControllerTest {
     public void shouldStopRefreshingWhenPlayerExpandedEventIsReceived() {
         controller.onViewCreated(fragment, listener);
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
         verify(wrapper, times(2)).setRefreshing(false);
     }

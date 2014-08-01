@@ -4,6 +4,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 
 class PlayerTrack implements PropertySetSource {
@@ -25,6 +26,10 @@ class PlayerTrack implements PropertySetSource {
 
     String getUserName() {
         return source.get(PlayableProperty.CREATOR_NAME);
+    }
+
+    UserUrn getUserUrn() {
+        return source.get(PlayableProperty.CREATOR_URN);
     }
 
     long getDuration() {
