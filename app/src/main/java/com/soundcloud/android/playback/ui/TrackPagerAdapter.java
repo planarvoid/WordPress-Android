@@ -300,6 +300,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         private final PagePresenter presenter;
         private final View trackPage;
+        private boolean isCollapsed;
 
         public PlayerPanelSubscriber(PagePresenter presenter, View trackPage) {
             this.presenter = presenter;
@@ -308,9 +309,12 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDING) {
+            final int kind = event.getKind();
+            if (kind == PlayerUIEvent.PLAYER_EXPANDING) {
+                isCollapsed = false;
                 presenter.setExpanded(trackPage, playSessionStateProvider.isPlaying());
-            } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSING) {
+            } else if ((kind == PlayerUIEvent.PLAYER_COLLAPSING || kind == PlayerUIEvent.PLAYER_COLLAPSED) && !isCollapsed) {
+                isCollapsed = true;
                 presenter.setCollapsed(trackPage);
             }
         }

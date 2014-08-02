@@ -182,11 +182,27 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
-    public void shouldSetExpandModeOnSubscribe() {
+    public void setsCollapsedModeOnSubscribeForCollapsePlayerEvent() {
         View currentTrackView = getPageView();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(trackPagePresenter).setCollapsed(currentTrackView);
+    }
+
+    @Test
+    public void setsCollapsedModeOnSubscribeForCollapsingPlayerEvent() {
+        View currentTrackView = getPageView();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+
+        verify(trackPagePresenter).setCollapsed(currentTrackView);
+    }
+
+    @Test
+    public void setsExpandedModeOnSubscribeForExpandPlayerEvent() {
+        View currentTrackView = getPageView();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+
+        verify(trackPagePresenter).setExpanded(currentTrackView, false);
     }
 
     @Test
