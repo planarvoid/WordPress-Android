@@ -6,13 +6,16 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
+import com.soundcloud.android.tracks.TrackUrn;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -25,6 +28,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     private final PlaySessionStateProvider playSessionStateProvider;
     private final ImageView wrappedImageView;
     private final ProgressController progressController;
+    private final ImageOperations imageOperations;
 
     private TranslateXHelper helper;
     private boolean suppressProgress;
@@ -33,16 +37,14 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public PlayerArtworkController(PlayerTrackArtworkView artworkView,
                                    ProgressController.Factory animationControllerFactory,
-                                   PlaySessionStateProvider playSessionStateProvider) {
+                                   PlaySessionStateProvider playSessionStateProvider,
+                                   ImageOperations imageOperations) {
         this.artworkView = artworkView;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.imageOperations = imageOperations;
         wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
         progressController = animationControllerFactory.create(wrappedImageView);
         artworkView.setOnWidthChangedListener(this);
-    }
-
-    public ImageListener getImageListener() {
-        return this;
     }
 
     public void showPlayingState(PlaybackProgress progress) {
@@ -107,8 +109,13 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     }
 
 
-    public ImageView getImageView() {
-        return wrappedImageView;
+    public void clear(){
+        wrappedImageView.setImageDrawable(null);
+    }
+
+    public void loadArtwork(TrackUrn urn) {
+        final ApiImageSize size = ApiImageSize.getFullImageSize(wrappedImageView.getResources());
+        imageOperations.displayInVisualPlayer(urn, size, wrappedImageView, this);
     }
 
     private void configureBounds() {
@@ -124,15 +131,18 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
         private final PlaySessionStateProvider playSessionStateProvider;
+        private final ImageOperations imageOperations;
 
         @Inject
-        Factory(ProgressController.Factory animationControllerFactory, PlaySessionStateProvider playSessionStateProvider) {
+        Factory(ProgressController.Factory animationControllerFactory, PlaySessionStateProvider playSessionStateProvider,
+                ImageOperations imageOperations) {
             this.animationControllerFactory = animationControllerFactory;
-                this.playSessionStateProvider = playSessionStateProvider;
+            this.playSessionStateProvider = playSessionStateProvider;
+            this.imageOperations = imageOperations;
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
-            return new PlayerArtworkController(artworkView, animationControllerFactory,  playSessionStateProvider);
+            return new PlayerArtworkController(artworkView, animationControllerFactory,  playSessionStateProvider, imageOperations);
         }
     }
 }

@@ -2,11 +2,16 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -14,6 +19,8 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +42,7 @@ public class PlayerArtworkControllerTest {
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private ImageOperations imageOperations;
 
     @Before
     public void setUp() throws Exception {
@@ -42,7 +50,7 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
-        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playSessionStateProvider).create(playerTrackArtworkView);
+        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playSessionStateProvider, imageOperations).create(playerTrackArtworkView);
     }
 
     @Test
@@ -115,5 +123,14 @@ public class PlayerArtworkControllerTest {
         playerArtworkController.onArtworkSizeChanged();
         playerArtworkController.displayScrubPosition(.5f);
         verify(wrappedImageView).setTranslationX(-5);
+    }
+
+    @Test
+    public void loadArtworkDisplaysArtworkThroughImageOperations() throws Exception {
+        final TrackUrn urn = Urn.forTrack(123L);
+        when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
+        playerArtworkController.loadArtwork(urn);
+        verify(imageOperations).displayInVisualPlayer(same(urn), same(ApiImageSize.T500),
+                same(wrappedImageView), any(ImageListener.class));
     }
 }

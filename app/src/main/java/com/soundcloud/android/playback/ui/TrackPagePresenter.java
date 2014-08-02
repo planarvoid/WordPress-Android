@@ -3,8 +3,6 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -20,7 +18,6 @@ import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +29,6 @@ import javax.inject.Inject;
 
 class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
-    private final Resources resources;
-    private final ImageOperations imageOperations;
     private final WaveformOperations waveformOperations;
     private final TrackPageListener listener;
     private final WaveformViewController.Factory waveformControllerFactory;
@@ -42,14 +37,11 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     private final TrackMenuController.Factory trackMenuControllerFactory;
 
     @Inject
-    public TrackPagePresenter(Resources resources, ImageOperations imageOperations,
-                              WaveformOperations waveformOperations, TrackPageListener listener,
+    public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackMenuController.Factory trackMenuControllerFactory) {
-        this.resources = resources;
-        this.imageOperations = imageOperations;
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.waveformControllerFactory = waveformControllerFactory;
@@ -89,7 +81,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
-                        + resources.getResourceName(view.getId()));
+                        + view.getContext().getResources().getResourceName(view.getId()));
         }
     }
 
@@ -112,8 +104,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.user.setText(track.getUserName());
         holder.user.setTag(track.getUserUrn());
 
-        imageOperations.displayInVisualPlayer(track.getUrn(), ApiImageSize.getFullImageSize(resources),
-                holder.artworkController.getImageView(), holder.artworkController.getImageListener());
+        holder.artworkController.loadArtwork(track.getUrn());
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());
@@ -136,7 +127,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.likeToggle.setEnabled(true);
 
         holder.waveformController.reset();
-        holder.artworkController.getImageView().setImageDrawable(null);
+        holder.artworkController.clear();
 
         holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
         holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);

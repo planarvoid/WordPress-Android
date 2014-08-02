@@ -4,12 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.TestPropertySets;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -40,7 +38,6 @@ public class TrackPagePresenterTest {
     private static final int DURATION = 123456;
 
     @Mock private Resources resources;
-    @Mock private ImageOperations imageOperations;
     @Mock private WaveformOperations waveformOperations;
     @Mock private TrackPageListener listener;
     @Mock private ViewGroup container;
@@ -61,7 +58,7 @@ public class TrackPagePresenterTest {
     @Before
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
-        presenter = new TrackPagePresenter(resources, imageOperations, waveformOperations, listener, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
                 artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -355,7 +352,7 @@ public class TrackPagePresenterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
-        presenter.onClick(mock(View.class));
+        presenter.onClick(new View(Robolectric.application));
     }
 
     private TrackPageHolder getHolder(View trackView) {
