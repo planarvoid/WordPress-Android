@@ -27,6 +27,10 @@ public class PlayQueueEvent {
         return kind == QUEUE_UPDATE;
     }
 
+    public boolean isNewQueue() {
+        return kind == NEW_QUEUE;
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof PlayQueueEvent

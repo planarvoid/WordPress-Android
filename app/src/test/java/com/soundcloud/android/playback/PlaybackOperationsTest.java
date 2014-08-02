@@ -80,14 +80,6 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playTrackFiresPlayerExpandedEvent() {
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
-    }
-
-    @Test
      public void playTrackSetsPlayQueueOnPlayQueueManagerFromInitialTrack() {
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
@@ -153,17 +145,6 @@ public class PlaybackOperationsTest {
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
-    }
-
-    @Test
-    public void playPlaylistFromPositionFiresPlayTriggeredEvent() {
-        final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
-        when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
-                Observable.just(track.getUrn()), track.getUrn(), 0, Screen.YOUR_LIKES);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test
@@ -436,13 +417,6 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromIdsShuffledShouldOpenThePlayer() {
-        playbackOperations.playFromIdListShuffled(Lists.newArrayList(1L), Screen.YOUR_LIKES);
-
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toBe(PlayerUIEvent.EXPAND_PLAYER);
-    }
-
-    @Test
     public void playFromIdsShuffledOpensCurrentTrackThroughPlaybackService() {
         final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
         playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
@@ -463,15 +437,6 @@ public class PlaybackOperationsTest {
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
-    }
-
-    @Test
-    public void playFromAdapterFiresPlayTriggeredEvent() throws Exception {
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test
@@ -607,15 +572,6 @@ public class PlaybackOperationsTest {
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
         expect(startedActivity).toBeNull();
-    }
-
-    @Test
-    public void playTracksShouldFirePlayerExpandedEvent() {
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){

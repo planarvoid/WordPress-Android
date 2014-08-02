@@ -7,6 +7,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -44,6 +45,20 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
         }
     };
 
+    private Func1<PlayQueueEvent, Boolean> isNewQueueEvent = new Func1<PlayQueueEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayQueueEvent playQueueEvent) {
+            return playQueueEvent.isNewQueue();
+        }
+    };
+
+    private Func1<PlayQueueEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<PlayQueueEvent, PlayerUIEvent>() {
+        @Override
+        public PlayerUIEvent call(PlayQueueEvent playQueueEvent) {
+            return PlayerUIEvent.forExpandPlayer();
+        }
+    };
+
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
         this.adapter = adapter;
@@ -66,6 +81,8 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
+        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE).filter(isNewQueueEvent).map(forPlayerExpandEvent)
+                .subscribe(eventBus.queue(EventQueue.PLAYER_UI)));
     }
 
     void onDestroyView() {

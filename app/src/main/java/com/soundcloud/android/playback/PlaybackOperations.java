@@ -163,7 +163,6 @@ public class PlaybackOperations {
             }).toList().observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackListLoadedSubscriber(context, position, playSessionSource, initialTrack, null));
         } else {
-            showPlayer();
             return Subscriptions.empty();
         }
     }
@@ -227,7 +226,6 @@ public class PlaybackOperations {
         List<Long> shuffled = Lists.newArrayList(ids);
         Collections.shuffle(shuffled);
         startPlaySession(shuffled, 0, new PlaySessionSource(screen));
-        showPlayer();
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
@@ -250,7 +248,6 @@ public class PlaybackOperations {
                     .subscribe(trackListLoadedSubscriber(
                             activityContext, startPosition, playSessionSource, initialTrack.getUrn(), initialTrack));
         } else {
-            showPlayer(initialTrack);
             return Subscriptions.empty();
         }
     }
@@ -259,7 +256,6 @@ public class PlaybackOperations {
                                                              final PlaySessionSource playSessionSource,
                                                              final TrackUrn initialTrackUrn,
                                                              @Nullable final PublicApiTrack initialTrack) {
-        showPlayer(initialTrack);
         return new DefaultSubscriber<List<Long>>() {
             @Override
             public void onNext(List<Long> idList) {
@@ -278,22 +274,10 @@ public class PlaybackOperations {
 
     private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, PublicApiTrack initialTrack,
                                 PlaySessionSource playSessionSource, boolean loadRelated) {
-        showPlayer(initialTrack);
-
         if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
             startPlaySession(idList, adjustedPosition, playSessionSource, loadRelated);
         }
-    }
-
-    private void showPlayer() {
-        showPlayer(null);
-    }
-
-    @Deprecated
-    private void showPlayer(@Nullable PublicApiTrack initialTrack) {
-        modelManager.cache(initialTrack);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
     }
 
     private boolean shouldChangePlayQueue(TrackUrn trackUrn, PlaySessionSource playSessionSource) {
