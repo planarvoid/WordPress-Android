@@ -172,6 +172,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
             new Handler().postDelayed(new Runnable() {
                 public void run() {
                     final Dialog toDismiss = getDialog();
+                    Toast.makeText(AddToPlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
                     if (toDismiss != null) toDismiss.dismiss();
                 }
             }, CLOSE_DELAY_MILLIS);

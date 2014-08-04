@@ -71,6 +71,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
                     createPlaylist(playlistTitle, properties.isDevBuildRunningOnDalvik() && privacy.isChecked());
+                    Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
                     getDialog().dismiss();
                 }
             }
