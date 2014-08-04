@@ -6,7 +6,6 @@ import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
-import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;

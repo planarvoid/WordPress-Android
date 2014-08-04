@@ -12,6 +12,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"}) // We know
 public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 

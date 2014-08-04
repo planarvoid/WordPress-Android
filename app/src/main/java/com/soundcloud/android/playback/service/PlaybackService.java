@@ -387,10 +387,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return currentTrack == null ? TrackUrn.NOT_SET : currentTrack.getUrn();
     }
 
-    private boolean currentTrackIsStreamable() {
-        return currentTrack != null && currentTrack.isStreamable();
-    }
-
     /* package */ void openCurrent(PublicApiTrack track) {
         openCurrent(track, false);
     }
