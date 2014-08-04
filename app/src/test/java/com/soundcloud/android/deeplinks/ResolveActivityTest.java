@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -51,7 +52,7 @@ public class ResolveActivityTest {
         activity.onSuccess(track);
 
         Intent expected = new Intent(Actions.STREAM);
-        expected.putExtra("EXPAND_PLAYER", true);
+        expected.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
         expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
 }

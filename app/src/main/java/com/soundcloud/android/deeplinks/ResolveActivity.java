@@ -13,11 +13,11 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
@@ -132,7 +132,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     private void startStreamScreenWithAnExpandedPlayer() {
         Intent intent = new Intent(Actions.STREAM);
-        intent.putExtra(MainActivity.EXPAND_PLAYER, true);
+        intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
         startActivity(intent);
     }
 

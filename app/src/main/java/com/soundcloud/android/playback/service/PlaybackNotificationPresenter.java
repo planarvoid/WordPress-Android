@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.functions.Action1;
@@ -66,7 +67,7 @@ public class PlaybackNotificationPresenter {
     private PendingIntent createPendingIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                .putExtra(MainActivity.EXPAND_PLAYER, true);
+                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 }

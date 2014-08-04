@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.external.PlaybackAction;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -64,7 +65,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
     private Intent createLaunchIntent(Context context, TrackUrn trackUrn) {
         return new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                .putExtra(MainActivity.EXPAND_PLAYER, !trackUrn.equals(TrackUrn.NOT_SET));
+                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, !trackUrn.equals(TrackUrn.NOT_SET));
     }
 
     private void linkPlayerControls(Context context) {

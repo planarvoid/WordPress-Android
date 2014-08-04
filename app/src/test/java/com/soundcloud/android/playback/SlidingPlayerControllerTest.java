@@ -25,6 +25,7 @@ import org.mockito.Mock;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -176,10 +177,8 @@ public class SlidingPlayerControllerTest {
     @Test
     public void hidesActionBarIfExpandingStateStored() {
         attachController();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("player_expanded", true);
 
-        controller.onCreate(bundle);
+        controller.onCreate(createBundleWithExpandingCommand());
 
         verify(actionBarController).setVisible(false);
     }
@@ -240,13 +239,32 @@ public class SlidingPlayerControllerTest {
     @Test
     public void sendsExpandingEventWhenRestoringExpandedState() {
         attachController();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("player_expanded", true);
 
-        controller.onCreate (bundle);
+        controller.onCreate (createBundleWithExpandingCommand());
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDING);
+    }
+
+    @Test
+    public void shouldExpandPlayerOnResumeIfIntentHasExtraCommand() throws Exception {
+        attachController();
+
+        Intent intent = createIntentWithExpandingCommand();
+        controller.onNewIntent(intent);
+        controller.onResume();
+
+        verify(slidingPanel).expandPanel();
+    }
+
+    @Test
+    public void shouldResetExpandExtra() throws Exception {
+        attachController();
+
+        Intent intent = createIntentWithExpandingCommand();
+        controller.onNewIntent(intent);
+
+        expect(intent.getBooleanExtra("player_expanded", false)).toBeFalse();
     }
 
     @Test
@@ -326,7 +344,6 @@ public class SlidingPlayerControllerTest {
         verify(slidingPanel).collapsePanel();
     }
 
-
     private void attachController() {
         controller.attach(activity, actionBarController);
     }
@@ -345,4 +362,15 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
     }
 
+    private Intent createIntentWithExpandingCommand() {
+        Intent intent = new Intent();
+        intent.putExtra("player_expanded", true);
+        return intent;
+    }
+
+    private Bundle createBundleWithExpandingCommand() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("player_expanded", true);
+        return bundle;
+    }
 }

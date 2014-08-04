@@ -13,7 +13,6 @@ import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
@@ -36,7 +35,6 @@ import android.view.Menu;
 import javax.inject.Inject;
 
 public class MainActivity extends ScActivity implements NavigationCallbacks {
-    public static final String EXPAND_PLAYER = "EXPAND_PLAYER";
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
 
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
@@ -126,10 +124,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
             lastTitle = getSupportActionBar().getTitle();
-        }
-
-        if (intent.getBooleanExtra(EXPAND_PLAYER, false)) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
         }
     }
 
@@ -270,7 +264,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
          * - Display content
          * - Expand player
          * */
-        expandPlayerIfNeeded();
+        playerController.expandIfNeeded(getIntent());
     }
 
     private void displayProfile() {
@@ -311,13 +305,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (fragment == null) {
             fragment = SoundStreamFragment.create(onboardingSucceeded);
             attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
-        }
-    }
-
-    private void expandPlayerIfNeeded() {
-        if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && !playerController.isExpanded()) {
-            playerController.expand();
-            getIntent().putExtra(EXPAND_PLAYER, false);
         }
     }
 

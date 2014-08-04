@@ -210,9 +210,7 @@ public class TrackPagerAdapterTest {
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
-        InOrder inOrder = Mockito.inOrder(trackPagePresenter);
-        inOrder.verify(trackPagePresenter).setCollapsed(currentTrackView);
-        inOrder.verify(trackPagePresenter).setExpanded(eq(currentTrackView), anyBoolean());
+        verify(trackPagePresenter).setExpanded(eq(currentTrackView), anyBoolean());
     }
 
     @Test

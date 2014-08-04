@@ -16,6 +16,7 @@ import rx.subscriptions.Subscriptions;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -25,7 +26,7 @@ import javax.inject.Inject;
 @SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
 public class SlidingPlayerController extends DefaultLifeCycleComponent implements PanelSlideListener {
 
-    private static final String EXTRA_PLAYER_EXPANDED = "player_expanded";
+    public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final float EXPAND_THRESHOLD = 0.5f;
     private static final int EMPTY_SYSTEM_UI_FLAGS = 0;
 
@@ -75,14 +76,38 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     }
 
     @Override
-    public void onResume() {
-        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
-        refreshVisibility();
+    public void onCreate(Bundle bundle) {
+        if (bundle == null) {
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+        } else {
+            boolean isExpanded = bundle.getBoolean(EXTRA_EXPAND_PLAYER, false);
+            actionBarController.setVisible(!isExpanded);
+            dimSystemBars(isExpanded);
+            if (isExpanded){
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+            } else {
+                // FIXME : We should not have to fire both of these, however the player only responds to Collapsing currently
+                // this can be fixed in the Smooth Transition story
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+            }
+
+        }
     }
 
     @Override
-    public void onPause() {
-        subscription.unsubscribe();
+    public void onNewIntent(Intent intent) {
+        if (intent.getBooleanExtra(EXTRA_EXPAND_PLAYER, false)) {
+            // TODO : refactor maybe : we want to expand on resume
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+            intent.putExtra(EXTRA_EXPAND_PLAYER, false);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
+        refreshVisibility();
     }
 
     private void refreshVisibility() {
@@ -96,27 +121,18 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle) {
-        bundle.putBoolean(EXTRA_PLAYER_EXPANDED, slidingPanel.isPanelExpanded());
+    public void onPause() {
+        subscription.unsubscribe();
     }
 
     @Override
-    public void onCreate(Bundle bundle) {
-        if (bundle == null) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
-        } else {
-            boolean isExpanded = bundle.getBoolean(EXTRA_PLAYER_EXPANDED, false);
-            actionBarController.setVisible(!isExpanded);
-            dimSystemBars(isExpanded);
-            if (isExpanded){
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
-            } else {
-                // FIXME : We should not have to fire both of these, however the player only responds to Collapsing currently
-                // this can be fixed in the Smooth Transition story
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-            }
+    public void onSaveInstanceState(Bundle bundle) {
+        bundle.putBoolean(EXTRA_EXPAND_PLAYER, slidingPanel.isPanelExpanded());
+    }
 
+    public void expandIfNeeded(Intent intent) {
+        if (intent.getBooleanExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false) && !isExpanded()) {
+            expand();
         }
     }
 
