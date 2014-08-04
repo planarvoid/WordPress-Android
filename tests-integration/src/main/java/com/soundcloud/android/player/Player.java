@@ -143,12 +143,17 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testNextButtonDoesNothingOnLastTrack() {
-        playSingleTrack();
+        playLastLikedTrack();
         String originalTrack = playerElement.getTrackTitle();
         playerElement.clickArtwork();
 
         playerElement.tapNext();
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
+    }
+
+    private void playLastLikedTrack() {
+        playerElement = menuScreen.open().clickLikes().clickLastTrack();
+        waiter.waitForExpandedPlayer();
     }
 
     public void testUserButtonGoesToUserProfile() {
