@@ -38,11 +38,14 @@ public class ResolveActivityTest {
     }
 
     @Test
-    public void shouldPlayPlaylist() throws CreateModelException {
+    public void shouldGotoPlaylistDetails() throws CreateModelException {
         PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         activity.onSuccess(playlist);
 
-        verify(playbackOperations).playPlaylist(playlist, Screen.DEEPLINK);
+        Intent expected = new Intent(Actions.PLAYLIST);
+        Screen.DEEPLINK.addToIntent(expected);
+        expected.putExtra(PublicApiPlaylist.EXTRA_URN, playlist.getUrn());
+        expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
 
     @Test

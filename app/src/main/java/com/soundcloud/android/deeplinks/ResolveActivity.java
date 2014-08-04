@@ -8,8 +8,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.LauncherActivity;
@@ -116,8 +114,8 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     }
 
     private void startActivityForResource(PublicApiResource resource) {
-        if (resource instanceof Playable) {
-            startPlayback(resource);
+        if (resource instanceof PublicApiTrack) {
+            playbackOperations.startPlaybackWithRecommendations(((PublicApiTrack) resource), Screen.DEEPLINK);
             startStreamScreenWithAnExpandedPlayer();
         } else {
             Intent intent = resource.getViewIntent();
@@ -134,16 +132,6 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         Intent intent = new Intent(Actions.STREAM);
         intent.putExtra(MainActivity.EXPAND_PLAYER, true);
         startActivity(intent);
-    }
-
-    private void startPlayback(PublicApiResource resource) {
-        if (resource instanceof PublicApiPlaylist) {
-            playbackOperations.playPlaylist(((PublicApiPlaylist) resource), Screen.DEEPLINK);
-        } else if (resource instanceof PublicApiTrack) {
-            playbackOperations.startPlaybackWithRecommendations(((PublicApiTrack) resource), Screen.DEEPLINK);
-        } else {
-            throw new IllegalArgumentException("Unknown resource type : " + resource.getClass().getCanonicalName());
-        }
     }
 }
 
