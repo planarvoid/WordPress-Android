@@ -258,13 +258,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             lastSelection = position;
         }
-        /*
-         * Expand the player here to respect the following flow
-         * - Display collapsed player
-         * - Display content
-         * - Expand player
-         * */
-        playerController.expandIfNeeded(getIntent());
     }
 
     private void displayProfile() {

@@ -39,6 +39,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private Subscription subscription = Subscriptions.empty();
 
     private boolean isExpanding;
+    private boolean expandOnResume;
 
     @Inject
     public SlidingPlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
@@ -53,6 +54,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
+        expandOnResume = false;
     }
 
     public boolean handleBackPressed() {
@@ -69,55 +71,65 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     public void expand() {
         slidingPanel.expandPanel();
+        notifyExpandingState();
     }
 
     public void collapse() {
         slidingPanel.collapsePanel();
+        notifyCollapsingState();
     }
 
     @Override
     public void onCreate(Bundle bundle) {
-        if (bundle == null) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+        if (shouldExpand(getCurrentBundle(bundle))) {
+            expandOnResume = true;
         } else {
-            boolean isExpanded = bundle.getBoolean(EXTRA_EXPAND_PLAYER, false);
-            actionBarController.setVisible(!isExpanded);
-            dimSystemBars(isExpanded);
-            if (isExpanded){
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
-            } else {
-                // FIXME : We should not have to fire both of these, however the player only responds to Collapsing currently
-                // this can be fixed in the Smooth Transition story
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-            }
-
+            notifyCollapsedState();
         }
+    }
+
+    private Bundle getCurrentBundle(Bundle bundle) {
+        if (bundle != null) {
+            return bundle;
+        }
+
+        final Intent intent = activity.getIntent();
+        if (intent != null) {
+            return intent.getExtras();
+        }
+        return null;
+    }
+
+    private void toggleActionBarAndSysBarVisibility() {
+        boolean panelExpanded = slidingPanel.isPanelExpanded();
+        actionBarController.setVisible(!panelExpanded);
+        dimSystemBars(panelExpanded);
+    }
+
+    private boolean shouldExpand(Bundle bundle) {
+        return bundle != null && bundle.getBoolean(EXTRA_EXPAND_PLAYER, false);
     }
 
     @Override
     public void onNewIntent(Intent intent) {
-        if (intent.getBooleanExtra(EXTRA_EXPAND_PLAYER, false)) {
-            // TODO : refactor maybe : we want to expand on resume
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-            intent.putExtra(EXTRA_EXPAND_PLAYER, false);
-        }
+        expandOnResume = shouldExpand(intent.getExtras());
+        intent.putExtra(EXTRA_EXPAND_PLAYER, false);
     }
 
     @Override
     public void onResume() {
+        expandPlayerIfNeeded();
+        showPlayerIfPlayQueueIsNotEmpty();
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
-        refreshVisibility();
     }
 
-    private void refreshVisibility() {
+    private void showPlayerIfPlayQueueIsNotEmpty() {
         if (playQueueManager.isQueueEmpty()) {
             slidingPanel.hidePanel();
         } else if (slidingPanel.isPanelHidden()) {
             slidingPanel.showPanel();
-        } else if (slidingPanel.isPanelExpanded()) {
-            dimSystemBars(true);
         }
+        toggleActionBarAndSysBarVisibility();
     }
 
     @Override
@@ -130,9 +142,15 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, slidingPanel.isPanelExpanded());
     }
 
-    public void expandIfNeeded(Intent intent) {
-        if (intent.getBooleanExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false) && !isExpanded()) {
+    @Override
+    public void onDestroy() {
+        this.activity = null;
+    }
+
+    private void expandPlayerIfNeeded() {
+        if (expandOnResume) {
             expand();
+            expandOnResume = false;
         }
     }
 
@@ -141,12 +159,12 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
             dimSystemBars(true);
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+            notifyExpandingState();
             isExpanding = true;
         } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
             dimSystemBars(false);
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+            notifyCollapsedState();
             isExpanding = false;
         }
     }
@@ -174,6 +192,18 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     @Override
     public void onPanelCollapsed(View panel) {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+    }
+
+    private void notifyExpandingState() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+    }
+
+    private void notifyCollapsingState() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+    }
+
+    private void notifyCollapsedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
