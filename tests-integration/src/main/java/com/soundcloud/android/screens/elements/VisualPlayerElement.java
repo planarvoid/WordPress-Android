@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
@@ -154,8 +155,9 @@ public class VisualPlayerElement extends Element {
         artwork().click();
     }
 
-    public void clickCreator() {
+    public ProfileScreen clickCreator() {
         creator().click();
+        return new ProfileScreen(solo);
     }
 
     public boolean isFooterInPlayingState() {

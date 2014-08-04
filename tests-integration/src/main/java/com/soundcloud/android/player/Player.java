@@ -1,5 +1,6 @@
 package com.soundcloud.android.player;
 
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
 import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -153,9 +154,9 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testUserButtonGoesToUserProfile() {
         playSingleTrack();
         String originalUser = playerElement.getTrackCreator();
-        playerElement.clickCreator();
+        ProfileScreen profileScreen = playerElement.clickCreator();
 
-        ProfileScreen profileScreen = new ProfileScreen(solo);
+        assertThat(playerElement, is(Collapsed()));
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
