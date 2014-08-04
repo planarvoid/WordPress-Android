@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playback.ui.SlidingPlayerController.EXTRA_EXPAND_PLAYER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -191,14 +192,14 @@ public class SlidingPlayerControllerTest {
 
         controller.onSaveInstanceState(bundle);
 
-        expect(bundle.getBoolean("player_expanded")).toBeTrue();
+        expect(bundle.getBoolean(EXTRA_EXPAND_PLAYER)).toBeTrue();
     }
 
     @Test
     public void sendsCollapsingEventWhenRestoringCollapsedState() {
         attachController();
         Bundle bundle = new Bundle();
-        bundle.putBoolean("player_expanded", false);
+        bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
 
         controller.onCreate(bundle);
 
@@ -220,7 +221,7 @@ public class SlidingPlayerControllerTest {
     public void sendsCollapsedEventWhenRestoringCollapsedState() {
         attachController();
         Bundle bundle = new Bundle();
-        bundle.putBoolean("player_expanded", false);
+        bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
 
         controller.onCreate(bundle);
 
@@ -264,7 +265,7 @@ public class SlidingPlayerControllerTest {
         Intent intent = createIntentWithExpandingCommand();
         controller.onNewIntent(intent);
 
-        expect(intent.getBooleanExtra("player_expanded", false)).toBeFalse();
+        expect(intent.getBooleanExtra(EXTRA_EXPAND_PLAYER, false)).toBeFalse();
     }
 
     @Test
@@ -364,13 +365,13 @@ public class SlidingPlayerControllerTest {
 
     private Intent createIntentWithExpandingCommand() {
         Intent intent = new Intent();
-        intent.putExtra("player_expanded", true);
+        intent.putExtra(EXTRA_EXPAND_PLAYER, true);
         return intent;
     }
 
     private Bundle createBundleWithExpandingCommand() {
         Bundle bundle = new Bundle();
-        bundle.putBoolean("player_expanded", true);
+        bundle.putBoolean(EXTRA_EXPAND_PLAYER, true);
         return bundle;
     }
 }
