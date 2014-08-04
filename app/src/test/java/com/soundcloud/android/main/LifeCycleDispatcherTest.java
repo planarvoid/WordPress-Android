@@ -11,6 +11,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -45,6 +46,17 @@ public class LifeCycleDispatcherTest {
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onCreate(bundle);
         inOrder.verify(lifeCycleComponent2).onCreate(bundle);
+    }
+
+    @Test
+    public void shouldNotifyOnNewIntent() {
+        final Intent intent = new Intent();
+
+        notifier.onNewIntent(intent);
+
+        InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
+        inOrder.verify(lifeCycleComponent1).onNewIntent(intent);
+        inOrder.verify(lifeCycleComponent2).onNewIntent(intent);
     }
 
     @Test

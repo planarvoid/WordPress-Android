@@ -3,6 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.actionbar.ActionBarController;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 @SuppressWarnings({"PMD.EmptyMethodInAbstractClassShouldBeAbstract", "PMD.CallSuperFirst"})
@@ -50,6 +51,11 @@ public abstract class DefaultLifeCycleComponent implements LifeCycleComponent {
 
     @Override
     public void onDestroy() {
+        /* no-op */
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
         /* no-op */
     }
 }

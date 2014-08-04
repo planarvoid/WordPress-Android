@@ -107,6 +107,12 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         lifeCycleNotifier.onCreate(savedInstanceState);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        lifeCycleNotifier.onNewIntent(intent);
+    }
+
     // Override this in activities with custom content views
     protected void setContentView() {
         setContentView(R.layout.container_layout);

@@ -3,6 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.actionbar.ActionBarController;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import java.util.ArrayList;
@@ -37,6 +38,12 @@ public class LifeCycleDispatcher {
         public void onCreate(Bundle bundle) {
             for (LifeCycleComponent component : components) {
                 component.onCreate(bundle);
+            }
+        }
+
+        public void onNewIntent(Intent intent) {
+            for (LifeCycleComponent component : components) {
+                component.onNewIntent(intent);
             }
         }
 
