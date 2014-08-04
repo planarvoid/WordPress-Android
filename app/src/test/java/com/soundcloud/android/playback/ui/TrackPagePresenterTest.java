@@ -7,6 +7,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -22,6 +23,7 @@ import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -256,6 +258,24 @@ public class TrackPagePresenterTest {
         presenter.updateAssociations(trackView, changeSet);
 
         verify(trackMenuController).setIsUserRepost(true);
+    }
+
+    @Test
+    public void showToastWhenUserRepostedATrack() {
+        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_REPOSTED.bind(true));
+
+        presenter.updateAssociations(trackView, changeSet);
+
+        expect(ShadowToast.getTextOfLatestToast()).toBe(Robolectric.application.getString(R.string.reposted_to_followers));
+    }
+
+    @Test
+    public void showToastWhenUserUnpostedATrack() {
+        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_REPOSTED.bind(false));
+
+        presenter.updateAssociations(trackView, changeSet);
+
+        expect(ShadowToast.getTextOfLatestToast()).toBe(Robolectric.application.getString(R.string.unposted_to_followers));
     }
 
     @Test

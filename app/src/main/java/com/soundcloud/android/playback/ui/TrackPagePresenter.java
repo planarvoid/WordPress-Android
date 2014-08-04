@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -155,7 +156,17 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
         }
         if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
-            holder.menuController.setIsUserRepost(changeSet.get(PlayableProperty.IS_REPOSTED));
+            boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
+            holder.menuController.setIsUserRepost(isReposted);
+            showRepostToast(trackPage.getContext(), isReposted);
+        }
+    }
+
+    private void showRepostToast(final Context context, final boolean isReposted) {
+        if (isReposted) {
+            Toast.makeText(context, R.string.reposted_to_followers, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
         }
     }
 
