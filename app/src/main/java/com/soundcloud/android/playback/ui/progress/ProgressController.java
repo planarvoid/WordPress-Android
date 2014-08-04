@@ -29,11 +29,7 @@ public class ProgressController {
     public void setHelper(ProgressHelper helper) {
         this.helper = helper;
 
-        if (hasRunningAnimation()) {
-            // we were animating. correct the bounds
-            restartAnimation();
-        } else if (animationRequested) {
-            // we should be animating, but couldn't before
+        if (hasRunningAnimation() || animationRequested) {
             startProgressAnimationInternal();
         }
     }
@@ -61,19 +57,17 @@ public class ProgressController {
         if (hasRunningAnimation()) {
             final float expectedValue = helper.getValueFromProportion(progressProportion);
             if (progressAnimator.getDifferenceFromCurrentValue(expectedValue) > PROGRESS_SYNC_TOLERANCE) {
-                restartAnimation();
+                startProgressAnimationInternal();
             }
         } else {
             helper.setValueFromProportion(progressView, progressProportion);
         }
     }
 
-    private void restartAnimation() {
-        progressAnimator.cancel();
-        startProgressAnimationInternal();
-    }
-
     private void startProgressAnimationInternal() {
+        if (progressAnimator != null){
+            progressAnimator.cancel();
+        }
         progressAnimator = helper.createAnimator(progressView, playbackProgress.getProgressProportion());
         if (progressAnimator != null) {
             progressAnimator.setCurrentPlayTime(playbackProgress.getTimeSinceCreation());
