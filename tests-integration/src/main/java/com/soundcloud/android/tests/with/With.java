@@ -18,6 +18,10 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithClass(classToSearch);
     }
 
+    public static With classStringName(String classStringName) {
+        return new WithClassStringName(classStringName);
+    }
+
     static class WithId extends With {
         private final int viewId;
 
@@ -54,6 +58,19 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public boolean apply(ViewElement viewElement) {
             return classToSearch.isAssignableFrom(viewElement.getViewClass());
+        }
+    }
+
+    private static class WithClassStringName extends With {
+        private String classString;
+
+        public WithClassStringName(String classStringName) {
+            classString = classStringName;
+        }
+
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            return viewElement.getViewClass().getName().toString().equals(classString);
         }
     }
 }
