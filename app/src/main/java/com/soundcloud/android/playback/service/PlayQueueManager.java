@@ -89,7 +89,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
         if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
-            setPosition(position);
+            this.currentPosition = position;
+            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn()));
         } else {
             currentPosition = position;
             setNewPlayQueueInternal(playQueue, playSessionSource);

@@ -45,16 +45,16 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
         }
     };
 
-    private Func1<PlayQueueEvent, Boolean> isNewQueueEvent = new Func1<PlayQueueEvent, Boolean>() {
+    private Func1<CurrentPlayQueueTrackEvent, Boolean> isNewQueueEvent = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
         @Override
-        public Boolean call(PlayQueueEvent playQueueEvent) {
-            return playQueueEvent.isNewQueue();
+        public Boolean call(CurrentPlayQueueTrackEvent playQueueEvent) {
+            return playQueueEvent.wasNewQueue();
         }
     };
 
-    private Func1<PlayQueueEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<PlayQueueEvent, PlayerUIEvent>() {
+    private Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent>() {
         @Override
-        public PlayerUIEvent call(PlayQueueEvent playQueueEvent) {
+        public PlayerUIEvent call(CurrentPlayQueueTrackEvent ignored) {
             return PlayerUIEvent.forExpandPlayer();
         }
     };
@@ -81,7 +81,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
-        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE).filter(isNewQueueEvent).map(forPlayerExpandEvent)
+        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).filter(isNewQueueEvent).map(forPlayerExpandEvent)
                 .subscribe(eventBus.queue(EventQueue.PLAYER_UI)));
     }
 

@@ -110,7 +110,7 @@ public class PlayQueueManagerTest {
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toContainExactly(PlayQueueEvent.fromNewQueue());
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toContainExactly(CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(1L)),
-                CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.forTrack(3L)));
+                CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(3L)));
     }
 
     @Test
