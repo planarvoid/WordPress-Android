@@ -72,6 +72,14 @@ public class UrnTest {
         expect(urn.isSound()).toBeTrue();
     }
 
+    // This is still up for debate, but right now we represent NOT_SET Urns with numeric part -1
+    @Test
+    public void shouldAllowUrnsWithNegativeOneIds() {
+        final Urn urn = Urn.parse("soundcloud:tracks:-1");
+        expect(urn).toBeInstanceOf(TrackUrn.class);
+        expect(urn.numericId).toEqual(-1L);
+    }
+
     @Test
     public void isTrackShouldBeTrueForTrackAndSound() {
         expect(Urn.parse("soundcloud:sounds:123").isTrack()).toBeTrue();

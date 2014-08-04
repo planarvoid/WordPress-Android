@@ -281,7 +281,7 @@ final class DatabaseSchema {
             // track+user data
             ", SoundView.*" +
             " FROM " + Table.COLLECTION_ITEMS.name + " " +
-            " LEFT JOIN SoundView ON(" +
+            " INNER JOIN SoundView ON(" +
             "   " + Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.ITEM_ID + " = " + "SoundView." + TableColumns.SoundView._ID +
             " AND " + Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
             " ORDER BY " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";

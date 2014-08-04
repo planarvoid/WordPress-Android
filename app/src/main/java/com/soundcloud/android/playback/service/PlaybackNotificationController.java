@@ -101,6 +101,9 @@ public class PlaybackNotificationController {
             @Override
             public void onNext(PlayerLifeCycleEvent args) {
                 lastPlayerLifecycleEvent = args;
+                if (!args.isServiceAlive()) {
+                    notificationManager.cancel(PLAYBACKSERVICE_STATUS_ID);
+                }
             }
         });
     }

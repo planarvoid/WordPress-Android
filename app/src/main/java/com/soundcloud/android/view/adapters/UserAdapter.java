@@ -8,13 +8,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.api.legacy.model.UserHolder;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.api.legacy.model.UserHolder;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -89,7 +89,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
         for (int i = 0; i < users.size(); i++) {
             final Urn key = users.get(i).get(UserProperty.URN);
             if (updatedItems.containsKey(key)) {
-                users.set(i, ((PublicApiUser) updatedItems.get(key)).toPropertySet());
+                users.set(i, putFollowStatus(((PublicApiUser) updatedItems.get(key)).toPropertySet()));
             }
         }
         notifyDataSetChanged();
@@ -98,10 +98,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
     private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
         List<PropertySet> newItems = new ArrayList<PropertySet>(items.size());
         for (PublicApiResource item : items) {
-            final PublicApiUser user = getUser(item);
-            newItems.add(user
-                    .toPropertySet()
-                    .put(UserProperty.IS_FOLLOWED_BY_ME, followingOperations.isFollowing(user.getUrn())));
+            newItems.add(putFollowStatus(getUser(item).toPropertySet()));
         }
         return newItems;
     }
@@ -119,8 +116,12 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
     @Override
     public void onFollowChanged() {
         for (PropertySet propertySet : users){
-            propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, followingOperations.isFollowing(propertySet.get(UserProperty.URN)));
+            putFollowStatus(propertySet);
         }
         notifyDataSetChanged();
+    }
+
+    private PropertySet putFollowStatus(PropertySet source) {
+        return source.put(UserProperty.IS_FOLLOWED_BY_ME, followingOperations.isFollowing(source.get(UserProperty.URN)));
     }
 }

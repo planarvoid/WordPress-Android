@@ -8,13 +8,16 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.query.WhereBuilder;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,6 +166,20 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(oldestTrack.getUrn());
+    }
+
+    @Test
+    public void shouldExcludeOrphanedRecordsInActivityView() throws CreateModelException {
+        final ApiTrack deletedTrack = testHelper().insertTrack();
+        testHelper().insertTrackPost(deletedTrack, TIMESTAMP);
+        testHelper().insertTrackPost(testHelper().insertTrack(), TIMESTAMP);
+        propeller().delete(Table.SOUNDS.name, new WhereBuilder().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
+
+        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).not.toEqual(deletedTrack.getUrn());
     }
 
     @Test

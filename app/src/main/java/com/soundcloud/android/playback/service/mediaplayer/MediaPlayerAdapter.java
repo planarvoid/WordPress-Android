@@ -529,7 +529,9 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 mediaPlayer.stop();
             }
 
-            releaseUnresettableMediaPlayer();
+            mediaPlayerManager.stopAndRelease(mediaPlayer);
+            this.mediaPlayer = null;
+
             setInternalState(PlaybackState.STOPPED, progress, duration);
         }
         uriSubscription.unsubscribe();
@@ -553,10 +555,14 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             new Thread() {
                 @Override
                 public void run() {
-                    mediaPlayer.reset();
-                    mediaPlayer.release();
+                    stopAndRelease(mediaPlayer);
                 }
             }.start();
+        }
+
+        void stopAndRelease(MediaPlayer mediaPlayer) {
+            mediaPlayer.reset();
+            mediaPlayer.release();
         }
     }
 

@@ -79,6 +79,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueTrackChangedHandlerCallsPlayCurrentOnPlaybackOperationsIfThePlayerIsInPlaySession() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK.getUrn()));
 
         verify(playbackOperations).playCurrent();

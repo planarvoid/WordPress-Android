@@ -461,14 +461,36 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromAdapterWithUriShouldAdjustPlayPositionWithUpdatedContent()  {
-        final List<Playable> playables = Lists.newArrayList(new PublicApiTrack(1L), playlist, new PublicApiTrack(2L));
-        final ArrayList<Long> value = Lists.newArrayList(5L, 1L, 2L);
+    public void playFromAdapterWithUriShouldNotAdjustPlayPositionWhenPlayablesDoNotIncludePlaylists()  {
+        final List<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(5L), new PublicApiTrack(1L), new PublicApiTrack(2L));
+        final ArrayList<Long> trackIds = Lists.newArrayList(5L, 1L, 2L);
 
-        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(value));
+        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
         checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 5L, 1L, 2L);
+    }
+
+    @Test
+    public void playFromAdapterWithUriShouldAdjustPlayPositionWhenPlayablesIncludePlaylists()  {
+        final List<Playable> playables = Lists.newArrayList(new PublicApiTrack(1L), playlist, new PublicApiTrack(2L));
+        final ArrayList<Long> trackIds = Lists.newArrayList(1L, 2L);
+
+        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
+
+        checkSetNewPlayQueueArgs(1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
+    }
+
+    @Test
+    public void playFromAdapterShouldFallBackToPositionZeroIfInitialItemNotFound()  {
+        final ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
+        final ArrayList<Long> ids = Lists.newArrayList(6L, 7L);
+
+        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(ids));
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri, ORIGIN_SCREEN);
+
+        checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), 6L, 7L);
     }
 
     @Test
