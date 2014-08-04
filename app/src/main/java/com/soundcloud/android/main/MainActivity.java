@@ -317,6 +317,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void expandPlayerIfNeeded() {
         if (getIntent().getBooleanExtra(EXPAND_PLAYER, false) && !playerController.isExpanded()) {
             playerController.expand();
+            getIntent().putExtra(EXPAND_PLAYER, false);
         }
     }
 
