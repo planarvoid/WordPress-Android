@@ -25,7 +25,6 @@ import javax.inject.Inject;
 public class TrackStorage {
 
     private static final String SHARING_PRIVATE = "private";
-    private static final String POLICY_ALLOWED = "allowed";
 
     private final DatabaseScheduler scheduler;
 
@@ -89,7 +88,7 @@ public class TrackStorage {
             final String sharing = cursorReader.getString(SoundView.SHARING);
             propertySet.put(PlayableProperty.IS_PRIVATE, sharing.equalsIgnoreCase(SHARING_PRIVATE));
             final String policy = cursorReader.getString(SoundView.POLICY);
-            propertySet.put(TrackProperty.POLICY, policy == null ? POLICY_ALLOWED : policy);
+            propertySet.put(TrackProperty.POLICY, policy);
 
             return propertySet;
         }

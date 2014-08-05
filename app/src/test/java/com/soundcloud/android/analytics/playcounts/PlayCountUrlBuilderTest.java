@@ -40,4 +40,17 @@ public class PlayCountUrlBuilderTest {
 
         assertThat(url, urlEqualTo("http://api.soundcloud.com/tracks/123/plays?client_id=ABCDEF&policy=allow"));
     }
+
+    @Test
+    public void shouldNotAppendPolicyIfNull() {
+        final PropertySet policyMissing = PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                PlayableProperty.DURATION.bind(1000)
+        );
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(policyMissing, Urn.forUser(1), null, 0, 1000L);
+
+        final String url = urlBuilder.buildUrl(event);
+
+        assertThat(url, urlEqualTo("http://api.soundcloud.com/tracks/123/plays?client_id=ABCDEF"));
+    }
 }
