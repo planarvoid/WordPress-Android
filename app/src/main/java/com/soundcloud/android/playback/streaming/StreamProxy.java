@@ -446,10 +446,6 @@ public class StreamProxy {
 
         if (request.getMethod().equalsIgnoreCase("HEAD")) return;
 
-        if (!loader.logPlaycount(streamUrl)) {
-            Log.w(LOG_TAG, "could not queue playcount log");
-        }
-
         queueNextUrl(nextUrl, 0);
 
         // touch file to prevent it from being collected by the cleaner

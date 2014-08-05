@@ -39,7 +39,6 @@ public class StreamLoader {
     private final StreamStorage mStorage;
 
     private final ItemQueue mItemsNeedingHeadRequests = new ItemQueue();
-    private final ItemQueue mItemsNeedingPlaycountRequests = new ItemQueue();
 
     private StreamItem mCurrentItem;
 
@@ -53,7 +52,6 @@ public class StreamLoader {
     private final StreamHandler mHeadHandler;
     private final Handler mResultHandler;
     private final Handler mConnHandler;
-    private final Handler mPlaycountHandler;
 
     private HandlerThread mDataThread;
     private HandlerThread mResultThread;
@@ -93,8 +91,6 @@ public class StreamLoader {
         mHeadThread.start();
 
         mHeadHandler = new StreamHandler(context, mHeadThread.getLooper(), mResultHandler, MAX_RETRIES);
-
-        mPlaycountHandler = new PlaycountHandler(this, resultLooper);
     }
 
     public StreamFuture getDataForUrl(URL url, Range range) throws IOException {
@@ -143,9 +139,6 @@ public class StreamLoader {
                     if (mLowPriorityQueue.contains(item)) mLowPriorityQueue.remove(item);
 
                     if (!item.equals(mCurrentItem)) {
-                        // always request playcounts when switching tracks
-                        mItemsNeedingPlaycountRequests.add(item);
-
                         mCurrentItem = item;
                         // remove low prio messages from handler
                         mDataHandler.removeMessages(LOW_PRIO);
@@ -160,10 +153,6 @@ public class StreamLoader {
             pc.setByteBuffer(mStorage.fetchStoredDataForUrl(url, range));
         }
         return pc;
-    }
-
-    public boolean logPlaycount(String url) {
-        return mPlaycountHandler.sendMessage(mPlaycountHandler.obtainMessage(LOW_PRIO, url));
     }
 
     public void stop() {
@@ -205,11 +194,6 @@ public class StreamLoader {
 
     private void processLowPriorityQueue() {
         processItemQueue(mLowPriorityQueue, LOW_PRIO);
-
-        for (StreamItem item : mItemsNeedingPlaycountRequests) {
-            mItemsNeedingPlaycountRequests.remove(item);
-            startPlaycountTask(item, LOW_PRIO);
-        }
     }
 
     private void processItemQueue(ItemQueue q, int prio) {
@@ -280,12 +264,6 @@ public class StreamLoader {
             }
             return task;
         }
-    }
-
-    private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
-        PlaycountTask task = new PlaycountTask(item, mOldCloudAPI, true);
-        mHeadHandler.sendMessage(mHeadHandler.obtainMessage(prio, task));
-        return task;
     }
 
     private HeadTask startHeadTask(StreamItem item, int prio) {
@@ -409,25 +387,6 @@ public class StreamLoader {
                         loader.processQueues();
                         break;
                     }
-            }
-        }
-    }
-
-    private static final class PlaycountHandler extends Handler {
-        private WeakReference<StreamLoader> mLoaderRef;
-
-        PlaycountHandler(StreamLoader loader, Looper looper) {
-            super(looper);
-            this.mLoaderRef = new WeakReference<StreamLoader>(loader);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            final StreamLoader loader = mLoaderRef.get();
-            if (loader != null) {
-                String url = msg.obj.toString();
-                loader.mItemsNeedingPlaycountRequests.add(loader.mStorage.getMetadata(url));
-                loader.processQueues();
             }
         }
     }

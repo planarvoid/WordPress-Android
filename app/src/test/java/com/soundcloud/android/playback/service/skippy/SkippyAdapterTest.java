@@ -89,7 +89,6 @@ public class SkippyAdapterTest {
 
         final TrackUrn trackUrn = Urn.forTrack(1L);
         when(track.getUrn()).thenReturn(trackUrn);
-        when(playbackOperations.logPlay(trackUrn)).thenReturn(Observable.just(trackUrn));
         when(playbackOperations.buildHLSUrlForTrack(track)).thenReturn(STREAM_URL);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(listener.requestAudioFocus()).thenReturn(true);
@@ -127,14 +126,6 @@ public class SkippyAdapterTest {
     public void playRemovesStateChangeMessagesFromHandler() {
         skippyAdapter.play(track);
         verify(stateChangeHandler).removeMessages(0);
-    }
-
-    @Test
-    public void playLogsPlayThroughPlaybackOperations() {
-        TestObservables.MockObservable<TrackUrn> mockObservable = TestObservables.emptyObservable();
-        when(playbackOperations.logPlay(track.getUrn())).thenReturn(mockObservable);
-        skippyAdapter.play(track);
-        expect(mockObservable.subscribedTo()).toBeTrue();
     }
 
     @Test(expected = IllegalStateException.class)

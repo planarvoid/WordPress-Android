@@ -110,20 +110,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             skippy.seek(fromPos);
             skippy.resume();
         } else {
-            logPlayCount(track);
             numberOfAttemptedPlaysBeforeDecoderError++;
             currentStreamUrl = trackUrl;
             skippy.play(currentStreamUrl, fromPos);
         }
-    }
-
-    protected void logPlayCount(PublicApiTrack track) {
-        playbackOperations.logPlay(track.getUrn()).subscribe(new DefaultSubscriber<TrackUrn>() {
-            @Override
-            public void onNext(TrackUrn trackUrn) {
-                Log.d(TAG, "Play count logged successfully for track " + trackUrn);
-            }
-        });
     }
 
     @Override
