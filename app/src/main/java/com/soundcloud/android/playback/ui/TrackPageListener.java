@@ -64,10 +64,6 @@ class TrackPageListener {
         fireAndForget(associationOperations.toggleLike(playQueueManager.getCurrentTrackUrn(), isLike));
     }
 
-    public void onToggleRepost(boolean isRepost) {
-        fireAndForget(associationOperations.toggleRepost(playQueueManager.getCurrentTrackUrn(), isRepost));
-    }
-
     public void onGotoUser(final Context activityContext, final UserUrn userUrn){
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PLAYER_IS_COLLAPASED)
