@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -11,10 +9,10 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 
@@ -23,19 +21,17 @@ import javax.inject.Inject;
 public class PlaybackSessionAnalyticsController {
 
     private final EventBus eventBus;
-    private final LegacyTrackOperations trackOperations;
+    private final TrackOperations trackOperations;
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private PlaybackSessionEvent lastPlayEventData;
 
     private TrackSourceInfo currentTrackSourceInfo;
     private Playa.StateTransition lastStateTransition = Playa.StateTransition.DEFAULT;
-
-    @Deprecated // TODO : remove this when we are 100% skippy and have reliable durations out of player
-    private ReplaySubject<Integer> durationObservable;
+    private ReplaySubject<PropertySet> trackObservable;
 
     @Inject
-    public PlaybackSessionAnalyticsController(EventBus eventBus, LegacyTrackOperations trackOperations,
+    public PlaybackSessionAnalyticsController(EventBus eventBus, TrackOperations trackOperations,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.eventBus = eventBus;
         this.trackOperations = trackOperations;
@@ -53,13 +49,14 @@ public class PlaybackSessionAnalyticsController {
         public void onNext(CurrentPlayQueueTrackEvent event) {
             if (lastStateTransition.playSessionIsActive()) {
                 if (event.wasNewQueue()){
-                    publishStopEvent(lastStateTransition.getTrackUrn(), currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
+                    publishStopEvent(lastStateTransition.getProgress(),
+                            currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
                 } else {
-                    publishStopEvent(lastStateTransition.getTrackUrn(), currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_SKIP);
+                    publishStopEvent(lastStateTransition.getProgress(),
+                            currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_SKIP);
                 }
             }
-            createDurationObservable(playQueueManager.getCurrentTrackId());
-
+            createTrackObservable(playQueueManager.getCurrentTrackUrn());
         }
     }
 
@@ -69,22 +66,18 @@ public class PlaybackSessionAnalyticsController {
             if (stateTransition.getTrackUrn() != null){
                 lastStateTransition = stateTransition;
                 if (stateTransition.isPlayerPlaying()){
-                    publishPlayEvent(stateTransition.getTrackUrn());
+                    publishPlayEvent(stateTransition.getProgress());
                 } else {
-                    publishStopEvent(stateTransition.getTrackUrn(), currentTrackSourceInfo, getStopEvent(stateTransition));
+                    publishStopEvent(stateTransition.getProgress(),
+                            currentTrackSourceInfo, getStopEvent(stateTransition));
                 }
             }
         }
     }
 
-    private void createDurationObservable(long trackId) {
-        durationObservable = ReplaySubject.create(1);
-        trackOperations.loadTrack(trackId, AndroidSchedulers.mainThread()).map(new Func1<PublicApiTrack, Integer>() {
-            @Override
-            public Integer call(PublicApiTrack track) {
-                return track.duration;
-            }
-        }).subscribe(durationObservable);
+    private void createTrackObservable(TrackUrn trackUrn) {
+        trackObservable = ReplaySubject.createWithSize(1);
+        trackOperations.track(trackUrn).subscribe(trackObservable);
     }
 
     private int getStopEvent(Playa.StateTransition stateTransition) {
@@ -104,14 +97,14 @@ public class PlaybackSessionAnalyticsController {
     }
 
 
-    private void publishPlayEvent(final TrackUrn trackUrn) {
+    private void publishPlayEvent(final PlaybackProgress progress) {
         currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         if (playQueueManager.getCurrentTrackSourceInfo() != null) {
-            final Observable<PlaybackSessionEvent> eventObservable = durationObservable.map(new Func1<Integer, PlaybackSessionEvent>() {
+            final Observable<PlaybackSessionEvent> eventObservable = trackObservable.map(new Func1<PropertySet, PlaybackSessionEvent>() {
                 @Override
-                public PlaybackSessionEvent call(Integer duration) {
-                    return lastPlayEventData = PlaybackSessionEvent.forPlay(trackUrn, accountOperations.getLoggedInUserUrn(),
-                            currentTrackSourceInfo, duration);
+                public PlaybackSessionEvent call(PropertySet track) {
+                    return lastPlayEventData = PlaybackSessionEvent.forPlay(track, accountOperations.getLoggedInUserUrn(),
+                            currentTrackSourceInfo, progress.position);
 
                 }
             });
@@ -119,27 +112,16 @@ public class PlaybackSessionAnalyticsController {
         }
     }
 
-    private void publishStopEvent(final TrackUrn trackUrn, final TrackSourceInfo trackSourceInfo, final int stopReason) {
+    private void publishStopEvent(final PlaybackProgress progress, final TrackSourceInfo trackSourceInfo, final int stopReason) {
         if (lastPlayEventData != null && trackSourceInfo != null) {
-
-            final long duration = lastPlayEventData.getDuration();
-            if (duration <= 0){
-                logInvalidDuration(duration, trackSourceInfo);
-            }
-
-            durationObservable.map(new Func1<Integer, PlaybackSessionEvent>() {
+            trackObservable.map(new Func1<PropertySet, PlaybackSessionEvent>() {
                 @Override
-                public PlaybackSessionEvent call(Integer duration) {
-                    return PlaybackSessionEvent.forStop(trackUrn, accountOperations.getLoggedInUserUrn(),
-                            trackSourceInfo, lastPlayEventData, duration, stopReason);
+                public PlaybackSessionEvent call(PropertySet track) {
+                    return PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(),
+                            trackSourceInfo, lastPlayEventData, stopReason, progress.position);
                 }
             }).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
             lastPlayEventData = null;
         }
-    }
-
-    private void logInvalidDuration(long duration, TrackSourceInfo trackSourceInfo) {
-        SoundCloudApplication.handleSilentException("[" + duration + "] - " + trackSourceInfo.toString(),
-                new IllegalStateException("EventLogger Invalid Duration"));
     }
 }

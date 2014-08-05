@@ -1,12 +1,9 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -14,59 +11,57 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackSessionAnalyticsControllerTest {
 
     private static final TrackUrn TRACK_URN = Urn.forTrack(1L);
     private static final UserUrn USER_URN = Urn.forUser(2L);
+    private static final long PROGRESS = 123L;
+    private static final int DURATION = 456;
 
     private PlaybackSessionAnalyticsController playbackSessionAnalyticsController;
     private TestEventBus eventBus = new TestEventBus();
-    private PublicApiTrack track;
 
-    @Mock
-    private LegacyTrackOperations trackOperations;
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private TrackSourceInfo trackSourceInfo;
+    @Mock private TrackOperations trackOperations;
+    @Mock private AccountOperations accountOperations;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private TrackSourceInfo trackSourceInfo;
 
     @Before
     public void setUp() throws Exception {
-        playbackSessionAnalyticsController = new PlaybackSessionAnalyticsController(eventBus, trackOperations, accountOperations, playQueueManager);
-        playbackSessionAnalyticsController.subscribe();
+        PropertySet track = PropertySets.expectedTrackDataForAnalytics(TRACK_URN, "allow", DURATION);
+        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(track));
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
 
-        track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
-        track.duration = 1000;
-        when(trackOperations.loadTrack(anyLong(), same(AndroidSchedulers.mainThread()))).thenReturn(Observable.just(track));
+        playbackSessionAnalyticsController = new PlaybackSessionAnalyticsController(
+                eventBus, trackOperations, accountOperations, playQueueManager);
+        playbackSessionAnalyticsController.subscribe();
     }
 
     @Test
     public void playQueueChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
     @Test
     public void positionChangedEventDoesNotPublishEventWithNoActiveSession() throws Exception {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
@@ -85,6 +80,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
         expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
+        expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
         expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
     }
 
@@ -134,7 +130,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventForNewQueuePublishesStopEventForNewQueue() throws Exception {
         publishPlayingEvent();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
     }
@@ -143,7 +139,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventFromPositionChangedPublishesStopEventForSkip() throws Exception {
         publishPlayingEvent();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
@@ -152,21 +148,22 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void playQueueEventFromPositionChangePublishesStopEventForSkipWithPreviousDuration() throws Exception {
         publishPlayingEvent();
 
-        track.duration = 2000;
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
     protected void publishPlayingEvent() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
-        final Playa.StateTransition startEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN);
+        final Playa.StateTransition startEvent = new Playa.StateTransition(
+                Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS, DURATION);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, startEvent);
     }
 
     protected void publishStopEvent(Playa.PlayaState newState, Playa.Reason reason) {
-        final Playa.StateTransition stopEvent = new Playa.StateTransition(newState, reason, TRACK_URN);
+        final Playa.StateTransition stopEvent = new Playa.StateTransition(
+                newState, reason, TRACK_URN, PROGRESS, DURATION);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stopEvent);
     }
 
@@ -176,8 +173,9 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeTrue();
         expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
+        expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
         expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
         expect(playbackSessionEvent.getStopReason()).toEqual(stopReason);
-        expect(playbackSessionEvent.getDuration()).toEqual(1000L);
+        expect(playbackSessionEvent.getDuration()).toEqual(DURATION);
     }
 }

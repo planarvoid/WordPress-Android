@@ -1,6 +1,8 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -13,22 +15,27 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.utils.Log;
 
+import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
-    private final EventLogger eventLogger;
-    private final EventLoggerParamsBuilder eventLoggerParamsBuilder;
+    public static final String BACKEND_NAME = "eventlogger";
+    private static final String TAG = "EventLogger";
 
-    public EventLoggerAnalyticsProvider(EventLogger eventLogger, EventLoggerParamsBuilder eventLoggerParamsBuilder) {
-        this.eventLogger = eventLogger;
-        this.eventLoggerParamsBuilder = eventLoggerParamsBuilder;
+    private final EventTracker eventTracker;
+    private final EventLoggerUrlBuilder urlBuilder;
+
+    @Inject
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerUrlBuilder urlBuilder) {
+        this.eventTracker = eventTracker;
+        this.urlBuilder = urlBuilder;
     }
 
     @Override
     public void flush() {
-        eventLogger.flush();
+        eventTracker.flush(BACKEND_NAME);
     }
 
     @Override
@@ -41,9 +48,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
-        if (event.getKind() == PlayerLifeCycleEvent.STATE_DESTROYED) {
-            eventLogger.stop();
-        }
     }
 
     @Override
@@ -64,28 +68,27 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
         try {
-            final String params = eventLoggerParamsBuilder.buildFromPlaybackEvent(eventData);
-            final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK.getPath(), params);
-            eventLogger.trackEvent(event);
+            final String url = urlBuilder.buildFromPlaybackEvent(eventData);
+            final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
+            eventTracker.trackEvent(event);
 
         } catch (UnsupportedEncodingException e) {
-            Log.e(EventLogger.TAG, "Unable to process playback event ", e);
+            Log.e(TAG, "Unable to process playback event ", e);
         }
-
     }
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        final String params = eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(eventData);
-        final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimeStamp(), EventLoggerEventTypes.PLAYBACK_PERFORMANCE.getPath(), params);
-        eventLogger.trackEvent(event);
+        final String url = urlBuilder.buildFromPlaybackPerformanceEvent(eventData);
+        final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
+        eventTracker.trackEvent(event);
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        final String params = eventLoggerParamsBuilder.buildFromPlaybackErrorEvent(eventData);
-        final EventLoggerEvent event = new EventLoggerEvent(eventData.getTimestamp(), EventLoggerEventTypes.PLAYBACK_ERROR.getPath(), params);
-        eventLogger.trackEvent(event);
+        final String url = urlBuilder.buildFromPlaybackErrorEvent(eventData);
+        final TrackingEvent event = new TrackingEvent(eventData.getTimestamp(), BACKEND_NAME, url);
+        eventTracker.trackEvent(event);
     }
 
     @Override

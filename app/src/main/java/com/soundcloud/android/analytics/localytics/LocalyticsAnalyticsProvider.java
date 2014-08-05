@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.localytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -20,6 +21,7 @@ import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,9 +42,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private final PlaybackStateProvider playbackStateWrapper;
     private final LocalyticsSearchEventHandler searchEventHandler;
 
-    public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, long currentUserId) {
+    @Inject
+    public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, AccountOperations accountOperations) {
         this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
-                new PlaybackStateProvider(), currentUserId);
+                new PlaybackStateProvider(), accountOperations.getLoggedInUserId());
     }
 
     @VisibleForTesting

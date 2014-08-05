@@ -1,9 +1,12 @@
 package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 public final class PlaybackSessionEvent {
@@ -19,46 +22,51 @@ public final class PlaybackSessionEvent {
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
 
-    private final int kind;
+    private final int kind, duration;
     private final TrackUrn trackUrn;
     private final UserUrn userUrn;
+    private final String trackPolicy;
 
     private final TrackSourceInfo trackSourceInfo;
-    private final long timeStamp, duration;
+    private final long timeStamp, progress;
     private long listenTime;
     private int stopReason;
 
-    public static PlaybackSessionEvent forPlay(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
-                                               long duration, long timestamp) {
-        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackUrn, userUrn, trackSourceInfo, duration, timestamp);
+    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+                                               TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp);
     }
 
-    public static PlaybackSessionEvent forPlay(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
-                                               long duration) {
-        return forPlay(trackUrn, userUrn, trackSourceInfo, duration, System.currentTimeMillis());
+    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+                                               TrackSourceInfo trackSourceInfo, long progress) {
+        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis());
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
-                                               PlaybackSessionEvent lastPlayEvent, long duration, int stopReason, long timestamp) {
+    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+                                               TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
+                                               int stopReason, long progress, long timestamp) {
         final PlaybackSessionEvent playbackSessionEvent =
-                new PlaybackSessionEvent(EVENT_KIND_STOP, trackUrn, userUrn, trackSourceInfo, duration, timestamp);
+                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp);
         playbackSessionEvent.setListenTime(playbackSessionEvent.timeStamp - lastPlayEvent.getTimeStamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
-                                               PlaybackSessionEvent lastPlayEvent, long duration, int stopReason) {
-        return forStop(trackUrn, userUrn, trackSourceInfo, lastPlayEvent, duration, stopReason, System.currentTimeMillis());
+    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+                                               TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
+                                               int stopReason, long progress) {
+        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
     }
 
-    private PlaybackSessionEvent(int eventKind, @NotNull TrackUrn trackUrn, @NotNull UserUrn userUrn, TrackSourceInfo trackSourceInfo,
-                                 long duration, long timestamp) {
-        this.trackUrn = trackUrn;
+    private PlaybackSessionEvent(int eventKind, @NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+                                 TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
+        this.trackUrn = trackData.get(TrackProperty.URN);
+        this.trackPolicy = trackData.get(TrackProperty.POLICY);
+        this.duration = trackData.get(PlayableProperty.DURATION);
         this.kind = eventKind;
         this.userUrn = userUrn;
         this.trackSourceInfo = trackSourceInfo;
-        this.duration = duration;
+        this.progress = progress;
         this.timeStamp = timestamp;
     }
 
@@ -68,6 +76,10 @@ public final class PlaybackSessionEvent {
 
     public TrackUrn getTrackUrn() {
         return trackUrn;
+    }
+
+    public String getTrackPolicy() {
+        return trackPolicy;
     }
 
     public boolean isPlayEvent() {
@@ -86,12 +98,16 @@ public final class PlaybackSessionEvent {
         return trackSourceInfo;
     }
 
-    public boolean isPlayingOwnPlaylist(){
+    public boolean isPlayingOwnPlaylist() {
         return trackSourceInfo.getPlaylistOwnerId() == userUrn.numericId;
     }
 
-    public long getDuration() {
+    public int getDuration() {
         return duration;
+    }
+
+    public long getProgress() {
+        return progress;
     }
 
     private void setListenTime(long listenTime) {

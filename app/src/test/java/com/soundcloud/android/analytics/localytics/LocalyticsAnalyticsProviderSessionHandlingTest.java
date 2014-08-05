@@ -10,11 +10,14 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +29,13 @@ import android.app.Activity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LocalyticsAnalyticsProviderSessionHandlingTest {
+
+    private static final PropertySet TRACK_DATA = PropertySet.from(
+            TrackProperty.URN.bind(Urn.forTrack(1L)),
+            TrackProperty.POLICY.bind("allow"),
+            PlayableProperty.DURATION.bind(0)
+    );
+
     private LocalyticsAnalyticsProvider localyticsProvider;
     @Mock
     private LocalyticsSession localyticsSession;
@@ -116,6 +126,6 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     private PlaybackSessionEvent buildStopEvent() throws CreateModelException {
         PlaybackSessionEvent startEvent = TestHelper.getModelFactory().createModel(PlaybackSessionEvent.class);
-        return PlaybackSessionEvent.forStop(Urn.forTrack(1L), Urn.forUser(2L), new TrackSourceInfo("", false), startEvent, 0, 0);
+        return PlaybackSessionEvent.forStop(TRACK_DATA, Urn.forUser(2L), new TrackSourceInfo("", false), startEvent, 0, 0, 0);
     }
 }
