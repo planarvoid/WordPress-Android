@@ -15,16 +15,13 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
@@ -65,17 +62,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private int serviceStartId = -1;
     private boolean serviceInUse;
 
-    private static final int IDLE_DELAY = 180*1000;  // interval after which we stop the service when idle
+    private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
 
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
+
     private enum FocusLossState {
         NONE, TRANSIENT, LOST
     }
 
     private final IBinder binder = new LocalBinder<PlaybackService>() {
-        @Override public PlaybackService getService() {
+        @Override
+        public PlaybackService getService() {
             return PlaybackService.this;
         }
     };
@@ -97,7 +96,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Subscription loadTrackSubscription = Subscriptions.empty();
 
     @Deprecated
-    public interface BroadcastExtras{
+    public interface BroadcastExtras {
         String ID = "id";
         String USER_ID = "user_id";
         String PROGRESS_POSITION = "progress_position";
@@ -106,13 +105,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // public service actions
     public interface Actions {
-        String TOGGLEPLAYBACK_ACTION    = "com.soundcloud.android.playback.toggleplayback";
-        String PLAY_CURRENT             = "com.soundcloud.android.playback.playcurrent";
-        String PLAY_ACTION              = "com.soundcloud.android.playback.playcurrent";
-        String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
-        String SEEK                     = "com.soundcloud.android.playback.seek";
-        String RESET_ALL                = "com.soundcloud.android.playback.reset"; // used on logout
-        String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
+        String TOGGLEPLAYBACK_ACTION = "com.soundcloud.android.playback.toggleplayback";
+        String PLAY_CURRENT = "com.soundcloud.android.playback.playcurrent";
+        String PLAY_ACTION = "com.soundcloud.android.playback.playcurrent";
+        String PAUSE_ACTION = "com.soundcloud.android.playback.pause";
+        String SEEK = "com.soundcloud.android.playback.seek";
+        String RESET_ALL = "com.soundcloud.android.playback.reset"; // used on logout
+        String STOP_ACTION = "com.soundcloud.android.playback.stop"; // from the notification
     }
 
     public interface ActionsExtras {
@@ -121,9 +120,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // broadcast notifications
     public interface Broadcasts {
-        String PLAYSTATE_CHANGED        = "com.soundcloud.android.playstatechanged";
+        String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
         @Deprecated
-        String META_CHANGED             = "com.soundcloud.android.metachanged";
+        String META_CHANGED = "com.soundcloud.android.metachanged";
     }
 
     public PlaybackService() {
@@ -216,10 +215,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             // an in-progress call ends, so don't stop the service now.
             return true;
 
-        // If there is a playlist but playback is paused, then wait a while
-        // before stopping the service, so that pause/resume isn't slow.
-        // Also delay stopping the service if we're transitioning between
-        // tracks.
+            // If there is a playlist but playback is paused, then wait a while
+            // before stopping the service, so that pause/resume isn't slow.
+            // Also delay stopping the service if we're transitioning between
+            // tracks.
         } else if (!playQueueManager.isQueueEmpty()) {
             delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
@@ -239,7 +238,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         if (intent != null) {
             boolean hasAccount = accountOperations.isUserLoggedIn();
-            if (hasAccount && playQueueManager.shouldReloadQueue()){
+            if (hasAccount && playQueueManager.shouldReloadQueue()) {
                 playQueueManager.loadPlayQueue();
             }
             playbackReceiver.onReceive(this, intent);
@@ -269,7 +268,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
         if (streamPlayer.isPlaying()) {
 
-            if (isTransient){
+            if (isTransient) {
                 focusLossState = FocusLossState.TRANSIENT;
                 fadeHandler.sendEmptyMessage(canDuck ? FadeHandler.DUCK : FadeHandler.FADE_OUT);
             } else {
@@ -335,10 +334,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         Log.d(TAG, "notifyChange(" + what + ", " + stateTransition.getNewState() + ")");
         Intent intent = new Intent(what)
-            .putExtra(BroadcastExtras.ID, getTrackId())
-            .putExtra(BroadcastExtras.USER_ID, getTrackUserId())
-            .putExtra(BroadcastExtras.PROGRESS_POSITION, getProgress())
-            .putExtra(BroadcastExtras.QUEUE_POSITION, playQueueManager.getCurrentPosition());
+                .putExtra(BroadcastExtras.ID, getTrackId())
+                .putExtra(BroadcastExtras.USER_ID, getTrackUserId())
+                .putExtra(BroadcastExtras.PROGRESS_POSITION, getProgress())
+                .putExtra(BroadcastExtras.QUEUE_POSITION, playQueueManager.getCurrentPosition());
 
         stateTransition.addToIntent(intent);
         sendBroadcast(intent);
@@ -347,7 +346,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (stateTransition.playSessionIsActive()) {
                 playbackNotificationController.playingNotification().doOnNext(startForegroundAction).subscribe();
             } else {
-                if (!playbackNotificationController.notifyIdleState()){
+                if (!playbackNotificationController.notifyIdleState()) {
                     stopForeground(true);
                 }
             }
@@ -432,15 +431,17 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             fireAndForget(legacyTrackOperations.markTrackAsPlayed(track));
             startTrack(track, playUninterrupted);
         }
-    };
+    }
+
+    ;
 
     private void startTrack(PublicApiTrack track, boolean playUninterrupted) {
         // set current track again as it may have been fetched from the api. This is not necessary with modelmanager, but will be going forward
         currentTrack = track;
-        Log.d(TAG, "startTrack("+track.title+")");
+        Log.d(TAG, "startTrack(" + track.title + ")");
 
         final PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
-        if (!playUninterrupted && resumeInfo != null && resumeInfo.shouldResumeTrack(track.getUrn())){
+        if (!playUninterrupted && resumeInfo != null && resumeInfo.shouldResumeTrack(track.getUrn())) {
             streamPlayer.play(currentTrack, resumeInfo.getTime());
         } else {
             playCurrentTrackFromStart(playUninterrupted);
@@ -448,7 +449,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void playCurrentTrackFromStart(boolean playUninterrupted) {
-        if (playUninterrupted){
+        if (playUninterrupted) {
             streamPlayer.playUninterrupted(currentTrack);
         } else {
             streamPlayer.play(currentTrack);
@@ -511,8 +512,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public long seek(float percent, boolean performSeek) {
         final int duration = getDuration();
         final boolean invalidSeek = duration <= 0 || percent < 0 || percent > 1;
-        if (invalidSeek){
-            final String message = "Invalid Seek [percent=" + percent + ", duration=" + duration +"]";
+        if (invalidSeek) {
+            final String message = "Invalid Seek [percent=" + percent + ", duration=" + duration + "]";
             SoundCloudApplication.handleSilentException(message, new IllegalStateException(message));
             return 0;
         } else {
@@ -576,12 +577,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
 
-
     private static final class FadeHandler extends Handler {
 
-        private static final int FADE_IN          = 1;
-        private static final int FADE_OUT         = 2;
-        private static final int DUCK             = 3;
+        private static final int FADE_IN = 1;
+        private static final int FADE_OUT = 2;
+        private static final int DUCK = 3;
 
         private WeakReference<PlaybackService> serviceRef;
         private float currentVolume;

@@ -4,16 +4,9 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
-import com.soundcloud.android.api.APIResponse;
 import com.soundcloud.android.api.HttpProperties;
-import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.api.Token;
-import rx.Observable;
-import rx.functions.Func1;
 
 import android.net.Uri;
 
