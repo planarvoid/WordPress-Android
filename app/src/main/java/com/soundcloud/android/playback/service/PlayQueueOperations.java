@@ -10,6 +10,7 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import org.jetbrains.annotations.Nullable;
@@ -23,9 +24,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class PlayQueueOperations {
 
@@ -47,10 +47,10 @@ public class PlayQueueOperations {
         }
     };
 
-    private final Action1<Map<TrackUrn,String>> storePolicies = new Action1<Map<TrackUrn, String>>() {
+    private final Action1<Collection<PolicyInfo>> storePolicies = new Action1<Collection<PolicyInfo>>() {
         @Override
-        public void call(Map<TrackUrn, String> policiesMap) {
-            fireAndForget(trackWriteStorage.storePoliciesAsync(policiesMap));
+        public void call(Collection<PolicyInfo> policies) {
+            fireAndForget(trackWriteStorage.storePoliciesAsync(policies));
         }
     };
 
@@ -129,13 +129,13 @@ public class PlayQueueOperations {
         return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
     }
 
-    public Observable<Map<TrackUrn,String>> fetchAndStorePolicies(List<TrackUrn> trackUrns){
-        final APIRequest<UrnToPolicyMap> request = SoundCloudAPIRequest.RequestBuilder.<UrnToPolicyMap>post(APIEndpoints.POLICIES.path())
+    public Observable<Collection<PolicyInfo>> fetchAndStorePolicies(List<TrackUrn> trackUrns){
+        final APIRequest<Collection<PolicyInfo>> request = SoundCloudAPIRequest.RequestBuilder.<Collection<PolicyInfo>>post(APIEndpoints.POLICIES.path())
                 .withContent(transformUrnsToStrings(trackUrns))
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(UrnToPolicyMap.class)).build();
+                .forResource(new TypeToken<Collection<PolicyInfo>>() {}).build();
 
-        final Observable<Map<TrackUrn, String>> mapObservable = rxHttpClient.fetchModels(request);
+        final Observable<Collection<PolicyInfo>> mapObservable = rxHttpClient.fetchModels(request);
         return mapObservable.doOnNext(storePolicies);
     }
 
@@ -147,6 +147,4 @@ public class PlayQueueOperations {
             }
         });
     }
-
-    private static class UrnToPolicyMap extends HashMap<TrackUrn, String> { }
 }

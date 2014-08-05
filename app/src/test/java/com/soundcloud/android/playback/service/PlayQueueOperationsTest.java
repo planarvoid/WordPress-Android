@@ -6,7 +6,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -23,12 +22,12 @@ import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -45,10 +44,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueOperationsTest {
@@ -210,15 +208,15 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void fetchAndStorePoliciesMakeGetRequestToRelatedTracksEndpoint() {
-        HashMap retMap = mock(HashMap.class);
+        Collection returnCollection = mock(Collection.class);
 
         final ApiRequestTo expectedRequest = isMobileApiRequestTo("POST", APIEndpoints.POLICIES.path());
         expectedRequest.withContent(Lists.newArrayList("soundcloud:sounds:123"));
 
-        when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(retMap));
-        when(trackWriteStorage.storePoliciesAsync(anyMap())).thenReturn(Observable.<TxnResult>empty());
-        final Map<TrackUrn, String> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
-        expect(first).toBe(retMap);
+        when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
+        when(trackWriteStorage.storePoliciesAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());
+        final Collection<PolicyInfo> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
+        expect(first).toBe(returnCollection);
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {
