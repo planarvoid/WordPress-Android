@@ -8,6 +8,7 @@ import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class PlaybackSessionEvent {
 
@@ -25,7 +26,7 @@ public final class PlaybackSessionEvent {
     private final int kind, duration;
     private final TrackUrn trackUrn;
     private final UserUrn userUrn;
-    private final String trackPolicy;
+    @Nullable private final String trackPolicy;
 
     private final TrackSourceInfo trackSourceInfo;
     private final long timeStamp, progress;
@@ -61,7 +62,7 @@ public final class PlaybackSessionEvent {
     private PlaybackSessionEvent(int eventKind, @NotNull PropertySet trackData, @NotNull UserUrn userUrn,
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this.trackUrn = trackData.get(TrackProperty.URN);
-        this.trackPolicy = trackData.get(TrackProperty.POLICY);
+        this.trackPolicy = trackData.getOrElseNull(TrackProperty.POLICY);
         this.duration = trackData.get(PlayableProperty.DURATION);
         this.kind = eventKind;
         this.userUrn = userUrn;
@@ -78,6 +79,7 @@ public final class PlaybackSessionEvent {
         return trackUrn;
     }
 
+    @Nullable
     public String getTrackPolicy() {
         return trackPolicy;
     }
