@@ -88,7 +88,9 @@ public class TrackStorage {
             final String sharing = cursorReader.getString(SoundView.SHARING);
             propertySet.put(PlayableProperty.IS_PRIVATE, sharing.equalsIgnoreCase(SHARING_PRIVATE));
             final String policy = cursorReader.getString(SoundView.POLICY);
-            propertySet.put(TrackProperty.POLICY, policy);
+            if (policy != null) {
+                propertySet.put(TrackProperty.POLICY, policy);
+            }
 
             return propertySet;
         }
