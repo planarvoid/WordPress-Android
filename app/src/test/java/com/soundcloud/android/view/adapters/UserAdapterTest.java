@@ -158,6 +158,30 @@ public class UserAdapterTest {
         expect(convertedUser.get(UserProperty.IS_FOLLOWED_BY_ME)).toEqual(true);
     }
 
+    @Test
+    public void addItemsFiltersOutUsersWithoutUsernames() throws CreateModelException {
+        PublicApiUser userWithoutUsername = createUser();
+        userWithoutUsername.setUsername("");
+        PublicApiUser user = createUser();
+
+        adapter.addItems(Arrays.<PublicApiResource>asList(user, userWithoutUsername));
+
+        expect(adapter.getCount()).toBe(1);
+    }
+
+    @Test
+    public void bindsUserItemsAfterFilteringUsersWithoutUsernames() throws CreateModelException {
+        PublicApiUser userWithoutUsername = createUser();
+        userWithoutUsername.setUsername("");
+        PublicApiUser user = createUser();
+        adapter.addItems(Arrays.<PublicApiResource>asList(userWithoutUsername, user));
+
+        adapter.bindRow(0, itemView);
+
+        verify(userPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
+        expect(propSetCaptor.getValue().get(0).get(UserProperty.URN)).toEqual(user.getUrn());
+    }
+
     private PublicApiUser copyUser(PublicApiUser user) throws CreateModelException {
         final PublicApiUser userNewInstance = createUser();
         userNewInstance.setUrn(user.getUrn().toString());
