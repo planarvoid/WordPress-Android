@@ -1,12 +1,15 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -19,6 +22,8 @@ import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.PolicyInfo;
+import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -40,6 +45,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -204,6 +210,19 @@ public class PlayQueueOperationsTest {
 
         final List<ApiTrack> resources = Arrays.asList(collection.getCollection().get(0));
         verify(trackWriteStorage).storeTracksAsync(resources);
+    }
+
+    @Test
+    public void fetchAndStorePoliciesMakeGetRequestToRelatedTracksEndpoint() {
+        Collection returnCollection = mock(Collection.class);
+
+        final ApiRequestTo expectedRequest = isMobileApiRequestTo("POST", APIEndpoints.POLICIES.path());
+        expectedRequest.withContent(Lists.newArrayList("soundcloud:sounds:123"));
+
+        when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
+        when(trackWriteStorage.storePoliciesAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());
+        final Collection<PolicyInfo> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
+        expect(first).toBe(returnCollection);
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {

@@ -27,6 +27,7 @@ public class ApiTrack extends ScModel {
     private String artworkUrl;
     private String permalinkUrl;
     private boolean monetizable;
+    private String policy;
     private Sharing sharing = Sharing.UNDEFINED;
     private TrackStats stats;
 
@@ -47,6 +48,7 @@ public class ApiTrack extends ScModel {
         this.createdAt = (Date) in.readSerializable();
         this.permalinkUrl = in.readString();
         this.monetizable = in.readByte() != 0;
+        this.policy = in.readString();
     }
 
     public ApiTrack(String urn) {
@@ -115,6 +117,14 @@ public class ApiTrack extends ScModel {
         return sharing;
     }
 
+    public boolean isMonetizable() {
+        return monetizable;
+    }
+
+    public String getPolicy() {
+        return policy;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -141,10 +151,6 @@ public class ApiTrack extends ScModel {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public boolean isMonetizable() {
-        return monetizable;
     }
 
     @JsonProperty("stream_url")
@@ -175,6 +181,11 @@ public class ApiTrack extends ScModel {
     @JsonProperty("monetizable")
     public void setMonetizable(boolean monetizable) {
         this.monetizable = monetizable;
+    }
+
+    @JsonProperty("policy")
+    public void setPolicy(String policy) {
+        this.policy = policy;
     }
 
     @JsonProperty("created_at")
@@ -209,6 +220,7 @@ public class ApiTrack extends ScModel {
         dest.writeSerializable(this.createdAt);
         dest.writeString(this.permalinkUrl);
         dest.writeByte(this.monetizable ? (byte) 1 : (byte) 0);
+        dest.writeString(this.policy);
     }
 
     public static Creator<ApiTrack> CREATOR = new Creator<ApiTrack>() {

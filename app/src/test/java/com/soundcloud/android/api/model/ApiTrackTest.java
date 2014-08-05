@@ -35,6 +35,7 @@ public class ApiTrackTest {
         Expect.expect(apiTrack.getStats().getPlaybackCount()).toEqual(4901);
         Expect.expect(apiTrack.getPermalinkUrl()).toEqual("http://soundcloud.com/asdffdsa");
         Expect.expect(apiTrack.isMonetizable()).toBeTrue();
+        Expect.expect(apiTrack.getPolicy()).toEqual("monetizable");
 
     }
 
@@ -63,6 +64,7 @@ public class ApiTrackTest {
         Expect.expect(track1.getCreatedAt()).toEqual(track2.getCreatedAt());
         Expect.expect(track1.getPermalinkUrl()).toEqual(track2.getPermalinkUrl());
         Expect.expect(track1.isMonetizable()).toEqual(track2.isMonetizable());
+        Expect.expect(track1.getPolicy()).toEqual(track2.getPolicy());
     }
 
 }

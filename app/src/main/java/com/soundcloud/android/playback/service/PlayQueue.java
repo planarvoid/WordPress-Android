@@ -165,6 +165,16 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return trackIds;
     }
 
+    List<TrackUrn> getTrackUrns() {
+        List<TrackUrn> trackUrns = Lists.transform(playQueueItems, new Function<PlayQueueItem, TrackUrn>() {
+            @Override
+            public TrackUrn apply(PlayQueueItem input) {
+                return input.getTrackUrn();
+            }
+        });
+        return trackUrns;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

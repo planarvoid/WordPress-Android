@@ -2,12 +2,15 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +24,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 public class PlayQueueOperations {
@@ -40,6 +44,13 @@ public class PlayQueueOperations {
         @Override
         public void call(RecommendedTracksCollection collection) {
             fireAndForget(trackWriteStorage.storeTracksAsync(collection.getCollection()));
+        }
+    };
+
+    private final Action1<Collection<PolicyInfo>> storePolicies = new Action1<Collection<PolicyInfo>>() {
+        @Override
+        public void call(Collection<PolicyInfo> policies) {
+            fireAndForget(trackWriteStorage.storePoliciesAsync(policies));
         }
     };
 
@@ -114,5 +125,24 @@ public class PlayQueueOperations {
                 .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
         return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
+    }
+
+    public Observable<Collection<PolicyInfo>> fetchAndStorePolicies(List<TrackUrn> trackUrns){
+        final APIRequest<Collection<PolicyInfo>> request = SoundCloudAPIRequest.RequestBuilder.<Collection<PolicyInfo>>post(APIEndpoints.POLICIES.path())
+                .withContent(transformUrnsToStrings(trackUrns))
+                .forPrivateAPI(1)
+                .forResource(new TypeToken<Collection<PolicyInfo>>() {}).build();
+
+        final Observable<Collection<PolicyInfo>> mapObservable = rxHttpClient.fetchModels(request);
+        return mapObservable.doOnNext(storePolicies);
+    }
+
+    private List<String> transformUrnsToStrings(List<TrackUrn> trackUrns) {
+        return Lists.transform(trackUrns, new Function<TrackUrn, String>() {
+            @Override
+            public String apply(TrackUrn input) {
+                return input.toString();
+            }
+        });
     }
 }

@@ -7,6 +7,8 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.PolicyInfo;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -20,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -94,6 +97,22 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldStoreListOfPolicies() throws Exception {
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
+        List<PolicyInfo> policies = new ArrayList<PolicyInfo>();
+        policies.add(new PolicyInfo(Urn.forTrack(1L), true, "allowed"));
+        policies.add(new PolicyInfo(Urn.forTrack(2L), false, "monetizable"));
+        policies.add(new PolicyInfo(Urn.forTrack(3L), true, "something"));
+
+
+        storage.storePoliciesAsync(policies).subscribe(observer);
+
+        expectPolicyInserted(TrackUrn.forTrack(1L), true, "allowed");
+        expectPolicyInserted(TrackUrn.forTrack(2L), false, "monetizable");
+        expectPolicyInserted(TrackUrn.forTrack(3L), true, "something");
+    }
+
+    @Test
     public void storingListOfApiMobileTracksEmitsTransactionResult() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<ApiTrack> tracks = Arrays.asList(
@@ -107,6 +126,23 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         TxnResult result = observer.getOnNextEvents().get(0);
         assertThat(result.success(), is(true));
         assertThat(result.getResults().size(), is(4));
+    }
+
+    @Test
+    public void storingListOfPoliciesEmitsTransactionResult() throws Exception {
+        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
+
+        List<PolicyInfo> policies = new ArrayList<PolicyInfo>();
+        policies.add(new PolicyInfo(Urn.forTrack(1L), true, "allowed"));
+        policies.add(new PolicyInfo(Urn.forTrack(2L), false, "monetizable"));
+
+        storage.storePoliciesAsync(policies).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents().size(), is(1));
+        assertThat(observer.getOnCompletedEvents().size(), is(1));
+        TxnResult result = observer.getOnNextEvents().get(0);
+        assertThat(result.success(), is(true));
+        assertThat(result.getResults().size(), is(2));
     }
 
     private void expectTrackInserted(ApiTrack track) {
@@ -135,6 +171,14 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         assertThat(select(from(Table.SOUND_VIEW.name)
                         .whereEq(TableColumns.SoundView.USER_ID, user.getId())
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
+        ), counts(1));
+    }
+
+    private void expectPolicyInserted(TrackUrn trackUrn, boolean monetizable, String policy) {
+        assertThat(select(from(Table.SOUND_VIEW.name)
+                        .whereEq(TableColumns.SoundView._ID, trackUrn.numericId)
+                        .whereEq(TableColumns.SoundView.MONETIZABLE, monetizable)
+                        .whereEq(TableColumns.SoundView.POLICY, policy)
         ), counts(1));
     }
 }

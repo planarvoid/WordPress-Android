@@ -54,4 +54,7 @@ public class TrackSummaryBlueprint {
 
     @Default
     String genre = "Clownstep";
+
+    @Default
+    String policy = "allowed";
 }

@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -45,6 +46,21 @@ public class TrackWriteStorage {
         };
     }
 
+    public Observable<TxnResult> storePoliciesAsync(final Collection<PolicyInfo> policies){
+        return scheduler.scheduleTransaction(storePoliciesTransaction(policies));
+    }
+
+    private PropellerDatabase.Transaction storePoliciesTransaction(final Collection<PolicyInfo> policies){
+        return new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                for (PolicyInfo policyInfo : policies) {
+                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildPolicyContentValues(policyInfo)));
+                }
+            }
+        };
+    }
+
     private ContentValues buildTrackContentValues(ApiTrack track) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Sounds._ID, track.getId())
@@ -71,6 +87,14 @@ public class TrackWriteStorage {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Users._ID, user.getId())
                 .put(TableColumns.Users.USERNAME, user.getUsername())
+                .get();
+    }
+
+    private ContentValues buildPolicyContentValues(PolicyInfo policyEntry) {
+        return ContentValuesBuilder.values()
+                .put(TableColumns.Sounds._ID, policyEntry.getTrackUrn().numericId)
+                .put(TableColumns.Sounds.POLICY, policyEntry.getPolicy())
+                .put(TableColumns.Sounds.MONETIZABLE, policyEntry.isMonetizable())
                 .get();
     }
 

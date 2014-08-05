@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.Consts;
@@ -74,6 +75,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
         setNewPlayQueueInternal(playQueue, playSessionSource);
         saveCurrentPosition(0L);
+
+        fireAndForget(playQueueOperations.fetchAndStorePolicies(playQueue.getTrackUrns()));
     }
 
     @Deprecated // use URNs instead

@@ -18,4 +18,5 @@ public final class PlayableProperty {
     public static final Property<Boolean> IS_LIKED = Property.of(Boolean.class);
     public static final Property<Boolean> IS_REPOSTED = Property.of(Boolean.class);
     public static final Property<Boolean> IS_PRIVATE = Property.of(Boolean.class);
+    public static final Property<String> PERMALINK_URL = Property.of(String.class);
 }
