@@ -32,6 +32,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
+
     private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
     private Activity activity;
@@ -65,27 +66,44 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         return false;
     }
 
-    public boolean isExpanded() {
+    private boolean isExpanded() {
         return slidingPanel.isPanelExpanded();
     }
 
-    public void expand() {
+    private void expand() {
         slidingPanel.expandPanel();
+        toggleActionBarAndSysBarVisibility();
         notifyExpandingState();
     }
 
-    public void collapse() {
+    private void collapse() {
         slidingPanel.collapsePanel();
+        toggleActionBarAndSysBarVisibility();
         notifyCollapsingState();
+    }
+
+    private void show() {
+        slidingPanel.showPanel();
+        toggleActionBarAndSysBarVisibility();
+    }
+
+    private void hide() {
+        slidingPanel.hidePanel();
+        toggleActionBarAndSysBarVisibility();
+    }
+
+    private void update() {
+        if (slidingPanel.isPanelExpanded()) {
+            notifyExpandingState();
+        } else {
+            notifyCollapsedState();
+        }
+        toggleActionBarAndSysBarVisibility();
     }
 
     @Override
     public void onCreate(Bundle bundle) {
-        if (shouldExpand(getCurrentBundle(bundle))) {
-            expandOnResume = true;
-        } else {
-            notifyCollapsedState();
-        }
+        expandOnResume = shouldExpand(getCurrentBundle(bundle));
     }
 
     private Bundle getCurrentBundle(Bundle bundle) {
@@ -100,10 +118,9 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         return null;
     }
 
-    private void toggleActionBarAndSysBarVisibility() {
-        boolean panelExpanded = slidingPanel.isPanelExpanded();
-        actionBarController.setVisible(!panelExpanded);
-        dimSystemBars(panelExpanded);
+    @Override
+    public void onNewIntent(Intent intent) {
+        expandOnResume = shouldExpand(intent.getExtras());
     }
 
     private boolean shouldExpand(Bundle bundle) {
@@ -111,24 +128,31 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     }
 
     @Override
-    public void onNewIntent(Intent intent) {
-        expandOnResume = shouldExpand(intent.getExtras());
-    }
-
-    @Override
     public void onResume() {
-        expandPlayerIfNeeded();
-        showPlayerIfPlayQueueIsNotEmpty();
+        if (playQueueManager.isQueueEmpty()) {
+            hide();
+        } else {
+            showPanelIfNeeded();
+            if (expandOnResume) {
+                expand();
+            } else {
+                update();
+            }
+        }
+        expandOnResume = false;
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
     }
 
-    private void showPlayerIfPlayQueueIsNotEmpty() {
-        if (playQueueManager.isQueueEmpty()) {
-            slidingPanel.hidePanel();
-        } else if (slidingPanel.isPanelHidden()) {
-            slidingPanel.showPanel();
+    private void showPanelIfNeeded() {
+        if (slidingPanel.isPanelHidden()) {
+            show();
         }
-        toggleActionBarAndSysBarVisibility();
+    }
+
+    private void toggleActionBarAndSysBarVisibility() {
+        boolean panelExpanded = !slidingPanel.isPanelHidden() && slidingPanel.isPanelExpanded();
+        actionBarController.setVisible(!panelExpanded);
+        dimSystemBars(panelExpanded);
     }
 
     @Override
@@ -144,13 +168,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     @Override
     public void onDestroy() {
         this.activity = null;
-    }
-
-    private void expandPlayerIfNeeded() {
-        if (expandOnResume) {
-            expand();
-            expandOnResume = false;
-        }
     }
 
     @Override
@@ -180,11 +197,11 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
-                slidingPanel.expandPanel();
+                expand();
             } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
-                slidingPanel.collapsePanel();
+                collapse();
             } else if (event.getKind() == PlayerUIEvent.SHOW_PLAYER) {
-                slidingPanel.showPanel();
+                show();
             }
         }
     }
@@ -192,6 +209,11 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     @Override
     public void onPanelCollapsed(View panel) {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+    }
+
+    @Override
+    public void onPanelExpanded(View panel) {
+
     }
 
     private void notifyExpandingState() {
@@ -205,9 +227,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private void notifyCollapsedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
-
-    @Override
-    public void onPanelExpanded(View panel) {/* no-op */}
 
     @Override
     public void onPanelAnchored(View panel) {/* no-op */}

@@ -85,11 +85,12 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void showPanelIfQueueHasItems() {
+        when(slidingPanel.isPanelHidden()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         controller.onResume();
 
-        verify(slidingPanel, never()).showPanel();
+        verify(slidingPanel).showPanel();
     }
 
     @Test
@@ -190,6 +191,7 @@ public class SlidingPlayerControllerTest {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
 
         controller.onCreate(bundle);
+        controller.onResume();
 
         PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -210,6 +212,7 @@ public class SlidingPlayerControllerTest {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
 
         controller.onCreate(bundle);
+        controller.onResume();
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -218,6 +221,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void sendsCollapsedEventWhenRestoringExpandedStateWithNullBundle() {
         controller.onCreate(null);
+        controller.onResume();
 
         PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
