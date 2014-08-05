@@ -35,6 +35,7 @@ public class LikesScreen extends Screen {
     }
 
     private List<ViewElement> tracks() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElements(With.id(R.id.track_list_item));
     }
 
