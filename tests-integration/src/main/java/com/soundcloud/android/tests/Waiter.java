@@ -88,6 +88,10 @@ public class Waiter {
         solo.sleep(SMALL_TIMEOUT);
     }
 
+    public void waitForNextTrack() {
+        solo.sleep(ELEMENT_TIMEOUT);
+    }
+
     private boolean waitForListContent() {
         return solo.waitForCondition(new NoProgressBarCondition(), this.NETWORK_TIMEOUT);
     }

@@ -21,6 +21,8 @@ public class ResolveSoundUriTest extends ResolveBaseTest {
         assertThat(playerScreen.getTrackTitle(), is(equalTo(TRACK_NAME)));
 
         // make sure recommendations load
+        waiter.waitForNextTrack();
+
         playerScreen.swipeNext();
         assertThat(TRACK_NAME, is(not(equalTo(playerScreen.getTrackTitle()))));
     }
