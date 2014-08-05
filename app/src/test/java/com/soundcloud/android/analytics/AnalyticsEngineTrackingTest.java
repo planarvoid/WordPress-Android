@@ -26,9 +26,11 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +47,9 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
+
+    private static final PropertySet TRACK_DATA = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(123L));
+
     private AnalyticsEngine analyticsEngine;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -187,8 +192,8 @@ public class AnalyticsEngineTrackingTest {
         setAnalyticsEnabledViaSettings();
         initialiseAnalyticsEngine();
 
-        PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L),
-                Mockito.mock(TrackSourceInfo.class),123L);
+        PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, Urn.forUser(1L),
+                Mockito.mock(TrackSourceInfo.class), 0, 0);
 
         eventBus.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
 
@@ -257,7 +262,8 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
-        eventBus.publish(EventQueue.PLAYBACK_SESSION, PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(1L), mock(TrackSourceInfo.class), 123L));
+        eventBus.publish(EventQueue.PLAYBACK_SESSION,
+                PlaybackSessionEvent.forPlay(TRACK_DATA, Urn.forUser(1L), mock(TrackSourceInfo.class), 0, 0));
         eventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");

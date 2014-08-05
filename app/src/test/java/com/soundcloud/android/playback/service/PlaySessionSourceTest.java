@@ -1,9 +1,8 @@
-package com.soundcloud.android.analytics.eventlogger;
+package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.ScTextUtils;

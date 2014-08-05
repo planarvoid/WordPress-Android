@@ -6,16 +6,18 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,72 +29,64 @@ public class EventLoggerAnalyticsProviderTest {
 
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
-    @Mock
-    private EventLogger eventLogger;
-    @Mock
-    private EventLoggerParamsBuilder eventLoggerParamsBuilder;
-    private UserUrn userUrn;
+    @Mock private EventTracker eventTracker;
+    @Mock private EventLoggerUrlBuilder eventLoggerUrlBuilder;
+
+    private UserUrn userUrn = Urn.forUser(123L);
 
     @Before
     public void setUp() throws Exception {
-        userUrn = TestHelper.getModelFactory().createModel(UserUrn.class);
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventLogger, eventLoggerParamsBuilder);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, eventLoggerUrlBuilder);
     }
 
     @Test
     public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(Urn.forTrack(1L), Urn.forUser(123l),
-                new TrackSourceInfo("context", false), 1000L, 12345L);
-        when(eventLoggerParamsBuilder.buildFromPlaybackEvent(event)).thenReturn("event-params");
+        final PropertySet track = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, Urn.forUser(123L),
+                new TrackSourceInfo("context", false), 0L, 12345L);
+        when(eventLoggerUrlBuilder.buildFromPlaybackEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
 
-        ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
-        verify(eventLogger).trackEvent(captor.capture());
-        expect(captor.getValue().getParams()).toEqual("event-params");
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(12345L);
-        expect(captor.getValue().getPath()).toEqual("audio");
+        expect(captor.getValue().getUrl()).toEqual("url");
     }
 
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
                 ConnectionType.FOUR_G, "uri", userUrn);
-        when(eventLoggerParamsBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("event-params");
+        when(eventLoggerUrlBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
-        ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
-        verify(eventLogger).trackEvent(captor.capture());
-        expect(captor.getValue().getParams()).toEqual("event-params");
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(captor.getValue().getPath()).toEqual("audio_performance");
+        expect(captor.getValue().getUrl()).toEqual("url");
     }
 
     @Test
     public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format");
-        when(eventLoggerParamsBuilder.buildFromPlaybackErrorEvent(event)).thenReturn("event-params");
+        when(eventLoggerUrlBuilder.buildFromPlaybackErrorEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
 
-        ArgumentCaptor<EventLoggerEvent> captor = ArgumentCaptor.forClass(EventLoggerEvent.class);
-        verify(eventLogger).trackEvent(captor.capture());
-        expect(captor.getValue().getParams()).toEqual("event-params");
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
-        expect(captor.getValue().getPath()).toEqual("audio_error");
+        expect(captor.getValue().getUrl()).toEqual("url");
     }
 
     @Test
     public void shouldForwardFlushCallToEventLogger() {
         eventLoggerAnalyticsProvider.flush();
-        verify(eventLogger).flush();
-    }
-
-    @Test
-    public void shouldStopEventLoggerOnPlayerLifeCycleDestroyedEvent() {
-        PlayerLifeCycleEvent event = PlayerLifeCycleEvent.forDestroyed();
-        eventLoggerAnalyticsProvider.handlePlayerLifeCycleEvent(event);
-        verify(eventLogger).stop();
+        verify(eventTracker).flush(EventLoggerAnalyticsProvider.BACKEND_NAME);
     }
 }

@@ -29,7 +29,7 @@ public interface Playa {
     static class StateTransition {
         private final PlayaState newState;
         private final Reason reason;
-        private final PlaybackProgress progressEvent;
+        private final PlaybackProgress progress;
 
         @VisibleForTesting
         private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
@@ -55,7 +55,7 @@ public interface Playa {
             this.newState = newState;
             this.reason = reason;
             this.trackUrn = trackUrn;
-            progressEvent = new PlaybackProgress(currentProgress, duration);
+            progress = new PlaybackProgress(currentProgress, duration);
         }
 
         public void setDebugExtra(String debugExtra){
@@ -79,7 +79,7 @@ public interface Playa {
         }
 
         public PlaybackProgress getProgress() {
-            return progressEvent;
+            return progress;
         }
 
         boolean isPlaying(){
@@ -130,8 +130,8 @@ public interface Playa {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
             intent.putExtra(TRACK_URN_EXTRA, getTrackUrn());
-            intent.putExtra(PROGRESS_EXTRA, progressEvent.getPosition());
-            intent.putExtra(DURATION_EXTRA, progressEvent.getDuration());
+            intent.putExtra(PROGRESS_EXTRA, progress.getPosition());
+            intent.putExtra(DURATION_EXTRA, progress.getDuration());
             intent.putExtra(DEBUG_EXTRA, debugExtra);
         }
 
@@ -155,7 +155,7 @@ public interface Playa {
                 StateTransition that = (StateTransition) o;
                 return Objects.equal(newState, that.newState)
                         && Objects.equal(reason, that.reason)
-                        && Objects.equal(progressEvent, that.progressEvent)
+                        && Objects.equal(progress, that.progress)
                         && Objects.equal(trackUrn, that.trackUrn)
                         && Objects.equal(debugExtra, that.debugExtra);
             }
@@ -165,7 +165,7 @@ public interface Playa {
         public int hashCode() {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
-            result = 31 * result + progressEvent.hashCode();
+            result = 31 * result + progress.hashCode();
             result = 31 * result + (debugExtra != null ? debugExtra.hashCode() : 0);
             result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
             return result;
@@ -176,8 +176,8 @@ public interface Playa {
             return "StateTransition{" +
                     "newState=" + newState +
                     ", reason=" + reason +
-                    ", currentProgress=" + progressEvent.getPosition() +
-                    ", duration=" + progressEvent.getDuration() +
+                    ", currentProgress=" + progress.getPosition() +
+                    ", duration=" + progress.getDuration() +
                     ", trackUrn=" + trackUrn +
                     '}';
         }

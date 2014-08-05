@@ -7,8 +7,8 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -17,7 +17,6 @@ import android.content.Context;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class ComScoreAnalyticsProvider implements AnalyticsProvider {
-
 
     public ComScoreAnalyticsProvider(Context context) {
         comScore.setAppContext(context.getApplicationContext());
