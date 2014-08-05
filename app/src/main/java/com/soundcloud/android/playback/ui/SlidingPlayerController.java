@@ -113,7 +113,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     @Override
     public void onNewIntent(Intent intent) {
         expandOnResume = shouldExpand(intent.getExtras());
-        intent.putExtra(EXTRA_EXPAND_PLAYER, false);
     }
 
     @Override

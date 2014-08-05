@@ -244,14 +244,6 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldResetExpandExtra() throws Exception {
-        Intent intent = createIntentWithExpandingCommand();
-        controller.onNewIntent(intent);
-
-        expect(intent.getBooleanExtra(EXTRA_EXPAND_PLAYER, false)).toBeFalse();
-    }
-
-    @Test
     public void setsCollapsedStateWhenPassingOverThreshold() {
         collapsePanel();
 
