@@ -17,13 +17,12 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -47,8 +46,6 @@ import java.util.List;
 public class UserAdapterTest {
 
     private UserAdapter adapter;
-
-    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private UserItemPresenter userPresenter;
     @Mock private FollowingOperations followingOperations;
