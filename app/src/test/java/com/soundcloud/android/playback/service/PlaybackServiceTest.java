@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +20,6 @@ import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -206,7 +204,6 @@ public class PlaybackServiceTest {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
-        when(playbackServiceOperations.logPlay(any(TrackUrn.class), anyString())).thenReturn(Observable.<TrackUrn>empty());
         when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>empty());
 
         playbackService.openCurrent(track);
@@ -222,27 +219,11 @@ public class PlaybackServiceTest {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(legacyTrackOperations.loadTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
         when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
-        when(playbackServiceOperations.logPlay(any(TrackUrn.class), anyString())).thenReturn(Observable.<TrackUrn>empty());
         when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>empty());
 
         playbackService.openCurrent();
 
         verify(streamPlayer).playUninterrupted(track);
-    }
-
-    @Test
-    public void startingPlaybackLogsPlayCount() throws Exception {
-        playbackService.onCreate();
-        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(legacyTrackOperations.loadStreamableTrack(anyLong(), any(Scheduler.class))).thenReturn(Observable.just(track));
-        final PropertySet trackPropertySet = PropertySet.from(TrackProperty.URN.bind(track.getUrn()), TrackProperty.POLICY.bind("monetizable"));
-        when(trackOperations.track(track.getUrn())).thenReturn(Observable.just(trackPropertySet));
-        final TestObservables.MockObservable mock = TestObservables.emptyObservable();
-        when(playbackServiceOperations.logPlay(track.getUrn(), "monetizable")).thenReturn(mock);
-
-        playbackService.openCurrent(track);
-
-        expect(mock.subscribedTo()).toBeTrue();
     }
 
     @Test

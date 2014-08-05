@@ -448,31 +448,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void playCurrentTrackFromStart(boolean playUninterrupted) {
-        logPlayCount(currentTrack.getUrn());
         if (playUninterrupted){
             streamPlayer.playUninterrupted(currentTrack);
         } else {
             streamPlayer.play(currentTrack);
         }
     }
-
-    protected void logPlayCount(TrackUrn trackUrn) {
-        trackOperations.track(trackUrn).mergeMap(new Func1<PropertySet, Observable<TrackUrn>>() {
-            @Override
-            public Observable<TrackUrn> call(PropertySet propertySet) {
-                return playbackServiceOperations.logPlay(
-                        propertySet.get(TrackProperty.URN),
-                        propertySet.get(TrackProperty.POLICY)
-                );
-            }
-        }).subscribe(new DefaultSubscriber<TrackUrn>() {
-            @Override
-            public void onNext(TrackUrn trackUrn) {
-                Log.d(TAG, "Play count logged successfully for track " + trackUrn);
-            }
-        });
-    }
-
 
     /* package */ void play() {
         if (!streamPlayer.isPlaying() && currentTrack != null && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
