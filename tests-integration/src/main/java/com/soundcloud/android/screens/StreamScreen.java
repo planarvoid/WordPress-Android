@@ -33,14 +33,12 @@ public class StreamScreen extends Screen {
         return ACTIVITY;
     }
 
-    public void clickFirstItem() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.findElement(With.id(android.R.id.list)).click();
-    }
-
     public VisualPlayerElement clickFirstTrack() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.findElement(With.id(android.R.id.list)).findElements(With.id(R.id.track_list_item)).get(0).click();
+        testDriver
+                .findElement(With.id(android.R.id.list))
+                .findElements(With.id(R.id.track_list_item))
+                .get(0).click();
         waiter.waitForExpandedPlayer();
         return new VisualPlayerElement(testDriver);
     }
@@ -49,7 +47,6 @@ public class StreamScreen extends Screen {
         ViewElement list = testDriver.findElement(With.id(android.R.id.list));
         return new StreamList(list);
     }
-
 
     public ExploreScreen openExploreFromMenu() {
         return menuScreen.open().clickExplore();

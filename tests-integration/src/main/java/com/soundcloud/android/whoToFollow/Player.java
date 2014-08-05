@@ -14,8 +14,6 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class Player extends ActivityTestCase<MainActivity> {
     private VisualPlayerElement player;
     private StreamScreen streamScreen;
@@ -32,26 +30,18 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testVisualPlayerIsAccessible() throws Exception {
-        streamScreen.clickFirstItem();
-        assertThat(player(), is(Expanded()));
-        player().pressBackToCollapse();
+        player = streamScreen.clickFirstTrack();
+        assertThat(player, is(Expanded()));
+        player.pressBackToCollapse();
 
         openWhoToFollow(streamScreen);
-        assertThat(player(), is(Visible()));
-        assertThat(player(), is(Collapsed()));
+        assertThat(player, is(Visible()));
+        assertThat(player, is(Collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
         openWhoToFollow(streamScreen);
 
-        assertThat(player(), is(not(Visible())));
+        assertThat(new VisualPlayerElement(solo), is(not(Visible())));
     }
-
-    private VisualPlayerElement player() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        if (player == null) {
-            player = new VisualPlayerElement(solo);
-        }
-        return player;
-    }
-
 }
