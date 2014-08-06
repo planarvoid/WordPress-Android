@@ -19,6 +19,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -45,7 +46,6 @@ import android.content.SharedPreferences;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -78,7 +78,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
-        when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<Collection<PolicyInfo>>empty());
+        when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<ModelCollection<PolicyInfo>>empty());
 
         PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);

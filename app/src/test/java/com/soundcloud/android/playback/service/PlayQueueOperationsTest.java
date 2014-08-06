@@ -214,14 +214,14 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void fetchAndStorePoliciesMakeGetRequestToRelatedTracksEndpoint() {
-        Collection returnCollection = mock(Collection.class);
+        ModelCollection returnCollection = new ModelCollection();
 
         final ApiRequestTo expectedRequest = isMobileApiRequestTo("POST", APIEndpoints.POLICIES.path());
         expectedRequest.withContent(Lists.newArrayList("soundcloud:sounds:123"));
 
         when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
         when(trackWriteStorage.storePoliciesAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());
-        final Collection<PolicyInfo> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
+        final ModelCollection<PolicyInfo> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
         expect(first).toBe(returnCollection);
     }
 
