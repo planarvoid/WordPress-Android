@@ -15,7 +15,7 @@ public class ResolveFacebookTrackDeepLinkTest extends ResolveBaseTest {
         return TestConsts.FACEBOOK_SOUND_DEEP_LINK;
     }
 
-    public void testStartPlayerActivityWhenTrackUrnIsValid() throws Exception {
+    public void testShowExpandedPlayerWhenTrackUrnIsValid() {
         waiter.waitForExpandedPlayer();
         VisualPlayerElement player = new VisualPlayerElement(solo);
         assertThat(player.isVisible(), is(true));
