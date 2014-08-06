@@ -394,19 +394,30 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTION_PAGES:
             case COLLECTION_ITEMS:
             case USER_ASSOCIATIONS:
-            case USERS:
             case RECORDINGS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
             case ME_SHORTCUTS:
-            case TRACKS:
-            case PLAYLISTS:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_LIKES:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
                 id = content.table.insertOrReplace(db, values);
+                if (id >= 0 && values.containsKey(BaseColumns._ID)) {
+                    id = values.getAsLong(BaseColumns._ID);
+                }
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null, false);
+                return result;
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            // upserts to account for not overwriting extra data retrieved from api-mobile
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            case TRACKS:
+            case PLAYLISTS:
+            case USERS:
+                id = content.table.upsert(db, new ContentValues[]{values});
                 if (id >= 0 && values.containsKey(BaseColumns._ID)) {
                     id = values.getAsLong(BaseColumns._ID);
                 }
