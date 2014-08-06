@@ -243,12 +243,12 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void updateAssociationsWithLikedCountPropertyUpdatesLikeCount() {
-        PropertySet changeSet = PropertySet.from(PlayableProperty.LIKES_COUNT.bind(4123));
+    public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
+        PropertySet changeSet = PropertySet.from(PlayableProperty.LIKES_COUNT.bind(9999));
 
         presenter.updateAssociations(trackView, changeSet);
 
-        expect(getHolder(trackView).likeToggle).toHaveText("4k+");
+        expect(getHolder(trackView).likeToggle).toHaveText("9,999");
     }
 
     @Test

@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ public class ScTextUtils {
 
     public static final String EMPTY_STRING = "";
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###,###");
+    public static final DecimalFormat ROUNDED_FORMAT = new DecimalFormat("###,###.#");
 
     private ScTextUtils() {
     }
@@ -302,16 +304,34 @@ public class ScTextUtils {
         return DECIMAL_FORMAT.format(number);
     }
 
+    private static String shortenFactorialNumber(double number){
+        ROUNDED_FORMAT.setRoundingMode(RoundingMode.DOWN);
+        return ROUNDED_FORMAT.format(number);
+    }
+
     public static String shortenLargeNumber(int number) {
         if (number <= 0) {
             return EMPTY_STRING;
         } else if (number >= 10000) {
-            return "9k+"; // top out at 9k or text gets too long again
+            return "9K+"; // top out at 9k or text gets too long again
         } else if (number >= 1000) {
-            return number / 1000 + "k+";
+            return number / 1000 + "K+";
         } else {
             return String.valueOf(number);
         }
     }
 
+    public static String formatLargeNumber(long number) {
+        if (number <= 0) {
+            return EMPTY_STRING;
+        } else if (number <= 9999) {
+            return formatNumberWithCommas(number);
+        } else if (number <= 999999){
+            return shortenFactorialNumber(number/1000.0) + "K";
+        } else if (number <= 999999999){
+            return shortenFactorialNumber(number/1000000.0) + "M";
+        } else {
+            return shortenFactorialNumber(number/1000000000.0) + "BN";
+        }
+    }
 }

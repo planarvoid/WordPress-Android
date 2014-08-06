@@ -220,11 +220,28 @@ public class ScTextUtilsTest {
     @Test
     public void shouldShortenLargeNumbers() {
         expect(ScTextUtils.shortenLargeNumber(999)).toEqual("999");
-        expect(ScTextUtils.shortenLargeNumber(1000)).toEqual("1k+");
-        expect(ScTextUtils.shortenLargeNumber(1999)).toEqual("1k+");
-        expect(ScTextUtils.shortenLargeNumber(2000)).toEqual("2k+");
-        expect(ScTextUtils.shortenLargeNumber(9999)).toEqual("9k+");
-        expect(ScTextUtils.shortenLargeNumber(10000)).toEqual("9k+"); // 4 chars would make the text spill over again
+        expect(ScTextUtils.shortenLargeNumber(1000)).toEqual("1K+");
+        expect(ScTextUtils.shortenLargeNumber(1999)).toEqual("1K+");
+        expect(ScTextUtils.shortenLargeNumber(2000)).toEqual("2K+");
+        expect(ScTextUtils.shortenLargeNumber(9999)).toEqual("9K+");
+        expect(ScTextUtils.shortenLargeNumber(10000)).toEqual("9K+"); // 4 chars would make the text spill over again
+    }
+
+    @Test
+    public void shouldFormatLargeNumbers() {
+        expect(ScTextUtils.formatLargeNumber(0)).toEqual("");
+        expect(ScTextUtils.formatLargeNumber(999)).toEqual("999");
+        expect(ScTextUtils.formatLargeNumber(9999)).toEqual("9,999");
+
+        expect(ScTextUtils.formatLargeNumber(10000)).toEqual("10K");
+        expect(ScTextUtils.formatLargeNumber(11412)).toEqual("11.4K");
+        expect(ScTextUtils.formatLargeNumber(999999)).toEqual("999.9K");
+
+        expect(ScTextUtils.formatLargeNumber(1000000)).toEqual("1M");
+        expect(ScTextUtils.formatLargeNumber(1200000)).toEqual("1.2M");
+        expect(ScTextUtils.formatLargeNumber(999200000)).toEqual("999.2M");
+
+        expect(ScTextUtils.formatLargeNumber(1000000000)).toEqual("1BN");
     }
 
     @Test

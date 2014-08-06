@@ -176,7 +176,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
-        holder.likeToggle.setText(ScTextUtils.shortenLargeNumber(count));
+        holder.likeToggle.setText(ScTextUtils.formatLargeNumber(count));
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
