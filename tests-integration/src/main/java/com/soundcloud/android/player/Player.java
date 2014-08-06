@@ -153,7 +153,7 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     private void playLastLikedTrack() {
         playerElement = menuScreen.open().clickLikes().clickLastTrack();
-        waiter.waitForExpandedPlayer();
+        playerElement.waitForExpandedPlayer();
     }
 
     public void testUserButtonGoesToUserProfile() {
@@ -179,6 +179,6 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     private void playTrackFromLikes() {
         playerElement = menuScreen.open().clickLikes().clickItem(1);
-        waiter.waitForExpandedPlayer();
+        playerElement.waitForExpandedPlayer();
     }
 }

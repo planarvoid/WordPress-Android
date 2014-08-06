@@ -4,7 +4,6 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;
-import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.Log;
 
@@ -37,7 +36,15 @@ public class Waiter {
     }
 
     public boolean waitForTextToDisappear(String text) {
-        return solo.waitForCondition(new NoTextCondition(text), this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new NoTextCondition(text), NETWORK_TIMEOUT);
+    }
+
+    public boolean waitForElementToBeInvisible(With matcher) {
+        return solo.waitForCondition(new InVisibleElementCondition(matcher), ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForElementToBeVisible(With matcher) {
+        return solo.waitForCondition(new VisibleElementCondition(matcher), ELEMENT_TIMEOUT);
     }
 
     public ExpectedConditions expect(ElementWithText view) {
@@ -69,14 +76,6 @@ public class Waiter {
 
     public boolean waitForKeyboardToBeShown() {
         return solo.waitForCondition(new KeyboardShownCondition(), ELEMENT_TIMEOUT);
-    }
-
-    public boolean waitForExpandedPlayer() {
-        return solo.waitForCondition(new PlayerExpandedCondition(), ELEMENT_TIMEOUT);
-    }
-
-    public boolean waitForCollapsedPlayer() {
-        return solo.waitForCondition(new PlayerCollapsedCondition(), ELEMENT_TIMEOUT);
     }
 
     public boolean waitForTextInView(ElementWithText textView, String text) {
@@ -179,21 +178,34 @@ public class Waiter {
     }
 
     private class VisibleElementCondition implements Condition {
-        private int viewId;
+        private With matcher;
 
-        VisibleElementCondition(int id) {
-            viewId = id;
+        VisibleElementCondition(With matcher) {
+            this.matcher = matcher;
         }
 
-        VisibleElementCondition(View view) {
-            viewId = view.getId();
+        VisibleElementCondition(int id) {
+            this.matcher = With.id(id);
         }
 
         @Override
         public boolean isSatisfied() {
-            ViewElement view = solo.findElement(With.id(viewId));
+            ViewElement view = solo.findElement(matcher);
             Log.i(TAG, "ViewID searched");
             return (view.isVisible());
+        }
+    }
+
+    private class InVisibleElementCondition implements Condition {
+        final private VisibleElementCondition visibleElementCondition;
+
+        InVisibleElementCondition(With matcher) {
+            visibleElementCondition = new VisibleElementCondition(matcher);
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !visibleElementCondition.isSatisfied();
         }
     }
 
@@ -282,25 +294,6 @@ public class Waiter {
         private Display getDisplay() {
             return ((WindowManager) solo.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         }
-    }
-
-    private class PlayerExpandedCondition implements Condition {
-        private final VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
-
-        @Override
-        public boolean isSatisfied() {
-            return visualPlayer.isExpanded();
-        }
-    }
-
-    private class PlayerCollapsedCondition implements Condition {
-        private final VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
-
-        @Override
-        public boolean isSatisfied() {
-            return visualPlayer.isCollapsed();
-        }
-
     }
 
     private class NoTextCondition implements Condition {

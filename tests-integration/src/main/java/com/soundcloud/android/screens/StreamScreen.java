@@ -39,8 +39,9 @@ public class StreamScreen extends Screen {
                 .findElement(With.id(android.R.id.list))
                 .findElements(With.id(R.id.track_list_item))
                 .get(0).click();
-        waiter.waitForExpandedPlayer();
-        return new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     private StreamList streamList() {

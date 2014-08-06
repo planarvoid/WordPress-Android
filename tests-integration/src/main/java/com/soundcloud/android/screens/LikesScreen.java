@@ -19,15 +19,17 @@ public class LikesScreen extends Screen {
 
     public VisualPlayerElement clickItem(int index) {
         likesList().getItemAt(index).click();
-        waiter.waitForExpandedPlayer();
-        return new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     public VisualPlayerElement clickLastTrack() {
         int size = tracks().size();
         tracks().get(size - 1).click();
-        waiter.waitForExpandedPlayer();
-        return new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     private ListElement likesList() {

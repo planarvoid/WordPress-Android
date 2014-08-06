@@ -10,6 +10,8 @@ import android.support.v4.view.ViewPager;
 
 public class VisualPlayerElement extends Element {
 
+    private final With footerPlayerPredicate = With.id(R.id.footer_controls);
+
     public VisualPlayerElement(Han solo) {
         super(solo);
     }
@@ -66,7 +68,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement footerPlayer() {
-        return solo.findElement(With.id(R.id.footer_controls));
+        return solo.findElement(footerPlayerPredicate);
     }
 
     public boolean isExpanded() {
@@ -79,17 +81,17 @@ public class VisualPlayerElement extends Element {
 
     public void tapFooter() {
         footerPlayer().click();
-        waiter.waitForExpandedPlayer();
+        waitForExpandedPlayer();
     }
 
     public void pressBackToCollapse() {
         solo.goBack();
-        waiter.waitForCollapsedPlayer();
+        waitForCollapsedPlayer();
     }
 
     public void pressCloseButton() {
         closeButton().click();
-        waiter.waitForCollapsedPlayer();
+        waitForCollapsedPlayer();
     }
 
     public void tapNext() {
@@ -137,6 +139,14 @@ public class VisualPlayerElement extends Element {
 
     public void waitForContent() {
         waiter.waitForContent(getViewPager());
+    }
+
+    public boolean waitForExpandedPlayer() {
+        return waiter.waitForElementToBeInvisible(footerPlayerPredicate);
+    }
+
+    public boolean waitForCollapsedPlayer() {
+        return waiter.waitForElementToBeVisible(footerPlayerPredicate);
     }
 
     public void waitForSkipAdButton() {

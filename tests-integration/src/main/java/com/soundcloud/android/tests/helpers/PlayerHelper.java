@@ -12,7 +12,7 @@ public class PlayerHelper {
         waiter.waitForContentAndRetryIfLoadingFailed();
         exploreScreen.playFirstTrack();
         VisualPlayerElement playerElement = new VisualPlayerElement(activityTestCase.getSolo());
-        waiter.waitForExpandedPlayer();
+        playerElement.waitForExpandedPlayer();
         playerElement.waitForContent();
         return playerElement;
     }

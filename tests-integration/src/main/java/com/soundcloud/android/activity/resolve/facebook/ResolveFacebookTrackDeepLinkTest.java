@@ -16,8 +16,8 @@ public class ResolveFacebookTrackDeepLinkTest extends ResolveBaseTest {
     }
 
     public void testShowExpandedPlayerWhenTrackUrnIsValid() {
-        waiter.waitForExpandedPlayer();
         VisualPlayerElement player = new VisualPlayerElement(solo);
+        player.waitForExpandedPlayer();
         assertThat(player.isVisible(), is(true));
     }
 }

@@ -29,7 +29,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
         PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
-        waiter.waitForExpandedPlayer();
+        playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
     }
 

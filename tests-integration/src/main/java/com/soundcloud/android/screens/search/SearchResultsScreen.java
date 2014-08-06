@@ -29,8 +29,9 @@ public class SearchResultsScreen extends Screen {
     public VisualPlayerElement clickFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.track_list_item)).click();
-        waiter.waitForExpandedPlayer();
-        return new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     public void clickFirstPlaylistItem() {
