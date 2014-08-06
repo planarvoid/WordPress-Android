@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
@@ -43,6 +44,16 @@ public class PlaylistDetailsScreen extends Screen {
 
     public boolean isPlayToggleChecked() {
         return headerPlayToggle().isChecked();
+    }
+
+    public VisualPlayerElement clickFirstTrack() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver
+                .findElement(With.id(android.R.id.list))
+                .findElements(With.id(R.id.track_list_item))
+                .get(0).click();
+        waiter.waitForExpandedPlayer();
+        return new VisualPlayerElement(testDriver);
     }
 
 }

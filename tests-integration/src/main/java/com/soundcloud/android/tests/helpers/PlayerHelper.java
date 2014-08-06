@@ -17,8 +17,4 @@ public class PlayerHelper {
         return playerElement;
     }
 
-    public static void skipToAd(VisualPlayerElement playerElement) {
-        playerElement.swipeNext();
-    }
-
 }

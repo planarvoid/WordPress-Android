@@ -8,13 +8,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
-import com.soundcloud.android.tests.helpers.NavigationHelper;
-import com.soundcloud.android.tests.helpers.PlayerHelper;
+import com.soundcloud.android.tests.with.With;
 
 public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
@@ -26,17 +24,16 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
-        if(!shouldSkip()) {
-            final StreamScreen streamScreen = new StreamScreen(solo);
-            final ExploreScreen screen = NavigationHelper.openExploreFromMenu(streamScreen);
-            playerElement = PlayerHelper.openPlayer(this, screen);
-            PlayerHelper.skipToAd(playerElement);
-        }
+
+        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
+        playerElement = playlistDetailsScreen.clickFirstTrack();
+        waiter.waitForExpandedPlayer();
+        playerElement.swipeNext();
     }
 
-    public void testSkipIsNotAllowedOnAd() throws Exception {
+    public void testSkipIsNotAllowedOnAd() {
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(SkipAllowed())));
@@ -53,13 +50,13 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         assertThat(playerElement, is(Playing()));
     }
 
-    public void testSkipShouldBeDisplayedAfter15sec() throws Exception {
+    public void testSkipShouldBeDisplayedAfter15sec() {
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.waitForSkipAdButton();
         assertThat(playerElement, is(SkipAllowed()));
     }
 
-    public void testSkipAdShouldStartTheMonetizableTrack() throws Exception {
+    public void testSkipAdShouldStartTheMonetizableTrack() {
         playerElement.waitForSkipAdButton();
         String adTrackTitle = playerElement.getTrackTitle();
         playerElement.tapSkipAd();

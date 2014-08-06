@@ -16,6 +16,11 @@ public class PlaylistScreen extends Screen {
         playlistsList().getItemAt(index).click();
     }
 
+    public PlaylistDetailsScreen clickPlaylist(With matcher) {
+        testDriver.findElement(matcher).click();
+        return new PlaylistDetailsScreen(testDriver);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
