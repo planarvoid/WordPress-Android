@@ -124,7 +124,7 @@ public class Waiter {
             public boolean isSatisfied() {
                 return viewPager.getAdapter().getCount() > 0;
             }
-        }, this.TIMEOUT);
+        }, TIMEOUT);
     }
 
 
