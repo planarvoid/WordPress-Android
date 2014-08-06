@@ -85,31 +85,31 @@ public class PlaybackOperations {
     /**
      * Single play, the tracklist will be of length 1
      */
-    public void playTrack(Context activityContext, PublicApiTrack track, Screen screen) {
-        playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen));
+    public void playTrack(PublicApiTrack track, Screen screen) {
+        playFromIdList(Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen));
     }
 
-    private void playTrack(Context activityContext, PublicApiTrack track, PlaySessionSource playSessionSource, boolean loadRelated) {
-        playFromIdList(activityContext, Lists.newArrayList(track.getId()), 0, track, playSessionSource, loadRelated);
+    private void playTrack(PublicApiTrack track, PlaySessionSource playSessionSource, boolean loadRelated) {
+        playFromIdList(Lists.newArrayList(track.getId()), 0, track, playSessionSource, loadRelated);
     }
 
     /**
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
-    public void playExploreTrack(Context activityContext, PublicApiTrack track, String exploreTag, String screenTag) {
+    public void playExploreTrack(PublicApiTrack track, String exploreTag, String screenTag) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.setExploreVersion(exploreTag);
-        playTrack(activityContext, track, playSessionSource, true);
+        playTrack(track, playSessionSource, true);
     }
 
     /**
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistFragment}
      */
-    public void playPlaylistFromPosition(Context activityContext, PropertySet playlist, Observable<TrackUrn> allTracks, TrackUrn initialTrackUrn, int startPosition, Screen screen) {
+    public void playPlaylistFromPosition(PropertySet playlist, Observable<TrackUrn> allTracks, TrackUrn initialTrackUrn, int startPosition, Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get());
         playSessionSource.setPlaylist(playlist.get(PlayableProperty.URN).numericId, playlist.get(PlayableProperty.CREATOR_URN).numericId);
-        playTracks(activityContext, initialTrackUrn, allTracks, startPosition, playSessionSource);
+        playTracks(initialTrackUrn, allTracks, startPosition, playSessionSource);
     }
 
     public void playPlaylist(PublicApiPlaylist playlist, Screen screen) {
@@ -138,9 +138,9 @@ public class PlaybackOperations {
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
             if (uri != null) {
-                playFromUri(activityContext, uri, position, (PublicApiTrack) playable, playSessionSource);
+                playFromUri(uri, position, (PublicApiTrack) playable, playSessionSource);
             } else {
-                playFromIdList(activityContext, getPlayableIdsFromModels(data), adjustedPosition, (PublicApiTrack) playable, playSessionSource);
+                playFromIdList(getPlayableIdsFromModels(data), adjustedPosition, (PublicApiTrack) playable, playSessionSource);
             }
 
         } else if (playable instanceof PublicApiPlaylist) {
@@ -150,11 +150,11 @@ public class PlaybackOperations {
         }
     }
 
-    public Subscription playTracks(Context context, TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, Screen screen) {
-        return playTracks(context, initialTrack, allTracks, position, new PlaySessionSource(screen));
+    public Subscription playTracks(TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, Screen screen) {
+        return playTracks(initialTrack, allTracks, position, new PlaySessionSource(screen));
     }
 
-    private Subscription playTracks(Context context, TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, PlaySessionSource playSessionSource) {
+    private Subscription playTracks(TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, PlaySessionSource playSessionSource) {
         if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return allTracks.map(new Func1<TrackUrn, Long>() {
                 @Override
@@ -162,7 +162,7 @@ public class PlaybackOperations {
                     return trackUrn.numericId;
                 }
             }).toList().observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(trackListLoadedSubscriber(context, position, playSessionSource, initialTrack, null));
+                    .subscribe(trackListLoadedSubscriber(position, playSessionSource, initialTrack));
         } else {
             return Subscriptions.empty();
         }
@@ -241,22 +241,20 @@ public class PlaybackOperations {
     }
 
     @Deprecated
-    private Subscription playFromUri(final Context activityContext, Uri uri, final int startPosition, final PublicApiTrack initialTrack,
+    private Subscription playFromUri(Uri uri, final int startPosition, final PublicApiTrack initialTrack,
                                      final PlaySessionSource playSessionSource) {
         if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             return trackStorage.getTrackIdsForUriAsync(uri)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(trackListLoadedSubscriber(
-                            activityContext, startPosition, playSessionSource, initialTrack.getUrn(), initialTrack));
+                    .subscribe(trackListLoadedSubscriber(startPosition, playSessionSource, initialTrack.getUrn()));
         } else {
             return Subscriptions.empty();
         }
     }
 
-    private Subscriber<List<Long>> trackListLoadedSubscriber(final Context context, final int startPosition,
+    private Subscriber<List<Long>> trackListLoadedSubscriber(final int startPosition,
                                                              final PlaySessionSource playSessionSource,
-                                                             final TrackUrn initialTrackUrn,
-                                                             @Nullable final PublicApiTrack initialTrack) {
+                                                             final TrackUrn initialTrackUrn) {
         return new DefaultSubscriber<List<Long>>() {
             @Override
             public void onNext(List<Long> idList) {
@@ -268,12 +266,12 @@ public class PlaybackOperations {
         };
     }
 
-    private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, PublicApiTrack initialTrack,
+    private void playFromIdList(List<Long> idList, int startPosition, PublicApiTrack initialTrack,
                                 PlaySessionSource playSessionSource) {
-        playFromIdList(activityContext, idList, startPosition, initialTrack, playSessionSource, false);
+        playFromIdList(idList, startPosition, initialTrack, playSessionSource, false);
     }
 
-    private void playFromIdList(Context activityContext, List<Long> idList, int startPosition, PublicApiTrack initialTrack,
+    private void playFromIdList(List<Long> idList, int startPosition, PublicApiTrack initialTrack,
                                 PlaySessionSource playSessionSource, boolean loadRelated) {
         if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);

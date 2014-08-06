@@ -135,7 +135,7 @@ public class SoundStreamFragment extends Fragment
         final PropertySet item = adapter.getItem(position);
         final Urn playableUrn = item.get(PlayableProperty.URN);
         if (playableUrn instanceof TrackUrn) {
-            playbackOperations.playTracks(getActivity(), (TrackUrn) playableUrn,
+            playbackOperations.playTracks((TrackUrn) playableUrn,
                     soundStreamOperations.trackUrnsForPlayback(), position, Screen.SIDE_MENU_STREAM);
         } else if (playableUrn instanceof PlaylistUrn) {
             PlaylistDetailActivity.start(getActivity(), (PlaylistUrn) playableUrn, Screen.SIDE_MENU_STREAM);

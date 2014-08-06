@@ -273,7 +273,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
 
-        playbackOperations.playPlaylistFromPosition(getActivity(), playlist.toPropertySet(),
+        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 playlistOperations.trackUrnsForPlayback(playlist.getUrn()),
                 initialTrack.get(TrackProperty.URN),
                 trackPosition, Screen.fromBundle(getArguments()));

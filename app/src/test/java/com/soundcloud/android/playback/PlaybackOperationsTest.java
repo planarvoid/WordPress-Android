@@ -73,7 +73,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldNotOpenPlayerActivity() {
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedActivity()).toBeNull();
@@ -81,13 +81,13 @@ public class PlaybackOperationsTest {
 
     @Test
      public void playTrackSetsPlayQueueOnPlayQueueManagerFromInitialTrack() {
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
     }
 
     @Test
     public void playTrackOpensCurrentTrackThroughService() {
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
         checkLastStartedServiceForPlayCurrentAction();
     }
@@ -95,7 +95,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).toBeNull();
@@ -105,7 +105,7 @@ public class PlaybackOperationsTest {
     public void playTrackShouldSendServiceIntentIfTrackAlreadyPlayingWithDifferentContext() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
-        playbackOperations.playTrack(Robolectric.application, track, Screen.EXPLORE_TRENDING_AUDIO);
+        playbackOperations.playTrack(track, Screen.EXPLORE_TRENDING_AUDIO);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();
@@ -113,7 +113,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackSetsPlayQueueAndOriginOnPlayQueueManager() {
-        playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+        playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
 
         final PlaySessionSource expected = new PlaySessionSource(ORIGIN_SCREEN.get());
         expected.setExploreVersion(EXPLORE_VERSION);
@@ -124,14 +124,14 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackPlaysCurrentTrackThroughService() throws Exception {
-        playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+        playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
 
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
     public void playExploreTrackCallsFetchRelatedTracksOnPlayQueueManager() {
-        playbackOperations.playExploreTrack(Robolectric.application, track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+        playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
 
         verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
@@ -140,7 +140,7 @@ public class PlaybackOperationsTest {
     public void playPlaylistFromPositionDoesNotOpenPlayerActivity() {
         final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 Observable.just(track.getUrn()), track.getUrn(), 0, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -156,7 +156,6 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
         playbackOperations.playPlaylistFromPosition(
-                Robolectric.application,
                 playlist.toPropertySet(),
                 Observable.from(tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn()),
                 tracks.get(1).getUrn(),
@@ -177,7 +176,7 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
 
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, ORIGIN_SCREEN);
 
         checkLastStartedServiceForPlayCurrentAction();
@@ -195,7 +194,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.isPlaylist()).thenReturn(true);
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
 
-        playbackOperations.playPlaylistFromPosition(Robolectric.application, playlist.toPropertySet(),
+        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, Screen.EXPLORE_TRENDING_MUSIC);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -589,7 +588,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playTracksShouldNotOpenLegacyPlayerIfVisualPlayerEnabled() {
         final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Robolectric.application, Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
+        playbackOperations.playTracks(Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();

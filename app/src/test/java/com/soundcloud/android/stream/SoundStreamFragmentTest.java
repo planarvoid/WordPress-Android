@@ -139,7 +139,7 @@ public class SoundStreamFragmentTest {
         when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
         fragment.onItemClick(null, null, 0, -1);
 
-        verify(playbackOperations).playTracks(activity, Urn.forTrack(123), streamTracks, 0, Screen.SIDE_MENU_STREAM);
+        verify(playbackOperations).playTracks(Urn.forTrack(123), streamTracks, 0, Screen.SIDE_MENU_STREAM);
     }
 
     @Test

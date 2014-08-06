@@ -44,20 +44,13 @@ public class ExploreTracksFragmentTest {
     private ExploreTracksFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
 
-    @Mock
-    private PagingItemAdapter adapter;
-    @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
-    private ImageOperations imageOperations;
-    @Mock
-    private ExploreTracksOperations exploreTracksOperations;
-    @Mock
-    private PullToRefreshController pullToRefreshController;
-    @Mock
-    private ListViewController listViewController;
-    @Mock
-    private Subscription subscription;
+    @Mock private PagingItemAdapter adapter;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private ImageOperations imageOperations;
+    @Mock private ExploreTracksOperations exploreTracksOperations;
+    @Mock private PullToRefreshController pullToRefreshController;
+    @Mock private ListViewController listViewController;
+    @Mock private Subscription subscription;
 
     @Before
     public void setUp() throws Exception {
@@ -119,7 +112,7 @@ public class ExploreTracksFragmentTest {
 
         fragment.onItemClick(null, null, 0, 0);
 
-        verify(playbackOperations).playExploreTrack(activity, new PublicApiTrack(track), null, "screen");
+        verify(playbackOperations).playExploreTrack(new PublicApiTrack(track), null, "screen");
     }
 
     @Test
@@ -134,7 +127,7 @@ public class ExploreTracksFragmentTest {
         fragment.onCreate(null);
         fragment.onItemClick(null, null, 0, 0);
 
-        verify(playbackOperations).playExploreTrack(activity, new PublicApiTrack(track), "tag", "screen");
+        verify(playbackOperations).playExploreTrack(new PublicApiTrack(track), "tag", "screen");
     }
 
     private View createFragmentView() {

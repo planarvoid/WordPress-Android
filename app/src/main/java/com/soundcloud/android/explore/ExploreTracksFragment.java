@@ -110,7 +110,7 @@ public class ExploreTracksFragment extends Fragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final PublicApiTrack track = new PublicApiTrack(adapter.getItem(position));
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
-        playbackOperations.playExploreTrack(getActivity(), track, trackingTag, screenTagExtra);
+        playbackOperations.playExploreTrack(track, trackingTag, screenTagExtra);
     }
 
     @Override

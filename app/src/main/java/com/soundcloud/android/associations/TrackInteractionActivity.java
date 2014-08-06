@@ -45,7 +45,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
                 if (playable.user != null) {
-                    playbackOperations.playTrack(TrackInteractionActivity.this, (PublicApiTrack) playable, getCurrentScreen());
+                    playbackOperations.playTrack((PublicApiTrack) playable, getCurrentScreen());
                 }
             }
         });
