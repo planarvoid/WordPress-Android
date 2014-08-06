@@ -26,8 +26,8 @@ import java.util.List;
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
     private static Han solo;
-    public static final int TIMEOUT = 10 * 1000;
-    public static final int NETWORK_TIMEOUT = 120 * 1000;
+    private static final int TIMEOUT = 10 * 1000;
+    private static final int NETWORK_TIMEOUT = 120 * 1000;
     private static final int ELEMENT_TIMEOUT = 5 * 1000;
     private static final int SMALL_TIMEOUT = 500;
 
@@ -92,7 +92,7 @@ public class Waiter {
     }
 
     private boolean waitForListContent() {
-        return solo.waitForCondition(new NoProgressBarCondition(), this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new NoProgressBarCondition(), NETWORK_TIMEOUT);
     }
 
     public boolean waitForContentAndRetryIfLoadingFailed() {
@@ -134,19 +134,19 @@ public class Waiter {
             public boolean isSatisfied() {
                 return adapter.getCount() > currentSize;
             }
-        }, this.TIMEOUT);
+        }, TIMEOUT);
     }
 
     public boolean waitForPlayerPlaying() {
-        return solo.waitForCondition(new PlayerPlayingCondition(), this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new PlayerPlayingCondition(), NETWORK_TIMEOUT);
     }
 
     public boolean waitForDrawerToClose() {
-        return solo.waitForCondition(new DrawerStateCondition(false), this.TIMEOUT);
+        return solo.waitForCondition(new DrawerStateCondition(false), TIMEOUT);
     }
 
     public boolean waitForDrawerToOpen() {
-        return solo.waitForCondition(new DrawerStateCondition(true), this.TIMEOUT);
+        return solo.waitForCondition(new DrawerStateCondition(true), TIMEOUT);
     }
 
     public void waitForLogInDialog() {
@@ -154,27 +154,27 @@ public class Waiter {
     }
 
     public void waitForActivity(Class<? extends Activity> activityClass) {
-        solo.waitForCondition(new CurrentActivityCondition(activityClass), this.TIMEOUT);
+        solo.waitForCondition(new CurrentActivityCondition(activityClass), TIMEOUT);
     }
 
     public void waitForTextInView(ViewElement viewElement) {
         solo.waitForCondition(new HasTextInViewCondition(viewElement), TIMEOUT);
     }
 
-    public boolean waitForFragmentByTag(String fragment_tag) {
-        return solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
+    public boolean waitForFragmentByTag(String fragmentTag) {
+        return solo.waitForFragmentByTag(fragmentTag, TIMEOUT);
     }
 
     public boolean waitForElement(final int content) {
-        return solo.waitForCondition(new VisibleElementCondition(content), this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new VisibleElementCondition(content), NETWORK_TIMEOUT);
     }
 
     public boolean waitForElement(final Class<? extends View> viewClass) {
-        return solo.waitForCondition(new ByClassCondition(viewClass), this.TIMEOUT);
+        return solo.waitForCondition(new ByClassCondition(viewClass), TIMEOUT);
     }
 
     public boolean waitForElements(int elementId) {
-        return solo.waitForCondition(new VisibleElementsCondition(elementId), this.NETWORK_TIMEOUT);
+        return solo.waitForCondition(new VisibleElementsCondition(elementId), NETWORK_TIMEOUT);
     }
 
     private class VisibleElementCondition implements Condition {
@@ -377,7 +377,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            Log.i(TAG, String.format("Waiting for Activity: %s, current Activity: %s", activity.getSimpleName().toString(), solo.getCurrentActivity().toString()));
+            Log.i(TAG, String.format("Waiting for Activity: %s, current Activity: %s", activity.getSimpleName(), solo.getCurrentActivity().toString()));
             return solo.getCurrentActivity().getClass().getSimpleName().equals(activity.getSimpleName());
         }
     }
