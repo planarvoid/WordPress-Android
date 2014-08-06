@@ -103,7 +103,7 @@ public class PlaybackOperations {
     }
 
     /**
-     * From a uri with an initial track to show while loading the full playlist from the DB.
+     * From a urn with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistFragment}
      */
     public void playPlaylistFromPosition(PropertySet playlist, Observable<TrackUrn> allTracks, TrackUrn initialTrackUrn, int startPosition, Screen screen) {
