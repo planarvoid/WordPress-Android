@@ -236,10 +236,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         currentPosition = playQueueOperations.getLastStoredPlayPosition();
-        if (playQueueObservable == null) {
-            // this is so the player can finish() instead of display waiting to the user
-            broadcastNewPlayQueue();
-        } else {
+        if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
                 public void onNext(PlayQueue savedQueue) {
