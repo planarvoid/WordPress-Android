@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -39,7 +38,6 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Intent;
-import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,14 +67,6 @@ public class PlaybackOperationsTest {
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-    }
-
-    @Test
-    public void playTrackShouldNotOpenPlayerActivity() {
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
-
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedActivity()).toBeNull();
     }
 
     @Test
@@ -134,17 +124,6 @@ public class PlaybackOperationsTest {
         playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
 
         verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
-    }
-
-    @Test
-    public void playPlaylistFromPositionDoesNotOpenPlayerActivity() {
-        final Observable<List<Long>> trackIdList = Observable.<List<Long>>just(Lists.newArrayList(track.getId()));
-        when(trackStorage.getTrackIdsForUriAsync(any(Uri.class))).thenReturn(trackIdList);
-        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
-                Observable.just(track.getUrn()), track.getUrn(), 0, Screen.YOUR_LIKES);
-
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedActivity()).toBeNull();
     }
 
     @Test
@@ -427,15 +406,6 @@ public class PlaybackOperationsTest {
         ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L), new PublicApiTrack(3L), new PublicApiTrack(2L), new PublicApiTrack(1L));
         playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_SCREEN);
         checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
-    }
-
-    @Test
-    public void playFromAdapterShouldNotOpenPlayerActivity() throws Exception {
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
-
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedActivity()).toBeNull();
     }
 
     @Test
