@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -39,7 +40,7 @@ public class ScTextUtils {
 
     public static final String EMPTY_STRING = "";
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###,###");
-    public static final DecimalFormat ROUNDED_FORMAT = new DecimalFormat("###,###.#");
+    public static final DecimalFormat ROUNDED_FORMAT = getRoundedFormat();
 
     private ScTextUtils() {
     }
@@ -304,8 +305,14 @@ public class ScTextUtils {
         return DECIMAL_FORMAT.format(number);
     }
 
+    private static DecimalFormat getRoundedFormat() {
+        final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        final DecimalFormat format = new DecimalFormat("###,###.#", symbols);
+        format.setRoundingMode(RoundingMode.DOWN);
+        return format;
+    }
+
     private static String shortenFactorialNumber(double number){
-        ROUNDED_FORMAT.setRoundingMode(RoundingMode.DOWN);
         return ROUNDED_FORMAT.format(number);
     }
 
