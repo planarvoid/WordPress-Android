@@ -35,7 +35,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public void clickHeaderPlay() {
         headerPlayToggle().click();
-        waiter.waitForPlayerPlaying();
+        waiter.waitForPlaybackToBePlaying();
     }
 
     public void clickHeaderPause() {

@@ -137,8 +137,8 @@ public class Waiter {
         }, TIMEOUT);
     }
 
-    public boolean waitForPlayerPlaying() {
-        return solo.waitForCondition(new PlayerPlayingCondition(), NETWORK_TIMEOUT);
+    public boolean waitForPlaybackToBePlaying() {
+        return solo.waitForCondition(new PlaybackPlayingCondition(), NETWORK_TIMEOUT);
     }
 
     public boolean waitForDrawerToClose() {
@@ -309,7 +309,7 @@ public class Waiter {
         }
     }
 
-    private class PlayerPlayingCondition implements Condition {
+    private class PlaybackPlayingCondition implements Condition {
         private final PlaybackStateProvider playbackState = new PlaybackStateProvider();
 
         @Override
