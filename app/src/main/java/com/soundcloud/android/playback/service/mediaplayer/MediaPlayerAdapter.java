@@ -183,11 +183,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        SoundCloudApplication.handleSilentException(
-                String.format(Locale.US, MEDIA_PLAYER_IO_ERROR_MSG_FORMAT, what, extra),
-                new MediaPlayerIOException(extra));
         return handleMediaPlayerError(mp, getProgress());
-
     }
 
     private boolean handleMediaPlayerError(MediaPlayer mp, long resumePosition) {
