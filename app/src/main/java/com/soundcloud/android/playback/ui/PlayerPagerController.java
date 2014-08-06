@@ -139,6 +139,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
 
     @Override
     public void onPageSelected(int position) {
+        trackPager.setPagingEnabled(!playQueueManager.isAudioAdAtPosition(position));
         shouldChangeTrackOnIdle = true;
     }
 

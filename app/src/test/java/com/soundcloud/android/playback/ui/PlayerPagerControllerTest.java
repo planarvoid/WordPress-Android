@@ -177,6 +177,23 @@ public class PlayerPagerControllerTest {
         verify(adapter).onTrackChange(); // times(1)
     }
 
+    @Test
+    public void disablePagingWhenThePageSelectedIsAnAudioAd() {
+        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
+
+        controller.onPageSelected(2);
+
+        verify(viewPager).setPagingEnabled(false);
+    }
+
+    @Test
+    public void enablePagingWhenThePageSelectedIsNotAnAudioAd() {
+        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(false);
+
+        controller.onPageSelected(2);
+
+        verify(viewPager).setPagingEnabled(true);
+    }
 
     @Test
     public void trackChangeEventWhenAdIsPlayingDisablesViewPager() {
