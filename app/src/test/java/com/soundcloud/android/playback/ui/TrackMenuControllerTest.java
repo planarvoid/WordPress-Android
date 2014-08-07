@@ -13,9 +13,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -42,7 +44,7 @@ public class TrackMenuControllerTest {
     @Before
     public void setUp() throws Exception {
         track = new PlayerTrack(TestPropertySets.forPlayerTrack());
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, trackPageListener).create(new TextView(new FragmentActivity()));
+        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps).create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
         when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
@@ -65,6 +67,7 @@ public class TrackMenuControllerTest {
         MenuItem share = mock(MenuItem.class);
         when(share.getItemId()).thenReturn(R.id.share);
         PlayerTrack withoutUser = new PlayerTrack(PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind(""),
                 PlayableProperty.IS_PRIVATE.bind(false),
@@ -84,6 +87,7 @@ public class TrackMenuControllerTest {
         MenuItem share = mock(MenuItem.class);
         when(share.getItemId()).thenReturn(R.id.share);
         PlayerTrack privateTrack = new PlayerTrack(PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.IS_PRIVATE.bind(true),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind(""),

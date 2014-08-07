@@ -45,6 +45,7 @@ public class TrackItemPresenterTest {
     @Before
     public void setUp() throws Exception {
         propertySet = PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR_NAME.bind("creator"),
                 PlayableProperty.DURATION.bind(227000),
