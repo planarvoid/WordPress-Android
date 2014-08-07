@@ -40,10 +40,13 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private long duration;
 
     private final View timestampLayout;
+    private final View timestampHolderHolder;
     private final TextView progressText;
     private final TextView durationText;
     private final View background;
     private final SpringSystem springSystem;
+    private final float waveformBaseline;
+    private final float timestampOriginalHeight;
 
     private AnimatorSet timestampAnimator;
     private Spring springY;
@@ -59,6 +62,8 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         }
     };
 
+
+    @SuppressWarnings("UnusedDeclaration")
     public TimestampView(Context context, AttributeSet attrs) {
         this(context, attrs, SpringSystem.create());
     }
@@ -75,6 +80,10 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         durationText = (TextView) findViewById(R.id.timestamp_duration);
         background = findViewById(R.id.timestamp_background);
         timestampLayout = findViewById(R.id.timestamp_layout);
+        timestampHolderHolder = findViewById(R.id.timestamp_holder);
+
+        waveformBaseline = getResources().getDimension(R.dimen.waveform_baseline);
+        timestampOriginalHeight = getResources().getDimension(R.dimen.timestamp_height);
 
     }
 
@@ -147,12 +156,12 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     private int getTimestampScrubY() {
-        return -getHeight() / 3;
+        final int holderTopToMiddle = timestampHolderHolder.getTop() - getHeight() / 2;
+        return (int) -(holderTopToMiddle + waveformBaseline - timestampOriginalHeight);
     }
 
     private void animateFromScrubMode() {
         timestampAnimator = new AnimatorSet();
-
 
         final ObjectAnimator translationY = ObjectAnimator.ofFloat(timestampLayout, "translationY", ViewHelper.getTranslationY(timestampLayout), 0);
         timestampAnimator.playTogether(
