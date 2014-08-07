@@ -87,7 +87,7 @@ public class AdsController {
     private Action1<Playa.StateTransition> unsubscribeSkipAd = new Action1<Playa.StateTransition>() {
         @Override
         public void call(Playa.StateTransition stateTransition) {
-            if (stateTransition.isPlayerPlaying()) {
+            if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
                 skipAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && playQueueManager.isCurrentTrackAudioAd()) {
                 skipAdSubscription.unsubscribe();

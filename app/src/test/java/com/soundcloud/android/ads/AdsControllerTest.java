@@ -244,6 +244,17 @@ public class AdsControllerTest {
     }
 
     @Test
+    public void pauseEventUnsubscribesFromSkipAd() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.NONE));
+        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
     public void trackChangeEventUnsubscribesFromSkipAd() {
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
