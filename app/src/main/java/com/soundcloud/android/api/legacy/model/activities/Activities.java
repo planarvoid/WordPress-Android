@@ -5,13 +5,13 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -245,7 +245,7 @@ public class Activities extends CollectionHolder<Activity> {
                     response.getStatusLine().getReasonPhrase());
         } else {
             final IOException ioException = new IOException(response.getStatusLine().toString());
-            SoundCloudApplication.handleSilentException("Activities fetchRecent failed " + request, ioException);
+            ErrorUtils.handleSilentException("Activities fetchRecent failed " + request, ioException);
             throw ioException;
         }
     }

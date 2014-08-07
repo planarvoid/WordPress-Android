@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import org.jetbrains.annotations.NotNull;
@@ -404,7 +405,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         } catch (IllegalArgumentException e) {
             // This should not happen if the receiver is registered/unregistered in complementary methods and
             // the full lifecycle is respected, but it does.
-            SoundCloudApplication.handleSilentException("Couldnt unregister receiver", e);
+            ErrorUtils.handleSilentException("Couldnt unregister receiver", e);
         }
     }
 }

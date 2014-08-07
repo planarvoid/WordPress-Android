@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -170,7 +170,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.USERS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade4 " +
+            ErrorUtils.handleSilentException("error during upgrade4 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -184,7 +184,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SOUNDS.alterColumns(db, null, null);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade5 " +
+            ErrorUtils.handleSilentException("error during upgrade5 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -200,7 +200,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.USERS.alterColumns(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade6 " +
+            ErrorUtils.handleSilentException("error during upgrade6 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -212,7 +212,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade7 " +
+            ErrorUtils.handleSilentException("error during upgrade7 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -223,7 +223,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SEARCHES.create(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade8 " +
+            ErrorUtils.handleSilentException("error during upgrade8 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -248,7 +248,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
 
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade9 " +
+            ErrorUtils.handleSilentException("error during upgrade9 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -262,7 +262,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
 
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade10 " +
+            ErrorUtils.handleSilentException("error during upgrade10 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -276,7 +276,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             cleanActivities(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade11 " +
+            ErrorUtils.handleSilentException("error during upgrade11 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -287,7 +287,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             cleanActivities(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade12 " +
+            ErrorUtils.handleSilentException("error during upgrade12 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -301,7 +301,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade13 " +
+            ErrorUtils.handleSilentException("error during upgrade13 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -312,7 +312,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             resetSyncState(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade14 " +
+            ErrorUtils.handleSilentException("error during upgrade14 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -325,7 +325,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade15 " +
+            ErrorUtils.handleSilentException("error during upgrade15 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -348,7 +348,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             }
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade19" +
+            ErrorUtils.handleSilentException("error during upgrade19" +
                     "(from " + oldVersion + ")", e);
             return false;
         }
@@ -371,7 +371,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade20 " +
+            ErrorUtils.handleSilentException("error during upgrade20 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -383,7 +383,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.ACTIVITY_VIEW.recreate(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade21 " +
+            ErrorUtils.handleSilentException("error during upgrade21 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -442,7 +442,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade23 " +
+            ErrorUtils.handleSilentException("error during upgrade23 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -454,7 +454,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.PLAY_QUEUE.recreate(db);
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade24 " +
+            ErrorUtils.handleSilentException("error during upgrade24 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -465,7 +465,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.ACTIVITIES.recreate(database);
             return true;
         } catch (SQLException exception) {
-            SoundCloudApplication.handleSilentException("error during upgrade25 " +
+            ErrorUtils.handleSilentException("error during upgrade25 " +
                     "(from " + oldVersion + ")", exception);
         }
         return false;
@@ -477,7 +477,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SOUND_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
-            SoundCloudApplication.handleSilentException("error during upgrade26 " +
+            ErrorUtils.handleSilentException("error during upgrade26 " +
                     "(from " + oldVersion + ")", exception);
         }
         return false;
@@ -489,7 +489,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SOUND_ASSOCIATION_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
-            SoundCloudApplication.handleSilentException("error during upgrade27 " +
+            ErrorUtils.handleSilentException("error during upgrade27 " +
                     "(from " + oldVersion + ")", exception);
         }
         return false;
@@ -501,7 +501,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SOUND_VIEW.recreate(database);
             Table.ACTIVITY_VIEW.recreate(database);
         } catch (SQLException exception) {
-            SoundCloudApplication.handleSilentException("error during upgrade28 " +
+            ErrorUtils.handleSilentException("error during upgrade28 " +
                     "(from " + oldVersion + ")", exception);
         }
         return false;

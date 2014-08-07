@@ -38,6 +38,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -45,7 +46,6 @@ import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
@@ -197,7 +197,7 @@ public class SoundCloudApplication extends Application {
             try {
                 C2DMReceiver.register(this);
             } catch (Exception e){
-                SoundCloudApplication.handleSilentException("Could not register c2dm ", e);
+                ErrorUtils.handleSilentException("Could not register c2dm ", e);
             }
 
             // sync current sets
@@ -273,14 +273,6 @@ public class SoundCloudApplication extends Application {
                 .setData(Content.ME_PLAYLISTS.uri);
 
         startService(intent);
-    }
-
-    public static void handleSilentException(@Nullable String message, Throwable e) {
-        if (ApplicationProperties.shouldReportCrashes()) {
-            Log.e(TAG, "Handling silent exception: " + message, e);
-            Crashlytics.setString("message", message);
-            Crashlytics.logException(e);
-        }
     }
 
     @NotNull

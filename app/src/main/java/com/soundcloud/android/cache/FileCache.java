@@ -1,7 +1,7 @@
 package com.soundcloud.android.cache;
 
 import com.integralblue.httpresponsecache.HttpResponseCache;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.AsyncTask;
@@ -48,7 +48,7 @@ public final class FileCache  {
                             Log.w(TAG, "error installing cache", e);
                         } catch (IllegalArgumentException e) {
                             Log.w(TAG, "error installing cache", e);
-                            SoundCloudApplication.handleSilentException("Error installing cache, SD Avail: "
+                            ErrorUtils.handleSilentException("Error installing cache, SD Avail: "
                                     + IOUtils.isSDCardAvailable(), e);
                         }
                     }

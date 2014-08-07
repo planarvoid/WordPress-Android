@@ -17,6 +17,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.utils.ErrorUtils;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -501,7 +502,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         final boolean invalidSeek = duration <= 0 || percent < 0 || percent > 1;
         if (invalidSeek){
             final String message = "Invalid Seek [percent=" + percent + ", duration=" + duration +"]";
-            SoundCloudApplication.handleSilentException(message, new IllegalStateException(message));
+            ErrorUtils.handleSilentException(message, new IllegalStateException(message));
             return 0;
         } else {
             return seek((long) (duration * percent), performSeek);

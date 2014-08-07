@@ -1,12 +1,13 @@
 package com.soundcloud.android.onboarding.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
+import static com.soundcloud.android.utils.ErrorUtils.handleSilentException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -176,7 +177,7 @@ public class UserDetailsLayout extends RelativeLayout {
         if (resultCode == Activity.RESULT_OK) {
             setImage(avatarFile);
         } else if (resultCode == Crop.RESULT_ERROR) {
-            handleSilentException("error cropping image", Crop.getError(result));
+            ErrorUtils.handleSilentException("error cropping image", Crop.getError(result));
             Toast.makeText(getContext(), R.string.crop_image_error, Toast.LENGTH_SHORT).show();
         }
     }

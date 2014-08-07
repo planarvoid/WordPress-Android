@@ -8,6 +8,7 @@ import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -156,7 +157,7 @@ public class ApplicationModule {
             try {
                 return new ICSRemoteAudioManager(context);
             } catch (Exception e) {
-                SoundCloudApplication.handleSilentException("Could not create remote audio manager", e);
+                ErrorUtils.handleSilentException("Could not create remote audio manager", e);
             }
         }
         return new FroyoRemoteAudioManager(context);

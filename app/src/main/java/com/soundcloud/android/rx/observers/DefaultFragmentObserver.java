@@ -12,7 +12,7 @@ public class DefaultFragmentObserver<T extends Fragment, R> extends RxFragmentOb
 
     @Override
     public void onError(Throwable error) {
-        ErrorUtils.handleThrowable(error);
+        ErrorUtils.handleThrowable(error, getClass());
         super.onError(error);
     }
 }

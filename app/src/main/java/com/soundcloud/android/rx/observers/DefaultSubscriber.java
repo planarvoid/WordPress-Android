@@ -7,7 +7,7 @@ import rx.Subscription;
 
 /**
  * Default subscriber base class to be used whenever you want default error handling
- * (cf. {@link com.soundcloud.android.utils.ErrorUtils#handleThrowable(Throwable)}
+ * (cf. {@link com.soundcloud.android.utils.ErrorUtils#handleThrowable(Throwable, Class)}
  */
 public abstract class DefaultSubscriber<T> extends Subscriber<T> {
 
@@ -22,7 +22,7 @@ public abstract class DefaultSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onError(Throwable e) {
-        ErrorUtils.handleThrowable(e);
+        ErrorUtils.handleThrowable(e, getClass());
     }
 
     @Override

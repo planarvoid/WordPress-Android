@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
@@ -122,7 +121,7 @@ public class DebugUtils {
 
             // only report when there's an active connection
             if (info != null && info.isConnectedOrConnecting()) {
-                SoundCloudApplication.handleSilentException("mp error", new MediaPlayerException(what, extra, info, item));
+                ErrorUtils.handleSilentException("mp error", new MediaPlayerException(what, extra, info, item));
             }
         }
     }

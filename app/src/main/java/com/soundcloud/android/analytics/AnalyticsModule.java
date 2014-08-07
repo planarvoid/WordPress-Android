@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.collect.Lists;
 import com.localytics.android.Constants;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
@@ -9,6 +8,7 @@ import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
@@ -60,7 +60,7 @@ public class AnalyticsModule {
         try {
             return new ComScoreAnalyticsProvider(context);
         } catch (Exception e) {
-            SoundCloudApplication.handleSilentException("Error during Comscore library init", e);
+            ErrorUtils.handleSilentException("Error during Comscore library init", e);
             return null;
         }
     }

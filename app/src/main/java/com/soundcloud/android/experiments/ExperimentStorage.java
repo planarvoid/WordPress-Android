@@ -42,7 +42,7 @@ class ExperimentStorage extends ScheduledOperations {
             String json = jsonTransformer.toJson(assignment);
             IOUtils.writeFileFromString(getAssignmentHandle(), json);
         } catch (IOException e) {
-            ErrorUtils.handleThrowable(e);
+            ErrorUtils.handleThrowable(e, getClass());
         }
     }
 

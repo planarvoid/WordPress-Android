@@ -1,8 +1,8 @@
 package com.soundcloud.android.analytics;
 
 import com.google.common.net.HttpHeaders;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import org.apache.http.HttpStatus;
 
@@ -52,7 +52,7 @@ class TrackingApi {
                 if (isSuccessCode(status)) {
                     successes.add(event);
                 } else {
-                    SoundCloudApplication.handleSilentException(EventTracker.TAG,
+                    ErrorUtils.handleSilentException(EventTracker.TAG,
                             new Exception("Tracking request failed with unexpected status code: " + status
                                     + "\nURL: " + connection.getURL()));
                 }
