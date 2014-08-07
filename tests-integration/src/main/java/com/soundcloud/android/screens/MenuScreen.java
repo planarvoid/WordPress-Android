@@ -8,7 +8,6 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
-import com.soundcloud.android.utils.Log;
 
 import android.os.Build;
 
@@ -96,9 +95,7 @@ public class MenuScreen {
 
     public ExploreScreen clickExplore() {
         exploreMenuItem().click();
-        Log.i("asdf", "Clicked Explore");
         waiter.waitForDrawerToClose();
-        Log.i("asdf", "Closed Drawer");
         return new ExploreScreen(testDriver);
     }
 
