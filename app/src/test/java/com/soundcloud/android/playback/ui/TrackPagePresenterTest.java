@@ -266,7 +266,7 @@ public class TrackPagePresenterTest {
 
         presenter.updateAssociations(trackView, changeSet);
 
-        expect(ShadowToast.getTextOfLatestToast()).toBe(Robolectric.application.getString(R.string.reposted_to_followers));
+        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.reposted_to_followers));
     }
 
     @Test
@@ -275,7 +275,7 @@ public class TrackPagePresenterTest {
 
         presenter.updateAssociations(trackView, changeSet);
 
-        expect(ShadowToast.getTextOfLatestToast()).toBe(Robolectric.application.getString(R.string.unposted_to_followers));
+        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.unposted_to_followers));
     }
 
     @Test
