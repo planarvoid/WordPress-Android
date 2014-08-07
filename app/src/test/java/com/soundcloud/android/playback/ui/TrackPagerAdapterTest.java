@@ -36,13 +36,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
-import android.support.v4.view.PagerAdapter;
 import android.net.Uri;
+import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -316,18 +315,6 @@ public class TrackPagerAdapterTest {
         verify(trackPagePresenter).setProgress(firstTrack, firstProgress);
         verify(trackPagePresenter).setProgress(secondTrack, secondProgress);
         verify(adPagePresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
-    }
-
-    @Test
-    public void shouldNotSetProgressOnReceivingTrackIfCurrentProgressIsNotAvailable() {
-        View trackPage = getPageView(0, TRACK_URN);
-        getPageView(1, TRACK_URN);
-        when(trackPagePresenter.accept(trackPage)).thenReturn(true);
-        when(playSessionStateProvider.hasCurrentProgress(TRACK_URN)).thenReturn(false);
-
-        adapter.onTrackChange();
-
-        verify(trackPagePresenter, never()).setProgress(eq(trackPage), any(PlaybackProgress.class));
     }
 
     @Test
