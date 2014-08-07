@@ -71,7 +71,8 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
                 fireAndForget(associationOperations.toggleRepost(track.getUrn(), false));
                 return true;
             case R.id.info:
-                TrackInfoFragment.create(infoArgs).show(activity.getSupportFragmentManager(), "frage");
+                TrackInfoFragment.create(infoArgs).show(activity.getSupportFragmentManager(), "info_dialog");
+                return true;
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog();
                 return true;

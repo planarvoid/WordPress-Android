@@ -1,13 +1,11 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.tests.Han;
-
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
 
 import android.support.v7.internal.view.menu.ListMenuItemView;
-import android.widget.PopupWindow;
 
 import java.util.List;
 
@@ -31,6 +29,10 @@ public class MenuElement {
 
     public ViewElement repostItem() {
         return menuItems().get(2);
+    }
+
+    public ViewElement info() {
+        return menuItems().get(3);
     }
 
     private ViewElement container() {
