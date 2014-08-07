@@ -38,11 +38,13 @@ public class BigPlaybackNotificationPresenter extends RichNotificationPresenter 
 
     @Override
     void setIcon(Notification notification, Uri bitmapUri) {
+        super.setIcon(notification, bitmapUri);
         ((NotificationPlaybackRemoteViews) notification.bigContentView).setIcon(bitmapUri);
     }
 
     @Override
     void clearIcon(Notification notification){
+        super.clearIcon(notification);
         ((NotificationPlaybackRemoteViews) notification.bigContentView).clearIcon();
     }
 
