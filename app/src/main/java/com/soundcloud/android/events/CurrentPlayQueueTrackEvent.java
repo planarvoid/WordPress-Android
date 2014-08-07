@@ -27,10 +27,6 @@ public final class CurrentPlayQueueTrackEvent {
         return kind;
     }
 
-    public boolean wasPositionUpdate() {
-        return kind == POSITION_CHANGED;
-    }
-
     public boolean wasNewQueue() {
         return kind == NEW_QUEUE;
     }

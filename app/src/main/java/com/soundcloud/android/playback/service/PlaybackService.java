@@ -538,10 +538,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return streamPlayer.isPlaying();
     }
 
-    public void restartTrack() {
-        openCurrent();
-    }
-
     private long getTrackUserId() {
         return currentTrack != null ? currentTrack.user_id : -1;
     }
