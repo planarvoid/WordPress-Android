@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics;
 
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.ChangeResult;
@@ -38,7 +38,7 @@ class TrackingHandler extends Handler {
         try {
             handleTrackingEvent(msg);
         } catch (Exception e) {
-            SoundCloudApplication.handleSilentException(EventTracker.TAG, e);
+            ErrorUtils.handleSilentException(EventTracker.TAG, e);
         }
     }
 
@@ -47,11 +47,11 @@ class TrackingHandler extends Handler {
             case INSERT_TOKEN:
                 try {
                     if (!storage.insertEvent((TrackingEvent) msg.obj).success()) {
-                        SoundCloudApplication.handleSilentException(
+                        ErrorUtils.handleSilentException(
                                 EventTracker.TAG, new Exception("error inserting tracking event " + msg.obj));
                     }
                 } catch (UnsupportedEncodingException e) {
-                    SoundCloudApplication.handleSilentException(EventTracker.TAG, e);
+                    ErrorUtils.handleSilentException(EventTracker.TAG, e);
                 }
                 break;
 
@@ -93,7 +93,7 @@ class TrackingHandler extends Handler {
             if (result.success() && submitted.size() == rowsDeleted) {
                 Log.d(EventTracker.TAG, "submitted " + rowsDeleted + " events");
             } else {
-                SoundCloudApplication.handleSilentException(
+                ErrorUtils.handleSilentException(
                         EventTracker.TAG, new Exception("Failed to delete some tracking events: failed = "
                                 + (submitted.size() - rowsDeleted)));
             }

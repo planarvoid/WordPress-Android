@@ -1,8 +1,11 @@
 package com.soundcloud.android.utils;
 
+import com.crashlytics.android.Crashlytics;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
+import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorNotImplementedException;
 
 import java.io.IOException;
@@ -21,15 +24,16 @@ public class ErrorUtils {
      * <p/>
      * see https://github.com/Netflix/RxJava/issues/969
      * @param t the Exception or Error that was raised
+     * @param callsite
      */
-    public static void handleThrowable(Throwable t) {
+    public static void handleThrowable(Throwable t, Class<?> callsite) {
         if (t instanceof OnErrorNotImplementedException) {
             throw new FatalException(t.getCause());
         } else if (t instanceof RuntimeException || t instanceof Error) {
             throw new OnErrorNotImplementedException(t);
         } else if (!excludeFromReports(t)) {
             // don't rethrow checked exceptions
-            SoundCloudApplication.handleSilentException(t.getMessage(), t);
+            handleSilentException(t, "error-callsite", callsite.getCanonicalName());
         }
         t.printStackTrace();
     }
@@ -42,6 +46,24 @@ public class ErrorUtils {
     public static class FatalException extends RuntimeException {
         public FatalException(Throwable throwable) {
             super(throwable);
+        }
+    }
+
+    public static void handleSilentException(String message, Throwable e) {
+        handleSilentException(e, "message", message);
+    }
+
+    public static void handleSilentException(Throwable e) {
+        handleSilentException(e, null, null);
+    }
+
+    public static void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+        if (ApplicationProperties.shouldReportCrashes()) {
+            Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
+            if (contextKey != null && contextValue != null) {
+                Crashlytics.setString(contextKey, contextValue);
+            }
+            Crashlytics.logException(e);
         }
     }
 }

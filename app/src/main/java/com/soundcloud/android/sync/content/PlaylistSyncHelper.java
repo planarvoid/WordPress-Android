@@ -21,6 +21,7 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.exception.PlaylistUpdateException;
 import com.soundcloud.android.sync.exception.UnknownResourceException;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 
@@ -68,7 +69,7 @@ class PlaylistSyncHelper {
                 playlist = (PublicApiPlaylist) result;
             } else {
                 // Debugging. Return objects sometimes are not playlists. Need to log this to get more info about the cause of this
-                SoundCloudApplication.handleSilentException("Error adding new playlist " + p, new PlaylistUpdateException(content));
+                ErrorUtils.handleSilentException("Error adding new playlist " + p, new PlaylistUpdateException(content));
                 continue; // this will get retried next sync
             }
 
@@ -180,7 +181,7 @@ class PlaylistSyncHelper {
             } else {
                 // Debugging. Return objects sometimes are not playlists. In this case the user will lose addition.
                 // This is an edge case so I think its acceptable until we can figure out the root of the problem [JS]
-                SoundCloudApplication.handleSilentException("Error updating playlist " + playlist, new PlaylistUpdateException(content));
+                ErrorUtils.handleSilentException("Error updating playlist " + playlist, new PlaylistUpdateException(content));
                 return playlist;
             }
         }
@@ -194,7 +195,7 @@ class PlaylistSyncHelper {
         } else {
             // log for debugging and throw
             final UnknownResourceException exception = new UnknownResourceException(playlistUri);
-            SoundCloudApplication.handleSilentException("Error retrieving playlist " + playlistUri, exception);
+            ErrorUtils.handleSilentException("Error retrieving playlist " + playlistUri, exception);
             throw exception;
 
         }

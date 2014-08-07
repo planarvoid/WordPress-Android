@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
+import static com.soundcloud.android.utils.ErrorUtils.handleSilentException;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -18,6 +18,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
@@ -256,7 +257,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                 if (resultCode == RESULT_OK) {
                     recordingMetadata.setImage(recording.generateImageFile(Recording.IMAGE_DIR));
                 } else if (resultCode == Crop.RESULT_ERROR) {
-                    handleSilentException("error cropping image", Crop.getError(result));
+                    ErrorUtils.handleSilentException("error cropping image", Crop.getError(result));
                     Toast.makeText(this, R.string.crop_image_error, Toast.LENGTH_SHORT).show();
                 }
                 break;

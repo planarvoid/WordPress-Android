@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -16,6 +15,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
@@ -131,7 +131,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         final String message = String.format("exception while processing %s for provider %s, with error = %s",
                 methodName, provider.getClass(), t.toString());
         Log.e(this, message);
-        SoundCloudApplication.handleSilentException(message, t);
+        ErrorUtils.handleSilentException(message, t);
     }
 
     private final class ActivityEventSubscriber extends EventSubscriber<ActivityLifeCycleEvent> {

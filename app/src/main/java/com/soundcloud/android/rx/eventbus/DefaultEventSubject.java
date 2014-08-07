@@ -35,7 +35,7 @@ class DefaultEventSubject<T> extends Subject<T, T> {
 
     @Override
     public void onError(Throwable e) {
-        ErrorUtils.handleThrowable(e);
+        ErrorUtils.handleThrowable(e, getClass());
     }
 
     @Override

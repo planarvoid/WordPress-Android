@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.streaming;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ErrorUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.ParseException;
@@ -396,7 +396,7 @@ public class StreamProxy {
                 if (stream.item == null || stream.item.getContentLength() == 0) {
                     // should not happen
                     IOException e = new IOException("BUG: "+(stream.item == null ? "item is null" : "content-length is 0"));
-                    SoundCloudApplication.handleSilentException(null, e);
+                    ErrorUtils.handleSilentException(e);
                     throw e;
                 }
 

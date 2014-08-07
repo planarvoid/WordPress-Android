@@ -12,7 +12,7 @@ public class ErrorUtilsTest {
     @Test
     public void handleThrowableShouldNotRethrowCheckedExceptions() {
         try {
-            ErrorUtils.handleThrowable(new Exception());
+            ErrorUtils.handleThrowable(new Exception(), ErrorUtilsTest.class);
         } catch (Throwable t) {
             fail("Checked exception was raised, but shouldn't be");
         }
@@ -22,22 +22,22 @@ public class ErrorUtilsTest {
     @Test
     public void handleThrowableShouldLogTheStackTrace() {
         Throwable mockError = mock(Throwable.class);
-        ErrorUtils.handleThrowable(mockError);
+        ErrorUtils.handleThrowable(mockError, ErrorUtilsTest.class);
         verify(mockError).printStackTrace();
     }
 
     @Test(expected = OnErrorNotImplementedException.class)
     public void handleThrowableShouldRethrowJavaErrorsAsOnErrorNotImplemented() {
-        ErrorUtils.handleThrowable(new StackOverflowError());
+        ErrorUtils.handleThrowable(new StackOverflowError(), ErrorUtilsTest.class);
     }
 
     @Test(expected = OnErrorNotImplementedException.class)
     public void handleThrowableShouldRethrowJavaUncheckedExceptionsAsOnErrorNotImplemented() {
-        ErrorUtils.handleThrowable(new RuntimeException());
+        ErrorUtils.handleThrowable(new RuntimeException(), ErrorUtilsTest.class);
     }
 
     @Test(expected = RuntimeException.class)
     public void handleThrowableShouldRethrowCauseFromOnErrorNotImplemented() {
-        ErrorUtils.handleThrowable(new OnErrorNotImplementedException(new RuntimeException()));
+        ErrorUtils.handleThrowable(new OnErrorNotImplementedException(new RuntimeException()), ErrorUtilsTest.class);
     }
 }

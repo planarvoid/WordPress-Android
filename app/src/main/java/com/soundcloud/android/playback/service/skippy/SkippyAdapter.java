@@ -9,7 +9,6 @@ import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
@@ -23,6 +22,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -293,7 +293,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     public void onErrorMessage(ErrorCategory category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
         String errorMessage = errorMsg + "\n" + "currentNumberOfAttemptedPlaysBeforeDecoderError=" + numberOfAttemptedPlaysBeforeDecoderError;
 
-        SoundCloudApplication.handleSilentException(errorMessage, new SkippyException(category, line, sourceFile));
+        ErrorUtils.handleSilentException(errorMessage, new SkippyException(category, line, sourceFile));
 
         if(ErrorCategory.Category.GENERIC_DECODER.equals(category.getCategory())) {
             numberOfAttemptedPlaysBeforeDecoderError = 0;
@@ -305,7 +305,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onInitializationError(Throwable throwable, String message) {
-        SoundCloudApplication.handleSilentException(message, throwable);
+        ErrorUtils.handleSilentException(message, throwable);
     }
 
     @VisibleForTesting

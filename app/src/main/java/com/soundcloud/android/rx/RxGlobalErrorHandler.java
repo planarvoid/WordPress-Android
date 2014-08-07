@@ -9,6 +9,6 @@ import rx.plugins.RxJavaErrorHandler;
 public class RxGlobalErrorHandler extends RxJavaErrorHandler {
     @Override
     public void handleError(Throwable t) {
-        ErrorUtils.handleThrowable(t);
+        ErrorUtils.handleThrowable(t, getClass());
     }
 }

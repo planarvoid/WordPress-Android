@@ -15,6 +15,7 @@ import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SQLiteErrors;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
@@ -1070,7 +1071,7 @@ public class ScContentProvider extends ContentProvider {
         } catch (SQLiteDiskIOException e) {
             final String msg = "sqlite disk I/O:" + SQLiteErrors.convertToErrorMessage(e);
             Log.w(TAG, msg, e);
-            SoundCloudApplication.handleSilentException(msg,  e);
+            ErrorUtils.handleSilentException(msg, e);
             return def;
         }
     }
