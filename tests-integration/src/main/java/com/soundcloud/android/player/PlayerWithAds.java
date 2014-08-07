@@ -1,5 +1,6 @@
 package com.soundcloud.android.player;
 
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
 import static com.soundcloud.android.tests.matcher.player.IsPlaying.Playing;
 import static com.soundcloud.android.tests.matcher.player.IsSkipAllowed.SkipAllowed;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,6 +18,7 @@ import com.soundcloud.android.tests.with.With;
 public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     private VisualPlayerElement playerElement;
+    private PlaylistDetailsScreen playlistDetailsScreen;
 
     public PlayerWithAds() {
         super(MainActivity.class);
@@ -27,7 +29,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
 
-        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
+        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
@@ -61,5 +63,16 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         String adTrackTitle = playerElement.getTrackTitle();
         playerElement.tapSkipAd();
         assertThat(adTrackTitle, is(not(equalTo(playerElement.getTrackTitle()))));
+    }
+
+    public void testDoesNotOpenTrackWhileAdIsPlaying() {
+        playerElement.clickArtwork();
+        playerElement.pressBackToCollapse();
+        String footerTrackCreator = playerElement.getFooterTrackCreator();
+        solo.scrollToBottom(solo.getCurrentListView());
+        playlistDetailsScreen.clickFirstTrack();
+
+        assertThat(playerElement, is(Collapsed()));
+        assertThat(playerElement.getFooterTrackCreator(), equalTo(footerTrackCreator));
     }
 }

@@ -59,6 +59,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.track_page_user));
     }
 
+    private ViewElement footerUser() {
+        return solo.findElement(With.id(R.id.footer_user));
+    }
+
     private ViewElement footerPlayToggle() {
         return solo.findElement(With.id(R.id.footer_toggle));
     }
@@ -135,6 +139,10 @@ public class VisualPlayerElement extends Element {
 
     public String getTrackCreator() {
         return creator().getText();
+    }
+
+    public String getFooterTrackCreator() {
+        return footerUser().getText();
     }
 
     public void waitForContent() {
