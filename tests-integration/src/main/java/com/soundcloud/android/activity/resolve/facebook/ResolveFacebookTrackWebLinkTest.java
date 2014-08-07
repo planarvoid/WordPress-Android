@@ -1,8 +1,9 @@
 package com.soundcloud.android.activity.resolve.facebook;
 
+import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -20,20 +21,14 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
 
     public void testFacebookTrackDeeplinkOpensPlayerScreenAndLoadRecommendations() {
         VisualPlayerElement player = new VisualPlayerElement(solo);
-        assertThat(player.isVisible(), is(true));
-        assertThat(player.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
-        // TODO : No recommendation for the visual player ?
-//            playerScreen = new LegacyPlayerScreen(solo);
-//            assertThat(playerScreen, is(Visible()));
-//
-//            playerScreen.stopPlayback();
-//            waiter.expect(playerScreen.trackTitle())
-//                    .toHaveText(TRACK_NAME);
-//
-//            // make sure recommendations load
-//            playerScreen.swipeLeft();
-//
-//            assertThat(TRACK_NAME, is(not(equalToIgnoringCase(playerScreen.getTrackTitle()))));
+        player.waitForExpandedPlayer();
+        player.waitForContent();
 
+        assertThat(player.isVisible(), is(true));
+        assertThat(player.getTrackTitle(), is(TRACK_NAME));
+        assertThat(player, is(Visible()));
+
+        player.swipeNext();
+        assertThat(player.getTrackTitle(), is(not(TRACK_NAME)));
     }
 }
