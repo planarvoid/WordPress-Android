@@ -137,6 +137,8 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         viewHolder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
         viewHolder.previousArea.setEnabled(canSkip);
         viewHolder.nextArea.setEnabled(canSkip);
+        viewHolder.previousButton.setEnabled(canSkip);
+        viewHolder.nextButton.setEnabled(canSkip);
         viewHolder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
     }
 

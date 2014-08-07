@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.matcher.player;
 
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ViewElement;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -18,17 +19,21 @@ public class IsSkipAllowed extends TypeSafeMatcher<VisualPlayerElement> {
     }
 
     private boolean isSkipAreaAvailable(VisualPlayerElement playerElement) {
-        return playerElement.nextPageArea().isVisible() &&
-                playerElement.previousPageArea().isVisible();
+        return isClickable(playerElement.nextPageArea())
+                && isClickable(playerElement.previousPageArea());
     }
 
     private boolean isSkipButtonsAvailable(VisualPlayerElement playerElement) {
-        return playerElement.nextButton().isVisible() &&
-                playerElement.previousButton().isVisible();
+        return isClickable(playerElement.nextButton())
+                && isClickable(playerElement.previousButton());
+    }
+
+    private boolean isClickable(ViewElement element) {
+        return element.isVisible() && element.isEnabled();
     }
 
     public void describeTo(Description description) {
-        description.appendText("skip allowed");
+        description.appendText("skip allowed.");
     }
 
     @Factory
