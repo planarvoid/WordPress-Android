@@ -42,10 +42,6 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     @Override
     public void bindItemView(int position, View itemView, List<PropertySet> trackItems) {
         final PropertySet track = trackItems.get(position);
-        bindItemView(itemView, track);
-    }
-
-    public void bindItemView(View itemView, PropertySet track) {
         getTextView(itemView, R.id.list_item_header).setText(track.get(PlayableProperty.CREATOR_NAME));
         getTextView(itemView, R.id.list_item_subheader).setText(track.get(PlayableProperty.TITLE));
         final String formattedDuration = ScTextUtils.formatTimestamp(track.get(PlayableProperty.DURATION), TimeUnit.MILLISECONDS);
@@ -75,7 +71,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private void showRelevantAdditionalInformation(View itemView, PropertySet track) {
         hideAllAdditionalInformation(itemView);
-        if (track.contains(TrackProperty.URN) && track.get(TrackProperty.URN).equals(playingTrack)) {
+        if (track.get(PlayableProperty.URN).equals(playingTrack)) {
             showNowPlaying(itemView);
         } else if (isPrivateTrack(track)) {
             showPrivateIndicator(itemView);
