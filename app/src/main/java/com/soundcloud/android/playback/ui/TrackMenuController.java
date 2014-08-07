@@ -13,7 +13,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +26,6 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     private final FragmentActivity activity;
     private final PopupMenu popupMenu;
-    private final TrackPageListener trackPageListener;
     private Bundle infoArgs;
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
@@ -37,13 +35,11 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     private TrackMenuController(View anchorView,
                                 PlayQueueManager playQueueManager,
                                 SoundAssociationOperations associationOperations,
-                                FragmentActivity context,
-                                TrackPageListener trackPageListener) {
+                                FragmentActivity context) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.activity = context;
         this.popupMenu = new PopupMenu(activity, anchorView);
-        this.trackPageListener = trackPageListener;
         setupMenu(anchorView);
     }
 
@@ -75,7 +71,7 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
                 fireAndForget(associationOperations.toggleRepost(track.getUrn(), false));
                 return true;
             case R.id.info:
-                TrackInfoFragment.create(infoArgs).show(((FragmentActivity) context).getSupportFragmentManager(), "frage");
+                TrackInfoFragment.create(infoArgs).show(activity.getSupportFragmentManager(), "frage");
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog();
                 return true;
@@ -137,21 +133,17 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     }
 
     static class Factory {
-
         private final PlayQueueManager playQueueManager;
         private final SoundAssociationOperations associationOperations;
-        private final TrackPageListener trackPageListener
-                ;
 
         @Inject
-        Factory(PlayQueueManager playQueueManager, SoundAssociationOperations associationOperations, TrackPageListener trackPageListener) {
+        Factory(PlayQueueManager playQueueManager, SoundAssociationOperations associationOperations) {
             this.playQueueManager = playQueueManager;
             this.associationOperations = associationOperations;
-            this.trackPageListener = trackPageListener;
         }
 
         TrackMenuController create(View anchorView) {
-            return new TrackMenuController(anchorView, playQueueManager, associationOperations, (FragmentActivity) anchorView.getContext(), trackPageListener);
+            return new TrackMenuController(anchorView, playQueueManager, associationOperations, (FragmentActivity) anchorView.getContext());
         }
     }
 }
