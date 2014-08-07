@@ -44,4 +44,8 @@ public class ViewMatcher<T extends View, M extends ViewMatcher<T, M>> extends Ob
         return actual.isEnabled();
     }
 
+    public boolean toBeDisabled() {
+        return !actual.isEnabled();
+    }
+
 }

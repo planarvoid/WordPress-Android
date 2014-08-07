@@ -81,4 +81,30 @@
     </RelativeLayout>
 
 
+    <FrameLayout
+            android:id="@+id/track_page_next"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            style="@style/PlayerSkipTouchTarget">
+
+        <Button
+                android:id="@+id/player_next"
+                android:layout_gravity="left|center_vertical"
+                style="@style/PlayerNext" />
+    </FrameLayout>
+
+
+    <FrameLayout
+            android:id="@+id/track_page_previous"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            style="@style/PlayerSkipTouchTarget">
+
+        <Button
+                android:id="@+id/player_previous"
+                android:layout_gravity="right|center_vertical"
+                style="@style/PlayerPrevious" />
+    </FrameLayout>
+
+
 </RelativeLayout>

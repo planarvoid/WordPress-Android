@@ -1,8 +1,13 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playback.service.Playa.PlayaState;
+import static com.soundcloud.android.playback.service.Playa.Reason;
+import static com.soundcloud.android.playback.service.Playa.StateTransition;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
@@ -39,6 +44,7 @@ public class AdPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
         adView = presenter.createItemView(new FrameLayout(Robolectric.application));
         presenter.bindItemView(adView, buildAd());
@@ -127,6 +133,8 @@ public class AdPagePresenterTest {
         expect(previewArtworkOverlay()).toBeVisible();
         expect(timeUntilSkip()).toBeVisible();
         expect(timeUntilSkip().getText()).toEqual("15 sec.");
+        expect(nextArea()).toBeDisabled();
+        expect(previousArea()).toBeDisabled();
     }
 
     @Test
@@ -146,7 +154,37 @@ public class AdPagePresenterTest {
         expect(timeUntilSkip()).toBeGone();
         expect(previewArtworkOverlay()).toBeGone();
         expect(skipAd()).toBeVisible();
+        expect(nextArea()).toBeEnabled();
+        expect(previousArea()).toBeEnabled();
     }
+
+    @Test
+    public void setPlayingStateShouldHidePlayControls() {
+        presenter.setPlayState(adView, new StateTransition(PlayaState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true);
+
+        expect(adView.findViewById(R.id.player_play)).toBeGone();
+        expect(adView.findViewById(R.id.player_previous)).toBeGone();
+        expect(adView.findViewById(R.id.player_next)).toBeGone();
+    }
+
+    @Test
+    public void setBufferingStateShouldHidePlayControls() {
+        presenter.setPlayState(adView, new StateTransition(PlayaState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true);
+
+        expect(adView.findViewById(R.id.player_play)).toBeGone();
+        expect(adView.findViewById(R.id.player_previous)).toBeGone();
+        expect(adView.findViewById(R.id.player_next)).toBeGone();
+    }
+
+    @Test
+    public void setIdleStateShouldShowPlayControls() {
+        presenter.setPlayState(adView, new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.forTrack(123L)), true);
+
+        expect(adView.findViewById(R.id.player_play)).toBeVisible();
+        expect(adView.findViewById(R.id.player_previous)).toBeVisible();
+        expect(adView.findViewById(R.id.player_next)).toBeVisible();
+    }
+
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
         return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
@@ -158,6 +196,14 @@ public class AdPagePresenterTest {
 
     private View skipAd() {
         return adView.findViewById(R.id.skip_ad);
+    }
+
+    private View nextArea() {
+        return adView.findViewById(R.id.track_page_next);
+    }
+
+    private View previousArea() {
+        return adView.findViewById(R.id.track_page_previous);
     }
 
     private View previewArtworkOverlay() {

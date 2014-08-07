@@ -58,6 +58,14 @@ class AdPageListener {
         startActivity(Uri.parse("https://soundcloud.com"));
     }
 
+    public void onNext() {
+        playbackOperations.nextTrack();
+    }
+
+    public void onPrevious() {
+        playbackOperations.previousTrack();
+    }
+
     private void startActivity(Uri uri) {
         final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
