@@ -1,11 +1,15 @@
 package com.soundcloud.android.playback.ui.view;
 
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringSystem;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.view.FixedWidthView;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
+import com.soundcloud.android.waveform.WaveformData;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -22,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -32,8 +35,10 @@ public class WaveformView extends FrameLayout {
     private static final int DEFAULT_BAR_SPACE_DP = 1;
     private static final int DEFAULT_BASELINE_DP = 68;
     private static final float DEFAULT_WAVEFORM_WIDTH_RATIO = 1.5f;
-    private static final int SCALE_UP_DURATION = 200;
-    private static final int SCALE_DOWN_DURATION = 70;
+    private static final int SCALE_DOWN_DURATION = 50;
+
+    private static final double SPRING_TENSION = 180.0D;
+    private static final double SPRING_FRICTION = 10.0D;
 
     private final int barWidth;
     private final int spaceWidth;
@@ -54,6 +59,8 @@ public class WaveformView extends FrameLayout {
     private final FixedWidthView dragView;
     private final ListenableHorizontalScrollView dragViewHolder;
 
+    private SpringSystem springSystem = SpringSystem.create();
+    private Spring springY;
     private ObjectAnimator leftWaveformScaler;
     private ObjectAnimator rightWaveformScaler;
 
@@ -169,11 +176,19 @@ public class WaveformView extends FrameLayout {
     void showExpandedWaveform() {
         clearScaleAnimations();
 
-        leftWaveformScaler = createScaleUpAnimator(leftWaveform);
-        leftWaveformScaler.start();
-
-        rightWaveformScaler = createScaleUpAnimator(rightWaveform);
-        rightWaveformScaler.start();
+        springY = springSystem.createSpring();
+        springY.addListener(new SimpleSpringListener() {
+            @Override
+            public void onSpringUpdate(Spring spring) {
+                float value = (float) spring.getCurrentValue();
+                ViewHelper.setScaleY(rightWaveform, value);
+                ViewHelper.setScaleY(leftWaveform, value);
+                invalidate(); // can we do anything cheaper than this?
+            }
+        });
+        springY.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(SPRING_TENSION, SPRING_FRICTION));
+        springY.setCurrentValue(ViewHelper.getScaleY(leftWaveform));
+        springY.setEndValue(1);
 
         hideIdleLines();
     }
@@ -204,19 +219,17 @@ public class WaveformView extends FrameLayout {
     }
 
     private void clearScaleAnimations() {
+        if (springY != null){
+            springY.removeAllListeners();
+            springY.destroy();
+        }
+
         if (leftWaveformScaler != null) {
             leftWaveformScaler.cancel();
         }
         if (rightWaveformScaler != null) {
             rightWaveformScaler.cancel();
         }
-    }
-
-    private ObjectAnimator createScaleUpAnimator(View animateView) {
-        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", ViewHelper.getScaleY(animateView), 1f);
-        objectAnimator.setDuration(SCALE_UP_DURATION);
-        objectAnimator.setInterpolator(new OvershootInterpolator());
-        return objectAnimator;
     }
 
     private ObjectAnimator createScaleDownAnimator(View animateView) {

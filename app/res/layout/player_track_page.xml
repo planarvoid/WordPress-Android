@@ -30,33 +30,37 @@
 
     <include layout="@layout/player_expanded_close_control" />
 
-    <View
-        android:id="@+id/center_point"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_centerInParent="true" />
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="0dp"
+                  android:layout_above="@+id/player_bottom_close"
+                  android:layout_alignParentTop="true"
+                  android:orientation="vertical">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@id/center_point"
-        android:layout_above="@+id/player_bottom_close"
-        android:layout_marginTop="20dp">
+        <View android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="2"/>
 
-        <com.soundcloud.android.playback.ui.view.WaveformView
-            android:id="@+id/track_page_waveform"
-            style="@style/Waveform"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/player_waveform_height"
-            android:visibility="gone" />
-    </FrameLayout>
+        <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingTop="@dimen/timestamp_height">
+
+            <com.soundcloud.android.playback.ui.view.WaveformView
+                    android:id="@+id/track_page_waveform"
+                    style="@style/Waveform"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/player_waveform_height"
+                    android:visibility="gone"/>
+        </FrameLayout>
+    </LinearLayout>
 
     <com.soundcloud.android.playback.ui.view.TimestampView
         android:id="@+id/timestamp"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/timestamp_height"
-        android:layout_below="@id/center_point"
-        android:layout_marginTop="@dimen/waveform_baseline" />
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/player_bottom_close"/>
 
     <LinearLayout
         android:id="@id/player_bottom_close"

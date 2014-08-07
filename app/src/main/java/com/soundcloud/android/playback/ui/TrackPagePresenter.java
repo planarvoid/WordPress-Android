@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -29,6 +31,8 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 
 class TrackPagePresenter implements PagePresenter, View.OnClickListener {
+
+    private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
 
     private final WaveformOperations waveformOperations;
     private final TrackPageListener listener;
@@ -219,7 +223,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void setProgress(View trackPage, PlaybackProgress progress) {
-        for (ProgressAware view : getViewHolder(trackPage).getProgressAwareViews()) {
+        for (ProgressAware view : getViewHolder(trackPage).getProgressAwareItems()) {
             view.setProgress(progress);
         }
     }
@@ -287,12 +291,32 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController = waveformControllerFactory.create(waveform);
         holder.artworkController = artworkControllerFactory.create(holder.artworkView);
         holder.playerOverlayController = playerOverlayControllerFactory.create(holder.artworkOverlay);
+
         holder.waveformController.addScrubListener(holder.artworkController);
         holder.waveformController.addScrubListener(holder.timestamp);
-
+        holder.waveformController.addScrubListener(holder.playerOverlayController);
+        holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
         holder.menuController = trackMenuControllerFactory.create(holder.more);
-
         trackView.setTag(holder);
+    }
+
+    private ScrubController.OnScrubListener createScrubViewAnimations(final TrackPageHolder holder) {
+        return new ScrubController.OnScrubListener() {
+            @Override
+            public void scrubStateChanged(int newScrubState) {
+                for (View v : holder.getHideOnScrubViews()) {
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", ViewHelper.getAlpha(v),
+                            newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);
+                    animator.setDuration(SCRUB_TRANSITION_ALPHA_DURATION);
+                    animator.start();
+                }
+            }
+
+            @Override
+            public void displayScrubPosition(float scrubPosition) {
+                // no-op
+            }
+        };
     }
 
     static class TrackPageHolder {
@@ -322,8 +346,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         View artworkOverlay;
 
         public View[] getOnClickViews() {
-            return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch, playButton, footer,
-                    footerPlayToggle, likeToggle, user };
+            return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch,
+                    playButton, footer, footerPlayToggle, likeToggle, user };
         }
 
         public View[] getFullScreenViews() {
@@ -334,9 +358,11 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             return new View[] { nextButton, previousButton, playButton };
         }
 
-        public ProgressAware[] getProgressAwareViews() {
+        public ProgressAware[] getProgressAwareItems() {
             return new ProgressAware[] { waveformController, artworkController, timestamp };
         }
+
+        public View[] getHideOnScrubViews() { return new View[] { title, user, close, nextButton, previousButton, playButton }; }
     }
 
 }

@@ -4,11 +4,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.view.View;
 
@@ -52,6 +54,41 @@ public class PlayerOverlayControllerTest {
         when(playStateProvider.isPlaying()).thenReturn(false);
         controller.setCollapsedAndUpdate();
         verify(overlayAnimator).showOverlay(overlay);
+    }
+
+    @Test
+    public void shouldShowOverlayWhileScrubbingExpandedAndPlaying() {
+        when(playStateProvider.isPlaying()).thenReturn(true);
+        controller.setExpandedAndUpdate();
+        Mockito.reset(overlayAnimator);
+
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+
+        verify(overlayAnimator).showOverlay(overlay);
+    }
+
+    @Test
+    public void shouldHideOverlayOnSetExpandedWhilePlayingAfterScrubStateSetToNone() {
+        when(playStateProvider.isPlaying()).thenReturn(true);
+        controller.setExpandedAndUpdate();
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        Mockito.reset(overlayAnimator);
+
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+
+        verify(overlayAnimator).hideOverlay(overlay);
+    }
+
+    @Test
+    public void shouldHideOverlayOnSetExpandedWhilePlayingAfterScrubStateCancelled() {
+        when(playStateProvider.isPlaying()).thenReturn(true);
+        controller.setExpandedAndUpdate();
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        Mockito.reset(overlayAnimator);
+
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_CANCELLED);
+
+        verify(overlayAnimator).hideOverlay(overlay);
     }
 
 }
