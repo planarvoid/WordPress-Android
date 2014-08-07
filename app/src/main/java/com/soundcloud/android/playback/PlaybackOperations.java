@@ -259,9 +259,7 @@ public class PlaybackOperations {
             @Override
             public void onNext(List<Long> idList) {
                 final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrackUrn);
-                PlayQueue playQueue = PlayQueue.fromIdList(idList, playSessionSource);
-                playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
-                playCurrent();
+                playNewQueue(idList, updatedPosition, playSessionSource);
             }
         };
     }
@@ -292,13 +290,19 @@ public class PlaybackOperations {
 
     private void startPlaySession(final List<Long> trackList, int startPosition,
                                   PlaySessionSource playSessionSource, boolean loadRecommended) {
-
-        PlayQueue playQueue = PlayQueue.fromIdList(trackList, playSessionSource);
-        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
-        playCurrent();
-
+        playNewQueue(trackList, startPosition, playSessionSource);
         if (loadRecommended) {
             playQueueManager.fetchTracksRelatedToCurrentTrack();
+        }
+    }
+
+    private void playNewQueue(List<Long> trackIdList, int startPosition, PlaySessionSource playSessionSource) {
+        if (!shouldDisableSkipping()) {
+            final PlayQueue playQueue = PlayQueue.fromIdList(trackIdList, playSessionSource);
+            playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
+            playCurrent();
+        } else {
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forUnskippablePlayer());
         }
     }
 

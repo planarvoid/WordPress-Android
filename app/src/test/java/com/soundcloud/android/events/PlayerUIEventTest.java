@@ -45,4 +45,10 @@ public class PlayerUIEventTest {
         expect(event.getKind()).toEqual(4);
     }
 
+    @Test
+    public void createsEventForUnskippablePlayer() {
+        PlayerUIEvent event = PlayerUIEvent.forUnskippablePlayer();
+        expect(event.getKind()).toEqual(6);
+    }
+
 }

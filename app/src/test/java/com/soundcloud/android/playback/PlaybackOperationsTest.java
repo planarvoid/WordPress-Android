@@ -214,10 +214,8 @@ public class PlaybackOperationsTest {
 
     @Test
     public void previousTrackCallsMoveToPreviousTrackOnPlayQueueManagerIfProgressEqualToleranceAndPlayingAudioAd() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
 
         playbackOperations.previousTrack();
 
@@ -250,9 +248,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void previousTrackCallsPreviousTrackIfPlayingAudioAdWithProgressEqualToTimeout() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
 
         playbackOperations.previousTrack();
@@ -262,9 +258,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void previousTrackDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         playbackOperations.previousTrack();
 
@@ -280,9 +274,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void nextTrackCallsNextTrackIfPlayingAudioAdWithProgressEqualToTimeout() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
 
         playbackOperations.nextTrack();
 
@@ -291,9 +283,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void nextTrackDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         playbackOperations.nextTrack();
 
@@ -313,9 +303,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void seekSeeksToProvidedPositionIfPlayingAudioAdWithProgressEqualTimeout() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
 
         playbackOperations.seek(350L);
 
@@ -327,9 +315,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void seekDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
-        final PlaybackProgress progress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1, 30000);
-        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         playbackOperations.seek(350L);
 
@@ -565,6 +551,81 @@ public class PlaybackOperationsTest {
         expect(startedActivity).toBeNull();
     }
 
+    @Test
+    public void sendPlayerUIUnskippableWhenAdIsPlayingOnPlayTrack() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+
+        expectUnskippablePlayerUIEventSent();
+    }
+
+    @Test
+    public void doNotSendPlayerUIUnskippableWhenAdIsPlayingOnPlayTrack() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
+
+        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYER_UI);
+    }
+
+    @Test
+    public void sendPlayerUIUnskippableWhenAdIsPlayingOnPlayFromAdapter() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        final ArrayList<PublicApiTrack> tracks = Lists.newArrayList(new PublicApiTrack(1L));
+        final ArrayList<Long> trackIds = Lists.newArrayList(1L);
+        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
+
+        playbackOperations.playFromAdapter(Robolectric.application, tracks, 0, Content.ME_LIKES.uri, ORIGIN_SCREEN);
+
+        expectUnskippablePlayerUIEventSent();
+    }
+
+    @Test
+    public void sendPlayerUIUnskippableWhenAdIsPlayingOnPlayFromShuffledIds() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        final ArrayList<Long> idsOrig = Lists.newArrayList(1L);
+
+        playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
+
+        expectUnskippablePlayerUIEventSent();
+    }
+
+    @Test
+    public void sendPlayerUIUnskippableWhenAdIsPlayingOnPlayPlaylist() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
+
+        expectUnskippablePlayerUIEventSent();
+    }
+
+    @Test
+    public void sendPlayerUIUnskippableWhenAdIsPlayingOnPlayPlaylistFromPosition() throws CreateModelException {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(123L)));
+
+        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
+                Observable.just(TRACK_URN), TRACK_URN, 0, ORIGIN_SCREEN);
+
+        expectUnskippablePlayerUIEventSent();
+    }
+
+    @Test
+    public void sendPlayerUIUnskippableWhenAdIsPlayingOnRecommendations() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
+
+        expectUnskippablePlayerUIEventSent();
+    }
+
+    private void setupAdInProgress(long currentProgress) {
+        final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
+        when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+    }
+
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){
         verify(playQueueManager).setNewPlayQueue(
                 eq(PlayQueue.fromIdList(Lists.newArrayList(ids), playSessionSource)), eq(startPosition),
@@ -574,5 +635,9 @@ public class PlaybackOperationsTest {
     protected void checkLastStartedServiceForPlayCurrentAction() {
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
+    }
+
+    private void expectUnskippablePlayerUIEventSent() {
+        expect(eventBus.firstEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.UNSKIPPABLE_PLAYER);
     }
 }
