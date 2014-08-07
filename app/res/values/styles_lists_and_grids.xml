@@ -21,7 +21,7 @@
     <style name="ListItemText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="custom_font">fonts/Roboto-Light.ttf</item>
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textSize">14sp</item>
         <item name="android:antialias">true</item>
     </style>
