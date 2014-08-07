@@ -19,6 +19,7 @@
         <item name="android:drawableRight">@drawable/btn_player_ad_skip</item>
     </style>
     <style name="AdText.NextUp.Title">
+        <item name="android:gravity">left</item>
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:layout_centerVertical">true</item>
