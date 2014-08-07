@@ -5,4 +5,5 @@
     <string name="why_ads">Why ads?</string>
     <string name="skip_ad">Skip Ad</string>
     <string name="next_up">Next Up: %1$s (%2$s)</string>
+    <string name="ad_in_progress">Advertisement in progress</string>
 </resources>

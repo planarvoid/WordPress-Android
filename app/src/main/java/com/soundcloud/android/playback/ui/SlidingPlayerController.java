@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -196,12 +197,21 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.EXPAND_PLAYER) {
-                expand();
-            } else if (event.getKind() == PlayerUIEvent.COLLAPSE_PLAYER) {
-                collapse();
-            } else if (event.getKind() == PlayerUIEvent.SHOW_PLAYER) {
-                show();
+            switch (event.getKind()) {
+                case PlayerUIEvent.EXPAND_PLAYER:
+                    expand();
+                    break;
+                case PlayerUIEvent.COLLAPSE_PLAYER:
+                    collapse();
+                    break;
+                case PlayerUIEvent.SHOW_PLAYER:
+                    show();
+                    break;
+                case PlayerUIEvent.UNSKIPPABLE_PLAYER:
+                    Toast.makeText(activity, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    /* No-op */ break;
             }
         }
     }
@@ -213,7 +223,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     @Override
     public void onPanelExpanded(View panel) {
-
+        /* no-op */
     }
 
     private void notifyExpandingState() {

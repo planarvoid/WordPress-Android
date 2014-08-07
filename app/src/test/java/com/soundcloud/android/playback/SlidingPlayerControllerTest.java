@@ -19,6 +19,8 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -139,6 +141,16 @@ public class SlidingPlayerControllerTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
 
         verify(slidingPanel).collapsePanel();
+    }
+
+    @Test
+    public void showToastWhenUnskippableEventIsReceived() {
+        when(activity.getResources()).thenReturn(Robolectric.application.getResources());
+        controller.onResume();
+
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forUnskippablePlayer());
+
+        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
     }
 
     @Test
