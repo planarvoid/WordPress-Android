@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -16,6 +17,7 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.helpers.NavigationHelper;
 import com.soundcloud.android.tests.helpers.PlayerHelper;
+import com.soundcloud.android.tests.with.With;
 
 public class Player extends ActivityTestCase<MainActivity> {
 
@@ -28,7 +30,7 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
 
         super.setUp();
         playerElement = null;
@@ -143,7 +145,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testNextButtonDoesNothingOnLastTrack() {
-        playLastLikedTrack();
+        playLastTrackOnPlaylist();
         String originalTrack = playerElement.getTrackTitle();
         playerElement.clickArtwork();
 
@@ -151,8 +153,10 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    private void playLastLikedTrack() {
-        playerElement = menuScreen.open().clickLikes().clickLastTrack();
+    private void playLastTrackOnPlaylist() {
+        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Two Tracks Playlist"));
+        solo.scrollToBottom(solo.getCurrentListView());
+        playerElement = playlistDetailsScreen.clickSecondTrack();
         playerElement.waitForExpandedPlayer();
     }
 

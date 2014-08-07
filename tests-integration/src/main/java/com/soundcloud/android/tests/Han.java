@@ -116,6 +116,12 @@ public class Han  {
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }
 
+    public ListView getCurrentListView(){
+        solo.waitForView(ListView.class);
+        final ArrayList<ListView> currentListViews = solo.getCurrentViews(ListView.class);
+        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
+    }
+
     public void swipeLeft() {
         swipeHorizontal(Solo.LEFT);
     }

@@ -47,11 +47,19 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstTrack() {
+        return clickNthTrack(0);
+    }
+
+    public VisualPlayerElement clickSecondTrack() {
+        return clickNthTrack(1);
+    }
+
+    private VisualPlayerElement clickNthTrack(int trackIndex) {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver
                 .findElement(With.id(android.R.id.list))
                 .findElements(With.id(R.id.track_list_item))
-                .get(0).click();
+                .get(trackIndex).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
