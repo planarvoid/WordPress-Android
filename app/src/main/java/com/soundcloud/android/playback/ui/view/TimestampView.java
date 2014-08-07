@@ -52,7 +52,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         @Override
         public void onSpringUpdate(Spring spring) {
             float value = (float) spring.getCurrentValue();
-            ViewHelper.setTranslationY(timestampLayout, value * -getHeight() / 3);
+            ViewHelper.setTranslationY(timestampLayout, value * getTimestampScrubY());
             ViewHelper.setScaleX(timestampLayout, value * SCRUB_SCALE);
             ViewHelper.setScaleY(timestampLayout, value * SCRUB_SCALE);
             invalidate();
@@ -141,9 +141,13 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         springY = springSystem.createSpring();
         springY.addListener(springListener);
         springY.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(SPRING_TENSION, SPRING_FRICTION));
-        springY.setCurrentValue(ViewHelper.getTranslationY(timestampLayout));
+        springY.setCurrentValue(ViewHelper.getTranslationY(timestampLayout) / getTimestampScrubY());
         springY.setEndValue(1);
         ViewHelper.setAlpha(background, 0);
+    }
+
+    private int getTimestampScrubY() {
+        return -getHeight() / 3;
     }
 
     private void animateFromScrubMode() {
