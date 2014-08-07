@@ -60,15 +60,16 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp">
 
-            <View
-                    style="@style/PreviewArtworkOverlay"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
             <ImageView
                     android:id="@+id/preview_artwork"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
+
+            <View
+                    android:id="@+id/preview_artwork_overlay"
+                    style="@style/PreviewArtworkOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
         </FrameLayout>
 
         <com.soundcloud.android.view.CustomFontTextView

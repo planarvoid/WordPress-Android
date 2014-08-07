@@ -129,6 +129,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     private void toggleSkip(Holder viewHolder, boolean canSkip) {
         viewHolder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
         viewHolder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+        viewHolder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
     }
 
     private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
@@ -190,6 +191,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         // Expanded player
         private final ImageView artworkView;
         private final View artworkIdleOverlay;
+        private final View previewArtworkOverlay;
         private final View playButton;
         private final ToggleButton footerPlayToggle;
         private final View close;
@@ -210,6 +212,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
+            previewArtworkOverlay = adView.findViewById(R.id.preview_artwork_overlay);
             playButton = adView.findViewById(R.id.player_play);
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_close);

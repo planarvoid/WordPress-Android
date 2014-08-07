@@ -124,6 +124,7 @@ public class AdPagePresenterTest {
         presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 30));
 
         expect(skipAd()).toBeGone();
+        expect(previewArtworkOverlay()).toBeVisible();
         expect(timeUntilSkip()).toBeVisible();
         expect(timeUntilSkip().getText()).toEqual("15 sec.");
     }
@@ -133,6 +134,7 @@ public class AdPagePresenterTest {
         presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 30));
 
         expect(skipAd()).toBeGone();
+        expect(previewArtworkOverlay()).toBeVisible();
         expect(timeUntilSkip()).toBeVisible();
         expect(timeUntilSkip().getText()).toEqual("8 sec.");
     }
@@ -142,6 +144,7 @@ public class AdPagePresenterTest {
         presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 15, 30));
 
         expect(timeUntilSkip()).toBeGone();
+        expect(previewArtworkOverlay()).toBeGone();
         expect(skipAd()).toBeVisible();
     }
 
@@ -155,6 +158,10 @@ public class AdPagePresenterTest {
 
     private View skipAd() {
         return adView.findViewById(R.id.skip_ad);
+    }
+
+    private View previewArtworkOverlay() {
+        return adView.findViewById(R.id.preview_artwork_overlay);
     }
 
     private PropertySet buildAd() {
