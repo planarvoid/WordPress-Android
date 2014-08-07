@@ -9,5 +9,7 @@
         android:layout_marginLeft="20dp"
         android:visibility="gone">
 
-    <View style="@style/PlayerClose"/>
+    <View style="@style/PlayerClose"
+          android:id="@+id/player_close_indicator"/>
+
 </FrameLayout>

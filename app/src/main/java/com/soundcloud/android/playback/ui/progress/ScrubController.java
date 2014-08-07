@@ -103,7 +103,7 @@ public class ScrubController {
             if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
                 dragging = true;
                 setScrubState(SCRUB_STATE_SCRUBBING);
-            } else if (event.getAction() == MotionEvent.ACTION_UP || isOutsideBounds(v, event)) {
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL || isOutsideBounds(v, event)) {
                 dragging = false;
                 onRelease();
             }

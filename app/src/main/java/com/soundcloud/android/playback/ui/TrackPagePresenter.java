@@ -144,7 +144,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
 
-        setVisibility(holder.getPlayControls(), !playSessionIsActive);
+        setVisibility(!playSessionIsActive, holder.playControlsHolder);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
         setViewPlayState(holder, stateTransition, isCurrentTrack);
@@ -234,7 +234,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.setWaveformVisibility(isPlaying);
         holder.playerOverlayController.setExpandedAndUpdate();
         holder.waveformController.setWaveformVisibility(true);
-        setVisibility(holder.getFullScreenViews(), true);
+        setVisibility(true, holder.getFullScreenViews());
     }
 
     public void setCollapsed(View trackView) {
@@ -242,14 +242,14 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.footer.setVisibility(View.VISIBLE);
         holder.playerOverlayController.setCollapsedAndUpdate();
         holder.waveformController.setWaveformVisibility(false);
-        setVisibility(holder.getFullScreenViews(), false);
+        setVisibility(false, holder.getFullScreenViews());
     }
 
     public boolean accept(View view) {
         return view.getTag() instanceof TrackPageHolder;
     }
 
-    private void setVisibility(View[] views, boolean visible) {
+    private void setVisibility(boolean visible, View... views) {
         for (View v : views) {
             v.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
@@ -297,6 +297,9 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.addScrubListener(holder.playerOverlayController);
         holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
         holder.menuController = trackMenuControllerFactory.create(holder.more);
+        holder.playControlsHolder = trackView.findViewById(R.id.animateThis);
+        holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
+
         trackView.setTag(holder);
     }
 
@@ -345,6 +348,9 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         TextView footerUser;
         View artworkOverlay;
 
+        View playControlsHolder;
+        View closeIndicator;
+
         public View[] getOnClickViews() {
             return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch,
                     playButton, footer, footerPlayToggle, likeToggle, user };
@@ -354,15 +360,11 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             return new View[] { title, user, close };
         }
 
-        public View[] getPlayControls() {
-            return new View[] { nextButton, previousButton, playButton };
-        }
-
         public ProgressAware[] getProgressAwareItems() {
             return new ProgressAware[] { waveformController, artworkController, timestamp };
         }
 
-        public View[] getHideOnScrubViews() { return new View[] { title, user, close, nextButton, previousButton, playButton }; }
+        public View[] getHideOnScrubViews() { return new View[] { title, user, closeIndicator, nextButton, previousButton, playButton }; }
     }
 
 }
