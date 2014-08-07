@@ -16,7 +16,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                app:custom_font="fonts/Roboto-Light.ttf" />
+                app:custom_font="fonts/Roboto-Regular.ttf" />
 
         <com.soundcloud.android.view.CustomButton
                 android:id="@+id/shuffle_btn"
@@ -31,7 +31,7 @@
                 android:paddingLeft="@dimen/default_list_item_padding"
                 android:paddingRight="@dimen/default_list_item_padding"
                 android:background="@drawable/btn_default_states"
-                app:custom_font="fonts/Roboto-Light.ttf" />
+                app:custom_font="fonts/Roboto-Regular.ttf" />
     </LinearLayout>
 
     <View android:layout_width="match_parent"

@@ -27,7 +27,7 @@
               android:layout_alignTop="@id/icon"
               android:layout_toRightOf="@id/icon"
               android:layout_toLeftOf="@+id/created_at"
-              app:custom_font="fonts/Roboto-Light.ttf" />
+              app:custom_font="fonts/Roboto-Regular.ttf" />
     <com.soundcloud.android.view.CustomFontTextView
               android:id="@id/created_at"
               android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
               android:singleLine="true"
               android:ellipsize="end"
               android:layout_alignParentRight="true"
-              app:custom_font="fonts/Roboto-Light.ttf" />
+              app:custom_font="fonts/Roboto-Regular.ttf" />
     <com.soundcloud.android.view.CustomFontTextView
               android:id="@+id/title"
               android:layout="@id/user"
@@ -49,5 +49,5 @@
               style="@style/TextAppearance.List.Main"
               android:textStyle="normal"
               android:text="@string/track"
-              app:custom_font="fonts/Roboto-Light.ttf" />
+              app:custom_font="fonts/Roboto-Regular.ttf" />
 </RelativeLayout>
