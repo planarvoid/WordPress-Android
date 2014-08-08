@@ -71,7 +71,7 @@ public class PlaylistEngagementsControllerTest {
         rootView.findViewById(R.id.toggle_like).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
-        expect(uiEvent.getKind()).toBe(UIEvent.LIKE);
+        expect(uiEvent.getKind()).toBe(UIEvent.Kind.LIKE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
@@ -86,7 +86,7 @@ public class PlaylistEngagementsControllerTest {
         likeToggle.performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
-        expect(uiEvent.getKind()).toBe(UIEvent.UNLIKE);
+        expect(uiEvent.getKind()).toBe(UIEvent.Kind.UNLIKE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
@@ -99,7 +99,7 @@ public class PlaylistEngagementsControllerTest {
         rootView.findViewById(R.id.toggle_repost).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
-        expect(uiEvent.getKind()).toBe(UIEvent.REPOST);
+        expect(uiEvent.getKind()).toBe(UIEvent.Kind.REPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
@@ -114,7 +114,7 @@ public class PlaylistEngagementsControllerTest {
         repostToggle.performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
-        expect(uiEvent.getKind()).toBe(UIEvent.UNREPOST);
+        expect(uiEvent.getKind()).toBe(UIEvent.Kind.UNREPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 
@@ -125,7 +125,7 @@ public class PlaylistEngagementsControllerTest {
         rootView.findViewById(R.id.btn_share).performClick();
 
         UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
-        expect(uiEvent.getKind()).toBe(UIEvent.SHARE);
+        expect(uiEvent.getKind()).toBe(UIEvent.Kind.SHARE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
 

@@ -18,7 +18,7 @@ public class UIEventTest {
     public void shouldCreateEventFromToggleToFollow() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 0);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.FOLLOW);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("user_id"), "30");
     }
@@ -27,7 +27,7 @@ public class UIEventTest {
     public void shouldCreateEventFromToggleToUnfollow() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 1);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.UNFOLLOW);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("user_id"), "30");
     }
@@ -36,7 +36,7 @@ public class UIEventTest {
     public void shouldCreateEventFromLikedTrack() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 2);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.LIKE);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "track");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -46,7 +46,7 @@ public class UIEventTest {
     public void shouldCreateEventFromLikedPlaylist() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 2);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.LIKE);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "playlist");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -56,7 +56,7 @@ public class UIEventTest {
     public void shouldCreateEventFromUnlikedTrack() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 3);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.UNLIKE);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "track");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -66,7 +66,7 @@ public class UIEventTest {
     public void shouldCreateEventFromUnlikedPlaylist() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 3);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.UNLIKE);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "playlist");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -76,7 +76,7 @@ public class UIEventTest {
     public void shouldCreateEventFromRepostedTrack() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 4);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.REPOST);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "track");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -86,7 +86,7 @@ public class UIEventTest {
     public void shouldCreateEventFromRepostedPlaylist() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 4);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.REPOST);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "playlist");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -96,7 +96,7 @@ public class UIEventTest {
     public void shouldCreateEventFromUnrepostedTrack() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 5);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.UNREPOST);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "track");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -106,7 +106,7 @@ public class UIEventTest {
     public void shouldCreateEventFromUnrepostedPlaylist() throws Exception {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 5);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.UNREPOST);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "playlist");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -116,7 +116,7 @@ public class UIEventTest {
     public void shouldCreateEventFromAddToPlaylistWhenPlaylistIsNew() throws Exception {
         UIEvent uiEvent = UIEvent.fromAddToPlaylist("screen", true, 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 6);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.ADD_TO_PLAYLIST);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("is_new_playlist"), "yes");
         assertEquals(uiEventAttributes.get("track_id"), "30");
@@ -126,7 +126,7 @@ public class UIEventTest {
     public void shouldCreateEventFromAddToPlaylistWhenPlaylistExisted() throws Exception {
         UIEvent uiEvent = UIEvent.fromAddToPlaylist("screen", false, 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 6);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.ADD_TO_PLAYLIST);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("is_new_playlist"), "no");
         assertEquals(uiEventAttributes.get("track_id"), "30");
@@ -136,7 +136,7 @@ public class UIEventTest {
     public void shouldCreateEventFromComment() throws Exception {
         UIEvent uiEvent = UIEvent.fromComment("screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 7);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.COMMENT);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("track_id"), "30");
     }
@@ -145,7 +145,7 @@ public class UIEventTest {
     public void shouldCreateEventFromTrackShare() throws Exception {
         UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 8);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.SHARE);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "track");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -155,7 +155,7 @@ public class UIEventTest {
     public void shouldCreateEventFromPlaylistShare() throws Exception {
         UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        assertEquals(uiEvent.getKind(), 8);
+        assertEquals(uiEvent.getKind(), UIEvent.Kind.SHARE);
         assertEquals(uiEventAttributes.get("context"), "screen");
         assertEquals(uiEventAttributes.get("resource"), "playlist");
         assertEquals(uiEventAttributes.get("resource_id"), "30");
@@ -163,14 +163,14 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromShuffleMyLikes() throws Exception {
-        expect(UIEvent.fromShuffleMyLikes().getKind()).toEqual(9);
+        expect(UIEvent.fromShuffleMyLikes().getKind()).toEqual(UIEvent.Kind.SHUFFLE_LIKES);
     }
 
     @Test
     public void shouldCreateEventFromProfileNavigation() throws Exception {
         UIEvent uiEvent = UIEvent.fromProfileNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("you");
     }
 
@@ -178,7 +178,7 @@ public class UIEventTest {
     public void shouldCreateEventFromStreamNavigation() throws Exception {
         UIEvent uiEvent = UIEvent.fromStreamNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("stream");
     }
 
@@ -186,7 +186,7 @@ public class UIEventTest {
     public void shouldCreateEventFromExploreNavigation() throws Exception {
         UIEvent uiEvent = UIEvent.fromExploreNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("explore");
     }
 
@@ -194,7 +194,7 @@ public class UIEventTest {
     public void shouldCreateEventFromLikesNavigation() throws Exception {
         UIEvent uiEvent = UIEvent.fromLikesNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("collection_likes");
     }
 
@@ -202,7 +202,7 @@ public class UIEventTest {
     public void shouldCreateEventFromPlaylistsNavigation() throws Exception {
         UIEvent uiEvent = UIEvent.fromPlaylistsNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("collection_playlists");
     }
 
@@ -210,7 +210,7 @@ public class UIEventTest {
     public void shouldCreateEventFromSearchNavigation() throws Exception {
         UIEvent uiEvent = UIEvent.fromSearchAction();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
-        expect(uiEvent.getKind()).toEqual(10);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("search");
     }
 }

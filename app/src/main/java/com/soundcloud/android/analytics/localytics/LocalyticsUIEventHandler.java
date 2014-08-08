@@ -17,39 +17,39 @@ class LocalyticsUIEventHandler {
         handleEvent(sourceEvent.getKind(), sourceEvent.getAttributes());
     }
 
-    private void handleEvent(int sourceEventType, Map<String, String> eventAttributes) {
+    private void handleEvent(UIEvent.Kind sourceEventType, Map<String, String> eventAttributes) {
         switch (sourceEventType) {
-            case UIEvent.FOLLOW:
+            case FOLLOW:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.FOLLOW, eventAttributes);
                 break;
-            case UIEvent.UNFOLLOW:
+            case UNFOLLOW:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.UNFOLLOW, eventAttributes);
                 break;
-            case UIEvent.LIKE:
+            case LIKE:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.LIKE, eventAttributes);
                 break;
-            case UIEvent.UNLIKE:
+            case UNLIKE:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.UNLIKE, eventAttributes);
                 break;
-            case UIEvent.REPOST:
+            case REPOST:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.REPOST, eventAttributes);
                 break;
-            case UIEvent.UNREPOST:
+            case UNREPOST:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.UNREPOST, eventAttributes);
                 break;
-            case UIEvent.ADD_TO_PLAYLIST:
+            case ADD_TO_PLAYLIST:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.ADD_TO_PLAYLIST, eventAttributes);
                 break;
-            case UIEvent.COMMENT:
+            case COMMENT:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.COMMENT, eventAttributes);
                 break;
-            case UIEvent.SHARE:
+            case SHARE:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.SHARE, eventAttributes);
                 break;
-            case UIEvent.SHUFFLE_LIKES:
+            case SHUFFLE_LIKES:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.SHUFFLE_LIKES, eventAttributes);
                 break;
-            case UIEvent.NAVIGATION:
+            case NAVIGATION:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.NAVIGATION, eventAttributes);
                 break;
             default:

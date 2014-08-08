@@ -9,99 +9,101 @@ import java.util.Map;
 
 public final class UIEvent {
 
-    public static final int FOLLOW = 0;
-    public static final int UNFOLLOW = 1;
-    public static final int LIKE = 2;
-    public static final int UNLIKE = 3;
-    public static final int REPOST = 4;
-    public static final int UNREPOST = 5;
-    public static final int ADD_TO_PLAYLIST = 6;
-    public static final int COMMENT = 7;
-    public static final int SHARE = 8;
-    public static final int SHUFFLE_LIKES = 9;
-    public static final int NAVIGATION = 10;
+    public enum Kind {
+        FOLLOW,
+        UNFOLLOW,
+        LIKE,
+        UNLIKE,
+        REPOST,
+        UNREPOST,
+        ADD_TO_PLAYLIST,
+        COMMENT,
+        SHARE,
+        SHUFFLE_LIKES,
+        NAVIGATION
+    }
 
-    private final int kind;
+    private final Kind kind;
     private final Map<String, String> attributes;
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
-        return new UIEvent(isFollow ? FOLLOW : UNFOLLOW)
+        return new UIEvent(isFollow ? Kind.FOLLOW : Kind.UNFOLLOW)
                 .putAttribute("context", screenTag)
                 .putAttribute("user_id", String.valueOf(userId));
     }
 
     public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Playable playable) {
-        return new UIEvent(isLike ? LIKE : UNLIKE)
+        return new UIEvent(isLike ? Kind.LIKE : Kind.UNLIKE)
                 .putAttribute("context", screenTag)
                 .putAttribute("resource", getPlayableType(playable))
                 .putAttribute("resource_id", String.valueOf(playable.getId()));
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Playable playable) {
-        return new UIEvent(isRepost ? REPOST : UNREPOST)
+        return new UIEvent(isRepost ? Kind.REPOST : Kind.UNREPOST)
                 .putAttribute("context", screenTag)
                 .putAttribute("resource", getPlayableType(playable))
                 .putAttribute("resource_id", String.valueOf(playable.getId()));
     }
 
     public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
-        return new UIEvent(ADD_TO_PLAYLIST)
+        return new UIEvent(Kind.ADD_TO_PLAYLIST)
                 .putAttribute("context", screenTag)
                 .putAttribute("is_new_playlist", isNewPlaylist ? "yes" : "no")
                 .putAttribute("track_id", String.valueOf(trackId));
     }
 
     public static UIEvent fromComment(String screenTag, long trackId) {
-        return new UIEvent(COMMENT)
+        return new UIEvent(Kind.COMMENT)
                 .putAttribute("context", screenTag)
                 .putAttribute("track_id", String.valueOf(trackId));
     }
 
     public static UIEvent fromShare(String screenTag, @NotNull Playable playable) {
-        return new UIEvent(SHARE)
+        return new UIEvent(Kind.SHARE)
                 .putAttribute("context", screenTag)
                 .putAttribute("resource", getPlayableType(playable))
                 .putAttribute("resource_id", String.valueOf(playable.getId()));
     }
 
     public static UIEvent fromShuffleMyLikes() {
-        return new UIEvent(SHUFFLE_LIKES);
+        return new UIEvent(Kind.SHUFFLE_LIKES);
     }
 
     public static UIEvent fromProfileNav() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "you");
+        return new UIEvent(Kind.NAVIGATION).putAttribute("page", "you");
     }
 
     public static UIEvent fromStreamNav() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "stream");
+        return new UIEvent(Kind.NAVIGATION).putAttribute("page", "stream");
     }
 
     public static UIEvent fromExploreNav() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "explore");
+        return new UIEvent(Kind.NAVIGATION).putAttribute("page", "explore");
     }
 
     public static UIEvent fromLikesNav() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "collection_likes");
+        return new UIEvent(Kind.NAVIGATION).putAttribute("page", "collection_likes");
     }
 
     public static UIEvent fromPlaylistsNav() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "collection_playlists");
+        return new UIEvent(Kind.NAVIGATION).putAttribute("page", "collection_playlists");
     }
 
     public static UIEvent fromSearchAction() {
-        return new UIEvent(NAVIGATION).putAttribute("page", "search");
+        return new UIEvent(Kind.NAVIGATION).putAttribute("page", "search");
     }
 
     private static String getPlayableType(Playable playable) {
         return (playable instanceof PublicApiTrack ? "track" : "playlist");
     }
 
-    public UIEvent(int kind) {
+    public UIEvent(Kind kind) {
         this.kind = kind;
         attributes = new HashMap<String, String>();
     }
 
-    public int getKind() {
+    public Kind getKind() {
         return kind;
     }
 
