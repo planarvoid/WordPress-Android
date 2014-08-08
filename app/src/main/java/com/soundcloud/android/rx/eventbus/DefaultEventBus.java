@@ -5,12 +5,27 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.Subject;
 
+import android.util.Log;
 import android.util.SparseArray;
 
 import javax.inject.Singleton;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.List;
 
 @Singleton
 public class DefaultEventBus implements EventBus {
+
+    private static final String TAG = EventBus.class.getSimpleName();
+    private static final boolean LOG_EVENTS = Log.isLoggable(TAG, Log.DEBUG);
+    private static SparseArray<List<Reference<Observer<?>>>> loggedObservers;
+
+    static {
+        if (LOG_EVENTS) {
+            loggedObservers = new SparseArray<List<Reference<Observer<?>>>>();
+        }
+    }
 
     private final SparseArray<Subject<?, ?>> queues = new SparseArray<Subject<?, ?>>();
 
@@ -33,16 +48,53 @@ public class DefaultEventBus implements EventBus {
 
     @Override
     public <T> Subscription subscribe(Queue<T> queue, Observer<T> observer) {
+        if (LOG_EVENTS) {
+            registerObserver(queue, observer);
+        }
         return this.queue(queue).observeOn(AndroidSchedulers.mainThread()).subscribe(observer);
     }
 
     @Override
     public <T> Subscription subscribeImmediate(Queue<T> queue, Observer<T> observer) {
+        if (LOG_EVENTS) {
+            registerObserver(queue, observer);
+        }
         return this.queue(queue).subscribe(observer);
     }
 
     @Override
     public <T> void publish(Queue<T> queue, T event) {
+        if (LOG_EVENTS) {
+            logEvent(queue, event);
+        }
         this.queue(queue).onNext(event);
+    }
+
+    // for logging events in debug mode
+    private <T> void registerObserver(Queue<T> queue, Observer<T> observer) {
+        List<Reference<Observer<?>>> observerRefs = loggedObservers.get(queue.id);
+        if (observerRefs == null) {
+            observerRefs = new LinkedList<Reference<Observer<?>>>();
+            loggedObservers.put(queue.id, observerRefs);
+        }
+        observerRefs.add(new WeakReference<Observer<?>>(observer));
+    }
+
+    private <T> void logEvent(Queue<T> queue, T event) {
+        final StringBuilder message = new StringBuilder("Publishing to ");
+        message.append(queue.name).append(" [").append(event.toString()).append("]").append('\n');
+        final List<Reference<Observer<?>>> observerRefs = loggedObservers.get(queue.id);
+        if (observerRefs != null && !observerRefs.isEmpty()) {
+            message.append("Delivering to: \n");
+            for (Reference<Observer<?>> ref : observerRefs) {
+                final Observer<?> observer = ref.get();
+                if (observer != null) {
+                    message.append("-> ").append(observer.getClass().getCanonicalName()).append('\n');
+                }
+            }
+        } else {
+            message.append("No observers found.");
+        }
+        Log.d(TAG, message.toString());
     }
 }
