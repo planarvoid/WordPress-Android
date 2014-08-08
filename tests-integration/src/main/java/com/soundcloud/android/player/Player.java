@@ -37,30 +37,30 @@ public class Player extends ActivityTestCase<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() throws Exception {
+    public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() {
         playerElement = new VisualPlayerElement(solo);
         assertThat(playerElement.isVisible(), is(false));
     }
 
-    public void testPlayerCollapsesWhenBackButtonIsPressed() throws Exception {
+    public void testPlayerCollapsesWhenBackButtonIsPressed() {
         playExploreTrack();
         playerElement.pressBackToCollapse();
         assertThat(playerElement.isCollapsed(), is(true));
     }
 
-    public void testPlayerCollapsesWhenCloseButtonIsPressed() throws Exception {
+    public void testPlayerCollapsesWhenCloseButtonIsPressed() {
         playExploreTrack();
         playerElement.pressCloseButton();
         assertThat(playerElement.isCollapsed(), is(true));
     }
 
-    public void testPlayerCollapsesWhenSwipingDown() throws Exception {
+    public void testPlayerCollapsesWhenSwipingDown() {
         playExploreTrack();
         solo.swipeDown();
         assertThat(playerElement.isCollapsed(), is(true));
     }
 
-    public void testPlayerExpandsOnFooterTap() throws Exception {
+    public void testPlayerExpandsOnFooterTap() {
         playExploreTrack();
         playerElement.pressBackToCollapse();
         playerElement.tapFooter();
@@ -75,7 +75,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(new VisualPlayerElement(solo), is(Visible()));
     }
 
-    public void testPlayStateCanBeToggledFromPlayerFooter() throws Exception {
+    public void testPlayStateCanBeToggledFromPlayerFooter() {
         playExploreTrack();
         playerElement.pressBackToCollapse();
         assertThat(playerElement.isFooterInPlayingState(), is(true));
@@ -83,7 +83,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(playerElement.isFooterInPlayingState(), is(false));
     }
 
-    public void testPlayStateCanBeToggledFromFullPlayer() throws Exception {
+    public void testPlayStateCanBeToggledFromFullPlayer() {
         playExploreTrack();
         assertThat(playerElement.isPlayControlsVisible(), is(false));
         playerElement.clickArtwork();
@@ -95,7 +95,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(playerElement.isExpanded(), is(true));
     }
 
-    public void testSkippingWithNextAndPreviousChangesTrack() throws Exception {
+    public void testSkippingWithNextAndPreviousChangesTrack() {
         playerElement = streamScreen.clickFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
         playerElement.clickArtwork();
@@ -106,7 +106,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    public void testSkippingWithNextAndPreviousChangesTrackWhilePlaying() throws Exception {
+    public void testSkippingWithNextAndPreviousChangesTrackWhilePlaying() {
         playerElement = streamScreen.clickFirstTrack();
         String originalTrack = playerElement.getTrackTitle();
 
@@ -116,7 +116,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    public void testSwipingNextAndPreviousChangesTrack() throws Exception {
+    public void testSwipingNextAndPreviousChangesTrack() {
         playTrackFromLikes();
         String originalTrack = playerElement.getTrackTitle();
 
@@ -126,7 +126,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    public void testPlayerRemainsPausedWhenSkipping() throws Exception {
+    public void testPlayerRemainsPausedWhenSkipping() {
         playExploreTrack();
 
         playerElement.clickArtwork();
@@ -135,7 +135,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(playerElement.isPlayControlsVisible(), is(true));
     }
 
-    public void testPreviousButtonDoesNothingOnFirstTrack() throws Exception {
+    public void testPreviousButtonDoesNothingOnFirstTrack() {
         playExploreTrack();
         String originalTrack = playerElement.getTrackTitle();
         playerElement.clickArtwork();
