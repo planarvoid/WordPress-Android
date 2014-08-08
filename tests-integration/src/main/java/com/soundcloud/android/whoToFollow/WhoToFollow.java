@@ -27,7 +27,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
         waiter = new Waiter(solo);
     }
 
-    public void testCheckmarkSelection() throws Exception {
+    public void testCheckmarkSelection() {
         createNewUser();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
@@ -41,7 +41,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
         assertEquals("Users should not be selected", true, suggestedUsersCategoryScreen.hasNoUsersSelected());
     }
 
-    public void testIndividualUserSelection() throws Exception {
+    public void testIndividualUserSelection() {
         createNewUser();
         suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
         String followed = suggestedUsersCategoryScreen.followUser(2);
@@ -49,7 +49,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
         assertEquals(followed, suggestedUsersScreen.subtextAtIndexEquals(1));
     }
 
-    public void testSelectDeselectToggle() throws Exception {
+    public void testSelectDeselectToggle() {
         createNewUser();
         suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
         suggestedUsersCategoryScreen.waitForUsers();

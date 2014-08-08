@@ -48,7 +48,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(player(), is(not(Visible())));
     }
 
-    public void testPlayerAddTrackToPlaylist() throws Exception {
+    public void testPlayerAddTrackToPlaylist() {
         menuScreen.open()
                 .clickLikes()
                 .clickItem(1)

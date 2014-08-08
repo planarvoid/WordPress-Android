@@ -16,7 +16,7 @@ public class ResolveUserSoundCloudUriTest extends ResolveBaseTest {
         return TestConsts.STEVE_ANGELLO_SC_URI;
     }
 
-    public void testResolveUrl() throws Exception {
+    public void testResolveUrl() {
         ProfileScreen profileScreen = new ProfileScreen(solo);
         assertThat(profileScreen, is(Visible()));
         assertThat(profileScreen.getUserName(), is(equalToIgnoringWhiteSpace("steveangello")));

@@ -12,7 +12,7 @@ import android.net.Uri;
 
 public class ResolveTrackMobileUrlTest extends ResolveBaseTest {
 
-    public void testShouldOpenPlayerScreenAndLoadRecommentations() throws Exception {
+    public void testShouldOpenPlayerScreenAndLoadRecommentations() {
         final String expectedTitle = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
         waiter.waitForContentAndRetryIfLoadingFailed();
 

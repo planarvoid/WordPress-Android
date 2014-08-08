@@ -23,7 +23,7 @@ public class ResolveExplore extends ActivityTestCase<ResolveActivity> {
         super.setUp();
     }
 
-    public void testResolveExploreUrl() throws Exception {
+    public void testResolveExploreUrl() {
     }
 
     @Override

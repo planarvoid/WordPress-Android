@@ -22,13 +22,13 @@ public class DrawerTest extends ActivityTestCase<LauncherActivity> {
         super.setUp();
     }
 
-    public void testOpeningOverflowDoesNotCloseDrawer() throws Exception {
+    public void testOpeningOverflowDoesNotCloseDrawer() {
         menuScreen.open();
         solo.openSystemMenu();
         assertEquals("DrawerTest should be open when opening system menu", true, menuScreen.isOpened());
     }
 
-    public void testDrawerClosesWhenOverflowMenuItemPicked() throws Exception {
+    public void testDrawerClosesWhenOverflowMenuItemPicked() {
         menuScreen.open();
         solo.openSystemMenu();
         menuScreen.clickSystemSettings();

@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.crop.CropImageActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.ViewElement;
@@ -35,7 +34,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     }
 
     @Suppress
-    public void ignore_testSignup() throws Exception {
+    public void ignore_testSignup() {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
@@ -47,7 +46,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     }
 
     @Suppress
-    public void ignore_testSignupSkip() throws Exception {
+    public void ignore_testSignupSkip() {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
@@ -62,7 +61,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     }
 
     @Suppress
-    public void ignore_testSignupWithPhotoFromCamera() throws Exception {
+    public void ignore_testSignupWithPhotoFromCamera() {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
@@ -85,7 +84,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     }
 
     @Suppress
-    public void ignore_testSignupWithExistingPhoto() throws Exception {
+    public void ignore_testSignupWithExistingPhoto() {
         performSignup(generateEmail(), "password");
 
         solo.clickOnText(R.string.add_image);
@@ -107,7 +106,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         }
     }
 
-    public void ignore_testSignupWithNonMatchingPasswords() throws Exception {
+    public void ignore_testSignupWithNonMatchingPasswords() {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_login_error_password_message);
     }
@@ -119,13 +118,13 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.assertText(R.string.authentication_error_incomplete_fields);
     }
 
-    public void ignore_testSignupWithInvalidEmail() throws Exception {
+    public void ignore_testSignupWithInvalidEmail() {
         performSignup("not-an-email", "password");
         solo.assertText(R.string.authentication_error_invalid_email);
     }
 
     @Suppress
-    public void ignore_testSignupEmailAlreadyTaken() throws Exception {
+    public void ignore_testSignupEmailAlreadyTaken() {
         String email = generateEmail();
         performSignup(email, "password");
         solo.assertText(R.string.authentication_add_info_msg);
@@ -147,13 +146,13 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.clickOnText(android.R.string.ok);
     }
 
-    public void ignore_testSignupWithTooShortPassword() throws Exception {
+    public void ignore_testSignupWithTooShortPassword() {
         performSignup(generateEmail(), "123");
         solo.assertText(R.string.authentication_error_password_too_short);
     }
 
     @Suppress
-    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupNoThanks() throws Exception {
+    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupNoThanks() {
         // perform a full signup
         ignore_testSignup();
 
@@ -180,7 +179,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
 
 
     @Suppress
-    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupResendEmail() throws Exception {
+    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupResendEmail() {
         // perform a full signup
         ignore_testSignup();
 

@@ -15,7 +15,7 @@ public class ResolveUnhandledUrls extends ResolveBaseTest {
         return TestConsts.JOBS_PAGE;
     }
 
-    public void testResolveUrlShouldOpenInWebView() throws Exception {
+    public void testResolveUrlShouldOpenInWebView() {
         waiter.waitForActivity(WebViewActivity.class);
         assertThat(solo.getCurrentActivity().getClass().getSimpleName(), is(WebViewActivity.class.getSimpleName()));
     }

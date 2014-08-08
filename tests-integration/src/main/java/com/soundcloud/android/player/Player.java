@@ -90,7 +90,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(playerElement.isPlayControlsVisible(), is(true));
     }
 
-    public void testPlayerIsExpandedAfterClickingTrack() throws Exception {
+    public void testPlayerIsExpandedAfterClickingTrack() {
         playExploreTrack();
         assertThat(playerElement.isExpanded(), is(true));
     }

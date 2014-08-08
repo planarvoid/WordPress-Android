@@ -15,7 +15,7 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
         return Uri.parse("http://soundcloud.com/-/t/click/postman-email-follower?url="+TestConsts.STEVE_ANGELLO_URI);
     }
 
-    public void testResolveUrl() throws Exception {
+    public void testResolveUrl() {
         ProfileScreen profileScreen = new ProfileScreen(solo);
         assertThat(profileScreen.getUserName(), equalToIgnoringCase("steveangello"));
     }

@@ -12,7 +12,7 @@ import android.net.Uri;
 
 public class ResolveSetMobileUrlTest extends ResolveBaseTest {
 
-    public void testShouldOpenPlaylistDetails() throws Exception {
+    public void testShouldOpenPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = new PlaylistDetailsScreen(solo);
 
         assertThat(playlistDetailsScreen, is(Visible()));

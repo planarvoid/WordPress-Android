@@ -30,7 +30,7 @@ public class ResolveTwitterUriTest extends ActivityTestCase<ResolveActivity> {
         playerScreen = new VisualPlayerElement(solo);
     }
 
-    public void testResolveExploreUrl() throws Exception {
+    public void testResolveExploreUrl() {
     }
 
     @Override

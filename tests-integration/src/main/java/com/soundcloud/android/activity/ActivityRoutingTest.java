@@ -28,7 +28,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(ActivitiesActivity.class, Actions.ACTIVITY);
     }
 
-    public void ignore_testYou() throws Exception {
+    public void ignore_testYou() {
         assertActivityStarted(MeActivity.class, Actions.YOU);
         assertActivityStarted(MeActivity.class, Actions.YOUR_INFO);
         assertActivityStarted(MeActivity.class, Actions.YOUR_SOUNDS);
@@ -37,7 +37,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(MeActivity.class, Actions.YOUR_FOLLOWINGS);
     }
 
-    public void ignore_testRecord() throws Exception {
+    public void ignore_testRecord() {
         assertActivityStarted(RecordActivity.class, Actions.RECORD);
         assertActivityStarted(RecordActivity.class, Actions.RECORD_START);
         assertActivityStarted(RecordActivity.class, Actions.RECORD_STOP);
@@ -51,31 +51,31 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(UploadActivity.class, Actions.SHARE);
     }
 
-    public void ignore_testUserBrowser() throws Exception {
+    public void ignore_testUserBrowser() {
         assertActivityStarted(ProfileActivity.class, Actions.USER_BROWSER);
         assertActivityStarted(ProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
     }
 
-    public void ignore_testSuggestedUsers() throws Exception {
+    public void ignore_testSuggestedUsers() {
         assertActivityStarted(SuggestedUsersActivity.class, Actions.WHO_TO_FOLLOW);
     }
 
-    public void ignore_testSearch() throws Exception {
+    public void ignore_testSearch() {
         assertActivityStarted(SearchActivity.class, Actions.SEARCH);
         assertActivityStarted(SearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
     }
 
-    public void ignore_testResolve() throws Exception {
+    public void ignore_testResolve() {
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:users:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234"));
     }
 
-    public void ignore_testAccountSettings() throws Exception {
+    public void ignore_testAccountSettings() {
         assertActivityStarted(AccountSettingsActivity.class, Actions.ACCOUNT_PREF);
     }
 
-    public void ignore_testUploadMonitor() throws Exception {
+    public void ignore_testUploadMonitor() {
         assertActivityStarted(UploadMonitorActivity.class, Actions.UPLOAD_MONITOR, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/recordings/1234"));
     }
 

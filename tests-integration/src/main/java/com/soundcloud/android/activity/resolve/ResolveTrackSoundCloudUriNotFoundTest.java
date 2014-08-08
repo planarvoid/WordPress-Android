@@ -11,7 +11,7 @@ public class ResolveTrackSoundCloudUriNotFoundTest extends ResolveBaseTest {
         return TestConsts.UNRESOLVABLE_SC_TRACK_URI;
     }
 
-    public void testResolveUnknownUrlShouldShowErrorLoadingUrl() throws Exception {
+    public void testResolveUnknownUrlShouldShowErrorLoadingUrl() {
         waiter.expectToast().toHaveText("There was a problem loading that url");
     }
 }

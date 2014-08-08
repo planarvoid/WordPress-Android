@@ -32,7 +32,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testVisualPlayerIsAccessible() throws Exception {
+    public void testVisualPlayerIsAccessible() {
         player = streamScreen.clickFirstTrack();
         assertThat(player, is(Expanded()));
         player.pressBackToCollapse();
@@ -42,7 +42,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(player, is(Collapsed()));
     }
 
-    public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
+    public void testPlayerIsNotVisibleIfNothingIsPlaying() {
         openExploreGenreAmbient();
 
         assertThat(new VisualPlayerElement(solo), is(not(Visible())));
