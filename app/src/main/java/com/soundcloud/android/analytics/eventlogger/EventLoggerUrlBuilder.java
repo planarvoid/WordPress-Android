@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import android.content.res.Resources;
+import android.net.Uri;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -8,11 +10,7 @@ import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 
-import android.content.res.Resources;
-import android.net.Uri;
-
 import javax.inject.Inject;
-import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,7 +29,12 @@ public class EventLoggerUrlBuilder {
         this.deviceHelper = deviceHelper;
     }
 
-    public String buildFromPlaybackEvent(PlaybackSessionEvent playbackSessionEvent) throws UnsupportedEncodingException {
+    @SuppressWarnings("PMD.UnusedParameter")
+    public String buildFromAdPlayback(PlaybackSessionEvent event) {
+        return null;
+    }
+
+    public String buildFromPlaybackEvent(PlaybackSessionEvent playbackSessionEvent) {
         final Uri.Builder builder = buildUriForPath("audio");
 
         builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackSessionEvent.getTimeStamp()));
@@ -64,7 +67,6 @@ public class EventLoggerUrlBuilder {
         }
         return builder.build().toString();
     }
-
 
     public String buildFromPlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
         final Uri.Builder builder = buildUriForPath("audio_performance");

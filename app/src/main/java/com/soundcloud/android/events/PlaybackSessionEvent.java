@@ -10,7 +10,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PlaybackSessionEvent {
+public class PlaybackSessionEvent {
 
     public static final int STOP_REASON_PAUSE = 0;
     public static final int STOP_REASON_BUFFERING = 1;
@@ -141,5 +141,13 @@ public final class PlaybackSessionEvent {
 
     public long getListenTime() {
         return listenTime;
+    }
+
+    public boolean isAd() {
+        return false;
+    }
+
+    public boolean isAtStart() {
+        return getProgress() == 0L;
     }
 }

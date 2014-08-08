@@ -3,8 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
@@ -24,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.List;
+
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerAnalyticsProviderTest {
 
@@ -37,6 +38,29 @@ public class EventLoggerAnalyticsProviderTest {
     @Before
     public void setUp() throws Exception {
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, eventLoggerUrlBuilder);
+    }
+
+    @Test
+    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression() throws Exception {
+        PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
+        when(event.isAd()).thenReturn(true);
+        when(event.isAtStart()).thenReturn(true);
+        when(event.getTimeStamp()).thenReturn(12345L);
+        when(eventLoggerUrlBuilder.buildFromAdPlayback(event)).thenReturn("adUrl");
+        when(eventLoggerUrlBuilder.buildFromPlaybackEvent(event)).thenReturn("url");
+
+        eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
+
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
+
+        List<TrackingEvent> allValues = captor.getAllValues();
+        expect(allValues.size()).toEqual(2);
+
+        TrackingEvent adEvent = allValues.get(0);
+        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
+        expect(adEvent.getTimeStamp()).toEqual(12345L);
+        expect(adEvent.getUrl()).toEqual("adUrl");
     }
 
     @Test

@@ -12,16 +12,13 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
-import java.io.UnsupportedEncodingException;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     public static final String BACKEND_NAME = "eventlogger";
-    private static final String TAG = "EventLogger";
 
     private final EventTracker eventTracker;
     private final EventLoggerUrlBuilder urlBuilder;
@@ -62,22 +59,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
-        try {
-            // if this is an ad
-            //    use the ad url builder
-
-
-            // do this normal code...
-            final String url = urlBuilder.buildFromPlaybackEvent(eventData);
-
-
-
-            final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
-            eventTracker.trackEvent(event);
-
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "Unable to process playback event ", e);
+        if (eventData.isAd() && eventData.isAtStart()) {
+            trackAdImpression(eventData);
         }
+        trackAudioPlayEvent(eventData);
     }
 
     @Override
@@ -96,5 +81,20 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlayControlEvent(PlayControlEvent eventData) {}
+
+    private void trackAdImpression(PlaybackSessionEvent eventData) {
+        final String url = urlBuilder.buildFromAdPlayback(eventData);
+        trackEvent(eventData.getTimeStamp(), url);
+    }
+
+    private void trackAudioPlayEvent(PlaybackSessionEvent eventData) {
+        final String url = urlBuilder.buildFromPlaybackEvent(eventData);
+        trackEvent(eventData.getTimeStamp(), url);
+    }
+
+    private void trackEvent(long timeStamp, String url) {
+        final TrackingEvent event = new TrackingEvent(timeStamp, BACKEND_NAME, url);
+        eventTracker.trackEvent(event);
+    }
 
 }
