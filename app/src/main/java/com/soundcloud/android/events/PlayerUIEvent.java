@@ -50,4 +50,9 @@ public class PlayerUIEvent {
     public int getKind() {
         return kind;
     }
+
+    @Override
+    public String toString() {
+        return "player UI event: " + kind;
+    }
 }
