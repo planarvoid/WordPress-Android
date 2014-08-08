@@ -19,6 +19,11 @@ module Build
         mvn.set_version_name(Build.version_name)
         mvn.set_version_code(Build.version_code)
       end
+
+      if ENV['PROGUARD']
+        mvn.with_proguard
+      end
+
       mvn.with_profiles(config.profiles)
 
       mvn
@@ -104,6 +109,11 @@ module Build
 
     def with_lint
       @command << " -Dandroid.lint.skip=false"
+      self
+    end
+
+    def with_proguard
+      @command << " -Dandroid.proguard.skip=false"
       self
     end
 
