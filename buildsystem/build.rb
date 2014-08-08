@@ -85,7 +85,7 @@ module Build
   end
 
   def env
-    Build::Configuration.build_env
+    ci? ? Build::Configuration.build_env : 'local'
   end
 
 end

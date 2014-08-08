@@ -11,12 +11,15 @@ module Build
       mvn = self.new "mvn clean #{config.phase}"
 
       mvn.projects(config.project)
+
       if !config.tests
         mvn.skip_tests
       end
+
+      mvn.set_version_name(Build.version_name)
+
       if Build.ci?
         mvn.use_local_repo
-        mvn.set_version_name(Build.version_name)
         mvn.set_version_code(Build.version_code)
       end
 
