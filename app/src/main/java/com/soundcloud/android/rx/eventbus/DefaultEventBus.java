@@ -21,13 +21,13 @@ public class DefaultEventBus implements EventBus {
     private static final boolean LOG_EVENTS = Log.isLoggable(TAG, Log.DEBUG);
     private static SparseArray<List<Reference<Observer<?>>>> loggedObservers;
 
+    private final SparseArray<Subject<?, ?>> queues = new SparseArray<Subject<?, ?>>();
+
     static {
         if (LOG_EVENTS) {
             loggedObservers = new SparseArray<List<Reference<Observer<?>>>>();
         }
     }
-
-    private final SparseArray<Subject<?, ?>> queues = new SparseArray<Subject<?, ?>>();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -81,10 +81,13 @@ public class DefaultEventBus implements EventBus {
     }
 
     private <T> void logEvent(Queue<T> queue, T event) {
-        final StringBuilder message = new StringBuilder("Publishing to ");
-        message.append(queue.name).append(" [").append(event.toString()).append("]").append('\n');
+        final StringBuilder message = new StringBuilder();
+        message.append("Publishing to ").append(queue.name);
+        message.append(" [").append(event.toString()).append("]\n");
         final List<Reference<Observer<?>>> observerRefs = loggedObservers.get(queue.id);
-        if (observerRefs != null && !observerRefs.isEmpty()) {
+        if (observerRefs == null || observerRefs.isEmpty()) {
+            message.append("No observers found.");
+        } else {
             message.append("Delivering to: \n");
             for (Reference<Observer<?>> ref : observerRefs) {
                 final Observer<?> observer = ref.get();
@@ -92,8 +95,6 @@ public class DefaultEventBus implements EventBus {
                     message.append("-> ").append(observer.getClass().getCanonicalName()).append('\n');
                 }
             }
-        } else {
-            message.append("No observers found.");
         }
         Log.d(TAG, message.toString());
     }

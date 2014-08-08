@@ -9,6 +9,9 @@ import java.util.Map;
 
 public final class UIEvent {
 
+    private final Kind kind;
+    private final Map<String, String> attributes;
+
     public enum Kind {
         FOLLOW,
         UNFOLLOW,
@@ -22,9 +25,6 @@ public final class UIEvent {
         SHUFFLE_LIKES,
         NAVIGATION
     }
-
-    private final Kind kind;
-    private final Map<String, String> attributes;
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
         return new UIEvent(isFollow ? Kind.FOLLOW : Kind.UNFOLLOW)
@@ -95,7 +95,7 @@ public final class UIEvent {
     }
 
     private static String getPlayableType(Playable playable) {
-        return (playable instanceof PublicApiTrack ? "track" : "playlist");
+        return playable instanceof PublicApiTrack ? "track" : "playlist";
     }
 
     public UIEvent(Kind kind) {
