@@ -10,6 +10,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackSessionEvent {
 
     public static final int STOP_REASON_PAUSE = 0;
