@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import com.google.common.base.Objects;
+
 public class PlayQueueEvent {
 
     public static final int NEW_QUEUE = 0;
@@ -27,10 +29,6 @@ public class PlayQueueEvent {
         return kind == QUEUE_UPDATE;
     }
 
-    public boolean isNewQueue() {
-        return kind == NEW_QUEUE;
-    }
-
     @Override
     public boolean equals(Object o) {
         return o instanceof PlayQueueEvent
@@ -40,5 +38,10 @@ public class PlayQueueEvent {
     @Override
     public int hashCode() {
         return kind;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("kind", kind == NEW_QUEUE ? "NEW_QUEUE" : QUEUE_UPDATE).toString();
     }
 }
