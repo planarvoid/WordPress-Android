@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -138,6 +139,13 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void playingStateWithCurrentTrackDoesNotResetProgress() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true);
+
+        verify(waveformViewController, never()).setProgress(PlaybackProgress.empty());
+    }
+
+    @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true);
         verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
@@ -156,6 +164,13 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void playingStateWithOtherTrackResetProgress() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
+
+        verify(waveformViewController).setProgress(PlaybackProgress.empty());
+    }
+
+    @Test
     public void bufferingStateWithCurrentTrackShowsBufferingStateOnWaveform() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true);
         verify(waveformViewController).showBufferingState();
@@ -165,6 +180,13 @@ public class TrackPagePresenterTest {
     public void bufferingStateWithCurrentTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true);
         verify(artworkController).showSessionActiveState();
+    }
+
+    @Test
+    public void bufferingStateWithOtherTrackResetProgress() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false);
+
+        verify(waveformViewController).setProgress(PlaybackProgress.empty());
     }
 
     @Test
