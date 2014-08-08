@@ -111,19 +111,6 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
         verify(localyticsSession).open();
     }
 
-    @Test
-    public void shouldCloseSessionOnPlayerIdleEventAndNoActivitySessionOpen() {
-        localyticsProvider.handlePlayerLifeCycleEvent(PlayerLifeCycleEvent.forIdle());
-        verify(localyticsSession).close();
-    }
-
-    @Test
-    public void shouldNotCloseSessionOnPlayerIdleEventIfActivitySessionOpen() {
-        LocalyticsAnalyticsProvider.ACTIVITY_SESSION_OPEN.set(true);
-        localyticsProvider.handlePlayerLifeCycleEvent(PlayerLifeCycleEvent.forIdle());
-        verify(localyticsSession, never()).close();
-    }
-
     private PlaybackSessionEvent buildStopEvent() throws CreateModelException {
         PlaybackSessionEvent startEvent = TestHelper.getModelFactory().createModel(PlaybackSessionEvent.class);
         return PlaybackSessionEvent.forStop(TRACK_DATA, Urn.forUser(2L), new TrackSourceInfo("", false), startEvent, 0, 0, 0);

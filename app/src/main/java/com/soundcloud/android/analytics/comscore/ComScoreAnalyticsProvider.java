@@ -9,7 +9,6 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 
@@ -38,10 +37,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
         } else if (event.getKind() == ActivityLifeCycleEvent.ON_PAUSE_EVENT) {
             comScore.onExitForeground();
         }
-    }
-
-    @Override
-    public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
     }
 
     @Override

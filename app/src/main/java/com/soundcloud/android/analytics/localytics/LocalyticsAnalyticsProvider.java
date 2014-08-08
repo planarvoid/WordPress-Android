@@ -94,13 +94,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
-        if (event.getKind() == PlayerLifeCycleEvent.STATE_IDLE) {
-            closeSessionForPlayer();
-        }
-    }
-
-    @Override
     public void handleScreenEvent(String screenTag) {
         session.tagScreen(screenTag);
         Map<String, String> eventAttributes = new HashMap<String, String>();

@@ -33,11 +33,6 @@ public interface AnalyticsProvider {
     void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event);
 
     /**
-     * Signals to the analytics provider that a life-cycle event occurred in the playback service
-     */
-    void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event);
-
-    /**
      * Signals to the analytics provider that a screen (Activity, Fragment or View) was being opened.
      *
      * @param screenTag the tag under which to track the screen

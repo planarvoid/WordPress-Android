@@ -10,7 +10,6 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.utils.Log;
@@ -47,10 +46,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlayerLifeCycleEvent(PlayerLifeCycleEvent event) {
-    }
-
-    @Override
     public void handleScreenEvent(String screenTag) {
     }
 
@@ -68,7 +63,15 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
         try {
+            // if this is an ad
+            //    use the ad url builder
+
+
+            // do this normal code...
             final String url = urlBuilder.buildFromPlaybackEvent(eventData);
+
+
+
             final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
             eventTracker.trackEvent(event);
 

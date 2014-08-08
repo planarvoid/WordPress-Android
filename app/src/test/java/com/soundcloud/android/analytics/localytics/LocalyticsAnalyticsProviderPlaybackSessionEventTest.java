@@ -70,12 +70,6 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     }
 
     @Test
-    public void shouldOnlyHandlePlayerLifeCycleIdleEvent() {
-        localyticsProvider.handlePlayerLifeCycleEvent(PlayerLifeCycleEvent.forDestroyed());
-        verifyZeroInteractions(localyticsSession);
-    }
-
-    @Test
     public void playbackEventDataForStopEventShouldContainBasicAttributes() throws CreateModelException {
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
