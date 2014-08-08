@@ -21,6 +21,7 @@
         <item name="android:layout_height">@dimen/player_skip</item>
         <item name="android:background">@drawable/btn_player_next</item>
         <item name="android:duplicateParentState">true</item>
+        <item name="android:layout_margin">24dip</item>
         <item name="android:clickable">false</item>
     </style>
 
