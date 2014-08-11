@@ -9,36 +9,42 @@ import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
 
+import java.util.List;
+
 public class AudioAd implements PropertySetSource {
 
+    private final String urn;
     private final ApiTrack apiTrack;
 
     private final VisualAd visualAd;
 
-    private final String trackingImpressionUrl;
-    private final String trackingPlayUrl;
-    private final String trackingFinishUrl;
-    private final String trackingSkipUrl;
+    private final List<String> trackingImpressionUrls;
 
+    private final List<String> trackingFinishUrls;
+    private final List<String> trackingSkipUrls;
     @JsonCreator
-    public AudioAd(@JsonProperty("track") ApiTrack apiTrack,
+    public AudioAd(@JsonProperty("urn") String urn,
+                   @JsonProperty("track") ApiTrack apiTrack,
                    @JsonProperty("_embedded") RelatedResources relatedResources,
-                   @JsonProperty("tracking_impression_url") String trackingImpressionUrl,
-                   @JsonProperty("tracking_play_url") String trackingPlayUrl,
-                   @JsonProperty("tracking_finish_url") String trackingFinishUrl,
-                   @JsonProperty("tracking_skip_url") String trackingSkipUrl) {
-        this(apiTrack, relatedResources.visualAd, trackingImpressionUrl, trackingPlayUrl, trackingFinishUrl, trackingSkipUrl);
+                   @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
+                   @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
+                   @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls) {
+        this(urn, apiTrack, relatedResources.visualAd, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
     }
 
     @VisibleForTesting
-    public AudioAd(ApiTrack apiTrack, VisualAd visualAd, String trackingImpressionUrl,
-                   String trackingPlayUrl, String trackingFinishUrl, String trackingSkipUrl) {
+    public AudioAd(String urn, ApiTrack apiTrack, VisualAd visualAd, List<String> trackingImpressionUrls,
+                   List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
+        this.urn = urn;
         this.apiTrack = apiTrack;
         this.visualAd = visualAd;
-        this.trackingImpressionUrl = trackingImpressionUrl;
-        this.trackingPlayUrl = trackingPlayUrl;
-        this.trackingFinishUrl = trackingFinishUrl;
-        this.trackingSkipUrl = trackingSkipUrl;
+        this.trackingImpressionUrls = trackingImpressionUrls;
+        this.trackingFinishUrls = trackingFinishUrls;
+        this.trackingSkipUrls = trackingSkipUrls;
+    }
+
+    public String getUrn() {
+        return urn;
     }
 
     public ApiTrack getApiTrack() {
@@ -49,20 +55,16 @@ public class AudioAd implements PropertySetSource {
         return visualAd;
     }
 
-    public String getTrackingImpressionUrl() {
-        return trackingImpressionUrl;
+    public List<String> getTrackingImpressionUrls() {
+        return trackingImpressionUrls;
     }
 
-    public String getTrackingPlayUrl() {
-        return trackingPlayUrl;
+    public List<String> getTrackingFinishUrls() {
+        return trackingFinishUrls;
     }
 
-    public String getTrackingFinishUrl() {
-        return trackingFinishUrl;
-    }
-
-    public String getTrackingSkipUrl() {
-        return trackingSkipUrl;
+    public List<String> getTrackingSkipUrls() {
+        return trackingSkipUrls;
     }
 
     private static class RelatedResources {
