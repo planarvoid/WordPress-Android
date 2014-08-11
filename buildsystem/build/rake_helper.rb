@@ -227,7 +227,12 @@ module Build
 
         puts message
 
-        git.push
+      end
+
+      desc "creates a new release and uploads to Github"
+      task :github do
+        release = JSON.parse(github.create_release(Build.version_name, release_name, release_body).body)
+        github.upload_apk(release['id'], Build.apk_path)
       end
     end
 
@@ -260,6 +265,14 @@ module Build
 
     def hotfix
       HotfixStrategy.new(git, Mvn)
+    end
+
+    def release_name
+      ENV['RELEASE_NAME'] || Build.version_name
+    end
+
+    def release_body
+      ENV['RELEASE_BODY'] || ''
     end
   end
 end
