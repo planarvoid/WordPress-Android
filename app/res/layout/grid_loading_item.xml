@@ -21,7 +21,7 @@
                       android:visibility="gone"
                       android:orientation="vertical">
 
-            <View style="@style/Divider"/>
+            <View style="@style/HorizontalDivider"/>
 
             <TextView android:layout_width="wrap_content"
                       android:layout_height="0dp"

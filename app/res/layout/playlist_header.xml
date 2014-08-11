@@ -14,7 +14,7 @@
               android:padding="10dp"
               android:layout_marginLeft="6dp" />
 
-    <View style="@style/Divider"
+    <View style="@style/HorizontalDivider"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp" />
 </LinearLayout>

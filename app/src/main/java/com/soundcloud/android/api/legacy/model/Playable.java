@@ -422,6 +422,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
                 PlayableProperty.URN.bind(getUrn()),
                 PlayableProperty.CREATOR_URN.bind(user.getUrn()),
                 PlayableProperty.IS_PRIVATE.bind(sharing.isPrivate()),
+                PlayableProperty.REPOSTS_COUNT.bind(reposts_count),
+                PlayableProperty.LIKES_COUNT.bind(likes_count),
                 // we may have null usernames if it is my like/sound that hasn't been lazily updated
                 PlayableProperty.CREATOR_NAME.bind(user.getUsername() != null ? user.getUsername()
                         : ScTextUtils.EMPTY_STRING)

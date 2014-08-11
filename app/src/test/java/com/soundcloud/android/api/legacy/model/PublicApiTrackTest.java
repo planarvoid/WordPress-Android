@@ -2,14 +2,13 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.Expect;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -315,13 +314,15 @@ public class PublicApiTrackTest {
         PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
 
         PropertySet propertySet = track.toPropertySet();
-        Expect.expect(propertySet.get(PlayableProperty.DURATION)).toEqual(track.duration);
+        expect(propertySet.get(PlayableProperty.DURATION)).toEqual(track.duration);
         expect(propertySet.get(PlayableProperty.TITLE)).toEqual(track.title);
         expect(propertySet.get(PlayableProperty.URN)).toEqual(track.getUrn());
         expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());
         expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(track.getUsername());
         expect(propertySet.get(PlayableProperty.IS_PRIVATE)).toEqual(track.isPrivate());
-        Expect.expect(propertySet.get(TrackProperty.PLAY_COUNT)).toEqual(track.playback_count);
+        expect(propertySet.get(TrackProperty.PLAY_COUNT)).toEqual(track.playback_count);
+        expect(propertySet.get(PlayableProperty.LIKES_COUNT)).toEqual(track.likes_count);
+        expect(propertySet.get(PlayableProperty.REPOSTS_COUNT)).toEqual(track.reposts_count);
     }
 
     @Test

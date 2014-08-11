@@ -1,29 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="TrackInfoText">
+    <style name="TrackInfo" />
+    <style name="TrackInfo.Text">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="custom_font">fonts/Roboto-Light.ttf</item>
         <item name="android:antialias">true</item>
         <item name="android:textColor">@color/list_primary</item>
+        <item name="android:textColorLink">@color/list_primary</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
     </style>
 
-    <style name="TrackInfoText.Creator">
+    <style name="TrackInfo.Text.Creator">
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="TrackInfoText.Title">
+    <style name="TrackInfo.Text.Title">
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:maxLines">2</item>
     </style>
 
-
-    <style name="TrackInfoText.Description">
+    <style name="TrackInfo.Text.Description">
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:autoLink">web</item>
     </style>
+
+    <style name="TrackInfo.Text.Stats">
+        <item name="android:textColor">@color/list_secondary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:drawablePadding">6dp</item>
+    </style>
+
+    <style name="TrackInfoDivider" parent="Divider.Vertical">
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:layout_marginBottom">3dp</item>
+    </style>
+
 </resources>

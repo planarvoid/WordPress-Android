@@ -15,21 +15,51 @@
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/creator"
-                style="@style/TrackInfoText.Creator"/>
+                style="@style/TrackInfo.Text.Creator"/>
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/title"
-                style="@style/TrackInfoText.Title"/>
+                style="@style/TrackInfo.Text.Title"/>
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:layout_marginTop="10dp"
+                      android:layout_marginBottom="10dp">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/plays"
+                    style="@style/TrackInfo.Text.Stats"
+                    android:drawableLeft="@drawable/stats_play"/>
+
+            <View
+                    android:id="@+id/divider1"
+                    style="@style/TrackInfoDivider" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/likes"
+                    style="@style/TrackInfo.Text.Stats"
+                    android:drawableLeft="@drawable/list_item_like"/>
+
+            <View
+                    android:id="@+id/divider2"
+                    style="@style/TrackInfoDivider" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/reposts"
+                    style="@style/TrackInfo.Text.Stats"
+                    android:drawableLeft="@drawable/stats_stream_repost"/>
+        </LinearLayout>
 
         <View android:id="@+id/artwork_divider"
-              style="@style/Divider"/>
+              style="@style/HorizontalDivider"/>
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/description"
-                style="@style/TrackInfoText.Description"
+                style="@style/TrackInfo.Text.Description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="20dp"/>
 
         <FrameLayout android:id="@+id/loading"
                      android:layout_width="fill_parent"

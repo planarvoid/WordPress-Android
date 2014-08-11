@@ -2,6 +2,15 @@
 
 <resources>
 
+    <style name="Divider">
+        <item name="android:background">#1e000000</item>
+    </style>
+
+    <style name="Divider.Vertical">
+        <item name="android:layout_width">@dimen/divider_vertical_width</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
     <!-- shared widget styles -->
 
     <style name="DropDownListView" parent="@style/Widget.AppCompat.ListView.DropDown">
@@ -49,7 +58,7 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="Divider">
+    <style name="HorizontalDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
