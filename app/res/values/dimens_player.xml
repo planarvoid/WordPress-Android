@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- player_footer is player_footer_control + player_strip -->
+    <dimen name="player_footer">68dp</dimen>
+    <dimen name="player_strip">4dp</dimen>
+    <dimen name="player_footer_control">64dp</dimen>
+    <dimen name="player_skip">52dp</dimen>
+    <dimen name="player_gradient_height">180dp</dimen>
+    <dimen name="player_footer_margin">10dp</dimen>
+    <dimen name="player_pager_spacing">2dp</dimen>
+    <dimen name="player_waveform_height">108dp</dimen>
+    <dimen name="player_skip_touch">76dp</dimen>
+
+    <!-- waveform -->
+    <dimen name="waveform_bar_width">2dp</dimen>
+    <dimen name="waveform_space_width">1dp</dimen>
+    <dimen name="waveform_baseline">68dp</dimen>
+    <dimen name="timestamp_height">20dp</dimen>
+
+    <!-- track info -->
+
+    <dimen name="track_info_margin_vertical">60dp</dimen>
+    <dimen name="track_info_margin_horizontal">28dp</dimen>
+
+    <dimen name="track_info_interior_padding_top">20dp</dimen>
+    <dimen name="track_info_interior_padding_bottom">8dp</dimen>
+    <dimen name="track_info_interior_padding_horizontal">20dp</dimen>
+
+</resources>

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.propeller.PropertySet;
 
+import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,7 +24,8 @@ public class TrackInfoPresenter {
     public void bindDescription(View view, PropertySet propertySet) {
         TextView description = (TextView) view.findViewById(R.id.description);
 
-        description.setText(propertySet.get(TrackProperty.DESCRIPTION));
+        final String source = propertySet.get(TrackProperty.DESCRIPTION);
+        description.setText(Html.fromHtml(source.replace(System.getProperty("line.separator"), "<br/>")));
         description.setVisibility(View.VISIBLE);
         view.findViewById(R.id.loading).setVisibility(View.GONE);
     }

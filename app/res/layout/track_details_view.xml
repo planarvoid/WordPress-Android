@@ -1,36 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@android:color/white"
+             android:clickable="true">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:layout_marginTop="@dimen/track_info_interior_padding_top"
+                  android:layout_marginLeft="@dimen/track_info_interior_padding_horizontal"
+                  android:layout_marginBottom="@dimen/track_info_interior_padding_bottom"
+                  android:layout_marginRight="@dimen/track_info_interior_padding_horizontal">
 
-    <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/creator"
-            style="@style/ListItemText.SecondaryText"/>
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/creator"
+                style="@style/TrackInfoText.Creator"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
-            android:id="@id/title"
-            style="@style/ListItemText.PrimaryText"/>
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@id/title"
+                style="@style/TrackInfoText.Title"/>
 
-    <View android:id="@+id/artwork_divider"
-          style="@style/Divider"/>
+        <View android:id="@+id/artwork_divider"
+              style="@style/Divider"/>
 
-    <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:id="@+id/description"
-              style="@style/TrackInfoText.Description"
-              android:layout_margin="16dp"/>
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/description"
+                style="@style/TrackInfoText.Description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" />
 
-    <FrameLayout android:id="@+id/loading"
-                 android:layout_width="fill_parent"
-                 android:layout_height="?android:attr/listPreferredItemHeight">
+        <FrameLayout android:id="@+id/loading"
+                     android:layout_width="fill_parent"
+                     android:layout_height="?android:attr/listPreferredItemHeight">
 
-        <ProgressBar android:indeterminateOnly="true"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_gravity="center"/>
+            <ProgressBar android:indeterminateOnly="true"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center"/>
 
-    </FrameLayout>
+        </FrameLayout>
 
-</LinearLayout>
+    </LinearLayout>
+</FrameLayout>

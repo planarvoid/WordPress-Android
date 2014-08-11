@@ -2,7 +2,6 @@ package com.soundcloud.android.tracks;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
@@ -12,7 +11,6 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -21,7 +19,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class TrackInfoFragment extends DialogFragment {
+public class TrackInfoFragment extends DialogFragment implements View.OnClickListener {
 
     private static final String EXTRA_URN = "Urn";
 
@@ -51,19 +49,6 @@ public class TrackInfoFragment extends DialogFragment {
         setRetainInstance(true);
     }
 
-    @VisibleForTesting
-    TrackInfoFragment(TrackOperations trackOperations, EventBus eventBus){
-        this.trackOperations = trackOperations;
-        this.eventBus = eventBus;
-    }
-
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        return dialog;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +67,23 @@ public class TrackInfoFragment extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         subscription = loadTrack.subscribe(new TrackSubscriber());
+
+        final int horizontalPadding = getResources().getDimensionPixelSize(R.dimen.track_info_margin_horizontal);
+        final int verticalPadding = getResources().getDimensionPixelSize(R.dimen.track_info_margin_vertical);
+        view.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+
+        view.setOnClickListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        subscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onClick(View v) {
+        dismiss();
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
