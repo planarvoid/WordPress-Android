@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -30,6 +31,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
+import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -557,7 +559,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
-        expectUnskippablePlayerUIEventSent();
+        expectUnskippablePlaybackToastMessage();
     }
 
     @Test
@@ -578,7 +580,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playFromAdapter(Robolectric.application, tracks, 0, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
-        expectUnskippablePlayerUIEventSent();
+        expectUnskippablePlaybackToastMessage();
     }
 
     @Test
@@ -588,7 +590,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
 
-        expectUnskippablePlayerUIEventSent();
+        expectUnskippablePlaybackToastMessage();
     }
 
     @Test
@@ -597,7 +599,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
 
-        expectUnskippablePlayerUIEventSent();
+        expectUnskippablePlaybackToastMessage();
     }
 
     @Test
@@ -608,7 +610,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 Observable.just(TRACK_URN), TRACK_URN, 0, ORIGIN_SCREEN);
 
-        expectUnskippablePlayerUIEventSent();
+        expectUnskippablePlaybackToastMessage();
     }
 
     @Test
@@ -617,7 +619,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
 
-        expectUnskippablePlayerUIEventSent();
+        expectUnskippablePlaybackToastMessage();
     }
 
     private void setupAdInProgress(long currentProgress) {
@@ -637,7 +639,8 @@ public class PlaybackOperationsTest {
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
     }
 
-    private void expectUnskippablePlayerUIEventSent() {
-        expect(eventBus.firstEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.UNSKIPPABLE_PLAYER);
+    private void expectUnskippablePlaybackToastMessage() {
+        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
     }
+
 }

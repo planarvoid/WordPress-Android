@@ -144,16 +144,6 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void showToastWhenUnskippableEventIsReceived() {
-        when(activity.getResources()).thenReturn(Robolectric.application.getResources());
-        controller.onResume();
-
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forUnskippablePlayer());
-
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
-    }
-
-    @Test
     public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
         controller.onResume();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());

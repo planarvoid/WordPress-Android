@@ -207,9 +207,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
                 case PlayerUIEvent.SHOW_PLAYER:
                     show();
                     break;
-                case PlayerUIEvent.UNSKIPPABLE_PLAYER:
-                    Toast.makeText(activity, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
-                    break;
                 default:
                     /* No-op */ break;
             }

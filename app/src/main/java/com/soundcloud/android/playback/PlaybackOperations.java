@@ -6,6 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -41,6 +42,7 @@ import rx.subscriptions.Subscriptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -302,7 +304,7 @@ public class PlaybackOperations {
             playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
             playCurrent();
         } else {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forUnskippablePlayer());
+            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
         }
     }
 

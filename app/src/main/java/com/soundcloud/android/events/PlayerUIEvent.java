@@ -8,7 +8,6 @@ public class PlayerUIEvent {
     public static final int COLLAPSE_PLAYER = 3;
     public static final int SHOW_PLAYER = 4;
     public static final int PLAYER_COLLAPSED = 5;
-    public static final int UNSKIPPABLE_PLAYER = 6;
 
     private final int kind;
 
@@ -52,10 +51,6 @@ public class PlayerUIEvent {
      */
     public static PlayerUIEvent forShowPlayer() {
         return new PlayerUIEvent(SHOW_PLAYER);
-    }
-
-    public static PlayerUIEvent forUnskippablePlayer() {
-        return new PlayerUIEvent(UNSKIPPABLE_PLAYER);
     }
 
     public PlayerUIEvent(int kind) {
