@@ -60,14 +60,14 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createUrlWithOriginAndTrigger() throws Exception {
+    public void createAudioEventUrlWithOriginAndTrigger() throws Exception {
         final String url = eventLoggerUrlBuilder.buildFromPlaybackEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?client_id=123&anonymous_id=9876&action=play&ts=321&duration=1000&sound=soundcloud%3Asounds%3A123&user=" + userUrn.toEncodedString() + "&trigger=manual&context=origin")));
     }
 
     @Test
-    public void createUrlWithSourceAndSourceVersion() throws Exception {
+    public void createAudioEventUrlWithSourceAndSourceVersion() throws Exception {
         when(trackSourceInfo.hasSource()).thenReturn(true);
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
@@ -77,7 +77,7 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createUrlFromPlaylist() throws Exception {
+    public void createAudioEventUrlFromPlaylist() throws Exception {
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
         when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
@@ -87,7 +87,7 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createUrlForExperimentAssignment() throws Exception {
+    public void createAudioEventUrlForExperimentAssignment() throws Exception {
         Map<String, Integer> experimentParams = Maps.newHashMap();
         experimentParams.put("exp_android-ui", 4);
         experimentParams.put("exp_android-listen", 5);
@@ -98,7 +98,7 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createFullUrl() throws Exception {
+    public void createFullAudioEventUrl() throws Exception {
         when(trackSourceInfo.hasSource()).thenReturn(true);
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
