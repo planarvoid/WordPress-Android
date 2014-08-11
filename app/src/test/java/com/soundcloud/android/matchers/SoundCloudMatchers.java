@@ -26,7 +26,7 @@ public class SoundCloudMatchers {
     @SuppressWarnings("UnusedDeclaration")
     @Factory
     public static Matcher<String> urlEqualTo(String url) {
-        return new AsUrlEqualsMatcher(url);
+        return new UrlMatcher(url);
     }
 
     @Factory
