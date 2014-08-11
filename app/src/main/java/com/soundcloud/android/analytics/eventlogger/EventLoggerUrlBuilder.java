@@ -37,16 +37,21 @@ public class EventLoggerUrlBuilder {
     public String buildFromPlaybackEvent(PlaybackSessionEvent playbackSessionEvent) {
         final Uri.Builder builder = buildUriForPath("audio");
 
+        // add basic UI event params
+        // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/base-ui-event.md#android
         builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackSessionEvent.getTimeStamp()));
         builder.appendQueryParameter(Parameters.ACTION.value(), playbackSessionEvent.isPlayEvent() ? "play" : "stop");
         builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackSessionEvent.getDuration()));
         builder.appendQueryParameter(Parameters.SOUND.value(), playbackSessionEvent.getTrackUrn().toString());
         builder.appendQueryParameter(Parameters.USER.value(), playbackSessionEvent.getUserUrn().toString());
 
+        // add a/b experiment params
         for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
             builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
         }
 
+        // audio event specific params
+        // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md
         TrackSourceInfo trackSourceInfo = playbackSessionEvent.getTrackSourceInfo();
 
         if (trackSourceInfo.getIsUserTriggered()) {
@@ -65,6 +70,16 @@ public class EventLoggerUrlBuilder {
             builder.appendQueryParameter(Parameters.PLAYLIST_ID.value(), String.valueOf(trackSourceInfo.getPlaylistId()));
             builder.appendQueryParameter(Parameters.PLAYLIST_POSITION.value(), String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
+
+        // audio ad specific params
+        // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#audio
+        if (playbackSessionEvent.isAd()) {
+            builder.appendQueryParameter(Parameters.MONETIZATION_TYPE.value(), "audio_ad");
+            builder.appendQueryParameter(Parameters.AD_URN.value(), playbackSessionEvent.getAudioAdUrn());
+            builder.appendQueryParameter(Parameters.MONETIZED_OBJECT.value(), playbackSessionEvent.getAudioAdMonetizedUrn());
+            builder.appendQueryParameter(Parameters.PROTOCOL.value(), playbackSessionEvent.getAudioAdProtocol());
+        }
+
         return builder.build().toString();
     }
 
@@ -122,19 +137,26 @@ public class EventLoggerUrlBuilder {
     }
 
     static enum Parameters {
+        // basic UI params
         CLIENT_ID("client_id"),
         ANONYMOUS_ID("anonymous_id"),
         TIMESTAMP("ts"),
+        USER("user"),
+        // audio event params
         ACTION("action"),
         DURATION("duration"),
         SOUND("sound"),
-        USER("user"),
         CONTEXT("context"),
         TRIGGER("trigger"),
         SOURCE("source"),
         SOURCE_VERSION("source_version"),
         PLAYLIST_ID("set_id"),
         PLAYLIST_POSITION("set_position"),
+        // ad specific params
+        AD_URN("ad_urn"),
+        MONETIZATION_TYPE("monetization_type"),
+        MONETIZED_OBJECT("monetized_object"),
+        // performance & error event params
         LATENCY("latency"),
         PROTOCOL("protocol"),
         PLAYER_TYPE("player_type"),

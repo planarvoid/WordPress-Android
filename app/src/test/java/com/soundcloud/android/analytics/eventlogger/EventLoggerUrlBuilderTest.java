@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -19,9 +20,12 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,6 +115,44 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
+    public void createAudioEventUrlForAudioAdPlaybackEvent() throws CreateModelException {
+        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        TrackUrn monetizedTrack = Urn.forTrack(456L);
+        final String url = eventLoggerUrlBuilder.buildFromPlaybackEvent(
+                PlaybackSessionEvent.forAdPlay(audioAd, monetizedTrack, userUrn, PlaybackProtocol.HLS, trackSourceInfo, 0L, 321L));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&action=play"
+                + "&ts=321"
+                + "&duration=12345"
+                + "&sound=soundcloud%3Asounds%3A123"
+                + "&user=" + userUrn.toEncodedString()
+                + "&trigger=manual"
+                + "&context=origin"
+                + "&protocol=hls"
+                + "&ad_urn=adswizz%3Aads%3A123456"
+                + "&monetization_type=audio_ad"
+                + "&monetized_object=soundcloud%3Asounds%3A456")));
+    }
+
+//    @Test
+//    public void createImpressionUrlForAudioAdPlaybackEvent() {
+//        final String url = eventLoggerUrlBuilder.buildFromAdPlayback(
+//                PlaybackSessionEvent.forAdPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
+//        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
+//                + "client_id=123"
+//                + "&anonymous_id=9876"
+//                + "&ts=321"
+//                + "&user=" + userUrn.toEncodedString()
+//                + "&ad_urn=adswizz%3Aads%3A123456"
+//                + "&impression_name=audio_ad_impression"
+//                + "&impression_object=soundcloud%3Asounds%3A123"
+//                + "&monetization_type=audio_ad"
+//                + "&monetized_object=soundcloud%3Asounds%3A456")));
+//    }
+
+    @Test
     public void createsPlaybackPerformanceUrlForPlayEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent =
                 PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, userUrn);
@@ -161,5 +203,4 @@ public class EventLoggerUrlBuilderTest {
         final String actualUrl = eventLoggerUrlBuilder.buildFromPlaybackErrorEvent(playbackErrorEvent);
         expect(actualUrl.contains(Uri.encode(USER_AGENT_UNENCODED))).toBeTrue();
     }
-
 }

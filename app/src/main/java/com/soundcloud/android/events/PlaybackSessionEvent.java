@@ -1,14 +1,20 @@
 package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackSessionEvent {
@@ -20,6 +26,10 @@ public class PlaybackSessionEvent {
     public static final int STOP_REASON_END_OF_QUEUE = 4;
     public static final int STOP_REASON_NEW_QUEUE = 5;
     public static final int STOP_REASON_ERROR = 6;
+
+    private static final String AD_ATTR_URN = "ad_urn";
+    private static final String AD_ATTR_MONETIZED_URN = "monetized_urn";
+    private static final String AD_ATTR_PROTOCOL = "protocol";
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -33,6 +43,16 @@ public class PlaybackSessionEvent {
     private final long timeStamp, progress;
     private long listenTime;
     private int stopReason;
+
+    // extra meta data specific to audio ad events
+    private Map<String, String> audioAdAttributes = Collections.emptyMap();
+
+    public static PlaybackSessionEvent forAdPlay(AudioAd audioAd, TrackUrn monetizableTrackUrn, UserUrn userUrn,
+                                                 PlaybackProtocol protocol, TrackSourceInfo trackSourceInfo,
+                                                 long progress, long timestamp) {
+        return new PlaybackSessionEvent(audioAd, monetizableTrackUrn, userUrn, protocol, trackSourceInfo,
+                progress, timestamp);
+    }
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
                                                TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
@@ -60,16 +80,33 @@ public class PlaybackSessionEvent {
         return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
     }
 
-    private PlaybackSessionEvent(int eventKind, @NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+    private static PropertySet audioAdPropertySet(AudioAd audioAd) {
+        return PropertySet.from(
+                TrackProperty.URN.bind(audioAd.getApiTrack().getUrn()),
+                PlayableProperty.DURATION.bind(audioAd.getApiTrack().getDuration()));
+    }
+
+    // Use this constructor for an ordinary audio playback event
+    private PlaybackSessionEvent(int eventKind, PropertySet adTrackData, UserUrn userUrn,
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
-        this.trackUrn = trackData.get(TrackProperty.URN);
-        this.trackPolicy = trackData.getOrElseNull(TrackProperty.POLICY);
-        this.duration = trackData.get(PlayableProperty.DURATION);
+        this.trackUrn = adTrackData.get(TrackProperty.URN);
+        this.trackPolicy = adTrackData.getOrElseNull(TrackProperty.POLICY);
+        this.duration = adTrackData.get(PlayableProperty.DURATION);
         this.kind = eventKind;
         this.userUrn = userUrn;
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.timeStamp = timestamp;
+    }
+
+    // Use this constructor for an audio ad playback event
+    private PlaybackSessionEvent(AudioAd audioAd, TrackUrn monetizableTrackUrn, UserUrn userUrn, PlaybackProtocol protocol,
+                                 TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
+        this(EVENT_KIND_PLAY, audioAdPropertySet(audioAd), userUrn, trackSourceInfo, progress, timestamp);
+        this.audioAdAttributes = new HashMap<String, String>(3);
+        this.audioAdAttributes.put(AD_ATTR_URN, "adswizz:ad:123"); //TODO
+        this.audioAdAttributes.put(AD_ATTR_MONETIZED_URN, monetizableTrackUrn.toString());
+        this.audioAdAttributes.put(AD_ATTR_PROTOCOL, protocol.getValue());
     }
 
     public int getKind() {
@@ -125,6 +162,18 @@ public class PlaybackSessionEvent {
         this.stopReason = stopReason;
     }
 
+    public String getAudioAdUrn() {
+        return audioAdAttributes.get(AD_ATTR_URN);
+    }
+
+    public String getAudioAdMonetizedUrn() {
+        return audioAdAttributes.get(AD_ATTR_MONETIZED_URN);
+    }
+
+    public String getAudioAdProtocol() {
+        return audioAdAttributes.get(AD_ATTR_PROTOCOL);
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(PlaybackSessionEvent.class)
@@ -145,7 +194,7 @@ public class PlaybackSessionEvent {
     }
 
     public boolean isAd() {
-        return false;
+        return !audioAdAttributes.isEmpty();
     }
 
     public boolean isAtStart() {
