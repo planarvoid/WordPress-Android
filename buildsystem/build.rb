@@ -36,7 +36,7 @@ module Build
     if env == 'release'
       [version, build_number].compact.join("-")
     else
-      [version, build_number, env].compact.join("-")
+      [version, build_number, (ci? ? env : 'local')].compact.join("-")
     end
   end
 
