@@ -282,6 +282,14 @@ public class TrackPagerAdapterTest {
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_TITLE)).toEqual("title");
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_CREATOR)).toEqual("artist");
+
+        expect(captorPropertySet.getValue().contains(AdProperty.DEFAULT_TEXT_COLOR)).toBeTrue();
+        expect(captorPropertySet.getValue().contains(AdProperty.DEFAULT_BACKGROUND_COLOR)).toBeTrue();
+        expect(captorPropertySet.getValue().contains(AdProperty.FOCUSED_TEXT_COLOR)).toBeTrue();
+        expect(captorPropertySet.getValue().contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
+        expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_BACKGROUND_COLOR)).toBeTrue();
+        expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_TEXT_COLOR)).toBeTrue();
+
     }
 
     @Test
@@ -376,7 +384,13 @@ public class TrackPagerAdapterTest {
     private void setupAudioAd() {
         setupAudioAd(PropertySet.from(
                 AdProperty.ARTWORK.bind(Uri.parse("http://artwork.com")),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(MONETIZABLE_TRACK_URN)));
+                AdProperty.MONETIZABLE_TRACK_URN.bind(MONETIZABLE_TRACK_URN),
+                AdProperty.DEFAULT_TEXT_COLOR.bind("#111111"),
+                AdProperty.DEFAULT_BACKGROUND_COLOR.bind("#222222"),
+                AdProperty.PRESSED_TEXT_COLOR.bind("#333333"),
+                AdProperty.PRESSED_BACKGROUND_COLOR.bind("#444444"),
+                AdProperty.FOCUSED_TEXT_COLOR.bind("#555555"),
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#666666")));
     }
 
     private void setupAudioAd(PropertySet propertySet) {
