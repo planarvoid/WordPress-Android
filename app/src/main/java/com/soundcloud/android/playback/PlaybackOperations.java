@@ -299,12 +299,12 @@ public class PlaybackOperations {
     }
 
     private void playNewQueue(List<Long> trackIdList, int startPosition, PlaySessionSource playSessionSource) {
-        if (!shouldDisableSkipping()) {
+        if (shouldDisableSkipping()) {
+            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
+        } else {
             final PlayQueue playQueue = PlayQueue.fromIdList(trackIdList, playSessionSource);
             playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
             playCurrent();
-        } else {
-            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
         }
     }
 
