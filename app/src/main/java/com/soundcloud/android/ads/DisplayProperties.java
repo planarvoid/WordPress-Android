@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DisplayProperties {
 
-    private String defaultTextColor;
-    private String defaultBackgroundColor;
-    private String pressedTextColor;
-    private String pressedBackgroundColor;
-    private String focusedTextColor;
-    private String focusedBackgroundColor;
+    private final String defaultTextColor;
+    private final String defaultBackgroundColor;
+    private final String pressedTextColor;
+    private final String pressedBackgroundColor;
+    private final String focusedTextColor;
+    private final String focusedBackgroundColor;
 
     @JsonCreator
     public DisplayProperties(

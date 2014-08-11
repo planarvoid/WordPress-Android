@@ -7,11 +7,11 @@ import java.util.List;
 
 public class VisualAd {
 
-    private String imageUrl;
-    private String clickthroughUrl;
-    private List<String> trackingImpressionUrls;
-    private List<String> trackingClickUrls;
-    private DisplayProperties displayProperties;
+    private final String imageUrl;
+    private final String clickthroughUrl;
+    private final List<String> trackingImpressionUrls;
+    private final List<String> trackingClickUrls;
+    private final DisplayProperties displayProperties;
 
     @JsonCreator
     public VisualAd(@JsonProperty("image_url") String imageUrl,
