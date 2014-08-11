@@ -104,7 +104,7 @@ public class PlaybackSessionEvent {
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this(EVENT_KIND_PLAY, audioAdPropertySet(audioAd), userUrn, trackSourceInfo, progress, timestamp);
         this.audioAdAttributes = new HashMap<String, String>(3);
-        this.audioAdAttributes.put(AD_ATTR_URN, "adswizz:ad:123"); //TODO
+        this.audioAdAttributes.put(AD_ATTR_URN, audioAd.getUrn());
         this.audioAdAttributes.put(AD_ATTR_MONETIZED_URN, monetizableTrackUrn.toString());
         this.audioAdAttributes.put(AD_ATTR_PROTOCOL, protocol.getValue());
     }

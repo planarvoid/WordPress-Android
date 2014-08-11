@@ -75,7 +75,7 @@ public class PlaybackSessionEventTest {
         PlaybackSessionEvent event = PlaybackSessionEvent.forAdPlay(
                 audioAd, TRACK_URN, USER_URN, PlaybackProtocol.HLS, trackSourceInfo, PROGRESS, 1000L);
         expect(event.isAd()).toBeTrue();
-        expect(event.getAudioAdUrn()).toEqual("adswizz:ad:123");
+        expect(event.getAudioAdUrn()).toEqual("adswizz:ads:869");
         expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
         expect(event.getAudioAdProtocol()).toEqual("hls");
     }

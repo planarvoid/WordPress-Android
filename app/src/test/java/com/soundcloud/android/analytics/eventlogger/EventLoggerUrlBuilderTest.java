@@ -126,12 +126,12 @@ public class EventLoggerUrlBuilderTest {
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=12345"
-                + "&sound=soundcloud%3Asounds%3A123"
+                + "&sound=soundcloud%3Asounds%3A1"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
                 + "&context=origin"
                 + "&protocol=hls"
-                + "&ad_urn=adswizz%3Aads%3A123456"
+                + "&ad_urn=adswizz%3Aads%3A869"
                 + "&monetization_type=audio_ad"
                 + "&monetized_object=soundcloud%3Asounds%3A456")));
     }

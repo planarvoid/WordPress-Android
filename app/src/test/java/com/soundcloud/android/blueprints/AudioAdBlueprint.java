@@ -22,7 +22,7 @@ public class AudioAdBlueprint {
             ModelFactory factory = TestHelper.getModelFactory();
             try {
                 return new AudioAd(
-                        "soundcloud:sounds:123",
+                        "adswizz:ads:869",
                         factory.createModel(ApiTrack.class),
                         factory.createModel(VisualAd.class),
                         Collections.<String>emptyList(),
