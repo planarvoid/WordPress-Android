@@ -126,7 +126,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=12345"
-                + "&sound=soundcloud%3Asounds%3A1"
+                + "&sound=" + audioAd.getApiTrack().getUrn().toEncodedString()
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
                 + "&context=origin"
