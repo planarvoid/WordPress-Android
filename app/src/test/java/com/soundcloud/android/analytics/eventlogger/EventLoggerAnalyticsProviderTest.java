@@ -46,8 +46,8 @@ public class EventLoggerAnalyticsProviderTest {
         when(event.isAd()).thenReturn(true);
         when(event.isAtStart()).thenReturn(true);
         when(event.getTimeStamp()).thenReturn(12345L);
-        when(eventLoggerUrlBuilder.buildFromAdPlayback(event)).thenReturn("adUrl");
-        when(eventLoggerUrlBuilder.buildFromPlaybackEvent(event)).thenReturn("url");
+        when(eventLoggerUrlBuilder.buildForAdImpression(event)).thenReturn("adUrl");
+        when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
 
@@ -68,7 +68,7 @@ public class EventLoggerAnalyticsProviderTest {
         final PropertySet track = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000);
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, Urn.forUser(123L),
                 new TrackSourceInfo("context", false), 0L, 12345L);
-        when(eventLoggerUrlBuilder.buildFromPlaybackEvent(event)).thenReturn("url");
+        when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
 
@@ -83,7 +83,7 @@ public class EventLoggerAnalyticsProviderTest {
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
                 ConnectionType.FOUR_G, "uri", userUrn);
-        when(eventLoggerUrlBuilder.buildFromPlaybackPerformanceEvent(event)).thenReturn("url");
+        when(eventLoggerUrlBuilder.buildForAudioPerformanceEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
@@ -97,7 +97,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format");
-        when(eventLoggerUrlBuilder.buildFromPlaybackErrorEvent(event)).thenReturn("url");
+        when(eventLoggerUrlBuilder.buildForAudioErrorEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
 

@@ -18,6 +18,39 @@ public class EventLoggerUrlBuilder {
 
     private static final String ENDPOINT = "http://eventlogger.soundcloud.com";
 
+    private static final String CLIENT_ID = "client_id";
+    private static final String ANONYMOUS_ID = "anonymous_id";
+    private static final String TIMESTAMP = "ts";
+    private static final String USER = "user";
+    // audio event params
+    private static final String ACTION = "action";
+    private static final String DURATION = "duration";
+    private static final String SOUND = "sound";
+    private static final String CONTEXT = "context";
+    private static final String TRIGGER = "trigger";
+    private static final String SOURCE = "source";
+    private static final String SOURCE_VERSION = "source_version";
+    private static final String PLAYLIST_ID = "set_id";
+    private static final String PLAYLIST_POSITION = "set_position";
+    // ad specific params
+    private static final String AD_URN = "ad_urn";
+    private static final String MONETIZATION_TYPE = "monetization_type";
+    private static final String MONETIZED_OBJECT = "monetized_object";
+    private static final String IMPRESSION_NAME = "impression_name";
+    private static final String IMPRESSION_OBJECT = "impression_object";
+    // performance & error event params
+    private static final String LATENCY = "latency";
+    private static final String PROTOCOL = "protocol";
+    private static final String PLAYER_TYPE = "player_type";
+    private static final String TYPE = "type";
+    private static final String HOST = "host";
+    private static final String CONNECTION_TYPE = "connection_type";
+    private static final String OS = "os";
+    private static final String BITRATE = "bitrate";
+    private static final String FORMAT = "format";
+    private static final String URL = "url";
+    private static final String ERROR_CODE = "errorCode";
+
     private final String appId;
     private final DeviceHelper deviceHelper;
     private final ExperimentOperations experimentOperations;
@@ -29,89 +62,96 @@ public class EventLoggerUrlBuilder {
         this.deviceHelper = deviceHelper;
     }
 
-    @SuppressWarnings("PMD.UnusedParameter")
-    public String buildFromAdPlayback(PlaybackSessionEvent event) {
-        return null;
+    public String buildForAdImpression(PlaybackSessionEvent event) {
+        final Uri.Builder builder = buildUriForPath("impression", event.getTimeStamp());
+        builder.appendQueryParameter(USER, event.getUserUrn().toString());
+
+        builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
+        builder.appendQueryParameter(IMPRESSION_NAME, "audio_ad_impression");
+        builder.appendQueryParameter(IMPRESSION_OBJECT, event.getTrackUrn().toString());
+        builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+        builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
+
+        return builder.toString();
     }
 
-    public String buildFromPlaybackEvent(PlaybackSessionEvent playbackSessionEvent) {
-        final Uri.Builder builder = buildUriForPath("audio");
-
+    public String buildForAudioEvent(PlaybackSessionEvent event) {
         // add basic UI event params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/base-ui-event.md#android
-        builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(playbackSessionEvent.getTimeStamp()));
-        builder.appendQueryParameter(Parameters.ACTION.value(), playbackSessionEvent.isPlayEvent() ? "play" : "stop");
-        builder.appendQueryParameter(Parameters.DURATION.value(), String.valueOf(playbackSessionEvent.getDuration()));
-        builder.appendQueryParameter(Parameters.SOUND.value(), playbackSessionEvent.getTrackUrn().toString());
-        builder.appendQueryParameter(Parameters.USER.value(), playbackSessionEvent.getUserUrn().toString());
-
+        final Uri.Builder builder = buildUriForPath("audio", event.getTimeStamp());
+        builder.appendQueryParameter(USER, event.getUserUrn().toString());
         // add a/b experiment params
         for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
             builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
         }
 
         // audio event specific params
-        // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md
-        TrackSourceInfo trackSourceInfo = playbackSessionEvent.getTrackSourceInfo();
+        // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md#android
+        builder.appendQueryParameter(ACTION, event.isPlayEvent() ? "play" : "stop");
+        builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
+        builder.appendQueryParameter(SOUND, event.getTrackUrn().toString());
+
+        TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 
         if (trackSourceInfo.getIsUserTriggered()) {
-            builder.appendQueryParameter(Parameters.TRIGGER.value(), "manual");
+            builder.appendQueryParameter(TRIGGER, "manual");
         } else {
-            builder.appendQueryParameter(Parameters.TRIGGER.value(), "auto");
+            builder.appendQueryParameter(TRIGGER, "auto");
         }
-        builder.appendQueryParameter(Parameters.CONTEXT.value(), formatOriginUrl(trackSourceInfo.getOriginScreen()));
+        builder.appendQueryParameter(CONTEXT, formatOriginUrl(trackSourceInfo.getOriginScreen()));
 
         if (trackSourceInfo.hasSource()) {
-            builder.appendQueryParameter(Parameters.SOURCE.value(), trackSourceInfo.getSource());
-            builder.appendQueryParameter(Parameters.SOURCE_VERSION.value(), trackSourceInfo.getSourceVersion());
+            builder.appendQueryParameter(SOURCE, trackSourceInfo.getSource());
+            builder.appendQueryParameter(SOURCE_VERSION, trackSourceInfo.getSourceVersion());
         }
 
         if (trackSourceInfo.isFromPlaylist()) {
-            builder.appendQueryParameter(Parameters.PLAYLIST_ID.value(), String.valueOf(trackSourceInfo.getPlaylistId()));
-            builder.appendQueryParameter(Parameters.PLAYLIST_POSITION.value(), String.valueOf(trackSourceInfo.getPlaylistPosition()));
+            builder.appendQueryParameter(PLAYLIST_ID, String.valueOf(trackSourceInfo.getPlaylistId()));
+            builder.appendQueryParameter(PLAYLIST_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 
         // audio ad specific params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#audio
-        if (playbackSessionEvent.isAd()) {
-            builder.appendQueryParameter(Parameters.MONETIZATION_TYPE.value(), "audio_ad");
-            builder.appendQueryParameter(Parameters.AD_URN.value(), playbackSessionEvent.getAudioAdUrn());
-            builder.appendQueryParameter(Parameters.MONETIZED_OBJECT.value(), playbackSessionEvent.getAudioAdMonetizedUrn());
-            builder.appendQueryParameter(Parameters.PROTOCOL.value(), playbackSessionEvent.getAudioAdProtocol());
+        if (event.isAd()) {
+            builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+            builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
+            builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
+            builder.appendQueryParameter(PROTOCOL, event.getAudioAdProtocol());
         }
 
         return builder.build().toString();
     }
 
-    public String buildFromPlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-        final Uri.Builder builder = buildUriForPath("audio_performance");
-        return builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimeStamp()))
-                .appendQueryParameter(Parameters.LATENCY.value(), String.valueOf(eventData.getMetricValue()))
-                .appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue())
-                .appendQueryParameter(Parameters.PLAYER_TYPE.value(), eventData.getPlayerType().getValue())
-                .appendQueryParameter(Parameters.TYPE.value(), getPerformanceEventType(eventData.getMetric()))
-                .appendQueryParameter(Parameters.HOST.value(), eventData.getCdnHost())
-                .appendQueryParameter(Parameters.USER.value(), eventData.getUserUrn().toString())
-                .appendQueryParameter(Parameters.CONNECTION_TYPE.value(), eventData.getConnectionType().getValue())
+    public String buildForAudioPerformanceEvent(PlaybackPerformanceEvent event) {
+        final Uri.Builder builder = buildUriForPath("audio_performance", event.getTimeStamp());
+        return builder
+                .appendQueryParameter(LATENCY, String.valueOf(event.getMetricValue()))
+                .appendQueryParameter(PROTOCOL, event.getProtocol().getValue())
+                .appendQueryParameter(PLAYER_TYPE, event.getPlayerType().getValue())
+                .appendQueryParameter(TYPE, getPerformanceEventType(event.getMetric()))
+                .appendQueryParameter(HOST, event.getCdnHost())
+                .appendQueryParameter(USER, event.getUserUrn().toString())
+                .appendQueryParameter(CONNECTION_TYPE, event.getConnectionType().getValue())
                 .build().toString();
     }
 
-    public String buildFromPlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        final Uri.Builder builder = buildUriForPath("audio_error");
-        return builder.appendQueryParameter(Parameters.TIMESTAMP.value(), String.valueOf(eventData.getTimestamp()))
-                .appendQueryParameter(Parameters.PROTOCOL.value(), eventData.getProtocol().getValue())
-                .appendQueryParameter(Parameters.OS.value(), deviceHelper.getUserAgent())
-                .appendQueryParameter(Parameters.BITRATE.value(), eventData.getBitrate())
-                .appendQueryParameter(Parameters.FORMAT.value(), eventData.getFormat())
-                .appendQueryParameter(Parameters.URL.value(), eventData.getCdnHost())
-                .appendQueryParameter(Parameters.ERROR_CODE.value(), eventData.getCategory())
+    public String buildForAudioErrorEvent(PlaybackErrorEvent event) {
+        final Uri.Builder builder = buildUriForPath("audio_error", event.getTimestamp());
+        return builder
+                .appendQueryParameter(PROTOCOL, event.getProtocol().getValue())
+                .appendQueryParameter(OS, deviceHelper.getUserAgent())
+                .appendQueryParameter(BITRATE, event.getBitrate())
+                .appendQueryParameter(FORMAT, event.getFormat())
+                .appendQueryParameter(URL, event.getCdnHost())
+                .appendQueryParameter(ERROR_CODE, event.getCategory())
                 .build().toString();
     }
 
-    private Uri.Builder buildUriForPath(String path) {
+    private Uri.Builder buildUriForPath(String path, long timestamp) {
         final Uri.Builder builder = Uri.parse(ENDPOINT).buildUpon().appendPath(path);
-        builder.appendQueryParameter(Parameters.CLIENT_ID.value(), appId);
-        builder.appendQueryParameter(Parameters.ANONYMOUS_ID.value(), deviceHelper.getUniqueDeviceID());
+        builder.appendQueryParameter(CLIENT_ID, appId);
+        builder.appendQueryParameter(ANONYMOUS_ID, deviceHelper.getUniqueDeviceID());
+        builder.appendQueryParameter(TIMESTAMP, String.valueOf(timestamp));
         return builder;
     }
 
@@ -136,47 +176,4 @@ public class EventLoggerUrlBuilder {
         }
     }
 
-    static enum Parameters {
-        // basic UI params
-        CLIENT_ID("client_id"),
-        ANONYMOUS_ID("anonymous_id"),
-        TIMESTAMP("ts"),
-        USER("user"),
-        // audio event params
-        ACTION("action"),
-        DURATION("duration"),
-        SOUND("sound"),
-        CONTEXT("context"),
-        TRIGGER("trigger"),
-        SOURCE("source"),
-        SOURCE_VERSION("source_version"),
-        PLAYLIST_ID("set_id"),
-        PLAYLIST_POSITION("set_position"),
-        // ad specific params
-        AD_URN("ad_urn"),
-        MONETIZATION_TYPE("monetization_type"),
-        MONETIZED_OBJECT("monetized_object"),
-        // performance & error event params
-        LATENCY("latency"),
-        PROTOCOL("protocol"),
-        PLAYER_TYPE("player_type"),
-        TYPE("type"),
-        HOST("host"),
-        CONNECTION_TYPE("connection_type"),
-        OS("os"),
-        BITRATE("bitrate"),
-        FORMAT("format"),
-        URL("url"),
-        ERROR_CODE("errorCode");
-
-        private final String value;
-
-        Parameters(String value) {
-            this.value = value;
-        }
-
-        public String value(){
-            return value;
-        }
-    }
 }

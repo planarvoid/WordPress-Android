@@ -67,14 +67,14 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        final String url = urlBuilder.buildFromPlaybackPerformanceEvent(eventData);
+        final String url = urlBuilder.buildForAudioPerformanceEvent(eventData);
         final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
         eventTracker.trackEvent(event);
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        final String url = urlBuilder.buildFromPlaybackErrorEvent(eventData);
+        final String url = urlBuilder.buildForAudioErrorEvent(eventData);
         final TrackingEvent event = new TrackingEvent(eventData.getTimestamp(), BACKEND_NAME, url);
         eventTracker.trackEvent(event);
     }
@@ -83,12 +83,12 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public void handlePlayControlEvent(PlayControlEvent eventData) {}
 
     private void trackAdImpression(PlaybackSessionEvent eventData) {
-        final String url = urlBuilder.buildFromAdPlayback(eventData);
+        final String url = urlBuilder.buildForAdImpression(eventData);
         trackEvent(eventData.getTimeStamp(), url);
     }
 
     private void trackAudioPlayEvent(PlaybackSessionEvent eventData) {
-        final String url = urlBuilder.buildFromPlaybackEvent(eventData);
+        final String url = urlBuilder.buildForAudioEvent(eventData);
         trackEvent(eventData.getTimeStamp(), url);
     }
 
