@@ -211,7 +211,6 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void sendsCollapsedEventWhenCollapsedListenerCalled() {
-
         controller.onPanelCollapsed(mock(View.class));
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
@@ -241,7 +240,6 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void sendsExpandingEventWhenRestoringExpandedState() {
-
         controller.onCreate(createBundleWithExpandingCommand());
         controller.onResume();
 
@@ -250,8 +248,7 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void shouldExpandPlayerOnResumeIfIntentHasExtraCommand() throws Exception {
-
+    public void shouldExpandPlayerOnResumeIfIntentHasExtraCommand() {
         Intent intent = createIntentWithExpandingCommand();
         controller.onNewIntent(intent);
         controller.onResume();

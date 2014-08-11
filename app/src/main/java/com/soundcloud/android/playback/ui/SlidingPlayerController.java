@@ -59,22 +59,9 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         expandOnResume = false;
     }
 
-    public boolean handleBackPressed() {
-        if (isExpanded()) {
-            collapse();
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isExpanded() {
-        return slidingPanel.isPanelExpanded();
-    }
-
     private void expand() {
         slidingPanel.expandPanel();
         toggleActionBarAndSysBarVisibility();
-        notifyExpandingState();
     }
 
     private void collapse() {
@@ -91,6 +78,14 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private void hide() {
         slidingPanel.hidePanel();
         toggleActionBarAndSysBarVisibility();
+    }
+
+    public boolean handleBackPressed() {
+        if (slidingPanel.isPanelExpanded()) {
+            collapse();
+            return true;
+        }
+        return false;
     }
 
     private void update() {
@@ -135,13 +130,18 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         } else {
             showPanelIfNeeded();
             if (expandOnResume) {
-                expand();
+                restoreExpanded();
             } else {
                 update();
             }
         }
         expandOnResume = false;
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
+    }
+
+    private void restoreExpanded() {
+        expand();
+        notifyExpandingState();
     }
 
     private void showPanelIfNeeded() {

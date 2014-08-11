@@ -12,39 +12,54 @@ public class PlayerUIEvent {
 
     private final int kind;
 
+    /**
+     * Panel is expanding and player UI should configure to full-screen mode.
+     */
     public static PlayerUIEvent fromPlayerExpanding() {
         return new PlayerUIEvent(PLAYER_EXPANDING);
     }
 
+    /**
+     * Panel is collapsing and player UI should configure to footer mode.
+     */
     public static PlayerUIEvent fromPlayerCollapsing() {
         return new PlayerUIEvent(PLAYER_COLLAPSING);
     }
 
+    /**
+     * Panel has finished collapsing.
+     */
     public static PlayerUIEvent fromPlayerCollapsed() {
         return new PlayerUIEvent(PLAYER_COLLAPSED);
     }
 
     /**
-     * Fired as a signal to expand any on-screen instance of the player.
+     * Signals any on-screen instance of the player to expand.
      */
     public static PlayerUIEvent forExpandPlayer() {
         return new PlayerUIEvent(EXPAND_PLAYER);
     }
 
+    /**
+     * Signal any on-screen instance of the player to collapse.
+     */
     public static PlayerUIEvent forCollapsePlayer() {
         return new PlayerUIEvent(COLLAPSE_PLAYER);
     }
 
+    /**
+     * Signals player panel to show panel (become visible).
+     */
     public static PlayerUIEvent forShowPlayer() {
         return new PlayerUIEvent(SHOW_PLAYER);
     }
 
-    public PlayerUIEvent(int kind) {
-        this.kind = kind;
-    }
-
     public static PlayerUIEvent forUnskippablePlayer() {
         return new PlayerUIEvent(UNSKIPPABLE_PLAYER);
+    }
+
+    public PlayerUIEvent(int kind) {
+        this.kind = kind;
     }
 
     public int getKind() {
