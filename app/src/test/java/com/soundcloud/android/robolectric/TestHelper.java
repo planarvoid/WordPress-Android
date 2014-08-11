@@ -24,6 +24,7 @@ import com.soundcloud.android.blueprints.AffiliationBlueprint;
 import com.soundcloud.android.blueprints.AudioAdBlueprint;
 import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.CommentBlueprint;
+import com.soundcloud.android.blueprints.DisplayPropertiesBlueprint;
 import com.soundcloud.android.blueprints.PlaybackEventBlueprint;
 import com.soundcloud.android.blueprints.PlaylistBlueprint;
 import com.soundcloud.android.blueprints.PlaylistSummaryBlueprint;
@@ -113,6 +114,7 @@ public class TestHelper {
             modelFactory.registerBlueprint(AffiliationBlueprint.class);
             modelFactory.registerBlueprint(AudioAdBlueprint.class);
             modelFactory.registerBlueprint(VisualAdBlueprint.class);
+            modelFactory.registerBlueprint(DisplayPropertiesBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }

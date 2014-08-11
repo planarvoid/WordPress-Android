@@ -1,48 +1,48 @@
 package com.soundcloud.android.ads;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 public class VisualAd {
 
     private String imageUrl;
     private String clickthroughUrl;
-    private String trackingImpressionUrl;
-    private String trackingClickUrl;
+    private List<String> trackingImpressionUrls;
+    private List<String> trackingClickUrls;
+    private DisplayProperties displayProperties;
+
+    @JsonCreator
+    public VisualAd(@JsonProperty("image_url") String imageUrl,
+                    @JsonProperty("clickthrough_url") String clickthroughUrl,
+                    @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
+                    @JsonProperty("tracking_click_urls") List<String> trackingClickUrls,
+                    @JsonProperty("display_properties") DisplayProperties displayProperties) {
+        this.imageUrl = imageUrl;
+        this.clickthroughUrl = clickthroughUrl;
+        this.trackingImpressionUrls = trackingImpressionUrls;
+        this.trackingClickUrls = trackingClickUrls;
+        this.displayProperties = displayProperties;
+    }
 
     public String getImageUrl() {
         return imageUrl;
-    }
-
-    @JsonProperty("image_url")
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getClickthroughUrl() {
         return clickthroughUrl;
     }
 
-    @JsonProperty("clickthrough_url")
-    public void setClickthroughUrl(String clickthroughUrl) {
-        this.clickthroughUrl = clickthroughUrl;
+    public List<String> getTrackingImpressionUrls() {
+        return trackingImpressionUrls;
     }
 
-    public String getTrackingImpressionUrl() {
-        return trackingImpressionUrl;
+    public List<String> getTrackingClickUrls() {
+        return trackingClickUrls;
     }
 
-    @JsonProperty("tracking_impression_url")
-    public void setTrackingImpressionUrl(String trackingImpressionUrl) {
-        this.trackingImpressionUrl = trackingImpressionUrl;
+    public DisplayProperties getDisplayProperties() {
+        return displayProperties;
     }
-
-    public String getTrackingClickUrl() {
-        return trackingClickUrl;
-    }
-
-    @JsonProperty("tracking_click_url")
-    public void setTrackingClickUrl(String trackingClickUrl) {
-        this.trackingClickUrl = trackingClickUrl;
-    }
-
 }

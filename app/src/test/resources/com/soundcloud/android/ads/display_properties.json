@@ -1,0 +1,8 @@
+{
+    "color.learn_more.default.text": "#FFFFFF",
+    "color.learn_more.default.background": "#000000",
+    "color.learn_more.pressed.text": "#FFB225",
+    "color.learn_more.pressed.background": "#575057",
+    "color.learn_more.focused.text": "#00CFEE",
+    "color.learn_more.focused.background": "#FFFFB7"
+}
