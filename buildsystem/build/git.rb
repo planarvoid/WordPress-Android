@@ -12,7 +12,7 @@ module Build
     end
 
     def tag
-      tag_name = Build::Configuration.build_env == 'release' ? Build.version : Build.version_name
+      tag_name = Build.version_name
       command  = "git tag -a #{tag_name} -m 'Version: #{tag_name}' && git push --tags"
 
       puts "Applying tag: #{tag_name}"
