@@ -17,12 +17,12 @@ public class DisplayPropertiesTest {
         DisplayProperties properties = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("display_properties.json"), DisplayProperties.class);
 
-        expect(properties.getDefaultBackground()).toEqual("#000000");
-        expect(properties.getDefaultText()).toEqual("#FFFFFF");
-        expect(properties.getPressedBackground()).toEqual("#575057");
-        expect(properties.getPressedText()).toEqual("#FFB225");
-        expect(properties.getFocusedBackground()).toEqual("#FFFFB7");
-        expect(properties.getFocusedText()).toEqual("#00CFEE");
+        expect(properties.getDefaultBackgroundColor()).toEqual("#000000");
+        expect(properties.getDefaultTextColor()).toEqual("#FFFFFF");
+        expect(properties.getPressedBackgroundColor()).toEqual("#575057");
+        expect(properties.getPressedTextColor()).toEqual("#FFB225");
+        expect(properties.getFocusedBackgroundColor()).toEqual("#FFFFB7");
+        expect(properties.getFocusedTextColor()).toEqual("#00CFEE");
     }
 
 
