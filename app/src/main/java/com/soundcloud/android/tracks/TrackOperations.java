@@ -22,6 +22,13 @@ public class TrackOperations {
     private final AccountOperations accountOperations;
     private final RxHttpClient rxHttpClient;
 
+    private final Func1<PublicApiTrack, PropertySet> apiTrackToPropertySet = new Func1<PublicApiTrack, PropertySet>() {
+        @Override
+        public PropertySet call(PublicApiTrack track) {
+            return track.toPropertySet();
+        }
+    };
+
     @Inject
     public TrackOperations(TrackStorage trackStorage, AccountOperations accountOperations, RxHttpClient rxHttpClient) {
         this.trackStorage = trackStorage;
@@ -45,11 +52,4 @@ public class TrackOperations {
                 .build();
         return rxHttpClient.fetchModels(request);
     }
-
-    private Func1<PublicApiTrack, PropertySet> apiTrackToPropertySet = new Func1<PublicApiTrack, PropertySet>() {
-        @Override
-        public PropertySet call(PublicApiTrack track) {
-            return track.toPropertySet();
-        }
-    };
 }
