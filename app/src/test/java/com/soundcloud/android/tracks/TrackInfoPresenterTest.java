@@ -17,6 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.Date;
+
 @RunWith(SoundCloudTestRunner.class)
 public class TrackInfoPresenterTest extends TestCase {
     private TrackInfoPresenter presenter;
@@ -37,7 +39,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.LIKES_COUNT.bind(10),
                 PlayableProperty.REPOSTS_COUNT.bind(10),
                 TrackProperty.PLAY_COUNT.bind(10),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -55,7 +58,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.LIKES_COUNT.bind(0),
                 PlayableProperty.REPOSTS_COUNT.bind(0),
                 TrackProperty.PLAY_COUNT.bind(0),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
@@ -73,7 +77,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 TrackProperty.PLAY_COUNT.bind(0),
                 PlayableProperty.LIKES_COUNT.bind(10),
                 PlayableProperty.REPOSTS_COUNT.bind(10),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
@@ -91,7 +96,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 TrackProperty.PLAY_COUNT.bind(10),
                 PlayableProperty.LIKES_COUNT.bind(0),
                 PlayableProperty.REPOSTS_COUNT.bind(10),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -109,7 +115,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 TrackProperty.PLAY_COUNT.bind(10),
                 PlayableProperty.LIKES_COUNT.bind(10),
                 PlayableProperty.REPOSTS_COUNT.bind(0),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -127,7 +134,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 TrackProperty.PLAY_COUNT.bind(10),
                 PlayableProperty.LIKES_COUNT.bind(0),
                 PlayableProperty.REPOSTS_COUNT.bind(0),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -145,7 +153,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 TrackProperty.PLAY_COUNT.bind(0),
                 PlayableProperty.LIKES_COUNT.bind(10),
                 PlayableProperty.REPOSTS_COUNT.bind(0),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
@@ -163,7 +172,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 TrackProperty.PLAY_COUNT.bind(0),
                 PlayableProperty.LIKES_COUNT.bind(0),
                 PlayableProperty.REPOSTS_COUNT.bind(10),
-                TrackProperty.COMMENTS_COUNT.bind(10)
+                TrackProperty.COMMENTS_COUNT.bind(10),
+                PlayableProperty.CREATED_AT.bind(new Date())
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
