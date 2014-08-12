@@ -53,8 +53,18 @@ public class TrackingApiTest {
     }
 
     @Test
-    public void shouldSupport202AcceptedStatusAsSuccess() throws IOException {
+    public void shouldTreat202AcceptedStatusAsSuccess() throws IOException {
         when(connection.getResponseCode()).thenReturn(HttpStatus.SC_ACCEPTED);
+        when(connectionFactory.create(event)).thenReturn(connection);
+
+        List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event));
+        expect(successes).toNumber(1);
+        expect(successes.get(0).getId()).toEqual(1L);
+    }
+
+    @Test // as decided with JohnG, since he said we shouldn't retry spam-blocked tracking events
+    public void shouldTreat429TooManyRequestsStatusAsSuccess() throws IOException {
+        when(connection.getResponseCode()).thenReturn(429); // HTTP 429 Too Many Requests
         when(connectionFactory.create(event)).thenReturn(connection);
 
         List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event));

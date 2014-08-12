@@ -19,6 +19,7 @@ import java.util.List;
 class TrackingApi {
     private static final int READ_TIMEOUT = 5 * 1000;
     private static final int CONNECT_TIMEOUT = 10 * 1000;
+    private static final int HTTP_TOO_MANY_REQUESTS = 429;
 
     private final TrackingApiConnectionFactory connectionFactory;
     private final DeviceHelper deviceHelper;
@@ -49,7 +50,7 @@ class TrackingApi {
                 final int status = connection.getResponseCode();
                 Log.d(EventTracker.TAG, connection.getRequestMethod() + " " + event.getUrl() + ": " + status);
 
-                if (isSuccessCode(status)) {
+                if (isSuccessCode(status) || status == HTTP_TOO_MANY_REQUESTS) {
                     successes.add(event);
                 } else {
                     ErrorUtils.handleSilentException(EventTracker.TAG,
