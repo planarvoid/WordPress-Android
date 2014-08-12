@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -559,16 +561,17 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessage();
+        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
     }
 
     @Test
-    public void doNotSendPlayerUIUnskippableWhenAdIsPlayingOnPlayTrack() {
+    public void allowSkippingWhenAdIsSkippable() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
         playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
-        eventBus.verifyNoEventsOn(EventQueue.PLAYER_UI);
+        checkSetNewPlayQueueArgs(0, playSessionSource, track.getId());
     }
 
     @Test
@@ -580,7 +583,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playFromAdapter(Robolectric.application, tracks, 0, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessage();
+        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
     }
 
     @Test
@@ -590,7 +593,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
 
-        expectUnskippablePlaybackToastMessage();
+        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
     }
 
     @Test
@@ -599,7 +602,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessage();
+        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
     }
 
     @Test
@@ -610,7 +613,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 Observable.just(TRACK_URN), TRACK_URN, 0, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessage();
+        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
     }
 
     @Test
@@ -619,7 +622,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessage();
+        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
     }
 
     private void setupAdInProgress(long currentProgress) {
@@ -639,8 +642,9 @@ public class PlaybackOperationsTest {
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
     }
 
-    private void expectUnskippablePlaybackToastMessage() {
+    private void expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet() {
         expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
+        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), anyInt(), any(PlaySessionSource.class));
     }
 
 }
