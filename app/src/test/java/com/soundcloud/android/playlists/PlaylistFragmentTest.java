@@ -158,6 +158,17 @@ public class PlaylistFragmentTest {
     }
 
     @Test
+    public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
+        when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
+        View layout = createFragmentView();
+        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+
+        toggleButton.performClick();
+
+        expect(toggleButton.isChecked()).toBeFalse();
+    }
+
+    @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,

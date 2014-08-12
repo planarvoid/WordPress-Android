@@ -39,6 +39,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -80,6 +81,10 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (playbackOperations.shouldDisableSkipping()) {
+                playToggle.setChecked(false);
+            }
+
             if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
                 playbackOperations.togglePlayback();
             } else {

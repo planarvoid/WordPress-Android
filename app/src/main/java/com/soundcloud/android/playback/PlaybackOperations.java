@@ -220,7 +220,7 @@ public class PlaybackOperations {
         }
     }
 
-    private boolean shouldDisableSkipping(){
+    public boolean shouldDisableSkipping(){
         return playQueueManager.isCurrentTrackAudioAd() &&
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
