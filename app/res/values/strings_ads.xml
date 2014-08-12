@@ -3,6 +3,7 @@
     <string name="advertisement">ADVERTISEMENT</string>
     <string name="learn_more">LEARN MORE</string>
     <string name="why_ads">Why ads?</string>
+    <string name="why_ads_dialog_message">By pairing ads with their tracks on SoundCloud, artists and partners share in the revenue that the ad generates.</string>
     <string name="skip_ad">Skip Ad</string>
     <string name="next_up">Next Up: %1$s (%2$s)</string>
     <string name="ad_in_progress">Advertisement in progress</string>

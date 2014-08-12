@@ -2,6 +2,7 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
@@ -37,11 +38,13 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.player_next));
     }
 
-    public ViewElement nextPageArea(){
+    public ViewElement nextPageArea() {
         return solo.findElement(With.id(R.id.track_page_next));
     }
 
-    public ViewElement skipAd() {return solo.findElement(With.id(R.id.skip_ad));};
+    public ViewElement skipAd() {
+        return solo.findElement(With.id(R.id.skip_ad));
+    }
 
     private ViewElement trackContainer() {
         return solo.findElement(With.id(R.id.player_track_pager));
@@ -73,6 +76,10 @@ public class VisualPlayerElement extends Element {
 
     private ViewElement footerPlayer() {
         return solo.findElement(footerPlayerPredicate);
+    }
+
+    private ViewElement whyAds() {
+        return solo.findElement(With.id(R.id.why_ads));
     }
 
     public boolean isExpanded() {
@@ -131,6 +138,11 @@ public class VisualPlayerElement extends Element {
     public void swipePrevious() {
         solo.swipeRight(0.4f);
         waiter.waitForPlayerPage();
+    }
+
+    public WhyAdsScreen clickWhyAds() {
+        whyAds().click();
+        return new WhyAdsScreen(solo);
     }
 
     public String getTrackTitle() {
@@ -196,7 +208,7 @@ public class VisualPlayerElement extends Element {
         return new MenuElement(solo);
     }
 
-    private ViewElement menu(){
-       return solo.findElement(With.id(R.id.track_page_more));
+    private ViewElement menu() {
+        return solo.findElement(With.id(R.id.track_page_more));
     }
 }

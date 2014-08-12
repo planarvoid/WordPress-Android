@@ -5,6 +5,7 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -117,7 +118,7 @@ public class AdPagePresenterTest {
     public void showAboutAdsOnWhyAdsClick() {
         adView.findViewById(R.id.why_ads).performClick();
 
-        verify(pageListener).onAboutAds();
+        verify(pageListener).onAboutAds(eq(adView.getContext()));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -3,6 +3,7 @@ package com.soundcloud.android.player;
 import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
 import static com.soundcloud.android.tests.matcher.player.IsPlaying.Playing;
 import static com.soundcloud.android.tests.matcher.player.IsSkipAllowed.SkipAllowed;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -10,6 +11,7 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
@@ -74,5 +76,13 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
         assertThat(playerElement, is(Collapsed()));
         assertThat(playerElement.getFooterTrackCreator(), equalTo(footerTrackCreator));
+    }
+
+    public void testShowWhyAdsDialogWhenClickingWhyAds() {
+        WhyAdsScreen dialog = playerElement.clickWhyAds();
+        assertThat(dialog, is(Visible()));
+
+        dialog.clickOK();
+        assertThat(dialog, is(not(Visible())));
     }
 }

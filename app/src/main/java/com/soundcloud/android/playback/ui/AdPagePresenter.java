@@ -137,7 +137,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
                 listener.onClickThrough();
                 break;
             case R.id.why_ads:
-                listener.onAboutAds();
+                listener.onAboutAds(view.getContext());
                 break;
             case R.id.skip_ad:
                 listener.skipAd();
