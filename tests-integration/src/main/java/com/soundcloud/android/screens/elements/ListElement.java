@@ -23,4 +23,8 @@ public class ListElement {
     public int getItemCount() {
         return absListView.getChildCount();
     }
+
+    public void scrollToBottom() {
+        testDriver.scrollListToBottom(absListView);
+    }
 }

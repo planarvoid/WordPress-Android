@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
@@ -14,6 +15,10 @@ public class PlaylistDetailsScreen extends Screen {
 
     public PlaylistDetailsScreen(Han solo) {
         super(solo);
+    }
+
+    public void scrollToBottom() {
+        tracksListElement().scrollToBottom();
     }
 
     @Override
@@ -63,6 +68,10 @@ public class PlaylistDetailsScreen extends Screen {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    private ListElement tracksListElement() {
+        return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
 }

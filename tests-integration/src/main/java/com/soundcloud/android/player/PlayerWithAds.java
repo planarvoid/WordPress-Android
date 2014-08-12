@@ -71,7 +71,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         playerElement.clickArtwork();
         playerElement.pressBackToCollapse();
         String footerTrackCreator = playerElement.getFooterTrackCreator();
-        solo.scrollToBottom(solo.getCurrentListView());
+        playlistDetailsScreen.scrollToBottom();
         playlistDetailsScreen.clickFirstTrack();
 
         assertThat(playerElement, is(Collapsed()));
