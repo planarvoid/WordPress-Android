@@ -9,11 +9,12 @@
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:textColorLink">@color/link_text</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
+        <item name="android:visibility">invisible</item>
     </style>
 
     <style name="TrackInfo.Text.Main">
-        <item name="android:layout_marginLeft">@dimen/track_info_interior_padding_horizontal</item>
-        <item name="android:layout_marginRight">@dimen/track_info_interior_padding_horizontal</item>
+        <item name="android:paddingLeft">@dimen/track_info_interior_padding_horizontal</item>
+        <item name="android:paddingRight">@dimen/track_info_interior_padding_horizontal</item>
     </style>
 
     <style name="TrackInfo.Text.Main.Creator">
@@ -33,8 +34,10 @@
         <item name="android:singleLine">true</item>
         <item name="android:drawableLeft">@drawable/stats_comment</item>
         <item name="android:drawablePadding">8dp</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:background">@drawable/list_selector_gray</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="TrackInfo.Text.Main.UploadedAt">
@@ -48,10 +51,15 @@
         <item name="android:autoLink">web</item>
     </style>
 
+    <style name="TrackInfo.Text.Main.NoDescription">
+        <item name="android:textColor">@color/list_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="TrackInfo.Text.Stats">
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:gravity">center</item>
+        <item name="android:gravity">left</item>
         <item name="android:drawablePadding">8dp</item>
     </style>
 
@@ -60,6 +68,7 @@
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:layout_marginTop">3dp</item>
         <item name="android:layout_marginBottom">3dp</item>
+        <item name="android:visibility">gone</item>
     </style>
 
 </resources>

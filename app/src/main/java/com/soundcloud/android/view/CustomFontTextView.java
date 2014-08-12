@@ -23,6 +23,4 @@ public class CustomFontTextView extends TextView {
 
         applyCustomFont(context, this, attrs);
     }
-
-
 }

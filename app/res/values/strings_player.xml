@@ -10,5 +10,5 @@
     <string name="share_on_soundcloud">on SoundCloud</string>
     <string name="info">Info</string>
     <string name="uploaded_at">Uploaded %s</string>
-
+    <string name="track_info_no_description">No description available</string>
 </resources>

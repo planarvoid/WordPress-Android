@@ -60,7 +60,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return presenter.create(inflater, container);
+        return presenter.create(getActivity().getLayoutInflater(), container);
     }
 
     @Override
@@ -71,9 +71,11 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         final int horizontalPadding = getResources().getDimensionPixelSize(R.dimen.track_info_margin_horizontal);
         final int verticalPadding = getResources().getDimensionPixelSize(R.dimen.track_info_margin_vertical);
         view.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
-
+        view.setBackgroundColor(getResources().getColor(R.color.artwork_overlay));
         view.setOnClickListener(this);
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -97,6 +99,11 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             } else {
                 presenter.showSpinner(view);
             }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            presenter.bindNoDescription(getView());
         }
     }
 }
