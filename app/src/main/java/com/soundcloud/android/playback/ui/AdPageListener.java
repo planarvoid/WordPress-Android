@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import static eu.inmite.android.lib.dialogs.SimpleDialogFragment.createBuilder;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
@@ -8,10 +10,10 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 
 import javax.inject.Inject;
 
@@ -49,19 +51,18 @@ class AdPageListener {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
     }
 
-    public void onClickThrough()  {
+    public void onClickThrough() {
         if (playQueueManager.isCurrentTrackAudioAd()) {
             Uri uri = playQueueManager.getAudioAd().get(AdProperty.CLICK_THROUGH_LINK);
             startActivity(uri);
         }
     }
 
-    public void onAboutAds(final Context context) {
-        new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.why_ads))
-                .setMessage(context.getString(R.string.why_ads_dialog_message))
-                .setPositiveButton(android.R.string.ok, null)
-                .create()
+    public void onAboutAds(FragmentActivity activity) {
+        createBuilder(activity, activity.getSupportFragmentManager())
+                .setTitle(R.string.why_ads)
+                .setMessage(R.string.why_ads_dialog_message)
+                .setPositiveButtonText(android.R.string.ok)
                 .show();
     }
 

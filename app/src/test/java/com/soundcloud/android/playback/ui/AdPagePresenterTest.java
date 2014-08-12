@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -47,7 +47,7 @@ public class AdPagePresenterTest {
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
-        adView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        adView = presenter.createItemView(new FrameLayout(new FragmentActivity()));
         presenter.bindItemView(adView, buildAd());
     }
 
@@ -118,7 +118,7 @@ public class AdPagePresenterTest {
     public void showAboutAdsOnWhyAdsClick() {
         adView.findViewById(R.id.why_ads).performClick();
 
-        verify(pageListener).onAboutAds(eq(adView.getContext()));
+        verify(pageListener).onAboutAds(any(FragmentActivity.class));
     }
 
     @Test(expected = IllegalArgumentException.class)

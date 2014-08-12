@@ -1,10 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -13,8 +11,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowAlertDialog;
-import com.xtremelabs.robolectric.shadows.ShadowDialog;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,13 +59,4 @@ public class AdPageListenerTest {
         expect(Robolectric.getShadowApplication().getNextStartedActivity()).toBeNull();
     }
 
-    @Test
-    public void showsDialogOnClickOnAboutAds() {
-        listener.onAboutAds(Robolectric.application);
-
-        expect(ShadowDialog.getLatestDialog()).not.toBeNull();
-
-        ShadowAlertDialog dialog = (ShadowAlertDialog) shadowOf(ShadowAlertDialog.getLatestDialog());
-        expect(dialog.getMessage()).toEqual(Robolectric.application.getString(R.string.why_ads_dialog_message));
-    }
 }

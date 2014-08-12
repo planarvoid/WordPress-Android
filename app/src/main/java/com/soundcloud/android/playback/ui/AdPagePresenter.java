@@ -6,13 +6,14 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.playback.ui.view.LearnMoreButton;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,7 +138,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
                 listener.onClickThrough();
                 break;
             case R.id.why_ads:
-                listener.onAboutAds(view.getContext());
+                listener.onAboutAds((FragmentActivity) view.getContext());
                 break;
             case R.id.skip_ad:
                 listener.skipAd();
