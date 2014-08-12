@@ -66,35 +66,33 @@
 
         </FrameLayout>
 
-
-
         <View android:id="@+id/comments_divider"
               style="@style/Divider.Horizontal" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/uploaded_at"
-                style="@style/TrackInfo.Text.Main.UploadedAt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"/>
+        <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+            <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                    <com.soundcloud.android.view.CustomFontTextView
+                            android:id="@+id/uploaded_at"
+                            style="@style/TrackInfo.Text.Main.UploadedAt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"/>
 
-        <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/description"
-                style="@style/TrackInfo.Text.Main.Description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"/>
-
-        <FrameLayout android:id="@+id/loading"
-                     android:layout_width="fill_parent"
-                     android:layout_height="?android:attr/listPreferredItemHeight">
-
-            <ProgressBar android:indeterminateOnly="true"
-                         android:layout_width="wrap_content"
-                         android:layout_height="wrap_content"
-                         android:layout_gravity="center"/>
-
+                    <com.soundcloud.android.view.CustomFontTextView
+                            android:id="@+id/description"
+                            style="@style/TrackInfo.Text.Main.Description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"/>
+                </LinearLayout>
+            </ScrollView>
+            <ProgressBar
+                    android:id="@+id/loading"
+                    android:indeterminateOnly="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
         </FrameLayout>
-
     </LinearLayout>
 </FrameLayout>
