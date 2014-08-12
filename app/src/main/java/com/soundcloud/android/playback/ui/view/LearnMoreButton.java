@@ -28,15 +28,10 @@ public class LearnMoreButton extends Button {
         initAttributes();
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        rectangle = new RectF(0.0f, 0.0f, (float) getWidth(), (float) getHeight());
-    }
-
     private void initAttributes() {
         backgroundPaint = new Paint();
         backgroundPaint.setAntiAlias(true);
+        rectangle = new RectF(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     public void setBackground(ColorStateList backgroundColorStateList) {
@@ -56,6 +51,8 @@ public class LearnMoreButton extends Button {
         int backgroundColor = backgroundColorStateList.getColorForState(getDrawableState(),
                 backgroundColorStateList.getDefaultColor());
         backgroundPaint.setColor(backgroundColor);
+        rectangle.right = getWidth();
+        rectangle.bottom = getHeight();
         canvas.drawRoundRect(rectangle, 8.0f, 8.0f, backgroundPaint);
     }
 
