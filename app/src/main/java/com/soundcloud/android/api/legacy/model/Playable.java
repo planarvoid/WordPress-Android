@@ -6,13 +6,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.json.Views;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
@@ -28,7 +27,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import java.util.Date;
 
@@ -36,9 +34,6 @@ import java.util.Date;
 public abstract class Playable extends PublicApiResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable, PropertySetSource {
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
-
-    public static final String COMMENT_ADDED                        = "com.soundcloud.android.playable.commentadded";
-    public static final String COMMENTS_UPDATED                     = "com.soundcloud.android.playable.commentsupdated";
 
     @JsonView(Views.Mini.class) public String title;
     @JsonView(Views.Mini.class) @Nullable public PublicApiUser user;
@@ -198,16 +193,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         if (created_at != null) {
             mElapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
         }
-    }
-
-    public void refreshListArtworkUri(Context context) {
-        final String iconUrl = getArtwork();
-        mArtworkUri = TextUtils.isEmpty(iconUrl) ? null : ApiImageSize.formatUriForList(context, iconUrl);
-    }
-
-    public String getListArtworkUrl(Context context) {
-        if (TextUtils.isEmpty(mArtworkUri)) refreshListArtworkUri(context);
-        return mArtworkUri;
     }
 
     @Override
