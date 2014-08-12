@@ -4,6 +4,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.InsertResult;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -46,9 +47,11 @@ class TrackingHandler extends Handler {
         switch (msg.what) {
             case INSERT_TOKEN:
                 try {
-                    if (!storage.insertEvent((TrackingEvent) msg.obj).success()) {
+                    Log.d(EventTracker.TAG, "Inserting event: " + msg.obj + "\nthread=" + Thread.currentThread());
+                    final InsertResult insertResult = storage.insertEvent((TrackingEvent) msg.obj);
+                    if (!insertResult.success()) {
                         ErrorUtils.handleSilentException(
-                                EventTracker.TAG, new Exception("error inserting tracking event " + msg.obj));
+                                EventTracker.TAG, new Exception("error inserting tracking event " + msg.obj, insertResult.getFailure()));
                     }
                 } catch (UnsupportedEncodingException e) {
                     ErrorUtils.handleSilentException(EventTracker.TAG, e);
@@ -95,7 +98,7 @@ class TrackingHandler extends Handler {
             } else {
                 ErrorUtils.handleSilentException(
                         EventTracker.TAG, new Exception("Failed to delete some tracking events: failed = "
-                                + (submitted.size() - rowsDeleted)));
+                                + (submitted.size() - rowsDeleted), result.getFailure()));
             }
         }
     }
