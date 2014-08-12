@@ -7,6 +7,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 
 public class PlayerAd {
@@ -35,5 +36,29 @@ public class PlayerAd {
 
     TrackUrn getMonetizableTrack() {
         return source.get(AdProperty.MONETIZABLE_TRACK_URN);
+    }
+
+    int getDefaultTextColor() {
+        return Color.parseColor(source.get(AdProperty.DEFAULT_TEXT_COLOR));
+    }
+
+    int getDefaultBackgroundColor() {
+        return Color.parseColor(source.get(AdProperty.DEFAULT_BACKGROUND_COLOR));
+    }
+
+    int getPressedTextColor() {
+        return Color.parseColor(source.get(AdProperty.PRESSED_TEXT_COLOR));
+    }
+
+    int getPressedBackgroundColor() {
+        return Color.parseColor(source.get(AdProperty.PRESSED_BACKGROUND_COLOR));
+    }
+
+    int getFocusedTextColor() {
+        return Color.parseColor(source.get(AdProperty.FOCUSED_TEXT_COLOR));
+    }
+
+    int getFocusedBackgroundColor() {
+        return Color.parseColor(source.get(AdProperty.FOCUSED_BACKGROUND_COLOR));
     }
 }

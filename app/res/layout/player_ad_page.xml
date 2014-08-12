@@ -14,7 +14,7 @@
             android:layout_centerInParent="true"
             style="@style/PlayerToggle"/>
 
-    <Button
+    <com.soundcloud.android.playback.ui.view.LearnMoreButton
             android:id="@+id/learn_more"
             style="@style/AdButton.LearnMore"
             android:layout_width="wrap_content"

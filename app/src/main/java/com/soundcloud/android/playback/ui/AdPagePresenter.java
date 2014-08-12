@@ -7,9 +7,11 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.playback.ui.view.LearnMoreButton;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +68,32 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         final Holder holder = getViewHolder(view);
         displayAdvertisement(playerAd, holder);
         displayPreview(playerAd, holder);
+        styleLearnMoreButton(holder, playerAd);
         setClickListener(holder.getOnClickViews(), this);
+    }
+
+    private void styleLearnMoreButton(Holder holder, PlayerAd playerAd) {
+        holder.learnMore.setTextColor(getColorStates(
+                playerAd.getFocusedTextColor(),
+                playerAd.getPressedTextColor(),
+                playerAd.getDefaultTextColor()
+        ));
+        holder.learnMore.setBackground(getColorStates(
+                playerAd.getFocusedBackgroundColor(),
+                playerAd.getPressedBackgroundColor(),
+                playerAd.getDefaultBackgroundColor()
+        ));
+    }
+
+    private ColorStateList getColorStates(int focusedColor, int pressedColor, int defaultColor) {
+        return new ColorStateList(new int[][]{
+                new int[]{android.R.attr.state_focused},
+                new int[]{android.R.attr.state_pressed},
+                new int[]{},
+        }, new int[]{
+                focusedColor,
+                pressedColor,
+                defaultColor});
     }
 
     private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
@@ -215,7 +242,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final TextView timeUntilSkip;
         private final View skipAd;
         private final View previewContainer;
-        private final View learnMore;
+        private final LearnMoreButton learnMore;
         private final View whyAds;
         // Footer player
         private final View footer;
@@ -241,7 +268,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
             skipAd = adView.findViewById(R.id.skip_ad);
             previewContainer = adView.findViewById(R.id.preview_container);
-            learnMore = adView.findViewById(R.id.learn_more);
+            learnMore = (LearnMoreButton) adView.findViewById(R.id.learn_more);
             whyAds = adView.findViewById(R.id.why_ads);
 
             footer = adView.findViewById(R.id.footer_controls);
@@ -252,7 +279,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         }
 
         public View[] getOnClickViews() {
-            return new View[] {
+            return new View[]{
                     artworkView, artworkIdleOverlay, playButton,
                     nextArea, previousArea,
                     learnMore, whyAds, skipAd,
@@ -262,7 +289,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         }
 
         public View[] getFullScreenViews() {
-            return new View[] { close };
+            return new View[]{close};
         }
     }
 

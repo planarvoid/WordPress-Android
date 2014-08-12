@@ -218,7 +218,13 @@ public class AdPagePresenterTest {
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(Urn.forTrack(123L)),
                 AdProperty.MONETIZABLE_TRACK_TITLE.bind("track"),
-                AdProperty.MONETIZABLE_TRACK_CREATOR.bind("artist")
+                AdProperty.MONETIZABLE_TRACK_CREATOR.bind("artist"),
+                AdProperty.DEFAULT_TEXT_COLOR.bind("#111111"),
+                AdProperty.DEFAULT_BACKGROUND_COLOR.bind("#222222"),
+                AdProperty.PRESSED_TEXT_COLOR.bind("#333333"),
+                AdProperty.PRESSED_BACKGROUND_COLOR.bind("#444444"),
+                AdProperty.FOCUSED_TEXT_COLOR.bind("#555555"),
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#666666")
         );
     }
 }
