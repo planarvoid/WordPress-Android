@@ -50,6 +50,7 @@ public class TrackStorage {
                         SoundView.POLICY,
                         SoundView.PERMALINK_URL,
                         SoundView.SHARING,
+                        SoundView.CREATED_AT,
                         exists(soundAssociationQuery(LIKE, loggedInUserUrn.numericId)).as(SoundView.USER_LIKE),
                         exists(soundAssociationQuery(REPOST, loggedInUserUrn.numericId)).as(SoundView.USER_REPOST)
                 ).whereEq(SoundView._ID, trackUrn.numericId);
@@ -83,6 +84,7 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
             propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
             propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
+            propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
             final String creator = cursorReader.getString(SoundView.USERNAME);

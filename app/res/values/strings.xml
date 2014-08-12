@@ -184,15 +184,4 @@
     <string name="optin_yes">Yes, please</string>
     <string name="optin_no">No, thank you</string>
 
-    <!-- Visual Player -->
-    <string name="add_to_playlist">Add to playlist</string>
-    <string name="share">Share</string>
-    <string name="repost">Repost</string>
-    <string name="unpost">Unpost</string>
-    <string name="reposted_to_followers">Reposted to your followers</string>
-    <string name="unposted_to_followers">Unposted</string>
-    <string name="share_by">by %s</string>
-    <string name="share_on_soundcloud">on SoundCloud</string>
-    <string name="info">Info</string>
-
 </resources>

@@ -5,6 +5,7 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.associations.PlayableInteractionActivity;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -31,10 +32,14 @@ public class TrackInfoPresenter {
     }
 
     public void bind(View view, final PropertySet propertySet) {
-
         ((TextView) view.findViewById(R.id.title)).setText(propertySet.get(PlayableProperty.TITLE));
         ((TextView) view.findViewById(R.id.creator)).setText(propertySet.get(PlayableProperty.CREATOR_NAME));
 
+        bindUploadedSinceText(view, propertySet);
+        bindComments(view, propertySet);
+    }
+
+    private void bindComments(View view, final PropertySet propertySet) {
         int commentsCount = propertySet.get(TrackProperty.COMMENTS_COUNT);
         final TextView commentsView = (TextView) view.findViewById(R.id.comments);
         if (commentsCount > 0){
@@ -57,8 +62,11 @@ public class TrackInfoPresenter {
                         .putExtra(PlayableInteractionActivity.EXTRA_INTERACTION_TYPE, Activity.Type.COMMENT));
             }
         });
+    }
 
-
+    private void bindUploadedSinceText(View view, PropertySet propertySet) {
+        final String timeElapsed = ScTextUtils.formatTimeElapsedSince(resources, propertySet.get(PlayableProperty.CREATED_AT).getTime(), true);
+        ((TextView) view.findViewById(R.id.uploaded_at)).setText(resources.getString(R.string.uploaded_at, timeElapsed));
     }
 
     private void configureStats(View view, PropertySet propertySet) {

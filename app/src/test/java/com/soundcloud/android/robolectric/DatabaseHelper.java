@@ -48,6 +48,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.POLICY, track.getPolicy());
         cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());
+        cv.put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime());
 
         final long id = insertInto(Table.SOUNDS, cv);
         track.setId(id);

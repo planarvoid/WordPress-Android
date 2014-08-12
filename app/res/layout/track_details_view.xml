@@ -72,6 +72,13 @@
               style="@style/Divider.Horizontal" />
 
         <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/uploaded_at"
+                style="@style/TrackInfo.Text.Main.UploadedAt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/description"
                 style="@style/TrackInfo.Text.Main.Description"
                 android:layout_width="match_parent"
