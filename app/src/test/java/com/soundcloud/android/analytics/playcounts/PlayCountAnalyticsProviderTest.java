@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
@@ -12,6 +13,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +48,19 @@ public class PlayCountAnalyticsProviderTest {
         expect(trackingEventCaptor.getValue().getBackend()).toEqual(PlayCountAnalyticsProvider.BACKEND_NAME);
         expect(trackingEventCaptor.getValue().getTimeStamp()).toEqual(1000L);
         expect(trackingEventCaptor.getValue().getUrl()).toEqual("url");
+    }
+
+    @Test
+    public void shouldNotTrackStopEventsAgainstPlayCounts() {
+        final int progress = 0;
+        final PropertySet trackData = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000);
+        PlaybackSessionEvent previousPlayEvent = PlaybackSessionEvent.forPlay(trackData, Urn.forUser(1), null, progress, 1000L);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(
+                trackData, Urn.forUser(1), null, previousPlayEvent, PlaybackSessionEvent.STOP_REASON_BUFFERING, progress, 1000L);
+
+        provider.handlePlaybackSessionEvent(stopEvent);
+
+        verifyZeroInteractions(eventTracker);
     }
 
     @Test
