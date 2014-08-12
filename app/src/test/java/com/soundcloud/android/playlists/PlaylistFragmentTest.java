@@ -107,8 +107,7 @@ public class PlaylistFragmentTest {
     public void shouldNotShowPlayToggleButtonWithNoTracks() throws Exception {
         View layout = createFragmentView();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.getVisibility()).toBe(View.GONE);
+        expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
     }
 
     @Test
@@ -117,8 +116,7 @@ public class PlaylistFragmentTest {
         playlist.tracks = Lists.newArrayList(track);
         View layout = createFragmentView();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.getVisibility()).toBe(View.VISIBLE);
+        expect(getToggleButton(layout).getVisibility()).toBe(View.VISIBLE);
     }
 
 
@@ -132,16 +130,14 @@ public class PlaylistFragmentTest {
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
         View layout = createFragmentView();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.getVisibility()).toBe(View.GONE);
+        expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
     }
 
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         View layout = createFragmentView();
 
-        View toggleButton = layout.findViewById(R.id.toggle_play_pause);
-        toggleButton.performClick();
+        getToggleButton(layout).performClick();
 
         verify(playbackOperations).playPlaylist(eq(playlist), eq(Screen.SIDE_MENU_STREAM));
     }
@@ -151,8 +147,7 @@ public class PlaylistFragmentTest {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         View layout = createFragmentView();
 
-        View toggleButton = layout.findViewById(R.id.toggle_play_pause);
-        toggleButton.performClick();
+        getToggleButton(layout).performClick();
 
         verify(playbackOperations).togglePlayback();
     }
@@ -161,7 +156,7 @@ public class PlaylistFragmentTest {
     public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
         View layout = createFragmentView();
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+        ToggleButton toggleButton = getToggleButton(layout);
 
         toggleButton.performClick();
 
@@ -177,8 +172,7 @@ public class PlaylistFragmentTest {
         View layout = createFragmentView();
         fragment.onResume();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.isChecked()).toBeTrue();
+        expect(getToggleButton(layout).isChecked()).toBeTrue();
     }
 
     @Test
@@ -190,8 +184,7 @@ public class PlaylistFragmentTest {
         View layout = createFragmentView();
         fragment.onResume();
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.isChecked()).toBeFalse();
+        expect(getToggleButton(layout).isChecked()).toBeFalse();
     }
 
     @Test
@@ -200,6 +193,7 @@ public class PlaylistFragmentTest {
         verify(playlistEngagementsController).startListeningForChanges();
     }
 
+    @Test
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
         PublicApiUser user = new PublicApiUser();
         playlist.setUser(user);
@@ -213,7 +207,7 @@ public class PlaylistFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
-        expect(intent.getParcelableExtra(ProfileActivity.EXTRA_USER)).toEqual(user);
+        expect(intent.getLongExtra(ProfileActivity.EXTRA_USER_ID, -2L)).toEqual(user.getId());
     }
 
     @Test
@@ -386,8 +380,7 @@ public class PlaylistFragmentTest {
 
         Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.PLAYSTATE_CHANGED));
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.isChecked()).toBeTrue();
+        expect(getToggleButton(layout).isChecked()).toBeTrue();
     }
 
     @Test
@@ -398,8 +391,7 @@ public class PlaylistFragmentTest {
 
         Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.META_CHANGED));
 
-        ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
-        expect(toggleButton.isChecked()).toBeFalse();
+        expect(getToggleButton(layout).isChecked()).toBeFalse();
     }
 
     private PublicApiTrack createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
@@ -429,5 +421,8 @@ public class PlaylistFragmentTest {
         return TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
     }
 
+    private ToggleButton getToggleButton(View layout) {
+        return (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+    }
 
 }
