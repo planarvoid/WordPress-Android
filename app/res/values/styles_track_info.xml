@@ -54,6 +54,7 @@
     <style name="TrackInfo.Text.Main.NoDescription">
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="TrackInfo.Text.Stats">
