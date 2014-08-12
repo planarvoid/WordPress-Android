@@ -57,5 +57,10 @@
         <item quantity="other">You liked %d tracks</item>
     </plurals>
 
+    <!-- Player -->
+    <plurals name="trackinfo_comments">
+        <item quantity="one">1 comment on this track</item>
+        <item quantity="other">%d comments on this track</item>
+    </plurals>
 
 </resources>

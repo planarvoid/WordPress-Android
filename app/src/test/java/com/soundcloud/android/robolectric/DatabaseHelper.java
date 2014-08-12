@@ -44,6 +44,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount());
         cv.put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount());
+        cv.put(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount());
         cv.put(TableColumns.Sounds.POLICY, track.getPolicy());
         cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());

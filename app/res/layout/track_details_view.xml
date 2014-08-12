@@ -9,20 +9,20 @@
                   android:layout_height="match_parent"
                   android:orientation="vertical"
                   android:layout_marginTop="@dimen/track_info_interior_padding_top"
-                  android:layout_marginLeft="@dimen/track_info_interior_padding_horizontal"
-                  android:layout_marginBottom="@dimen/track_info_interior_padding_bottom"
-                  android:layout_marginRight="@dimen/track_info_interior_padding_horizontal">
+                  android:layout_marginBottom="@dimen/track_info_interior_padding_bottom" >
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/creator"
-                style="@style/TrackInfo.Text.Creator"/>
+                style="@style/TrackInfo.Text.Main.Creator"/>
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/title"
-                style="@style/TrackInfo.Text.Title"/>
+                style="@style/TrackInfo.Text.Main.Title"/>
 
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
+                      android:layout_marginLeft="@dimen/track_info_interior_padding_horizontal"
+                      android:layout_marginRight="@dimen/track_info_interior_padding_horizontal"
                       android:orientation="horizontal"
                       android:layout_marginTop="10dp"
                       android:layout_marginBottom="10dp">
@@ -51,12 +51,29 @@
                     android:drawableLeft="@drawable/stats_stream_repost"/>
         </LinearLayout>
 
-        <View android:id="@+id/artwork_divider"
-              style="@style/HorizontalDivider"/>
+        <View style="@style/Divider.Horizontal" />
+
+        <FrameLayout android:id="@+id/comments_holder"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:background="@drawable/list_selector_gray">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/comments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/TrackInfo.Text.Main.Comments"/>
+
+        </FrameLayout>
+
+
+
+        <View android:id="@+id/comments_divider"
+              style="@style/Divider.Horizontal" />
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/description"
-                style="@style/TrackInfo.Text.Description"
+                style="@style/TrackInfo.Text.Main.Description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"/>

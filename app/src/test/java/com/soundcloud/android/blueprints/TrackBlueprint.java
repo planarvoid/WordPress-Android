@@ -8,6 +8,8 @@ import com.tobedevoured.modelcitizen.annotation.Mapped;
 import com.tobedevoured.modelcitizen.annotation.NewInstance;
 import com.tobedevoured.modelcitizen.field.ConstructorCallback;
 
+import java.util.Date;
+
 @Blueprint(PublicApiTrack.class)
 public class TrackBlueprint {
 
@@ -26,4 +28,7 @@ public class TrackBlueprint {
 
     @Mapped
     PublicApiUser user;
+
+    @Default
+    Date createdAt = new Date();
 }

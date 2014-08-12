@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -54,7 +55,7 @@ public class PlaylistFragmentTest {
 
     private PlaylistFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
-    private PublicApiPlaylist playlist = new PublicApiPlaylist(1L);
+    private PublicApiPlaylist playlist;
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaylistDetailsController controller;
@@ -68,10 +69,21 @@ public class PlaylistFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlaylistFragment(controller, playbackOperations, playlistOperations, eventBus,
-                imageOperations, playlistEngagementsController, ptrController, playQueueManager);
+        fragment = new PlaylistFragment(
+                controller,
+                playbackOperations,
+                playlistOperations,
+                eventBus,
+                imageOperations,
+                playlistEngagementsController,
+                ptrController,
+                playQueueManager,
+                new PlayablePresenter(imageOperations, Robolectric.application.getResources()));
+
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
+
+        playlist = createPlaylist();
 
         when(controller.getAdapter()).thenReturn(adapter);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
@@ -114,7 +126,10 @@ public class PlaylistFragmentTest {
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {
         final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, new PublicApiPlaylist(playlist.getId()))));
+
+        final PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
+
+        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
         View layout = createFragmentView();
 
         ToggleButton toggleButton = (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
@@ -238,7 +253,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() throws Exception {
-        PublicApiPlaylist playlist2 = new PublicApiPlaylist(2L);
+        PublicApiPlaylist playlist2 = createPlaylist();
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
@@ -247,6 +262,7 @@ public class PlaylistFragmentTest {
         inOrder.verify(playlistEngagementsController).setPlayable(playlist);
         inOrder.verify(playlistEngagementsController).setPlayable(playlist2);
     }
+
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
@@ -268,7 +284,7 @@ public class PlaylistFragmentTest {
         final PublicApiTrack track1 = createTrackWithTitle("Track 1");
         final PublicApiTrack track2 = createTrackWithTitle("Title 2");
         playlist.tracks = Lists.newArrayList(track1);
-        PublicApiPlaylist playlist2 = new PublicApiPlaylist(playlist.getId());
+        PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track1, track2);
 
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
@@ -289,7 +305,7 @@ public class PlaylistFragmentTest {
         final PublicApiTrack track1 = createTrackWithTitle("Track 1");
         final PublicApiTrack track2 = createTrackWithTitle("Track 2");
         playlist.tracks = Lists.newArrayList(track1);
-        PublicApiPlaylist playlist2 = new PublicApiPlaylist(playlist.getId());
+        PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist2));
@@ -391,5 +407,16 @@ public class PlaylistFragmentTest {
         fragment.onViewCreated(layout, null);
         return layout;
     }
+
+    private PublicApiPlaylist createPlaylist(long id) throws CreateModelException {
+        final PublicApiPlaylist apiPlaylist = createPlaylist();
+        apiPlaylist.setId(id);
+        return apiPlaylist;
+    }
+
+    private PublicApiPlaylist createPlaylist() throws CreateModelException {
+        return TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+    }
+
 
 }

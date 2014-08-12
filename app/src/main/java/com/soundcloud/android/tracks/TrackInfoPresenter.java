@@ -1,9 +1,15 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.associations.PlayableInteractionActivity;
+import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.propeller.PropertySet;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,19 +19,46 @@ import android.widget.TextView;
 import javax.inject.Inject;
 
 public class TrackInfoPresenter {
+    private final Resources resources;
 
     @Inject
+    public TrackInfoPresenter(Resources resources) {
+        this.resources = resources;
     }
 
     public View create(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.track_details_view, container, false);
     }
 
-    public void bind(View view, PropertySet propertySet) {
+    public void bind(View view, final PropertySet propertySet) {
+
         ((TextView) view.findViewById(R.id.title)).setText(propertySet.get(PlayableProperty.TITLE));
         ((TextView) view.findViewById(R.id.creator)).setText(propertySet.get(PlayableProperty.CREATOR_NAME));
 
+        int commentsCount = propertySet.get(TrackProperty.COMMENTS_COUNT);
+        final TextView commentsView = (TextView) view.findViewById(R.id.comments);
+        if (commentsCount > 0){
+            String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
+            commentsView.setText(comments);
+            commentsView.setVisibility(View.VISIBLE);
+            view.findViewById(R.id.comments_divider).setVisibility(View.VISIBLE);
+        } else {
+            commentsView.setVisibility(View.GONE);
+            view.findViewById(R.id.comments_divider).setVisibility(View.GONE);
+        }
         configureStats(view, propertySet);
+
+        view.findViewById(R.id.comments_holder).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Context context = view.getContext();
+                context.startActivity(new Intent(context, TrackInteractionActivity.class)
+                        .putExtra(PlayableInteractionActivity.PROPERTY_SET_EXTRA, propertySet)
+                        .putExtra(PlayableInteractionActivity.EXTRA_INTERACTION_TYPE, Activity.Type.COMMENT));
+            }
+        });
+
+
     }
 
     private void configureStats(View view, PropertySet propertySet) {

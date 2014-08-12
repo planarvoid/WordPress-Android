@@ -261,6 +261,7 @@ public class PublicApiTrack extends Playable {
                 .put(PlayableProperty.TITLE, title)
                 .put(TrackProperty.URN, Urn.forTrack(getId()))
                 .put(TrackProperty.PLAY_COUNT, playback_count)
+                .put(TrackProperty.COMMENTS_COUNT, comment_count)
                 .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
     }
 

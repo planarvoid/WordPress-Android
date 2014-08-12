@@ -288,10 +288,6 @@
   <string name="this_user">This user</string>
   <string name="track">sound</string>
   <string name="track_by">by</string>
-  <string name="tracklist_item_shared_count_unavailable">Private</string>
-  <string name="tracklist_item_shared_with_1_person">1 Person</string>
-  <string name="tracklist_item_shared_with_x_people">%d People</string>
-  <string name="tracklist_item_shared_with_you">You</string>
   <string name="use_existing_image">Use existing image</string>
   <string name="use_existing_image_error">Could not use existing image</string>
   <string name="user">person</string>

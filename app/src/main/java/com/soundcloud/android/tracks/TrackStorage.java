@@ -42,6 +42,7 @@ public class TrackStorage {
                         SoundView.USER_ID,
                         SoundView.DURATION,
                         SoundView.PLAYBACK_COUNT,
+                        SoundView.COMMENT_COUNT,
                         SoundView.LIKES_COUNT,
                         SoundView.REPOSTS_COUNT,
                         SoundView.WAVEFORM_URL,
@@ -74,6 +75,7 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.TITLE, cursorReader.getString(SoundView.TITLE));
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
+            propertySet.put(TrackProperty.COMMENTS_COUNT, cursorReader.getInt(SoundView.COMMENT_COUNT));
             propertySet.put(TrackProperty.WAVEFORM_URL, cursorReader.getString(SoundView.WAVEFORM_URL));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));

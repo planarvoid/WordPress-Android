@@ -11,14 +11,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.accessibility.AccessibilityManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.annotation.Nullable;
@@ -148,12 +146,6 @@ public final class AndroidUtils {
         } catch (RuntimeException e) {
             // java.lang.RuntimeException: Unknown exception code: 1 msg null
             return true;
-        }
-    }
-
-    public static void setTextShadowForGrayBg(TextView... views) {
-        for (TextView tv : views) {
-            if (tv != null) tv.setShadowLayer(1, 0, 1, Color.WHITE);
         }
     }
 

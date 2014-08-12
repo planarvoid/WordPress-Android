@@ -61,6 +61,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
+    @Inject PlayablePresenter playablePresenter;
 
     private ListView listView;
     private View progressView;
@@ -69,17 +70,16 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private Subscription playlistSubscription = Subscriptions.empty();
     private Subscription eventSubscription = Subscriptions.empty();
 
-    private PlayablePresenter playablePresenter;
     private View headerUsernameText;
     private TextView infoHeaderText;
     private ToggleButton playToggle;
+    private PublicApiPlaylist playlist;
 
     private boolean listShown;
 
     private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
             if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
                 playbackOperations.togglePlayback();
             } else {
@@ -91,7 +91,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ProfileActivity.startFromPlayable(getActivity(), playablePresenter.getPlayable());
+            ProfileActivity.startFromPlayable(getActivity(), playlist);
         }
     };
 
@@ -108,7 +108,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      ImageOperations imageOperations,
                      PlaylistEngagementsController playlistEngagementsController,
                      PullToRefreshController pullToRefreshController,
-                     PlayQueueManager playQueueManager) {
+                     PlayQueueManager playQueueManager,
+                     PlayablePresenter playablePresenter) {
         this.controller = controller;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
@@ -117,6 +118,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.playlistEngagementsController = playlistEngagementsController;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
+        this.playablePresenter = playablePresenter;
     }
 
     public static PlaylistFragment create(Bundle args) {
@@ -143,8 +145,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         super.onViewCreated(layout, savedInstanceState);
 
         controller.onViewCreated(layout, getResources());
-
-        playablePresenter = new PlayablePresenter(getActivity());
 
         progressView = layout.findViewById(R.id.progress_container);
 
@@ -211,11 +211,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
     private PlaylistUrn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
-        if (playablePresenter != null) {
-            final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
-            if (playlist != null) {
-                return playlist.getUrn();
-            }
+        if (playlist != null) {
+            return playlist.getUrn();
         }
         return getArguments().getParcelable(PublicApiPlaylist.EXTRA_URN);
     }
@@ -270,7 +267,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - listView.getHeaderViewsCount();
-        final PublicApiPlaylist playlist = (PublicApiPlaylist) playablePresenter.getPlayable();
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
 
         playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
@@ -280,6 +276,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {
+        this.playlist = playlist;
         playablePresenter.setPlayable(playlist);
         playlistEngagementsController.setPlayable(playlist);
         infoHeaderText.setText(createHeaderText(playlist));

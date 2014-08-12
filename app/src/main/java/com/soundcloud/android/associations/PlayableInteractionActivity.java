@@ -1,31 +1,39 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.playback.views.PlayablePresenter;
+import com.soundcloud.propeller.PropertySet;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import javax.inject.Inject;
+
 public abstract class PlayableInteractionActivity extends ScActivity {
 
+    public static final String PROPERTY_SET_EXTRA = "extra";
     public static final String EXTRA_INTERACTION_TYPE = "com.soundcloud.android.activity_type";
 
     protected Activity.Type interaction;
-    protected Playable playable;
+    protected PropertySet propertySet;
+
+    @Inject PlayablePresenter playablePresenter;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
+        SoundCloudApplication.getObjectGraph().inject(this);
+
         setContentView(R.layout.playable_interaction_activity);
 
         if (!getIntent().hasExtra(EXTRA_INTERACTION_TYPE)) {
@@ -33,21 +41,16 @@ public abstract class PlayableInteractionActivity extends ScActivity {
         }
 
         interaction = (Activity.Type) getIntent().getSerializableExtra(EXTRA_INTERACTION_TYPE);
-        playable = getPlayableFromIntent(getIntent());
-
-        new PlayablePresenter(this)
-                .setPlayableRowView(findViewById(R.id.playable_bar))
+        propertySet =  getIntent().getParcelableExtra(PROPERTY_SET_EXTRA);
+        playablePresenter.setPlayableRowView(findViewById(R.id.playable_bar))
                 .setArtwork((ImageView) findViewById(R.id.icon), ApiImageSize.getListItemImageSize(this))
-                .setPlayable(playable);
-
+                .setPlayable(propertySet);
 
         if (bundle == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.listHolder, ScListFragment.newInstance(getContentUri(), getCurrentScreen())).commit();
         }
     }
-
-    protected abstract Screen getCurrentScreen();
 
     //xxx hack
     @Override
@@ -56,7 +59,7 @@ public abstract class PlayableInteractionActivity extends ScActivity {
         layout.setBackgroundColor(Color.WHITE);
     }
 
-    protected abstract Uri getContentUri();
+    protected abstract Screen getCurrentScreen();
 
-    protected abstract Playable getPlayableFromIntent(Intent intent);
+    protected abstract Uri getContentUri();
 }

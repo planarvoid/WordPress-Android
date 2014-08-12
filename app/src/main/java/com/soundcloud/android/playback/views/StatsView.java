@@ -1,8 +1,6 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -129,8 +127,8 @@ public class StatsView extends View {
         long[] counts   = {plays, likes, reposts, comments};
         Drawable[] icons = {
                 playsIcon,
-            isLiked() ? likedIcon : likesIcon,
-            isReposted() ? repostedIcon : repostsIcon,
+                liked ? likedIcon : likesIcon,
+                reposted ? repostedIcon : repostsIcon,
                 commentsIcon
         };
 
@@ -187,55 +185,16 @@ public class StatsView extends View {
         if (changed) invalidate();
     }
 
-    public void updateWithPlayable(Playable playable, boolean showFullStats) {
+    void updateWithPlayable(PlayablePresenterItem item) {
 
-        if (showFullStats){
-            likes = playable.likes_count;
-            reposts = playable.reposts_count;
-            reposted = playable.user_repost;
-            liked = playable.user_like;
-        } else {
-            likes = 0;
-            reposts = 0;
-        }
+        likes = item.getLikesCount();
+        reposts = item.getRepostsCount();
+        reposted = item.isRepostedByCurrentUser();
+        liked = item.isLikedByCurrentUser();
 
-        if (playable instanceof PublicApiTrack){
-            final PublicApiTrack track = (PublicApiTrack) playable;
-            plays = (int) track.playback_count;
-            comments = (showFullStats) ? track.comment_count : 0;
-        } else {
-            plays = 0;
-            comments = 0;
-        }
+        plays = item.getPlaysCount();
+        comments = item.getCommentsCount();
 
         invalidate();
-    }
-
-    public void setPlays(int plays) {
-        this.plays = plays;
-        invalidate();
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
-        invalidate();
-    }
-
-    public void setReposts(int reposts) {
-        this.reposts = reposts;
-        invalidate();
-    }
-
-    public void setComments(int comments) {
-        this.comments = comments;
-        invalidate();
-    }
-
-    public boolean isLiked() {
-        return liked;
-    }
-
-    public boolean isReposted() {
-        return reposted;
     }
 }

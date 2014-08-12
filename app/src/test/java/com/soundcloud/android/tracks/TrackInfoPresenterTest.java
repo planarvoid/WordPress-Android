@@ -36,7 +36,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 PlayableProperty.LIKES_COUNT.bind(10),
                 PlayableProperty.REPOSTS_COUNT.bind(10),
-                TrackProperty.PLAY_COUNT.bind(10)
+                TrackProperty.PLAY_COUNT.bind(10),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -53,7 +54,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 PlayableProperty.LIKES_COUNT.bind(0),
                 PlayableProperty.REPOSTS_COUNT.bind(0),
-                TrackProperty.PLAY_COUNT.bind(0)
+                TrackProperty.PLAY_COUNT.bind(0),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
@@ -70,7 +72,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 TrackProperty.PLAY_COUNT.bind(0),
                 PlayableProperty.LIKES_COUNT.bind(10),
-                PlayableProperty.REPOSTS_COUNT.bind(10)
+                PlayableProperty.REPOSTS_COUNT.bind(10),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
@@ -87,7 +90,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 TrackProperty.PLAY_COUNT.bind(10),
                 PlayableProperty.LIKES_COUNT.bind(0),
-                PlayableProperty.REPOSTS_COUNT.bind(10)
+                PlayableProperty.REPOSTS_COUNT.bind(10),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -104,7 +108,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 TrackProperty.PLAY_COUNT.bind(10),
                 PlayableProperty.LIKES_COUNT.bind(10),
-                PlayableProperty.REPOSTS_COUNT.bind(0)
+                PlayableProperty.REPOSTS_COUNT.bind(0),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -121,7 +126,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 TrackProperty.PLAY_COUNT.bind(10),
                 PlayableProperty.LIKES_COUNT.bind(0),
-                PlayableProperty.REPOSTS_COUNT.bind(0)
+                PlayableProperty.REPOSTS_COUNT.bind(0),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
@@ -138,7 +144,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 TrackProperty.PLAY_COUNT.bind(0),
                 PlayableProperty.LIKES_COUNT.bind(10),
-                PlayableProperty.REPOSTS_COUNT.bind(0)
+                PlayableProperty.REPOSTS_COUNT.bind(0),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();
@@ -155,7 +162,8 @@ public class TrackInfoPresenterTest extends TestCase {
                 PlayableProperty.CREATOR_NAME.bind("Creator"),
                 TrackProperty.PLAY_COUNT.bind(0),
                 PlayableProperty.LIKES_COUNT.bind(0),
-                PlayableProperty.REPOSTS_COUNT.bind(10)
+                PlayableProperty.REPOSTS_COUNT.bind(10),
+                TrackProperty.COMMENTS_COUNT.bind(10)
         ));
 
         expect(view.findViewById(R.id.plays)).toBeGone();

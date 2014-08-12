@@ -143,6 +143,14 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         this.title = title;
     }
 
+    public void setCreatedAt(@Nullable Date createdAt) {
+        this.created_at = createdAt;
+    }
+
+    public Date getCreatedAt() {
+        return created_at;
+    }
+
     @Override
     public boolean isStale() {
         return false;
@@ -424,6 +432,9 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
                 PlayableProperty.IS_PRIVATE.bind(sharing.isPrivate()),
                 PlayableProperty.REPOSTS_COUNT.bind(reposts_count),
                 PlayableProperty.LIKES_COUNT.bind(likes_count),
+                PlayableProperty.IS_REPOSTED.bind(user_repost),
+                PlayableProperty.IS_LIKED.bind(user_like),
+                PlayableProperty.CREATED_AT.bind(created_at),
                 // we may have null usernames if it is my like/sound that hasn't been lazily updated
                 PlayableProperty.CREATOR_NAME.bind(user.getUsername() != null ? user.getUsername()
                         : ScTextUtils.EMPTY_STRING)

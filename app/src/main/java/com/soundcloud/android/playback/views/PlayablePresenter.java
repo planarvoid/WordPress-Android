@@ -1,175 +1,134 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.view.StatsView;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 public class PlayablePresenter {
 
-    private final Context mContext;
-    @Nullable
-    private TextView mTitleView;
-    @Nullable
-    private TextView mUsernameView;
-    @Nullable
-    private ImageView mArtworkView;
-    @Nullable
-    private ImageView mAvatarView;
-    @Nullable
-    private StatsView mStatsView;
-    @Nullable
-    private TextView mCreatedAtView;
-    @Nullable
-    private TextView mPrivateIndicator;
+    private final ImageOperations imageOperations;
+    private final Resources resources;
 
-    private boolean mShowFullStats;
+    @Nullable private TextView titleView;
+    @Nullable private TextView usernameView;
+    @Nullable private ImageView artworkView;
+    @Nullable private StatsView statsView;
+    @Nullable private TextView createdAtView;
+    @Nullable private TextView privateIndicator;
 
-    private ApiImageSize mArtworkSize = ApiImageSize.Unknown;
-    private ApiImageSize mAvatarSize = ApiImageSize.Unknown;
+    private ApiImageSize artworkSize = ApiImageSize.Unknown;
 
-    private Playable mPlayable;
-    private ImageOperations mImageOperations;
-    private final long currentUserId;
-
-    @Deprecated // use injection
-    public PlayablePresenter(Context context) {
-        mContext = context;
-        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
-        currentUserId = SoundCloudApplication.fromContext(context).getAccountOperations().getLoggedInUserId();
+    @Inject
+    public PlayablePresenter(ImageOperations imageOperations, Resources resources) {
+        this.imageOperations = imageOperations;
+        this.resources = resources;
     }
 
     public PlayablePresenter setPlayableRowView(View view){
         setTitleView((TextView) view.findViewById(R.id.playable_title));
         setUsernameView((TextView) view.findViewById(R.id.playable_user));
-        setStatsView((StatsView) view.findViewById(R.id.stats), true);
+        setStatsView((StatsView) view.findViewById(R.id.stats));
         setPrivacyIndicatorView((TextView) view.findViewById(R.id.playable_private_indicator));
         setCreatedAtView((TextView) view.findViewById(R.id.playable_created_at));
         return this;
     }
 
     public PlayablePresenter setTitleView(TextView titleView) {
-        mTitleView = titleView;
+        this.titleView = titleView;
         return this;
     }
 
     public PlayablePresenter setUsernameView(TextView usernameView) {
-        mUsernameView = usernameView;
+        this.usernameView = usernameView;
         return this;
     }
 
     public PlayablePresenter setTextVisibility(int visibility) {
-        mTitleView.setVisibility(visibility);
-        mUsernameView.setVisibility(visibility);
+        if (titleView != null) {
+            titleView.setVisibility(visibility);
+        }
+        if (usernameView != null) {
+            usernameView.setVisibility(visibility);
+        }
         return this;
     }
 
     public PlayablePresenter setArtwork(ImageView artworkView, ApiImageSize artworkSize) {
-        mArtworkView = artworkView;
-        mArtworkSize = artworkSize;
+        this.artworkView = artworkView;
+        this.artworkSize = artworkSize;
         return this;
     }
 
-    public PlayablePresenter setAvatarView(ImageView avatarView, ApiImageSize avatarSize) {
-        mAvatarView = avatarView;
-        mAvatarSize = avatarSize;
-        return this;
-    }
-
-    public PlayablePresenter setStatsView(StatsView statsView, boolean showFullStats) {
-        mStatsView = statsView;
-        mShowFullStats = showFullStats;
+    public PlayablePresenter setStatsView(StatsView statsView) {
+        this.statsView = statsView;
         return this;
     }
 
     public PlayablePresenter setPrivacyIndicatorView(TextView privacyIndicator) {
-        mPrivateIndicator = privacyIndicator;
+        privateIndicator = privacyIndicator;
         return this;
     }
 
     public PlayablePresenter setCreatedAtView(TextView createdAtView) {
-        mCreatedAtView = createdAtView;
+        this.createdAtView = createdAtView;
         return this;
     }
 
+    @Deprecated
     public void setPlayable(@NotNull Playable playable) {
-        Log.d("SoundAssociations", "playable changed! " + playable.getId());
-        mPlayable = playable;
+        setPlayable(playable.toPropertySet());
+    }
 
-        if (mTitleView != null) {
-            mTitleView.setText(mPlayable.getTitle());
+    public void setPlayable(@NotNull PropertySet propertySet) {
+        setPlayable(new PlayablePresenterItem(propertySet));
+    }
+
+    public void setPlayable(@NotNull PlayablePresenterItem item) {
+        if (titleView != null) {
+            titleView.setText(item.getTitle());
         }
 
-        if (mUsernameView != null) {
-            mUsernameView.setText(mPlayable.getUsername());
+        if (usernameView != null) {
+            usernameView.setText(item.getCreatorName());
         }
 
-        if (mArtworkView != null) {
-            mImageOperations.displayWithPlaceholder(
-                    playable.getUrn(), mArtworkSize, mArtworkView);
+        if (artworkView != null) {
+            imageOperations.displayWithPlaceholder(item.getUrn(), artworkSize, artworkView);
         }
 
-        if (mAvatarView != null && playable.getUser() != null) {
-            mImageOperations.displayWithPlaceholder(
-                    playable.getUser().getUrn(), mAvatarSize, mAvatarView);
+        if (statsView != null) {
+            statsView.updateWithPlayable(item);
         }
 
-        if (mStatsView != null) {
-            mStatsView.updateWithPlayable(playable, mShowFullStats);
+        if (createdAtView != null) {
+            createdAtView.setText(item.getTimeSinceCreated(resources));
         }
 
-        if (mCreatedAtView != null) {
-            mCreatedAtView.setText(playable.getTimeSinceCreated(mContext));
-        }
-
-        if (mPrivateIndicator != null) {
-            setupPrivateIndicator(playable);
+        if (privateIndicator != null) {
+            setupPrivateIndicator(item);
         }
     }
 
-    public Playable getPlayable() {
-        return mPlayable;
-    }
+    private void setupPrivateIndicator(PlayablePresenterItem item) {
+        if (privateIndicator == null) return;
 
-    public void addTextShadowForGrayBg() {
-        if (mTitleView != null) AndroidUtils.setTextShadowForGrayBg(mTitleView);
-        if (mUsernameView != null) AndroidUtils.setTextShadowForGrayBg(mUsernameView);
-        if (mCreatedAtView != null) AndroidUtils.setTextShadowForGrayBg(mCreatedAtView);
-    }
-
-    private void setupPrivateIndicator(Playable playable) {
-        if (mPrivateIndicator == null) return;
-
-        if (playable.isPrivate()) {
-            if (playable.shared_to_count <= 0) {
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
-                mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
-            } else if (playable.shared_to_count == 1) {
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
-                mPrivateIndicator.setText(playable.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
-            } else {
-                if (playable.shared_to_count < 8) {
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
-                } else {
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray);
-                }
-                mPrivateIndicator.setText(mContext.getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
-            }
-            mPrivateIndicator.setVisibility(View.VISIBLE);
+        if (item.isPrivate()) {
+            privateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
+            privateIndicator.setText(R.string.private_indicator);
+            privateIndicator.setVisibility(View.VISIBLE);
         } else {
-            mPrivateIndicator.setVisibility(View.GONE);
+            privateIndicator.setVisibility(View.GONE);
         }
     }
 

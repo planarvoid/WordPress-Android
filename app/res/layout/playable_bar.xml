@@ -41,10 +41,10 @@
               android:textColor="@android:color/white"
               android:textSize="@dimen/list_txt_sub_size"
               android:layout_width="wrap_content"
-              android:text="@string/tracklist_item_shared_with_x_people"
+              android:text="@string/private_indicator"
               android:layout_height="wrap_content"/>
 
-    <com.soundcloud.android.view.StatsView android:id="@+id/stats"
+    <com.soundcloud.android.playback.views.StatsView android:id="@+id/stats"
                                            android:layout_below="@id/playable_title"
                                            android:layout_marginLeft="@dimen/list_text_margin_left"
                                            android:layout_alignWithParentIfMissing="true"

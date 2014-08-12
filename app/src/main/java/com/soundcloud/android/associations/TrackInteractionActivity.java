@@ -3,13 +3,11 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackProperty;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +15,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class TrackInteractionActivity extends PlayableInteractionActivity {
+
 
     @Inject PlaybackOperations playbackOperations;
 
@@ -44,9 +43,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             @Override
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
-                if (playable.user != null) {
-                    playbackOperations.playTrack((PublicApiTrack) playable, getCurrentScreen());
-                }
+                playbackOperations.startPlaybackWithRecommendations(propertySet.get(TrackProperty.URN), getCurrentScreen());
             }
         });
     }
@@ -73,21 +70,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
     }
 
     @Override
-    protected Playable getPlayableFromIntent(Intent intent) {
-        // I inlined this lookup from a method I removed from the Track class, since I wanted to get rid of
-        // the dependency to ScModelManager in Track.java
-        if (intent == null) throw new IllegalArgumentException("intent is null");
-        PublicApiTrack track = intent.getParcelableExtra(PublicApiTrack.EXTRA);
-        if (track == null) {
-            track = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(PublicApiTrack.EXTRA_ID, 0));
-        }
-        if (track == null) {
-            throw new IllegalArgumentException("Could not obtain track from intent " + intent);
-        }
-        return track;
-    }
-
-    @Override
     protected Uri getContentUri() {
         Content content = null;
         switch (interaction) {
@@ -101,6 +83,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 content = Content.TRACK_COMMENTS;
                 break;
         }
-        return content.forId(playable.getId());
+        return content.forId(propertySet.get(TrackProperty.URN).numericId);
     }
 }
