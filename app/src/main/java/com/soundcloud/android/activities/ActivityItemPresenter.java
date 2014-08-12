@@ -19,20 +19,18 @@ import java.util.Date;
 import java.util.List;
 
 public class ActivityItemPresenter implements CellPresenter<PropertySet> {
-    private final LayoutInflater inflater;
     private final Resources resources;
     private final ImageOperations imageOperations;
 
     @Inject
-    public ActivityItemPresenter(LayoutInflater inflater, Resources resources, ImageOperations imageOperations) {
+    public ActivityItemPresenter(Resources resources, ImageOperations imageOperations) {
         this.resources = resources;
-        this.inflater = inflater;
         this.imageOperations = imageOperations;
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return inflater.inflate(R.layout.activity_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_list_item, parent, false);
     }
 
     @Override

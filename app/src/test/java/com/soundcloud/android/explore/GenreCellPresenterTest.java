@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -30,8 +29,6 @@ public class GenreCellPresenterTest {
     @InjectMocks
     private GenreCellPresenter presenter;
 
-    @Mock
-    private LayoutInflater layoutInflater;
     @Mock
     private ViewGroup parentView;
     @Mock
@@ -49,12 +46,7 @@ public class GenreCellPresenterTest {
         when(itemView.findViewById(android.R.id.text1)).thenReturn(genreTitleText);
         when(itemView.findViewById(R.id.list_section_header)).thenReturn(sectionHeaderText);
         when(section.getTitleId()).thenReturn(R.string.explore_category_trending_audio);
-    }
-
-    @Test
-    public void shouldInflateExploreRowWithoutAttachingToParent() {
-        presenter.createItemView(0, parentView);
-        verify(layoutInflater).inflate(R.layout.explore_genre_item, parentView, false);
+        when(parentView.getContext()).thenReturn(Robolectric.application);
     }
 
     @Test

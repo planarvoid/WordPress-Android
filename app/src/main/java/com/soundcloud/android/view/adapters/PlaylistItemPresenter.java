@@ -21,20 +21,18 @@ import java.util.List;
 
 public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
 
-    private final LayoutInflater layoutInflater;
     private final Resources resources;
     private final ImageOperations imageOperations;
 
     @Inject
-    public PlaylistItemPresenter(LayoutInflater layoutInflater, Resources resources, ImageOperations imageOperations) {
-        this.layoutInflater = layoutInflater;
+    public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations) {
         this.resources = resources;
         this.imageOperations = imageOperations;
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return layoutInflater.inflate(R.layout.playlist_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_list_item, parent, false);
     }
 
     @Override

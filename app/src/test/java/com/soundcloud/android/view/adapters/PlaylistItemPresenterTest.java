@@ -53,7 +53,7 @@ public class PlaylistItemPresenterTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
 
-        presenter = new PlaylistItemPresenter(layoutInflater, context.getResources(), imageOperations);
+        presenter = new PlaylistItemPresenter(context.getResources(), imageOperations);
     }
 
     @Test

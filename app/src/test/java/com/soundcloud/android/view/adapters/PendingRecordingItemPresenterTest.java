@@ -25,7 +25,6 @@ import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PendingRecordingItemPresenterTest {
-    @Mock private LayoutInflater inflater;
     @Mock private File file;
     private PendingRecordingItemPresenter presenter;
 
@@ -42,7 +41,7 @@ public class PendingRecordingItemPresenterTest {
         recording = TestHelper.getModelFactory().createModel(Recording.class);
         recording.audio_path = file;
         recordings = Arrays.asList(recording);
-        presenter = new PendingRecordingItemPresenter(context.getResources(), inflater);
+        presenter = new PendingRecordingItemPresenter(context.getResources());
     }
 
     @Test

@@ -60,7 +60,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return presenter.create(container);
+        return presenter.create(inflater, container);
     }
 
     @Override

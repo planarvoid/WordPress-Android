@@ -22,22 +22,20 @@ import java.util.List;
 
 public class UserItemPresenter implements CellPresenter<PropertySet> {
 
-    private final LayoutInflater layoutInflater;
     private final ImageOperations imageOperations;
     private final AccountOperations accountOperations;
     @Nullable private OnToggleFollowListener toggleFollowListener;
 
     @Inject
-    public UserItemPresenter(LayoutInflater layoutInflater, ImageOperations imageOperations,
+    public UserItemPresenter(ImageOperations imageOperations,
                              AccountOperations accountOperations) {
-        this.layoutInflater = layoutInflater;
         this.imageOperations = imageOperations;
         this.accountOperations = accountOperations;
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return layoutInflater.inflate(R.layout.user_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.user_list_item, parent, false);
     }
 
     @Override

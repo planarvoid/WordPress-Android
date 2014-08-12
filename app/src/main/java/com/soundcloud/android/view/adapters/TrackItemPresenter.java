@@ -23,20 +23,18 @@ import java.util.concurrent.TimeUnit;
 
 public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
-    private final LayoutInflater layoutInflater;
     private final ImageOperations imageOperations;
 
     private TrackUrn playingTrack = TrackUrn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(LayoutInflater layoutInflater, ImageOperations imageOperations) {
-        this.layoutInflater = layoutInflater;
+    public TrackItemPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return layoutInflater.inflate(R.layout.track_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);
     }
 
     @Override

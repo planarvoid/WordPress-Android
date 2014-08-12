@@ -17,17 +17,15 @@ import java.util.List;
 public class PendingRecordingItemPresenter implements CellPresenter<Recording> {
 
     private final Resources resources;
-    private final LayoutInflater layoutInflater;
 
     @Inject
-    public PendingRecordingItemPresenter(Resources resources, LayoutInflater layoutInflater) {
+    public PendingRecordingItemPresenter(Resources resources) {
         this.resources = resources;
-        this.layoutInflater = layoutInflater;
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return layoutInflater.inflate(R.layout.recording_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.recording_list_item, parent, false);
     }
 
     @Override

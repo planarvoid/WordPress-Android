@@ -24,8 +24,9 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackInfoPresenter(LayoutInflater.from(Robolectric.application));
-        view = presenter.create(new FrameLayout(Robolectric.application));
+        presenter = new TrackInfoPresenter(Robolectric.application.getResources());
+
+        view = presenter.create(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application));
     }
 
     @Test

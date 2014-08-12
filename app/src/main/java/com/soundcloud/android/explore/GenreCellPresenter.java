@@ -18,18 +18,16 @@ class GenreCellPresenter implements CellPresenter<ExploreGenre> {
 
     static final int AUDIO_SECTION = 0;
     static final int MUSIC_SECTION = 1;
-    private final LayoutInflater layoutInflater;
     private final SparseArray<RowDescriptor> listPositionsToSections;
 
     @Inject
-    GenreCellPresenter(LayoutInflater layoutInflater) {
-        this.layoutInflater = layoutInflater;
+    GenreCellPresenter() {
         this.listPositionsToSections = new SparseArray<RowDescriptor>();
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return layoutInflater.inflate(R.layout.explore_genre_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.explore_genre_item, parent, false);
     }
 
     @Override

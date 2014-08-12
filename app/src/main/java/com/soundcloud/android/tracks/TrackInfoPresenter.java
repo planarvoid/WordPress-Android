@@ -13,15 +13,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 
 public class TrackInfoPresenter {
-    private final LayoutInflater layoutInflater;
 
     @Inject
-    public TrackInfoPresenter(LayoutInflater layoutInflater) {
-        this.layoutInflater = layoutInflater;
     }
 
-    public View create(ViewGroup container) {
-        return layoutInflater.inflate(R.layout.track_details_view, container, false);
+    public View create(LayoutInflater inflater, ViewGroup container) {
+        return inflater.inflate(R.layout.track_details_view, container, false);
     }
 
     public void bind(View view, PropertySet propertySet) {

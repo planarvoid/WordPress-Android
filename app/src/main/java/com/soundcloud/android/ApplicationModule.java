@@ -37,7 +37,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.LruCache;
 import android.telephony.TelephonyManager;
-import android.view.LayoutInflater;
 
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -90,11 +89,6 @@ public class ApplicationModule {
     @Provides
     public NotificationManager provideNotificationManager() {
         return (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
-    }
-
-    @Provides
-    public LayoutInflater provideLayoutInflater() {
-        return LayoutInflater.from(application);
     }
 
     @Provides
