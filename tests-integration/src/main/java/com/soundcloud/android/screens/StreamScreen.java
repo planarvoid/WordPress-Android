@@ -36,7 +36,6 @@ public class StreamScreen extends Screen {
     public VisualPlayerElement clickFirstTrack() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver
-                .findElement(With.id(android.R.id.list))
                 .findElements(With.id(R.id.track_list_item))
                 .get(0).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
