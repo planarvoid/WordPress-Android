@@ -29,7 +29,7 @@ public class TrackInfoPresenter {
     }
 
     public View create(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.track_details_view, container, false);
+        return inflater.inflate(R.layout.track_info, container, false);
     }
 
     public void bind(View view, final PropertySet propertySet) {

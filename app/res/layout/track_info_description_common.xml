@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical" android:animateLayoutChanges="true">
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/uploaded_at"
+            style="@style/TrackInfo.Text.Main.UploadedAt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/no_description"
+            style="@style/TrackInfo.Text.Main.NoDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/track_info_no_description"
+            />
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/description"
+            style="@style/TrackInfo.Text.Main.Description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"/>
+</LinearLayout>
