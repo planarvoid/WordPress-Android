@@ -40,7 +40,7 @@ public class PlayerWidgetPresenterTest {
 
     @Test
     public void shouldUpdateTrackUsingPlayerAppWidgetProviderWhenPlayableChange() throws Exception {
-        presenter.updateTrackInformation(context, TestPropertySets.forWidgetTrack());
+        presenter.updateTrackInformation(context, TestPropertySets.expectedTrackForWidget());
 
         verifyUpdateViaPlayBackWidgetProvider();
     }

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -19,7 +20,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -143,7 +143,7 @@ public class AnalyticsEngineEventFlushingTest {
     @Test
     public void shouldScheduleFlushesFromPlaybackEvents() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L)), Urn.forUser(2L), mock(TrackSourceInfo.class), 0);
+                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L)), Urn.forUser(2L), mock(TrackSourceInfo.class), 0);
         eventBus.publish(EventQueue.PLAYBACK_SESSION, playEvent);
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

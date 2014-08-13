@@ -5,11 +5,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.api.Token;
@@ -22,7 +22,7 @@ import org.mockito.Mock;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayCountUrlBuilderTest {
 
-    private static final PropertySet TRACK_DATA = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(123L));
+    private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
 
     private PlayCountUrlBuilder urlBuilder;
 

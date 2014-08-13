@@ -6,13 +6,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
@@ -34,7 +33,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     private static final int DURATION = 100000;
     private static final UserUrn USER_URN = Urn.forUser(123L);
     private static final TrackUrn TRACK_URN = Urn.forTrack(1L);
-    private static final PropertySet TRACK_DATA = PropertySets.expectedTrackDataForAnalytics(TRACK_URN, "allow", DURATION);
+    private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", DURATION);
 
     private LocalyticsAnalyticsProvider localyticsProvider;
 
@@ -241,7 +240,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     private PlaybackSessionEvent createStopEventWithStopTimeAndDuration(long stopTime, int duration) {
         return PlaybackSessionEvent.forStop(
-                PropertySets.expectedTrackDataForAnalytics(TRACK_URN, "allow", duration),
+                TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", duration),
                 USER_URN, trackSourceInfo, startEvent,
                 PlaybackSessionEvent.STOP_REASON_BUFFERING, 0L, stopTime);
     }

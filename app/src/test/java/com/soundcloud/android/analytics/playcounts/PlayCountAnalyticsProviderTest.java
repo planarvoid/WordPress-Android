@@ -7,11 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class PlayCountAnalyticsProviderTest {
     public void shouldTrackFirstPlayEvent() {
         final int progress = 0;
         PlaybackSessionEvent sessionEvent = PlaybackSessionEvent.forPlay(
-                PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
+                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handlePlaybackSessionEvent(sessionEvent);
@@ -67,7 +67,7 @@ public class PlayCountAnalyticsProviderTest {
     public void shouldImmediatelyRequestFlushForPlayEvents() {
         final int progress = 0;
         PlaybackSessionEvent sessionEvent = PlaybackSessionEvent.forPlay(
-                PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
+                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handlePlaybackSessionEvent(sessionEvent);
@@ -79,7 +79,7 @@ public class PlayCountAnalyticsProviderTest {
     public void shouldNotTrackSubsequentPlayEvents() {
         final int progress = 1;
         PlaybackSessionEvent sessionEvent = PlaybackSessionEvent.forPlay(
-                PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
+                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handlePlaybackSessionEvent(sessionEvent);

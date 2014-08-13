@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import android.content.res.Resources;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -11,7 +12,6 @@ import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -41,7 +41,7 @@ public class EventLoggerUrlBuilderTest {
     private static final String APP_ID = "123";
     private static final String USER_AGENT_UNENCODED = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
     private static final String CDN_URL = "host.com";
-    private static final PropertySet TRACK_DATA = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(123L));
+    private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
 
     @Mock private Resources resources;
     @Mock private TrackSourceInfo trackSourceInfo;

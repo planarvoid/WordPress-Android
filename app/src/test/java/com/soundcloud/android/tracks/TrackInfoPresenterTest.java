@@ -31,7 +31,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsShowsAllStatsWhenAllStatsAreGreaterZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 10)
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 10);
@@ -47,7 +47,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsHideAllStatsWhenStatsAreZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 0)
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 0);
@@ -63,7 +63,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsHidePlaysIfPlaysCountIsZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 10)
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 0);
@@ -79,7 +79,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsHideLikesIfLikesCountIsZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 0)
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 10);
@@ -95,7 +95,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsHideRepostsIfRepostsCountIsZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 10)
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 10);
@@ -111,7 +111,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsOnlyShowsPlaysWhenLikesAndRepostsAreZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 0)
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 10);
@@ -127,7 +127,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsOnlyShowsLikesWhenPlaysAndRepostsAreZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 10)
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 0);
@@ -143,7 +143,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsOnlyShowsRepostsWhenPlaysAndLikesAreZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack()
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
                 .put(PlayableProperty.LIKES_COUNT, 0)
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 0);
@@ -159,7 +159,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsShouldHideCommentsWhenCommentsAreZero() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack().put(TrackProperty.COMMENTS_COUNT, 0);
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.COMMENTS_COUNT, 0);
 
         presenter.bind(view, trackProperties);
 
@@ -168,7 +168,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
     @Test
     public void bindViewsShouldShowNoDescriptionWhenDescriptionIsEmpty() throws Exception {
-        PropertySet trackProperties = TestPropertySets.forPlayerTrack().put(TrackProperty.DESCRIPTION, "");
+        PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.DESCRIPTION, "");
 
         presenter.bindDescription(view, trackProperties);
 

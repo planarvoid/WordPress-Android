@@ -3,13 +3,14 @@ package com.soundcloud.android;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import java.util.Date;
 
-public class TestPropertySets {
+public abstract class TestPropertySets {
 
-    public static PropertySet forWidgetTrack() {
+    public static PropertySet expectedTrackForWidget() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("someone's favorite song"),
@@ -19,7 +20,7 @@ public class TestPropertySets {
         );
     }
 
-    public static PropertySet forPlayerTrack() {
+    public static PropertySet expectedTrackForPlayer() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
@@ -37,6 +38,18 @@ public class TestPropertySets {
                 PlayableProperty.IS_REPOSTED.bind(false),
                 PlayableProperty.CREATED_AT.bind(new Date())
         );
+    }
+
+    public static PropertySet expectedTrackForAnalytics(TrackUrn trackUrn, String policy, int duration) {
+        return PropertySet.from(
+                TrackProperty.URN.bind(trackUrn),
+                TrackProperty.POLICY.bind(policy),
+                PlayableProperty.DURATION.bind(duration)
+        );
+    }
+
+    public static PropertySet expectedTrackForAnalytics(TrackUrn trackUrn) {
+        return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
 }

@@ -44,7 +44,7 @@ public class PlayerWidgetControllerTest {
 
     private PlayerWidgetController controller;
     private final TestEventBus eventBus = new TestEventBus();
-    private final PropertySet WIDGET_TRACK = TestPropertySets.forWidgetTrack();
+    private final PropertySet WIDGET_TRACK = TestPropertySets.expectedTrackForWidget();
     private final TrackUrn WIDGET_TRACK_URN = Urn.forTrack(123L);
 
     @Mock private Context context;

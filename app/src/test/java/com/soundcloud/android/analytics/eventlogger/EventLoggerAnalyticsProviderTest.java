@@ -5,6 +5,7 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionT
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static org.mockito.Mockito.*;
 
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -13,7 +14,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.robolectric.PropertySets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
@@ -65,7 +65,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
-        final PropertySet track = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000);
+        final PropertySet track = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000);
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, Urn.forUser(123L),
                 new TrackSourceInfo("context", false), 0L, 12345L);
         when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("url");

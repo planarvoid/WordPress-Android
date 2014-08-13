@@ -402,6 +402,6 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() {
-        presenter.bindItemView(trackView, TestPropertySets.forPlayerTrack());
+        presenter.bindItemView(trackView, TestPropertySets.expectedTrackForPlayer());
     }
 }
