@@ -26,8 +26,7 @@ public class PlaybackServiceOperations {
 
     public String buildHLSUrlForTrack(TrackUrn urn) {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
-        Token token = accountOperations.getSoundCloudToken();
-        checkNotNull(token, "The SoundCloud token should not be null");
+        Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
         return Uri.parse(httpProperties.getPrivateApiHostWithHttpScheme() + APIEndpoints.HLS_STREAM.unencodedPath(urn))
                 .buildUpon()
                 .appendQueryParameter(HttpProperties.Parameter.OAUTH_PARAMETER.toString(), token.access)
