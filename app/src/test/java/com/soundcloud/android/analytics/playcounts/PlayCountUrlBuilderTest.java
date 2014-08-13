@@ -51,7 +51,7 @@ public class PlayCountUrlBuilderTest {
 
         final String url = urlBuilder.buildUrl(event);
 
-        assertThat(url, urlEqualTo("http://api.soundcloud.com/tracks/123/plays?client_id=ABCDEF&oauth_token=access&policy=allow"));
+        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/123/plays?client_id=ABCDEF&oauth_token=access&policy=allow"));
     }
 
     @Test
