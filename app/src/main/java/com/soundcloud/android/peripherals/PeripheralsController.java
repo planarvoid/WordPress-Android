@@ -2,15 +2,16 @@ package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
-import rx.android.schedulers.AndroidSchedulers;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,10 +25,10 @@ public class PeripheralsController {
 
     private final Context context;
     private final EventBus eventBus;
-    private final LegacyTrackOperations trackOperations;
+    private final TrackOperations trackOperations;
 
     @Inject
-    public PeripheralsController(Context context, EventBus eventBus, LegacyTrackOperations trackOperations) {
+    public PeripheralsController(Context context, EventBus eventBus, TrackOperations trackOperations) {
         this.context = context;
         this.eventBus = eventBus;
         this.trackOperations = trackOperations;
@@ -45,16 +46,12 @@ public class PeripheralsController {
         context.sendBroadcast(intent);
     }
 
-    private void notifyPlayQueueChanged(PublicApiTrack track) {
+    private void notifyPlayQueueChanged(PropertySet track) {
         Intent intent = new Intent(AVRCP_META_CHANGED);
-        intent.putExtra("id", track.getId());
-        intent.putExtra("track", ScTextUtils.getClippedString(track.getTitle(), 40));
-        intent.putExtra("duration", track.duration);
-
-        if (track.getUserName() != null) {
-            intent.putExtra("artist", ScTextUtils.getClippedString(track.getUserName(), 30));
-        }
-
+        intent.putExtra("id", track.get(TrackProperty.URN).numericId);
+        intent.putExtra("track", ScTextUtils.getClippedString(track.get(PlayableProperty.TITLE), 40));
+        intent.putExtra("duration", track.get(PlayableProperty.DURATION));
+        intent.putExtra("artist", ScTextUtils.getClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
         context.sendBroadcast(intent);
     }
 
@@ -85,13 +82,13 @@ public class PeripheralsController {
     private class PlayQueueChangedSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
-            trackOperations.loadTrack(event.getCurrentTrackUrn().numericId, AndroidSchedulers.mainThread()).subscribe(new CurrentTrackSubscriber());
+            trackOperations.track(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
         }
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<PublicApiTrack> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
-        public void onNext(PublicApiTrack track) {
+        public void onNext(PropertySet track) {
             notifyPlayQueueChanged(track);
         }
     }

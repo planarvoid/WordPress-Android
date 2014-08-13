@@ -2,21 +2,25 @@ package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +28,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Scheduler;
 
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +43,7 @@ public class PeripheralsControllerTest {
     private Context context;
 
     @Mock
-    private LegacyTrackOperations trackOperations;
+    private TrackOperations trackOperations;
 
     @Captor
     private ArgumentCaptor<Intent> captor;
@@ -84,17 +87,18 @@ public class PeripheralsControllerTest {
 
     @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
-        final PublicApiTrack track = createTrack();
-        when(trackOperations.loadTrack(eq(track.getId()), any(Scheduler.class))).thenReturn(Observable.just(track));
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final TrackUrn trackUrn = track.get(TrackProperty.URN);
+        when(trackOperations.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(track.getUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         expect(secondBroadcast.getAction()).toEqual("com.android.music.metachanged");
-        expect(secondBroadcast.getExtras().get("id")).toEqual(track.getId());
-        expect(secondBroadcast.getExtras().get("artist")).toEqual(track.user.username);
-        expect(secondBroadcast.getExtras().get("track")).toEqual(track.title);
-        expect(secondBroadcast.getExtras().get("duration")).toEqual(track.duration);
+        expect(secondBroadcast.getExtras().get("id")).toEqual(track.get(TrackProperty.URN).numericId);
+        expect(secondBroadcast.getExtras().get("artist")).toEqual(track.get(PlayableProperty.CREATOR_NAME));
+        expect(secondBroadcast.getExtras().get("track")).toEqual(track.get(PlayableProperty.TITLE));
+        expect(secondBroadcast.getExtras().get("duration")).toEqual(track.get(PlayableProperty.DURATION));
     }
 
     @Test
