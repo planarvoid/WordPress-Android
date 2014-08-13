@@ -306,7 +306,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         };
 
         private void populateViewSets() {
-            List<View> disableViews = Arrays.asList(previousButton, nextButton, previousArea, nextArea);
+            List<View> disableViews = Arrays.asList(previousButton, nextButton);
             List<View> clickViews = Arrays.asList(artworkView, artworkIdleOverlay, playButton, nextArea, previousArea,
                     nextButton, previousButton, learnMore, whyAds, skipAd, previewContainer, footerPlayToggle, close, footer);
 

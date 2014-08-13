@@ -74,7 +74,7 @@
                 android:layout_toRightOf="@id/preview_artwork_container"/>
     </RelativeLayout>
 
-    <include layout="@layout/player_play_controls_touch" />
     <include layout="@layout/player_play_controls" />
+    <include layout="@layout/player_play_controls_touch" />
 
 </RelativeLayout>
