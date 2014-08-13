@@ -50,7 +50,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final StateChangeHandler stateHandler;
     private final PlaybackServiceOperations playbackOperations;
     private final NetworkConnectionHelper connectionHelper;
-    private final ApplicationProperties applicationProperties;
 
     private volatile String currentStreamUrl;
     private TrackUrn currentTrackUrn;
@@ -59,15 +58,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackServiceOperations playbackOperations,
-                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
-                  ApplicationProperties applicationProperties) {
+                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
         skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.playbackOperations = playbackOperations;
         stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
-        this.applicationProperties = applicationProperties;
         numberOfAttemptedPlaysBeforeDecoderError = 0;
     }
 
@@ -207,10 +204,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;
-            }
-
-            if (!applicationProperties.isReleaseBuild()){
-                transition.setDebugExtra(DEBUG_EXTRA);
             }
 
             Message msg = stateHandler.obtainMessage(0, transition);

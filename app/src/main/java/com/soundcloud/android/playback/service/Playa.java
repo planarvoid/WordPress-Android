@@ -34,13 +34,10 @@ public interface Playa {
         private final Reason reason;
         private final PlaybackProgress progress;
 
-        @VisibleForTesting
-        private static final String DEBUG_EXTRA = "DEBUG_EXTRA";
         private static final String TRACK_URN_EXTRA = "TRACK_URN_EXTRA";
         private static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";
         private static final String DURATION_EXTRA = "DURATION_EXTRA";
 
-        private String debugExtra;
         private TrackUrn trackUrn;
 
         public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
@@ -59,10 +56,6 @@ public interface Playa {
             this.reason = reason;
             this.trackUrn = trackUrn;
             progress = new PlaybackProgress(currentProgress, duration);
-        }
-
-        public void setDebugExtra(String debugExtra){
-            this.debugExtra = debugExtra;
         }
 
         public TrackUrn getTrackUrn() {
@@ -125,26 +118,18 @@ public interface Playa {
             return newState == PlayaState.IDLE && reason == Reason.NONE;
         }
 
-        public String getDebugExtra() {
-            return debugExtra;
-        }
-
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
             intent.putExtra(TRACK_URN_EXTRA, getTrackUrn());
             intent.putExtra(PROGRESS_EXTRA, progress.getPosition());
             intent.putExtra(DURATION_EXTRA, progress.getDuration());
-            intent.putExtra(DEBUG_EXTRA, debugExtra);
         }
 
         public static StateTransition fromIntent(Intent intent) {
-            final StateTransition stateTransition = new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent),
+            return new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent),
                     (TrackUrn) intent.getParcelableExtra(TRACK_URN_EXTRA), intent.getLongExtra(PROGRESS_EXTRA, 0),
                     intent.getLongExtra(DURATION_EXTRA, 0));
-
-            stateTransition.setDebugExtra(intent.getStringExtra(DEBUG_EXTRA));
-            return stateTransition;
         }
 
 
@@ -159,8 +144,7 @@ public interface Playa {
                 return Objects.equal(newState, that.newState)
                         && Objects.equal(reason, that.reason)
                         && Objects.equal(progress, that.progress)
-                        && Objects.equal(trackUrn, that.trackUrn)
-                        && Objects.equal(debugExtra, that.debugExtra);
+                        && Objects.equal(trackUrn, that.trackUrn);
             }
         }
 
@@ -169,7 +153,6 @@ public interface Playa {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
             result = 31 * result + progress.hashCode();
-            result = 31 * result + (debugExtra != null ? debugExtra.hashCode() : 0);
             result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
             return result;
         }

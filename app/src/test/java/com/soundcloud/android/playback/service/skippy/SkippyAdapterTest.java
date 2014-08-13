@@ -83,7 +83,7 @@ public class SkippyAdapterTest {
         userUrn = TestHelper.getModelFactory().createModel(UserUrn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
-                stateChangeHandler, eventBus, connectionHelper, applicationProperties);
+                stateChangeHandler, eventBus, connectionHelper);
         skippyAdapter.setListener(listener);
 
         final TrackUrn trackUrn = Urn.forTrack(1L);
@@ -247,19 +247,6 @@ public class SkippyAdapterTest {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, "WrongStreamUrl");
         verify(stateChangeHandler, never()).sendMessage(any(Message.class));
-    }
-
-    @Test
-    public void skippyAddsDebugToStateChangeEventWhenNotReleaseBuild() throws Exception {
-        skippyAdapter.play(track);
-
-        when(applicationProperties.isReleaseBuild()).thenReturn(false);
-        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE, track.getUrn(), PROGRESS, DURATION);
-        expected.setDebugExtra("Experimental Player");
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
-
-        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, STREAM_URL);
-        verify(stateChangeHandler).sendMessage(message);
     }
 
     @Test
