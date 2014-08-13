@@ -166,6 +166,7 @@ public class PlaybackOperations {
             }).toList().observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackListLoadedSubscriber(position, playSessionSource, initialTrack));
         } else {
+            expandPlayer();
             return Subscriptions.empty();
         }
     }
@@ -250,6 +251,7 @@ public class PlaybackOperations {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackListLoadedSubscriber(startPosition, playSessionSource, initialTrack.getUrn()));
         } else {
+            expandPlayer();
             return Subscriptions.empty();
         }
     }
@@ -276,6 +278,8 @@ public class PlaybackOperations {
         if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
             startPlaySession(idList, adjustedPosition, playSessionSource, loadRelated);
+        } else {
+            expandPlayer();
         }
     }
 
@@ -322,6 +326,10 @@ public class PlaybackOperations {
         }
 
         return getDeduplicatedIdList(idList, updatedPosition);
+    }
+
+    private void expandPlayer() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
     }
 
     /**
