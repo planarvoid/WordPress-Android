@@ -440,12 +440,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".storage.provider.ScContentProvider$TrackUnavailableListener">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.trackunavailable"/>
-            </intent-filter>
-        </receiver>
-
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
     </application>
 

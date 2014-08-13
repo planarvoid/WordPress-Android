@@ -15,7 +15,6 @@ import rx.Scheduler;
 import rx.Subscriber;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -49,24 +48,6 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
         this.resolver = resolver;
         this.trackDAO = trackDAO;
         this.modelManager = modelManager;
-    }
-
-    public Observable<PublicApiTrack> createPlayImpressionAsync(final PublicApiTrack track) {
-        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
-            @Override
-            public void call(Subscriber<? super PublicApiTrack> observer) {
-                if (createPlayImpression(track)) {
-                    observer.onNext(track);
-                }
-                observer.onCompleted();
-            }
-        }));
-    }
-
-    public boolean createPlayImpression(PublicApiTrack track) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(TableColumns.TrackMetadata._ID, track.getId());
-        return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
     @Override

@@ -3,19 +3,19 @@ package com.soundcloud.android.playback.service.mediaplayer;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.Locale;
 
 public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,MediaPlayer.OnBufferingUpdateListener {
@@ -55,7 +54,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
-    private PublicApiTrack track;
+    private PropertySet track;
     private int connectionRetries = 0;
 
     private boolean waitingForSeek;
@@ -89,12 +88,12 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @Override
-    public void play(PublicApiTrack track) {
+    public void play(PropertySet track) {
         play(track, POS_NOT_SET);
     }
 
     @Override
-    public void play(PublicApiTrack track, long fromPos) {
+    public void play(PropertySet track, long fromPos) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
@@ -110,13 +109,19 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         setInternalState(PlaybackState.PREPARING);
 
         uriSubscription.unsubscribe();
-        uriSubscription = proxy.uriObservable(this.track.getStreamUrlWithAppendedId(), null)
+        uriSubscription = proxy.uriObservable(getStreamUrlAppendedId(this.track), null)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MediaPlayerDataSourceObserver());
     }
 
+    private String getStreamUrlAppendedId(PropertySet track){
+        final String streamUrl = track.get(TrackProperty.STREAM_URL);
+        final String trackId = String.valueOf(track.get(TrackProperty.URN).numericId);
+        return Uri.parse(streamUrl).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY, trackId).build().toString();
+    }
+
     @Override
-    public void playUninterrupted(PublicApiTrack track) {
+    public void playUninterrupted(PropertySet track) {
         // Not implemented for MediaPlayer
         play(track);
     }
@@ -151,7 +156,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
             if (playaListener != null && playaListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.getStreamUrl());
+                publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
 
                 if (resumePos > 0) {
                     seek(resumePos, true);
@@ -350,7 +355,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private TrackUrn getTrackUrn() {
-        return track == null ? TrackUrn.NOT_SET : track.getUrn();
+        return track == null ? TrackUrn.NOT_SET : track.get(TrackProperty.URN);
     }
 
     boolean isInErrorState(){

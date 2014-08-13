@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
@@ -273,13 +272,6 @@ public class PublicApiTrackTest {
         expect(t.getWaveformDataURL()).toBeNull();
         t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
         expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
-    }
-
-    @Test
-    public void shouldAppendTrackIdToStreamUrl() throws Exception {
-        PublicApiTrack t = new PublicApiTrack(123L);
-        t.stream_url = "http://media.soundcloud.com/stream/tfmLdABNn0wb";
-        expect(t.getStreamUrlWithAppendedId().toString()).toEqual("http://media.soundcloud.com/stream/tfmLdABNn0wb?" + StreamItem.TRACK_ID_KEY + "=123");
     }
 
     @Test

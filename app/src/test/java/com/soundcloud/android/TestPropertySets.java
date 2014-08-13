@@ -26,6 +26,7 @@ public abstract class TestPropertySets {
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
                 TrackProperty.PLAY_COUNT.bind(1),
                 TrackProperty.COMMENTS_COUNT.bind(1),
+                TrackProperty.STREAM_URL.bind("http://stream.url"),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),

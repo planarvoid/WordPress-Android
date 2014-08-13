@@ -94,7 +94,6 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldCallStopOnStopAction() {
-        when(playbackService.isSupposedToBePlaying()).thenReturn(false);
         Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).stop();

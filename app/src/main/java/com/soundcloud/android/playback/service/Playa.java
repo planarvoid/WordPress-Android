@@ -2,9 +2,9 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.Intent;
 
@@ -14,9 +14,9 @@ import java.util.EnumSet;
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
 public interface Playa {
 
-    void play(PublicApiTrack track);
-    void play(PublicApiTrack track, long fromPos);
-    void playUninterrupted(PublicApiTrack track);
+    void play(PropertySet track);
+    void play(PropertySet track, long fromPos);
+    void playUninterrupted(PropertySet track);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);

@@ -122,8 +122,6 @@ public enum Content  {
     RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.RECORDINGS),
     RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.RECORDINGS),
 
-    TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_METADATA),
-    TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_METADATA),
     TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TRACK_METADATA),
 
     SEARCH("search", null, 1500, PublicApiResource.class, -1, null),

@@ -15,7 +15,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.LoadCommentsTask;
-import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -607,11 +606,6 @@ public class PublicApiTrack extends Playable {
 
     public String getStreamUrl(){
         return stream_url;
-    }
-
-    public String getStreamUrlWithAppendedId(){
-        return Uri.parse(stream_url).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY,
-                String.valueOf(getId())).build().toString();
     }
 
     protected static String fixWaveform(String input){

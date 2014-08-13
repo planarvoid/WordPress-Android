@@ -11,11 +11,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,10 +36,13 @@ public class StreamPlayaTest {
     @Mock private SkippyAdapter skippyAdapter;
     @Mock private BufferingPlaya bufferingPlaya;
     @Mock private Playa.PlayaListener playaListener;
-    @Mock private PublicApiTrack track;
+
+    private PropertySet track;
 
     @Before
     public void setUp() throws Exception {
+        track = TestPropertySets.expectedTrackForPlayer();
+
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
         when(skippyAdapter.init(context)).thenReturn(true);
@@ -227,8 +231,8 @@ public class StreamPlayaTest {
         startPlaybackOnSkippy();
         when(skippyAdapter.getProgress()).thenReturn(1L);
 
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, track.getUrn()));
-        verify(mediaPlayerAdapter, never()).play(any(PublicApiTrack.class), anyLong());
+        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, Urn.forTrack(123L)));
+        verify(mediaPlayerAdapter, never()).play(any(PropertySet.class), anyLong());
     }
 
     @Test
@@ -237,7 +241,7 @@ public class StreamPlayaTest {
         startPlaybackOnSkippy();
         when(skippyAdapter.getProgress()).thenReturn(1L);
 
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, track.getUrn());
+        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, Urn.forTrack(123L));
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
         verify(playaListener).onPlaystateChanged(stateTransition);
     }

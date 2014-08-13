@@ -2,7 +2,6 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,19 +10,16 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.storage.provider.Content;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -101,16 +97,5 @@ public class TrackStorageTest {
     public void getTrackAsyncShouldCallOnErrorWithNotFoundException() throws Exception {
         storage.getTrackAsync(track.getId()).subscribe(observer);
         verify(observer).onError(any(NotFoundException.class));
-    }
-
-    @Test
-    public void shouldMarkTrackAsPlayed() throws Exception {
-        storage.createPlayImpression(track);
-
-        ArgumentCaptor<ContentValues> contentValues = ArgumentCaptor.forClass(ContentValues.class);
-        verify (contentResolver).insert(eq(Content.TRACK_PLAYS.uri), contentValues.capture());
-
-        expect(contentValues.getValue().size()).toEqual(1);
-        expect(contentValues.getValue().get(TableColumns.TrackMetadata._ID)).toEqual(track.getId());
     }
 }

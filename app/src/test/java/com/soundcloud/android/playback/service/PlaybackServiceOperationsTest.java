@@ -39,7 +39,7 @@ public class PlaybackServiceOperationsTest {
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionWhenBuilding(){
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        playbackServiceOperations.buildHLSUrlForTrack(track);
+        playbackServiceOperations.buildHLSUrlForTrack(Urn.forTrack(123L));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class PlaybackServiceOperationsTest {
         when(httpProperties.getPrivateApiHostWithHttpScheme()).thenReturn("https://somehost/path");
 
         expect(playbackServiceOperations
-                .buildHLSUrlForTrack(mockTrack))
+                .buildHLSUrlForTrack(Urn.forTrack(123L)))
                 .toEqual("https://somehost/path/tracks/soundcloud:sounds:123/streams/hls?oauth_token=access");
     }
 }

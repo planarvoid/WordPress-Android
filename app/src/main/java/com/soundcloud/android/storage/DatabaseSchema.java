@@ -55,7 +55,7 @@ final class DatabaseSchema {
     static final String DATABASE_CREATE_TRACK_METADATA = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "user_id INTEGER, " +
-            "play_count INTEGER DEFAULT 0," +
+            "play_count INTEGER DEFAULT 0," + // not used currently, do not want to alter this table until streamProxy is gone
             "cached INTEGER DEFAULT 0," +
             "type INTEGER DEFAULT 0," +
             "etag VARCHAR(34)," +

@@ -10,4 +10,5 @@ public final class TrackProperty {
     public static final Property<String> POLICY = Property.of(String.class);
     public static final Property<String> DESCRIPTION = Property.of(String.class);
     public static final Property<Integer> COMMENTS_COUNT = Property.of(Integer.class);
+    public static final Property<String> STREAM_URL = Property.of(String.class);
 }

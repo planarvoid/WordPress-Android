@@ -101,10 +101,6 @@ public class LegacyTrackOperations {
         };
     }
 
-    public Observable<PublicApiTrack> markTrackAsPlayed(PublicApiTrack track) {
-        return trackStorage.createPlayImpressionAsync(track);
-    }
-
     private Func1<PublicApiTrack, PublicApiTrack> cacheTrack(final long trackId, final PublicApiResource.CacheUpdateMode updateMode){
         return new Func1<PublicApiTrack, PublicApiTrack>() {
             @Override

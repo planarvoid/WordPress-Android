@@ -5,11 +5,9 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SQLiteErrors;
@@ -22,18 +20,14 @@ import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
@@ -247,16 +241,6 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(getUserViewColumns(Table.USERS),userId);
                 break;
 
-            case TRACK_PLAYS:
-                qb.setTables(content.table.name);
-                qb.appendWhere(TableColumns.TrackMetadata.USER_ID + " = " + userId);
-                break;
-
-            case TRACK_PLAYS_ITEM:
-                qb.setTables(content.table.name);
-                qb.appendWhere(content.table.id + " = " + uri.getLastPathSegment());
-                break;
-
             case TRACK_METADATA:
                 qb.setTables(content.table.name);
                 qb.appendWhere(TableColumns.TrackMetadata.USER_ID + " = "+ userId);
@@ -429,22 +413,6 @@ public class ScContentProvider extends ContentProvider {
             //////////////////////////////////////////////////////////////////////////////////////////////////
             // special cases
             //////////////////////////////////////////////////////////////////////////////////////////////////
-
-            case TRACK_PLAYS:
-                // TODO should be in update()
-                if (!values.containsKey(TableColumns.TrackMetadata.USER_ID)) {
-                    values.put(TableColumns.TrackMetadata.USER_ID, userId);
-                }
-                String trackId = values.getAsString(TableColumns.TrackMetadata._ID);
-                content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
-
-                String counter = TableColumns.TrackMetadata.PLAY_COUNT;
-                db.execSQL("UPDATE " + content.table.name +
-                        " SET " + counter + "=" + counter + " + 1 WHERE " + content.table.id + "= ?",
-                        new String[]{trackId}) ;
-                result = uri.buildUpon().appendPath(trackId).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
 
             case PLAYLIST_TRACKS:
                 id = db.insert(content.table.name, null, values);
@@ -1073,35 +1041,6 @@ public class ScContentProvider extends ContentProvider {
             Log.w(TAG, msg, e);
             ErrorUtils.handleSilentException(msg, e);
             return def;
-        }
-    }
-
-    /**
-     * Handles deletion of tracks which are no longer available (have been marked private / deleted).
-     */
-    public static class TrackUnavailableListener extends BroadcastReceiver {
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            // only delete tracks from other users - needs proper state checking
-            final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.ID, 0);
-            final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.USER_ID, 0);
-            final long currentUserId = SoundCloudApplication.fromContext(context).getAccountOperations().getLoggedInUserId();
-            if (trackId > 0 && userId != currentUserId) {
-                removeTrack(context).execute(trackId);
-            }
-        }
-
-        public static AsyncTask<Long,Void,Void> removeTrack(final Context context) {
-            return new AsyncTask<Long,Void,Void>(){
-                @Override
-                protected Void doInBackground(Long... params) {
-                    context.getContentResolver().delete(Content.TRACK.forId(params[0]), null, null);
-                    context.getContentResolver().delete(Content.ME_ALL_ACTIVITIES.uri,
-                            TableColumns.Activities.SOUND_ID + " = " + params[0] + " AND " +
-                                    TableColumns.ActivityView.TYPE + " NOT IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ", null);
-                    return null;
-                }
-            };
         }
     }
 }

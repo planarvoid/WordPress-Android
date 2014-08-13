@@ -16,20 +16,23 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.StreamPlaya;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,43 +54,37 @@ import java.io.IOException;
 
 @RunWith(SoundCloudTestRunner.class)
 public class MediaPlayerAdapterTest {
-
-    public static final String STREAM_URL = "http://url.com";
-    public static final Uri STREAM_URI = Uri.parse(STREAM_URL);
-    public static final int DURATION = 10000;
-
     private MediaPlayerAdapter mediaPlayerAdapter;
 
-    @Mock
-    private Context context;
-    @Mock
-    private MediaPlayer mediaPlayer;
-    @Mock
-    private MediaPlayerAdapter.MediaPlayerManager mediaPlayerManager;
-    @Mock
-    private StreamProxy streamProxy;
-    @Mock
-    private MediaPlayerAdapter.PlayerHandler playerHandler;
-    @Mock
-    private StreamPlaya.PlayaListener listener;
-    @Mock
-    private PublicApiTrack track;
-    @Mock
-    private NetworkConnectionHelper networkConnectionHelper;
-    @Mock
-    private AccountOperations accountOperations;
+    @Mock private Context context;
+    @Mock private MediaPlayer mediaPlayer;
+    @Mock private MediaPlayerAdapter.MediaPlayerManager mediaPlayerManager;
+    @Mock private StreamProxy streamProxy;
+    @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
+    @Mock private StreamPlaya.PlayaListener listener;
+    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private AccountOperations accountOperations;
+
+    private PropertySet track;
+    private String streamUrlWithId;
+    private Uri streamUriWithId;
+    private int duration;
 
     private UserUrn userUrn;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
+        track = TestPropertySets.expectedTrackForPlayer();
+        streamUrlWithId = track.get(TrackProperty.STREAM_URL) + "?track_id="+track.get(TrackProperty.URN).numericId;
+        streamUriWithId = Uri.parse(streamUrlWithId);
+        duration = track.get(PlayableProperty.DURATION);
+
         userUrn = TestHelper.getModelFactory().createModel(UserUrn.class);
         when(context.getApplicationContext()).thenReturn(context);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(TestObservables.MockObservable.<Uri>empty());
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(TestObservables.MockObservable.<Uri>empty());
         when(listener.requestAudioFocus()).thenReturn(true);
-        when(track.getStreamUrlWithAppendedId()).thenReturn(STREAM_URL);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, streamProxy, playerHandler, eventBus, networkConnectionHelper, accountOperations);
@@ -121,9 +118,9 @@ public class MediaPlayerAdapterTest {
     @Test
     public void playUrlShouldCallBufferingState() throws Exception {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
-        when(mediaPlayer.getDuration()).thenReturn(DURATION);
+        when(mediaPlayer.getDuration()).thenReturn(duration);
         mediaPlayerAdapter.play(track);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
         verifyNoMoreInteractions(listener);
     }
 
@@ -150,13 +147,12 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
     }
 
     @Test
     public void preparedListenerShouldReportTimeToPlay() throws Exception {
-        when(track.getStreamUrl()).thenReturn(STREAM_URL);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(PlaybackPerformanceEvent.ConnectionType.TWO_G);
         mediaPlayerAdapter.play(track, 123L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -164,7 +160,7 @@ public class MediaPlayerAdapterTest {
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         expect(event.getMetricValue()).toBeGreaterThan(0L);
-        expect(event.getCdnHost()).toEqual(STREAM_URL);
+        expect(event.getCdnHost()).toEqual(track.get(TrackProperty.STREAM_URL));
         expect(event.getPlayerType()).toEqual(PlayerType.MEDIA_PLAYER);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HTTPS);
         expect(event.getConnectionType()).toEqual(PlaybackPerformanceEvent.ConnectionType.TWO_G);
@@ -191,15 +187,15 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.pause();
 
         InOrder inOrder = Mockito.inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
     }
 
     @Test
     public void playUrlShouldSubscribeToProxyObservable() throws Exception {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
-        verify(mediaPlayer).setDataSource(STREAM_URL);
+        verify(mediaPlayer).setDataSource(streamUrlWithId);
         verify(mediaPlayer).prepareAsync();
     }
 
@@ -344,35 +340,35 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void playUrlShouldSetErrorStateIfProxyObservableCallsOnError() throws Exception {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.getUrn(), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 0)));
     }
 
     @Test
     public void playUrlShouldRetryMaxTimesIfMediaPlayerFailsToPrepare() throws Exception {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         Mockito.doThrow(new IOException()).when(mediaPlayer).setDataSource(any(String.class));
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.getUrn(), 0, 0)));
+        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 0)));
     }
 
     @Test
     public void playUrlSetsDataSourceOnMediaPlayer() throws Exception {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
-        verify(mediaPlayer).setDataSource(STREAM_URI.toString());
+        verify(mediaPlayer).setDataSource(streamUriWithId.toString());
     }
 
     @Test
     public void playUrlCallsPrepareAsyncOnMediaPlayer() throws Exception {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         verify(mediaPlayer).prepareAsync();
     }
@@ -380,7 +376,7 @@ public class MediaPlayerAdapterTest {
     @Test
     public void playUrlUnsubscribesFromPreviousProxySubscription() throws Exception {
         final Subscription subscription = Mockito.mock(Subscription.class);
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(TestObservables.<Uri>endlessObservablefromSubscription(subscription));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(TestObservables.<Uri>endlessObservablefromSubscription(subscription));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.play(track);
         verify(subscription).unsubscribe();
@@ -389,7 +385,7 @@ public class MediaPlayerAdapterTest {
     @Test
     public void stopUnsubscribesFromPreviousProxySubscription() throws Exception {
         final Subscription subscription = Mockito.mock(Subscription.class);
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(TestObservables.<Uri>endlessObservablefromSubscription(subscription));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(TestObservables.<Uri>endlessObservablefromSubscription(subscription));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.stop();
         verify(subscription).unsubscribe();
@@ -397,7 +393,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void onTrackEndedeResetsRetryCount() throws IOException {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
@@ -413,14 +409,14 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void shouldReleaseMediaPlayerOnlyAfterRetryingPlaybackThreeTimes() throws IOException {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
             mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
         }
         verify(mediaPlayer, times(3)).reset();
-        verify(mediaPlayer, times(4)).setDataSource(STREAM_URL);
+        verify(mediaPlayer, times(4)).setDataSource(streamUrlWithId);
         verify(mediaPlayer, never()).release();
         mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
         verify(mediaPlayer).release();
@@ -428,7 +424,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void onErroShouldRetryStreamPlaybacksMaxRetryTimesThenReportError() throws IOException {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1; i++) {
@@ -436,13 +432,13 @@ public class MediaPlayerAdapterTest {
         }
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 0, 0)));
-        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.getUrn(), 0, 0)));
+        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 0)));
     }
 
     @Test
     public void onErrorShouldReturnTrueWhenRetrying() throws IOException {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         expect(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).toBeTrue();
@@ -450,7 +446,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void onErrorShouldReturnTrueWhenRetriesExhausted() throws IOException {
-        when(streamProxy.uriObservable(STREAM_URL, null)).thenReturn(Observable.just(STREAM_URI));
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
@@ -463,7 +459,7 @@ public class MediaPlayerAdapterTest {
     public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() throws Exception {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        when(mediaPlayer.getDuration()).thenReturn(DURATION);
+        when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         expect(mediaPlayerAdapter.seek(456l)).toEqual(456l);
         expect(mediaPlayerAdapter.getProgress()).toEqual(456l);
@@ -519,7 +515,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.getUrn(), 123, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -554,7 +550,7 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.getUrn(), 123, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -576,7 +572,7 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer).stop();
-        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.getUrn(), 123, DURATION)));
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
     @Test
@@ -588,7 +584,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void shouldResumePlaybackAtSpecifiedTime() throws Exception {
-        when(mediaPlayer.getDuration()).thenReturn(DURATION);
+        when(mediaPlayer.getDuration()).thenReturn(duration);
 
         mediaPlayerAdapter.play(track, 123L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -654,7 +650,7 @@ public class MediaPlayerAdapterTest {
         reset(mediaPlayer);
         reset(mediaPlayerManager);
         reset(listener);
-        when(mediaPlayer.getDuration()).thenReturn(DURATION);
+        when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(listener.requestAudioFocus()).thenReturn(true);
 

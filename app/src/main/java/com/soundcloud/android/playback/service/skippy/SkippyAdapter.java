@@ -10,22 +10,24 @@ import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -73,22 +75,22 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void play(PublicApiTrack track) {
+    public void play(PropertySet track) {
         play(track, POSITION_START);
     }
 
     @Override
-    public void play(PublicApiTrack track, long fromPos) {
+    public void play(PropertySet track, long fromPos) {
         play(track, fromPos, false);
     }
 
     @Override
-    public void playUninterrupted(PublicApiTrack track) {
+    public void playUninterrupted(PropertySet track) {
         play(track, POSITION_START, true);
     }
 
-    private void play(PublicApiTrack track, long fromPos, boolean uninterrupted) {
-        currentTrackUrn = track.getUrn();
+    private void play(PropertySet track, long fromPos, boolean uninterrupted) {
+        currentTrackUrn = track.get(TrackProperty.URN);
 
         if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
@@ -102,7 +104,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         if (!playaListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.duration));
+            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION)));
             return;
         }
 
@@ -110,7 +112,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         lastStateChangeProgress = 0;
 
 
-        final String trackUrl = playbackOperations.buildHLSUrlForTrack(track);
+        final String trackUrl = playbackOperations.buildHLSUrlForTrack(currentTrackUrn);
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
             skippy.seek(fromPos);
