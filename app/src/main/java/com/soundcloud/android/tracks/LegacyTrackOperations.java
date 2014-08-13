@@ -36,13 +36,8 @@ public class LegacyTrackOperations {
     }
 
     public Observable<PublicApiTrack> loadTrack(final long trackId, Scheduler observeOn) {
-        final PublicApiTrack cachedTrack = modelManager.getCachedTrack(trackId);
-        if (cachedTrack != null) {
-            return Observable.just(cachedTrack);
-        } else {
-            return trackStorage.getTrackAsync(trackId).map(cacheTrack(trackId, PublicApiResource.CacheUpdateMode.NONE))
-                    .observeOn(observeOn);
-        }
+        return trackStorage.getTrackAsync(trackId).map(cacheTrack(trackId, PublicApiResource.CacheUpdateMode.NONE))
+                .observeOn(observeOn);
     }
 
     public Observable<PublicApiTrack> loadSyncedTrack(final long trackId, final Scheduler observeOn) {

@@ -64,13 +64,6 @@ public class LegacyTrackOperationsTest {
     }
 
     @Test
-    public void shouldLoadTrackFromCacheAndEmitOnUIThreadForPlayback() {
-        when(modelManager.getCachedTrack(1L)).thenReturn(track);
-        expect(trackOperations.loadTrack(1L, Schedulers.immediate()).toBlockingObservable().last()).toBe(track);
-        verifyZeroInteractions(trackStorage);
-    }
-
-    @Test
     public void shouldLoadTrackFromStorageAndEmitOnUIThreadForPlayback() {
         MockObservable loadFromStorageObservable = TestObservables.emptyObservable();
         when(trackStorage.getTrackAsync(1L)).thenReturn(loadFromStorageObservable);
@@ -126,20 +119,6 @@ public class LegacyTrackOperationsTest {
         verify(observer).onError(exception);
         verifyNoMoreInteractions(observer);
         verifyZeroInteractions(syncInitiator);
-    }
-
-    @Test
-    public void loadSyncedTrackShouldEmitTrackImmediatelyFromCacheIfTrackUpToDate() {
-        when(syncState.isSyncDue()).thenReturn(false);
-        when(syncStateManager.fromContent(track.toUri())).thenReturn(syncState);
-        when(modelManager.getCachedTrack(track.getId())).thenReturn(track);
-
-        trackOperations.loadSyncedTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
-
-        InOrder callbacks = inOrder(observer);
-        callbacks.verify(observer).onNext(track);
-        callbacks.verify(observer).onCompleted();
-        callbacks.verifyNoMoreInteractions();
     }
 
     @Test
@@ -206,18 +185,6 @@ public class LegacyTrackOperationsTest {
         verify(observer).onError(exception);
         verifyNoMoreInteractions(observer);
         verifyZeroInteractions(syncInitiator);
-    }
-
-    @Test
-    public void loadStreamableTrackShouldEmitTrackImmediatelyFromCacheIfTrackStreamable() {
-        track.stream_url = "asdf";
-        when(modelManager.getCachedTrack(track.getId())).thenReturn(track);
-        trackOperations.loadStreamableTrack(track.getId(), Schedulers.immediate()).subscribe(observer);
-
-        InOrder callbacks = inOrder(observer);
-        callbacks.verify(observer).onNext(track);
-        callbacks.verify(observer).onCompleted();
-        callbacks.verifyNoMoreInteractions();
     }
 
     @Test
