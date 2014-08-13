@@ -123,7 +123,7 @@ public class TrackInfoPresenter {
 
     private void setStat(View view, int id, Integer count) {
         if (count > 0) {
-            setTextAndShow(view, id, String.valueOf(count));
+            setTextAndShow(view, id, String.valueOf(ScTextUtils.formatLargeNumber(count)));
         } else {
             view.findViewById(id).setVisibility(View.GONE);
         }
