@@ -53,7 +53,7 @@ public class PlayCountAnalyticsProviderTest {
     @Test
     public void shouldNotTrackStopEventsAgainstPlayCounts() {
         final int progress = 0;
-        final PropertySet trackData = PropertySets.expectedTrackDataForAnalytics(Urn.forTrack(1L), "allow", 1000);
+        final PropertySet trackData = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000);
         PlaybackSessionEvent previousPlayEvent = PlaybackSessionEvent.forPlay(trackData, Urn.forUser(1), null, progress, 1000L);
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(
                 trackData, Urn.forUser(1), null, previousPlayEvent, PlaybackSessionEvent.STOP_REASON_BUFFERING, progress, 1000L);
