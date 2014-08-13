@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
@@ -28,7 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
@@ -121,7 +126,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
 
-        setClickListener(holder.getOnClickViews(), this);
+        setClickListener(this, holder.onClickViews);
     }
 
     public View clearItemView(View view) {
@@ -143,7 +148,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     public void setPlayState(View trackPage, StateTransition stateTransition, boolean isCurrentTrack) {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
-        setVisibility(!playSessionIsActive, holder.playControlsHolder);
+        holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
         setViewPlayState(holder, stateTransition, isCurrentTrack);
@@ -237,7 +242,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.setWaveformVisibility(isPlaying);
         holder.playerOverlayController.setExpandedAndUpdate();
         holder.waveformController.setWaveformVisibility(true);
-        setVisibility(true, holder.getFullScreenViews());
+        setVisibility(true, holder.fullScreenViews);
     }
 
     public void setCollapsed(View trackView) {
@@ -245,20 +250,20 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.footer.setVisibility(View.VISIBLE);
         holder.playerOverlayController.setCollapsedAndUpdate();
         holder.waveformController.setWaveformVisibility(false);
-        setVisibility(false, holder.getFullScreenViews());
+        setVisibility(false, holder.fullScreenViews);
     }
 
     public boolean accept(View view) {
         return view.getTag() instanceof TrackPageHolder;
     }
 
-    private void setVisibility(boolean visible, View... views) {
+    private void setVisibility(boolean visible, Iterable<View> views) {
         for (View v : views) {
             v.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
     }
 
-    private void setClickListener(View[] views, View.OnClickListener listener) {
+    private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
         for (View v : views) {
             v.setOnClickListener(listener);
         }
@@ -300,9 +305,10 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.waveformController.addScrubListener(holder.playerOverlayController);
         holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
         holder.menuController = trackMenuControllerFactory.create(holder.more);
-        holder.playControlsHolder = trackView.findViewById(R.id.animateThis);
+        holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
 
+        holder.populateViewSets();
         trackView.setTag(holder);
     }
 
@@ -310,7 +316,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         return new ScrubController.OnScrubListener() {
             @Override
             public void scrubStateChanged(int newScrubState) {
-                for (View v : holder.getHideOnScrubViews()) {
+                for (View v : holder.hideOnScrubViews) {
                     ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", ViewHelper.getAlpha(v),
                             newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);
                     animator.setDuration(SCRUB_TRANSITION_ALPHA_DURATION);
@@ -326,6 +332,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     static class TrackPageHolder {
+
         // Expanded player
         JaggedTextView title;
         JaggedTextView user;
@@ -344,6 +351,9 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         View previousTouch;
         View previousButton;
         View playButton;
+        View playControlsHolder;
+        View closeIndicator;
+
         // Footer player
         View footer;
         ToggleButton footerPlayToggle;
@@ -351,23 +361,32 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         TextView footerUser;
         View artworkOverlay;
 
-        View playControlsHolder;
-        View closeIndicator;
+        // View sets
+        Iterable<View> fullScreenViews;
+        Iterable<View> hideOnScrubViews;
+        Iterable<View> onClickViews;
 
-        public View[] getOnClickViews() {
-            return new View[] { artworkView, close, bottomClose, nextTouch, previousTouch,
-                    playButton, footer, footerPlayToggle, likeToggle, user };
-        }
+        private Predicate<View> presentInConfig = new Predicate<View>() {
+            @Override
+            public boolean apply(@Nullable View v) {
+                return v != null;
+            }
+        };
 
-        public View[] getFullScreenViews() {
-            return new View[] { title, user, close };
+        public void populateViewSets() {
+            List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton);
+            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, nextTouch, previousTouch,
+                    playButton, footer, footerPlayToggle, likeToggle, user);
+
+            fullScreenViews = Arrays.asList(title, user, close);
+            hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
+            onClickViews = Iterables.filter(clickViews, presentInConfig);
         }
 
         public ProgressAware[] getProgressAwareItems() {
             return new ProgressAware[] { waveformController, artworkController, timestamp };
         }
 
-        public View[] getHideOnScrubViews() { return new View[] { title, user, closeIndicator, nextButton, previousButton, playButton }; }
     }
 
 }

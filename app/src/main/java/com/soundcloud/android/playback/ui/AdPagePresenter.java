@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.image.ApiImageSize;
@@ -21,10 +23,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class AdPagePresenter implements PagePresenter, View.OnClickListener {
+
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -70,7 +76,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         displayAdvertisement(playerAd, holder);
         displayPreview(playerAd, holder);
         styleLearnMoreButton(holder, playerAd);
-        setClickListener(holder.getOnClickViews(), this);
+        setClickListener(this, holder.onClickViews);
     }
 
     private void styleLearnMoreButton(Holder holder, PlayerAd playerAd) {
@@ -160,14 +166,11 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
-    private void toggleSkip(Holder viewHolder, boolean canSkip) {
-        viewHolder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
-        viewHolder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
-        viewHolder.previousArea.setEnabled(canSkip);
-        viewHolder.nextArea.setEnabled(canSkip);
-        viewHolder.previousButton.setEnabled(canSkip);
-        viewHolder.nextButton.setEnabled(canSkip);
-        viewHolder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+    private void toggleSkip(Holder holder, boolean canSkip) {
+        holder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
+        holder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+        holder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+        setEnabled(canSkip, holder.skipDisableViews);
     }
 
     private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
@@ -179,10 +182,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     public void setPlayState(View adView, Playa.StateTransition stateTransition, boolean isCurrentTrack) {
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
-
-        holder.playButton.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.nextButton.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.previousButton.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
+        holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
         holder.playerOverlayController.update();
     }
@@ -200,26 +200,32 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     public void setExpanded(View trackView, boolean isPlaying) {
         Holder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.GONE);
-        setVisibility(holder.getFullScreenViews(), true);
+        holder.close.setVisibility(View.VISIBLE);
         holder.playerOverlayController.setExpandedAndUpdate();
     }
 
     public void setCollapsed(View trackView) {
         Holder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.VISIBLE);
-        setVisibility(holder.getFullScreenViews(), false);
+        holder.close.setVisibility(View.GONE);
         holder.playerOverlayController.setCollapsedAndUpdate();
     }
 
-    private void setClickListener(View[] views, View.OnClickListener listener) {
+    private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
         for (View v : views) {
             v.setOnClickListener(listener);
         }
     }
 
-    private void setVisibility(View[] views, boolean visible) {
+    private void setVisibility(boolean visible, Iterable<View> views) {
         for (View v : views) {
             v.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void setEnabled(boolean enabled, Iterable<View> views) {
+        for (View v : views) {
+            v.setEnabled(enabled);
         }
     }
 
@@ -228,6 +234,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     static class Holder {
+
         // Expanded player
         private final ImageView artworkView;
         private final View artworkIdleOverlay;
@@ -245,13 +252,19 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final View previewContainer;
         private final LearnMoreButton learnMore;
         private final View whyAds;
+        private final View playControlsHolder;
+
         // Footer player
         private final View footer;
         private final TextView footerAdTitle;
         private final TextView footerAdvertisement;
+        private final ImageView previewArtwork;
+
+        // View sets
+        Iterable<View> skipDisableViews;
+        Iterable<View> onClickViews;
 
         private final PlayerOverlayController playerOverlayController;
-        private final ImageView previewArtwork;
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
@@ -271,27 +284,33 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             previewContainer = adView.findViewById(R.id.preview_container);
             learnMore = (LearnMoreButton) adView.findViewById(R.id.learn_more);
             whyAds = adView.findViewById(R.id.why_ads);
+            playControlsHolder = adView.findViewById(R.id.play_controls);
 
             footer = adView.findViewById(R.id.footer_controls);
             footerAdTitle = (TextView) adView.findViewById(R.id.footer_title);
             footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
 
             playerOverlayController = playerOverlayControllerFactory.create(artworkIdleOverlay);
+
+            populateViewSets();
         }
 
-        public View[] getOnClickViews() {
-            return new View[]{
-                    artworkView, artworkIdleOverlay, playButton,
-                    nextArea, previousArea,
-                    learnMore, whyAds, skipAd,
-                    previewContainer,
-                    footerPlayToggle, close, footer
-            };
+        private Predicate<View> presentInConfig = new Predicate<View>() {
+            @Override
+            public boolean apply(@Nullable View v) {
+                return v != null;
+            }
+        };
+
+        private void populateViewSets() {
+            List<View> disableViews = Arrays.asList(previousButton, nextButton, previousArea, nextArea);
+            List<View> clickViews = Arrays.asList(artworkView, artworkIdleOverlay, playButton, nextArea, previousArea,
+                    learnMore, whyAds, skipAd, previewContainer, footerPlayToggle, close, footer);
+
+            skipDisableViews = Iterables.filter(disableViews, presentInConfig);
+            onClickViews = Iterables.filter(clickViews, presentInConfig);
         }
 
-        public View[] getFullScreenViews() {
-            return new View[]{close};
-        }
     }
 
 }

@@ -140,7 +140,6 @@
     <!-- Override pull to refresh style -->
     <dimen name="ptr_progress_bar_stroke_width" tools:ignore="UnusedResources">@dimen/ptr_thickness</dimen>
 
-
     <!-- notifications -->
     <dimen name="notification_title_text_size">18sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>

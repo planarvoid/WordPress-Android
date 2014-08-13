@@ -9,18 +9,12 @@
     <include layout="@layout/player_footer_controls"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
-    <Button
-            android:id="@+id/player_play"
-            android:layout_centerInParent="true"
-            style="@style/PlayerToggle"/>
-
     <com.soundcloud.android.playback.ui.view.LearnMoreButton
             android:id="@+id/learn_more"
             style="@style/AdButton.LearnMore"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
             android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/ad_learn_more_bottom" />
 
     <FrameLayout
             android:id="@+id/skip_container"
@@ -80,31 +74,7 @@
                 android:layout_toRightOf="@id/preview_artwork_container"/>
     </RelativeLayout>
 
-
-    <FrameLayout
-            android:id="@+id/track_page_next"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            style="@style/PlayerSkipTouchTarget">
-
-        <Button
-                android:id="@+id/player_next"
-                android:layout_gravity="left|center_vertical"
-                style="@style/PlayerNext" />
-    </FrameLayout>
-
-
-    <FrameLayout
-            android:id="@+id/track_page_previous"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            style="@style/PlayerSkipTouchTarget">
-
-        <Button
-                android:id="@+id/player_previous"
-                android:layout_gravity="right|center_vertical"
-                style="@style/PlayerPrevious" />
-    </FrameLayout>
-
+    <include layout="@layout/player_play_controls_touch" />
+    <include layout="@layout/player_play_controls" />
 
 </RelativeLayout>

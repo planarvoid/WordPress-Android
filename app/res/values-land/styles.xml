@@ -48,4 +48,9 @@
         <item name="aspectRatioEnabled">true</item>
         <item name="dominantMeasurement">width</item>
     </style>
+
+    <style name="PlayerTitle" parent="PlayerTitleBase">
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
+    </style>
 </resources>

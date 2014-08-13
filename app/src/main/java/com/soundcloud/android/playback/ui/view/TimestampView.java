@@ -31,13 +31,10 @@ import java.util.concurrent.TimeUnit;
 
 public class TimestampView extends LinearLayout implements ProgressAware, OnScrubListener {
 
-    private static final long SCRUB_TRANSITION_DURATION = 120L;
-    private static final float SCRUB_SCALE = 2.2F;
-    private static final double SPRING_TENSION = 110.0D;
-    private static final double SPRING_FRICTION = 10.0D;
-
-    private boolean isScrubbing;
-    private long duration;
+    private static final long SCRUB_TRANSITION_DURATION = 120l;
+    private static final float SCRUB_SCALE = 2.2f;
+    private static final double SPRING_TENSION = 110.0;
+    private static final double SPRING_FRICTION = 10.0;
 
     private final View timestampLayout;
     private final View timestampHolderHolder;
@@ -48,6 +45,9 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private final float waveformBaseline;
     private final float timestampOriginalHeight;
 
+    private boolean isScrubbing;
+    private long duration;
+    private int animatePercentage;
     private AnimatorSet timestampAnimator;
     private Spring springY;
 
@@ -61,7 +61,6 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
             invalidate();
         }
     };
-
 
     @SuppressWarnings("UnusedDeclaration")
     public TimestampView(Context context, AttributeSet attrs) {
@@ -82,9 +81,9 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         timestampLayout = findViewById(R.id.timestamp_layout);
         timestampHolderHolder = findViewById(R.id.timestamp_holder);
 
+        animatePercentage = getResources().getInteger(R.integer.timestamp_animate_percentage);
         waveformBaseline = getResources().getDimension(R.dimen.waveform_baseline);
         timestampOriginalHeight = getResources().getDimension(R.dimen.timestamp_height);
-
     }
 
     public void setInitialProgress(long duration) {
@@ -104,7 +103,6 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         }
     }
 
-
     private String format(long millis) {
         return ScTextUtils.formatTimestamp(millis, TimeUnit.MILLISECONDS);
     }
@@ -122,6 +120,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     public void displayScrubPosition(float scrubPosition) {
         long scrubTime = (long) (scrubPosition * duration);
         progressText.setText(format(scrubTime));
+        invalidate(); // TODO: Selectively invalidate the final animated position
     }
 
     @Override
@@ -129,7 +128,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         isScrubbing = newScrubState == SCRUB_STATE_SCRUBBING;
         clearAnimations();
 
-        if (isScrubbing){
+        if (isScrubbing) {
             animateToScrubMode();
         } else if (ViewHelper.getTranslationY(timestampLayout) != 0) {
             animateFromScrubMode();
@@ -137,16 +136,16 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     private void clearAnimations() {
-        if (timestampAnimator != null){
+        if (timestampAnimator != null) {
             timestampAnimator.cancel();
         }
-        if (springY != null){
+        if (springY != null) {
             springY.removeAllListeners();
             springY.destroy();
         }
     }
 
-    private void animateToScrubMode(){
+    private void animateToScrubMode() {
         springY = springSystem.createSpring();
         springY.addListener(springListener);
         springY.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(SPRING_TENSION, SPRING_FRICTION));
@@ -156,8 +155,8 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     private int getTimestampScrubY() {
-        final int holderTopToMiddle = timestampHolderHolder.getTop() - getHeight() / 2;
-        return (int) -(holderTopToMiddle + waveformBaseline - timestampOriginalHeight);
+        final double holderTopToTarget = timestampHolderHolder.getTop() - getHeight() * (animatePercentage / 100f);
+        return (int) -(holderTopToTarget + waveformBaseline - timestampOriginalHeight);
     }
 
     private void animateFromScrubMode() {
@@ -179,7 +178,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void configureHardwareAnimation(AnimatorSet set){
+    private void configureHardwareAnimation(AnimatorSet set) {
         timestampLayout.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         set.addListener(new AnimatorListenerAdapter() {
             @Override

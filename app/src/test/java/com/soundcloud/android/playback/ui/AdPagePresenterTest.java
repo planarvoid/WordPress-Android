@@ -162,30 +162,20 @@ public class AdPagePresenterTest {
     @Test
     public void setPlayingStateShouldHidePlayControls() {
         presenter.setPlayState(adView, new StateTransition(PlayaState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true);
-
-        expect(adView.findViewById(R.id.player_play)).toBeGone();
-        expect(adView.findViewById(R.id.player_previous)).toBeGone();
-        expect(adView.findViewById(R.id.player_next)).toBeGone();
+        expect(adView.findViewById(R.id.play_controls)).toBeGone();
     }
 
     @Test
     public void setBufferingStateShouldHidePlayControls() {
         presenter.setPlayState(adView, new StateTransition(PlayaState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true);
-
-        expect(adView.findViewById(R.id.player_play)).toBeGone();
-        expect(adView.findViewById(R.id.player_previous)).toBeGone();
-        expect(adView.findViewById(R.id.player_next)).toBeGone();
+        expect(adView.findViewById(R.id.play_controls)).toBeGone();
     }
 
     @Test
     public void setIdleStateShouldShowPlayControls() {
         presenter.setPlayState(adView, new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.forTrack(123L)), true);
-
-        expect(adView.findViewById(R.id.player_play)).toBeVisible();
-        expect(adView.findViewById(R.id.player_previous)).toBeVisible();
-        expect(adView.findViewById(R.id.player_next)).toBeVisible();
+        expect(adView.findViewById(R.id.play_controls)).toBeVisible();
     }
-
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
         return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));

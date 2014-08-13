@@ -10,7 +10,6 @@
         android:layout_height="match_parent" />
 
     <include layout="@layout/player_gradient" />
-
     <include layout="@layout/player_footer_controls" />
 
     <com.soundcloud.android.view.JaggedTextView
@@ -18,7 +17,7 @@
         style="@style/PlayerUser"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="64dp" />
+        android:layout_marginTop="@dimen/player_title_top" />
 
     <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/track_page_title"
@@ -38,12 +37,12 @@
 
         <View android:layout_width="match_parent"
               android:layout_height="0dp"
-              android:layout_weight="2"/>
+              android:layout_weight="@integer/waveform_ratio_top" />
 
         <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_weight="@integer/waveform_ratio_bottom"
                 android:paddingTop="@dimen/timestamp_height">
 
             <com.soundcloud.android.playback.ui.view.WaveformView
@@ -65,7 +64,7 @@
     <LinearLayout
         android:id="@id/player_bottom_close"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/player_footer_control"
+        android:layout_height="@dimen/player_engagement_height"
         android:layout_alignParentBottom="true"
         android:gravity="right|center_vertical"
         android:paddingRight="16dp">
@@ -80,43 +79,7 @@
             style="@style/PlayerMore" />
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/animateThis"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_centerVertical="true">
-
-        <Button
-                android:id="@+id/player_previous"
-                style="@style/PlayerPrevious"
-                android:layout_gravity="right|center"/>
-
-        <FrameLayout android:layout_width="0dp"
-                     android:layout_height="wrap_content"
-                     android:layout_gravity="center"
-                     android:layout_weight="1">
-            <Button
-                    android:id="@+id/player_play"
-                    style="@style/PlayerToggle"
-                    android:layout_gravity="center"/>
-        </FrameLayout>
-
-        <Button
-                android:id="@+id/player_next"
-                style="@style/PlayerNext"
-                android:layout_gravity="left|center"/>
-
-    </LinearLayout>
-
-    <View
-        android:id="@+id/track_page_next"
-        style="@style/PlayerSkipTouchTarget"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"/>
-
-    <View
-        android:id="@+id/track_page_previous"
-        style="@style/PlayerSkipTouchTarget"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"/>
+    <include layout="@layout/player_play_controls_touch" />
+    <include layout="@layout/player_play_controls" />
 
 </RelativeLayout>
