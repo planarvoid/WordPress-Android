@@ -42,7 +42,7 @@ import javax.inject.Named;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
-    public static final long POSITION_START = 0L;
+    private static final long POSITION_START = 0L;
     private int numberOfAttemptedPlaysBeforeDecoderError;
 
     private final EventBus eventBus;
