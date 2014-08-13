@@ -75,7 +75,14 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         view.setOnClickListener(this);
     }
 
-
+    @Override
+    public void onDestroyView() {
+        // bug in the compatibility library : https://code.google.com/p/android/issues/detail?id=17423
+        if (getDialog() != null && getRetainInstance()) {
+            getDialog().setDismissMessage(null);
+        }
+        super.onDestroyView();
+    }
 
     @Override
     public void onDestroy() {
