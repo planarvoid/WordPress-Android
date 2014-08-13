@@ -197,7 +197,7 @@ public class PlaybackSessionEvent {
         return !audioAdAttributes.isEmpty();
     }
 
-    public boolean isAtStart() {
-        return getProgress() == 0L;
+    public boolean isFirstPlay() {
+        return isPlayEvent() && progress == 0L;
     }
 }

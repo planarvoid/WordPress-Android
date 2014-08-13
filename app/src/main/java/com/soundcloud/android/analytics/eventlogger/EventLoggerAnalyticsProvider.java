@@ -59,7 +59,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
-        if (eventData.isAd() && eventData.isAtStart()) {
+        if (eventData.isAd() && eventData.isFirstPlay()) {
             trackAdImpression(eventData);
         }
         trackAudioPlayEvent(eventData);

@@ -50,17 +50,26 @@ public class PlaybackSessionEventTest {
     }
 
     @Test
-    public void anEventWithProgressZeroIsAtStart() throws Exception {
+    public void aPlayEventWithProgressZeroIsAFirstPlay() throws Exception {
         long progress = 0L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress);
-        expect(playEvent.isAtStart()).toBeTrue();
+        expect(playEvent.isFirstPlay()).toBeTrue();
     }
 
     @Test
-    public void anEventWithProgressOtherThanZeroIsNotAtStart() {
+    public void aPlayEventWithProgressOtherThanZeroIsNotAFirstPlay() {
         long progress = 1000L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress);
-        expect(playEvent.isAtStart()).toBeFalse();
+        expect(playEvent.isFirstPlay()).toBeFalse();
+    }
+
+    @Test
+    public void aStopEventWithProgressZeroIsNotAFirstPlay() {
+        long progress = 0L;
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent,
+                PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, progress);
+        expect(stopEvent.isFirstPlay()).toBeFalse();
     }
 
     @Test

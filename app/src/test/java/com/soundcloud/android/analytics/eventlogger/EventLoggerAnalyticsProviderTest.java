@@ -44,7 +44,7 @@ public class EventLoggerAnalyticsProviderTest {
     public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression() throws Exception {
         PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
         when(event.isAd()).thenReturn(true);
-        when(event.isAtStart()).thenReturn(true);
+        when(event.isFirstPlay()).thenReturn(true);
         when(event.getTimeStamp()).thenReturn(12345L);
         when(eventLoggerUrlBuilder.buildForAdImpression(event)).thenReturn("adUrl");
         when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("url");

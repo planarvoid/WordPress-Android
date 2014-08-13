@@ -52,7 +52,7 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
         // only track the first play
-        if (eventData.isAtStart()) {
+        if (eventData.isFirstPlay()) {
             final String url = urlBuilder.buildUrl(eventData);
             final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
             eventTracker.trackEvent(event);
