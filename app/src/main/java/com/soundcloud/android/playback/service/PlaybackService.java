@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -314,7 +316,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void onProgressEvent(long position, long duration) {
         final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-        final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentTrack.get(TrackProperty.URN));
+        final TrackUrn trackUrn = checkNotNull(currentTrack, "Current track is null.").get(TrackProperty.URN);
+        final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, trackUrn);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
     }
 

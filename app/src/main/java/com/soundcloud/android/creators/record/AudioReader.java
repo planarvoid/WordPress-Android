@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
 public abstract class AudioReader implements Closeable {
     public static final AudioReader EMPTY = new EmptyReader();
 
-    public static int EOF = -1;
+    public static final int EOF = -1;
 
     /**
      * @return the audio config associated with this file, or null
