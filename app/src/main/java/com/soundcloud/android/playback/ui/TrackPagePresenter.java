@@ -69,10 +69,12 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.track_page_artwork:
                 listener.onTogglePlay();
                 break;
-            case R.id.track_page_next:
+            case R.id.player_next:
+            case R.id.player_next_touch_area:
                 listener.onNext();
                 break;
-            case R.id.track_page_previous:
+            case R.id.player_previous:
+            case R.id.player_previous_touch_area:
                 listener.onPrevious();
                 break;
             case R.id.footer_controls:
@@ -293,9 +295,9 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_close);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
-        holder.nextTouch = trackView.findViewById(R.id.track_page_next);
+        holder.nextTouch = trackView.findViewById(R.id.player_next_touch_area);
         holder.nextButton = trackView.findViewById(R.id.player_next);
-        holder.previousTouch = trackView.findViewById(R.id.track_page_previous);
+        holder.previousTouch = trackView.findViewById(R.id.player_previous_touch_area);
         holder.previousButton = trackView.findViewById(R.id.player_previous);
         holder.playButton = trackView.findViewById(R.id.player_play);
 
@@ -384,8 +386,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
         public void populateViewSets() {
             List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton);
-            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, nextTouch, previousTouch,
-                    playButton, footer, footerPlayToggle, likeToggle, user);
+            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, nextTouch, previousTouch, nextButton,
+                    previousButton, playButton, footer, footerPlayToggle, likeToggle, user);
 
             fullScreenViews = Arrays.asList(title, user, close);
             hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);

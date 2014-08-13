@@ -27,7 +27,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public ViewElement previousPageArea() {
-        return solo.findElement(With.id(R.id.track_page_previous));
+        return solo.findElement(With.id(R.id.player_previous_touch_area));
     }
 
     public ViewElement playButton() {
@@ -39,7 +39,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public ViewElement nextPageArea() {
-        return solo.findElement(With.id(R.id.track_page_next));
+        return solo.findElement(With.id(R.id.player_next_touch_area));
     }
 
     public ViewElement skipAd() {

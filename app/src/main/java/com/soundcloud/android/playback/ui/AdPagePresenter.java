@@ -128,10 +128,12 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.artwork_overlay:
                 listener.onTogglePlay();
                 break;
-            case R.id.track_page_next:
+            case R.id.player_next:
+            case R.id.player_next_touch_area:
                 listener.onNext();
                 break;
-            case R.id.track_page_previous:
+            case R.id.player_previous:
+            case R.id.player_previous_touch_area:
                 listener.onPrevious();
                 break;
             case R.id.player_close:
@@ -274,8 +276,8 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             playButton = adView.findViewById(R.id.player_play);
             nextButton = adView.findViewById(R.id.player_next);
             previousButton = adView.findViewById(R.id.player_previous);
-            previousArea = adView.findViewById(R.id.track_page_previous);
-            nextArea = adView.findViewById(R.id.track_page_next);
+            previousArea = adView.findViewById(R.id.player_previous_touch_area);
+            nextArea = adView.findViewById(R.id.player_next_touch_area);
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_close);
             previewTitle = (TextView) adView.findViewById(R.id.preview_title);
@@ -306,7 +308,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private void populateViewSets() {
             List<View> disableViews = Arrays.asList(previousButton, nextButton, previousArea, nextArea);
             List<View> clickViews = Arrays.asList(artworkView, artworkIdleOverlay, playButton, nextArea, previousArea,
-                    learnMore, whyAds, skipAd, previewContainer, footerPlayToggle, close, footer);
+                    nextButton, previousButton, learnMore, whyAds, skipAd, previewContainer, footerPlayToggle, close, footer);
 
             skipDisableViews = Iterables.filter(disableViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);

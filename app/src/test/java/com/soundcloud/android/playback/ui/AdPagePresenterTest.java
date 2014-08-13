@@ -190,11 +190,11 @@ public class AdPagePresenterTest {
     }
 
     private View nextArea() {
-        return adView.findViewById(R.id.track_page_next);
+        return adView.findViewById(R.id.player_next_touch_area);
     }
 
     private View previousArea() {
-        return adView.findViewById(R.id.track_page_previous);
+        return adView.findViewById(R.id.player_previous_touch_area);
     }
 
     private View previewArtworkOverlay() {
