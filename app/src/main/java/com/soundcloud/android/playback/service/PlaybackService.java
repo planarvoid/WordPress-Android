@@ -38,8 +38,7 @@ import java.lang.ref.WeakReference;
 public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Playa.PlayaListener {
     public static final String TAG = "CloudPlaybackService";
 
-    @Nullable
-    public static PlaybackService instance;
+    @Nullable static PlaybackService instance;
 
     @Inject EventBus eventBus;
     @Inject PlayQueueManager playQueueManager;
