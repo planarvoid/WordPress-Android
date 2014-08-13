@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamItem;
@@ -243,11 +244,14 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             // respect pauses during seeks
             if (!internalState.isSupposedToBePlaying()) {
                 pause();
-            } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-                // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
-                // output. Toggling playback seems to fix it
-                mp.pause();
-                mp.start();
+            } else {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                    // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
+                    // output. Toggling playback seems to fix it
+                    mp.pause();
+                    mp.start();
+                }
+                setInternalState(PlaybackState.PLAYING);
             }
         }
     }
@@ -347,11 +351,16 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void setInternalState(PlaybackState playbackState) {
-        setInternalState(playbackState, getProgress(),getDuration());
+        setInternalState(playbackState, getProgress(), getDuration());
     }
 
     private void setInternalState(PlaybackState playbackState, long progress, long duration) {
         internalState = playbackState;
+
+        playerHandler.removeMessages(PlayerHandler.SEND_PROGRESS);
+        if (playbackState == PlaybackState.PLAYING){
+            playerHandler.sendEmptyMessage(PlayerHandler.SEND_PROGRESS);
+        }
 
         if (playaListener != null) {
             final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration);
@@ -468,11 +477,17 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
     }
 
+    private void sendProgress() {
+        if (playaListener != null) {
+            playaListener.onProgressEvent(getProgress(), getDuration());
+        }
+    }
+
     public long getDuration() {
         if (mediaPlayer != null && internalState.canGetMPProgress()) {
             return mediaPlayer.getDuration();
         } else {
-            return 0;
+            return track.get(PlayableProperty.DURATION);
         }
     }
 
@@ -574,8 +589,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @VisibleForTesting
     static class PlayerHandler extends Handler {
+        private static final long PROGRESS_DELAY_MS = 500L;
 
         static final int CLEAR_LAST_SEEK = 0;
+        static final int SEND_PROGRESS = 1;
+
         private WeakReference<MediaPlayerAdapter> mediaPlayerAdapterWeakReference;
 
         @Inject
@@ -597,6 +615,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             switch (msg.what) {
                 case CLEAR_LAST_SEEK:
                     mediaPlayerAdapter.seekPos = -1;
+                    break;
+                case SEND_PROGRESS:
+                    mediaPlayerAdapter.sendProgress();
+                    sendEmptyMessageDelayed(SEND_PROGRESS, PROGRESS_DELAY_MS);
                     break;
 
             }
