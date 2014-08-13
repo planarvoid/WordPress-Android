@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -41,6 +42,10 @@ public abstract class TestPropertySets {
         );
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Analytics / Tracking
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public static PropertySet expectedTrackForAnalytics(TrackUrn trackUrn, String policy, int duration) {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
@@ -53,4 +58,10 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
+    public static PropertySet expectedAudioAdForAnalytics(TrackUrn audioAdTrack) {
+        return PropertySet.from(
+                AdProperty.AD_URN.bind("adswizz:ads:456"),
+                AdProperty.MONETIZABLE_TRACK_URN.bind(audioAdTrack)
+        );
+    }
 }

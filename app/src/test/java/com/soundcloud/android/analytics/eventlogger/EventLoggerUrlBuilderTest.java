@@ -1,19 +1,25 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import android.content.res.Resources;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
+import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestPropertySets;
-import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -24,16 +30,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
-
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerUrlBuilderTest {
@@ -114,44 +115,46 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createAudioEventUrlForAudioAdPlaybackEvent() throws CreateModelException, UnsupportedEncodingException {
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
-        TrackUrn monetizedTrack = Urn.forTrack(456L);
+    public void createAudioEventUrlForAudioAdPlaybackEvent() throws UnsupportedEncodingException {
+        TrackUrn audioAdTrackUrn = Urn.forTrack(123L);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(audioAdTrackUrn);
+        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(audioAdTrackUrn);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forAdPlay(audioAd, monetizedTrack, userUrn, PlaybackProtocol.HLS, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, PlaybackProtocol.HLS, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&action=play"
                 + "&ts=321"
-                + "&duration=12345"
-                + "&sound=" + audioAd.getApiTrack().getUrn().toEncodedString()
+                + "&duration=" + audioAdTrack.get(PlayableProperty.DURATION)
+                + "&sound=" + audioAdTrackUrn.toEncodedString()
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
                 + "&context=origin"
                 + "&protocol=hls"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.getUrn(), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&monetization_type=audio_ad"
-                + "&monetized_object=" + monetizedTrack.toEncodedString())));
+                + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString())));
     }
 
     @Test
     public void createImpressionUrlForAudioAdPlaybackEvent() throws CreateModelException, UnsupportedEncodingException {
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
-        TrackUrn monetizedTrack = Urn.forTrack(456L);
+        TrackUrn audioAdTrackUrn = Urn.forTrack(123L);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(audioAdTrackUrn);
+        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(audioAdTrackUrn);
         final String url = eventLoggerUrlBuilder.buildForAdImpression(
-                PlaybackSessionEvent.forAdPlay(audioAd, monetizedTrack, userUrn, PlaybackProtocol.HLS, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, PlaybackProtocol.HLS, trackSourceInfo, 0L, 321L));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=321"
                 + "&user=" + userUrn.toEncodedString()
-                + "&ad_urn=" + URLEncoder.encode(audioAd.getUrn(), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&impression_name=audio_ad_impression"
-                + "&impression_object=" + audioAd.getApiTrack().getUrn().toEncodedString()
+                + "&impression_object=" + audioAdTrackUrn.toEncodedString()
                 + "&monetization_type=audio_ad"
-                + "&monetized_object=" + monetizedTrack.toEncodedString())));
+                + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString())));
     }
 
     @Test

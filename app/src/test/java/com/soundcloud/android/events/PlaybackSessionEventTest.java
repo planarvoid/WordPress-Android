@@ -2,18 +2,16 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -79,12 +77,13 @@ public class PlaybackSessionEventTest {
     }
 
     @Test
-    public void shouldPopulateAdAttributesFromAdPlaybackEvent() throws CreateModelException {
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+    public void shouldPopulateAdAttributesFromAdPlaybackEvent() {
         PlaybackSessionEvent event = PlaybackSessionEvent.forAdPlay(
-                audioAd, TRACK_URN, USER_URN, PlaybackProtocol.HLS, trackSourceInfo, PROGRESS, 1000L);
+                TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN),
+                TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
+                USER_URN, PlaybackProtocol.HLS, trackSourceInfo, PROGRESS, 1000L);
         expect(event.isAd()).toBeTrue();
-        expect(event.getAudioAdUrn()).toEqual("adswizz:ads:869");
+        expect(event.getAudioAdUrn()).toEqual("adswizz:ads:456");
         expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
         expect(event.getAudioAdProtocol()).toEqual("hls");
     }
