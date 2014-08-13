@@ -4,6 +4,8 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -52,6 +54,9 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_INFO.get());
+
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
         loadTrack = trackOperations.trackDetailsWithUpdate(getArguments().<TrackUrn>getParcelable(EXTRA_URN))
                 .observeOn(mainThread())
