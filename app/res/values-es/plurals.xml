@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <plurals name="number_of_sounds">
+        <item quantity="one">un sonido</item>
+        <item quantity="other">%d sonidos</item>
+    </plurals>
+
+    <!-- Player -->
+    <plurals name="trackinfo_comments">
+        <item quantity="one">1 comentario sobre esta pista</item>
+        <item quantity="other">%d comentarios sobre esta pista</item>
+    </plurals>
+
+</resources>

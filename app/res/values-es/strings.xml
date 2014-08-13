@@ -17,8 +17,6 @@
     <string name="dialog_revert_recording_message">Perderás todas tus ediciones. ¿Continuar?</string>
 
     <string name="post">Finalizar</string>
-    <string name="share">Compartir</string>
-
     <string name="btn_publish">Publicar</string>
     <string name="btn_apply">Aplicar</string>
 
@@ -55,7 +53,6 @@
     <string name="cloud_uploader_notification_transcoding_error_ticker">Error de transcodificación</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Error de transcodificación</string>
     <string name="signup_scope_revoked">¡Huy! No hemos podido registrarte.\nPrueba a actualizar la aplicación o regístrate en SoundCloud.com.</string>
-
 
     <string name="dialog_transcoding_failed_title">Error de transcodificación</string>
     <string name="dialog_transcoding_failed_message">Vaya, algo ha salido mal y no se puede reproducir tu sonido. Puedes eliminar el sonido de tu lista a través de la página web. Para obtener más información, ponte en contacto con nuestro soporte.</string>
@@ -131,8 +128,6 @@
     <string name="password">Contraseña</string>
     <string name="tour_login_header">O conéctate con tu cuenta</string>
 
-    <string name="info">Info</string>
-
     <string name="crop_image_error">Se ha producido un error recortar la imagen.</string>
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
 
@@ -155,12 +150,8 @@
     <string name="playlist_info_header_text">Esta lista contiene %1$s, tiempo total: %2$s</string>
     <string name="imprint">Grabar</string>
 
-    <plurals name="number_of_sounds">
-        <item quantity="one">un sonido</item>
-        <item quantity="other">%d sonidos</item>
-    </plurals>
-
     <string name="add_track_to_playlist">Añadir a lista...</string>
+    <string name="added_to_playlist">Añadido a la lista de reproducción</string>
     <string name="create_new_playlist">Crear nueva lista</string>
     <string name="create_new_playlist_hint">Escribe un título</string>
     <string name="error_new_playlist_blank_title">Escribe un título válido</string>
@@ -253,16 +244,4 @@
     <string name="optin_yes">Sí, por favor</string>
     <string name="optin_no">No, gracias</string>
 
-    <!-- Visual Player -->
-    <string name="add_to_playlist">Añadir a lista</string>
-    <string name="repost">Republicar</string>
-    <string name="reposted_to_followers">Republicado para tus seguidores</string>
-    <string name="unposted_to_followers">Publicación eliminada</string>
-
-    <!-- Audio ads -->
-    <string name="advertisement">PUBLICIDAD</string>
-    <string name="learn_more">SABER MÁS</string>
-    <string name="why_ads">¿Por qué publicidad?</string>
-    <string name="skip_ad">Saltar publicidad</string>
-    <string name="next_up">Siguiente: %1$s (%2$s)</string>
 </resources>
