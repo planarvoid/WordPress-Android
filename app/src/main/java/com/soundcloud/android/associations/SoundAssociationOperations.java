@@ -7,25 +7,24 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.api.APIResponse;
 import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.storage.SoundAssociationStorage;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import org.apache.http.HttpStatus;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -46,7 +45,7 @@ public class SoundAssociationOperations {
     private final SoundAssociationStorage soundAssocStorage;
     private final RxHttpClient httpClient;
     private final ScModelManager modelManager;
-    private final LegacyTrackOperations legacyTrackOperations;
+    private final TrackStorage trackStorage;
     private final LegacyPlaylistOperations legacyPlaylistOperations;
 
     @Inject
@@ -55,13 +54,13 @@ public class SoundAssociationOperations {
             SoundAssociationStorage soundAssocStorage,
             RxHttpClient httpClient,
             ScModelManager modelManager,
-            LegacyTrackOperations legacyTrackOperations,
+            TrackStorage trackStorage,
             LegacyPlaylistOperations legacyPlaylistOperations) {
         this.eventBus = eventBus;
         this.soundAssocStorage = soundAssocStorage;
         this.httpClient = httpClient;
         this.modelManager = modelManager;
-        this.legacyTrackOperations = legacyTrackOperations;
+        this.trackStorage = trackStorage;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
     }
 
@@ -248,7 +247,7 @@ public class SoundAssociationOperations {
 
     private Observable<? extends Playable> resolveLegacyModel(final Urn urn) {
         return urn.isTrack()
-                ? legacyTrackOperations.loadTrack(urn.numericId, AndroidSchedulers.mainThread())
+                ? trackStorage.getTrackAsync(urn.numericId)
                 : legacyPlaylistOperations.loadPlaylist((PlaylistUrn) urn);
     }
 

@@ -14,22 +14,22 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.api.APIResponse;
 import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
-import com.soundcloud.android.tracks.LegacyTrackOperations;
+import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -40,7 +40,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ public class SoundAssociationOperationsTest {
     @Mock private ScModelManager modelManager;
     @Mock private Observer observer;
     @Mock private APIResponse response;
-    @Mock private LegacyTrackOperations legacyTrackOperations;
+    @Mock private TrackStorage trackStorage;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
     @Captor private ArgumentCaptor<PlayableUpdatedEvent> eventCaptor;
 
@@ -73,7 +72,7 @@ public class SoundAssociationOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new SoundAssociationOperations(eventBus, storage, httpClient, modelManager,
-                legacyTrackOperations, legacyPlaylistOperations);
+                trackStorage, legacyPlaylistOperations);
         track = new PublicApiTrack(123L);
         playlist = new PublicApiPlaylist(124L);
         setupTestAssociations();
@@ -115,7 +114,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void likingTrackAddsLikeAndSendsPUTRequestToApi() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
@@ -128,7 +127,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void likingTrackPublishesPlayableChangedEvent() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
@@ -143,7 +142,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void likingTrackPublishesRevertedPlayableChangeEventWhenApiRequestFails() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
         when(storage.addLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackLike));
         when(storage.removeLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackUnlike));
@@ -161,7 +160,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unlikingTrackRemovesLikeAndSendsDELETERequestToApi() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
@@ -174,7 +173,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unlikingTrackPublishesChangeEvent() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
@@ -189,7 +188,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unlikingTrackPublishesRevertedPlayableChangeEventWhenApiRequestFails() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
         when(storage.addLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackLike));
         when(storage.removeLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackUnlike));
@@ -237,7 +236,7 @@ public class SoundAssociationOperationsTest {
     @Test
     public void doesNotRevertUnlikeWhenApiRequestFailsBecauseSoundIsNotLiked() {
         final SoundAssociation revertUnlike = new SoundAssociation(track);
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         APIResponse response404 = mock(APIResponse.class);
         when(response404.getStatusCode()).thenReturn(404);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
@@ -258,7 +257,7 @@ public class SoundAssociationOperationsTest {
         track.user_like = true;
         track.likes_count = 12;
         SoundAssociation trackLike = new SoundAssociation(track);
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
@@ -277,7 +276,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void repostingTrackAddsRepostAndSendsPUTRequestToApi() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(trackRepost));
@@ -290,7 +289,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void repostingTrackPublishesPlayableChangedEvent() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(trackRepost));
@@ -305,7 +304,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void repostingTrackPublishesRevertedPlayableChangeEventWhenApiRequestFails() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
         when(storage.addRepostAsync(any(Playable.class))).thenReturn(Observable.just(trackRepost));
         when(storage.removeRepostAsync(any(Playable.class))).thenReturn(Observable.just(trackUnpost));
@@ -323,7 +322,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unpostingTrackRemovesRepostAndSendsDELETERequestToApi() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(trackUnpost));
@@ -336,7 +335,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unpostingTrackPublishesChangeEvent() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(trackUnpost));
@@ -351,7 +350,7 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void unpostingTrackPublishesRevertedPlayableChangeEventWhenApiRequestFails() {
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(any(APIRequest.class))).thenReturn(Observable.<APIResponse>error(new Exception()));
         when(storage.removeRepostAsync(any(Playable.class))).thenReturn(Observable.just(trackUnpost));
         when(storage.addRepostAsync(any(Playable.class))).thenReturn(Observable.just(trackRepost));
@@ -399,7 +398,7 @@ public class SoundAssociationOperationsTest {
     @Test
     public void doesNotRevertUnpostWhenApiRequestFailsBecauseSoundIsNotReposted() {
         final SoundAssociation revertUnpost = new SoundAssociation(track);
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         APIResponse response404 = mock(APIResponse.class);
         when(response404.getStatusCode()).thenReturn(404);
         when(httpClient.fetchResponse(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
@@ -420,7 +419,7 @@ public class SoundAssociationOperationsTest {
         track.user_repost = true;
         track.reposts_count = 12;
         SoundAssociation trackRepost = new SoundAssociation(track);
-        when(legacyTrackOperations.loadTrack(eq(123L), any(Scheduler.class))).thenReturn(Observable.just(track));
+        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(httpClient.fetchResponse(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(trackRepost));
