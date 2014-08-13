@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -85,6 +86,28 @@ public class PlaybackSessionAnalyticsControllerTest {
     }
 
     @Test
+    public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() throws Exception {
+        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN);
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+
+        Playa.StateTransition playEvent = publishPlayingEvent();
+
+        PlaybackSessionEvent playbackSessionEvent = eventBus.firstEventOn(EventQueue.PLAYBACK_SESSION);
+        // track properties
+        expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
+        expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
+        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
+        expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
+        expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
+        expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+        // ad specific properties
+        expect(playbackSessionEvent.getAudioAdUrn()).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(playbackSessionEvent.getAudioAdMonetizedUrn()).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        expect(playbackSessionEvent.getAudioAdProtocol()).toEqual(playEvent.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
+    }
+
+    @Test
     public void stateChangeEventInNonPlayingStatePublishesStopEventForBuffering() throws Exception {
         publishPlayingEvent();
         publishStopEvent(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
@@ -153,12 +176,15 @@ public class PlaybackSessionAnalyticsControllerTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
-    protected void publishPlayingEvent() {
+    protected Playa.StateTransition publishPlayingEvent() {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
         final Playa.StateTransition startEvent = new Playa.StateTransition(
                 Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS, DURATION);
+        startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, startEvent);
+
+        return startEvent;
     }
 
     protected void publishStopEvent(Playa.PlayaState newState, Playa.Reason reason) {

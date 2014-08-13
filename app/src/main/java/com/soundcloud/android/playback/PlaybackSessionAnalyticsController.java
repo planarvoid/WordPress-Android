@@ -11,8 +11,8 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
-import rx.Observable;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 
@@ -66,7 +66,7 @@ public class PlaybackSessionAnalyticsController {
             if (stateTransition.getTrackUrn() != null){
                 lastStateTransition = stateTransition;
                 if (stateTransition.isPlayerPlaying()){
-                    publishPlayEvent(stateTransition.getProgress());
+                    publishPlayEvent(stateTransition);
                 } else {
                     publishStopEvent(stateTransition.getProgress(),
                             currentTrackSourceInfo, getStopEvent(stateTransition));
@@ -96,20 +96,29 @@ public class PlaybackSessionAnalyticsController {
         }
     }
 
-
-    private void publishPlayEvent(final PlaybackProgress progress) {
+    private void publishPlayEvent(final Playa.StateTransition stateTransition) {
         currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         if (playQueueManager.getCurrentTrackSourceInfo() != null) {
-            final Observable<PlaybackSessionEvent> eventObservable = trackObservable.map(new Func1<PropertySet, PlaybackSessionEvent>() {
-                @Override
-                public PlaybackSessionEvent call(PropertySet track) {
-                    return lastPlayEventData = PlaybackSessionEvent.forPlay(track, accountOperations.getLoggedInUserUrn(),
-                            currentTrackSourceInfo, progress.position);
-
-                }
-            });
-            eventObservable.subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
+            trackObservable.map(stateTransitionToSessionEvent(stateTransition)).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
         }
+    }
+
+    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionEvent(final Playa.StateTransition stateTransition) {
+        return new Func1<PropertySet, PlaybackSessionEvent>() {
+            @Override
+            public PlaybackSessionEvent call(PropertySet track) {
+                final UserUrn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
+                final long progress = stateTransition.getProgress().position;
+                if (playQueueManager.isCurrentTrackAudioAd()) {
+                    final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
+                    lastPlayEventData = PlaybackSessionEvent.forAdPlay(playQueueManager.getAudioAd(), track,
+                            loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
+                } else {
+                    lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo, progress);
+                }
+                return lastPlayEventData;
+            }
+        };
     }
 
     private void publishStopEvent(final PlaybackProgress progress, final TrackSourceInfo trackSourceInfo, final int stopReason) {

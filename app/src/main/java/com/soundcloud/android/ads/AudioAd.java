@@ -80,15 +80,16 @@ public class AudioAd implements PropertySetSource {
 
     @Override
     public PropertySet toPropertySet() {
-        return PropertySet.create(8)
-                .put(AdProperty.ARTWORK, Uri.parse(visualAd.getImageUrl()))
-                .put(AdProperty.CLICK_THROUGH_LINK, Uri.parse(visualAd.getClickthroughUrl()))
-                .put(AdProperty.DEFAULT_TEXT_COLOR, visualAd.getDisplayProperties().getDefaultTextColor())
-                .put(AdProperty.DEFAULT_BACKGROUND_COLOR, visualAd.getDisplayProperties().getDefaultBackgroundColor())
-                .put(AdProperty.PRESSED_TEXT_COLOR, visualAd.getDisplayProperties().getPressedTextColor())
-                .put(AdProperty.PRESSED_BACKGROUND_COLOR, visualAd.getDisplayProperties().getPressedBackgroundColor())
-                .put(AdProperty.FOCUSED_TEXT_COLOR, visualAd.getDisplayProperties().getFocusedTextColor())
-                .put(AdProperty.FOCUSED_BACKGROUND_COLOR, visualAd.getDisplayProperties().getFocusedBackgroundColor());
+        return PropertySet.from(
+                AdProperty.AD_URN.bind(urn),
+                AdProperty.ARTWORK.bind(Uri.parse(visualAd.getImageUrl())),
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse(visualAd.getClickthroughUrl())),
+                AdProperty.DEFAULT_TEXT_COLOR.bind(visualAd.getDisplayProperties().getDefaultTextColor()),
+                AdProperty.DEFAULT_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getDefaultBackgroundColor()),
+                AdProperty.PRESSED_TEXT_COLOR.bind(visualAd.getDisplayProperties().getPressedTextColor()),
+                AdProperty.PRESSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getPressedBackgroundColor()),
+                AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.getDisplayProperties().getFocusedTextColor()),
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getFocusedBackgroundColor()));
     }
 
 }

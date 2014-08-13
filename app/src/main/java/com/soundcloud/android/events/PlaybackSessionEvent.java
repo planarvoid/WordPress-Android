@@ -3,7 +3,6 @@ package com.soundcloud.android.events;
 import com.google.common.base.Objects;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -48,7 +47,12 @@ public class PlaybackSessionEvent {
     private Map<String, String> audioAdAttributes = Collections.emptyMap();
 
     public static PlaybackSessionEvent forAdPlay(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn,
-                                                 PlaybackProtocol protocol, TrackSourceInfo trackSourceInfo,
+                                                 String protocol, TrackSourceInfo trackSourceInfo, long progress) {
+        return forAdPlay(audioAd, audioAdTrack, userUrn, protocol, trackSourceInfo, progress, System.currentTimeMillis());
+    }
+
+    public static PlaybackSessionEvent forAdPlay(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn,
+                                                 String protocol, TrackSourceInfo trackSourceInfo,
                                                  long progress, long timestamp) {
         return new PlaybackSessionEvent(audioAd, audioAdTrack, userUrn, protocol, trackSourceInfo, progress, timestamp);
     }
@@ -93,13 +97,13 @@ public class PlaybackSessionEvent {
     }
 
     // Use this constructor for an audio ad playback event
-    private PlaybackSessionEvent(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn, PlaybackProtocol protocol,
+    private PlaybackSessionEvent(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn, String protocol,
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this(EVENT_KIND_PLAY, audioAdTrack, userUrn, trackSourceInfo, progress, timestamp);
         this.audioAdAttributes = new HashMap<String, String>(3);
         this.audioAdAttributes.put(AD_ATTR_URN, audioAd.get(AdProperty.AD_URN));
         this.audioAdAttributes.put(AD_ATTR_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        this.audioAdAttributes.put(AD_ATTR_PROTOCOL, protocol.getValue());
+        this.audioAdAttributes.put(AD_ATTR_PROTOCOL, protocol);
     }
 
     public int getKind() {

@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -81,7 +80,7 @@ public class PlaybackSessionEventTest {
         PlaybackSessionEvent event = PlaybackSessionEvent.forAdPlay(
                 TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN),
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
-                USER_URN, PlaybackProtocol.HLS, trackSourceInfo, PROGRESS, 1000L);
+                USER_URN, "hls", trackSourceInfo, PROGRESS, 1000L);
         expect(event.isAd()).toBeTrue();
         expect(event.getAudioAdUrn()).toEqual("adswizz:ads:456");
         expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
