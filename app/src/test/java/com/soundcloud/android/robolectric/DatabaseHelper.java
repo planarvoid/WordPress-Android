@@ -41,6 +41,7 @@ public class DatabaseHelper {
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getId());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
+        cv.put(TableColumns.Sounds.STREAM_URL, track.getStreamUrl());
         cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount());
         cv.put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount());
