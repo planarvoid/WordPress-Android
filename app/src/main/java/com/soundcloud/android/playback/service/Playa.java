@@ -126,13 +126,6 @@ public interface Playa {
             intent.putExtra(DURATION_EXTRA, progress.getDuration());
         }
 
-        public static StateTransition fromIntent(Intent intent) {
-            return new StateTransition(PlayaState.fromIntent(intent), Reason.fromIntent(intent),
-                    (TrackUrn) intent.getParcelableExtra(TRACK_URN_EXTRA), intent.getLongExtra(PROGRESS_EXTRA, 0),
-                    intent.getLongExtra(DURATION_EXTRA, 0));
-        }
-
-
         @Override
         public boolean equals(Object o) {
             if (this == o) {
