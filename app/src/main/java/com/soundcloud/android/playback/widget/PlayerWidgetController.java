@@ -6,7 +6,7 @@ import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -105,9 +105,9 @@ public class PlayerWidgetController {
      * Listens for track changes emitted from our application layer via Rx and updates the widget
      * accordingly.
      */
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
         @Override
-        public void onNext(final PlayableChangedEvent event) {
+        public void onNext(final PlayableUpdatedEvent event) {
             if (playQueueManager.isCurrentTrack(event.getUrn())) {
                 updatePlayableInformation(new Func1<PropertySet, PropertySet>() {
                     @Override

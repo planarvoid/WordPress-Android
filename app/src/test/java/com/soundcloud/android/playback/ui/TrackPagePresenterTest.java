@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestPropertySets;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
@@ -22,7 +22,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
@@ -256,46 +255,46 @@ public class TrackPagePresenterTest {
 
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
-        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_LIKED.bind(true));
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(Urn.forTrack(1L), true, 1);
 
-        presenter.updateAssociations(trackView, changeSet);
+        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
         expect(getHolder(trackView).likeToggle).toBeChecked();
     }
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
-        PropertySet changeSet = PropertySet.from(PlayableProperty.LIKES_COUNT.bind(9999));
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(Urn.forTrack(1L), true, 9999);
 
-        presenter.updateAssociations(trackView, changeSet);
+        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
         expect(getHolder(trackView).likeToggle).toHaveText("9,999");
     }
 
     @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
-        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_REPOSTED.bind(true));
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(Urn.forTrack(1L), true, 1);
 
-        presenter.updateAssociations(trackView, changeSet);
+        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
         verify(trackMenuController).setIsUserRepost(true);
     }
 
     @Test
     public void showToastWhenUserRepostedATrack() {
-        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_REPOSTED.bind(true));
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(Urn.forTrack(1L), true, 1);
 
-        presenter.updateAssociations(trackView, changeSet);
+        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
         expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.reposted_to_followers));
     }
 
     @Test
     public void showToastWhenUserUnpostedATrack() {
-        PropertySet changeSet = PropertySet.from(PlayableProperty.IS_REPOSTED.bind(false));
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(Urn.forTrack(1L), false, 1);
 
-        presenter.updateAssociations(trackView, changeSet);
+        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
         expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.unposted_to_followers));
     }

@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -100,9 +100,9 @@ class SearchResultsAdapter extends PagingItemAdapter<PublicApiResource>
         eventSubscriptions.unsubscribe();
     }
 
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
         @Override
-        public void onNext(final PlayableChangedEvent event) {
+        public void onNext(final PlayableUpdatedEvent event) {
             final int index = Iterables.indexOf(items, new Predicate<PublicApiResource>() {
                 @Override
                 public boolean apply(PublicApiResource item) {

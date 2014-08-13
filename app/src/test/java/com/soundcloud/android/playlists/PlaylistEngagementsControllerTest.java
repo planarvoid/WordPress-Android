@@ -15,7 +15,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -200,7 +200,7 @@ public class PlaylistEngagementsControllerTest {
 
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(track.getUrn(), true, track.likes_count));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(track.getUrn(), true, track.likes_count));
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeTrue();
     }
@@ -218,10 +218,10 @@ public class PlaylistEngagementsControllerTest {
         expect(repostButton.isChecked()).toBeFalse();
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED,
-                PlayableChangedEvent.forLike(track.getUrn(), true, track.likes_count));
+                PlayableUpdatedEvent.forLike(track.getUrn(), true, track.likes_count));
         expect(likeButton.isChecked()).toBeTrue();
         eventBus.publish(EventQueue.PLAYABLE_CHANGED,
-                PlayableChangedEvent.forRepost(track.getUrn(), true, track.reposts_count));
+                PlayableUpdatedEvent.forRepost(track.getUrn(), true, track.reposts_count));
         expect(repostButton.isChecked()).toBeTrue();
     }
 
@@ -235,8 +235,8 @@ public class PlaylistEngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(Urn.forTrack(2L), true, 1));
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forRepost(Urn.forTrack(2L), true, 1));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

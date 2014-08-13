@@ -15,7 +15,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -161,7 +161,7 @@ public class SoundAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(unlikedPlaylist));
 
         adapter.onViewCreated();
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(unlikedPlaylist.getUrn(), true, 1));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(unlikedPlaylist.getUrn(), true, 1));
         adapter.bindRow(0, itemView);
 
         verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());

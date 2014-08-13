@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -60,10 +60,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     };
 
-    private final Action1<PlayableChangedEvent> invalidateTrackCacheAction = new Action1<PlayableChangedEvent>() {
+    private final Action1<PlayableUpdatedEvent> invalidateTrackCacheAction = new Action1<PlayableUpdatedEvent>() {
         @Override
-        public void call(PlayableChangedEvent playableChangedEvent) {
-            trackObservableCache.remove((TrackUrn) playableChangedEvent.getUrn());
+        public void call(PlayableUpdatedEvent playableUpdatedEvent) {
+            trackObservableCache.remove((TrackUrn) playableUpdatedEvent.getUrn());
         }
     };
 
@@ -156,7 +156,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus
                 .queue(EventQueue.PLAYABLE_CHANGED)
-                .filter(PlayableChangedEvent.IS_TRACK_FILTER)
+                .filter(PlayableUpdatedEvent.IS_TRACK_FILTER)
                 .doOnNext(invalidateTrackCacheAction)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlayableChangedSubscriber(presenter, trackPage)));
@@ -318,7 +318,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
         private final PagePresenter presenter;
         private final View trackPage;
 
@@ -328,9 +328,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
 
         @Override
-        public void onNext(PlayableChangedEvent event) {
+        public void onNext(PlayableUpdatedEvent event) {
             if (isTrackRelatedToView(trackPage, event.getUrn())) {
-                presenter.updateAssociations(trackPage, event.getChangeSet());
+                presenter.onPlayableUpdated(trackPage, event);
             }
         }
     }

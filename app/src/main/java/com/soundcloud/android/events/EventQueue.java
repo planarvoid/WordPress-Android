@@ -7,7 +7,7 @@ import com.soundcloud.android.rx.eventbus.Queue;
 public final class EventQueue {
     public static final Queue<StateTransition> PLAYBACK_STATE_CHANGED = Queue.of(StateTransition.class).replay(StateTransition.DEFAULT).get();
     public static final Queue<PlaybackProgressEvent> PLAYBACK_PROGRESS = Queue.of(PlaybackProgressEvent.class).get();
-    public static final Queue<PlayableChangedEvent> PLAYABLE_CHANGED = Queue.of(PlayableChangedEvent.class).get();
+    public static final Queue<PlayableUpdatedEvent> PLAYABLE_CHANGED = Queue.of(PlayableUpdatedEvent.class).get();
     public static final Queue<UIEvent> UI = Queue.of(UIEvent.class).get();
     public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).get();
     public static final Queue<PlayerLifeCycleEvent> PLAYER_LIFE_CYCLE = Queue.of(PlayerLifeCycleEvent.class).get();

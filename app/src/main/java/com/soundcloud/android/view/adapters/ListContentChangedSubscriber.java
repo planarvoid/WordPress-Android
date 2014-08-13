@@ -2,12 +2,12 @@ package com.soundcloud.android.view.adapters;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;
 
-public final class ListContentChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+public final class ListContentChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
     private final ItemAdapter<PropertySet> adapter;
 
     public ListContentChangedSubscriber(ItemAdapter<PropertySet> adapter) {
@@ -15,7 +15,7 @@ public final class ListContentChangedSubscriber extends DefaultSubscriber<Playab
     }
 
     @Override
-    public void onNext(final PlayableChangedEvent event) {
+    public void onNext(final PlayableUpdatedEvent event) {
         final int index = Iterables.indexOf(adapter.items, new Predicate<PropertySet>() {
             @Override
             public boolean apply(PropertySet item) {

@@ -3,10 +3,9 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -78,7 +77,7 @@ public class SoundStreamAdapterTest {
         adapter.addItem(likedPlaylist);
         adapter.onViewCreated();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(Urn.forPlaylist(123L), true, 1));
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forPlaylist(123L), true, 1));
 
         expect(adapter.getItems()).toContainExactly(
                 unlikedPlaylist.merge(

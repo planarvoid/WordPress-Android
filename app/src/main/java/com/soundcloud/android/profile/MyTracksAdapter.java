@@ -17,7 +17,7 @@ import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -348,9 +348,9 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         eventSubscriptions.unsubscribe();
     }
 
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableChangedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
         @Override
-        public void onNext(final PlayableChangedEvent event) {
+        public void onNext(final PlayableUpdatedEvent event) {
             final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
                 @Override
                 public boolean apply(PropertySet item) {

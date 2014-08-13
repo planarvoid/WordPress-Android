@@ -9,13 +9,13 @@ import com.soundcloud.android.api.APIResponse;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
@@ -26,7 +26,6 @@ import com.soundcloud.propeller.PropertySet;
 import org.apache.http.HttpStatus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -111,7 +110,7 @@ public class SoundAssociationOperations {
                 Playable updated = soundAssociation.getPlayable();
                 logPlayable("CACHE/PUBLISH", updated);
                 modelManager.cache(updated, PublicApiResource.CacheUpdateMode.NONE);
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forLike(updated.getUrn(), updated.user_like, updated.likes_count));
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(updated.getUrn(), updated.user_like, updated.likes_count));
             }
         };
     }
@@ -200,7 +199,7 @@ public class SoundAssociationOperations {
                 Playable updated = soundAssociation.getPlayable();
                 logPlayable("CACHE/PUBLISH", updated);
                 modelManager.cache(updated, PublicApiResource.CacheUpdateMode.NONE);
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableChangedEvent.forRepost(updated.getUrn(), updated.user_repost, updated.reposts_count));
+                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forRepost(updated.getUrn(), updated.user_repost, updated.reposts_count));
             }
         };
     }

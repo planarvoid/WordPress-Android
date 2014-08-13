@@ -18,7 +18,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -59,7 +59,7 @@ public class SoundAssociationOperationsTest {
     @Mock private APIResponse response;
     @Mock private LegacyTrackOperations legacyTrackOperations;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
-    @Captor private ArgumentCaptor<PlayableChangedEvent> eventCaptor;
+    @Captor private ArgumentCaptor<PlayableUpdatedEvent> eventCaptor;
 
     private final TrackUrn trackUrn = Urn.forTrack(123L);
     private final PlaylistUrn playlistUrn = Urn.forPlaylist(124L);
@@ -135,7 +135,7 @@ public class SoundAssociationOperationsTest {
 
         operations.toggleLike(trackUrn, true).subscribe(observer);
 
-        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
         expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
         expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
@@ -181,7 +181,7 @@ public class SoundAssociationOperationsTest {
 
         operations.toggleLike(trackUrn, false).subscribe(observer);
 
-        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
         expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
         expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
@@ -297,7 +297,7 @@ public class SoundAssociationOperationsTest {
 
         operations.toggleRepost(trackUrn, true).subscribe(observer);
 
-        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
         expect(event.getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
         expect(event.getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
@@ -343,7 +343,7 @@ public class SoundAssociationOperationsTest {
 
         operations.toggleRepost(trackUrn, false).subscribe(observer);
 
-        PlayableChangedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
         expect(event.getUrn()).toEqual(track.getUrn());
         expect(event.getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
         expect(event.getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();

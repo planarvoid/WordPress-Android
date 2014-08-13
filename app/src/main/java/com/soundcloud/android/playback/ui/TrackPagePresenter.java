@@ -7,6 +7,7 @@ import com.google.common.collect.Iterables;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -159,19 +160,27 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void updateAssociations(View trackPage, PropertySet changeSet) {
+    public void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent) {
         final TrackPageHolder holder = getViewHolder(trackPage);
+        final PropertySet changeSet = playableUpdatedEvent.getChangeSet();
+
         if (changeSet.contains(PlayableProperty.IS_LIKED)) {
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
             setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
         }
+
         if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
-            boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
+            final boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
             holder.menuController.setIsUserRepost(isReposted);
-            showRepostToast(trackPage.getContext(), isReposted);
+
+            if (playableUpdatedEvent.wasReposted()){
+                showRepostToast(trackPage.getContext(), isReposted);
+            }
         }
+
+
     }
 
     private void showRepostToast(final Context context, final boolean isReposted) {

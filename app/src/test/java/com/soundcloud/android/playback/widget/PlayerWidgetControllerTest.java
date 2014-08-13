@@ -17,7 +17,7 @@ import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -119,7 +119,7 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(WIDGET_TRACK));
-        PlayableChangedEvent event = PlayableChangedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
@@ -132,7 +132,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldNotUpdatePresenterWhenChangedTrackIsNotCurrentlyPlayingTrack() {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(false);
-        PlayableChangedEvent event = PlayableChangedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
 
         controller.subscribe();
 

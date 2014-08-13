@@ -12,7 +12,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableChangedEvent;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -94,7 +94,7 @@ public class SearchResultsAdapterTest {
 
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAYABLE_CHANGED,
-                PlayableChangedEvent.forLike(Urn.forPlaylist(unlikedPlaylist.getId()), true, 1));
+                PlayableUpdatedEvent.forLike(Urn.forPlaylist(unlikedPlaylist.getId()), true, 1));
         adapter.getView(0, itemView, new FrameLayout(Robolectric.application));
 
         verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
