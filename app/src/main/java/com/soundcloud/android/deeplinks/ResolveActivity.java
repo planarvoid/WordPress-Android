@@ -131,6 +131,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     private void startStreamScreenWithAnExpandedPlayer() {
         Intent intent = new Intent(Actions.STREAM);
         intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 }
