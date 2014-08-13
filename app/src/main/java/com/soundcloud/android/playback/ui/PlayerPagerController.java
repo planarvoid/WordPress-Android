@@ -22,10 +22,11 @@ import rx.subscriptions.Subscriptions;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
-class PlayerPagerController implements ViewPager.OnPageChangeListener {
+class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTrackPager.OnBlockedSwipeListener {
 
     private final TrackPagerAdapter adapter;
     private final EventBus eventBus;
@@ -60,7 +61,8 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
     };
 
     @Inject
-    public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus, PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
+    public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
+                                 PlayQueueManager playQueueManager, PlaybackOperations playbackOperations) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
         this.eventBus = eventBus;
@@ -73,6 +75,11 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
                 return playbackProgressEvent.getPlaybackProgress().getPosition() >= AdConstants.UNSKIPPABLE_TIME_MS;
             }
         });
+    }
+
+    @Override
+    public void onBlockedSwipe() {
+        Toast.makeText(trackPager.getContext(), R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
     }
 
     void onViewCreated(View view) {
@@ -95,6 +102,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener {
     private void setPager(PlayerTrackPager trackPager) {
         this.presenter.initialize(trackPager);
         this.trackPager = trackPager;
+        this.trackPager.setOnBlockedSwipeListener(this);
         this.trackPager.setOnPageChangeListener(this);
         trackPager.setAdapter(adapter);
         setQueuePosition(playQueueManager.getCurrentPosition());
