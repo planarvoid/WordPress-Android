@@ -50,54 +50,33 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-
 @RunWith(SoundCloudTestRunner.class)
 public class ImageOperationsTest {
-
 
     private ImageOperations imageOperations;
 
     private static final int RES_ID = 123;
 
-    @Mock
-    ImageLoader imageLoader;
-    @Mock
-    ImageEndpointBuilder imageEndpointBuilder;
-    @Mock
-    PlaceholderGenerator placeholderGenerator;
-    @Mock
-    DiskCache diskCache;
-    @Mock
-    MemoryCache memoryCache;
-    @Mock
-    ImageListener imageListener;
-    @Mock
-    ImageView imageView;
-    @Mock
-    Resources resources;
-    @Mock
-    Drawable drawable;
-    @Mock
-    View parentView;
-    @Mock
-    FailReason failReason;
-    @Mock
-    Cache cache;
-    @Mock
-    ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
-    @Mock
-    ViewlessLoadingAdapter viewlessLoadingAdapter;
-    @Mock
-    FileNameGenerator fileNameGenerator;
+    @Mock ImageLoader imageLoader;
+    @Mock ImageEndpointBuilder imageEndpointBuilder;
+    @Mock PlaceholderGenerator placeholderGenerator;
+    @Mock DiskCache diskCache;
+    @Mock MemoryCache memoryCache;
+    @Mock ImageListener imageListener;
+    @Mock ImageView imageView;
+    @Mock Resources resources;
+    @Mock Drawable drawable;
+    @Mock View parentView;
+    @Mock FailReason failReason;
+    @Mock Cache cache;
+    @Mock ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
+    @Mock ViewlessLoadingAdapter viewlessLoadingAdapter;
+    @Mock FileNameGenerator fileNameGenerator;
 
-    @Captor
-    ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
-    @Captor
-    ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
-    @Captor
-    ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
-    @Captor
-    ArgumentCaptor<SimpleImageLoadingListener> simpleImageLoadingListenerCaptor;
+    @Captor ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
+    @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
+    @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
+    @Captor ArgumentCaptor<SimpleImageLoadingListener> simpleImageLoadingListenerCaptor;
 
     final private String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
@@ -117,7 +96,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void NotFoundExceptionDuringAdapterViewLoadMakesNextLoadToPassNullPath() throws Exception {
+    public void NotFoundExceptionDuringAdapterViewLoadMakesNextLoadToPassNullPath() throws ExecutionException {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
@@ -145,7 +124,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void IOExceptionDuringAdapterViewLoadAllowsRetryWithUrl() throws Exception {
+    public void IOExceptionDuringAdapterViewLoadAllowsRetryWithUrl() {
         when(failReason.getCause()).thenReturn(new IOException());
 
         // 1st load
@@ -160,7 +139,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void NotFoundExceptionDuringPlaceholderLoadMakesNextLoadToPassNullPath() throws Exception {
+    public void NotFoundExceptionDuringPlaceholderLoadMakesNextLoadToPassNullPath() {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
@@ -175,7 +154,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void shouldLoadImageByUrnWithHeadlessListener() throws Exception {
+    public void shouldLoadImageByUrnWithHeadlessListener() {
         final String imageUrl = RESOLVER_URL_LARGE;
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
 
@@ -186,35 +165,35 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void shouldLoadImageByURLWithHeadlessListener() throws Exception {
+    public void shouldLoadImageByURLWithHeadlessListener() {
         imageOperations.load(URL, imageListener);
         verify(imageLoader).loadImage(eq(ADJUSTED_URL), imageListenerUILAdapterCaptor.capture());
         verifyCapturedListener();
     }
 
     @Test
-    public void shouldLoadImageByURLWithListenerAndParameterizedUrl() throws Exception {
+    public void shouldLoadImageByURLWithListenerAndParameterizedUrl() {
         imageOperations.load(URL_WITH_PARAMS, imageListener);
         verify(imageLoader).loadImage(eq(ADJUSTED_URL_WITH_PARAMS), imageListenerUILAdapterCaptor.capture());
         verifyCapturedListener();
     }
 
     @Test
-    public void shouldAcceptNullImageUrl() throws Exception {
+    public void shouldAcceptNullImageUrl() {
         imageOperations.load(null, imageListener);
         verify(imageLoader).loadImage(isNull(String.class), imageListenerUILAdapterCaptor.capture());
         verifyCapturedListener();
     }
 
     @Test
-    public void shouldNotAdjustUrlIfDoesNotMatch() throws Exception {
+    public void shouldNotAdjustUrlIfDoesNotMatch() {
         imageOperations.load("does_not_match_url", imageListener);
         verify(imageLoader).loadImage(eq("does_not_match_url"), imageListenerUILAdapterCaptor.capture());
         verifyCapturedListener();
     }
 
     @Test
-    public void displayShouldCallDisplayWithAdjustedUrlAndImageViewAware() throws Exception {
+    public void displayShouldCallDisplayWithAdjustedUrlAndImageViewAware() {
         imageOperations.display(URL, imageView);
         verify(imageLoader).displayImage(eq(ADJUSTED_URL), imageViewAwareCaptor.capture());
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
@@ -251,23 +230,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void displayInPlayerViewShouldCallDisplayWithAdjustedUrlImageViewAwarePlayerOptionsAndListener() throws Exception {
-        final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/t500x500";
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.T500)).thenReturn(imageUrl);
-
-        imageOperations.displayInPlayerView(URN, ApiImageSize.T500, imageView, parentView, false, imageListener);
-
-        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
-                displayOptionsCaptor.capture(), imageListenerUILAdapterCaptor.capture());
-        expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
-        expect(displayOptionsCaptor.getValue().getDelayBeforeLoading()).toEqual(ImageOptionsFactory.DELAY_BEFORE_LOADING_LOW_PRIORITY);
-        expect(displayOptionsCaptor.getValue().getDisplayer()).toBeInstanceOf(ImageOptionsFactory.PlayerBitmapDisplayer.class);
-        verifyFullCacheOptions();
-        verifyCapturedListener();
-    }
-
-    @Test
-    public void displayInFullDialogViewShouldLoadImageFromMobileImageResolver() throws Exception {
+    public void displayInFullDialogViewShouldLoadImageFromMobileImageResolver() {
         final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/t500x500";
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.T500)).thenReturn(imageUrl);
 
@@ -278,7 +241,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void displayInFullDialogViewShouldWrapAndForwardTheGivenImageView() throws Exception {
+    public void displayInFullDialogViewShouldWrapAndForwardTheGivenImageView() {
         imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
@@ -287,7 +250,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void displayInFullDialogViewShouldUseCorrectImageListener() throws Exception {
+    public void displayInFullDialogViewShouldUseCorrectImageListener() {
         imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
@@ -296,7 +259,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void displayInFullDialogViewShouldUseCorrectDisplayOptions() throws Exception {
+    public void displayInFullDialogViewShouldUseCorrectDisplayOptions() {
         imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
@@ -307,7 +270,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws Exception {
+    public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
         when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
@@ -321,7 +284,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void prefetchShouldCallDisplayWithAdjustedUrlImageViewAwareAndPlaceholderOptions() throws Exception {
+    public void prefetchShouldCallDisplayWithAdjustedUrlImageViewAwareAndPlaceholderOptions() {
         imageOperations.prefetch(URL);
         verify(imageLoader).loadImage(eq(ADJUSTED_URL), displayOptionsCaptor.capture(), isNull(ImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeFalse();
@@ -353,7 +316,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void imageObservablePassesBitmapFromLoadCompleteToLoadingAdapter() throws Exception {
+    public void imageObservablePassesBitmapFromLoadCompleteToLoadingAdapter() {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
@@ -368,7 +331,7 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void imageObservablePassesLoadFailedToLoadingAdapter() throws Exception {
+    public void imageObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
         Observable<Bitmap> observable = imageOperations.image(URN, ApiImageSize.LARGE, true);

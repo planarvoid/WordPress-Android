@@ -161,14 +161,6 @@ public class ImageOperations {
                 ImageOptionsFactory.placeholder(placeholderDrawable));
     }
 
-    public void displayInPlayerView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, View parentView,
-                                    boolean priority, ImageListener imageListener) {
-        imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
-                new ImageViewAware(imageView, false),
-                ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
-    }
-
     public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
