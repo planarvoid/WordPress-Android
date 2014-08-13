@@ -36,6 +36,8 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -64,6 +66,7 @@ public class MediaPlayerAdapterTest {
     @Mock private StreamPlaya.PlayaListener listener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private AccountOperations accountOperations;
+    @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private PropertySet track;
     private String streamUrlWithId;
@@ -149,6 +152,17 @@ public class MediaPlayerAdapterTest {
         InOrder inOrder = Mockito.inOrder(listener);
         inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
         inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 0, 0)));
+    }
+
+    @Test
+    public void shouldAddStreamingProtocolToPlayStateEvent() throws Exception {
+        when(mediaPlayer.getCurrentPosition()).thenReturn(0);
+
+        mediaPlayerAdapter.play(track);
+
+        verify(listener).onPlaystateChanged(stateCaptor.capture());
+
+        expect(stateCaptor.getValue().getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL)).toEqual(PlaybackProtocol.HTTPS.getValue());
     }
 
     @Test

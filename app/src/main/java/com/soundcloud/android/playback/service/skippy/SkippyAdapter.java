@@ -42,7 +42,6 @@ import javax.inject.Named;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
-    private static final String DEBUG_EXTRA = "Experimental Player";
     public static final long POSITION_START = 0L;
     private int numberOfAttemptedPlaysBeforeDecoderError;
 
@@ -203,6 +202,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, position, duration);
+            transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;
@@ -252,25 +252,30 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         }
     }
 
+    private PlaybackProtocol getPlaybackProtocol() {
+        return PlaybackProtocol.HLS;
+    }
+
     @Nullable
     private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric, long value, String cdnHost) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         UserUrn userUrn = accountOperations.getLoggedInUserUrn();
+        PlaybackProtocol playbackProtocol = getPlaybackProtocol();
         switch (metric) {
             case TIME_TO_PLAY:
-                return PlaybackPerformanceEvent.timeToPlay(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnHost,
+                return PlaybackPerformanceEvent.timeToPlay(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
             case TIME_TO_BUFFER:
-                return PlaybackPerformanceEvent.timeToBuffer(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnHost,
+                return PlaybackPerformanceEvent.timeToBuffer(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
             case TIME_TO_GET_PLAYLIST:
-                return PlaybackPerformanceEvent.timeToPlaylist(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnHost,
+                return PlaybackPerformanceEvent.timeToPlaylist(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
             case TIME_TO_SEEK:
-                return PlaybackPerformanceEvent.timeToSeek(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnHost,
+                return PlaybackPerformanceEvent.timeToSeek(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
             case FRAGMENT_DOWNLOAD_RATE:
-                return PlaybackPerformanceEvent.fragmentDownloadRate(value, PlaybackProtocol.HLS, PlayerType.SKIPPY, currentConnectionType, cdnHost,
+                return PlaybackPerformanceEvent.fragmentDownloadRate(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
@@ -294,7 +299,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             numberOfAttemptedPlaysBeforeDecoderError = 0;
         }
 
-        final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), PlaybackProtocol.HLS, cdn);
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), getPlaybackProtocol(), cdn);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
 

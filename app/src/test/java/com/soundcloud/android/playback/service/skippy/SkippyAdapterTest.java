@@ -10,6 +10,7 @@ import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
 import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,6 +41,8 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -65,6 +68,7 @@ public class SkippyAdapterTest {
     @Mock private PlaybackServiceOperations playbackOperations;
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
+    @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private UserUrn userUrn;
     private TestEventBus eventBus = new TestEventBus();
@@ -313,6 +317,16 @@ public class SkippyAdapterTest {
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
         expect(skippyAdapter.getProgress()).toEqual(PROGRESS);
+    }
+
+    @Test
+    public void shouldAddStreamingProtocolToPlayStateEvent() {
+        skippyAdapter.play(track);
+
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
+        verify(stateChangeHandler).obtainMessage(anyInt(), stateCaptor.capture());
+
+        expect(stateCaptor.getValue().getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL)).toEqual(PlaybackProtocol.HLS.getValue());
     }
 
     @Test

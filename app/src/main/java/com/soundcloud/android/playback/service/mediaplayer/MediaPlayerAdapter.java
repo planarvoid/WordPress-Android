@@ -179,9 +179,13 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
+                getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
                 streamUrl, accountOperations.getLoggedInUserUrn());
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+    }
+
+    private PlaybackProtocol getPlaybackProtocol() {
+        return PlaybackProtocol.HTTPS;
     }
 
     private void play() {
@@ -350,7 +354,9 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         internalState = playbackState;
 
         if (playaListener != null) {
-            playaListener.onPlaystateChanged( new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration));
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration);
+            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            playaListener.onPlaystateChanged(stateTransition);
         }
     }
 

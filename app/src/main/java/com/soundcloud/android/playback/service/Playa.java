@@ -7,6 +7,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Intent;
+import android.util.SparseArray;
 
 import java.util.EnumSet;
 
@@ -30,18 +31,23 @@ public interface Playa {
     boolean isNotSeekablePastBuffer();
 
     static class StateTransition {
-        private final PlayaState newState;
-        private final Reason reason;
-        private final PlaybackProgress progress;
+        public static final int EXTRA_PLAYBACK_PROTOCOL = 0;
 
         private static final String TRACK_URN_EXTRA = "TRACK_URN_EXTRA";
         private static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";
         private static final String DURATION_EXTRA = "DURATION_EXTRA";
 
+        private final PlayaState newState;
+        private final Reason reason;
+        private final PlaybackProgress progress;
+
         private TrackUrn trackUrn;
+        // used to pass various additional meta data with the event, often for tracking/analytics
+        private final SparseArray<String> extraAttributes = new SparseArray<String>(2);
 
         public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
 
+        // TODO: make private and use blueprints in tests
         @Deprecated
         public StateTransition(PlayaState newState, Reason reason) {
             this(newState, reason, TrackUrn.NOT_SET);
@@ -116,6 +122,14 @@ public interface Playa {
 
         public boolean isPaused() {
             return newState == PlayaState.IDLE && reason == Reason.NONE;
+        }
+
+        public String getExtraAttribute(int key) {
+            return extraAttributes.get(key);
+        }
+
+        public void addExtraAttribute(int key, String value) {
+            this.extraAttributes.put(key, value);
         }
 
         public void addToIntent(Intent intent) {
