@@ -58,7 +58,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
         }
     };
 
-    @SuppressWarnings("unused")
     public SearchActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
@@ -78,11 +77,13 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     @Override
     public void onBackPressed() {
-        boolean isShowingResults = getSupportFragmentManager().getBackStackEntryCount() > 0;
-        if (isShowingResults) {
-            searchActionBarController.clearQuery();
-        } else if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
+        if (!playerController.handleBackPressed()) {
+            boolean isShowingResults = getSupportFragmentManager().getBackStackEntryCount() > 0;
+            if (isShowingResults) {
+                searchActionBarController.clearQuery();
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 

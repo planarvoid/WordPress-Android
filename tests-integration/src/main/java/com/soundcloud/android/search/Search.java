@@ -1,5 +1,10 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -61,6 +66,16 @@ public class Search extends ActivityTestCase<MainActivity> {
         playlistTagsScreen = new PlaylistTagsScreen(solo);
         mainScreen = playlistTagsScreen.pressBack();
         assertEquals("Main screen should be visible", true, mainScreen.isVisible());
+    }
+
+    public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("track");
+        resultsScreen.clickFirstTrackItem();
+        VisualPlayerElement playerElement = new VisualPlayerElement(solo);
+        playerElement.pressBackToCollapse();
+
+        assertThat(playerElement, is(Collapsed()));
+        assertThat(resultsScreen, is(Visible()));
     }
 
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
