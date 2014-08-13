@@ -43,20 +43,16 @@ import android.content.Context;
 public class PlayerWidgetControllerTest {
 
     private PlayerWidgetController controller;
-    private TestEventBus eventBus = new TestEventBus();
+    private final TestEventBus eventBus = new TestEventBus();
+    private final PropertySet WIDGET_TRACK = TestPropertySets.forWidgetTrack();
+    private final TrackUrn WIDGET_TRACK_URN = Urn.forTrack(123L);
 
-    @Mock
-    private Context context;
-    @Mock
-    private PlayerWidgetPresenter playerWidgetPresenter;
-    @Mock
-    private PlaySessionStateProvider playSessionStateProvider;
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private TrackOperations trackOperations;
-    @Mock
-    private SoundAssociationOperations soundAssocicationOps;
+    @Mock private Context context;
+    @Mock private PlayerWidgetPresenter playerWidgetPresenter;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private TrackOperations trackOperations;
+    @Mock private SoundAssociationOperations soundAssociationOps;
 
     @Before
     public void setUp() {
@@ -66,7 +62,7 @@ public class PlayerWidgetControllerTest {
                 playSessionStateProvider,
                 playQueueManager,
                 trackOperations,
-                soundAssocicationOps, eventBus);
+                soundAssociationOps, eventBus);
     }
 
     @Test
@@ -89,45 +85,41 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueue() throws CreateModelException {
-        PropertySet track = TestPropertySets.forWidgetTrack();
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(WIDGET_TRACK));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN));
 
-        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(track));
+        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(WIDGET_TRACK));
     }
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForPositionChange() throws CreateModelException {
-        PropertySet track = TestPropertySets.forWidgetTrack();
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(WIDGET_TRACK));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(WIDGET_TRACK_URN));
 
-        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(track));
+        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(WIDGET_TRACK));
     }
 
     @Test
     public void shouldKeepObservingPlayQueueEventsAfterAnError() throws CreateModelException {
-        PropertySet track = TestPropertySets.forWidgetTrack();
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>error(new Exception()), Observable.just(track));
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>error(new Exception()), Observable.just(WIDGET_TRACK));
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN));
 
-        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(track));
+        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(WIDGET_TRACK));
     }
 
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedTrackIsCurrentlyPlayingTrack() {
-        TrackUrn urn = Urn.forTrack(123L);
-        when(playQueueManager.isCurrentTrack(urn)).thenReturn(true);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(urn);
-        when(trackOperations.track(urn)).thenReturn(Observable.just(TestPropertySets.forWidgetTrack()));
-        PlayableChangedEvent event = PlayableChangedEvent.forLike(urn, true, 1);
+        when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
+        when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(WIDGET_TRACK));
+        PlayableChangedEvent event = PlayableChangedEvent.forLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
@@ -139,9 +131,8 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void shouldNotUpdatePresenterWhenChangedTrackIsNotCurrentlyPlayingTrack() {
-        TrackUrn urn = Urn.forTrack(123L);
-        when(playQueueManager.isCurrentTrack(urn)).thenReturn(false);
-        PlayableChangedEvent event = PlayableChangedEvent.forLike(urn, true, 1);
+        when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(false);
+        PlayableChangedEvent event = PlayableChangedEvent.forLike(WIDGET_TRACK_URN, true, 1);
 
         controller.subscribe();
 
@@ -180,13 +171,12 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void shouldUpdatePresenterPlayableInformationWhenCurrentTrackIsSetOnUpdate() throws CreateModelException {
-        PropertySet track = TestPropertySets.forWidgetTrack();
         when(playQueueManager.isCurrentTrack(any(TrackUrn.class))).thenReturn(true);
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(WIDGET_TRACK));
 
         controller.update();
 
-        verify(playerWidgetPresenter).updateTrackInformation(context, track);
+        verify(playerWidgetPresenter).updateTrackInformation(context, WIDGET_TRACK);
     }
 
     @Test
@@ -213,14 +203,13 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void shouldSetLikeOnReceivedWidgetLikeChanged() throws CreateModelException {
-        PropertySet track = TestPropertySets.forWidgetTrack();
         when(playQueueManager.isCurrentTrack(any(TrackUrn.class))).thenReturn(true);
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
-        when(soundAssocicationOps.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(WIDGET_TRACK));
+        when(soundAssociationOps.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
 
         controller.handleToggleLikeAction(true);
 
-        verify(soundAssocicationOps).toggleLike(Urn.forTrack(123L), false);
+        verify(soundAssociationOps).toggleLike(WIDGET_TRACK_URN, false);
     }
 
 }
