@@ -44,7 +44,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     public static final int MAX_CONNECT_RETRIES = 3;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
-    private static final String MEDIA_PLAYER_IO_ERROR_MSG_FORMAT = "what(%d) extra(%d)";
 
     private final StreamProxy proxy;
     private final Context context;
@@ -590,31 +589,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     break;
 
             }
-        }
-
-
-    }
-
-    private static class MediaPlayerIOException extends Exception {
-
-        private final int errorReason;
-
-        private MediaPlayerIOException(int reason) {
-            this.errorReason = Math.abs(reason);
-        }
-
-        @Override
-        public String getMessage() {
-            return "MediaPlayerIOErrorReason(" +errorReason+")";
-
-        }
-
-        @Override
-        public StackTraceElement[] getStackTrace() {
-            return new StackTraceElement[]{new StackTraceElement(MediaPlayerIOException.class.getSimpleName(),
-                    ScTextUtils.EMPTY_STRING,
-                    "MediaPlayerAdapter.java",
-                    errorReason)};
         }
     }
 }
