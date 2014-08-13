@@ -84,35 +84,35 @@ public interface Playa {
             return progress;
         }
 
-        boolean isPlaying(){
+        boolean isPlaying() {
             return newState.isPlaying();
         }
 
-        public boolean playSessionIsActive(){
+        public boolean playSessionIsActive() {
             return newState.isPlaying() || (newState == PlayaState.IDLE && reason == Reason.TRACK_COMPLETE);
         }
 
-        public boolean isPlayerPlaying(){
+        public boolean isPlayerPlaying() {
             return newState.isPlayerPlaying();
         }
 
-        public boolean isPlayerIdle(){
+        public boolean isPlayerIdle() {
             return newState == PlayaState.IDLE;
         }
 
-        public boolean isBuffering(){
+        public boolean isBuffering() {
             return newState.isBuffering();
         }
 
-        public boolean isPlayQueueComplete(){
+        public boolean isPlayQueueComplete() {
             return reason == Reason.PLAY_QUEUE_COMPLETE;
         }
 
-        public boolean playbackHasStopped(){
+        public boolean playbackHasStopped() {
             return Reason.PLAYBACK_STOPPED.contains(reason);
         }
 
-        public boolean wasError(){
+        public boolean wasError() {
             return Reason.ERRORS.contains(reason);
         }
 
@@ -188,8 +188,10 @@ public interface Playa {
         @VisibleForTesting
         static final String PLAYER_STATE_EXTRA = "PLAYER_STATE_EXTRA";
 
-        /** User Intent. e.g., should we show the play button or pause button **/
-        public boolean isPlaying(){
+        /**
+         * User Intent. e.g., should we show the play button or pause button *
+         */
+        public boolean isPlaying() {
             return this == PLAYING || this == BUFFERING;
         }
 
@@ -197,7 +199,9 @@ public interface Playa {
             return this == IDLE;
         }
 
-        /** Actual playback state. Is there sound coming out of the speakers or not **/
+        /**
+         * Actual playback state. Is there sound coming out of the speakers or not *
+         */
         public boolean isPlayerPlaying() {
             return this == PLAYING;
         }
@@ -208,17 +212,6 @@ public interface Playa {
 
         private void addToIntent(Intent intent) {
             intent.putExtra(PLAYER_STATE_EXTRA, ordinal());
-        }
-
-        private static PlayaState fromIntent(Intent intent) {
-            if (!intent.hasExtra(PLAYER_STATE_EXTRA)){
-                throw new IllegalStateException("No state ordinal found in intent");
-            }
-            final int reasonOrdinal = intent.getIntExtra(PLAYER_STATE_EXTRA, -1);
-            if (reasonOrdinal < 0 || reasonOrdinal >= values().length){
-                throw new IllegalStateException("Ordinal of player transition state is out of bounds");
-            }
-            return values()[intent.getIntExtra(PLAYER_STATE_EXTRA, -1)];
         }
     }
 
@@ -237,17 +230,6 @@ public interface Playa {
         private void addToIntent(Intent intent) {
             intent.putExtra(PLAYER_REASON_EXTRA, ordinal());
         }
-
-        private static Reason fromIntent(Intent intent) {
-            if (!intent.hasExtra(PLAYER_REASON_EXTRA)){
-                throw new IllegalStateException("No reason ordinal found in intent");
-            }
-            final int reasonOrdinal = intent.getIntExtra(PLAYER_REASON_EXTRA, -1);
-            if (reasonOrdinal < 0 || reasonOrdinal >= values().length){
-                throw new IllegalStateException("Ordinal of player transition reason is out of bounds");
-            }
-            return values()[reasonOrdinal];
-        }
     }
 
     public interface PlayaListener {
@@ -257,7 +239,7 @@ public interface Playa {
         boolean requestAudioFocus();
     }
 
-    public enum Error{
+    public enum Error {
         FAILED,
         MEDIA_NOT_FOUND,
         FORBIDDEN
