@@ -62,6 +62,7 @@ public class TrackInfoPresenter {
     public void bindNoDescription(View view) {
         showView(view, R.id.no_description);
         hideView(view, R.id.loading);
+        hideView(view, R.id.description);
     }
 
     private void bindPrivateOrStats(View view, PropertySet propertySet) {
