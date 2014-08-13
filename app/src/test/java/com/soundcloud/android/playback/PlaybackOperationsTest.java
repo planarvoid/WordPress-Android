@@ -270,6 +270,24 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void previousTrackShowsToastWhenPlaybackNotSkippable() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        playbackOperations.previousTrack();
+
+        expectUnskippableToastMessage();
+    }
+
+    @Test
+    public void nextTrackShowsToastWhenPlaybackNotSkippable() {
+        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        playbackOperations.nextTrack();
+
+        expectUnskippableToastMessage();
+    }
+
+    @Test
     public void nextTrackCallsNextTrackOnPlayQueueManager() {
         playbackOperations.nextTrack();
 
@@ -677,8 +695,12 @@ public class PlaybackOperationsTest {
     }
 
     private void expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet() {
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
+        expectUnskippableToastMessage();
         verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), anyInt(), any(PlaySessionSource.class));
+    }
+
+    private void expectUnskippableToastMessage() {
+        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
     }
 
 }

@@ -193,7 +193,9 @@ public class PlaybackOperations {
     }
 
     public void previousTrack() {
-        if (!shouldDisableSkipping()) {
+        if (shouldDisableSkipping()) {
+            showAdInProgressToast();
+        } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !playQueueManager.isCurrentTrackAudioAd()){
                 seek(SEEK_POSITION_RESET);
@@ -204,7 +206,9 @@ public class PlaybackOperations {
     }
 
     public void nextTrack() {
-        if (!shouldDisableSkipping()){
+        if (shouldDisableSkipping()) {
+            showAdInProgressToast();
+        } else {
             playQueueManager.nextTrack();
         }
     }
@@ -304,12 +308,16 @@ public class PlaybackOperations {
 
     private void playNewQueue(List<Long> trackIdList, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
+            showAdInProgressToast();
         } else {
             final PlayQueue playQueue = PlayQueue.fromIdList(trackIdList, playSessionSource);
             playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
             playCurrent();
         }
+    }
+
+    private void showAdInProgressToast() {
+        Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
     }
 
     private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, TrackUrn initialTrack) {
