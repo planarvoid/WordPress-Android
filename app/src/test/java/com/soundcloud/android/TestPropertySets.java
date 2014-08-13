@@ -5,6 +5,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 
+import java.util.Date;
+
 public class TestPropertySets {
 
     public static PropertySet forWidgetTrack() {
@@ -21,15 +23,19 @@ public class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
+                TrackProperty.PLAY_COUNT.bind(1),
+                TrackProperty.COMMENTS_COUNT.bind(1),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
                 PlayableProperty.DURATION.bind(123456),
                 PlayableProperty.IS_LIKED.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
+                PlayableProperty.REPOSTS_COUNT.bind(1),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
                 PlayableProperty.IS_PRIVATE.bind(false),
-                PlayableProperty.IS_REPOSTED.bind(false)
+                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.CREATED_AT.bind(new Date())
         );
     }
 
