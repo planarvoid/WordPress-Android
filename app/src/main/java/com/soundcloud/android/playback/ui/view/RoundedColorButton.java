@@ -8,27 +8,27 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.Button;
 
-public class LearnMoreButton extends Button {
+public class RoundedColorButton extends Button {
 
     private RectF rectangle;
     private Paint backgroundPaint;
     private ColorStateList backgroundColorStateList;
 
-    public LearnMoreButton(Context context) {
+    public RoundedColorButton(Context context) {
         super(context);
     }
 
-    public LearnMoreButton(Context context, AttributeSet attrs) {
+    public RoundedColorButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initAttributes();
+        initPaint();
     }
 
-    public LearnMoreButton(Context context, AttributeSet attrs, int defStyle) {
+    public RoundedColorButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initAttributes();
+        initPaint();
     }
 
-    private void initAttributes() {
+    private void initPaint() {
         backgroundPaint = new Paint();
         backgroundPaint.setAntiAlias(true);
         rectangle = new RectF(0.0f, 0.0f, 0.0f, 0.0f);

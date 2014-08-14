@@ -9,7 +9,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.ui.view.LearnMoreButton;
+import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -253,7 +253,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         private final TextView timeUntilSkip;
         private final View skipAd;
         private final View previewContainer;
-        private final LearnMoreButton learnMore;
+        private final RoundedColorButton learnMore;
         private final View whyAds;
         private final View playControlsHolder;
 
@@ -285,7 +285,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
             skipAd = adView.findViewById(R.id.skip_ad);
             previewContainer = adView.findViewById(R.id.preview_container);
-            learnMore = (LearnMoreButton) adView.findViewById(R.id.learn_more);
+            learnMore = (RoundedColorButton) adView.findViewById(R.id.learn_more);
             whyAds = adView.findViewById(R.id.why_ads);
             playControlsHolder = adView.findViewById(R.id.play_controls);
 

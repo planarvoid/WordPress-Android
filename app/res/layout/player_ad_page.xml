@@ -9,7 +9,7 @@
     <include layout="@layout/player_footer_controls"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
-    <com.soundcloud.android.playback.ui.view.LearnMoreButton
+    <com.soundcloud.android.playback.ui.view.RoundedColorButton
             android:id="@+id/learn_more"
             style="@style/AdButton.LearnMore"
             android:layout_centerHorizontal="true"
