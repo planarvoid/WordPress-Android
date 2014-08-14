@@ -27,13 +27,14 @@ public class ErrorUtils {
      * @param callsite
      */
     public static void handleThrowable(Throwable t, Class<?> callsite) {
+        Crashlytics.setString("error-callsite", callsite.getCanonicalName());
         if (t instanceof OnErrorNotImplementedException) {
             throw new FatalException(t.getCause());
         } else if (t instanceof RuntimeException || t instanceof Error) {
             throw new OnErrorNotImplementedException(t);
         } else if (!excludeFromReports(t)) {
             // don't rethrow checked exceptions
-            handleSilentException(t, "error-callsite", callsite.getCanonicalName());
+            handleSilentException(t);
         }
         t.printStackTrace();
     }
@@ -57,7 +58,7 @@ public class ErrorUtils {
         handleSilentException(e, null, null);
     }
 
-    public static void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+    private static void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
