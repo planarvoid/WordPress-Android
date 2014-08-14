@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
+import com.soundcloud.android.utils.ViewUtils;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
@@ -10,9 +12,13 @@ import android.widget.Button;
 
 public class RoundedColorButton extends Button {
 
+    private static final int ROUNDING_DP = 4;
+
     private RectF rectangle;
     private Paint backgroundPaint;
     private ColorStateList backgroundColorStateList;
+
+    private float roundingPx;
 
     public RoundedColorButton(Context context) {
         super(context);
@@ -20,17 +26,18 @@ public class RoundedColorButton extends Button {
 
     public RoundedColorButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initPaint();
+        init();
     }
 
     public RoundedColorButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initPaint();
+        init();
     }
 
-    private void initPaint() {
+    private void init() {
         backgroundPaint = new Paint();
         backgroundPaint.setAntiAlias(true);
+        roundingPx = ViewUtils.dpToPx(getContext(), ROUNDING_DP);
         rectangle = new RectF(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
@@ -53,7 +60,7 @@ public class RoundedColorButton extends Button {
         backgroundPaint.setColor(backgroundColor);
         rectangle.right = getWidth();
         rectangle.bottom = getHeight();
-        canvas.drawRoundRect(rectangle, 8.0f, 8.0f, backgroundPaint);
+        canvas.drawRoundRect(rectangle, roundingPx, roundingPx, backgroundPaint);
     }
 
 }
