@@ -46,29 +46,22 @@ import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundCloudRxHttpClientTest {
+
     private static final String URI = "/uri";
-    public static final String STREAM_DATA = "stream";
+    private static final String STREAM_DATA = "stream";
+
     private SoundCloudRxHttpClient rxHttpClient;
-    @Mock
-    private JsonTransformer jsonTransformer;
-    @Mock
-    private WrapperFactory wrapperFactory;
-    @Mock
-    private PublicApiWrapper publicApiWrapper;
-    @Mock
-    private APIRequest apiRequest;
-    @Mock
-    private HttpResponse httpResponse;
-    @Mock
-    private HttpEntity httpEntity;
-    @Mock
-    private StatusLine statusLine;
-    @Mock
-    private PublicApiUser resource;
-    @Mock
-    private Observer observer;
-    @Mock
-    private HttpProperties httpProperties;
+
+    @Mock private JsonTransformer jsonTransformer;
+    @Mock private WrapperFactory wrapperFactory;
+    @Mock private PublicApiWrapper publicApiWrapper;
+    @Mock private APIRequest apiRequest;
+    @Mock private HttpResponse httpResponse;
+    @Mock private HttpEntity httpEntity;
+    @Mock private StatusLine statusLine;
+    @Mock private PublicApiUser resource;
+    @Mock private Observer observer;
+    @Mock private HttpProperties httpProperties;
 
     @Before
     public void setUp() throws Exception {
@@ -83,11 +76,11 @@ public class SoundCloudRxHttpClientTest {
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
         when(httpResponse.getAllHeaders()).thenReturn(new Header[]{});
         when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-        when(jsonTransformer.fromJson(anyString(),any(TypeToken.class))).thenReturn(resource);
+        when(jsonTransformer.fromJson(anyString(), any(TypeToken.class))).thenReturn(resource);
     }
 
     @Test
-    public void shouldThrowExceptionIfResponseIsRateLimited(){
+    public void shouldThrowExceptionIfResponseIsRateLimited() {
         when(statusLine.getStatusCode()).thenReturn(429);
         rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
@@ -213,7 +206,7 @@ public class SoundCloudRxHttpClientTest {
     }
 
     @Test
-     public void shouldThrowBadResponseExceptionIfParsingJsonResponseReturnsNull() throws Exception {
+    public void shouldThrowBadResponseExceptionIfParsingJsonResponseReturnsNull() throws Exception {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(PublicApiUser.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, TypeToken.of(PublicApiUser.class))).thenReturn(null);
@@ -246,7 +239,8 @@ public class SoundCloudRxHttpClientTest {
         PublicApiUser userOne = mock(PublicApiUser.class);
         PublicApiUser userTwo = mock(PublicApiUser.class);
         List<PublicApiUser> users = newArrayList(userOne, userTwo);
-        TypeToken<List<PublicApiUser>> resourceType = new TypeToken<List<PublicApiUser>>() {};
+        TypeToken<List<PublicApiUser>> resourceType = new TypeToken<List<PublicApiUser>>() {
+        };
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(users);
@@ -261,7 +255,8 @@ public class SoundCloudRxHttpClientTest {
         PublicApiUser userOne = mock(PublicApiUser.class);
         PublicApiUser userTwo = mock(PublicApiUser.class);
         Set<PublicApiUser> users = Sets.newHashSet(userOne, userTwo);
-        TypeToken<Set<PublicApiUser>> resourceType = new TypeToken<Set<PublicApiUser>>() {};
+        TypeToken<Set<PublicApiUser>> resourceType = new TypeToken<Set<PublicApiUser>>() {
+        };
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(users);
@@ -281,12 +276,12 @@ public class SoundCloudRxHttpClientTest {
     }
 
     @Test
-    public void shouldNotTryToDeserialiseResponseIfNoResourceTypeSpecifiedInRequest(){
+    public void shouldNotTryToDeserialiseResponseIfNoResourceTypeSpecifiedInRequest() {
         when(apiRequest.getResourceType()).thenReturn(null);
         rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verifyZeroInteractions(jsonTransformer);
         verify(observer, never()).onNext(any());
-        verify(observer, never()).onError((Exception)any());
+        verify(observer, never()).onError((Exception) any());
         verify(observer).onCompleted();
     }
 
@@ -301,7 +296,7 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldMakeRequestWithSingleValueQueryParameter() throws IOException {
         ArrayListMultimap map = ArrayListMultimap.create();
-        map.put("key","value");
+        map.put("key", "value");
         when(apiRequest.getQueryParameters()).thenReturn(map);
 
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
