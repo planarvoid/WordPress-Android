@@ -494,11 +494,4 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             return dateFormat.format(date, toAppendTo, fieldPosition);
         }
     }
-
-    public static class UnauthorizedException extends InvalidTokenException {
-
-        public UnauthorizedException(String requestLog, @Nullable Token token) {
-            super(401, requestLog + "; token=" + token);
-        }
-    }
 }
