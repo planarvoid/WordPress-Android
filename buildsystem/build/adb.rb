@@ -2,13 +2,13 @@ module Build
   class Adb
 
     DEFAULT_LEVELS  = %w(
-      SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
-      StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
-      ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
+      SoundCloudApplication CloudPlaybackService ImageLoader
+      StreamProxy StreamLoader C2DMReceiver SyncAdapterService ScContentProvider DBHelper
+      ApiSyncService ApiSyncer UploadService VorbisEncoder VorbisEncoderNative
       VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
       EventLogger PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
       DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage FollowingOperations
-      LoadItemsObserver
+      LoadItemsObserver EventBus Propeller
     )
     DISABLED_LEVELS = %w()
 
