@@ -9,11 +9,10 @@ import rx.Subscription;
  * Default subscriber base class to be used whenever you want default error handling
  * (cf. {@link com.soundcloud.android.utils.ErrorUtils#handleThrowable(Throwable, Class)}
  */
-public abstract class DefaultSubscriber<T> extends Subscriber<T> {
+public class DefaultSubscriber<T> extends Subscriber<T> {
 
     public static <T> Subscription fireAndForget(Observable<T> observable) {
-        return observable.subscribe(new DefaultSubscriber<T>() {
-        });
+        return observable.subscribe(new DefaultSubscriber<T>());
     }
 
     @Override
