@@ -231,4 +231,17 @@ public class UIEventTest {
         expect(uiEventAttributes.get("ad_click_url")).toEqual(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
         expect(uiEventAttributes.get("ad_image_url")).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
     }
+
+    @Test
+    public void shouldCreateEventFromSkipAudioAdClick() {
+        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123));
+        UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), 1000L);
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SKIP_AUDIO_AD_CLICK);
+        expect(uiEvent.getTimestamp()).toEqual(1000L);
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEventAttributes.get("ad_urn")).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(uiEventAttributes.get("ad_monetized_urn")).toEqual(Urn.forTrack(123).toString());
+        expect(uiEventAttributes.get("ad_track_urn")).toEqual(Urn.forTrack(456).toString());
+        expect(uiEventAttributes.get("ad_image_url")).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
+    }
 }

@@ -29,7 +29,8 @@ public final class UIEvent {
         SHARE,
         SHUFFLE_LIKES,
         NAVIGATION,
-        AUDIO_AD_CLICK
+        AUDIO_AD_CLICK,
+        SKIP_AUDIO_AD_CLICK
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
@@ -102,16 +103,28 @@ public final class UIEvent {
 
     @VisibleForTesting
     public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
-        return new UIEvent(Kind.AUDIO_AD_CLICK, timestamp)
-                .putAttribute("ad_urn", audioAd.get(AdProperty.AD_URN))
+        return withBasicAudioAdAttributes(new UIEvent(Kind.AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
+                .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
+    }
+
+    private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, TrackUrn audioAdTrack) {
+        return event.putAttribute("ad_urn", audioAd.get(AdProperty.AD_URN))
                 .putAttribute("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
-                .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
                 .putAttribute("ad_image_url", audioAd.get(AdProperty.ARTWORK).toString())
                 .putAttribute("ad_track_urn", audioAdTrack.toString());
     }
 
+    @VisibleForTesting
+    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
+        return withBasicAudioAdAttributes(new UIEvent(Kind.SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack);
+    }
+
     public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
         return fromAudioAdClick(audioAd, audioAdTrack, System.currentTimeMillis());
+    }
+
+    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
+        return fromSkipAudioAdClick(audioAd, audioAdTrack, System.currentTimeMillis());
     }
 
     private static String getPlayableType(Playable playable) {

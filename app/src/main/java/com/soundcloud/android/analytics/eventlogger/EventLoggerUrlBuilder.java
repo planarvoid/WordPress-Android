@@ -165,20 +165,30 @@ public class EventLoggerUrlBuilder {
     public String buildForClick(UIEvent event) {
         final Uri.Builder builder = buildUriForPath("click", event.getTimestamp());
 
+        final Map<String, String> eventAttributes = event.getAttributes();
         switch (event.getKind()) {
             case AUDIO_AD_CLICK:
-                builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
-                builder.appendQueryParameter(MONETIZED_OBJECT, event.getAttributes().get("ad_monetized_urn"));
+                addCommonAudioAdParams(builder, eventAttributes);
                 builder.appendQueryParameter(CLICK_NAME, "clickthrough::companion_display");
-                builder.appendQueryParameter(CLICK_OBJECT, event.getAttributes().get("ad_track_urn"));
-                builder.appendQueryParameter(CLICK_TARGET, event.getAttributes().get("ad_click_url"));
-                builder.appendQueryParameter(EXTERNAL_MEDIA, event.getAttributes().get("ad_image_url"));
+                builder.appendQueryParameter(CLICK_TARGET, eventAttributes.get("ad_click_url"));
+                break;
+            case SKIP_AUDIO_AD_CLICK:
+                addCommonAudioAdParams(builder, eventAttributes);
+                builder.appendQueryParameter(CLICK_NAME, "ad::skip");
                 break;
             default:
                 break;
         }
 
         return builder.toString();
+    }
+
+    private void addCommonAudioAdParams(Uri.Builder builder, Map<String, String> eventAttributes) {
+        builder.appendQueryParameter(AD_URN, eventAttributes.get("ad_urn"));
+        builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+        builder.appendQueryParameter(MONETIZED_OBJECT, eventAttributes.get("ad_monetized_urn"));
+        builder.appendQueryParameter(CLICK_OBJECT, eventAttributes.get("ad_track_urn"));
+        builder.appendQueryParameter(EXTERNAL_MEDIA, eventAttributes.get("ad_image_url"));
     }
 
     private Uri.Builder buildUriForPath(String path, long timestamp) {
