@@ -43,11 +43,15 @@ public class TestEventBus implements EventBus {
     }
 
     public <T> T firstEventOn(Queue<T> queue) {
-        return eventsOn(queue).get(0);
+        final List<T> events = this.eventsOn(queue);
+        assertFalse("Attempted to access first event on queue " + queue + ", but no events fired", events.isEmpty());
+        return events.get(0);
     }
 
     public <T> T lastEventOn(Queue<T> queue) {
-        return Iterables.getLast(this.eventsOn(queue));
+        final List<T> events = this.eventsOn(queue);
+        assertFalse("Attempted to access last event on queue " + queue + ", but no events fired", events.isEmpty());
+        return Iterables.getLast(events);
     }
 
     public <T> void verifyNoEventsOn(Queue<T> queue) {

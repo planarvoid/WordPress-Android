@@ -43,6 +43,16 @@ public class TestEventBusTest {
     }
 
     @Test(expected = AssertionError.class)
+    public void shouldFailWhenTryingToAccessFirstEventOnQueueButNeverFired() {
+        eventBus.firstEventOn(STRING_QUEUE);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFailWhenTryingToAccessLastEventOnQueueButNeverFired() {
+        eventBus.lastEventOn(STRING_QUEUE);
+    }
+
+    @Test(expected = AssertionError.class)
     public void shouldFailWhenNotExpectingEventOnQueueButEventFired() {
         eventBus.publish(STRING_QUEUE, "one");
         eventBus.verifyNoEventsOn(STRING_QUEUE);
