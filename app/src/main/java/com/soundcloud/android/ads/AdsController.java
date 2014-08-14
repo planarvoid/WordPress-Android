@@ -37,10 +37,17 @@ public class AdsController {
     private Subscription audioAdSubscription = Subscriptions.empty();
     private Subscription skipAdSubscription = Subscriptions.empty();
 
-    private final Func1<PlayQueueEvent, Boolean> isQueueUpdate = new Func1<PlayQueueEvent, Boolean>() {
+    private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
             return playQueueEvent.isQueueUpdate();
+        }
+    };
+
+    private static final Func1<PropertySet, Boolean> IS_MONETIZABLE = new Func1<PropertySet, Boolean>() {
+        @Override
+        public Boolean call(PropertySet propertySet) {
+            return propertySet.get(TrackProperty.MONETIZABLE);
         }
     };
 
@@ -68,13 +75,6 @@ public class AdsController {
         }
     };
 
-    private final Func1<PropertySet, Boolean> isMonetizable = new Func1<PropertySet, Boolean>() {
-        @Override
-        public Boolean call(PropertySet propertySet) {
-            return propertySet.get(TrackProperty.MONETIZABLE);
-        }
-    };
-
     private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAd = new Func1<PropertySet, Observable<AudioAd>>() {
         @Override
         public Observable<AudioAd> call(PropertySet propertySet) {
@@ -92,7 +92,7 @@ public class AdsController {
         }
     };
 
-    private Action1<Playa.StateTransition> unsubscribeSkipAd = new Action1<Playa.StateTransition>() {
+    private final Action1<Playa.StateTransition> unsubscribeSkipAd = new Action1<Playa.StateTransition>() {
         @Override
         public void call(Playa.StateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
@@ -126,7 +126,7 @@ public class AdsController {
                 .subscribe(new PlayQueueSubscriber());
 
         eventBus.queue(EventQueue.PLAY_QUEUE)
-                .filter(isQueueUpdate)
+                .filter(IS_QUEUE_UPDATE)
                 .filter(hasNextNonAudioAdTrack)
                 .subscribe(new PlayQueueSubscriber());
 
@@ -140,11 +140,11 @@ public class AdsController {
                 .subscribe(new PlaybackStateSubscriber());
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<Object> {
+    private final class PlayQueueSubscriber extends DefaultSubscriber<Object> {
         @Override
         public void onNext(Object event) {
             currentObservable = trackOperations.track(playQueueManager.getNextTrackUrn())
-                    .filter(isMonetizable)
+                    .filter(IS_MONETIZABLE)
                     .mergeMap(fetchAudioAd)
                     .observeOn(AndroidSchedulers.mainThread());
             audioAdSubscription = currentObservable.subscribe(new AudioAdSubscriber(playQueueManager.getCurrentPosition()));
@@ -171,7 +171,7 @@ public class AdsController {
         }
     }
 
-    private class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private final class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
 
         @Override
         public void onNext(Playa.StateTransition state) {
@@ -186,7 +186,7 @@ public class AdsController {
         }
     }
 
-    private class ExpandPlayerForAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+    private final class ExpandPlayerForAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
             eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
