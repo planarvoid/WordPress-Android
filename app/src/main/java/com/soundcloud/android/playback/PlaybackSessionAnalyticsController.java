@@ -98,7 +98,7 @@ public class PlaybackSessionAnalyticsController {
 
     private void publishPlayEvent(final Playa.StateTransition stateTransition) {
         currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        if (playQueueManager.getCurrentTrackSourceInfo() != null) {
+        if (currentTrackSourceInfo != null) {
             trackObservable.map(stateTransitionToSessionEvent(stateTransition)).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
         }
     }
