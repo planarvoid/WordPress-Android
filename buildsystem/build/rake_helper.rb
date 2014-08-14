@@ -225,6 +225,7 @@ module Build
         message = "VersionCode bumped to: #{new_version_code}"
         git.commit_a(message)
 
+        git.push
         puts message
 
       end
