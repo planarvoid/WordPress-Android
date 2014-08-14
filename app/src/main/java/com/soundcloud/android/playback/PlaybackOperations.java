@@ -194,7 +194,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            showAdInProgressToast();
+            showUnkippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !playQueueManager.isCurrentTrackAudioAd()){
@@ -207,7 +207,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            showAdInProgressToast();
+            showUnkippableAdToast();
         } else {
             playQueueManager.nextTrack();
         }
@@ -308,7 +308,7 @@ public class PlaybackOperations {
 
     private void playNewQueue(List<Long> trackIdList, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            showAdInProgressToast();
+            showUnkippableAdToast();
         } else {
             final PlayQueue playQueue = PlayQueue.fromIdList(trackIdList, playSessionSource);
             playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
@@ -316,8 +316,12 @@ public class PlaybackOperations {
         }
     }
 
-    private void showAdInProgressToast() {
-        Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
+    private void showUnkippableAdToast() {
+        if (playSessionStateProvider.isPlaying()) {
+            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, R.string.ad_resume_playing_to_continue, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, TrackUrn initialTrack) {
