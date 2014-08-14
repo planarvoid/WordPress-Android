@@ -41,7 +41,6 @@ public class AdPageListenerTest {
 
     @Test
     public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123));
         when(playQueueManager.getAudioAd()).thenReturn(audioAd);
@@ -56,7 +55,6 @@ public class AdPageListenerTest {
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(456));
         when(playQueueManager.getAudioAd()).thenReturn(audioAd);
@@ -67,14 +65,4 @@ public class AdPageListenerTest {
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }
-
-    @Test
-    public void onClickThroughShouldNotOpenUrlWhenCurrentTrackIsNotAnAudioAd() throws CreateModelException {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
-
-        listener.onClickThrough();
-
-        expect(Robolectric.getShadowApplication().getNextStartedActivity()).toBeNull();
-    }
-
 }

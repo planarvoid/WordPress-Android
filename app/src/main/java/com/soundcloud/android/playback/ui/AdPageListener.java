@@ -54,14 +54,12 @@ class AdPageListener {
     }
 
     public void onClickThrough() {
-        if (playQueueManager.isCurrentTrackAudioAd()) {
-            final PropertySet audioAd = playQueueManager.getAudioAd();
-            Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
-            startActivity(uri);
+        final PropertySet audioAd = playQueueManager.getAudioAd();
+        Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
+        startActivity(uri);
 
-            // track this click
-            eventBus.publish(EventQueue.UI, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
-        }
+        // track this click
+        eventBus.publish(EventQueue.UI, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
     }
 
     public void onAboutAds(FragmentActivity activity) {
