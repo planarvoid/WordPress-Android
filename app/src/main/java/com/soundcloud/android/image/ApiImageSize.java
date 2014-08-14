@@ -44,10 +44,14 @@ public enum ApiImageSize {
     }
 
     public static ApiImageSize getListItemImageSize(Context c) {
-        if (ImageUtils.isScreenXL(c)) {
+        return getListItemImageSize(c.getResources());
+    }
+
+    public static ApiImageSize getListItemImageSize(Resources resources) {
+        if (ImageUtils.isScreenXL(resources)) {
             return ApiImageSize.LARGE;
         } else {
-            if (c.getResources().getDisplayMetrics().density > 1) {
+            if (resources.getDisplayMetrics().density > 1) {
                 return ApiImageSize.LARGE;
             } else {
                 return ApiImageSize.BADGE;
@@ -68,7 +72,7 @@ public enum ApiImageSize {
     }
 
     public static ApiImageSize getSearchSuggestionsListItemImageSize(Context c) {
-        if (ImageUtils.isScreenXL(c)) {
+        if (ImageUtils.isScreenXL(c.getResources())) {
             return ApiImageSize.T67;
         } else {
             if (c.getResources().getDisplayMetrics().density > 1) {

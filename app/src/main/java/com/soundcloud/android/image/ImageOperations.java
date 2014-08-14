@@ -14,6 +14,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.soundcloud.android.R;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -25,7 +26,9 @@ import rx.Observable;
 import rx.Subscriber;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.View;
@@ -144,12 +147,15 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayInVisualPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
+    public void displayInVisualPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener, Bitmap placeholder) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        final Drawable placeholderDrawable = placeholder != null ? new BitmapDrawable(placeholder) :
+                getPlaceholderDrawable(urn, imageAware);
+
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
-                ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
+                ImageOptionsFactory.player(placeholderDrawable),
                 new ImageListenerUILAdapter(imageListener));
     }
 
@@ -214,6 +220,12 @@ public class ImageOperations {
                 load(resourceUrn, apiImageSize, targetWidth, targetHeight, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
             }
         });
+    }
+
+    public Bitmap getCachedListItemBitmap(Resources resources, Urn resourceUrn){
+        return getCachedBitmap(resourceUrn, ApiImageSize.getListItemImageSize(resources),
+                resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
+                resources.getDimensionPixelSize(R.dimen.list_item_image_dimension));
     }
 
     @Nullable

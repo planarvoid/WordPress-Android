@@ -383,8 +383,8 @@ public final class ImageUtils {
     }
 
     @TargetApi(9)
-    public static boolean isScreenXL(Context context){
-        return ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
+    public static boolean isScreenXL(Resources resources){
+        return ((resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
     }
 
     public static boolean checkIconShouldLoad(String url) {
@@ -499,7 +499,6 @@ public final class ImageUtils {
                         from == null ? new ColorDrawable(Color.TRANSPARENT) : from,
                         to
                 });
-        tDrawable.setCrossFadeEnabled(true);
         return tDrawable;
     }
 

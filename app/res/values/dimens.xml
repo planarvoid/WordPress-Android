@@ -147,4 +147,7 @@
     <dimen name="divider_vertical_width">1px</dimen>
     <dimen name="divider_horizontal_height">1px</dimen>
 
+    <!-- new list item -->
+    <dimen name="list_item_image_dimension">60dp</dimen>
+
 </resources>

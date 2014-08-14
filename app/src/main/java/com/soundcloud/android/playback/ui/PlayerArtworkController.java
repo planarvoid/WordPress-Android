@@ -17,7 +17,9 @@ import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.tracks.TrackUrn;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -114,8 +116,10 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     }
 
     public void loadArtwork(TrackUrn urn) {
-        final ApiImageSize size = ApiImageSize.getFullImageSize(wrappedImageView.getResources());
-        imageOperations.displayInVisualPlayer(urn, size, wrappedImageView, this);
+        final Resources resources = wrappedImageView.getResources();
+        final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
+        final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);
+        imageOperations.displayInVisualPlayer(urn, size, wrappedImageView, this, cachedListBitmap);
     }
 
     private void configureBounds() {
@@ -142,7 +146,8 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
-            return new PlayerArtworkController(artworkView, animationControllerFactory,  playSessionStateProvider, imageOperations);
+            return new PlayerArtworkController(artworkView, animationControllerFactory,
+                    playSessionStateProvider, imageOperations);
         }
     }
 }

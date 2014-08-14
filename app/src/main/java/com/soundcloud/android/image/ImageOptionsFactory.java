@@ -50,6 +50,16 @@ class ImageOptionsFactory {
                 .build();
     }
 
+    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable){
+        return fullCacheBuilder()
+                .showImageOnLoading(placeholderDrawable)
+                .showImageForEmptyUri(placeholderDrawable)
+                .showImageOnFail(placeholderDrawable)
+                .displayer(new PlaceholderTransitionDisplayer())
+                .build();
+    }
+
+
     public static DisplayImageOptions prefetch() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(false)
