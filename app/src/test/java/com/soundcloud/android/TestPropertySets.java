@@ -64,7 +64,8 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 AdProperty.AD_URN.bind("adswizz:ads:456"),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://brand.com"))
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://brand.com")),
+                AdProperty.ARTWORK.bind(Uri.parse("http://artwork"))
         );
     }
 }

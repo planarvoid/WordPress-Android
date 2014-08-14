@@ -229,6 +229,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&click_name=clickthrough::companion_display"
                 + "&click_object=" + audioAdTrackUrn.toEncodedString()
                 + "&click_target=" + audioAd.get(AdProperty.CLICK_THROUGH_LINK)
+                + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
                 + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
                 + "&monetization_type=audio_ad")));
     }

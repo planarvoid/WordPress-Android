@@ -48,6 +48,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleUIEvent(UIEvent event) {
+        trackEvent(event.getTimestamp(), urlBuilder.buildForClick(event));
     }
 
     @Override
@@ -67,16 +68,12 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        final String url = urlBuilder.buildForAudioPerformanceEvent(eventData);
-        final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
-        eventTracker.trackEvent(event);
+        trackEvent(eventData.getTimeStamp(), urlBuilder.buildForAudioPerformanceEvent(eventData));
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        final String url = urlBuilder.buildForAudioErrorEvent(eventData);
-        final TrackingEvent event = new TrackingEvent(eventData.getTimestamp(), BACKEND_NAME, url);
-        eventTracker.trackEvent(event);
+        trackEvent(eventData.getTimestamp(), urlBuilder.buildForAudioErrorEvent(eventData));
     }
 
     @Override

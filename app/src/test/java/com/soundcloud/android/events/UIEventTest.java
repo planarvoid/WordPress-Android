@@ -229,5 +229,6 @@ public class UIEventTest {
         expect(uiEventAttributes.get("ad_monetized_urn")).toEqual(Urn.forTrack(123).toString());
         expect(uiEventAttributes.get("ad_track_urn")).toEqual(Urn.forTrack(456).toString());
         expect(uiEventAttributes.get("ad_click_url")).toEqual(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
+        expect(uiEventAttributes.get("ad_image_url")).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
     }
 }

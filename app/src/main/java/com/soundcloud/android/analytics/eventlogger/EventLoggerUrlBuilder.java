@@ -37,6 +37,7 @@ public class EventLoggerUrlBuilder {
     private static final String PLAYLIST_POSITION = "set_position";
     // ad specific params
     private static final String AD_URN = "ad_urn";
+    private static final String EXTERNAL_MEDIA = "external_media";
     private static final String MONETIZATION_TYPE = "monetization_type";
     private static final String MONETIZED_OBJECT = "monetized_object";
     private static final String IMPRESSION_NAME = "impression_name";
@@ -169,6 +170,7 @@ public class EventLoggerUrlBuilder {
                 builder.appendQueryParameter(CLICK_NAME, "clickthrough::companion_display");
                 builder.appendQueryParameter(CLICK_OBJECT, event.getAttributes().get("ad_track_urn"));
                 builder.appendQueryParameter(CLICK_TARGET, event.getAttributes().get("ad_click_url"));
+                builder.appendQueryParameter(EXTERNAL_MEDIA, event.getAttributes().get("ad_image_url"));
                 break;
             default:
                 break;

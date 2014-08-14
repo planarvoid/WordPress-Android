@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -100,6 +101,20 @@ public class EventLoggerAnalyticsProviderTest {
         when(eventLoggerUrlBuilder.buildForAudioErrorEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
+
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
+        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
+        expect(captor.getValue().getUrl()).toEqual("url");
+    }
+
+    @Test
+    public void shouldTrackUIEvents() {
+        UIEvent event = UIEvent.fromAudioAdClick(TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123)), Urn.forTrack(456));
+        when(eventLoggerUrlBuilder.buildForClick(event)).thenReturn("url");
+
+        eventLoggerAnalyticsProvider.handleUIEvent(event);
 
         ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
         verify(eventTracker).trackEvent(captor.capture());

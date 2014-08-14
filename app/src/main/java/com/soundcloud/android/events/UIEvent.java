@@ -106,6 +106,7 @@ public final class UIEvent {
                 .putAttribute("ad_urn", audioAd.get(AdProperty.AD_URN))
                 .putAttribute("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
+                .putAttribute("ad_image_url", audioAd.get(AdProperty.ARTWORK).toString())
                 .putAttribute("ad_track_urn", audioAdTrack.toString());
     }
 
