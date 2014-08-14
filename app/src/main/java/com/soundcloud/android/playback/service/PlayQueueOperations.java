@@ -130,10 +130,10 @@ public class PlayQueueOperations {
     }
 
     public Observable<ModelCollection<PolicyInfo>> fetchAndStorePolicies(List<TrackUrn> trackUrns){
-        final APIRequest<ModelCollection<PolicyInfo>> request = RequestBuilder.<ModelCollection<PolicyInfo>>post(APIEndpoints.POLICIES.path())
+        final APIRequest<PolicyCollection> request = RequestBuilder.<PolicyCollection>post(APIEndpoints.POLICIES.path())
                 .withContent(transformUrnsToStrings(trackUrns))
                 .forPrivateAPI(1)
-                .forResource(new TypeToken<ModelCollection<PolicyInfo>>() {}).build();
+                .forResource(TypeToken.of(PolicyCollection.class)).build();
 
         final Observable<ModelCollection<PolicyInfo>> mapObservable = rxHttpClient.fetchModels(request);
         return mapObservable.doOnNext(storePolicies);
@@ -146,5 +146,9 @@ public class PlayQueueOperations {
                 return input.toString();
             }
         });
+    }
+
+    public static class PolicyCollection extends ModelCollection<PolicyInfo> {
+        // Policy type token
     }
 }
