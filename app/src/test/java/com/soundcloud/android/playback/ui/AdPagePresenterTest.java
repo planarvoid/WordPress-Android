@@ -134,8 +134,6 @@ public class AdPagePresenterTest {
         expect(previewArtworkOverlay()).toBeVisible();
         expect(timeUntilSkip()).toBeVisible();
         expect(timeUntilSkip().getText()).toEqual("15 sec.");
-        expect(nextArea()).toBeDisabled();
-        expect(previousArea()).toBeDisabled();
     }
 
     @Test
@@ -155,8 +153,6 @@ public class AdPagePresenterTest {
         expect(timeUntilSkip()).toBeGone();
         expect(previewArtworkOverlay()).toBeGone();
         expect(skipAd()).toBeVisible();
-        expect(nextArea()).toBeEnabled();
-        expect(previousArea()).toBeEnabled();
     }
 
     @Test
