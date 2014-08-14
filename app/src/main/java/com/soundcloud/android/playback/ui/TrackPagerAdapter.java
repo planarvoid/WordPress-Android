@@ -39,7 +39,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AD_VIEW = 1;
-    private static final int EXPECTED_TRACKVIEW_COUNT = 4;
+    private static final int EXPECTED_TRACKVIEW_COUNT = 5;
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
@@ -90,6 +90,14 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     void unsubscribe() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
+    }
+
+    void warmupViewCache(ViewGroup container){
+        for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++){
+            final View itemView = trackPagePresenter.createItemView(container);
+            subscribeToPlayEvents(trackPagePresenter, itemView);
+            addScrapView(i, itemView, TYPE_TRACK_VIEW);
+        }
     }
 
     @Override

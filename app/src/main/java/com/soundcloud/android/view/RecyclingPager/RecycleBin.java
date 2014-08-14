@@ -18,14 +18,6 @@ import android.view.View;
  * is copyrighted 2006 The Android Open Source Project.
  */
 public class RecycleBin {
-    /**
-     * Views that were on screen at the start of layout. This array is populated at the start of
-     * layout, and at the end of layout all view in activeViews are moved to scrapViews.
-     * Views in activeViews represent a contiguous range of Views, with position of the first
-     * view store in mFirstActivePosition.
-     */
-    private View[] activeViews = new View[0];
-    private int[] activeViewTypes = new int[0];
 
     /** Unsorted views that can be used by the adapter as a convert view. */
     private SparseArray<View>[] scrapViews;
@@ -46,10 +38,6 @@ public class RecycleBin {
         this.viewTypeCount = viewTypeCount;
         currentScrapViews = scrapViews[0];
         this.scrapViews = scrapViews;
-    }
-
-    protected boolean shouldRecycleViewType(int viewType) {
-        return viewType >= 0;
     }
 
     /** @return A view from the ScrapViews collection. These are unordered. */
@@ -77,60 +65,6 @@ public class RecycleBin {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             scrap.setAccessibilityDelegate(null);
-        }
-    }
-
-    /** Move all views remaining in activeViews to scrapViews. */
-    @TargetApi(14)
-    void scrapActiveViews() {
-        final View[] activeViews = this.activeViews;
-        final int[] activeViewTypes = this.activeViewTypes;
-        final boolean multipleScraps = viewTypeCount > 1;
-
-        SparseArray<View> scrapViews = currentScrapViews;
-        final int count = activeViews.length;
-        for (int i = count - 1; i >= 0; i--) {
-            final View victim = activeViews[i];
-            if (victim != null) {
-                int whichScrap = activeViewTypes[i];
-
-                activeViews[i] = null;
-                activeViewTypes[i] = -1;
-
-                if (!shouldRecycleViewType(whichScrap)) {
-                    continue;
-                }
-
-                if (multipleScraps) {
-                    scrapViews = this.scrapViews[whichScrap];
-                }
-                scrapViews.put(i, victim);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    victim.setAccessibilityDelegate(null);
-                }
-            }
-        }
-
-        pruneScrapViews();
-    }
-
-    /**
-     * Makes sure that the size of scrapViews does not exceed the size of activeViews.
-     * (This can happen if an adapter does not recycle its views).
-     */
-    private void pruneScrapViews() {
-        final int maxViews = activeViews.length;
-        final int viewTypeCount = this.viewTypeCount;
-        final SparseArray<View>[] scrapViews = this.scrapViews;
-        for (int i = 0; i < viewTypeCount; ++i) {
-            final SparseArray<View> scrapPile = scrapViews[i];
-            int size = scrapPile.size();
-            final int extras = size - maxViews;
-            size--;
-            for (int j = 0; j < extras; j++) {
-                scrapPile.remove(scrapPile.keyAt(size--));
-            }
         }
     }
 

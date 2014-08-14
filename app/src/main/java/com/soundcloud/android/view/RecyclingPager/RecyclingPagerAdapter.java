@@ -26,11 +26,6 @@ public abstract class RecyclingPagerAdapter extends PagerAdapter {
         recycleBin.setViewTypeCount(getViewTypeCount());
     }
 
-    @Override public void notifyDataSetChanged() {
-        recycleBin.scrapActiveViews();
-        super.notifyDataSetChanged();
-    }
-
     @Override public final Object instantiateItem(ViewGroup container, int position) {
         int viewType = getItemViewType(position);
         View view = null;
@@ -47,8 +42,12 @@ public abstract class RecyclingPagerAdapter extends PagerAdapter {
         container.removeView(view);
         int viewType = getItemViewTypeFromObject(view);
         if (viewType != IGNORE_ITEM_VIEW_TYPE) {
-            recycleBin.addScrapView(view, position, viewType);
+            addScrapView(position, view, viewType);
         }
+    }
+
+    protected void addScrapView(int position, View view, int viewType) {
+        recycleBin.addScrapView(view, position, viewType);
     }
 
     @Override public final boolean isViewFromObject(View view, Object object) {

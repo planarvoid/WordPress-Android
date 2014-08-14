@@ -113,6 +113,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         this.trackPager.setOnPageChangeListener(this);
         trackPager.setAdapter(adapter);
         setQueuePosition(playQueueManager.getCurrentPosition());
+        adapter.warmupViewCache(trackPager);
     }
 
     private void setQueuePosition(int position) {
