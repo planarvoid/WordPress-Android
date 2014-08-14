@@ -58,10 +58,10 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
-    public static PropertySet expectedAudioAdForAnalytics(TrackUrn audioAdTrack) {
+    public static PropertySet expectedAudioAdForAnalytics(TrackUrn monetizedTrack) {
         return PropertySet.from(
                 AdProperty.AD_URN.bind("adswizz:ads:456"),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(audioAdTrack)
+                AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack)
         );
     }
 }

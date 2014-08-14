@@ -20,7 +20,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -175,9 +175,8 @@ public class EventLoggerUrlBuilderTest {
 
     @Test
     public void createAudioEventUrlForAudioAdPlaybackEvent() throws UnsupportedEncodingException {
-        TrackUrn audioAdTrackUrn = Urn.forTrack(123L);
-        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(audioAdTrackUrn);
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(audioAdTrackUrn);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
+        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, "hls", trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
@@ -186,7 +185,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=" + audioAdTrack.get(PlayableProperty.DURATION)
-                + "&sound=" + audioAdTrackUrn.toEncodedString()
+                + "&sound=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
                 + "&context=origin"
@@ -198,9 +197,8 @@ public class EventLoggerUrlBuilderTest {
 
     @Test
     public void createImpressionUrlForAudioAdPlaybackEvent() throws CreateModelException, UnsupportedEncodingException {
-        TrackUrn audioAdTrackUrn = Urn.forTrack(123L);
-        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(audioAdTrackUrn);
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(audioAdTrackUrn);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
+        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAdImpression(
                 PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, "hls", trackSourceInfo, 0L, 321L));
 
@@ -211,7 +209,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&user=" + userUrn.toEncodedString()
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&impression_name=audio_ad_impression"
-                + "&impression_object=" + audioAdTrackUrn.toEncodedString()
+                + "&impression_object=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
                 + "&monetization_type=audio_ad"
                 + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString())));
     }
