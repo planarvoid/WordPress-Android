@@ -27,7 +27,9 @@ public class ErrorUtils {
      * @param callsite
      */
     public static void handleThrowable(Throwable t, Class<?> callsite) {
-        Crashlytics.setString("error-callsite", callsite.getCanonicalName());
+        if (ApplicationProperties.shouldReportCrashes()) {
+            Crashlytics.setString("error-callsite", callsite.getCanonicalName());
+        }
         if (t instanceof OnErrorNotImplementedException) {
             throw new FatalException(t.getCause());
         } else if (t instanceof RuntimeException || t instanceof Error) {
