@@ -8,9 +8,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -21,10 +21,8 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
-import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -34,7 +32,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final PlaybackOperations playbackOperations;
-    private final PlaySessionStateProvider playSessionStateProvider;
+    private final AdToastViewController adToastViewController;
     private final PlayerPresenter presenter;
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private CompositeSubscription subscription;
@@ -66,13 +64,13 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
-                                 PlaySessionStateProvider playSessionStateProvider) {
+                                 AdToastViewController adToastViewController) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
-        this.playSessionStateProvider = playSessionStateProvider;
+        this.adToastViewController = adToastViewController;
 
         checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(new Func1<PlaybackProgressEvent, Boolean>() {
             @Override
@@ -84,16 +82,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     @Override
     public void onBlockedSwipe() {
-        showUnkippableAdToast();
-    }
-
-    private void showUnkippableAdToast() {
-        final Context context = trackPager.getContext();
-        if (playSessionStateProvider.isPlaying()) {
-            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, R.string.ad_resume_playing_to_continue, Toast.LENGTH_SHORT).show();
-        }
+        adToastViewController.showUnkippableAdToast();
     }
 
     void onViewCreated(View view) {

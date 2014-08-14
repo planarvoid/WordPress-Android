@@ -6,7 +6,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -23,6 +22,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -42,7 +42,6 @@ import rx.subscriptions.Subscriptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -72,16 +71,19 @@ public class PlaybackOperations {
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final AdToastViewController adToastViewController;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
-                              PlayQueueManager playQueueManager, EventBus eventBus, PlaySessionStateProvider playSessionStateProvider) {
+                              PlayQueueManager playQueueManager, EventBus eventBus,
+                              PlaySessionStateProvider playSessionStateProvider, AdToastViewController adToastViewController) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.adToastViewController = adToastViewController;
     }
 
     /**
@@ -194,7 +196,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            showUnkippableAdToast();
+            adToastViewController.showUnkippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !playQueueManager.isCurrentTrackAudioAd()){
@@ -207,7 +209,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            showUnkippableAdToast();
+            adToastViewController.showUnkippableAdToast();
         } else {
             playQueueManager.nextTrack();
         }
@@ -308,19 +310,11 @@ public class PlaybackOperations {
 
     private void playNewQueue(List<Long> trackIdList, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            showUnkippableAdToast();
+            adToastViewController.showUnkippableAdToast();
         } else {
             final PlayQueue playQueue = PlayQueue.fromIdList(trackIdList, playSessionSource);
             playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
             playCurrent();
-        }
-    }
-
-    private void showUnkippableAdToast() {
-        if (playSessionStateProvider.isPlaying()) {
-            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, R.string.ad_resume_playing_to_continue, Toast.LENGTH_SHORT).show();
         }
     }
 

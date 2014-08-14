@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -24,6 +23,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -33,7 +33,6 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
-import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,11 +63,12 @@ public class PlaybackOperationsTest {
     @Mock private TrackStorage trackStorage;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private AdToastViewController adToastViewController;
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, eventBus, playSessionStateProvider);
+                playQueueManager, eventBus, playSessionStateProvider, adToastViewController);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
@@ -270,43 +270,21 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void previousTrackShowsToastWhenWhenAdIsPlaying() {
+    public void previousTrackShowsUnskippableToastWhenPlaybackNotSkippable() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.previousTrack();
 
-        expectUnskippableToastMessage();
+        verify(adToastViewController).showUnkippableAdToast();
     }
 
     @Test
-    public void previousTrackShowsToastWhenPlaybackNotSkippable() {
+    public void nextTrackShowsUnskippableToastWhenPlaybackNotSkippable() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.previousTrack();
-
-        expectResumeAdToastMessage();
-    }
-    
-    @Test
-    public void nextTrackShowsAdInProgressToastWhenAdIsPlaying() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.nextTrack();
 
-        expectUnskippableToastMessage();
-    }
-
-    @Test
-    public void nextTrackShowsToastWhenPlaybackNotSkippable() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.nextTrack();
-
-        expectResumeAdToastMessage();
+        verify(adToastViewController).showUnkippableAdToast();
     }
 
     @Test
@@ -595,23 +573,12 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void showUnskippablePlaybackToastWhenAdIsPlayingOnPlayTrack() {
+    public void showUnskippableToastWhenAdIsPlayingOnPlayTrack() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.playTrack(track, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
-    }
-
-    @Test
-    public void showResumeAdToastWhenAdIsPausedOnPlayTrack() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
-
-        expectResumeAdToastMessageAndNoNewPlayQueueSet();
+        expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
     @Test
@@ -625,115 +592,55 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void showUnskippablePlaybackToastWhenAdIsPlayingOnPlayFromAdapter() {
+    public void showUnskippableToastWhenAdIsPlayingOnPlayFromAdapter() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
         final ArrayList<PublicApiTrack> tracks = Lists.newArrayList(new PublicApiTrack(1L));
         final ArrayList<Long> trackIds = Lists.newArrayList(1L);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
 
         playbackOperations.playFromAdapter(Robolectric.application, tracks, 0, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
+        expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
     @Test
-    public void showResumeAdToastWhenAdIsPausedOnPlayFromAdapter() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final ArrayList<PublicApiTrack> tracks = Lists.newArrayList(new PublicApiTrack(1L));
-        final ArrayList<Long> trackIds = Lists.newArrayList(1L);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
-
-        playbackOperations.playFromAdapter(Robolectric.application, tracks, 0, Content.ME_LIKES.uri, ORIGIN_SCREEN);
-
-        expectResumeAdToastMessageAndNoNewPlayQueueSet();
-    }
-
-    @Test
-    public void showUnskippablePlaybackToastWhenAdIsPlayingOnPlayFromShuffledIds() {
+    public void showUnskippableToastWhenAdIsPlayingOnPlayFromShuffledIds() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
         final ArrayList<Long> idsOrig = Lists.newArrayList(1L);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
 
-        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
+        expectUnskippableToastAndNoNewPlayQueueSet();
+
     }
 
     @Test
-    public void showResumeAdToastWhenAdIsPausedOnPlayFromShuffledIds() {
+    public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylist() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final ArrayList<Long> idsOrig = Lists.newArrayList(1L);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
-
-        expectResumeAdToastMessageAndNoNewPlayQueueSet();
-    }
-
-    @Test
-    public void showUnskippablePlaybackToastWhenAdIsPlayingOnPlayPlaylist() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
+        expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
     @Test
-    public void showResumeAdToastWhenAdIsPausedOnPlayPlaylist() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
-
-        expectResumeAdToastMessageAndNoNewPlayQueueSet();
-    }
-
-    @Test
-    public void showUnskippablePlaybackToastWhenAdIsPlayingOnPlayPlaylistFromPosition() throws CreateModelException {
+    public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylistFromPosition() throws CreateModelException {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
         when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(123L)));
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
                 Observable.just(TRACK_URN), TRACK_URN, 0, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
+        expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
     @Test
-    public void showResumeAdToastWhenAdIsPausedOnPlayPlaylistFromPosition() throws CreateModelException {
+    public void showUnskippableToastWhenAdIsPlayingOnRecommendations() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(123L)));
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
-                Observable.just(TRACK_URN), TRACK_URN, 0, ORIGIN_SCREEN);
-
-        expectResumeAdToastMessageAndNoNewPlayQueueSet();
-    }
-
-    @Test
-    public void showUnskippablePlaybackToastWhenAdIsPlayingOnRecommendations() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
 
-        expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet();
-    }
-
-    @Test
-    public void showResumeAdToastWhenAdIsPausedOnRecommendations() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN);
-
-        expectResumeAdToastMessageAndNoNewPlayQueueSet();
+        expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
     @Test
@@ -787,22 +694,8 @@ public class PlaybackOperationsTest {
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
     }
 
-    private void expectUnskippablePlaybackToastMessageAndNoNewPlayQueueSet() {
-        expectUnskippableToastMessage();
+    private void expectUnskippableToastAndNoNewPlayQueueSet() {
+        verify(adToastViewController).showUnkippableAdToast();
         verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), anyInt(), any(PlaySessionSource.class));
     }
-
-    private void expectResumeAdToastMessageAndNoNewPlayQueueSet() {
-        expectResumeAdToastMessage();
-        verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), anyInt(), any(PlaySessionSource.class));
-    }
-
-    private void expectResumeAdToastMessage() {
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_resume_playing_to_continue));
-    }
-
-    private void expectUnskippableToastMessage() {
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
-    }
-
 }

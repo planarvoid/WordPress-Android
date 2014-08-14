@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -17,7 +16,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -26,7 +24,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +42,6 @@ public class PlayerPagerControllerTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private View container;
     @Mock private PlayerTrackPager viewPager;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     private PlayerPagerController controller;
     private TestEventBus eventBus = new TestEventBus();
@@ -53,7 +49,7 @@ public class PlayerPagerControllerTest {
     @Before
     public void setUp() {
         controller = new PlayerPagerController(adapter, presenter, eventBus,
-                playQueueManager, playbackOperations, playSessionStateProvider);
+                playQueueManager, playbackOperations, null);
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(container.findViewById(anyInt())).thenReturn(viewPager);
         when(viewPager.getContext()).thenReturn(Robolectric.application);
@@ -268,23 +264,5 @@ public class PlayerPagerControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, TrackUrn.NOT_SET));
 
         verifyZeroInteractions(viewPager);
-    }
-
-    @Test
-    public void showAdInProgressToastOnBlockedSwipeIfTrackIsPlaying() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-
-        controller.onBlockedSwipe();
-
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
-    }
-
-    @Test
-    public void showResumeAdToastOnBlockedSwipeIfTrackIsPaused() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        controller.onBlockedSwipe();
-
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_resume_playing_to_continue));
     }
 }
