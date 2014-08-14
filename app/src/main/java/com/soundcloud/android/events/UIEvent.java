@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -14,6 +15,7 @@ public final class UIEvent {
 
     private final Kind kind;
     private final Map<String, String> attributes;
+    private final long timestamp;
 
     public enum Kind {
         FOLLOW,
@@ -98,11 +100,17 @@ public final class UIEvent {
         return new UIEvent(Kind.NAVIGATION).putAttribute("page", "search");
     }
 
-    public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
-        return new UIEvent(Kind.AUDIO_AD_CLICK)
+    @VisibleForTesting
+    public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
+        return new UIEvent(Kind.AUDIO_AD_CLICK, timestamp)
                 .putAttribute("ad_urn", audioAd.get(AdProperty.AD_URN))
                 .putAttribute("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
+                .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
                 .putAttribute("ad_track_urn", audioAdTrack.toString());
+    }
+
+    public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
+        return fromAudioAdClick(audioAd, audioAdTrack, System.currentTimeMillis());
     }
 
     private static String getPlayableType(Playable playable) {
@@ -110,12 +118,21 @@ public final class UIEvent {
     }
 
     public UIEvent(Kind kind) {
+        this(kind, System.currentTimeMillis());
+    }
+
+    public UIEvent(Kind kind, long timestamp) {
         this.kind = kind;
+        this.timestamp = timestamp;
         attributes = new HashMap<String, String>();
     }
 
     public Kind getKind() {
         return kind;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public Map<String, String> getAttributes() {

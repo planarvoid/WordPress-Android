@@ -14,6 +14,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -21,6 +22,7 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -212,6 +214,23 @@ public class EventLoggerUrlBuilderTest {
                 + "&impression_object=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
                 + "&monetization_type=audio_ad"
                 + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString())));
+    }
+
+    @Test
+    public void createAudioAdClickUrl() {
+        final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(monetizedTrackUrn);
+        final TrackUrn audioAdTrackUrn = Urn.forTrack(456);
+        final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromAudioAdClick(audioAd, audioAdTrackUrn, 1000L));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=1000"
+                + "&click_name=clickthrough::companion_display"
+                + "&click_object=" + audioAdTrackUrn.toEncodedString()
+                + "&click_target=" + audioAd.get(AdProperty.CLICK_THROUGH_LINK)
+                + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
+                + "&monetization_type=audio_ad")));
     }
 
     @Test

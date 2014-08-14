@@ -1,14 +1,16 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import android.content.res.Resources;
-import android.net.Uri;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
+
+import android.content.res.Resources;
+import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.Locale;
@@ -51,6 +53,10 @@ public class EventLoggerUrlBuilder {
     private static final String FORMAT = "format";
     private static final String URL = "url";
     private static final String ERROR_CODE = "errorCode";
+    // click specific params
+    private static final String CLICK_NAME = "click_name";
+    private static final String CLICK_OBJECT = "click_object";
+    private static final String CLICK_TARGET = "click_target";
 
     private final String appId;
     private final DeviceHelper deviceHelper;
@@ -151,6 +157,24 @@ public class EventLoggerUrlBuilder {
                 .appendQueryParameter(URL, event.getCdnHost())
                 .appendQueryParameter(ERROR_CODE, event.getCategory())
                 .build().toString();
+    }
+
+    public String buildForClick(UIEvent event) {
+        final Uri.Builder builder = buildUriForPath("click", event.getTimestamp());
+
+        switch (event.getKind()) {
+            case AUDIO_AD_CLICK:
+                builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+                builder.appendQueryParameter(MONETIZED_OBJECT, event.getAttributes().get("ad_monetized_urn"));
+                builder.appendQueryParameter(CLICK_NAME, "clickthrough::companion_display");
+                builder.appendQueryParameter(CLICK_OBJECT, event.getAttributes().get("ad_track_urn"));
+                builder.appendQueryParameter(CLICK_TARGET, event.getAttributes().get("ad_click_url"));
+                break;
+            default:
+                break;
+        }
+
+        return builder.toString();
     }
 
     private Uri.Builder buildUriForPath(String path, long timestamp) {
