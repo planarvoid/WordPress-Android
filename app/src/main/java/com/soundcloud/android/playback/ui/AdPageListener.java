@@ -6,9 +6,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
 import android.content.Intent;
@@ -53,8 +55,12 @@ class AdPageListener {
 
     public void onClickThrough() {
         if (playQueueManager.isCurrentTrackAudioAd()) {
-            Uri uri = playQueueManager.getAudioAd().get(AdProperty.CLICK_THROUGH_LINK);
+            final PropertySet audioAd = playQueueManager.getAudioAd();
+            Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
             startActivity(uri);
+
+            // track this click
+            eventBus.publish(EventQueue.UI, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
         }
     }
 

@@ -3,9 +3,13 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.Expect.expect;
 import static org.junit.Assert.assertEquals;
 
+import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -212,5 +216,16 @@ public class UIEventTest {
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
         expect(uiEventAttributes.get("page")).toEqual("search");
+    }
+
+    @Test
+    public void shouldCreateEventFromAudioAdClick() {
+        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123));
+        UIEvent uiEvent = UIEvent.fromAudioAdClick(audioAd, Urn.forTrack(456));
+        expect(uiEvent.getKind()).toBe(UIEvent.Kind.AUDIO_AD_CLICK);
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEventAttributes.get("ad_urn")).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(uiEventAttributes.get("ad_monetized_urn")).toEqual(Urn.forTrack(123).toString());
+        expect(uiEventAttributes.get("ad_track_urn")).toEqual(Urn.forTrack(456).toString());
     }
 }

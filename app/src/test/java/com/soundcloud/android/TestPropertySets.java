@@ -7,6 +7,8 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
+import android.net.Uri;
+
 import java.util.Date;
 
 public abstract class TestPropertySets {
@@ -61,7 +63,8 @@ public abstract class TestPropertySets {
     public static PropertySet expectedAudioAdForAnalytics(TrackUrn monetizedTrack) {
         return PropertySet.from(
                 AdProperty.AD_URN.bind("adswizz:ads:456"),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack)
+                AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://brand.com"))
         );
     }
 }

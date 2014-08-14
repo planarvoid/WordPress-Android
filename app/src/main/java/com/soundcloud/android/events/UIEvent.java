@@ -1,7 +1,10 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -23,7 +26,8 @@ public final class UIEvent {
         COMMENT,
         SHARE,
         SHUFFLE_LIKES,
-        NAVIGATION
+        NAVIGATION,
+        AUDIO_AD_CLICK
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
@@ -92,6 +96,13 @@ public final class UIEvent {
 
     public static UIEvent fromSearchAction() {
         return new UIEvent(Kind.NAVIGATION).putAttribute("page", "search");
+    }
+
+    public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
+        return new UIEvent(Kind.AUDIO_AD_CLICK)
+                .putAttribute("ad_urn", audioAd.get(AdProperty.AD_URN))
+                .putAttribute("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
+                .putAttribute("ad_track_urn", audioAdTrack.toString());
     }
 
     private static String getPlayableType(Playable playable) {
