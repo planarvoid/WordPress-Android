@@ -40,7 +40,6 @@ import java.util.Map;
 public class EventLoggerUrlBuilderTest {
 
     private static final String APP_ID = "123";
-    private static final String USER_AGENT_UNENCODED = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
     private static final String CDN_URL = "host.com";
     private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
 
@@ -67,7 +66,17 @@ public class EventLoggerUrlBuilderTest {
     public void createAudioEventUrlWithOriginAndTrigger() throws Exception {
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?client_id=123&anonymous_id=9876&action=play&ts=321&duration=1000&sound=soundcloud%3Asounds%3A123&user=" + userUrn.toEncodedString() + "&trigger=manual&context=origin")));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&action=play"
+                + "&ts=321"
+                + "&duration=1000"
+                + "&sound=soundcloud%3Asounds%3A123"
+                + "&user=" + userUrn.toEncodedString()
+                + "&policy=allow"
+                + "&trigger=manual"
+                + "&context=origin")));
     }
 
     @Test
@@ -77,7 +86,19 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?client_id=123&anonymous_id=9876&duration=1000&ts=321&action=play&sound=soundcloud:sounds:123&user=" + userUrn.toEncodedString() + "&trigger=manual&context=origin&source=source1&source_version=version1")));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&duration=1000"
+                + "&ts=321"
+                + "&action=play"
+                + "&sound=soundcloud:sounds:123"
+                + "&user=" + userUrn.toEncodedString()
+                + "&trigger=manual"
+                + "&context=origin"
+                + "&policy=allow"
+                + "&source=source1"
+                + "&source_version=version1")));
     }
 
     @Test
@@ -87,7 +108,19 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?client_id=123&anonymous_id=9876&ts=321&action=play&duration=1000&sound=soundcloud:sounds:123&user=" + userUrn.toEncodedString() + "&trigger=manual&context=origin&set_id=123&set_position=2")));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&action=play"
+                + "&duration=1000"
+                + "&sound=soundcloud:sounds:123"
+                + "&user=" + userUrn.toEncodedString()
+                + "&trigger=manual"
+                + "&context=origin"
+                + "&policy=allow"
+                + "&set_id=123"
+                + "&set_position=2")));
     }
 
     @Test
@@ -98,7 +131,19 @@ public class EventLoggerUrlBuilderTest {
         when(experimentOperations.getTrackingParams()).thenReturn(experimentParams);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?client_id=123&anonymous_id=9876&action=play&ts=321&duration=1000&sound=soundcloud:sounds:123&user=" + userUrn.toEncodedString() + "&trigger=manual&context=origin&exp_android-ui=4&exp_android-listen=5")));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&action=play"
+                + "&ts=321"
+                + "&duration=1000"
+                + "&sound=soundcloud:sounds:123"
+                + "&user=" + userUrn.toEncodedString()
+                + "&trigger=manual"
+                + "&context=origin"
+                + "&policy=allow"
+                + "&exp_android-ui=4"
+                + "&exp_android-listen=5")));
     }
 
     @Test
@@ -111,7 +156,21 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?client_id=123&anonymous_id=9876&ts=321&action=play&duration=1000&sound=soundcloud:sounds:123&user=" + userUrn.toEncodedString() + "&trigger=manual&context=origin&source=source1&source_version=version1&set_id=123&set_position=2")));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&action=play"
+                + "&duration=1000"
+                + "&sound=soundcloud:sounds:123"
+                + "&user=" + userUrn.toEncodedString()
+                + "&trigger=manual"
+                + "&context=origin"
+                + "&source=source1"
+                + "&source_version=version1"
+                + "&policy=allow"
+                + "&set_id=123"
+                + "&set_position=2")));
     }
 
     @Test

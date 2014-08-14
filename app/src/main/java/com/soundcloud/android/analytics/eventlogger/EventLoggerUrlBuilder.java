@@ -29,6 +29,7 @@ public class EventLoggerUrlBuilder {
     private static final String CONTEXT = "context";
     private static final String TRIGGER = "trigger";
     private static final String SOURCE = "source";
+    private static final String POLICY = "policy";
     private static final String SOURCE_VERSION = "source_version";
     private static final String PLAYLIST_ID = "set_id";
     private static final String PLAYLIST_POSITION = "set_position";
@@ -90,6 +91,11 @@ public class EventLoggerUrlBuilder {
         builder.appendQueryParameter(ACTION, event.isPlayEvent() ? "play" : "stop");
         builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
         builder.appendQueryParameter(SOUND, event.getTrackUrn().toString());
+
+        final String trackPolicy = event.getTrackPolicy();
+        if (trackPolicy != null && !event.isAd()) {
+            builder.appendQueryParameter(POLICY, trackPolicy);
+        }
 
         TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 
