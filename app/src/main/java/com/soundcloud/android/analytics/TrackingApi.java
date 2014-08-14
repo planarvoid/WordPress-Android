@@ -50,7 +50,7 @@ class TrackingApi {
                 final int status = connection.getResponseCode();
                 Log.d(EventTracker.TAG, connection.getRequestMethod() + " " + event.getUrl() + ": " + status);
 
-                if (isSuccessCode(status) || status == HTTP_TOO_MANY_REQUESTS) {
+                if (isSuccessCodeOrIgnored(status)) {
                     successes.add(event);
                 } else {
                     ErrorUtils.handleSilentException(EventTracker.TAG,
@@ -69,7 +69,7 @@ class TrackingApi {
         return successes;
     }
 
-    private boolean isSuccessCode(int status) {
-        return status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES;
+    private boolean isSuccessCodeOrIgnored(int status) {
+        return status >= HttpStatus.SC_OK && status < HttpStatus.SC_INTERNAL_SERVER_ERROR;
     }
 }

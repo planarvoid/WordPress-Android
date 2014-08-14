@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 
@@ -37,39 +36,20 @@ public class TrackingApiTest {
     }
 
     @Test
-    public void shouldReturnOnlySuccesses() throws Exception {
+    public void shouldTreatEntire2xxTo4xxStatusRangeAsSuccessSoWeDoNotRetryClientErrors() throws Exception {
         final String badUrl = "http://some_bad_url.com";
         TrackingEvent failedEvent = new TrackingEvent(2L, 1000L, "backend", badUrl);
 
-        when(connection.getResponseCode()).thenReturn(HttpStatus.SC_OK);
-        when(badConnection.getResponseCode()).thenReturn(HttpStatus.SC_FORBIDDEN);
+        when(connection.getResponseCode()).thenReturn(200, 499, 500);
+        when(badConnection.getResponseCode()).thenReturn(HttpStatus.SC_INTERNAL_SERVER_ERROR);
 
         when(connectionFactory.create(event)).thenReturn(connection);
         when(connectionFactory.create(failedEvent)).thenReturn(badConnection);
 
-        List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event, failedEvent));
-        expect(successes).toNumber(1);
+        List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event, event, failedEvent));
+        expect(successes).toNumber(2);
         expect(successes.get(0).getId()).toEqual(1L);
-    }
-
-    @Test
-    public void shouldTreat202AcceptedStatusAsSuccess() throws IOException {
-        when(connection.getResponseCode()).thenReturn(HttpStatus.SC_ACCEPTED);
-        when(connectionFactory.create(event)).thenReturn(connection);
-
-        List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event));
-        expect(successes).toNumber(1);
-        expect(successes.get(0).getId()).toEqual(1L);
-    }
-
-    @Test // as decided with JohnG, since he said we shouldn't retry spam-blocked tracking events
-    public void shouldTreat429TooManyRequestsStatusAsSuccess() throws IOException {
-        when(connection.getResponseCode()).thenReturn(429); // HTTP 429 Too Many Requests
-        when(connectionFactory.create(event)).thenReturn(connection);
-
-        List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event));
-        expect(successes).toNumber(1);
-        expect(successes.get(0).getId()).toEqual(1L);
+        expect(successes.get(1).getId()).toEqual(1L);
     }
 
     @Test
