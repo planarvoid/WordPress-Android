@@ -287,7 +287,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.reposted_to_followers));
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.reposted_to_followers);
     }
 
     @Test
@@ -296,7 +296,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.unposted_to_followers));
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.unposted_to_followers);
     }
 
     @Test

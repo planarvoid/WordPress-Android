@@ -15,6 +15,7 @@ import com.soundcloud.android.robolectric.ContentResolverMatcher;
 import com.soundcloud.android.robolectric.CursorMatcher;
 import com.soundcloud.android.robolectric.IntentMatcher;
 import com.soundcloud.android.robolectric.NotificationMatcher;
+import com.soundcloud.android.robolectric.ToastMatcher;
 import com.soundcloud.android.robolectric.UriMatcher;
 import com.soundcloud.android.robolectric.ViewMatcher;
 import com.soundcloud.android.storage.provider.Content;
@@ -26,6 +27,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.view.View;
+import android.widget.Toast;
 
 @SuppressWarnings({"unchecked", "UnusedDeclaration", "TypeParameterExplicitlyExtendsObject"})
 public class Expect {
@@ -53,9 +55,11 @@ public class Expect {
     public static <T extends Iterable<X>, X, M extends IterableMatcher<T, X, M>> IterableMatcher<T, X, ?> expect(T actual) {
         return wrapped(IterableMatcher.class, actual);
     }
+
     public static <T extends String, M extends StringMatcher<T, M>> StringMatcher<T, ?> expect(T actual) {
         return wrapped(StringMatcher.class, actual);
     }
+
     public static <T extends java.util.Set<X>, X, M extends SetMatcher<T, X, M>> SetMatcher<T, X, ?> expect(T actual) {
         return wrapped(SetMatcher.class, actual);
     }
@@ -88,6 +92,10 @@ public class Expect {
 
     public static <T extends View, M extends ViewMatcher<T, M>> ViewMatcher<T, ?> expect(T actual) {
         return wrapped(ViewMatcher.class, actual);
+    }
+
+    public static <T extends Toast, M extends ToastMatcher<T, M>> ToastMatcher<T, ?> expect(T actual) {
+        return wrapped(ToastMatcher.class, actual);
     }
 
     @SuppressWarnings("UnusedDeclaration")

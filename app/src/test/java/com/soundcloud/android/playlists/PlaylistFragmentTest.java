@@ -333,7 +333,7 @@ public class PlaylistFragmentTest {
         createFragmentView();
         fragment.onRefreshStarted(mock(View.class));
 
-        expect(ShadowToast.getTextOfLatestToast()).toEqual("There seems to be a connection problem. Please try again shortly.");
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.connection_list_error);
     }
 
     @Test

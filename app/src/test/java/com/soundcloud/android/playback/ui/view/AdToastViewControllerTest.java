@@ -31,7 +31,7 @@ public class AdToastViewControllerTest {
 
         controller.showUnkippableAdToast();
 
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_in_progress));
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_in_progress);
     }
 
     @Test
@@ -40,6 +40,6 @@ public class AdToastViewControllerTest {
 
         controller.showUnkippableAdToast();
 
-        expect(ShadowToast.getTextOfLatestToast()).toEqual(Robolectric.application.getString(R.string.ad_resume_playing_to_continue));
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_resume_playing_to_continue);
     }
 }

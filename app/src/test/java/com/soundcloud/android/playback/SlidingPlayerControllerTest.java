@@ -19,8 +19,6 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
