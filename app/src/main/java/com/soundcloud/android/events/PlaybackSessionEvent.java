@@ -11,9 +11,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import android.util.SparseArray;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackSessionEvent {
@@ -26,9 +24,10 @@ public class PlaybackSessionEvent {
     public static final int STOP_REASON_NEW_QUEUE = 5;
     public static final int STOP_REASON_ERROR = 6;
 
-    private static final String AD_ATTR_URN = "ad_urn";
-    private static final String AD_ATTR_MONETIZED_URN = "monetized_urn";
-    private static final String AD_ATTR_PROTOCOL = "protocol";
+    private static final int EXTRA_AD_URN = 0;
+    private static final int EXTRA_MONETIZED_URN = 1;
+    private static final int EXTRA_PLAYBACK_PROTOCOL = 2;
+    private static final int EXTRA_TRACK_POLICY = 3;
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -36,15 +35,14 @@ public class PlaybackSessionEvent {
     private final int kind, duration;
     private final TrackUrn trackUrn;
     private final UserUrn userUrn;
-    @Nullable private final String trackPolicy;
 
     private final TrackSourceInfo trackSourceInfo;
     private final long timeStamp, progress;
     private long listenTime;
     private int stopReason;
 
-    // extra meta data specific to audio ad events
-    private Map<String, String> audioAdAttributes = Collections.emptyMap();
+    // extra meta data that might not always be present goes here
+    private SparseArray<String> extraAttributes = new SparseArray<String>();
 
     public static PlaybackSessionEvent forAdPlay(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn,
                                                  String protocol, TrackSourceInfo trackSourceInfo, long progress) {
@@ -87,23 +85,24 @@ public class PlaybackSessionEvent {
     private PlaybackSessionEvent(int eventKind, PropertySet track, UserUrn userUrn,
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this.trackUrn = track.get(TrackProperty.URN);
-        this.trackPolicy = track.getOrElseNull(TrackProperty.POLICY);
         this.duration = track.get(PlayableProperty.DURATION);
         this.kind = eventKind;
         this.userUrn = userUrn;
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.timeStamp = timestamp;
+        if (track.contains(TrackProperty.POLICY)) {
+            this.extraAttributes.put(EXTRA_TRACK_POLICY, track.get(TrackProperty.POLICY));
+        }
     }
 
     // Use this constructor for an audio ad playback event
     private PlaybackSessionEvent(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn, String protocol,
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this(EVENT_KIND_PLAY, audioAdTrack, userUrn, trackSourceInfo, progress, timestamp);
-        this.audioAdAttributes = new HashMap<String, String>(3);
-        this.audioAdAttributes.put(AD_ATTR_URN, audioAd.get(AdProperty.AD_URN));
-        this.audioAdAttributes.put(AD_ATTR_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        this.audioAdAttributes.put(AD_ATTR_PROTOCOL, protocol);
+        this.extraAttributes.put(EXTRA_AD_URN, audioAd.get(AdProperty.AD_URN));
+        this.extraAttributes.put(EXTRA_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        this.extraAttributes.put(EXTRA_PLAYBACK_PROTOCOL, protocol);
     }
 
     public int getKind() {
@@ -116,7 +115,7 @@ public class PlaybackSessionEvent {
 
     @Nullable
     public String getTrackPolicy() {
-        return trackPolicy;
+        return extraAttributes.get(EXTRA_TRACK_POLICY);
     }
 
     public boolean isPlayEvent() {
@@ -160,15 +159,15 @@ public class PlaybackSessionEvent {
     }
 
     public String getAudioAdUrn() {
-        return audioAdAttributes.get(AD_ATTR_URN);
+        return extraAttributes.get(EXTRA_AD_URN);
     }
 
     public String getAudioAdMonetizedUrn() {
-        return audioAdAttributes.get(AD_ATTR_MONETIZED_URN);
+        return extraAttributes.get(EXTRA_MONETIZED_URN);
     }
 
     public String getAudioAdProtocol() {
-        return audioAdAttributes.get(AD_ATTR_PROTOCOL);
+        return extraAttributes.get(EXTRA_PLAYBACK_PROTOCOL);
     }
 
     @Override
@@ -191,7 +190,7 @@ public class PlaybackSessionEvent {
     }
 
     public boolean isAd() {
-        return !audioAdAttributes.isEmpty();
+        return extraAttributes.indexOfKey(EXTRA_AD_URN) != -1;
     }
 
     public boolean isFirstPlay() {
