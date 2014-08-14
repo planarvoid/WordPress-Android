@@ -181,7 +181,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() {
+    public void setNewPlayQueueMarksCurrentTrackAsUserTriggered() {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
@@ -189,13 +189,13 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
+    public void shouldReturnNullForTrackSourceInfoWhenSettingEmptyPlayQueue() throws Exception {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), playSessionSource);
         expect(playQueueManager.getCurrentTrackSourceInfo()).toBeNull();
     }
 
     @Test
-    public void shouldReturnSetAsPartOfLoggerParams() {
+    public void shouldReturnTrackSourceInfoWithPlaylistInfoSetIfSet() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), 1, playSessionSource);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
@@ -204,7 +204,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReturnExploreVersionAsPartOfLoggerParams() {
+    public void shouldReturnTrackSourceInfoWithExploreTrackingTagIfSet() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Arrays.asList(1L, 2L), playSessionSource), 1, playSessionSource);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
