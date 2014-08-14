@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
@@ -14,6 +15,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -283,4 +285,21 @@ public class AdsControllerTest {
         verify(playQueueManager, never()).autoNextTrack();
     }
 
+    @Test
+    public void sendExpandPlayerEventWhenCurrentTrackIsAudioAdOnPlayQueueEvent() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
+
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
+    }
+
+    @Test
+    public void doNotSendExpandPlayerEventWhenCurrentTrackIsNotAudioAdOnPlayQueueEvent() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYER_UI);
+    }
 }

@@ -1,6 +1,7 @@
 package com.soundcloud.android.player;
 
 import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
+import static com.soundcloud.android.tests.matcher.player.IsExpanded.Expanded;
 import static com.soundcloud.android.tests.matcher.player.IsPlaying.Playing;
 import static com.soundcloud.android.tests.matcher.player.IsSkipAllowed.SkipAllowed;
 import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
@@ -31,13 +32,11 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
 
-        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
-        playerElement = playlistDetailsScreen.clickFirstTrack();
-        playerElement.waitForExpandedPlayer();
-        playerElement.swipeNext();
+        playMonetizablePlaylist();
     }
 
     public void testSkipIsNotAllowedOnAd() {
+        swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
         playerElement.tapTrackPageNext();
@@ -45,23 +44,27 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
     }
 
     public void testTappingArtworkPausesAd() {
+        swipeToAd();
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(Playing())));
     }
 
     public void testTappingArtworkTwiceResumePlayingAd() {
+        swipeToAd();
         playerElement.clickArtwork();
         playerElement.clickArtwork();
         assertThat(playerElement, is(Playing()));
     }
 
     public void testSkipShouldBeDisplayedAfter15sec() {
+        swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.waitForSkipAdButton();
         assertThat(playerElement, is(SkipAllowed()));
     }
 
     public void testSkipAdShouldStartTheMonetizableTrack() {
+        swipeToAd();
         playerElement.waitForSkipAdButton();
         String adTrackTitle = playerElement.getTrackTitle();
         playerElement.tapSkipAd();
@@ -69,6 +72,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
     }
 
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
+        swipeToAd();
         playerElement.clickArtwork();
         playerElement.pressBackToCollapse();
         String footerTrackCreator = playerElement.getFooterTrackCreator();
@@ -80,10 +84,28 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
     }
 
     public void testShowWhyAdsDialogWhenClickingWhyAds() {
+        swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
         assertThat(dialog, is(Visible()));
 
         dialog.clickOK();
         assertThat(dialog, is(not(Visible())));
+    }
+
+    public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
+        playerElement.pressBackToCollapse();
+        playerElement.waitForExpandedAdPage();
+
+        assertThat(playerElement, is(Expanded()));
+    }
+
+    private void playMonetizablePlaylist() {
+        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
+        playerElement = playlistDetailsScreen.clickFirstTrack();
+        playerElement.waitForExpandedPlayer();
+    }
+
+    private void swipeToAd() {
+        playerElement.swipeNext();
     }
 }

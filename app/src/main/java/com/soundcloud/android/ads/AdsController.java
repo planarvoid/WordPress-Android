@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -57,6 +58,13 @@ public class AdsController {
         @Override
         public Boolean call(Playa.StateTransition state) {
             return state.isBuffering() && playQueueManager.isCurrentTrackAudioAd();
+        }
+    };
+
+    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isAudioAd = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
+        @Override
+        public Boolean call(CurrentPlayQueueTrackEvent event) {
+            return playQueueManager.isCurrentTrackAudioAd();
         }
     };
 
@@ -122,6 +130,10 @@ public class AdsController {
                 .filter(hasNextNonAudioAdTrack)
                 .subscribe(new PlayQueueSubscriber());
 
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+                .filter(isAudioAd)
+                .subscribe(new ExpandPlayerForAdSubscriber());
+
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .doOnNext(unsubscribeSkipAd)
                 .filter(isBufferingAudioAd)
@@ -173,4 +185,12 @@ public class AdsController {
                     });
         }
     }
+
+    private class ExpandPlayerForAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+        @Override
+        public void onNext(CurrentPlayQueueTrackEvent event) {
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        }
+    }
+
 }

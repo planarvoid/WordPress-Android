@@ -173,6 +173,10 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.skip_ad);
     }
 
+    public void waitForExpandedAdPage() {
+        waiter.waitForElement(R.id.player_ad_page);
+    }
+
     private ViewPager getViewPager() {
         return solo.findElement(With.id(R.id.player_track_pager)).toViewPager();
     }
