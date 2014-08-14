@@ -33,13 +33,9 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     private Observable<PropertySet> loadTrack;
     private Subscription subscription;
 
-    public static Bundle createArgs(TrackUrn trackUrn) {
+    public static TrackInfoFragment create(TrackUrn trackUrn) {
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_URN, trackUrn);
-        return args;
-    }
-
-    public static TrackInfoFragment create(Bundle args) {
         TrackInfoFragment fragment = new TrackInfoFragment();
         fragment.setArguments(args);
         return fragment;

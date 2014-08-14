@@ -22,14 +22,16 @@ import javax.inject.Inject;
 
 public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
+    public static final String INFO_DIALOG_TAG = "info_dialog";
+    public static final String PLAYLIST_DIALOG_TAG = "playlist_dialog";
+
     public static final String SHARE_TYPE = "text/plain";
 
     private final FragmentActivity activity;
     private final PopupMenu popupMenu;
-    private Bundle infoArgs;
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
-    @Nullable private Intent shareIntent;
+
     @Nullable private PlayerTrack track;
 
     private TrackMenuController(View anchorView,
@@ -56,22 +58,21 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
+        checkNotNull(track);
         switch (menuItem.getItemId()) {
             case R.id.share:
-                if (shareIntent != null) {
-                    activity.startActivity(shareIntent);
+                if (!track.isPrivate()) {
+                    activity.startActivity(buildShareIntent(track));
                 }
                 return true;
             case R.id.repost:
-                checkNotNull(track);
                 fireAndForget(associationOperations.toggleRepost(track.getUrn(), true));
                 return true;
             case R.id.unpost:
-                checkNotNull(track);
                 fireAndForget(associationOperations.toggleRepost(track.getUrn(), false));
                 return true;
             case R.id.info:
-                TrackInfoFragment.create(infoArgs).show(activity.getSupportFragmentManager(), "info_dialog");
+                TrackInfoFragment.create(track.getUrn()).show(activity.getSupportFragmentManager(), INFO_DIALOG_TAG);
                 return true;
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog();
@@ -82,23 +83,14 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
     }
 
     private void showAddToPlaylistDialog() {
-        checkNotNull(track);
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.toPropertySet(), playQueueManager.getScreenTag());
-        from.show(activity.getSupportFragmentManager(), "playlist_dialog");
+        from.show(activity.getSupportFragmentManager(), PLAYLIST_DIALOG_TAG);
     }
 
     public void setTrack(PlayerTrack track) {
         this.track = track;
         setIsUserRepost(track.isUserRepost());
-        infoArgs = TrackInfoFragment.createArgs(track.getUrn());
-
-        if (track.isPrivate()) {
-            setMenuPrivacy(true);
-            shareIntent = null;
-        } else {
-            setMenuPrivacy(false);
-            buildShareIntent(track);
-        }
+        setMenuPrivacy(track.isPrivate());
     }
 
     public void setIsUserRepost(boolean isUserRepost){
@@ -116,12 +108,13 @@ public class TrackMenuController implements PopupMenu.OnMenuItemClickListener {
         popupMenu.dismiss();
     }
 
-    private void buildShareIntent(PlayerTrack track) {
-        shareIntent = new Intent(Intent.ACTION_SEND);
+    private Intent buildShareIntent(PlayerTrack track) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, buildSubject(track));
         shareIntent.putExtra(Intent.EXTRA_TEXT, track.getPermalinkUrl());
+        return shareIntent;
     }
 
     private String buildSubject(PlayerTrack track) {
