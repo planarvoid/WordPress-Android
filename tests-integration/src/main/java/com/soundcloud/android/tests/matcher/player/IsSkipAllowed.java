@@ -11,16 +11,11 @@ public class IsSkipAllowed extends TypeSafeMatcher<VisualPlayerElement> {
 
     @Override
     public boolean matchesSafely(VisualPlayerElement playerElement) {
-        return isSkipButtonsAvailable(playerElement) || isSkipAreaAvailable(playerElement) || isSkipAdAvailable(playerElement);
+        return isSkipButtonsAvailable(playerElement) || isSkipAdAvailable(playerElement);
     }
 
     private boolean isSkipAdAvailable(VisualPlayerElement playerElement) {
         return playerElement.skipAd().isVisible();
-    }
-
-    private boolean isSkipAreaAvailable(VisualPlayerElement playerElement) {
-        return isClickable(playerElement.nextPageArea())
-                && isClickable(playerElement.previousPageArea());
     }
 
     private boolean isSkipButtonsAvailable(VisualPlayerElement playerElement) {
