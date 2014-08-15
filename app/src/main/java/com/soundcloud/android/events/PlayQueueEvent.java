@@ -42,6 +42,6 @@ public class PlayQueueEvent {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("kind", kind == NEW_QUEUE ? "NEW_QUEUE" : QUEUE_UPDATE).toString();
+        return Objects.toStringHelper(this).add("kind", kind == NEW_QUEUE ? "NEW_QUEUE" : "QUEUE_UPDATE").toString();
     }
 }

@@ -48,4 +48,10 @@ public final class CurrentPlayQueueTrackEvent {
     public int hashCode() {
         return Objects.hashCode(kind, currentTrackUrn);
     }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("kind", kind == NEW_QUEUE ? "NEW_QUEUE" : "POSITION_CHANGED").toString();
+    }
 }
