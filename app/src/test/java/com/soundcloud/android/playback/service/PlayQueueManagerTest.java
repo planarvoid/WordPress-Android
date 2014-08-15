@@ -396,13 +396,6 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldPublishPlayQueueChangedEventOnLoadPlayQueueIfNoPlayQueueStore() {
-        playQueueManager.loadPlayQueue();
-
-        expect(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.NEW_QUEUE);
-    }
-
-    @Test
     public void shouldHaveNoPlayProgressInfoWhenPlaybackOperationsHasReturnsNoObservable(){
         playQueueManager.loadPlayQueue();
         expect(playQueueManager.getPlayProgressInfo()).toBeNull();
