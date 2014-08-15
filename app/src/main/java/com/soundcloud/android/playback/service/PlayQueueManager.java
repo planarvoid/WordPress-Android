@@ -328,8 +328,12 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
                 .putExtra(PlayQueueView.EXTRA, playQueue.getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn()));
+
+        final TrackUrn currentTrackUrn = getCurrentTrackUrn();
+        if (!TrackUrn.NOT_SET.equals(currentTrackUrn)){
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
+            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn));
+        }
     }
 
     private void stopLoadingOperations() {
