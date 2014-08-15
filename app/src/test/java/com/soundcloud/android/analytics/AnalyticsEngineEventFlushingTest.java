@@ -13,7 +13,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -29,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action0;
@@ -44,33 +47,28 @@ public class AnalyticsEngineEventFlushingTest {
     private AnalyticsEngine analyticsEngine;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private AnalyticsProperties analyticsProperties;
-    @Mock
-    private SharedPreferences sharedPreferences;
-    @Mock
-    private AnalyticsProvider analyticsProviderOne;
-    @Mock
-    private AnalyticsProvider analyticsProviderTwo;
-    @Mock
-    private Scheduler scheduler;
-    @Mock
-    private Scheduler.Worker schedulerWorker;
-    @Mock
-    private Subscription flushSubscription;
+    @Mock private AnalyticsProperties analyticsProperties;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private AnalyticsProvider analyticsProviderOne;
+    @Mock private AnalyticsProvider analyticsProviderTwo;
+    @Mock private Scheduler scheduler;
+    @Mock private Scheduler.Worker schedulerWorker;
+    @Mock private Subscription flushSubscription;
+    @Mock private AdCompanionImpressionController adCompanionImpressionController;
     @Captor
     private ArgumentCaptor<Action0> flushAction;
 
 
     @Before
     public void setUp() throws Exception {
+        when(adCompanionImpressionController.companionImpressionEvent()).thenReturn(Observable.<AudioAdCompanionImpressionEvent>empty());
         when(scheduler.createWorker()).thenReturn(schedulerWorker);
         when(schedulerWorker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
 
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
         analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
-                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
+                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo), adCompanionImpressionController);
     }
 
     @Test

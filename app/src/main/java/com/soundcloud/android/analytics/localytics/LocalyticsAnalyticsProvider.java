@@ -7,13 +7,13 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -161,6 +161,9 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent event) {
         searchEventHandler.handleEvent(event);
     }
+
+    @Override
+    public void handleVisualAdImpression(AudioAdCompanionImpressionEvent event) {}
 
     @VisibleForTesting
     protected boolean isActivitySessionClosed() {

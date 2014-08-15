@@ -6,13 +6,11 @@ import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
-import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.RichNotificationPresenter;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
@@ -157,10 +155,5 @@ public class ApplicationModule {
     @Provides
     public LruCache<TrackUrn, WaveformData> provideWaveformCache() {
         return new LruCache<TrackUrn, WaveformData>(DEFAULT_WAVEFORM_CACHE_SIZE);
-    }
-
-    @Provides
-    SlidingPlayerController providePlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
-        return new SlidingPlayerController(playQueueManager, eventBus);
     }
 }

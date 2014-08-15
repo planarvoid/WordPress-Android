@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -68,6 +69,18 @@ public class EventLoggerUrlBuilder {
         this.appId = resources.getString(R.string.app_id);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
+    }
+
+    public String buildForVisualAdImpression(AudioAdCompanionImpressionEvent event) {
+        return buildUriForPath("impression", event.getTimeStamp())
+                .appendQueryParameter(USER, event.getUserUrn().toString())
+                .appendQueryParameter(AD_URN, event.getAdsWizzUrn().toString())
+                .appendQueryParameter(IMPRESSION_NAME, "companion_display")
+                .appendQueryParameter(IMPRESSION_OBJECT, event.getTrackUrn().toString())
+                .appendQueryParameter(MONETIZATION_TYPE, "audio_ad")
+                .appendQueryParameter(MONETIZED_OBJECT, event.getMonetizedTrackUrn().toString())
+                .appendQueryParameter(EXTERNAL_MEDIA, event.getExternalMediaUrn().toString())
+                .toString();
     }
 
     public String buildForAdImpression(PlaybackSessionEvent event) {

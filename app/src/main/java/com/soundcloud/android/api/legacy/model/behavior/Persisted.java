@@ -10,7 +10,7 @@ public interface Persisted {
     ContentValues buildContentValues();
     void putFullContentValues(@NotNull BulkInsertMap destination);
     void putDependencyValues(@NotNull BulkInsertMap destination);
-    @Deprecated // use getUrn() instead
+    @Deprecated // use getMonetizableTrackUrn() instead
     Uri toUri();
     Uri getBulkInsertUri();
 }

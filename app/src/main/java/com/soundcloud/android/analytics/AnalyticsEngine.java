@@ -2,7 +2,9 @@ package com.soundcloud.android.analytics;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
@@ -48,6 +50,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final AnalyticsProperties analyticsProperties;
 
     private final Scheduler scheduler;
+    private final AdCompanionImpressionController adCompanionImpressionController;
     private CompositeSubscription eventsSubscription;
     private SerialSubscription flushSubscription = new SerialSubscription();
 
@@ -66,18 +69,19 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @Inject
     public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
-                           List<AnalyticsProvider> analyticsProviders) {
-        this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders);
+                           List<AnalyticsProvider> analyticsProviders, AdCompanionImpressionController adCompanionImpressionController) {
+        this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders, adCompanionImpressionController);
     }
 
     @VisibleForTesting
     protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
-                              Scheduler scheduler, List<AnalyticsProvider> analyticsProviders) {
+                              Scheduler scheduler, List<AnalyticsProvider> analyticsProviders, AdCompanionImpressionController adCompanionImpressionController) {
         Log.d(this, "Creating analytics engine");
         this.eventBus = eventBus;
         this.analyticsProviders = Lists.newArrayList(analyticsProviders);
         this.analyticsProperties = analyticsProperties;
         this.scheduler = scheduler;
+        this.adCompanionImpressionController = adCompanionImpressionController;
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
@@ -107,6 +111,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
             eventsSubscription.add(eventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
             eventsSubscription.add(eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
+            eventsSubscription.add(adCompanionImpressionController.companionImpressionEvent().subscribe(new VisualAdImpressionSubscriber()));
         }
     }
 
@@ -152,6 +157,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, CurrentUserChangedEvent event) {
             provider.handleCurrentUserChangedEvent(event);
+        }
+    }
+
+    private final class VisualAdImpressionSubscriber extends EventSubscriber<AudioAdCompanionImpressionEvent> {
+        @Override
+        protected void handleEvent(AnalyticsProvider provider, AudioAdCompanionImpressionEvent event) {
+            provider.handleVisualAdImpression(event);
         }
     }
 

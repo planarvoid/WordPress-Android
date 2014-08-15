@@ -1,13 +1,13 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 
@@ -86,5 +86,12 @@ public interface AnalyticsProvider {
      *
      * @param event search event information
      */
-    void handleSearchEvent(SearchEvent searchEvent);
+    void handleSearchEvent(SearchEvent event);
+
+    /**
+     * Signals to the analytics provider that an ad was displayed to the user
+     *
+     * @param event visual ad event information
+     */
+    void handleVisualAdImpression(AudioAdCompanionImpressionEvent event);
 }

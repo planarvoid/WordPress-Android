@@ -4,6 +4,7 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -59,9 +60,15 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent searchEvent) {}
 
     @Override
+    public void handleVisualAdImpression(AudioAdCompanionImpressionEvent event) {
+        final String url = urlBuilder.buildForVisualAdImpression(event);
+        trackEvent(event.getTimeStamp(), url);
+    }
+
+    @Override
     public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
         if (eventData.isAd() && eventData.isFirstPlay()) {
-            trackAdImpression(eventData);
+            trackAudioAdImpression(eventData);
         }
         trackAudioPlayEvent(eventData);
     }
@@ -79,7 +86,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlayControlEvent(PlayControlEvent eventData) {}
 
-    private void trackAdImpression(PlaybackSessionEvent eventData) {
+    private void trackAudioAdImpression(PlaybackSessionEvent eventData) {
         final String url = urlBuilder.buildForAdImpression(eventData);
         trackEvent(eventData.getTimeStamp(), url);
     }

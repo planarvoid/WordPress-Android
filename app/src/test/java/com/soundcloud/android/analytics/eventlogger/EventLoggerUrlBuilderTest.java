@@ -7,10 +7,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -33,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.res.Resources;
+import android.net.Uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -214,6 +217,27 @@ public class EventLoggerUrlBuilderTest {
                 + "&impression_object=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
                 + "&monetization_type=audio_ad"
                 + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString())));
+    }
+
+    @Test
+    public void createImpressionUrlForCompanionDisplayToAudioAd() throws CreateModelException, UnsupportedEncodingException {
+        TrackUrn audioAdTrackUrn = Urn.forTrack(123L);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(audioAdTrackUrn)
+                .put(AdProperty.ARTWORK, Uri.parse("http://artwork.org/image.pmg?a=b&c=d"));
+        final String url = eventLoggerUrlBuilder.buildForVisualAdImpression(
+                new AudioAdCompanionImpressionEvent(audioAd, audioAdTrackUrn, userUrn, 321L));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&user=" + userUrn.toEncodedString()
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
+                + "&impression_name=companion_display"
+                + "&impression_object=" + audioAdTrackUrn.toEncodedString()
+                + "&monetization_type=audio_ad"
+                + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()
+                + "&external_media=" + "http%3A%2F%2Fartwork.org%2Fimage.pmg%3Fa%3Db%26c%3Dd")));
     }
 
     @Test

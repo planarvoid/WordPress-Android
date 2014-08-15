@@ -16,7 +16,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -36,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
@@ -53,21 +56,17 @@ public class AnalyticsEngineTrackingTest {
     private AnalyticsEngine analyticsEngine;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private AnalyticsProperties analyticsProperties;
-    @Mock
-    private SharedPreferences sharedPreferences;
-    @Mock
-    private AnalyticsProvider analyticsProviderOne;
-    @Mock
-    private AnalyticsProvider analyticsProviderTwo;
-    @Mock
-    private Scheduler scheduler;
-    @Mock
-    private Scheduler.Worker worker;
+    @Mock private AnalyticsProperties analyticsProperties;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private AnalyticsProvider analyticsProviderOne;
+    @Mock private AnalyticsProvider analyticsProviderTwo;
+    @Mock private Scheduler scheduler;
+    @Mock private Scheduler.Worker worker;
+    @Mock private AdCompanionImpressionController adCompanionImpressionController;
 
     @Before
     public void setUp() throws Exception {
+        when(adCompanionImpressionController.companionImpressionEvent()).thenReturn(Observable.<AudioAdCompanionImpressionEvent>empty());
         when(scheduler.createWorker()).thenReturn(worker);
         when(worker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
     }
@@ -292,7 +291,7 @@ public class AnalyticsEngineTrackingTest {
 
     private void initialiseAnalyticsEngine() {
         analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
-                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo));
+                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo), adCompanionImpressionController);
     }
 
 }
