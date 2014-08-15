@@ -201,7 +201,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     private void handleStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorCode, long position, long duration, String uri) {
-        position = fixPosition(position, duration);
+        final long adjustedPosition = fixPosition(position, duration);
 
         Log.i(TAG, "State = " + state + " : " + reason + " : " + errorCode);
         if (uri.equals(currentStreamUrl)) {
@@ -209,7 +209,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, position, duration);
+            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration);
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
 
             if (transition.playbackHasStopped()){
@@ -219,15 +219,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
         }
-    }
-
-    private long fixPosition(long position, long duration) {
-        if (position > duration){
-            ErrorUtils.handleSilentException("position [" + position + "] > duration [" + duration + "].",
-                    new IllegalStateException("Skippy inconsistent state : position > duration"));
-            return duration;
-        }
-        return position;
     }
 
     @Override
@@ -301,10 +292,19 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onProgressChange(long position, long duration, String uri) {
-        position = fixPosition(position, duration);
+        final long adjustedPosition = fixPosition(position, duration);
         if (playaListener != null && uri.equals(currentStreamUrl)){
-            playaListener.onProgressEvent(position, duration);
+            playaListener.onProgressEvent(adjustedPosition, duration);
         }
+    }
+
+    private long fixPosition(long position, long duration) {
+        if (position > duration){
+            ErrorUtils.handleSilentException("position [" + position + "] > duration [" + duration + "].",
+                    new IllegalStateException("Skippy inconsistent state : position > duration"));
+            return duration;
+        }
+        return position;
     }
 
     @Override
