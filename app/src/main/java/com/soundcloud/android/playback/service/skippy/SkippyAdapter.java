@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.service.skippy;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
@@ -202,7 +201,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     private void handleStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorCode, long position, long duration, String uri) {
-        checkState(position <= duration, "Skippy inconsistent state : position > duration.");
+        position = fixPosition(position, duration);
 
         Log.i(TAG, "State = " + state + " : " + reason + " : " + errorCode);
         if (uri.equals(currentStreamUrl)) {
@@ -220,6 +219,15 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
         }
+    }
+
+    private long fixPosition(long position, long duration) {
+        if (position > duration){
+            ErrorUtils.handleSilentException("position [" + position + "] > duration [" + duration + "].",
+                    new IllegalStateException("Skippy inconsistent state : position > duration"));
+            return duration;
+        }
+        return position;
     }
 
     @Override
@@ -293,6 +301,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onProgressChange(long position, long duration, String uri) {
+        position = fixPosition(position, duration);
         if (playaListener != null && uri.equals(currentStreamUrl)){
             playaListener.onProgressEvent(position, duration);
         }

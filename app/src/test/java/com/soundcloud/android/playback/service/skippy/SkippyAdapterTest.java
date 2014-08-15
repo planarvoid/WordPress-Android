@@ -239,6 +239,13 @@ public class SkippyAdapterTest {
         verify(listener).onProgressEvent(123L, 456L);
     }
 
+    @Test
+    public void adjustsProgressChangesToDurationBoundsForPlayingUri() {
+        skippyAdapter.play(track);
+        skippyAdapter.onProgressChange(567, 456L, STREAM_URL);
+        verify(listener).onProgressEvent(456, 456L);
+    }
+
 
     @Test
     public void doesNotPropogateStateChangesForIncorrectUrl() {
@@ -307,6 +314,15 @@ public class SkippyAdapterTest {
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
+        verify(stateChangeHandler).sendMessage(message);
+    }
+
+    @Test
+    public void skippyIdlePausedEventAdjustsProgressToDurationBoundsWhenSendingEvent() throws Exception {
+        skippyAdapter.play(track);
+        Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE, trackUrn, DURATION, DURATION);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, DURATION + 1, DURATION, STREAM_URL);
         verify(stateChangeHandler).sendMessage(message);
     }
 
