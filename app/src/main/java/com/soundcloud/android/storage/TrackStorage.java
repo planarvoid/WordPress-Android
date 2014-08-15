@@ -1,7 +1,9 @@
 package com.soundcloud.android.storage;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -108,6 +110,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
     }
 
     public Observable<PublicApiTrack> getTrackAsync(final long id) {
+        Preconditions.checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
         return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
             @Override
             public void call(Subscriber<? super PublicApiTrack> observer) {
@@ -127,6 +130,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
     }
 
     public PublicApiTrack getTrack(long id) throws NotFoundException {
+        Preconditions.checkArgument(id != Consts.NOT_SET, "Trying to load non-existant track");
         final PublicApiTrack track = trackDAO.queryById(id);
         if (track == null) {
             throw new NotFoundException(id);
