@@ -479,7 +479,16 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private void sendProgress() {
         if (playaListener != null) {
-            playaListener.onProgressEvent(getProgress(), getDuration());
+            final long duration = getDuration();
+            long progress = getProgress();
+
+            // Media player reports progress > duration refs #2035
+            if (progress > duration) {
+                Log.d(TAG, "Progress > duration: " + progress + " > " + duration);
+                progress = duration;
+            }
+
+            playaListener.onProgressEvent(progress, duration);
         }
     }
 
