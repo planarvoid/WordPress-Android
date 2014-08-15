@@ -9,8 +9,23 @@ import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorNotImplementedException;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class ErrorUtils {
+
+    public static final String ERROR_CONTEXT_TAG = "error-context";
+
+    public static void handleThrowable(Throwable t, CallsiteToken callsiteToken) {
+        final StringWriter callsiteTrace = new StringWriter();
+        callsiteToken.printStackTrace(new PrintWriter(callsiteTrace));
+        handleThrowable(t, callsiteTrace.toString());
+    }
+
+    public static void handleThrowable(Throwable t, Class<?> context) {
+        handleThrowable(t, context.getCanonicalName());
+    }
+
     /**
      * Use this handler to provide default handling of Throwables in RxJava Observers.
      * <p/>
@@ -24,11 +39,13 @@ public class ErrorUtils {
      * <p/>
      * see https://github.com/Netflix/RxJava/issues/969
      * @param t the Exception or Error that was raised
-     * @param callsite
+     * @param context an extra message that can be attached to clarify the error context
      */
-    public static void handleThrowable(Throwable t, Class<?> callsite) {
+    public static void handleThrowable(Throwable t, String context) {
+        Log.e(ERROR_CONTEXT_TAG, context);
+
         if (ApplicationProperties.shouldReportCrashes()) {
-            Crashlytics.setString("error-callsite", callsite.getCanonicalName());
+            Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
         if (t instanceof OnErrorNotImplementedException) {
             throw new FatalException(t.getCause());
