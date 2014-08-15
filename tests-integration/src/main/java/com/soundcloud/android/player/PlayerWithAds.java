@@ -101,11 +101,10 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         assertThat(playerElement, is(Expanded()));
     }
 
-    private void playMonetizablePlaylist() throws InterruptedException {
+    private void playMonetizablePlaylist() {
         playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
-        waiter.wait(1000);
     }
 
     private void swipeToAd() {
