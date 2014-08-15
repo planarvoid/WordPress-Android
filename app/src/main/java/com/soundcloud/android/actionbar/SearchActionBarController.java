@@ -93,7 +93,9 @@ public class SearchActionBarController extends ActionBarController {
 
     public interface SearchCallback {
         void performTextSearch(String query);
+
         void performTagSearch(String tag);
+
         void exitSearchMode();
     }
 
@@ -114,6 +116,9 @@ public class SearchActionBarController extends ActionBarController {
     public void onCreateOptionsMenu(Menu menu) {
         ActionBar actionBar = owner.getActivity().getSupportActionBar();
         configureSearchState(menu, actionBar);
+        if (!actionBar.isShowing()) {
+            searchView.clearFocus();
+        }
     }
 
     private void configureSearchState(Menu menu, ActionBar actionBar) {
