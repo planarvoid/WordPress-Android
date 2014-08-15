@@ -2,6 +2,7 @@ package com.soundcloud.android.image;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.image.ImageOptionsFactory.PlaceholderTransitionDisplayer;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -26,6 +27,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowBitmapDrawable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -281,6 +283,21 @@ public class ImageOperationsTest {
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
         verifyFallbackDrawableOptions(RES_ID);
         verifyFullCacheOptions();
+    }
+
+    @Test
+    public void displayInPlayerShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
+        final String imageUrl = RESOLVER_URL_LARGE;
+        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
+        when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
+
+        Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
+        imageOperations.displayInVisualPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap);
+
+        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+        verifyFullCacheOptions();
+        expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
+        expect(((ShadowBitmapDrawable) shadowOf(displayOptionsCaptor.getValue().getImageForEmptyUri(resources))).getBitmap()).toBe(bitmap);
     }
 
     @Test
