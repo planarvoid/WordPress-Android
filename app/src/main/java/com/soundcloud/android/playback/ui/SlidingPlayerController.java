@@ -219,7 +219,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     @Override
     public void onPanelExpanded(View panel) {
-        /* no-op */
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
     }
 
     private void notifyExpandingState() {

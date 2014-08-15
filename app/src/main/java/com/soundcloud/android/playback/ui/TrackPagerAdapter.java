@@ -310,7 +310,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             final int kind = event.getKind();
             if (kind == PlayerUIEvent.PLAYER_EXPANDING) {
                 isCollapsed = false;
-                presenter.setExpanded(trackPage, playSessionStateProvider.isPlaying());
+                presenter.setExpanding(trackPage, playSessionStateProvider.isPlaying());
+            } else if (kind == PlayerUIEvent.PLAYER_EXPANDED) {
+                isCollapsed = false;
+                presenter.setExpanded(trackPage);
             } else if ((kind == PlayerUIEvent.PLAYER_COLLAPSING || kind == PlayerUIEvent.PLAYER_COLLAPSED) && !isCollapsed) {
                 isCollapsed = true;
                 presenter.setCollapsed(trackPage);

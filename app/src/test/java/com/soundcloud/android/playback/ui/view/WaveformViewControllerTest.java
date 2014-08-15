@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui.view;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -255,7 +256,17 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void displayWaveformAfterSettingWidthSetsWaveformsOnWaveformView() {
+    public void displayWaveformWhenNotExpandedAfterSettingWidthDoesNotSetWaveformsOnWaveformView() {
+        waveformViewController.onWaveformViewWidthChanged(500);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(bitmapPair);
+        waveformViewController.displayWaveform(Observable.just(waveformResult));
+        verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
+    }
+
+    @Test
+    public void displayWaveformWhenExpandedAfterSettingWidthSetsWaveformsOnWaveformView() {
+        waveformViewController.setExpanded();
         waveformViewController.onWaveformViewWidthChanged(500);
         final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
@@ -264,7 +275,8 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void displayWaveformAfterSettingWidthShowsExpandedWaveformIfPlaySessionActive() {
+    public void displayWaveformWhenExpandedAfterSettingWidthShowsExpandedWaveformIfPlaySessionActive() {
+        waveformViewController.setExpanded();
         waveformViewController.showPlayingState(playbackProgress);
         waveformViewController.onWaveformViewWidthChanged(500);
         final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
@@ -292,7 +304,8 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void onWaveformWidthWithWaveformResultSetsWaveformOnWaveformView() {
+    public void onWaveformWidthWhenExpandedWithWaveformResultSetsWaveformOnWaveformView() {
+        waveformViewController.setExpanded();
         waveformViewController.displayWaveform(Observable.just(waveformResult));
 
         final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
@@ -302,14 +315,24 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void setWaveformVisibilityWithTrueSetsVisibilityToVisible() {
-        waveformViewController.setWaveformVisibility(true);
+    public void onWaveformWidthWhenNotExpandedWithWaveformResultDoesNotSetWaveform() {
+        waveformViewController.displayWaveform(Observable.just(waveformResult));
+
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(bitmapPair);
+        waveformViewController.onWaveformViewWidthChanged(500);
+        verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
+    }
+
+    @Test
+    public void setExpandingSetsVisibilityToVisible() {
+        waveformViewController.setExpanding();
         verify(waveformView).setVisibility(View.VISIBLE);
     }
 
     @Test
-    public void setWaveformVisibilityWithFalseSetsVisibilityToGone() {
-        waveformViewController.setWaveformVisibility(false);
+    public void setCollapsedSetsVisibilityToGone() {
+        waveformViewController.setCollapsed();
         verify(waveformView).setVisibility(View.GONE);
     }
 

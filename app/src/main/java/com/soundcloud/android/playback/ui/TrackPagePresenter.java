@@ -247,12 +247,11 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
-    public void setExpanded(View trackView, boolean isPlaying) {
+    public void setExpanding(View trackView, boolean isPlaying) {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.GONE);
-        holder.waveformController.setWaveformVisibility(isPlaying);
+        holder.waveformController.setExpanding();
         holder.playerOverlayController.setExpandedAndUpdate();
-        holder.waveformController.setWaveformVisibility(true);
         setVisibility(true, holder.fullScreenViews);
     }
 
@@ -260,8 +259,13 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.VISIBLE);
         holder.playerOverlayController.setCollapsedAndUpdate();
-        holder.waveformController.setWaveformVisibility(false);
+        holder.waveformController.setCollapsed();
         setVisibility(false, holder.fullScreenViews);
+    }
+
+    @Override
+    public void setExpanded(View trackView) {
+        getViewHolder(trackView).waveformController.setExpanded();
     }
 
     public boolean accept(View view) {

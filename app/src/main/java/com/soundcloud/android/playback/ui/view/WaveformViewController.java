@@ -47,6 +47,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private boolean playSessionIsActive;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
+    private boolean isExpanded;
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
@@ -119,16 +120,16 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         dragProgressController.setHelper(dragProgressHelper);
         scrubController.setProgressHelper(dragProgressHelper);
 
-        if (waveformResultObservable != null) {
-            createWaveforms(waveformResultObservable);
+        if (waveformResultObservable != null && isExpanded) {
+            createWaveforms();
         }
     }
 
     public void displayWaveform(Observable<WaveformResult> waveformResultObservable) {
         waveformView.showLoading();
         this.waveformResultObservable = waveformResultObservable;
-        if (adjustedWidth > 0) {
-            createWaveforms(waveformResultObservable);
+        if (adjustedWidth > 0 && isExpanded) {
+            createWaveforms();
         }
     }
 
@@ -160,8 +161,20 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         cancelProgressAnimations();
     }
 
-    public void setWaveformVisibility(boolean visible) {
-        waveformView.setVisibility(visible ? View.VISIBLE : View.GONE);
+    public void setExpanding(){
+        waveformView.setVisibility(View.VISIBLE);
+    }
+
+    public void setExpanded(){
+        isExpanded = true;
+        if (waveformResultObservable != null && adjustedWidth > 0){
+            createWaveforms();
+        }
+    }
+
+    public void setCollapsed(){
+        isExpanded = false;
+        waveformView.setVisibility(View.GONE);
     }
 
     public void setDuration(long duration) {
@@ -184,13 +197,14 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         scrubController.addScrubListener(listener);
     }
 
-    private void createWaveforms(final Observable<WaveformResult> waveformResultObservable) {
+    private void createWaveforms() {
         waveformSubscription.unsubscribe();
         waveformSubscription = waveformResultObservable
                 .subscribeOn(graphicsScheduler)
                 .map(createWaveformsFunc())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new WaveformSubscriber());
+        waveformResultObservable = null;
     }
 
     private Func1<WaveformResult, Pair<Bitmap, Bitmap>> createWaveformsFunc() {

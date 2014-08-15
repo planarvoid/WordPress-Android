@@ -201,7 +201,7 @@ public class TrackPagerAdapterTest {
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
-        verify(trackPagePresenter).setExpanded(currentTrackView, false);
+        verify(trackPagePresenter).setExpanding(currentTrackView, false);
     }
 
     @Test
@@ -209,7 +209,7 @@ public class TrackPagerAdapterTest {
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
-        verify(trackPagePresenter).setExpanded(eq(currentTrackView), anyBoolean());
+        verify(trackPagePresenter).setExpanding(eq(currentTrackView), anyBoolean());
     }
 
     @Test

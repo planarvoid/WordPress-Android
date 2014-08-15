@@ -195,12 +195,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         // No-op
     }
 
-    @Override
-    public void onPageChange(View key) {
-        // No-op
-    }
-
-    public void setExpanded(View trackView, boolean isPlaying) {
+    public void setExpanding(View trackView, boolean isPlaying) {
         Holder holder = getViewHolder(trackView);
         holder.footer.setVisibility(View.GONE);
         holder.close.setVisibility(View.VISIBLE);
@@ -212,6 +207,11 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         holder.footer.setVisibility(View.VISIBLE);
         holder.close.setVisibility(View.GONE);
         holder.playerOverlayController.setCollapsedAndUpdate();
+    }
+
+    @Override
+    public void setExpanded(View trackPage) {
+        // no-op
     }
 
     private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
