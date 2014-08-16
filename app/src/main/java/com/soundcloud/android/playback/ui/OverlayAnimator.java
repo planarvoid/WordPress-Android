@@ -16,6 +16,11 @@ public class OverlayAnimator {
         // Required by Dagger
     }
 
+    public void setAlpha(View artworkIdleOverlay, float alpha){
+        stopOverlayAnimation();
+        ViewHelper.setAlpha(artworkIdleOverlay, alpha);
+    }
+
     public void showOverlay(View artworkIdleOverlay) {
         stopOverlayAnimation();
         objectAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 1f);

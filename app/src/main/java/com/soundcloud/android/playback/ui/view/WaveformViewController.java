@@ -161,12 +161,15 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         cancelProgressAnimations();
     }
 
-    public void setExpanding(){
-        waveformView.setVisibility(View.VISIBLE);
+    public void onPlayerSlide(float value){
+        isExpanded = value == 1;
+        waveformView.setVisibility(value > 0 ? View.VISIBLE : View.GONE);
     }
 
     public void setExpanded(){
         isExpanded = true;
+        waveformView.setVisibility(View.VISIBLE);
+
         if (waveformResultObservable != null && adjustedWidth > 0){
             createWaveforms();
         }

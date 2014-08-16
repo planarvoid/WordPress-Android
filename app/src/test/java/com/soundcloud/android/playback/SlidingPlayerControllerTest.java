@@ -15,6 +15,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -25,10 +26,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
@@ -39,11 +41,13 @@ public class SlidingPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ActionBarController actionBarController;
     @Mock private View layout;
-    @Mock private Activity activity;
+    @Mock private FragmentActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
     @Mock private Window window;
     @Mock private View decorView;
+    @Mock private FragmentManager fragmentManager;
+    @Mock private PlayerFragment playerFragment;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -53,9 +57,10 @@ public class SlidingPlayerControllerTest {
         TestHelper.setSdkVersion(Build.VERSION_CODES.ICE_CREAM_SANDWICH);
         controller = new SlidingPlayerController(playQueueManager, eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
-        when(slidingPanel.findViewById(R.id.player_root)).thenReturn(playerView);
         when(activity.getWindow()).thenReturn(window);
         when(window.getDecorView()).thenReturn(decorView);
+        when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
+        when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
         attachController();
     }
 
@@ -227,12 +232,20 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void sendsExpandingEventWhenRestoringExpandedState() {
+    public void sendsExpandedEventWhenRestoringExpandedState() {
         controller.onCreate(createBundleWithExpandingCommand());
         controller.onResume();
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDING);
+        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
+    }
+
+    @Test
+    public void onPlayerSlideReportsSlidePositionToPlayerFragment() {
+        controller.onCreate(createBundleWithExpandingCommand());
+        controller.onPanelSlide(slidingPanel, .33f);
+
+        verify(playerFragment).onPlayerSlide(.33f);
     }
 
     @Test
@@ -245,12 +258,12 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void setsCollapsedStateWhenPassingOverThreshold() {
+    public void setsCollapsingStateWhenPassingOverThreshold() {
         collapsePanel();
 
         verify(actionBarController, times(1)).setVisible(true);
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSING);
     }
 
     @Test

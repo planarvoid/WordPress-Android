@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
     private Activity activity;
+    private PlayerFragment playerFragment;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -56,6 +58,15 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
         expandOnResume = false;
+
+        playerFragment = getPlayerFragmentFromActivity((FragmentActivity) activity);
+        if (playerFragment == null) {
+            throw new IllegalArgumentException("Player fragment not found. Make sure it is present with the expected id.");
+        }
+    }
+
+    private PlayerFragment getPlayerFragmentFromActivity(FragmentActivity activity) {
+        return (PlayerFragment) activity.getSupportFragmentManager().findFragmentById(R.id.player_root);
     }
 
     private void expand() {
@@ -66,7 +77,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private void collapse() {
         slidingPanel.collapsePanel();
         toggleActionBarAndSysBarVisibility();
-        notifyCollapsingState();
     }
 
     private void show() {
@@ -89,7 +99,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     private void update() {
         if (slidingPanel.isPanelExpanded()) {
-            notifyExpandingState();
+            notifyExpandedState();
         } else {
             notifyCollapsedState();
         }
@@ -140,7 +150,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     private void restoreExpanded() {
         expand();
-        notifyExpandingState();
+        notifyExpandedState();
     }
 
     private void showPanelIfNeeded() {
@@ -172,6 +182,8 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
+        playerFragment.onPlayerSlide(slideOffset);
+
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
             dimSystemBars(true);
@@ -180,7 +192,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
             dimSystemBars(false);
-            notifyCollapsedState();
+            notifyCollapsingState();
             isExpanding = false;
         }
     }
@@ -219,6 +231,10 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     @Override
     public void onPanelExpanded(View panel) {
+        notifyExpandedState();
+    }
+
+    private void notifyExpandedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
     }
 

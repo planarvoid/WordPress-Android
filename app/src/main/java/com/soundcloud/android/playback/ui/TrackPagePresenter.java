@@ -46,6 +46,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackMenuController.Factory trackMenuControllerFactory;
+    private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
     public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
@@ -221,10 +222,12 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             } else {
                 holder.artworkController.showSessionActiveState();
             }
+            holder.playerOverlayController.showPlayingState();
         } else {
             holder.artworkController.showIdleState();
+            holder.playerOverlayController.showIdleState();
         }
-        holder.playerOverlayController.update();
+
         setTextBackgrounds(holder, state.playSessionIsActive());
     }
 
@@ -247,35 +250,27 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
-    public void setExpanding(View trackView, boolean isPlaying) {
-        TrackPageHolder holder = getViewHolder(trackView);
-        holder.footer.setVisibility(View.GONE);
-        holder.waveformController.setExpanding();
-        holder.playerOverlayController.setExpandedAndUpdate();
-        setVisibility(true, holder.fullScreenViews);
-    }
-
+    @Override
     public void setCollapsed(View trackView) {
-        TrackPageHolder holder = getViewHolder(trackView);
-        holder.footer.setVisibility(View.VISIBLE);
-        holder.playerOverlayController.setCollapsedAndUpdate();
-        holder.waveformController.setCollapsed();
-        setVisibility(false, holder.fullScreenViews);
+        onPlayerSlide(trackView, 0);
+        getViewHolder(trackView).waveformController.setCollapsed();
     }
 
     @Override
     public void setExpanded(View trackView) {
+        onPlayerSlide(trackView, 1);
         getViewHolder(trackView).waveformController.setExpanded();
+    }
+
+    @Override
+    public void onPlayerSlide(View trackView, float slideOffset) {
+        TrackPageHolder holder = getViewHolder(trackView);
+        helper.configureViewsFromSlide(slideOffset, holder.playerOverlayController, holder.footer, holder.fullScreenViews);
+        holder.waveformController.onPlayerSlide(slideOffset);
     }
 
     public boolean accept(View view) {
         return view.getTag() instanceof TrackPageHolder;
-    }
-
-    private void setVisibility(boolean visible, Iterable<View> views) {
-        for (View v : views) {
-            v.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
     }
 
     private void setClickListener(View.OnClickListener listener, Iterable<View> views) {

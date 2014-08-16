@@ -81,6 +81,12 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         this.eventBus = eventBus;
     }
 
+    public void onPlayerSlide(float slideOffset) {
+        for (View view : trackByViews.keySet()) {
+            trackPagePresenter.onPlayerSlide(view, slideOffset);
+        }
+    }
+
     void unsubscribe() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
@@ -298,7 +304,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         private final PagePresenter presenter;
         private final View trackPage;
-        private boolean isCollapsed;
 
         public PlayerPanelSubscriber(PagePresenter presenter, View trackPage) {
             this.presenter = presenter;
@@ -308,14 +313,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         @Override
         public void onNext(PlayerUIEvent event) {
             final int kind = event.getKind();
-            if (kind == PlayerUIEvent.PLAYER_EXPANDING) {
-                isCollapsed = false;
-                presenter.setExpanding(trackPage, playSessionStateProvider.isPlaying());
-            } else if (kind == PlayerUIEvent.PLAYER_EXPANDED) {
-                isCollapsed = false;
+            if (kind == PlayerUIEvent.PLAYER_EXPANDED) {
                 presenter.setExpanded(trackPage);
-            } else if ((kind == PlayerUIEvent.PLAYER_COLLAPSING || kind == PlayerUIEvent.PLAYER_COLLAPSED) && !isCollapsed) {
-                isCollapsed = true;
+            } else if (kind == PlayerUIEvent.PLAYER_COLLAPSED) {
                 presenter.setCollapsed(trackPage);
             }
         }

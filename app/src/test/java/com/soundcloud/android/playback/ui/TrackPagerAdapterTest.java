@@ -191,7 +191,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void setsCollapsedModeOnSubscribeForCollapsingPlayerEvent() {
         View currentTrackView = getPageView();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(trackPagePresenter).setCollapsed(currentTrackView);
     }
@@ -199,17 +199,9 @@ public class TrackPagerAdapterTest {
     @Test
     public void setsExpandedModeOnSubscribeForExpandPlayerEvent() {
         View currentTrackView = getPageView();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        verify(trackPagePresenter).setExpanding(currentTrackView, false);
-    }
-
-    @Test
-    public void onPlayerExpandedEventSetsFullScreenPlayerMode() {
-        View currentTrackView = getPageView();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
-
-        verify(trackPagePresenter).setExpanding(eq(currentTrackView), anyBoolean());
+        verify(trackPagePresenter).setExpanded(currentTrackView);
     }
 
     @Test

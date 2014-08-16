@@ -27,16 +27,20 @@ import android.widget.ToggleButton;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class AdPagePresenter implements PagePresenter, View.OnClickListener {
+
+    private static final List<View> FULLSCREEN_VIEWS = Collections.emptyList();
 
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final AdPageListener listener;
     private final Context context;
+    private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
     public AdPagePresenter(ImageOperations imageOperations, Resources resources,
@@ -187,26 +191,22 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
-        holder.playerOverlayController.update();
+
+        if (stateTransition.playSessionIsActive()) {
+            holder.playerOverlayController.showPlayingState();
+        } else {
+            holder.playerOverlayController.showIdleState();
+        }
     }
 
     @Override
     public void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent) {
-        // No-op
+        // no-op
     }
 
-    public void setExpanding(View trackView, boolean isPlaying) {
-        Holder holder = getViewHolder(trackView);
-        holder.footer.setVisibility(View.GONE);
-        holder.close.setVisibility(View.VISIBLE);
-        holder.playerOverlayController.setExpandedAndUpdate();
-    }
-
-    public void setCollapsed(View trackView) {
-        Holder holder = getViewHolder(trackView);
-        holder.footer.setVisibility(View.VISIBLE);
-        holder.close.setVisibility(View.GONE);
-        holder.playerOverlayController.setCollapsedAndUpdate();
+    @Override
+    public void setCollapsed(View trackPage) {
+        // no-op
     }
 
     @Override
@@ -220,10 +220,10 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
-    private void setVisibility(boolean visible, Iterable<View> views) {
-        for (View v : views) {
-            v.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
+    @Override
+    public void onPlayerSlide(View trackView, float slideOffset) {
+        final Holder holder = getViewHolder(trackView);
+        helper.configureViewsFromSlide(slideOffset, holder.playerOverlayController, holder.footer, FULLSCREEN_VIEWS);
     }
 
     private void setEnabled(boolean enabled, Iterable<View> views) {

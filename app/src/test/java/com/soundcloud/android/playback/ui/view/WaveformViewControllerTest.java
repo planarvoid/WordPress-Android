@@ -316,6 +316,7 @@ public class WaveformViewControllerTest {
 
     @Test
     public void onWaveformWidthWhenNotExpandedWithWaveformResultDoesNotSetWaveform() {
+        waveformViewController.onPlayerSlide(.99f);
         waveformViewController.displayWaveform(Observable.just(waveformResult));
 
         final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
@@ -325,9 +326,15 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void setExpandingSetsVisibilityToVisible() {
-        waveformViewController.setExpanding();
+    public void onPlayerSlideWithGreaterThanZeroShowsWaveform() {
+        waveformViewController.onPlayerSlide(Float.MIN_VALUE);
         verify(waveformView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void onPlayerSlideWithZeroHidesWaveform() {
+        waveformViewController.onPlayerSlide(0);
+        verify(waveformView).setVisibility(View.GONE);
     }
 
     @Test

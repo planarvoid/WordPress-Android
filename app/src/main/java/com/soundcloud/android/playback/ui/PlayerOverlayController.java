@@ -13,8 +13,8 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     private final OverlayAnimator overlayAnimator;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final View overlay;
-    private boolean isCollapsed;
     private boolean isScrubbing;
+    private float alphaFromCollapse;
 
     @Inject
     public PlayerOverlayController(View overlay,
@@ -25,33 +25,48 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
         this.playSessionStateProvider = playSessionStateProvider;
     }
 
-    public void setCollapsedAndUpdate() {
-        isCollapsed = true;
-        update();
-    }
-
-    public void setExpandedAndUpdate() {
-        isCollapsed = false;
-        update();
-    }
-
-    public void update() {
-        if (!isCollapsed && !isScrubbing && playSessionStateProvider.isPlaying()) {
+    public void showPlayingState(){
+        if (notScrubbing() && isExpanded()){
             overlayAnimator.hideOverlay(overlay);
-        } else {
-            overlayAnimator.showOverlay(overlay);
+        }
+    }
+
+    public void showIdleState() {
+        overlayAnimator.showOverlay(overlay);
+    }
+
+    public void setAlphaFromCollapse(float alpha) {
+        alphaFromCollapse = alpha;
+
+        if (playSessionStateProvider.isPlaying()) {
+            overlayAnimator.setAlpha(overlay, alphaFromCollapse);
         }
     }
 
     @Override
     public void scrubStateChanged(int newScrubState) {
         isScrubbing = newScrubState == ScrubController.SCRUB_STATE_SCRUBBING;
-        update();
+
+        if (isScrubbing){
+            overlayAnimator.showOverlay(overlay);
+
+        } else if (playSessionStateProvider.isPlaying() && isExpanded()){
+            overlayAnimator.hideOverlay(overlay);
+        }
+
     }
 
     @Override
     public void displayScrubPosition(float scrubPosition) {
         // no-op
+    }
+
+    private boolean isExpanded() {
+        return alphaFromCollapse == 0;
+    }
+
+    private boolean notScrubbing() {
+        return !isScrubbing;
     }
 
     public static class Factory {

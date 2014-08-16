@@ -226,7 +226,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void setExpandedShouldHideFooterControl() {
-        presenter.setExpanding(trackView, true);
+        presenter.setExpanded(trackView);
         expect(getHolder(trackView).footer).toBeGone();
     }
 

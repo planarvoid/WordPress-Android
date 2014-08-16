@@ -85,6 +85,10 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         adToastViewController.showUnkippableAdToast();
     }
 
+    public void onPlayerSlide(float slideOffset) {
+        adapter.onPlayerSlide(slideOffset);
+    }
+
     void onViewCreated(View view) {
         setPager((PlayerTrackPager) view.findViewById(R.id.player_track_pager));
 

@@ -18,7 +18,7 @@ public interface PagePresenter {
     void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean viewPresentingCurrentTrack);
     void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent);
 
-    void setExpanding(View trackPage, boolean playing);
     void setCollapsed(View trackPage);
     void setExpanded(View trackPage);
+    void onPlayerSlide(View trackPage, float position);
 }

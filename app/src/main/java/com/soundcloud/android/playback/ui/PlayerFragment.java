@@ -35,4 +35,7 @@ public class PlayerFragment extends Fragment {
         super.onDestroyView();
     }
 
+    public void onPlayerSlide(float slideOffset) {
+        controller.onPlayerSlide(slideOffset);
+    }
 }
