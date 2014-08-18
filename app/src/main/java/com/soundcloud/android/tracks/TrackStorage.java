@@ -74,31 +74,37 @@ public class TrackStorage {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
 
             propertySet.put(TrackProperty.URN, readSoundUrn(cursorReader));
-            propertySet.put(PlayableProperty.TITLE, cursorReader.getString(SoundView.TITLE));
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
             propertySet.put(TrackProperty.COMMENTS_COUNT, cursorReader.getInt(SoundView.COMMENT_COUNT));
-            propertySet.put(TrackProperty.WAVEFORM_URL, cursorReader.getString(SoundView.WAVEFORM_URL));
-            propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
             propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.MONETIZABLE));
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
-            propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
             propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
+            propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(SoundView.SHARING)));
+
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
+            propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
+
+            // there are still cases where we do not have these strings, so check before adding them
+            // Need to fix this as part of https://github.com/soundcloud/SoundCloud-Android/issues/2054
+            final String title = cursorReader.getString(SoundView.TITLE);
+            propertySet.put(PlayableProperty.TITLE, title == null ? ScTextUtils.EMPTY_STRING : title);
+            final String waveformUrl = cursorReader.getString(SoundView.WAVEFORM_URL);
+            propertySet.put(TrackProperty.WAVEFORM_URL, waveformUrl == null ? ScTextUtils.EMPTY_STRING : waveformUrl);
+            final String permalinkUrl = cursorReader.getString(SoundView.PERMALINK_URL);
+            propertySet.put(PlayableProperty.PERMALINK_URL, permalinkUrl == null ? ScTextUtils.EMPTY_STRING : permalinkUrl);
+            final String policy = cursorReader.getString(SoundView.POLICY);
+            if (policy != null) {
+                propertySet.put(TrackProperty.POLICY, policy);
+            }
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
             final String creator = cursorReader.getString(SoundView.USERNAME);
             propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
             final long creatorId = cursorReader.getLong(SoundView.USER_ID);
             propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? UserUrn.NOT_SET : Urn.forUser(creatorId));
-            final String sharing = cursorReader.getString(SoundView.SHARING);
-            propertySet.put(PlayableProperty.IS_PRIVATE, sharing.equalsIgnoreCase(SHARING_PRIVATE));
-            final String policy = cursorReader.getString(SoundView.POLICY);
-            if (policy != null) {
-                propertySet.put(TrackProperty.POLICY, policy);
-            }
 
             return propertySet;
         }

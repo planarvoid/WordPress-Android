@@ -3,11 +3,14 @@ package com.soundcloud.android.actionbar;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
@@ -66,6 +69,16 @@ public class SearchActionBarController extends ActionBarController {
 
     private void launchSuggestion(int position) {
         final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
+
+        final boolean localResult = suggestionsAdapter.isLocalResult(position);
+        if (!localResult){
+            // cache dummy model in ScModelManager, as it will avert NotFoundException in Service class
+            // this is very hacky, and should not exist in master... ever. Issue to fix:
+            // https://soundcloud.atlassian.net/browse/DROID-358?jql=project%20%3D%20DROID
+            cachePlaceholderModel(position, itemUri);
+
+        }
+
         trackSuggestion(position, itemUri);
 
         final Urn urn = suggestionsAdapter.getUrn(position);
@@ -89,6 +102,18 @@ public class SearchActionBarController extends ActionBarController {
         final SearchEvent event = SearchEvent.searchSuggestion(
                 Content.match(itemUri), suggestionsAdapter.isLocalResult(position));
         eventBus.publish(EventQueue.SEARCH, event);
+    }
+
+    private void cachePlaceholderModel(int position, Uri itemUri) {
+        final long modelId = suggestionsAdapter.getModelId(position);
+        switch (Content.match(itemUri)) {
+            case TRACK:
+                SoundCloudApplication.sModelManager.cache(new PublicApiTrack(modelId));
+            case USER:
+                SoundCloudApplication.sModelManager.cache(new PublicApiUser(modelId));
+            default:
+                // should never happen. I am not failing fast on hotfix code though
+        }
     }
 
     public interface SearchCallback {

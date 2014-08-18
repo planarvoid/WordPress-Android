@@ -95,7 +95,7 @@ public class PlaybackNotificationController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe();
+                .mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe(new DefaultSubscriber<Notification>());
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
             @Override

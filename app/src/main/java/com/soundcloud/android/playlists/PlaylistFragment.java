@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -134,9 +135,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadPlaylist = legacyPlaylistOperations.loadPlaylist(getPlaylistUrn())
-                .observeOn(mainThread())
-                .cache();
+        loadPlaylist = bindFragment(this, legacyPlaylistOperations.loadPlaylist(getPlaylistUrn()).cache(1));
     }
 
     @Override

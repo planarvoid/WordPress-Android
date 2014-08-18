@@ -4,13 +4,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rx.Observer;
 import rx.exceptions.OnErrorNotImplementedException;
 
+@RunWith(RobolectricTestRunner.class)
 public class DefaultEventSubjectTest {
 
     private DefaultEventSubject<Integer> subject = DefaultEventSubject.create();

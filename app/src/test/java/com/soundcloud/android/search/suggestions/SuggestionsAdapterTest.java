@@ -28,6 +28,7 @@ import org.mockito.Mock;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -91,6 +92,22 @@ public class SuggestionsAdapterTest {
         expect(suggestion.highlights.size()).toEqual(1);
         expect(suggestion.highlights.get(0).get("pre")).toEqual(0);
         expect(suggestion.highlights.get(0).get("post")).toEqual(3);
+    }
+
+    @Test
+    public void shouldCacheTrackQueriesToDatabase() throws Exception {
+        mockPublicApi("suggest_highlight.json");
+        createAdapter();
+
+        adapter.runQueryOnBackgroundThread("foo");
+        shadowOf(adapter.getApiTaskLooper()).runToEndOfTasks();
+
+        ArgumentCaptor<Uri> trackUri = ArgumentCaptor.forClass(Uri.class);
+        ArgumentCaptor<ContentValues> content = ArgumentCaptor.forClass(ContentValues.class);
+        verify(contentResolver).insert(trackUri.capture(), content.capture());
+
+        expect(trackUri.getValue()).toEqual(Content.TRACKS.uri);
+        expect(content.getValue().getAsLong(TableColumns.Sounds._ID)).toEqual(16536884L);
     }
 
     @Test

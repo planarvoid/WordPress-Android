@@ -2,6 +2,7 @@ package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;

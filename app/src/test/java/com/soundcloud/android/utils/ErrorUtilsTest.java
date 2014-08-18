@@ -4,9 +4,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import rx.exceptions.OnErrorNotImplementedException;
 
+@RunWith(RobolectricTestRunner.class)
 public class ErrorUtilsTest {
 
     @Test

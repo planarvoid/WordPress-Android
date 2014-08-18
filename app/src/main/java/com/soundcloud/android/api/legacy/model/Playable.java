@@ -15,6 +15,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -285,7 +286,13 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         cv.put(TableColumns.Sounds._TYPE, getTypeId());
 
         // account for partial objects, don't overwrite local full objects
-        if (title != null) cv.put(TableColumns.Sounds.TITLE, title);
+        if (title != null) {
+            cv.put(TableColumns.Sounds.TITLE, title);
+        } else {
+            // adding this in for the time being to better understand these crashes:
+            // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/53ebe1b3e3de5099baa83a9a
+            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to insert a playable with a null title; id=" + getId()));
+        }
         if (duration > 0) cv.put(TableColumns.Sounds.DURATION, duration);
         if (user_id != 0) {
             cv.put(TableColumns.Sounds.USER_ID, user_id);

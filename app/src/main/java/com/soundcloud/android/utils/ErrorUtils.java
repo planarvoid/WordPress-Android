@@ -9,8 +9,23 @@ import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorNotImplementedException;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class ErrorUtils {
+
+    public static final String ERROR_CONTEXT_TAG = "error-context";
+
+    public static void handleThrowable(Throwable t, CallsiteToken callsiteToken) {
+        final StringWriter callsiteTrace = new StringWriter();
+        callsiteToken.printStackTrace(new PrintWriter(callsiteTrace));
+        handleThrowable(t, callsiteTrace.toString());
+    }
+
+    public static void handleThrowable(Throwable t, Class<?> context) {
+        handleThrowable(t, context.getCanonicalName());
+    }
+
     /**
      * Use this handler to provide default handling of Throwables in RxJava Observers.
      * <p/>
@@ -24,16 +39,21 @@ public class ErrorUtils {
      * <p/>
      * see https://github.com/Netflix/RxJava/issues/969
      * @param t the Exception or Error that was raised
-     * @param callsite
+     * @param context an extra message that can be attached to clarify the error context
      */
-    public static void handleThrowable(Throwable t, Class<?> callsite) {
+    public static void handleThrowable(Throwable t, String context) {
+        Log.e(ERROR_CONTEXT_TAG, context);
+
+        if (ApplicationProperties.shouldReportCrashes()) {
+            Crashlytics.setString(ERROR_CONTEXT_TAG, context);
+        }
         if (t instanceof OnErrorNotImplementedException) {
             throw new FatalException(t.getCause());
         } else if (t instanceof RuntimeException || t instanceof Error) {
             throw new OnErrorNotImplementedException(t);
         } else if (!excludeFromReports(t)) {
             // don't rethrow checked exceptions
-            handleSilentException(t, "error-callsite", callsite.getCanonicalName());
+            handleSilentException(t);
         }
         t.printStackTrace();
     }
@@ -57,7 +77,7 @@ public class ErrorUtils {
         handleSilentException(e, null, null);
     }
 
-    public static void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+    private static void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
