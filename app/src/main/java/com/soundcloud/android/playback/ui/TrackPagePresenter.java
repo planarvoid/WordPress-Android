@@ -157,6 +157,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
         setViewPlayState(holder, stateTransition, isCurrentTrack);
 
+        holder.timestamp.setBufferingMode(isCurrentTrack && stateTransition.isBuffering());
+
         if (stateTransition.playSessionIsActive() && !isCurrentTrack){
             setProgress(trackPage, PlaybackProgress.empty());
         }

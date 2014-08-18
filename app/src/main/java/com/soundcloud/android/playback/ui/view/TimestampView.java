@@ -12,6 +12,7 @@ import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.animation.ValueAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -24,6 +25,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,6 +37,8 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private static final float SCRUB_SCALE = 2.2f;
     private static final double SPRING_TENSION = 110.0;
     private static final double SPRING_FRICTION = 10.0;
+    private static final long BUFFERING_ANIMATION_DURATION = 1800;
+    private static final long BUFFERING_RESET_ANIMATION_DURATION = 300;
 
     private final View timestampLayout;
     private final View timestampHolderHolder;
@@ -44,12 +48,15 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private final SpringSystem springSystem;
     private final float waveformBaseline;
     private final float timestampOriginalHeight;
+    private final View dividerView;
 
+    private boolean inBufferingMode;
     private boolean isScrubbing;
     private long duration;
     private int animatePercentage;
-    private AnimatorSet timestampAnimator;
     private Spring springY;
+    private AnimatorSet timestampAnimator;
+    private AnimatorSet bufferingAnimationSet;
 
     private SimpleSpringListener springListener = new SimpleSpringListener() {
         @Override
@@ -61,6 +68,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
             invalidate();
         }
     };
+
 
     @SuppressWarnings("UnusedDeclaration")
     public TimestampView(Context context, AttributeSet attrs) {
@@ -80,10 +88,32 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         background = findViewById(R.id.timestamp_background);
         timestampLayout = findViewById(R.id.timestamp_layout);
         timestampHolderHolder = findViewById(R.id.timestamp_holder);
+        dividerView = findViewById(R.id.timestamp_divider);
 
         animatePercentage = getResources().getInteger(R.integer.timestamp_animate_percentage);
         waveformBaseline = getResources().getDimension(R.dimen.waveform_baseline);
         timestampOriginalHeight = getResources().getDimension(R.dimen.timestamp_height);
+
+        bufferingAnimationSet = createBufferingAnimationSet();
+    }
+
+    private AnimatorSet createBufferingAnimationSet() {
+        final AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(
+                createBufferingAnimation(progressText),
+                createBufferingAnimation(durationText),
+                createBufferingAnimation(dividerView)
+        );
+        return animatorSet;
+    }
+
+    private ValueAnimator createBufferingAnimation(View view) {
+        ValueAnimator bufferingAnimation = ObjectAnimator.ofFloat(view, "alpha", 1f, .2f, 1f);
+        bufferingAnimation.setDuration(BUFFERING_ANIMATION_DURATION);
+        bufferingAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+        bufferingAnimation.setRepeatMode(ValueAnimator.RESTART);
+        bufferingAnimation.setRepeatCount(ValueAnimator.INFINITE);
+        return bufferingAnimation;
     }
 
     public void setInitialProgress(long duration) {
@@ -101,6 +131,26 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
             progressText.setText(format(progress.getPosition()));
             durationText.setText(format(duration));
         }
+    }
+
+    public void setBufferingMode(boolean isBuffering) {
+        if (isBuffering != inBufferingMode) {
+            this.inBufferingMode = isBuffering;
+            if (inBufferingMode) {
+                bufferingAnimationSet.start();
+            } else {
+                bufferingAnimationSet.cancel();
+                resetBufferingStates(progressText);
+                resetBufferingStates(durationText);
+                resetBufferingStates(dividerView);
+            }
+        }
+    }
+
+    private void resetBufferingStates(View view){
+        ValueAnimator toOpaque = ObjectAnimator.ofFloat(view, "alpha", ViewHelper.getAlpha(view), 1);
+        toOpaque.setDuration(BUFFERING_RESET_ANIMATION_DURATION);
+        toOpaque.start();
     }
 
     private String format(long millis) {
