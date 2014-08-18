@@ -136,7 +136,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     private void restorePlayerState() {
         showPanelIfNeeded();
-        if (expandOnResume) {
+        if (expandOnResume || playQueueManager.isCurrentTrackAudioAd()) {
             restoreExpanded();
         } else {
             notifyCurrentState();
