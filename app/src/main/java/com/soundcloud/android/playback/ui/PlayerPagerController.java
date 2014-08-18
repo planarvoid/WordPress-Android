@@ -50,7 +50,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private Func1<CurrentPlayQueueTrackEvent, Boolean> isNewQueueEvent = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
         @Override
         public Boolean call(CurrentPlayQueueTrackEvent playQueueEvent) {
-            return playQueueEvent.wasNewQueue();
+            return !playQueueManager.isQueueEmpty() && playQueueEvent.wasNewQueue();
         }
     };
 

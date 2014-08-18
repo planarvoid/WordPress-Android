@@ -140,6 +140,15 @@ public class PlayerPagerControllerTest {
         expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
+    @Test // Fixes issue #2045, should not happen after we implement invalidating event queues on logout
+    public void onPlayQueueChangedDoesNotExpandPlayerWhenPlayQueueIsEmpty() {
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1l)));
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYER_UI);
+    }
+
     @Test
     public void onPlayQueueUpdateSetsTrackPagerAdapterIfNotSet() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
