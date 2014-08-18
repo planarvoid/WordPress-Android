@@ -49,9 +49,11 @@ public class PeripheralsController {
     }
 
     private void notifyPlayQueueChanged(PublicApiTrack track) {
+        // TODO, remove the null title hack once this operates on PropertySets and new Storage
+        final String title = track.getTitle();
         Intent intent = new Intent(AVRCP_META_CHANGED);
         intent.putExtra("id", track.getId());
-        intent.putExtra("track", ScTextUtils.getClippedString(track.getTitle(), 40));
+        intent.putExtra("track", title == null ? ScTextUtils.EMPTY_STRING : ScTextUtils.getClippedString(title, 40));
         intent.putExtra("duration", track.duration);
 
         if (track.getUserName() != null) {

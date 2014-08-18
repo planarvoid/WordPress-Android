@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.service;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -342,7 +344,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         if (what.equals(Broadcasts.PLAYSTATE_CHANGED) && !suppressNotifications) {
             if (stateTransition.playSessionIsActive()) {
-                playbackNotificationController.playingNotification().doOnNext(startForegroundAction).subscribe();
+                fireAndForget(playbackNotificationController.playingNotification().doOnNext(startForegroundAction));
             } else {
                 if (!playbackNotificationController.notifyIdleState()){
                     stopForeground(true);

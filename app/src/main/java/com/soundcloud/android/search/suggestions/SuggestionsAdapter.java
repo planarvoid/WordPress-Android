@@ -7,9 +7,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -103,7 +104,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         mSuggestionsHandlerThread.start();
-        mSuggestionsHandler = new SuggestionsHandler(this, api, mSuggestionsHandlerThread.getLooper());
+        mSuggestionsHandler = new SuggestionsHandler(this, contentResolver, api, mSuggestionsHandlerThread.getLooper());
     }
 
     public void onDestroy() {
@@ -134,6 +135,15 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     @Override
     public long getItemId(int position) {
         return getItemIntentData(position).hashCode();
+    }
+
+    public long getModelId(int position) {
+        Cursor cursor = (Cursor) getItem(position);
+        try {
+            return cursor.getLong(cursor.getColumnIndex(TableColumns.Suggestions.ID));
+        } finally {
+            cursor.close();
+        }
     }
 
     public Uri getItemIntentData(int position) {
@@ -407,12 +417,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private static final class SuggestionsHandler extends Handler {
+        private final ContentResolver resolver;
         private WeakReference<SuggestionsAdapter> mAdapterRef;
         private PublicCloudAPI mApi;
 
 
-        public SuggestionsHandler(SuggestionsAdapter adapter, PublicCloudAPI api, Looper looper) {
+        public SuggestionsHandler(SuggestionsAdapter adapter, ContentResolver resolver, PublicCloudAPI api, Looper looper) {
             super(looper);
+            this.resolver = resolver;
             mAdapterRef = new WeakReference<SuggestionsAdapter>(adapter);
             mApi = api;
         }
@@ -432,6 +444,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
+                    for (SearchSuggestions.Query q : searchSuggestions) {
+                        // make sure tracks exist in the DB, so that we can backfill them later
+                        if (SearchSuggestions.Query.KIND_TRACK.equals(q.kind)) {
+                            ContentValues values = new ContentValues(1);
+                            values.put(TableColumns.Sounds._ID, q.id);
+                            resolver.insert(Content.TRACKS.uri, values);
+                        }
+                    }
                     adapter.onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {
