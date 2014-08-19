@@ -346,7 +346,21 @@ public class TrackPagerAdapterTest {
 
         when(playQueueManager.getUrnAtPosition(2)).thenReturn(Urn.forTrack(123L));
         expect(adapter.getItemPosition(view)).toBe(PagerAdapter.POSITION_UNCHANGED);
+    }
 
+    @Test
+    public void onPlayerSlideForwardsPositionToAdPresenter() {
+        setupAudioAd();
+        final View pageView = getPageView();
+        adapter.onPlayerSlide(0.5f);
+        verify(adPagePresenter).onPlayerSlide(pageView, 0.5f);
+    }
+
+    @Test
+    public void onPlayerSlideForwardsPositionToTrackPresenter() {
+        final View pageView = getPageView();
+        adapter.onPlayerSlide(0.5f);
+        verify(trackPagePresenter).onPlayerSlide(pageView, 0.5f);
     }
 
     private View getPageView() {

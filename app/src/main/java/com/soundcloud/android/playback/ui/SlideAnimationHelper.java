@@ -13,14 +13,19 @@ class SlideAnimationHelper {
 
     void configureViewsFromSlide(float slideOffset, PlayerOverlayController overlayController, View footerView,
                                  Iterable<View> fullscreenViews) {
-
-        configureCollapsedViews(overlayController, footerView, 1 - slideOffset);
+        configureViewsFromSlide(slideOffset, overlayController, footerView);
         setAlpha(getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN), fullscreenViews);
     }
 
-    private void configureCollapsedViews(PlayerOverlayController overlayController, View footerView, float invertedSlideOffset) {
-        overlayController.setAlphaFromCollapse(getSlideAnimateValue(invertedSlideOffset, SLIDE_TRANSITION_BOUNDS_ARTWORK));
-        setAlpha(getSlideAnimateValue(invertedSlideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER), footerView);
+    void configureViewsFromSlide(float slideOffset, PlayerOverlayController overlayController, View footerView,
+                                 View fullscreenView) {
+        configureViewsFromSlide(slideOffset, overlayController, footerView);
+        setAlpha(getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN), fullscreenView);
+    }
+
+    private void configureViewsFromSlide(float slideOffset, PlayerOverlayController overlayController, View footerView) {
+        overlayController.setAlphaFromCollapse(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_ARTWORK));
+        setAlpha(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER), footerView);
     }
 
     private void setAlpha(float alpha, Iterable<View> views) {

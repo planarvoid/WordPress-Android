@@ -97,15 +97,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         return false;
     }
 
-    private void update() {
-        if (slidingPanel.isPanelExpanded()) {
-            notifyExpandedState();
-        } else {
-            notifyCollapsedState();
-        }
-        toggleActionBarAndSysBarVisibility();
-    }
-
     @Override
     public void onCreate(Bundle bundle) {
         expandOnResume = shouldExpand(getCurrentBundle(bundle));
@@ -137,15 +128,28 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         if (playQueueManager.isQueueEmpty()) {
             hide();
         } else {
-            showPanelIfNeeded();
-            if (expandOnResume) {
-                restoreExpanded();
-            } else {
-                update();
-            }
+            restorePlayerState();
         }
         expandOnResume = false;
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
+    }
+
+    private void restorePlayerState() {
+        showPanelIfNeeded();
+        if (expandOnResume) {
+            restoreExpanded();
+        } else {
+            notifyCurrentState();
+            toggleActionBarAndSysBarVisibility();
+        }
+    }
+
+    private void notifyCurrentState() {
+        if (slidingPanel.isPanelExpanded()) {
+            notifyExpandedState();
+        } else {
+            notifyCollapsedState();
+        }
     }
 
     private void restoreExpanded() {
