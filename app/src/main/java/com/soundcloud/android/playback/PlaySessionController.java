@@ -18,6 +18,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.content.res.Resources;
@@ -78,12 +79,23 @@ public class PlaySessionController {
         }
     }
 
+    private Func1<PropertySet, PropertySet> mergeAudioAdMeta() {
+        final boolean isAudioAd = playQueueManager.isCurrentTrackAudioAd();
+        return new Func1<PropertySet, PropertySet>() {
+            @Override
+            public PropertySet call(PropertySet propertySet) {
+                return isAudioAd ? propertySet.merge(playQueueManager.getAudioAd()) : propertySet;
+            }
+        };
+    }
+
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
             currentTrackSubscription.unsubscribe();
             currentTrackSubscription = trackOperations
                     .track(event.getCurrentTrackUrn())
+                    .map(mergeAudioAdMeta())
                     .subscribe(new CurrentTrackSubscriber());
 
             if (playSessionStateProvider.isPlaying()) {
