@@ -434,7 +434,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
                 return currentPos;
             } else {
-                long duration = mediaPlayer.getDuration();
                 long duration = getDuration();
 
                 final long newPos;
