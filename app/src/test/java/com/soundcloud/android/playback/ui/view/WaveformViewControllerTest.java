@@ -352,9 +352,19 @@ public class WaveformViewControllerTest {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
-    public void displayScrubPositionSetsScrubPositionOnWaveformsIfPlaySessionActive() {
+    public void displayScrubPositionSetsScrubPositionOnWaveforms() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.showPlayingState(playbackProgress);
+        waveformViewController.displayScrubPosition(.5f);
+        verify(leftWaveform).setTranslationX(-250f);
+        verify(rightWaveform).setTranslationX(-500f);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Test
+    public void displayScrubPositionSetsScrubPositionOnWaveformsIfPlaySessionNotActive() {
+        waveformViewController.onWaveformViewWidthChanged(500);
+        waveformViewController.showIdleState();
         waveformViewController.displayScrubPosition(.5f);
         verify(leftWaveform).setTranslationX(-250f);
         verify(rightWaveform).setTranslationX(-500f);

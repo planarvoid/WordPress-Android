@@ -185,11 +185,21 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void shouldTogglePlayback() {
+    public void togglePlaybackShouldSendTogglePlaybackIntentIfPlayingCurrentTrack() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         playbackOperations.togglePlayback();
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
+    }
+
+    @Test
+    public void togglePlaybackShouldPlayCurrentIfNotPlayingCurrentTrack() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(false);
+        playbackOperations.togglePlayback();
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.PLAY_CURRENT);
     }
 
     @Test
@@ -228,6 +238,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void previousTrackSeeksToZeroIfProgressEqualToTolerance() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
 
         playbackOperations.previousTrack();
@@ -240,6 +251,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void previousTrackSeeksToZeroIfProgressGreaterThanTolerance() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3001L, 5000));
 
         playbackOperations.previousTrack();
@@ -313,7 +325,8 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void seeksToProvidedPosition() {
+    public void seeksToProvidedPositionIfServiceIsPlayingCurrentTrack() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         playbackOperations.seek(350L);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -323,7 +336,16 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void seeksSavesPlayQueueProgressToSeekPositionIfNotPlayingCurrentTrack() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(false);
+        playbackOperations.seek(350L);
+
+        verify(playQueueManager).saveCurrentProgress(350L);
+    }
+
+    @Test
     public void seekSeeksToProvidedPositionIfPlayingAudioAdWithProgressEqualTimeout() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
 
         playbackOperations.seek(350L);
