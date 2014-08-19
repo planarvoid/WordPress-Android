@@ -3,8 +3,8 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
-import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
 import com.soundcloud.android.Consts;
@@ -87,6 +87,13 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
             propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
 
+            putOptionalFields(cursorReader, propertySet);
+
+
+            return propertySet;
+        }
+
+        private void putOptionalFields(CursorReader cursorReader, PropertySet propertySet) {
             // there are still cases where we do not have these strings, so check before adding them
             // Need to fix this as part of https://github.com/soundcloud/SoundCloud-Android/issues/2054
             final String title = cursorReader.getString(SoundView.TITLE);
@@ -105,8 +112,6 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
             final long creatorId = cursorReader.getLong(SoundView.USER_ID);
             propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? UserUrn.NOT_SET : Urn.forUser(creatorId));
-
-            return propertySet;
         }
 
         private TrackUrn readSoundUrn(CursorReader cursorReader) {

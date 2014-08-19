@@ -16,6 +16,10 @@ public class ErrorUtils {
 
     public static final String ERROR_CONTEXT_TAG = "error-context";
 
+    private ErrorUtils() {
+        // not to be instantiated.
+    }
+
     public static void handleThrowable(Throwable t, CallsiteToken callsiteToken) {
         final StringWriter callsiteTrace = new StringWriter();
         callsiteToken.printStackTrace(new PrintWriter(callsiteTrace));

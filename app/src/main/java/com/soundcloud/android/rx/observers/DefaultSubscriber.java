@@ -20,6 +20,7 @@ public class DefaultSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onCompleted() {
+        // no-op by default.
     }
 
     @Override
@@ -29,5 +30,6 @@ public class DefaultSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onNext(T args) {
+        // no-op by default.
     }
 }

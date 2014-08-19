@@ -113,6 +113,7 @@ public class SearchActionBarController extends ActionBarController {
                 SoundCloudApplication.sModelManager.cache(new PublicApiUser(modelId));
             default:
                 // should never happen. I am not failing fast on hotfix code though
+                break;
         }
     }
 

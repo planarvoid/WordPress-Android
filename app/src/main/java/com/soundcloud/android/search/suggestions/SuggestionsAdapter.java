@@ -433,8 +433,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private static final class SuggestionsHandler extends Handler {
         private final ContentResolver resolver;
-        private WeakReference<SuggestionsAdapter> mAdapterRef;
-        private PublicCloudAPI mApi;
+        private final WeakReference<SuggestionsAdapter> mAdapterRef;
+        private final PublicCloudAPI mApi;
 
 
         public SuggestionsHandler(SuggestionsAdapter adapter, ContentResolver resolver, PublicCloudAPI api, Looper looper) {
