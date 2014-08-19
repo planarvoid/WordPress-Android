@@ -10,6 +10,7 @@ import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.waveform.WaveformResult;
 import rx.Observable;
 import rx.Scheduler;
@@ -80,10 +81,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     @Override
     public void displayScrubPosition(float scrubPosition) {
-        leftProgressHelper.setValueFromProportion(playSessionIsActive ?
-                waveformView.getLeftWaveform() : waveformView.getLeftLine(), scrubPosition);
-        rightProgressHelper.setValueFromProportion(playSessionIsActive ?
-                waveformView.getRightWaveform() : waveformView.getRightLine(), scrubPosition);
+        leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), scrubPosition);
+        rightProgressHelper.setValueFromProportion( waveformView.getRightWaveform(), scrubPosition);
+        if (!playSessionIsActive){
+            leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), scrubPosition);
+            rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), scrubPosition);
+        }
     }
 
     public void setProgress(PlaybackProgress progress) {

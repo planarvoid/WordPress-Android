@@ -68,12 +68,10 @@ public class SignUpScreen extends Screen {
     public void acceptTerms() {
         acceptTermsButton().click();
         waiter.waitForElement(R.id.btn_skip);
-        waiter.waitForLogInDialog();
     }
 
     public void skipInfo() {
-        testDriver.assertText(R.string.authentication_add_info_msg);
-        testDriver.clickOnButtonResId(R.string.btn_skip);
+        skipButton().click();
     }
 
     public SuggestedUsersScreen waitForSuggestedUsers() {

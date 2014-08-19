@@ -6,7 +6,8 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.Playa.StateTransition;
+import com.soundcloud.android.playback.service.PlaybackProgressInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -25,16 +26,16 @@ import java.util.Map;
 public class PlaySessionStateProvider {
 
     private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
-    private final Func1<Playa.StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<Playa.StateTransition, Boolean>() {
+    private final Func1<StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<StateTransition, Boolean>() {
         @Override
-        public Boolean call(Playa.StateTransition stateTransition) {
-            return !Playa.StateTransition.DEFAULT.equals(stateTransition);
+        public Boolean call(StateTransition stateTransition) {
+            return !StateTransition.DEFAULT.equals(stateTransition);
         }
     };
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
 
-    private Playa.StateTransition lastStateTransition = Playa.StateTransition.DEFAULT;
+    private StateTransition lastStateTransition = StateTransition.DEFAULT;
     private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
 
     @Inject
@@ -48,6 +49,10 @@ public class PlaySessionStateProvider {
         eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK,  new PlayQueueTrackSubscriber());
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(ignoreDefaultStateFilter)
                 .subscribe(new PlayStateSubscriber());
+    }
+
+    public boolean isPlayingCurrentPlayQueueTrack(){
+        return isPlayingTrack(playQueueManager.getCurrentTrackUrn());
     }
 
     public boolean isPlayingTrack(PublicApiTrack track) {
@@ -80,9 +85,9 @@ public class PlaySessionStateProvider {
         return progressMap.containsKey(trackUrn);
     }
 
-    private class PlayStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
-        public void onNext(Playa.StateTransition stateTransition) {
+        public void onNext(StateTransition stateTransition) {
             final boolean isTrackChange = currentPlayingUrn != null &&
                     !stateTransition.isForTrack(currentPlayingUrn);
 
@@ -97,13 +102,22 @@ public class PlaySessionStateProvider {
                 progressMap.put(currentPlayingUrn, stateTransition.getProgress());
             }
 
-            if (isTrackChange || (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
+            if (playingNewTrackFromBeginning(stateTransition, isTrackChange) || playbackStoppedMidSession(stateTransition)) {
                 saveProgress(stateTransition);
             }
         }
     }
 
-    private void saveProgress(Playa.StateTransition stateTransition) {
+    private boolean playbackStoppedMidSession(StateTransition stateTransition) {
+        return (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete());
+    }
+
+    private boolean playingNewTrackFromBeginning(StateTransition stateTransition, boolean isTrackChange) {
+        PlaybackProgressInfo info = playQueueManager.getPlayProgressInfo();
+        return isTrackChange && (info == null || !info.shouldResumeTrack(stateTransition.getTrackUrn()));
+    }
+
+    private void saveProgress(StateTransition stateTransition) {
         playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
     }
 

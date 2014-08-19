@@ -166,7 +166,7 @@ public class Waiter {
     }
 
     public boolean waitForElement(final int content) {
-        return solo.waitForCondition(new VisibleElementCondition(content), NETWORK_TIMEOUT);
+        return solo.waitForCondition(new VisibleElementCondition(content), ELEMENT_TIMEOUT);
     }
 
     public boolean waitForElement(final Class<? extends View> viewClass) {

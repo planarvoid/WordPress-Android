@@ -183,7 +183,11 @@ public class PlaybackOperations {
     }
 
     public void togglePlayback() {
-        context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+        if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
+            context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+        } else {
+            playCurrent();
+        }
     }
 
     public void playCurrent() {
@@ -221,9 +225,14 @@ public class PlaybackOperations {
 
     public void seek(long position) {
         if (!shouldDisableSkipping()){
-            Intent intent = new Intent(PlaybackService.Actions.SEEK);
-            intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
-            context.startService(intent);
+            if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
+                Intent intent = new Intent(PlaybackService.Actions.SEEK);
+                intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
+                context.startService(intent);
+            } else {
+                playQueueManager.saveCurrentProgress(position);
+            }
+
         }
     }
 

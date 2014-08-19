@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +12,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.PlaybackProgressInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -105,6 +108,13 @@ public class PlaySessionStateProviderTest {
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(123);
+    }
+
+    @Test
+    public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
+        when(playQueueManager.getPlayProgressInfo()).thenReturn(new PlaybackProgressInfo(TRACK_ID, 123L));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN, 0, 456));
+        verify(playQueueManager, never()).saveCurrentProgress(anyLong());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.playback.ui.progress.ScrubController.OnScrubListener;
+import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
 import com.facebook.rebound.SimpleSpringListener;
@@ -68,7 +69,6 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
             invalidate();
         }
     };
-
 
     @SuppressWarnings("UnusedDeclaration")
     public TimestampView(Context context, AttributeSet attrs) {
@@ -180,7 +180,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
         if (isScrubbing) {
             animateToScrubMode();
-        } else if (ViewHelper.getTranslationY(timestampLayout) != 0) {
+        } else if (ViewHelper.getTranslationY(timestampLayout) != 0 || newScrubState == SCRUB_STATE_CANCELLED) {
             animateFromScrubMode();
         }
     }

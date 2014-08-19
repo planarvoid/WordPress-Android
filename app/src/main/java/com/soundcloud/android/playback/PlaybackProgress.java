@@ -71,4 +71,13 @@ public class PlaybackProgress {
         result = 31 * result + (int) (createdAt ^ (createdAt >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "PlaybackProgress{" +
+                "position=" + position +
+                ", duration=" + duration +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }
