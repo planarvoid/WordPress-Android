@@ -28,7 +28,6 @@ import org.mockito.Mock;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
@@ -132,7 +131,7 @@ public class PlayerArtworkControllerTest {
         final TrackUrn urn = Urn.forTrack(123L);
         when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
         playerArtworkController.loadArtwork(urn);
-        verify(imageOperations).displayInVisualPlayer(same(urn), same(ApiImageSize.T500),
+        verify(imageOperations).displayInPlayer(same(urn), same(ApiImageSize.T500),
                 same(wrappedImageView), any(ImageListener.class), any(Bitmap.class));
     }
 }

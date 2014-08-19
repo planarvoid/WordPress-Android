@@ -108,7 +108,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
         holder.footerAdTitle.setText(playerAd.getAdTitle());
-        imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
+        imageOperations.displayAdInPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
     }
 
     private void displayPreview(PlayerAd playerAd, Holder holder) {

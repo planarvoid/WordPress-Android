@@ -292,7 +292,7 @@ public class ImageOperationsTest {
         when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
-        imageOperations.displayInVisualPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap);
+        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         verifyFullCacheOptions();
