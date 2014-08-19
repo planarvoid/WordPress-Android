@@ -97,12 +97,16 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     }
 
     private void showPlayCount(View itemView, PropertySet track) {
-        final int playCount = track.contains(TrackProperty.PLAY_COUNT) ? track.get(TrackProperty.PLAY_COUNT) : Consts.NOT_SET;
-        if (playCount > Consts.NOT_SET) {
+        final int playCount = track.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
+        if (hasPlayCount(playCount)) {
             final TextView playCountText = getTextView(itemView, R.id.list_item_counter);
             playCountText.setVisibility(View.VISIBLE);
             playCountText.setText(ScTextUtils.formatNumberWithCommas(playCount));
         }
+    }
+
+    private boolean hasPlayCount(int playCount) {
+        return playCount > 0;
     }
 
     public void setPlayingTrack(@NotNull TrackUrn playingTrack) {

@@ -93,6 +93,14 @@ public class TrackItemPresenterTest {
     }
 
     @Test
+    public void shouldHidePlayCountIfEqualOrLessZero() {
+        propertySet.put(TrackProperty.PLAY_COUNT, 0);
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.list_item_counter)).toBeInvisible();
+    }
+
+    @Test
     public void shouldBindReposterIfAny() {
         propertySet.put(PlayableProperty.REPOSTER, "reposter");
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
