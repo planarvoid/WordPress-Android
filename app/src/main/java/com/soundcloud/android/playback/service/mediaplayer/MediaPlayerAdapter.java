@@ -435,6 +435,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 return currentPos;
             } else {
                 long duration = mediaPlayer.getDuration();
+                long duration = getDuration();
 
                 final long newPos;
                 // don't go before the playhead if they are trying to seek

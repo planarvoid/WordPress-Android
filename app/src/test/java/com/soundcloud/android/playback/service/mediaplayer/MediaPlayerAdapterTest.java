@@ -219,10 +219,10 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void seekShouldNotSeekOnMediaPlayerWhilePreparing() {
+    public void seekShouldSeekOnMediaPlayerWhilePreparing() {
         mediaPlayerAdapter.play(track);
-        expect(mediaPlayerAdapter.seek(123l)).toEqual(-1L);
-        verify(mediaPlayer, never()).seekTo(anyInt());
+        expect(mediaPlayerAdapter.seek(123l)).toEqual(123l);
+        verify(mediaPlayer).seekTo(123);
     }
 
     @Test

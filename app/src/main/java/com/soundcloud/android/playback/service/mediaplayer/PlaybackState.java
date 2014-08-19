@@ -16,7 +16,7 @@ import java.util.EnumSet;
 
     // see Valid and invalid states on http://developer.android.com/reference/android/media/MediaPlayer.html
     public static final EnumSet<PlaybackState> SEEKABLE =
-            EnumSet.of(PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
+            EnumSet.of(PREPARING, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
 
     public static final EnumSet<PlaybackState> STARTABLE =
             EnumSet.of(PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
