@@ -147,7 +147,7 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayInVisualPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener, Bitmap placeholder) {
+    public void displayInPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener, Bitmap placeholder) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable placeholderDrawable = placeholder != null ? new BitmapDrawable(placeholder) :
                 getPlaceholderDrawable(urn, imageAware);
@@ -159,12 +159,12 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void displayInVisualPlayer(Uri uri, ImageView imageView, Drawable placeholderDrawable) {
+    public void displayAdInPlayer(Uri uri, ImageView imageView, Drawable placeholderDrawable) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
                 uri.toString(),
                 imageAware,
-                ImageOptionsFactory.placeholder(placeholderDrawable));
+                ImageOptionsFactory.playerAd(placeholderDrawable));
     }
 
     public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {

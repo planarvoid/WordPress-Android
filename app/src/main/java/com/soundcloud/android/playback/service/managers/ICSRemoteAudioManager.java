@@ -1,12 +1,13 @@
 package com.soundcloud.android.playback.service.managers;
 
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.service.NotificationTrack;
 import com.soundcloud.propeller.PropertySet;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
@@ -15,10 +16,12 @@ import android.media.RemoteControlClient;
 @TargetApi(14)
 public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
     private final RemoteControlClient client;
+    private final Resources resources;
 
     public ICSRemoteAudioManager(Context context) {
         super(context);
         client = createRemoteControlClient(context);
+        resources = context.getResources();
     }
 
     @Override
@@ -50,11 +53,12 @@ public class ICSRemoteAudioManager extends FroyoRemoteAudioManager {
     }
 
     private void applyRemoteMetadata(PropertySet track, Bitmap artwork) {
+        final NotificationTrack trackViewModel = new NotificationTrack(resources, track);
         client.editMetadata(false)
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork)
-                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.get(PlayableProperty.TITLE))
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.get(PlayableProperty.CREATOR_NAME))
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.get(PlayableProperty.DURATION))
+                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, trackViewModel.getTitle())
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, trackViewModel.getCreatorName())
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, trackViewModel.getDuration())
                 .apply();
     }
 

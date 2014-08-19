@@ -1,15 +1,17 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.TestPropertySets.audioAdProperties;
+import static com.soundcloud.android.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
-import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -38,8 +40,9 @@ import android.graphics.Bitmap;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySessionControllerTest {
 
-    private  TrackUrn trackUrn;
-    private  PropertySet track;
+    private TrackUrn trackUrn;
+    private PropertySet track;
+    private PropertySet trackWithAdMeta;
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
@@ -54,7 +57,6 @@ public class PlaySessionControllerTest {
     private PlaySessionController controller;
     private TestEventBus eventBus = new TestEventBus();
 
-
     @Before
     public void setUp() throws Exception {
         when(audioManagerProvider.get()).thenReturn(audioManager);
@@ -62,7 +64,8 @@ public class PlaySessionControllerTest {
                 audioManagerProvider, imageOperations, playSessionStateProvider);
         controller.subscribe();
 
-        track = TestPropertySets.expectedTrackForPlayer();
+        track = expectedTrackForPlayer();
+        trackWithAdMeta = audioAdProperties().merge(track);
         trackUrn = track.get(TrackProperty.URN);
 
         when(trackOperations.track(trackUrn)).thenReturn(Observable.just(track));
@@ -96,6 +99,7 @@ public class PlaySessionControllerTest {
 
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentTrack() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.image(trackUrn, ApiImageSize.T500, true)).thenReturn(Observable.just(bitmap));
 
@@ -103,6 +107,19 @@ public class PlaySessionControllerTest {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
         inOrder.verify(audioManager).onTrackChanged(track, null);
         inOrder.verify(audioManager).onTrackChanged(track, bitmap);
+    }
+
+    @Test
+    public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentAudioAdTrack() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties());
+        when(audioManager.isTrackChangeSupported()).thenReturn(true);
+        when(imageOperations.image(trackUrn, ApiImageSize.T500, true)).thenReturn(Observable.just(bitmap));
+
+        InOrder inOrder = Mockito.inOrder(audioManager);
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
+        inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), eq(((Bitmap) null)));
+        inOrder.verify(audioManager).onTrackChanged(trackWithAdMeta, bitmap);
     }
 
     @Test
@@ -120,8 +137,6 @@ public class PlaySessionControllerTest {
 
         verify(playbackOperations, never()).playCurrent();
     }
-
-
 
     @Test
     public void onStateTransitionDoesNotTryToAdvanceTracksIfTrackNotEnded() throws Exception {

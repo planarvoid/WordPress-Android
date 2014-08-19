@@ -19,7 +19,6 @@ import com.soundcloud.android.tracks.TrackUrn;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -119,7 +118,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         final Resources resources = wrappedImageView.getResources();
         final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
         final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);
-        imageOperations.displayInVisualPlayer(urn, size, wrappedImageView, this, cachedListBitmap);
+        imageOperations.displayInPlayer(urn, size, wrappedImageView, this, cachedListBitmap);
     }
 
     private void configureBounds() {

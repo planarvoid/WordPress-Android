@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 public final class PlayerLifeCycleEvent {
 
-    public static final int STATE_IDLE = 0;
+    public static final int STATE_STOPPED = 0;
     public static final int STATE_DESTROYED = 1;
     public static final int STATE_CREATED = 2;
 
@@ -12,8 +12,8 @@ public final class PlayerLifeCycleEvent {
         return new PlayerLifeCycleEvent(STATE_CREATED);
     }
 
-    public static PlayerLifeCycleEvent forIdle() {
-        return new PlayerLifeCycleEvent(STATE_IDLE);
+    public static PlayerLifeCycleEvent forStopped() {
+        return new PlayerLifeCycleEvent(STATE_STOPPED);
     }
 
     public static PlayerLifeCycleEvent forDestroyed() {
@@ -28,7 +28,7 @@ public final class PlayerLifeCycleEvent {
         return kind;
     }
 
-    public boolean isServiceAlive(){
-        return kind == STATE_IDLE || kind == STATE_CREATED;
+    public boolean isServiceRunning(){
+        return kind == STATE_CREATED;
     }
 }

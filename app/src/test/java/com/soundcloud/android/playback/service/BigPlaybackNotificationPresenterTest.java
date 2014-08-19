@@ -1,17 +1,14 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +17,10 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.functions.Action1;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 import javax.inject.Provider;
@@ -31,30 +30,16 @@ public class BigPlaybackNotificationPresenterTest {
 
     private static final String PACKAGE_NAME = "package-name";
 
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
-    private static final String TITLE = "TITLE";
-    private static final String CREATOR = "CREATOR";
-
     private BigPlaybackNotificationPresenter presenter;
     private Notification notification = new Notification();
-    private PropertySet propertySet;
 
-    @Mock
-    private NotificationPlaybackRemoteViews.Factory factory;
-    @Mock
-    private NotificationPlaybackRemoteViews bigRemoteViews;
-    @Mock
-    private NotificationCompat.Builder notificationBuilder;
-    @Mock
-    private Context context;
+    @Mock private NotificationPlaybackRemoteViews.Factory factory;
+    @Mock private NotificationPlaybackRemoteViews bigRemoteViews;
+    @Mock private NotificationCompat.Builder notificationBuilder;
+    @Mock private Context context;
 
     @Before
     public void setUp() throws Exception {
-        propertySet = PropertySet.from(
-                TrackProperty.URN.bind(TRACK_URN),
-                PlayableProperty.TITLE.bind(TITLE),
-                PlayableProperty.CREATOR_NAME.bind(CREATOR));
-
         when(context.getPackageName()).thenReturn(PACKAGE_NAME);
         when(factory.create(PACKAGE_NAME)).thenReturn(Mockito.mock(NotificationPlaybackRemoteViews.class));
         when(factory.create(PACKAGE_NAME, R.layout.playback_status_large_v16)).thenReturn(bigRemoteViews);
@@ -69,37 +54,44 @@ public class BigPlaybackNotificationPresenterTest {
     }
 
     @Test
-    public void createTrackSetsRemoteViewsAsContentViewOnBuilder() throws Exception {
-        presenter.createNotification(propertySet);
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void createTrackSetsRemoteViewsAsContentViewOnBuilder() {
+        presenter.createNotification(expectedTrackForPlayer());
+
         expect(notification.bigContentView).toBe(bigRemoteViews);
     }
 
     @Test
-    public void createTrackSetCurrentTrackOnRemoteViews() throws Exception {
-        presenter.createNotification(propertySet);
-        verify(bigRemoteViews).setCurrentTrackTitle(TITLE);
+    public void createTrackSetCurrentTrackOnRemoteViews() {
+        presenter.createNotification(expectedTrackForPlayer());
+
+        verify(bigRemoteViews).setCurrentTrackTitle(expectedTrackForPlayer().get(PlayableProperty.TITLE));
     }
 
     @Test
-    public void createTrackSeCallsSetCurrentUserOnRemoteViews() throws Exception {
-        presenter.createNotification(propertySet);
-        verify(bigRemoteViews).setCurrentUsername(CREATOR);
+    public void createTrackSeCallsSetCurrentUserOnRemoteViews() {
+        presenter.createNotification(expectedTrackForPlayer());
+
+        verify(bigRemoteViews).setCurrentUsername(expectedTrackForPlayer().get(PlayableProperty.CREATOR_NAME));
     }
 
     @Test
-    public void updateToPlayingStateFunctionUpdatesPlayingStateToTrueOnRemoteViews() throws Exception {
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void updateToPlayingStateFunctionUpdatesPlayingStateToTrueOnRemoteViews() {
         notification.bigContentView = bigRemoteViews;
         notification.contentView = Mockito.mock(NotificationPlaybackRemoteViews.class);
         presenter.updateToPlayingState().call(notification);
+
         verify(bigRemoteViews).setPlaybackStatus(true);
     }
 
     @Test
-    public void updateToIdleStateFunctionUpdatesPlayingStateToFalseOnRemoteViews() throws Exception {
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void updateToIdleStateFunctionUpdatesPlayingStateToFalseOnRemoteViews() {
         notification.bigContentView = bigRemoteViews;
         notification.contentView = Mockito.mock(NotificationPlaybackRemoteViews.class);
         presenter.updateToIdleState(Observable.just(notification), Mockito.mock(Action1.class));
+
         verify(bigRemoteViews).setPlaybackStatus(false);
     }
-
 }

@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.TestPropertySets.audioAdProperties;
+import static com.soundcloud.android.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -21,7 +23,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -29,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
@@ -46,43 +48,36 @@ public class PlaybackNotificationControllerTest {
 
     private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
     private PlaybackNotificationController controller;
-
-    private PropertySet propertySet;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private Context context;
-    @Mock
-    private TrackOperations trackOperations;
-    @Mock
-    private ImageOperations imageOperations;
-    @Mock
-    private ApplicationProperties applicationProperties;
-    @Mock
-    private PlaybackNotificationPresenter playbackNotificationPresenter;
-    @Mock
-    private NotificationManager notificationManager;
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private Notification notification;
-    @Mock
-    private Bitmap bitmap;
-    @Mock
-    private Uri uri;
-    @Mock
-    private Subscription subscription;
+    @Mock private Context context;
+    @Mock private TrackOperations trackOperations;
+    @Mock private ImageOperations imageOperations;
+    @Mock private ApplicationProperties applicationProperties;
+    @Mock private PlaybackNotificationPresenter playbackNotificationPresenter;
+    @Mock private NotificationManager notificationManager;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private Notification notification;
+    @Mock private Bitmap bitmap;
+    @Mock private Uri uri;
+    @Mock private Subscription subscription;
+    @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
+    private PropertySet trackProperties;
 
     @Before
     public void setUp() throws Exception {
-        propertySet = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
+        trackProperties = expectedTrackForPlayer();
+        when(playbackNotificationPresenter.createNotification(trackProperties)).thenReturn(notification);
+        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
 
-        when(context.getResources()).thenReturn(Robolectric.getShadowApplication().getResources());
-        when(playbackNotificationPresenter.createNotification(propertySet)).thenReturn(notification);
-        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(propertySet));
-
-        controller = new PlaybackNotificationController(context, trackOperations, playbackNotificationPresenter,
-                notificationManager, eventBus, imageOperations);
+        controller = new PlaybackNotificationController(
+                Robolectric.application.getResources(),
+                trackOperations,
+                playbackNotificationPresenter,
+                notificationManager,
+                eventBus,
+                imageOperations,
+                playQueueManager);
     }
 
     @Test
@@ -119,6 +114,22 @@ public class PlaybackNotificationControllerTest {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
         verify(notificationManager).notify(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
+    }
+
+
+    @Test
+    public void shouldMergeTrackAndAudioAdPropertiesWhenCurrentSoundIsAnAd() {
+        final PropertySet audioAdMetaDAta = audioAdProperties();
+        final PropertySet expectedProperties = audioAdMetaDAta.merge(trackProperties);
+
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getAudioAd()).thenReturn(audioAdMetaDAta);
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
+
+        verify(playbackNotificationPresenter).createNotification(eq(expectedProperties));
     }
 
     @Test

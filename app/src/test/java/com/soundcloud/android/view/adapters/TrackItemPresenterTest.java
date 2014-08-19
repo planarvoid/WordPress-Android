@@ -33,13 +33,10 @@ public class TrackItemPresenterTest {
     @InjectMocks
     private TrackItemPresenter presenter;
 
-    @Mock
-    private LayoutInflater inflater;
-    @Mock
-    private ImageOperations imageOperations;
+    @Mock private LayoutInflater inflater;
+    @Mock private ImageOperations imageOperations;
 
     private View itemView;
-
     private PropertySet propertySet;
 
     @Before
@@ -89,7 +86,15 @@ public class TrackItemPresenterTest {
         propertySet.put(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.INVISIBLE);
+        expect(textView(R.id.list_item_counter)).toBeInvisible();
+    }
+
+    @Test
+    public void shouldHidePlayCountIfEqualOrLessZero() {
+        propertySet.put(TrackProperty.PLAY_COUNT, 0);
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(textView(R.id.list_item_counter)).toBeInvisible();
     }
 
     @Test
@@ -97,7 +102,7 @@ public class TrackItemPresenterTest {
         propertySet.put(PlayableProperty.REPOSTER, "reposter");
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.reposter).getVisibility()).toBe(View.VISIBLE);
+        expect(textView(R.id.reposter)).toBeVisible();
         expect(textView(R.id.reposter).getText()).toEqual("reposter");
     }
 
@@ -105,7 +110,7 @@ public class TrackItemPresenterTest {
     public void shouldNotBindReposterIfNone() {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.reposter).getVisibility()).toBe(View.GONE);
+        expect(textView(R.id.reposter)).toBeGone();
     }
 
     @Test
@@ -113,9 +118,9 @@ public class TrackItemPresenterTest {
         propertySet.put(PlayableProperty.IS_PRIVATE, true);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.INVISIBLE);
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.INVISIBLE);
+        expect(textView(R.id.private_indicator)).toBeVisible();
+        expect(textView(R.id.now_playing)).toBeInvisible();
+        expect(textView(R.id.list_item_counter)).toBeInvisible();
     }
 
     @Test
@@ -123,9 +128,9 @@ public class TrackItemPresenterTest {
         propertySet.put(PlayableProperty.IS_PRIVATE, false);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.INVISIBLE);
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.private_indicator)).toBeGone();
+        expect(textView(R.id.now_playing)).toBeInvisible();
+        expect(textView(R.id.list_item_counter)).toBeVisible();
     }
 
     @Test
@@ -133,8 +138,8 @@ public class TrackItemPresenterTest {
         presenter.setPlayingTrack(Urn.forTrack(123));
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.INVISIBLE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.VISIBLE);
+        expect(textView(R.id.list_item_counter)).toBeInvisible();
+        expect(textView(R.id.now_playing)).toBeVisible();
     }
 
     @Test
@@ -142,8 +147,8 @@ public class TrackItemPresenterTest {
         presenter.setPlayingTrack(Urn.forTrack(-1));
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
-        expect(textView(R.id.now_playing).getVisibility()).toEqual(View.INVISIBLE);
+        expect(textView(R.id.list_item_counter)).toBeVisible();
+        expect(textView(R.id.now_playing)).toBeInvisible();
     }
 
     @Test

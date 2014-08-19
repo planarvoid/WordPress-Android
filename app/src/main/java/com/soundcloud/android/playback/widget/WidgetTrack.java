@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -34,4 +35,7 @@ class WidgetTrack {
         return source.get(PlayableProperty.IS_LIKED);
     }
 
+    boolean isAudioAd() {
+        return source.contains(AdProperty.AD_URN);
+    }
 }

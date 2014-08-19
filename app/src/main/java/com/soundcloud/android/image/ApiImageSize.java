@@ -43,6 +43,7 @@ public enum ApiImageSize {
         return getListItemImageSize(c).formatUri(uri);
     }
 
+    @Deprecated // Use getListItemImageSize(Resources)
     public static ApiImageSize getListItemImageSize(Context c) {
         return getListItemImageSize(c.getResources());
     }

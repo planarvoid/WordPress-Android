@@ -27,13 +27,10 @@ import android.widget.ToggleButton;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class AdPagePresenter implements PagePresenter, View.OnClickListener {
-
-    private static final List<View> FULLSCREEN_VIEWS = Collections.emptyList();
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -111,7 +108,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
         holder.footerAdTitle.setText(playerAd.getAdTitle());
-        imageOperations.displayInVisualPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
+        imageOperations.displayAdInPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
     }
 
     private void displayPreview(PlayerAd playerAd, Holder holder) {
@@ -205,13 +202,13 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void setCollapsed(View trackPage) {
-        // no-op
+    public void setCollapsed(View trackView) {
+        onPlayerSlide(trackView, 0);
     }
 
     @Override
-    public void setExpanded(View trackPage) {
-        // no-op
+    public void setExpanded(View trackView) {
+        onPlayerSlide(trackView, 1);
     }
 
     private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
@@ -223,7 +220,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     @Override
     public void onPlayerSlide(View trackView, float slideOffset) {
         final Holder holder = getViewHolder(trackView);
-        helper.configureViewsFromSlide(slideOffset, holder.playerOverlayController, holder.footer, FULLSCREEN_VIEWS);
+        helper.configureViewsFromSlide(slideOffset, holder.playerOverlayController, holder.footer, holder.close);
     }
 
     private void setEnabled(boolean enabled, Iterable<View> views) {

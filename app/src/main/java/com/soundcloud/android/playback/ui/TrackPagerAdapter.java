@@ -82,8 +82,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     public void onPlayerSlide(float slideOffset) {
-        for (View view : trackByViews.keySet()) {
-            trackPagePresenter.onPlayerSlide(view, slideOffset);
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            int viewPosition = entry.getValue().positionInPlayQueue;
+            getPresenter(viewPosition).onPlayerSlide(entry.getKey(), slideOffset);
         }
     }
 

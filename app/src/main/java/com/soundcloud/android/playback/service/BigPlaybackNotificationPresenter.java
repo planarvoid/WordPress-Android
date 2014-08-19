@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.propeller.PropertySet;
@@ -24,14 +23,15 @@ public class BigPlaybackNotificationPresenter extends RichNotificationPresenter 
     }
 
     @Override
-    Notification createNotification(PropertySet propertySet){
-        Notification notification = super.createNotification(propertySet);
+    Notification createNotification(PropertySet trackProperties){
+        final NotificationTrack trackViewModel = new NotificationTrack(getContext().getResources(), trackProperties);
+        final Notification notification = super.createNotification(trackProperties);
 
         final String packageName = getContext().getPackageName();
         final NotificationPlaybackRemoteViews bigRemoteViews = getRemoteViewsFactory().create(packageName, R.layout.playback_status_large_v16);
         bigRemoteViews.linkButtonsNotification(getContext());
-        bigRemoteViews.setCurrentTrackTitle(propertySet.get(PlayableProperty.TITLE));
-        bigRemoteViews.setCurrentUsername(propertySet.get(PlayableProperty.CREATOR_NAME));
+        bigRemoteViews.setCurrentTrackTitle(trackViewModel.getTitle());
+        bigRemoteViews.setCurrentUsername(trackViewModel.getCreatorName());
         notification.bigContentView = bigRemoteViews;
         return notification;
     }

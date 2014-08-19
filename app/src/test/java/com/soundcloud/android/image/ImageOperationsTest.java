@@ -1,6 +1,7 @@
 package com.soundcloud.android.image;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.image.ImageOptionsFactory.DELAY_BEFORE_LOADING;
 import static com.soundcloud.android.image.ImageOptionsFactory.PlaceholderTransitionDisplayer;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Matchers.any;
@@ -43,6 +44,7 @@ import rx.observers.TestSubscriber;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -266,7 +268,7 @@ public class ImageOperationsTest {
 
         verify(imageLoader).displayImage(
                 anyString(), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageListenerUILAdapter.class));
-        expect(displayOptionsCaptor.getValue().getDelayBeforeLoading()).toEqual(ImageOptionsFactory.DELAY_BEFORE_LOADING_LOW_PRIORITY);
+        expect(displayOptionsCaptor.getValue().getDelayBeforeLoading()).toEqual(DELAY_BEFORE_LOADING);
         expect(displayOptionsCaptor.getValue().getDisplayer()).toBeInstanceOf(FadeInBitmapDisplayer.class);
         expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeTrue();
     }
@@ -292,12 +294,23 @@ public class ImageOperationsTest {
         when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
-        imageOperations.displayInVisualPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap);
+        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         verifyFullCacheOptions();
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
         expect(((ShadowBitmapDrawable) shadowOf(displayOptionsCaptor.getValue().getImageForEmptyUri(resources))).getBitmap()).toBe(bitmap);
+    }
+
+    @Test
+    public void displayAdInPlayerShouldNotCacheImageToDisk() {
+        imageOperations.displayAdInPlayer(Uri.parse(URL), imageView, drawable);
+
+        verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture());
+        expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeFalse();
+        expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeTrue();
+        expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
+        verifyFallbackDrawableOptions(RES_ID);
     }
 
     @Test

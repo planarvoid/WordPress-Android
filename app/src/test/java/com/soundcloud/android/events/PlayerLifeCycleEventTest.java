@@ -8,8 +8,8 @@ import org.junit.Test;
 public class PlayerLifeCycleEventTest {
 
     @Test
-    public void shouldCreateEventforIdle() throws Exception {
-        PlayerLifeCycleEvent event = PlayerLifeCycleEvent.forIdle();
+    public void shouldCreateEventforStopped() throws Exception {
+        PlayerLifeCycleEvent event = PlayerLifeCycleEvent.forStopped();
         assertEquals(event.getKind(), 0);
     }
 
@@ -26,18 +26,18 @@ public class PlayerLifeCycleEventTest {
     }
 
     @Test
-    public void serviceIsAliveForIdleEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forIdle().isServiceAlive()).toBeTrue();
+    public void serviceIsRunningForCreatedEvent() throws Exception {
+        expect(PlayerLifeCycleEvent.forCreated().isServiceRunning()).toBeTrue();
     }
 
     @Test
-    public void serviceIsAliveForCreatedEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forCreated().isServiceAlive()).toBeTrue();
+    public void serviceIsNotRunningForStoppedEvent() throws Exception {
+        expect(PlayerLifeCycleEvent.forStopped().isServiceRunning()).toBeFalse();
     }
 
     @Test
-    public void serviceIsNotAliveForDestroyedEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forDestroyed().isServiceAlive()).toBeFalse();
+    public void serviceIsNotRunningForDestroyedEvent() throws Exception {
+        expect(PlayerLifeCycleEvent.forDestroyed().isServiceRunning()).toBeFalse();
     }
 
 }

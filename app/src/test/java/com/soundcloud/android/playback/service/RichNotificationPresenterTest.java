@@ -1,13 +1,11 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
@@ -30,32 +28,20 @@ import javax.inject.Provider;
 public class RichNotificationPresenterTest {
 
     private static final String PACKAGE_NAME = "package-name";
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
-    private static final String TITLE = "TITLE";
-    private static final String CREATOR = "CREATOR";
 
     private RichNotificationPresenter presenter;
-    private PropertySet propertySet;
+    private PropertySet trackProperties;
     private Notification notification = new Notification();
 
-    @Mock
-    private NotificationPlaybackRemoteViews.Factory factory;
-    @Mock
-    private NotificationPlaybackRemoteViews remoteViews;
-    @Mock
-    private NotificationCompat.Builder notificationBuilder;
-    @Mock
-    private Context context;
-    @Mock
-    private Uri uri;
+    @Mock private NotificationPlaybackRemoteViews.Factory factory;
+    @Mock private NotificationPlaybackRemoteViews remoteViews;
+    @Mock private NotificationCompat.Builder notificationBuilder;
+    @Mock private Context context;
+    @Mock private Uri uri;
 
     @Before
     public void setUp() throws Exception {
-        propertySet = PropertySet.from(
-                TrackProperty.URN.bind(TRACK_URN),
-                PlayableProperty.TITLE.bind(TITLE),
-                PlayableProperty.CREATOR_NAME.bind(CREATOR));
-
+        trackProperties = expectedTrackForPlayer();
         when(context.getPackageName()).thenReturn(PACKAGE_NAME);
         when(factory.create(PACKAGE_NAME)).thenReturn(remoteViews);
         when(notificationBuilder.build()).thenReturn(notification);
@@ -70,21 +56,21 @@ public class RichNotificationPresenterTest {
 
     @Test
     public void createTrackSetsRemoteViewsAsContentViewOnBuilder() throws Exception {
-        presenter.createNotification(propertySet);
+        presenter.createNotification(trackProperties);
         expect(notification.contentView).toBe(remoteViews);
     }
 
 
     @Test
     public void createTrackSetCurrentTrackOnRemoteViews() throws Exception {
-        presenter.createNotification(propertySet);
-        verify(remoteViews).setCurrentTrackTitle(TITLE);
+        presenter.createNotification(trackProperties);
+        verify(remoteViews).setCurrentTrackTitle(trackProperties.get(PlayableProperty.TITLE));
     }
 
     @Test
     public void createTrackSeCallsSetCurrentUserOnRemoteViews() throws Exception {
-        presenter.createNotification(propertySet);
-        verify(remoteViews).setCurrentUsername(CREATOR);
+        presenter.createNotification(trackProperties);
+        verify(remoteViews).setCurrentUsername(trackProperties.get(PlayableProperty.CREATOR_NAME));
     }
 
     @Test

@@ -191,18 +191,6 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void sendsCollapsingEventWhenRestoringCollapsedState() {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
-
-        controller.onCreate(bundle);
-        controller.onResume();
-
-        PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
-        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
-    }
-
-    @Test
     public void sendsCollapsedEventWhenCollapsedListenerCalled() {
         controller.onPanelCollapsed(mock(View.class));
 
@@ -223,21 +211,32 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void sendsCollapsedEventWhenRestoringExpandedStateWithNullBundle() {
-        controller.onCreate(null);
-        controller.onResume();
-
-        PlayerUIEvent uiEvent = eventBus.firstEventOn(EventQueue.PLAYER_UI);
-        expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
-    }
-
-    @Test
     public void sendsExpandedEventWhenRestoringExpandedState() {
         controller.onCreate(createBundleWithExpandingCommand());
         controller.onResume();
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
+    }
+
+    @Test
+    public void sendsExpandedPlayerEventWhenResumingToExpandedPlayer() {
+        when(slidingPanel.isPanelExpanded()).thenReturn(true);
+
+        controller.onResume();
+
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
+    }
+
+    @Test
+    public void sendsCollapsedPlayerEventWhenResumingToCollapsedPlayer() {
+        when(slidingPanel.isPanelExpanded()).thenReturn(false);
+
+        controller.onResume();
+
+        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
+        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
     @Test
@@ -275,6 +274,15 @@ public class SlidingPlayerControllerTest {
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDING);
     }
 
+    @Test
+    public void resumingWhilstPlayingAudioAdExpandsPlayer() {
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+
+        controller.onResume();
+
+        verify(slidingPanel).expandPanel();
+    }
+
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void dimsSystemBarsWhenExpanding() {
@@ -293,7 +301,7 @@ public class SlidingPlayerControllerTest {
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
-    public void dimsSystemBarsWhenResumingToExpandingPlayer() {
+    public void dimsSystemBarsWhenResumingToExpandedPlayer() {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
 
         controller.onResume();

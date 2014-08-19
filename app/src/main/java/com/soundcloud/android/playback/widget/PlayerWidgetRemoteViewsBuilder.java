@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.widget;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 
@@ -40,8 +41,13 @@ public class PlayerWidgetRemoteViewsBuilder {
                 ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
 
         widgetRemoteView.setCurrentTrackTitle(track.getTitle());
-        widgetRemoteView.setCurrentUsername(track.getUserName());
         widgetRemoteView.linkButtonsWidget(context, track.getUrn(), track.getUserUrn(), track.isUserLike());
+
+        if (track.isAudioAd()) {
+            widgetRemoteView.setCurrentUsername(ScTextUtils.EMPTY_STRING);
+        } else {
+            widgetRemoteView.setCurrentUsername(track.getUserName());
+        }
     }
 
     private void setPlaybackStatus(PlayerWidgetRemoteViews widgetRemoteView) {
