@@ -21,7 +21,7 @@ import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
@@ -32,12 +32,13 @@ public class PlaybackNotificationController {
 
     static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
-    private final Context context;
+    private final Resources resources;
     private final PlaybackNotificationPresenter presenter;
     private final TrackOperations trackOperations;
     private final NotificationManager notificationManager;
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
+    private PlayQueueManager playQueueManager;
 
     private final int targetIconWidth;
     private final int targetIconHeight;
@@ -62,16 +63,30 @@ public class PlaybackNotificationController {
         @Override
         public Observable<Notification> call(CurrentPlayQueueTrackEvent playQueueEvent) {
             imageSubscription.unsubscribe();
-            notificationObservable = trackOperations.track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
-                    .mergeMap(notificationFunction).cache();
+            notificationObservable = trackOperations
+                    .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
+                    .map(mergeAudioAdMeta())
+                    .mergeMap(toNotification).cache();
+
             return notificationObservable;
         }
     };
 
-    private final Func1<PropertySet, Observable<Notification>> notificationFunction = new Func1<PropertySet, Observable<Notification>>() {
+    private Func1<PropertySet, PropertySet> mergeAudioAdMeta() {
+        final boolean isAudioAd = playQueueManager.isCurrentTrackAudioAd();
+        return new Func1<PropertySet, PropertySet>() {
+            @Override
+            public PropertySet call(PropertySet propertySet) {
+                return isAudioAd ? propertySet.merge(playQueueManager.getAudioAd()) : propertySet;
+            }
+        };
+    }
+
+    private final Func1<PropertySet, Observable<Notification>> toNotification = new Func1<PropertySet, Observable<Notification>>() {
         @Override
         public Observable<Notification> call(final PropertySet propertySet) {
             final Notification notification = presenter.createNotification(propertySet);
+            // TODO: put model creation back in presenter, that will fix the test back.
             if (presenter.artworkCapable()) {
                 loadAndSetArtwork(propertySet.get(TrackProperty.URN), notification);
             }
@@ -79,18 +94,21 @@ public class PlaybackNotificationController {
         }
     };
 
+
     @Inject
-    public PlaybackNotificationController(Context context, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
-                                          NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations) {
-        this.context = context;
+    public PlaybackNotificationController(Resources resources, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
+                                          NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
+                                          PlayQueueManager playQueueManager) {
+        this.resources = resources;
         this.trackOperations = trackOperations;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
+        this.playQueueManager = playQueueManager;
 
-        this.targetIconWidth = context.getResources().getDimensionPixelSize(R.dimen.notification_image_large_width);
-        this.targetIconHeight = context.getResources().getDimensionPixelSize(R.dimen.notification_image_large_height);
+        this.targetIconWidth = resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
+        this.targetIconHeight = resources.getDimensionPixelSize(R.dimen.notification_image_large_height);
     }
 
     public void subscribe() {
@@ -117,7 +135,7 @@ public class PlaybackNotificationController {
     }
 
     private ApiImageSize getApiImageSize() {
-        return ApiImageSize.getListItemImageSize(context);
+        return ApiImageSize.getListItemImageSize(resources);
     }
 
     private void loadAndSetArtwork(final TrackUrn trackUrn, final Notification notification) {

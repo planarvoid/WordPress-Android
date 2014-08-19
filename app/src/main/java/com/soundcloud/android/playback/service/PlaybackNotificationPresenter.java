@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -30,13 +29,15 @@ public class PlaybackNotificationPresenter {
         this.builderProvider = builderProvider;
     }
 
-    Notification createNotification(PropertySet propertySet){
+    Notification createNotification(PropertySet trackProperties){
+        final NotificationTrack trackViewModel = new NotificationTrack(context.getResources(), trackProperties);
+
         final NotificationCompat.Builder builder = builderProvider.get();
         builder.setOngoing(true);
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(createPendingIntent(context));
-        builder.setContentTitle(propertySet.get(PlayableProperty.TITLE));
-        builder.setContentText(propertySet.get(PlayableProperty.CREATOR_NAME));
+        builder.setContentTitle(trackViewModel.getTitle());
+        builder.setContentText(trackViewModel.getCreatorName());
         return builder.build();
     }
 

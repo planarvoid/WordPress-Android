@@ -12,6 +12,19 @@ import android.net.Uri;
 import java.util.Date;
 
 public abstract class TestPropertySets {
+    public static PropertySet audioAdProperties() {
+        return PropertySet.from(
+                AdProperty.AD_URN.bind("advertisement:123"),
+                AdProperty.ARTWORK.bind(Uri.parse("http:a//d.artwork.url")),
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://ad.click.through.url")),
+                AdProperty.DEFAULT_TEXT_COLOR.bind("#000000"),
+                AdProperty.DEFAULT_BACKGROUND_COLOR.bind("#FFFFF"),
+                AdProperty.PRESSED_TEXT_COLOR.bind("#111111"),
+                AdProperty.PRESSED_BACKGROUND_COLOR.bind("#222222"),
+                AdProperty.FOCUSED_TEXT_COLOR.bind("#333333"),
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444")
+        );
+    }
 
     public static PropertySet expectedTrackForWidget() {
         return PropertySet.from(

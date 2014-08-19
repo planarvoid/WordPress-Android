@@ -29,9 +29,10 @@ class PlayerWidgetPresenter {
         pushUpdate(remoteViews);
     }
 
-    /* package */ void updateTrackInformation(Context context, PropertySet track) {
+    /* package */ void updateTrackInformation(Context context, PropertySet trackProperties) {
+        WidgetTrack widgetTrack = new WidgetTrack(trackProperties);
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
-                .forTrack(new WidgetTrack(track))
+                .forTrack(widgetTrack)
                 .build(context);
         pushUpdate(remoteViews);
     }

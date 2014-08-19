@@ -40,6 +40,13 @@ public class PlayerWidgetController {
     private final SoundAssociationOperations soundAssociationOps;
     private final EventBus eventBus;
 
+    private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
+        @Override
+        public Observable<PropertySet> call(CurrentPlayQueueTrackEvent event) {
+            return loadTrackWithAdMeta(event.getCurrentTrackUrn());
+        }
+    };
+
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider, PlayQueueManager playQueueManager,
@@ -58,20 +65,18 @@ public class PlayerWidgetController {
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
 
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new PlayQueueTrackSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+                .mergeMap(onPlayQueueEventFunc).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CurrentTrackSubscriber());
     }
 
     public void update() {
         updatePlayState();
-        updatePlayableInformation();
+        updatePlayableInformation(Functions.<PropertySet>identity());
     }
 
     private void updatePlayState() {
         presenter.updatePlayState(context, playSessionsStateProvider.isPlaying());
-    }
-
-    private void updatePlayableInformation() {
-        updatePlayableInformation(Functions.<PropertySet>identity());
     }
 
     private void updatePlayableInformation(Func1<PropertySet, PropertySet> updateFunc) {
@@ -79,10 +84,25 @@ public class PlayerWidgetController {
         if (TrackUrn.NOT_SET.equals(currentTrackUrn)) {
             presenter.reset(context);
         } else {
-            trackOperations.track(currentTrackUrn)
+            loadTrackWithAdMeta(currentTrackUrn)
                     .map(updateFunc)
                     .subscribe(new CurrentTrackSubscriber());
         }
+    }
+
+    private Observable<PropertySet> loadTrackWithAdMeta(TrackUrn urn) {
+        return trackOperations.track(urn)
+                .map(mergeAudioAdMeta());
+    }
+
+    private Func1<PropertySet, PropertySet> mergeAudioAdMeta() {
+        final boolean isAudioAd = playQueueManager.isCurrentTrackAudioAd();
+        return new Func1<PropertySet, PropertySet>() {
+            @Override
+            public PropertySet call(PropertySet propertySet) {
+                return isAudioAd ? propertySet.merge(playQueueManager.getAudioAd()) : propertySet;
+            }
+        };
     }
 
     // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
@@ -135,13 +155,6 @@ public class PlayerWidgetController {
         @Override
         public void onNext(Playa.StateTransition state) {
             presenter.updatePlayState(context, state.playSessionIsActive());
-        }
-    }
-
-    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
-            trackOperations.track(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
         }
     }
 
