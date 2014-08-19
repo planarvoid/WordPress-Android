@@ -198,7 +198,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return handleMediaPlayerError(mp, getProgress());
+        return handleMediaPlayerError(mp, getAdjustedProgress());
     }
 
     private boolean handleMediaPlayerError(MediaPlayer mp, long resumePosition) {
@@ -351,7 +351,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void setInternalState(PlaybackState playbackState) {
-        setInternalState(playbackState, getProgress(), getDuration());
+        setInternalState(playbackState, getAdjustedProgress(), getDuration());
     }
 
     private void setInternalState(PlaybackState playbackState, long progress, long duration) {
@@ -479,17 +479,23 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private void sendProgress() {
         if (playaListener != null) {
+            long progress = getAdjustedProgress();
             final long duration = getDuration();
-            long progress = getProgress();
-
-            // Media player reports progress > duration refs #2035
-            if (progress > duration) {
-                Log.d(TAG, "Progress > duration: " + progress + " > " + duration);
-                progress = duration;
-            }
 
             playaListener.onProgressEvent(progress, duration);
         }
+    }
+
+    private long getAdjustedProgress() {
+        long duration = getDuration();
+        long progress = getProgress();
+
+        // Media player reports progress > duration refs #2035
+        if (progress > duration) {
+            Log.d(TAG, "Progress > duration: " + progress + " > " + duration);
+            return duration;
+        }
+        return progress;
     }
 
     public long getDuration() {
@@ -552,7 +558,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         final MediaPlayer mediaPlayer = this.mediaPlayer;
         if (mediaPlayer != null) {
             // store times as they will not be accessible after release
-            final long progress = getProgress();
+            final long progress = getAdjustedProgress();
             final long duration = getDuration();
 
             if (internalState.isStoppable()) {

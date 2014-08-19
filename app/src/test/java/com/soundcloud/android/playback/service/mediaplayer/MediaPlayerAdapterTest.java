@@ -509,6 +509,17 @@ public class MediaPlayerAdapterTest {
         verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }
 
+
+    @Test
+    public void onSeekCompletePublishesPlayingEventWithAdjustedPosition() throws Exception {
+        playUrlAndSetPrepared();
+        when(mediaPlayer.getCurrentPosition()).thenReturn(duration + 1);
+
+        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, track.get(TrackProperty.URN), duration, duration)));
+    }
+
     @Test
     public void onSeekCompleteShouldClearSeekPosThroughHandler() throws Exception {
         mediaPlayerAdapter.play(track);
