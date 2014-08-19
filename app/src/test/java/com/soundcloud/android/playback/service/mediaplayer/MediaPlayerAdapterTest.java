@@ -485,8 +485,33 @@ public class MediaPlayerAdapterTest {
     public void onSeekCompleteShouldPauseIfInPauseState() throws Exception {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.pause();
+        Mockito.reset(mediaPlayer);
+
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
-        verify(mediaPlayer, times(2)).pause();
+
+        verify(mediaPlayer).pause();
+    }
+
+    @Test
+    public void onSeekCompleteShouldNotPauseIfInTrackComplete() throws Exception {
+        playUrlAndSetPrepared();
+        mediaPlayerAdapter.onTrackEnded();
+        Mockito.reset(mediaPlayer);
+
+        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+
+        verify(mediaPlayer, never()).pause();
+    }
+
+    @Test
+    public void onSeekCompleteShouldNotStartMediaPlayerIfTrackComplete() throws Exception {
+        playUrlAndSetPrepared();
+        mediaPlayerAdapter.onTrackEnded();
+        Mockito.reset(mediaPlayer);
+
+        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+
+        verify(mediaPlayer, never()).start();
     }
 
     @Test

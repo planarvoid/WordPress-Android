@@ -242,9 +242,9 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             waitingForSeek = false;
 
             // respect pauses during seeks
-            if (!internalState.isSupposedToBePlaying()) {
+            if (internalState == PlaybackState.PAUSED) {
                 pause();
-            } else {
+            } else if (internalState.isSupposedToBePlaying()) {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
                     // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
                     // output. Toggling playback seems to fix it
