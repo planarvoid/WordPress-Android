@@ -274,15 +274,6 @@ public class SlidingPlayerControllerTest {
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDING);
     }
 
-    @Test
-    public void resumingWhilstPlayingAudioAdExpandsPlayer() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-
-        controller.onResume();
-
-        verify(slidingPanel).expandPanel();
-    }
-
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void dimsSystemBarsWhenExpanding() {
