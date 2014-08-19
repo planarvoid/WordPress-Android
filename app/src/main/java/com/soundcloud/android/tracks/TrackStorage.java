@@ -83,9 +83,7 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
             propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
             propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(SoundView.SHARING)));
-
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
-            propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
 
             putOptionalFields(cursorReader, propertySet);
 
@@ -102,6 +100,9 @@ public class TrackStorage {
             propertySet.put(TrackProperty.WAVEFORM_URL, waveformUrl == null ? ScTextUtils.EMPTY_STRING : waveformUrl);
             final String permalinkUrl = cursorReader.getString(SoundView.PERMALINK_URL);
             propertySet.put(PlayableProperty.PERMALINK_URL, permalinkUrl == null ? ScTextUtils.EMPTY_STRING : permalinkUrl);
+            final String streamUrl = cursorReader.getString(SoundView.STREAM_URL);
+            propertySet.put(TrackProperty.STREAM_URL, streamUrl == null ? ScTextUtils.EMPTY_STRING : streamUrl);
+
             final String policy = cursorReader.getString(SoundView.POLICY);
             if (policy != null) {
                 propertySet.put(TrackProperty.POLICY, policy);
