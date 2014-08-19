@@ -7,7 +7,7 @@ import rx.subjects.Subject;
 
 class DefaultEventSubject<T> extends Subject<T, T> {
 
-    private final PublishSubject<T> wrappedSubject;
+    private final Subject<T, T> wrappedSubject;
 
     private static final class OnSubscribeFunc<T> implements OnSubscribe<T> {
 

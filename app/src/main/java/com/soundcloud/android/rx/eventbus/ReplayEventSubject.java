@@ -3,16 +3,24 @@ package com.soundcloud.android.rx.eventbus;
 import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscriber;
-import rx.subjects.ReplaySubject;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.Subject;
 
 class ReplayEventSubject<T> extends Subject<T, T> {
 
-    private final ReplaySubject<T> wrappedSubject;
+    private final Subject<T, T> wrappedSubject;
 
     private static final class OnSubscribeFunc<T> implements OnSubscribe<T> {
 
-        private final ReplaySubject<T> subject = ReplaySubject.createWithSize(1);
+        private final BehaviorSubject<T> subject;
+
+        private OnSubscribeFunc(@Nullable T defaultEvent) {
+            if (defaultEvent == null) {
+                subject = BehaviorSubject.create();
+            } else {
+                subject = BehaviorSubject.create(defaultEvent);
+            }
+        }
 
         @Override
         public void call(Subscriber<? super T> subscriber) {
@@ -21,19 +29,16 @@ class ReplayEventSubject<T> extends Subject<T, T> {
     }
 
     public static <T> ReplayEventSubject<T> create() {
-        return new ReplayEventSubject<T>(new OnSubscribeFunc<T>(), null);
+        return new ReplayEventSubject<T>(new OnSubscribeFunc<T>(null));
     }
 
     public static <T> ReplayEventSubject<T> create(T defaultEvent) {
-        return new ReplayEventSubject<T>(new OnSubscribeFunc<T>(), defaultEvent);
+        return new ReplayEventSubject<T>(new OnSubscribeFunc<T>(defaultEvent));
     }
 
-    private ReplayEventSubject(OnSubscribeFunc<T> onSubscribeFunc, @Nullable T defaultEvent) {
+    private ReplayEventSubject(OnSubscribeFunc<T> onSubscribeFunc) {
         super(onSubscribeFunc);
         wrappedSubject = onSubscribeFunc.subject;
-        if (defaultEvent != null) {
-            onNext(defaultEvent);
-        }
     }
 
     @Override
