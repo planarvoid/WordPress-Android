@@ -307,7 +307,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void onIdleState() {
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forIdle());
         scheduleServiceShutdownCheck();
         fadeHandler.removeMessages(FadeHandler.FADE_OUT);
         fadeHandler.removeMessages(FadeHandler.FADE_IN);
@@ -408,6 +407,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         streamPlayer.stop();
         suppressNotifications = true;
         stopForeground(true);
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
     }
 
     public long seek(long pos, boolean performSeek) {

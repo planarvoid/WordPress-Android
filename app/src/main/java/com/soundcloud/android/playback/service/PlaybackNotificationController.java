@@ -53,7 +53,7 @@ public class PlaybackNotificationController {
     private final Action1<Notification> notifyAction = new Action1<Notification>() {
         @Override
         public void call(Notification notification) {
-            if (lastPlayerLifecycleEvent.isServiceAlive()){
+            if (lastPlayerLifecycleEvent.isServiceRunning()){
                 notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
             }
         }
@@ -119,7 +119,7 @@ public class PlaybackNotificationController {
             @Override
             public void onNext(PlayerLifeCycleEvent args) {
                 lastPlayerLifecycleEvent = args;
-                if (!args.isServiceAlive()) {
+                if (!args.isServiceRunning()) {
                     notificationManager.cancel(PLAYBACKSERVICE_STATUS_ID);
                 }
             }
@@ -152,7 +152,7 @@ public class PlaybackNotificationController {
                 @Override
                 public void onNext(Bitmap args) {
                     presenter.setIcon(notification, imageOperations.getLocalImageUri(trackUrn, getApiImageSize()));
-                    if (lastPlayerLifecycleEvent.isServiceAlive()){
+                    if (lastPlayerLifecycleEvent.isServiceRunning()){
                         notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
                     }
                 }
