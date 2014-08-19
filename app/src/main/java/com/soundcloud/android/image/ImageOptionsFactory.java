@@ -20,9 +20,7 @@ import android.widget.ImageView;
 
 class ImageOptionsFactory {
 
-    @VisibleForTesting
-    final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
-    final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
+    static final int DELAY_BEFORE_LOADING = 200;
 
     static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable) {
         return fullCacheBuilder()
@@ -36,13 +34,13 @@ class ImageOptionsFactory {
 
     public static DisplayImageOptions fullImageDialog() {
         return new DisplayImageOptions.Builder()
-                .cacheOnDisc(true)
-                .delayBeforeLoading(200)
-                .displayer(new FadeInBitmapDisplayer(200))
+                .cacheOnDisk(true)
+                .delayBeforeLoading(DELAY_BEFORE_LOADING)
+                .displayer(new FadeInBitmapDisplayer(DELAY_BEFORE_LOADING))
                 .build();
     }
 
-    public static DisplayImageOptions placeholder(@Nullable Drawable placeholderDrawable){
+    public static DisplayImageOptions placeholder(@Nullable Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
@@ -50,7 +48,7 @@ class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable){
+    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable) {
         return fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
@@ -59,64 +57,32 @@ class ImageOptionsFactory {
                 .build();
     }
 
+    public static DisplayImageOptions playerAd(@Nullable Drawable placeholderDrawable) {
+        return new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(false)
+                .showImageOnLoading(placeholderDrawable)
+                .showImageForEmptyUri(placeholderDrawable)
+                .showImageOnFail(placeholderDrawable)
+                .build();
+    }
 
     public static DisplayImageOptions prefetch() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(false)
-                .cacheOnDisc(true)
+                .cacheOnDisk(true)
                 .build();
     }
 
-    public static DisplayImageOptions cache(){
+    public static DisplayImageOptions cache() {
         return fullCacheBuilder()
-                .build();
-    }
-
-    public static DisplayImageOptions player(View parentView, boolean priority) {
-        return fullCacheBuilder()
-                .delayBeforeLoading(priority ? DELAY_BEFORE_LOADING_HIGH_PRIORITY : DELAY_BEFORE_LOADING_LOW_PRIORITY)
-                .displayer(new PlayerBitmapDisplayer(parentView))
                 .build();
     }
 
     public static DisplayImageOptions.Builder fullCacheBuilder() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
-                .cacheOnDisc(true);
-    }
-
-    @VisibleForTesting
-    static class PlayerBitmapDisplayer implements BitmapDisplayer {
-        private View mParentView;
-
-        PlayerBitmapDisplayer(View parentView) {
-            mParentView = parentView;
-        }
-
-
-
-        @Override
-        public void display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
-            final View wrappedView = imageAware.getWrappedView();
-            imageAware.setImageBitmap(bitmap);
-            if (wrappedView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (loadedFrom == LoadedFrom.NETWORK) {
-                    AnimUtils.runFadeInAnimationOn(wrappedView.getContext(), wrappedView);
-                    wrappedView.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(wrappedView.getAnimation())) {
-                                mParentView.setBackgroundDrawable(null);
-                            }
-                        }
-                    });
-                    wrappedView.setVisibility(View.VISIBLE);
-                } else {
-                    wrappedView.setVisibility(View.VISIBLE);
-                    mParentView.setBackgroundDrawable(null);
-                }
-            }
-        }
+                .cacheOnDisk(true);
     }
 
     /**

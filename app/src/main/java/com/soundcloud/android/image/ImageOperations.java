@@ -164,7 +164,7 @@ public class ImageOperations {
         imageLoader.displayImage(
                 uri.toString(),
                 imageAware,
-                ImageOptionsFactory.placeholder(placeholderDrawable));
+                ImageOptionsFactory.playerAd(placeholderDrawable));
     }
 
     public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
