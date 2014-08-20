@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.RxTestHelper.singlePage;
 import static com.soundcloud.android.rx.TestObservables.MockConnectableObservable;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -47,20 +48,13 @@ public class PullToRefreshControllerTest {
     private TestEventBus eventBus = new TestEventBus();
     private RefreshableFragment fragment = new RefreshableFragment();
 
-    @Mock
-    private FragmentActivity activity;
-    @Mock
-    private OnRefreshListener listener;
-    @Mock
-    private PullToRefreshWrapper wrapper;
-    @Mock
-    private PullToRefreshLayout layout;
-    @Mock
-    private Subscription subscription;
-    @Mock
-    private PagingItemAdapter<Parcelable> adapter;
-    @Captor
-    private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
+    @Mock private FragmentActivity activity;
+    @Mock private OnRefreshListener listener;
+    @Mock private PullToRefreshWrapper wrapper;
+    @Mock private PullToRefreshLayout layout;
+    @Mock private Subscription subscription;
+    @Mock private PagingItemAdapter<Parcelable> adapter;
+    @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 
     private PullToRefreshController controller;
     private MockConnectableObservable<Page<List<Parcelable>>> observable;
@@ -71,6 +65,7 @@ public class PullToRefreshControllerTest {
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
         observable = TestObservables.emptyConnectableObservable(subscription);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
     @Test
@@ -91,6 +86,20 @@ public class PullToRefreshControllerTest {
     public void shouldForwardRefreshStartedToPTRWrapper() {
         controller.startRefreshing();
         verify(wrapper).setRefreshing(true);
+    }
+
+    @Test
+    public void shouldNotStartRefreshingIfPlayerIsExpanded() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        controller.startRefreshing();
+        verify(wrapper, never()).setRefreshing(true);
+    }
+
+    @Test
+    public void shouldNotStartRefreshingIfPlayerIsExpanding() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+        controller.startRefreshing();
+        verify(wrapper, never()).setRefreshing(true);
     }
 
     @Test
@@ -196,9 +205,7 @@ public class PullToRefreshControllerTest {
         }
 
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        }
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {}
 
         @Override
         public MockConnectableObservable<Page<List<Parcelable>>> buildObservable() {

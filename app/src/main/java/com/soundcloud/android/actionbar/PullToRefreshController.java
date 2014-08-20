@@ -3,13 +3,14 @@ package com.soundcloud.android.actionbar;
 import static rx.android.OperatorPaged.Page;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.RefreshableListComponent;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
@@ -31,6 +32,14 @@ public class PullToRefreshController {
     private Subscription refreshSubscription = Subscriptions.empty();
     private boolean wasRefreshing;
 
+    private final Func1<PlayerUIEvent, Boolean> isPlayerCollapsed = new Func1<PlayerUIEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayerUIEvent event) {
+            return event.getKind() != PlayerUIEvent.PLAYER_EXPANDED
+                    && event.getKind() != PlayerUIEvent.PLAYER_EXPANDING;
+        }
+    };
+
     @Inject
     public PullToRefreshController(EventBus eventBus, PullToRefreshWrapper wrapper) {
         this.eventBus = eventBus;
@@ -41,7 +50,7 @@ public class PullToRefreshController {
     public void onViewCreated(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         wrapper.attach(activity, pullToRefreshLayout, listener);
         wrapper.setRefreshing(wasRefreshing);
-        playerExpandedSubscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpandedSubscriber());
+        playerExpandedSubscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpandingSubscriber());
     }
 
     /**
@@ -93,14 +102,24 @@ public class PullToRefreshController {
     }
 
     public void startRefreshing() {
-        wrapper.setRefreshing(true);
+        eventBus.queue(EventQueue.PLAYER_UI)
+                .first()
+                .filter(isPlayerCollapsed)
+                .subscribe(new PlayerCollapsedSubscriber());
     }
 
     public void stopRefreshing() {
         wrapper.setRefreshing(false);
     }
 
-    private final class PlayerExpandedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private final class PlayerCollapsedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent event) {
+            wrapper.setRefreshing(true);
+        }
+    }
+
+    private final class PlayerExpandingSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDING) {
