@@ -22,7 +22,7 @@ public class TrackingApiConnectionFactory {
             connection.setRequestMethod("HEAD");
         } else if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Length", "0");
+            connection.setFixedLengthStreamingMode(0);
         }
 
         return connection;

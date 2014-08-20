@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,15 @@ class TrackingApi {
                 connection.setRequestProperty(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
                 connection.connect();
 
+                final InputStream inputStream = connection.getInputStream();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                final InputStream errorStream = connection.getErrorStream();
+                if (errorStream != null) {
+                    errorStream.close();
+                }
+
                 final int status = connection.getResponseCode();
                 Log.d(EventTracker.TAG, connection.getRequestMethod() + " " + event.getUrl() + ": " + status);
 
@@ -59,11 +69,11 @@ class TrackingApi {
                 }
             } catch (IOException e) {
                 Log.w(EventTracker.TAG, "Failed pushing event " + event);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
-        }
-
-        if (connection != null) {
-            connection.disconnect();
         }
 
         return successes;
