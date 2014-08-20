@@ -85,6 +85,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.why_ads));
     }
 
+    private ViewElement adPage() {
+        return solo.findElement(With.id(R.id.player_ad_page));
+    }
+
     public boolean isExpanded() {
         return !footerPlayer().isVisible();
     }
@@ -148,6 +152,10 @@ public class VisualPlayerElement extends Element {
         return new WhyAdsScreen(solo);
     }
 
+    public boolean isAdPageVisible() {
+        return adPage().isVisible();
+    }
+
     public String getTrackTitle() {
         return trackTitle().getText();
     }
@@ -176,11 +184,15 @@ public class VisualPlayerElement extends Element {
         solo.sleep(MILISECONDS_UNTIL_AD_SKIPPABLE);
     }
 
+    public void waitForTrackToFinish(int firstTrackLengthInMiliSeconds) {
+        solo.sleep(firstTrackLengthInMiliSeconds);
+    }
+
     public void waitForSkipAdButton() {
         waiter.waitForElement(R.id.skip_ad);
     }
 
-    public void waitForExpandedAdPage() {
+    public void waitForAdPage() {
         waiter.waitForElement(R.id.player_ad_page);
     }
 
