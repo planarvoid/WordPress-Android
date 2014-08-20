@@ -9,8 +9,11 @@ import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
 
+import java.util.concurrent.TimeUnit;
+
 public class VisualPlayerElement extends Element {
 
+    public static final int MILISECONDS_UNTIL_AD_SKIPPABLE = (int) TimeUnit.SECONDS.toMillis(15L);
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
 
     public VisualPlayerElement(Han solo) {
@@ -167,6 +170,10 @@ public class VisualPlayerElement extends Element {
 
     public boolean waitForCollapsedPlayer() {
         return waiter.waitForElementToBeVisible(footerPlayerPredicate);
+    }
+
+    public void waitForAdToBeSkippable() {
+        solo.sleep(MILISECONDS_UNTIL_AD_SKIPPABLE);
     }
 
     public void waitForSkipAdButton() {

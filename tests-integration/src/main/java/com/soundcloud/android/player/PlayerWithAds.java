@@ -58,15 +58,17 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         assertThat(playerElement, is(Playing()));
     }
 
-    public void testSkipShouldBeDisplayedAfter15sec() {
+    public void testSkipShouldBeDisplayedWhenAdIsSkippable() {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
+        playerElement.waitForAdToBeSkippable();
         playerElement.waitForSkipAdButton();
         assertThat(playerElement, is(SkipAllowed()));
     }
 
     public void testSkipAdShouldStartTheMonetizableTrack() {
         swipeToAd();
+        playerElement.waitForAdToBeSkippable();
         playerElement.waitForSkipAdButton();
         String adTrackTitle = playerElement.getTrackTitle();
         playerElement.tapSkipAd();
