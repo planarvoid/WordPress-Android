@@ -2,7 +2,7 @@ package com.soundcloud.android.playlist;
 
 import static com.soundcloud.android.tests.TestUser.playlistUser;
 import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 

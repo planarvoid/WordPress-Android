@@ -9,6 +9,7 @@ import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
+import com.soundcloud.android.utils.DeviceHelper;
 import rx.Observable;
 import rx.functions.Action1;
 
@@ -16,13 +17,16 @@ import javax.inject.Inject;
 
 class AdsOperations {
 
+    public static final String UNIQUE_ID_HEADER = "SC-UDID";
     private final RxHttpClient rxHttpClient;
     private final TrackWriteStorage trackWriteStorage;
+    private final DeviceHelper deviceHelper;
 
     @Inject
-    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage) {
+    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper) {
         this.rxHttpClient = rxHttpClient;
         this.trackWriteStorage = trackWriteStorage;
+        this.deviceHelper = deviceHelper;
     }
 
     private final Action1<AudioAd> cacheAudioAdTrack = new Action1<AudioAd>() {
@@ -36,7 +40,9 @@ class AdsOperations {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
         final APIRequest<AudioAd> request = SoundCloudAPIRequest.RequestBuilder.<AudioAd>get(endpoint)
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(AudioAd.class)).build();
+                .forResource(TypeToken.of(AudioAd.class))
+                .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
+                .build();
 
         return rxHttpClient.<AudioAd>fetchModels(request).doOnNext(cacheAudioAdTrack);
     }

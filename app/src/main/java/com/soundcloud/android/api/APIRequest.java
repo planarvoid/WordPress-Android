@@ -4,6 +4,8 @@ package com.soundcloud.android.api;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 
+import java.util.Map;
+
 /**
  * Represent a request that can be made with a {@link RxHttpClient}. Mandatory values are
  * the target API (public/private), uri path & method. If the request targets the private API
@@ -51,8 +53,16 @@ public interface APIRequest<ResourceType> {
     Multimap<String, String> getQueryParameters();
 
     /**
+     * Returns headers that have currently been set. This is not a live collection.
+     * Additions to it will not be reflected.
+     * @return Copy of the internal header map.
+     */
+    Map<String,String> getHeaders();
+
+    /**
      * Returns content object that is to be serialized to json and sent along with the request
      * @return Object representing the content to b serialized
      */
     Object getContent();
+
 }

@@ -3,7 +3,6 @@ package com.soundcloud.android.deeplinks;
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
-import com.soundcloud.android.deeplinks.ResolveTask;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Env;
@@ -59,14 +58,6 @@ public class ResolveTaskTest {
         expect(ResolveTask.resolveSoundCloudURI(
                 Uri.parse("soundcloud:users:1234"), Env.LIVE))
                 .toEqual(Uri.parse("https://api.soundcloud.com/users/1234"));
-
-        expect(ResolveTask.resolveSoundCloudURI(
-                Uri.parse("soundcloud:users:1234"), Env.SANDBOX))
-                .toEqual(Uri.parse("https://api.sandbox-soundcloud.com/users/1234"));
-
-        expect(ResolveTask.resolveSoundCloudURI(
-                Uri.parse("soundcloud:users:1234#show"), Env.SANDBOX))
-                .toEqual(Uri.parse("https://api.sandbox-soundcloud.com/users/1234"));
 
         expect(ResolveTask.resolveSoundCloudURI(
                 Uri.parse("soundcloud:tracks:1234"), Env.LIVE))

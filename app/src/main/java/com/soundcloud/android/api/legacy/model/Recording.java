@@ -1,32 +1,6 @@
 
 package com.soundcloud.android.api.legacy.model;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.creators.record.AudioReader;
-import com.soundcloud.android.creators.record.PlaybackStream;
-import com.soundcloud.android.creators.record.reader.VorbisReader;
-import com.soundcloud.android.creators.record.reader.WavReader;
-import com.soundcloud.android.storage.RecordingStorage;
-import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.creators.record.AmplitudeData;
-import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.creators.upload.UploadService;
-import com.soundcloud.android.utils.FiletimeComparator;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Params;
-import com.soundcloud.api.Request;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +14,29 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.format.Time;
 import android.util.Log;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.creators.record.AmplitudeData;
+import com.soundcloud.android.creators.record.AudioReader;
+import com.soundcloud.android.creators.record.PlaybackStream;
+import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.creators.record.reader.VorbisReader;
+import com.soundcloud.android.creators.record.reader.WavReader;
+import com.soundcloud.android.creators.upload.UploadService;
+import com.soundcloud.android.storage.RecordingStorage;
+import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.FiletimeComparator;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Recording extends PublicApiResource implements Comparable<Recording> {
 
@@ -449,8 +448,8 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         } else {
             fileName = file.getName();
         }
-        return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file, fileName)
-                .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artwork_path)
+        return request.withFile(Params.Track.ASSET_DATA, file, fileName)
+                .withFile(Params.Track.ARTWORK_DATA, artwork_path)
                 .setProgressListener(listener);
     }
 

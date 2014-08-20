@@ -3,8 +3,6 @@ package com.soundcloud.android.api.legacy.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.storage.provider.Content;

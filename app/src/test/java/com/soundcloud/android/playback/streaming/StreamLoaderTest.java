@@ -222,7 +222,7 @@ public class StreamLoaderTest {
         addPendingHttpResponse(200, "", headers(
                 "Content-Length", String.valueOf(f.length()),
                 "ETag", IOUtils.md5(f),
-                "Last-Modified", Stream.DATE_FORMAT.format(new Date(f.lastModified())),
+                "Last-Modified", Stream.buildDateFormat().format(new Date(f.lastModified())),
                 "x-amz-meta-bitrate", "128",
                 "x-amz-meta-duration", "18998"
         ));

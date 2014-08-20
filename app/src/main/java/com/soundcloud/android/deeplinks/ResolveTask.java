@@ -97,8 +97,8 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
             UrnResolver resolver = new UrnResolver();
             Urn urn = resolver.toUrn(uri);
             return new Uri.Builder()
-                    .scheme(env.sslResourceHost.getSchemeName())
-                    .authority(env.sslResourceHost.getHostName())
+                    .scheme(env.getSecureResourceHost().getSchemeName())
+                    .authority(env.getSecureResourceHost().getHostName())
                     // handle api vs uri difference in tracks/sounds
                     .appendPath(urn.type.equalsIgnoreCase(Urn.SOUNDS_TYPE) ? Urn.TRACKS_TYPE : urn.type)
                     .appendPath(String.valueOf(urn.numericId)).build();

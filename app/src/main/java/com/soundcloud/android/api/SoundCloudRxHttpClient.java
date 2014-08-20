@@ -1,7 +1,6 @@
 package com.soundcloud.android.api;
 
-import static java.lang.String.format;
-
+import android.content.Context;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -32,13 +31,13 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Func1;
 
-import android.content.Context;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+
+import static java.lang.String.format;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
@@ -192,6 +191,8 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         for (String key : transformedParameters.keySet()) {
             request.add(key, transformedParameters.get(key));
         }
+
+        request.setHeaders(apiRequest.getHeaders());
 
         final Object content = apiRequest.getContent();
         if (content != null) {

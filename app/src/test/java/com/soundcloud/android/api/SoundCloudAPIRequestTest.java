@@ -7,7 +7,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,11 +152,26 @@ public class SoundCloudAPIRequestTest {
         expect(queryParameters.get("b")).toContainExactly("2");
     }
 
-    private <T> APIRequest<Integer> buildValidRequest() {
+    @Test
+    public void remembersAddedHeaders() {
+        APIRequest<Integer> request = RequestBuilder
+                .<Integer>get(URI_PATH)
+                .forResource(Integer.class)
+                .forPrivateAPI(1)
+                .withHeader("sc-udid", "abc123")
+                .build();
+
+        final String value = request.getHeaders().get("sc-udid");
+
+        expect(value).toEqual("abc123");
+    }
+
+    private APIRequest<Integer> buildValidRequest() {
         return RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPrivateAPI(1).build();
     }
 
-    private <T> APIRequest<Integer> buildValidRequestFromFullUri() {
+    private APIRequest<Integer> buildValidRequestFromFullUri() {
         return RequestBuilder.<Integer>get(FULL_URI).forResource(Integer.class).forPrivateAPI(1).build();
     }
+
 }

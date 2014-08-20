@@ -1,7 +1,7 @@
 package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.stub;

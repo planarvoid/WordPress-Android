@@ -1,8 +1,8 @@
 package com.soundcloud.android.player;
 
 import static com.soundcloud.android.tests.matcher.view.IsEnabled.Enabled;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.main.MainActivity;
