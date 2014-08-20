@@ -2,6 +2,7 @@ package com.soundcloud.android.activities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
@@ -17,11 +18,13 @@ import javax.inject.Inject;
 
 public class ActivitiesActivity extends ScActivity {
     @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
 
     public ActivitiesActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
+        addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
     }
 

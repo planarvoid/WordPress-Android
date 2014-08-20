@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -26,6 +27,7 @@ public class PlaylistDetailActivity extends ScActivity {
     static final String LOG_TAG = "PlaylistDetails";
 
     @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
 
     @Deprecated
@@ -47,6 +49,7 @@ public class PlaylistDetailActivity extends ScActivity {
     public PlaylistDetailActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
+        addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
     }
 

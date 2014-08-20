@@ -20,7 +20,7 @@ public class PlayerUIEvent {
     }
 
     /**
-     * Panel is expanded and player UI should configure to full-screen mode.
+     * Panel is completely expanded.
      */
     public static PlayerUIEvent fromPlayerExpanded() {
         return new PlayerUIEvent(PLAYER_EXPANDED);
@@ -34,7 +34,7 @@ public class PlayerUIEvent {
     }
 
     /**
-     * Panel has finished collapsing.
+     * Panel is completely collapsed.
      */
     public static PlayerUIEvent fromPlayerCollapsed() {
         return new PlayerUIEvent(PLAYER_COLLAPSED);

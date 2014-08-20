@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
+import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
@@ -37,6 +38,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private SearchActionBarController searchActionBarController;
     private String query;
     @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
     @Inject PlaybackOperations playbackOperations;
 
@@ -61,6 +63,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     public SearchActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
+        addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
     }
 

@@ -7,6 +7,7 @@ import static rx.android.observables.AndroidObservable.bindActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
+import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.LikesListFragment;
@@ -52,6 +53,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject ScreenPresenter presenter;
     @Inject UserOperations userOperations;
     @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
     private Handler drawerHandler = new Handler();
@@ -59,6 +61,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
+        addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
     }
 

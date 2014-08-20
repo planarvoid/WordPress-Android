@@ -6,6 +6,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -82,6 +83,7 @@ public class ProfileActivity extends ScActivity implements
     @Inject FollowingOperations followingOperations;
     @Inject UserStorage userStorage;
     @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
 
     @Deprecated
@@ -102,6 +104,7 @@ public class ProfileActivity extends ScActivity implements
     public ProfileActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
+        addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
     }
 
