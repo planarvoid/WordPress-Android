@@ -5,22 +5,16 @@ import static com.soundcloud.android.tests.TestUser.GPlusAccount;
 import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
 import static com.soundcloud.android.tests.TestUser.scAccount;
 import static com.soundcloud.android.tests.TestUser.scTestAccount;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
-import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.Waiter;
-
-import android.webkit.WebView;
 
 /*
  * As a User
@@ -102,7 +96,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my FB credentials
     * So that I don't need to create another account
     */
-    public void testLoginWithFacebookWebFlow() throws Throwable {
+    public void testLoginWithFacebookWebFlow() {
 
         // TODO: Control FB SSO on the device.
         if (FacebookSSOActivity.isSupported(getInstrumentation().getTargetContext())) {
