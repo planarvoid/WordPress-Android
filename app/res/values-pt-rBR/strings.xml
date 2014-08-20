@@ -115,7 +115,7 @@
     <string name="title_about">Sobre</string>
     <string name="title_legal">Legal</string>
 
-    <string name="title_now_playing">Jogando agora</string>
+    <string name="title_now_playing">Tocando agora</string>
 
     <!-- Onboarding -->
     <string name="suggested_users_genres_large_title">Escolha suas categorias favoritas</string>
@@ -231,7 +231,7 @@
   <string name="authentication_sign_up">Increva-se no SoundCloud</string>
   <string name="authentication_signup_error_message">Parece haver um problema. Tente se inscrever em SoundCloud.com.</string>
   <string name="authentication_support">Suporte</string>
-  <string name="authentication_support_uri">http://soundcloud.com/help#contact-forma</string>
+  <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
   <string name="authentication_terms_of_use">Termos de Uso</string>
   <string name="authentication_your_email_address">Seu endereço de e-mail</string>
   <string name="authentication_your_password">Sua senha</string>
@@ -260,84 +260,84 @@
   <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente em breve</string>
   <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações no SoundCloud e selecione \"Conexões\"</string>
   <plurals name="dashboard_notifications_activity_message_activity">
-    <item quantity="zero">Comments and likes from %2$s, %3$s and others</item>
+    <item quantity="zero">Comentários e curtidas de %2$s, %3$s e outros</item>
     <item quantity="one">de %2$s em %1$s</item>
-    <item quantity="two">Comments and likes from %2$s and %3$s</item>
-    <item quantity="few">Comments and likes from %2$s, %3$s and others</item>
-    <item quantity="many">Comments and likes from %2$s, %3$s and others</item>
+    <item quantity="two">Comentários e curtidas de %2$s e %3$s</item>
+    <item quantity="few">Comentários e curtidas de %2$s, %3$s e outros</item>
+    <item quantity="many">Comentários e curtidas de %2$s, %3$s e outros</item>
     <item quantity="other">Comentários e curtidas de %2$s, %3$s e outros</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_comment">
-    <item quantity="zero">Comments from %1$s, %2$s and others</item>
+    <item quantity="zero">Comentários de %1$s, %2$s e outros</item>
     <item quantity="one">Comentários de %1$s, %2$s e outros</item>
-    <item quantity="two">Comments from %1$s and %2$s</item>
-    <item quantity="few">Comments from %1$s, %2$s and others</item>
-    <item quantity="many">Comments from %1$s, %2$s and others</item>
+    <item quantity="two">Comentários de %1$s e %2$s</item>
+    <item quantity="few">Comentários de %1$s, %2$s e outros</item>
+    <item quantity="many">Comentários de %1$s, %2$s e outros</item>
     <item quantity="other">Comentários de %1$s, %2$s e outros</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_comment_single_track">
-    <item quantity="zero">%1$d new comments on %2$s from %3$s, %4$s and others</item>
+    <item quantity="zero">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
     <item quantity="one">novo comentário em %2$s de %3$s</item>
-    <item quantity="two">%1$d new comments on %2$s from %3$s and %4$s</item>
-    <item quantity="few">%1$d new comments on %2$s from %3$s, %4$s and others</item>
-    <item quantity="many">%1$d new comments on %2$s from %3$s, %4$s and others</item>
+    <item quantity="two">%1$d novos comentários em %2$s de %3$s e %4$s</item>
+    <item quantity="few">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
+    <item quantity="many">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
     <item quantity="other">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_like">
     <item quantity="zero">on %1$s, %2$s and other sounds</item>
     <item quantity="one">em %1$s</item>
-    <item quantity="two">on %1$s and %2$s</item>
-    <item quantity="few">on %1$s, %2$s and other sounds</item>
-    <item quantity="many">on %1$s, %2$s and other sounds</item>
+    <item quantity="two">em %1$s e %2$s</item>
+    <item quantity="few">em %1$s, %2$s e outros sons</item>
+    <item quantity="many">em %1$s, %2$s e outros sons</item>
     <item quantity="other">em %1$s, %2$s e outros sons</item>
   </plurals>
   <string name="dashboard_notifications_activity_message_likes">%1$s gosta %2$s</string>
   <plurals name="dashboard_notifications_activity_ticker_activity">
-    <item quantity="zero">%d new activities</item>
+    <item quantity="zero">%d novas atividades</item>
     <item quantity="one">1 nova atividade</item>
-    <item quantity="two">%d new activities</item>
-    <item quantity="few">%d new activities</item>
-    <item quantity="many">%d new activities</item>
+    <item quantity="two">%d novas atividades</item>
+    <item quantity="few">%d novas atividades</item>
+    <item quantity="many">%d novas atividades</item>
     <item quantity="other">%d novas atividades</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_ticker_comment">
-    <item quantity="zero">%d new comments</item>
+    <item quantity="zero">%d novos comentários</item>
     <item quantity="one">1 novo comentário</item>
-    <item quantity="two">%d new comments</item>
-    <item quantity="few">%d new comments</item>
-    <item quantity="many">%d new comments</item>
+    <item quantity="two">%d novos comentários</item>
+    <item quantity="few">%d novos comentários</item>
+    <item quantity="many">%d novos comentários</item>
     <item quantity="other">%d novos comentários</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_ticker_like">
-    <item quantity="zero">%d new likes</item>
+    <item quantity="zero">%d novas curtidas</item>
     <item quantity="one">Nova curtida</item>
-    <item quantity="two">%d new likes</item>
-    <item quantity="few">%d new likes</item>
-    <item quantity="many">%d new likes</item>
+    <item quantity="two">%d novas curtidas</item>
+    <item quantity="few">%d novas curtidas</item>
+    <item quantity="many">%d novas curtidas</item>
     <item quantity="other">%d novas curtidas</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_activity">
-    <item quantity="zero">%d new activities</item>
+    <item quantity="zero">%d novas atividades</item>
     <item quantity="one">1 nova atividade</item>
-    <item quantity="two">%d new activities</item>
-    <item quantity="few">%d new activities</item>
-    <item quantity="many">%d new activities</item>
+    <item quantity="two">%d novas atividades</item>
+    <item quantity="few">%d novas atividades</item>
+    <item quantity="many">%d novas atividades</item>
     <item quantity="other">%d novas atividades</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_comment">
-    <item quantity="zero">%d new comments</item>
+    <item quantity="zero">%d novos comentários</item>
     <item quantity="one">1 novo comentário</item>
-    <item quantity="two">%d new comments</item>
-    <item quantity="few">%d new comments</item>
-    <item quantity="many">%d new comments</item>
+    <item quantity="two">%d novos comentários</item>
+    <item quantity="few">%d novos comentários</item>
+    <item quantity="many">%d novos comentários</item>
     <item quantity="other">%d novos comentários</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_like">
-    <item quantity="zero">%d new likes</item>
+    <item quantity="zero">%d novas curtidas</item>
     <item quantity="one">Uma nova curtida</item>
-    <item quantity="two">%d new likes</item>
-    <item quantity="few">%d new likes</item>
-    <item quantity="many">%d new likes</item>
+    <item quantity="two">%d novas curtidas</item>
+    <item quantity="few">%d novas curtidas</item>
+    <item quantity="many">%d novas curtidas</item>
     <item quantity="other">%d novas curtidas</item>
   </plurals>
   <string name="dashboard_notifications_message_follower">%s agora está seguindo você. Seguir de volta?</string>
@@ -358,99 +358,99 @@
   <string name="dialog_unsaved_recordings_message">Gravações não salvas encontradas. Os itens verificados serão salvos.</string>
   <string name="discogs">Discogs</string>
   <plurals name="elapsed_days">
-    <item quantity="zero">%d days</item>
+    <item quantity="zero">%d dias</item>
     <item quantity="one">1 dia</item>
-    <item quantity="two">%d days</item>
-    <item quantity="few">%d days</item>
-    <item quantity="many">%d days</item>
+    <item quantity="two">%d dias</item>
+    <item quantity="few">%d dias</item>
+    <item quantity="many">%d dias</item>
     <item quantity="other">%d dias</item>
   </plurals>
   <plurals name="elapsed_days_ago">
-    <item quantity="zero">%d days ago</item>
+    <item quantity="zero">%d dias atrás</item>
     <item quantity="one">1 dia atrás</item>
-    <item quantity="two">%d days ago</item>
-    <item quantity="few">%d days ago</item>
-    <item quantity="many">%d days ago</item>
+    <item quantity="two">%d dias atrás</item>
+    <item quantity="few">%d dias atrás</item>
+    <item quantity="many">%d dias atrás</item>
     <item quantity="other">%d dias atrás</item>
   </plurals>
   <plurals name="elapsed_hours">
-    <item quantity="zero">%d hours</item>
+    <item quantity="zero">%d horas</item>
     <item quantity="one">1 hora</item>
-    <item quantity="two">%d hours</item>
-    <item quantity="few">%d hours</item>
-    <item quantity="many">%d hours</item>
+    <item quantity="two">%d horas</item>
+    <item quantity="few">%d horas</item>
+    <item quantity="many">%d horas</item>
     <item quantity="other">%d horas</item>
   </plurals>
   <plurals name="elapsed_hours_ago">
-    <item quantity="zero">%d hours ago</item>
+    <item quantity="zero">%d horas atrás</item>
     <item quantity="one">1 hora atrás</item>
-    <item quantity="two">%d hours ago</item>
-    <item quantity="few">%d hours ago</item>
-    <item quantity="many">%d hours ago</item>
+    <item quantity="two">%d horas atrás</item>
+    <item quantity="few">%d horas atrás</item>
+    <item quantity="many">%d horas atrás</item>
     <item quantity="other">%d horas atrás</item>
   </plurals>
   <plurals name="elapsed_minutes">
-    <item quantity="zero">%d minutes</item>
+    <item quantity="zero">%d minutos</item>
     <item quantity="one">1 minuto</item>
-    <item quantity="two">%d minutes</item>
-    <item quantity="few">%d minutes</item>
-    <item quantity="many">%d minutes</item>
+    <item quantity="two">%d minutos</item>
+    <item quantity="few">%d minutos</item>
+    <item quantity="many">%d minutos</item>
     <item quantity="other">%d minutos</item>
   </plurals>
   <plurals name="elapsed_minutes_ago">
-    <item quantity="zero">%d minutes ago</item>
+    <item quantity="zero">%d minutos atrá</item>
     <item quantity="one">1 hora atrás</item>
-    <item quantity="two">%d minutes ago</item>
-    <item quantity="few">%d minutes ago</item>
-    <item quantity="many">%d minutes ago</item>
+    <item quantity="two">%d minutos atrá</item>
+    <item quantity="few">%d minutos atrá</item>
+    <item quantity="many">%d minutos atrá</item>
     <item quantity="other">%d minutos atrás</item>
   </plurals>
   <plurals name="elapsed_months">
-    <item quantity="zero">%d months</item>
+    <item quantity="zero">%d meses</item>
     <item quantity="one">1 mês</item>
-    <item quantity="two">%d months</item>
-    <item quantity="few">%d months</item>
-    <item quantity="many">%d months</item>
+    <item quantity="two">%d meses</item>
+    <item quantity="few">%d meses</item>
+    <item quantity="many">%d meses</item>
     <item quantity="other">%d meses</item>
   </plurals>
   <plurals name="elapsed_months_ago">
-    <item quantity="zero">%d months ago</item>
+    <item quantity="zero">%d meses atrás</item>
     <item quantity="one">1 mês atrás</item>
-    <item quantity="two">%d months ago</item>
-    <item quantity="few">%d months ago</item>
-    <item quantity="many">%d months ago</item>
+    <item quantity="two">%d meses atrás</item>
+    <item quantity="few">%d meses atrás</item>
+    <item quantity="many">%d meses atrás</item>
     <item quantity="other">%d meses atrás</item>
   </plurals>
   <plurals name="elapsed_seconds">
-    <item quantity="zero">%d seconds</item>
+    <item quantity="zero">%d segundos</item>
     <item quantity="one">1 segundo</item>
-    <item quantity="two">%d seconds</item>
-    <item quantity="few">%d seconds</item>
-    <item quantity="many">%d seconds</item>
+    <item quantity="two">%d segundos</item>
+    <item quantity="few">%d segundos</item>
+    <item quantity="many">%d segundos</item>
     <item quantity="other">%d segundos</item>
   </plurals>
   <plurals name="elapsed_seconds_ago">
-    <item quantity="zero">%d seconds ago</item>
+    <item quantity="zero">%d segundos atrás</item>
     <item quantity="one">1 segundo atrás</item>
-    <item quantity="two">%d seconds ago</item>
-    <item quantity="few">%d seconds ago</item>
-    <item quantity="many">%d seconds ago</item>
+    <item quantity="two">%d segundos atrás</item>
+    <item quantity="few">%d segundos atrás</item>
+    <item quantity="many">%d segundos atrás</item>
     <item quantity="other">%d segundos atrás</item>
   </plurals>
   <plurals name="elapsed_years">
-    <item quantity="zero">%d years</item>
+    <item quantity="zero">%d anos</item>
     <item quantity="one">1 ano</item>
-    <item quantity="two">%d years</item>
-    <item quantity="few">%d years</item>
-    <item quantity="many">%d years</item>
+    <item quantity="two">%d anos</item>
+    <item quantity="few">%d anos</item>
+    <item quantity="many">%d anos</item>
     <item quantity="other">%d anos</item>
   </plurals>
   <plurals name="elapsed_years_ago">
-    <item quantity="zero">%d years ago</item>
+    <item quantity="zero">%d anos atrás</item>
     <item quantity="one">1 ano atrás</item>
-    <item quantity="two">%d years ago</item>
-    <item quantity="few">%d years ago</item>
-    <item quantity="many">%d years ago</item>
+    <item quantity="two">%d anos atrás</item>
+    <item quantity="few">%d anos atrás</item>
+    <item quantity="many">%d anos atrás</item>
     <item quantity="other">%d anos atrás</item>
   </plurals>
   <string name="email_confirmation_cant_find_it">Não foi possível encontrá-lo em sua caixa de entrada?</string>
@@ -494,11 +494,11 @@
   <string name="menu_clear_user_title">Excluir dados de usuário?</string>
   <string name="menu_load_more">Carregar mais</string>
   <plurals name="minutes_available">
-    <item quantity="zero">%d minutes available</item>
+    <item quantity="zero">%d minutos disponíveis</item>
     <item quantity="one">1 minuto disponível</item>
-    <item quantity="two">%d minutes available</item>
-    <item quantity="few">%d minutes available</item>
-    <item quantity="many">%d minutes available</item>
+    <item quantity="two">%d minutos disponíveis</item>
+    <item quantity="few">%d minutos disponíveis</item>
+    <item quantity="many">%d minutos disponíveis</item>
     <item quantity="other">%d minutos disponíveis</item>
   </plurals>
   <string name="myspace">Myspace</string>
@@ -563,11 +563,11 @@
   <string name="search_hint">Pesquisar no SoundCloud</string>
   <string name="search_settings_description">Pesquisar sons</string>
   <plurals name="seconds_available">
-    <item quantity="zero">%d seconds available</item>
+    <item quantity="zero">%d segundos disponíveis</item>
     <item quantity="one">1 segundo disponível</item>
-    <item quantity="two">%d seconds available</item>
-    <item quantity="few">%d seconds available</item>
-    <item quantity="many">%d seconds available</item>
+    <item quantity="two">%d segundos disponíveis</item>
+    <item quantity="few">%d segundos disponíveis</item>
+    <item quantity="many">%d segundos disponíveis</item>
     <item quantity="other">%d segundos disponíveis</item>
   </plurals>
   <string name="share_fail_message">OK, deu errado.</string>
@@ -702,7 +702,7 @@
     <string name="rec_title_playing">Jogando</string>
     <string name="rec_title_editing">Editar</string>
 
-    <string name="rectip_default">Por que não gravar os sons de sua rua ?.</string>
+    <string name="rectip_default">Por que não gravar os sons de sua rua?.</string>
 
     <string name="rectip_memories_voice_notes">Grave notas de voz como lembretes úteis.</string>
     <string name="rectip_memories_voice_blog">Use o botão REC para criar um blog de voz – o que você compartilhará hoje?</string>
