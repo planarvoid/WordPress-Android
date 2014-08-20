@@ -449,6 +449,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                         if (SearchSuggestions.Query.KIND_TRACK.equals(q.kind)) {
                             ContentValues values = new ContentValues(1);
                             values.put(TableColumns.Sounds._ID, q.id);
+                            values.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
                             resolver.insert(Content.TRACKS.uri, values);
                         }
                     }

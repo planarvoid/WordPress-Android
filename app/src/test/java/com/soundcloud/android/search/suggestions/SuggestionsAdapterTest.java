@@ -115,6 +115,7 @@ public class SuggestionsAdapterTest {
 
         expect(trackUri.getValue()).toEqual(Content.TRACKS.uri);
         expect(content.getValue().getAsLong(TableColumns.Sounds._ID)).toEqual(16536884L);
+        expect(content.getValue().getAsInteger(TableColumns.Sounds._TYPE)).toEqual(TableColumns.Sounds.TYPE_TRACK);
     }
 
     @Test
