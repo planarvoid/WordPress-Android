@@ -65,5 +65,5 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent searchEvent) {}
 
     @Override
-    public void handleVisualAdImpression(AudioAdCompanionImpressionEvent event) {}
+    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
 }

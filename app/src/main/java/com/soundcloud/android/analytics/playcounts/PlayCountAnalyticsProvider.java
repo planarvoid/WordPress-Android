@@ -92,5 +92,5 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleVisualAdImpression(AudioAdCompanionImpressionEvent event) {}
+    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
 }

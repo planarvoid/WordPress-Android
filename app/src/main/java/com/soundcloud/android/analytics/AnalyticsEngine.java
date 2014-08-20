@@ -163,7 +163,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final class VisualAdImpressionSubscriber extends EventSubscriber<AudioAdCompanionImpressionEvent> {
         @Override
         protected void handleEvent(AnalyticsProvider provider, AudioAdCompanionImpressionEvent event) {
-            provider.handleVisualAdImpression(event);
+            provider.handleAudioAdCompanionImpression(event);
         }
     }
 

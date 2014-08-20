@@ -163,7 +163,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleVisualAdImpression(AudioAdCompanionImpressionEvent event) {}
+    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
 
     @VisibleForTesting
     protected boolean isActivitySessionClosed() {

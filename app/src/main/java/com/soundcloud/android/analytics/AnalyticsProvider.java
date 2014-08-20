@@ -93,5 +93,5 @@ public interface AnalyticsProvider {
      *
      * @param event visual ad event information
      */
-    void handleVisualAdImpression(AudioAdCompanionImpressionEvent event);
+    void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event);
 }

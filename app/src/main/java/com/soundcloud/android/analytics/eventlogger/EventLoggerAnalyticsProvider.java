@@ -60,7 +60,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent searchEvent) {}
 
     @Override
-    public void handleVisualAdImpression(AudioAdCompanionImpressionEvent event) {
+    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {
         final String url = urlBuilder.buildForVisualAdImpression(event);
         trackEvent(event.getTimeStamp(), url);
     }
