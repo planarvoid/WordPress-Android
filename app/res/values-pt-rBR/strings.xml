@@ -754,4 +754,7 @@
     <string name="format_abbreviated_seconds">%d s</string>
     <string name="format_abbreviated_minutes">%d min.</string>
 
+    <string name="playback_error_connection">Por favor verique sua conexão</string>
+    <string name="playback_error_unable_to_play">Não foi possível reproduzir a faixa</string>
+
 </resources>
