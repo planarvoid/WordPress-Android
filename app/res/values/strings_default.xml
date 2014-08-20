@@ -202,8 +202,6 @@
   <string name="list_empty_user_sounds_message">Repost sounds to share with your followers</string>
   <string name="list_header_track_comments">Comments on this sound</string>
   <string name="list_header_track_likers">People who liked this sound</string>
-  <string tools:ignore="MissingTranslation" name="list_header_tracks_by_genre">%s</string>
-  <string tools:ignore="MissingTranslation" name="list_header_tracks_by_tag">\"%s\"</string>
   <string name="location_picker_go_to_settings">Go to settings</string>
   <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
   <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>

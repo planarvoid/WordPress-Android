@@ -277,7 +277,6 @@
         </activity>
 
         <activity android:name=".associations.TrackInteractionActivity"/>
-        <activity android:name=".search.SearchByTagActivity"/>
 
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>

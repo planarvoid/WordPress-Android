@@ -81,7 +81,6 @@ public enum Screen {
     // misc
     WHO_TO_FOLLOW("who_to_follow:main"),
     ACTIVITIES("activity:main"),
-    SEARCH_BY_TAG("tags:main"),
 
     // explore screens
     EXPLORE_GENRES("explore:genres"),
