@@ -488,8 +488,6 @@
   <string name="list_empty_user_sounds_message">Republicar sons para compartilhar com seus seguidores</string>
   <string name="list_header_track_comments">Comentários sobre este som</string>
   <string name="list_header_track_likers">Pessoas que curtiram esse som</string>
-  <string tools:ignore="MissingTranslation" name="list_header_tracks_by_genre">%s</string>
-  <string tools:ignore="MissingTranslation" name="list_header_tracks_by_tag">\"%s\"</string>
   <string name="location_picker_go_to_settings">Vá em configurações</string>
   <string name="location_picker_no_providers_enabled">Não há provedores de localização habilitados.</string>
   <string name="menu_clear_user_desc">Você terá que reconectar sua conta do SoundCloud.</string>
