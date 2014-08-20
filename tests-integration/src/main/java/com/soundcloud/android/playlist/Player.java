@@ -49,9 +49,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testPlayerAddTrackToPlaylist() {
-        menuScreen.open()
-                .clickLikes()
-                .clickItem(1)
+        streamScreen.clickFirstTrack()
                 .clickMenu()
                 .addToPlaylistItem()
                 .click();
