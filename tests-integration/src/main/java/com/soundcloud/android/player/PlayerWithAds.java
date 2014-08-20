@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
-    private static final int FIRST_TRACK_LENGTH_MILISECONDS = (int) TimeUnit.SECONDS.toMillis(10);
+    private static final int TRACK_BEFORE_AD_LENGTH_MILISECONDS = (int) TimeUnit.SECONDS.toMillis(10);
 
     private VisualPlayerElement playerElement;
     private PlaylistDetailsScreen playlistDetailsScreen;
@@ -102,17 +102,26 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
         playerElement.pressBackToCollapse();
-        playerElement.waitForTrackToFinish(FIRST_TRACK_LENGTH_MILISECONDS);
+        playerElement.waitForTrackToFinish(TRACK_BEFORE_AD_LENGTH_MILISECONDS);
         playerElement.waitForAdPage();
 
         assertTrue(playerElement.isAdPageVisible());
         assertThat(playerElement, is(Expanded()));
     }
 
+    /**
+     *
+     * We have 2 tracks before the monetizable track, due to a known behaviour (#2025),
+     * in which you will not get an ad on a fresh install if you open play queue and the monetizable track is the second track
+     * This will happen when we stop using the policies endpoint to get track policies on a play queue change
+     *
+     */
     private void playMonetizablePlaylist() {
         playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
+        playerElement.swipeNext();
+        playerElement.waitForContent();
     }
 
     private void swipeToAd() {
