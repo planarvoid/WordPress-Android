@@ -46,6 +46,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private static final int NO_SELECTION = -1;
     private static final int DRAWER_SELECT_DELAY_MILLIS = 250;
 
+    private final CompositeSubscription subscription = new CompositeSubscription();
+    private final Handler drawerHandler = new Handler();
+
     private NavigationFragment navigationFragment;
     private CharSequence lastTitle;
     private int lastSelection = NO_SELECTION;
@@ -54,9 +57,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject UserOperations userOperations;
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
-
-    private final CompositeSubscription subscription = new CompositeSubscription();
-    private Handler drawerHandler = new Handler();
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
