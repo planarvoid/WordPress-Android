@@ -121,7 +121,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
-        playerElement.waitForContent();
+        playerElement.waitForAdToBeFetched();
     }
 
     private void swipeToAd() {

@@ -180,6 +180,10 @@ public class VisualPlayerElement extends Element {
         return waiter.waitForElementToBeVisible(footerPlayerPredicate);
     }
 
+    public void waitForAdToBeFetched() {
+        waiter.waitForNextTrack();
+    }
+
     public void waitForAdToBeSkippable() {
         solo.sleep(MILISECONDS_UNTIL_AD_SKIPPABLE);
     }
