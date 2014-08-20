@@ -93,7 +93,7 @@ public class AdPlayerController extends DefaultLifeCycleComponent {
         }
     }
 
-    private class State {
+    private static class State {
         private final boolean isAudioAd;
         private final TrackUrn trackUrn;
         private final int playerUIEventKind;
