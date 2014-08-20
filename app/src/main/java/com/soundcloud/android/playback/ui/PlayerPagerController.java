@@ -10,7 +10,8 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -32,7 +33,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final PlaybackOperations playbackOperations;
-    private final AdToastViewController adToastViewController;
+    private final PlaybackToastViewController playbackToastViewController;
     private final PlayerPresenter presenter;
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private CompositeSubscription subscription;
@@ -48,30 +49,37 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         }
     };
 
-    private Func1<CurrentPlayQueueTrackEvent, Boolean> isNewQueueEvent = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
+    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isNewQueueEvent = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
         @Override
         public Boolean call(CurrentPlayQueueTrackEvent playQueueEvent) {
             return !playQueueManager.isQueueEmpty() && playQueueEvent.wasNewQueue();
         }
     };
 
-    private Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent>() {
+    private final Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent>() {
         @Override
         public PlayerUIEvent call(CurrentPlayQueueTrackEvent ignored) {
             return PlayerUIEvent.forExpandPlayer();
         }
     };
 
+    private final Func1<Playa.StateTransition, Boolean> wasError = new Func1<Playa.StateTransition, Boolean>() {
+        @Override
+        public Boolean call(Playa.StateTransition stateTransition) {
+            return stateTransition.wasError();
+        }
+    };
+
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
-                                 AdToastViewController adToastViewController) {
+                                 PlaybackToastViewController playbackToastViewController) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
-        this.adToastViewController = adToastViewController;
+        this.playbackToastViewController = playbackToastViewController;
 
         checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(new Func1<PlaybackProgressEvent, Boolean>() {
             @Override
@@ -83,7 +91,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     @Override
     public void onBlockedSwipe() {
-        adToastViewController.showUnkippableAdToast();
+        playbackToastViewController.showUnkippableAdToast();
     }
 
     public void onPlayerSlide(float slideOffset) {
@@ -102,6 +110,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         setPager((PlayerTrackPager) view.findViewById(R.id.player_track_pager));
 
         subscription = new CompositeSubscription();
+        subscription.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(wasError).subscribe(new ErrorSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
         subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).filter(isNewQueueEvent).map(forPlayerExpandEvent)
@@ -178,8 +187,15 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     }
 
     private void changeTracksIfInForeground() {
-        if (isResumed){
+        if (isResumed) {
             playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
+        }
+    }
+
+    private final class ErrorSubscriber extends DefaultSubscriber<Playa.StateTransition>{
+        @Override
+        public void onNext(Playa.StateTransition newState) {
+            playbackToastViewController.showError(newState.getReason());
         }
     }
 }

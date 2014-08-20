@@ -369,7 +369,7 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.play(track);
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
+        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
         inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 123456)));
     }
 
@@ -417,7 +417,7 @@ public class MediaPlayerAdapterTest {
         for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
             mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
         }
-        verify(mediaPlayer, times(6)).reset();
+        verify(mediaPlayer, times(4)).reset();
         verify(mediaPlayer, never()).release();
     }
 
@@ -429,8 +429,8 @@ public class MediaPlayerAdapterTest {
         for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
             mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
         }
-        verify(mediaPlayer, times(3)).reset();
-        verify(mediaPlayer, times(4)).setDataSource(streamUrlWithId);
+        verify(mediaPlayer, times(2)).reset();
+        verify(mediaPlayer, times(3)).setDataSource(streamUrlWithId);
         verify(mediaPlayer, never()).release();
         mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
         verify(mediaPlayer).release();
@@ -446,7 +446,7 @@ public class MediaPlayerAdapterTest {
         }
 
         InOrder inOrder = inOrder(listener);
-        inOrder.verify(listener, times(4)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
+        inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
         inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 123456)));
     }
 

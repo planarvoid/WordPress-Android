@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -63,12 +63,12 @@ public class PlaybackOperationsTest {
     @Mock private TrackStorage trackStorage;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-    @Mock private AdToastViewController adToastViewController;
+    @Mock private PlaybackToastViewController playbackToastViewController;
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, eventBus, playSessionStateProvider, adToastViewController);
+                playQueueManager, eventBus, playSessionStateProvider, playbackToastViewController);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
@@ -287,7 +287,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        verify(adToastViewController).showUnkippableAdToast();
+        verify(playbackToastViewController).showUnkippableAdToast();
     }
 
     @Test
@@ -296,7 +296,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.nextTrack();
 
-        verify(adToastViewController).showUnkippableAdToast();
+        verify(playbackToastViewController).showUnkippableAdToast();
     }
 
     @Test
@@ -717,7 +717,7 @@ public class PlaybackOperationsTest {
     }
 
     private void expectUnskippableToastAndNoNewPlayQueueSet() {
-        verify(adToastViewController).showUnkippableAdToast();
+        verify(playbackToastViewController).showUnkippableAdToast();
         verify(playQueueManager, never()).setNewPlayQueue(any(PlayQueue.class), anyInt(), any(PlaySessionSource.class));
     }
 }

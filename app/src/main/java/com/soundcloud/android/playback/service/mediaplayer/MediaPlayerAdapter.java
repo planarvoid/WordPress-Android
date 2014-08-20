@@ -42,7 +42,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private static final String TAG = "MediaPlayerAdapter";
     private static final int POS_NOT_SET = -1;
 
-    public static final int MAX_CONNECT_RETRIES = 3;
+    public static final int MAX_CONNECT_RETRIES = 2;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
 
     private final StreamProxy proxy;

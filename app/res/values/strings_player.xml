@@ -11,4 +11,7 @@
     <string name="info">Info</string>
     <string name="uploaded_at">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
+
+    <string name="playback_error_connection">Please check your connection</string>
+    <string name="playback_error_unable_to_play">Unable to playback track</string>
 </resources>

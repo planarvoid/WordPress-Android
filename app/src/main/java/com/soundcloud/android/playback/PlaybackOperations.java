@@ -22,7 +22,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -71,19 +71,19 @@ public class PlaybackOperations {
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final AdToastViewController adToastViewController;
+    private final PlaybackToastViewController playbackToastViewController;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager, EventBus eventBus,
-                              PlaySessionStateProvider playSessionStateProvider, AdToastViewController adToastViewController) {
+                              PlaySessionStateProvider playSessionStateProvider, PlaybackToastViewController playbackToastViewController) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.adToastViewController = adToastViewController;
+        this.playbackToastViewController = playbackToastViewController;
     }
 
     /**
@@ -200,7 +200,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            adToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnkippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !playQueueManager.isCurrentTrackAudioAd()){
@@ -213,7 +213,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            adToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnkippableAdToast();
         } else {
             playQueueManager.nextTrack();
         }
@@ -319,7 +319,7 @@ public class PlaybackOperations {
 
     private void playNewQueue(List<Long> trackIdList, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            adToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnkippableAdToast();
         } else {
             final PlayQueue playQueue = PlayQueue.fromIdList(trackIdList, playSessionSource);
             playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
