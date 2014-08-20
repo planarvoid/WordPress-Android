@@ -30,6 +30,18 @@ public class PlayerFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        controller.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        controller.onPause();
+        super.onPause();
+    }
+
+    @Override
     public void onDestroyView() {
         controller.onDestroyView();
         super.onDestroyView();

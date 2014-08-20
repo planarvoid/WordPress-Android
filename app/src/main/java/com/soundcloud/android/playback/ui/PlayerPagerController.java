@@ -39,6 +39,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private Subscription unblockPagerSubscription = Subscriptions.empty();
     private PlayerTrackPager trackPager;
     private boolean shouldChangeTrackOnIdle;
+    private boolean isResumed;
 
     private final Action1<PlaybackProgressEvent> unlockPager = new Action1<PlaybackProgressEvent>() {
         @Override
@@ -87,6 +88,14 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     public void onPlayerSlide(float slideOffset) {
         adapter.onPlayerSlide(slideOffset);
+    }
+
+    public void onResume() {
+        isResumed = true;
+    }
+
+    public void onPause() {
+        isResumed = false;
     }
 
     void onViewCreated(View view) {
@@ -162,9 +171,15 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     @Override
     public void onPageScrollStateChanged(int state) {
         if (shouldChangeTrackOnIdle && state == ViewPager.SCROLL_STATE_IDLE) {
-            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
+            changeTracksIfInForeground();
             adapter.onTrackChange();
             shouldChangeTrackOnIdle = false;
+        }
+    }
+
+    private void changeTracksIfInForeground() {
+        if (isResumed){
+            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
         }
     }
 }

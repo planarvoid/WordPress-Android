@@ -157,11 +157,30 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
-    public void reportsPlayQueuePositionChangeOnIdleStateAfterPageSelected() {
+    public void changesPlayQueuePositionWhenInForegroundOnIdleStateAfterPageSelected() {
         when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onResume();
         controller.onPageSelected(2);
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         verify(playbackOperations).setPlayQueuePosition(2);
+    }
+
+    @Test
+    public void doesNotChangePlayQueuePositionIfNeverInForegroundOnIdleStateAfterPageSelected() {
+        when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onPageSelected(2);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        verify(playbackOperations, never()).setPlayQueuePosition(anyInt());
+    }
+
+    @Test
+    public void doesNotChangePlayQueuePositionWhenInBackgroundOnIdleStateAfterPageSelected() {
+        when(viewPager.getCurrentItem()).thenReturn(2);
+        controller.onResume();
+        controller.onPause();
+        controller.onPageSelected(2);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        verify(playbackOperations, never()).setPlayQueuePosition(anyInt());
     }
 
     @Test
