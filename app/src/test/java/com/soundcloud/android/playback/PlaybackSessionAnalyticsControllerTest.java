@@ -74,15 +74,20 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() throws Exception {
-        publishPlayingEvent();
+        Playa.StateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = eventBus.firstEventOn(EventQueue.PLAYBACK_SESSION);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent);
+    }
+
+    private void expectCommonAudioEventData(Playa.StateTransition playEvent, PlaybackSessionEvent playbackSessionEvent) {
         expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
         expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
         expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
         expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+        expect(playbackSessionEvent.getProtocol()).toEqual(playEvent.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
     }
 
     @Test
@@ -95,16 +100,10 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         PlaybackSessionEvent playbackSessionEvent = eventBus.firstEventOn(EventQueue.PLAYBACK_SESSION);
         // track properties
-        expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
-        expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
-        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
-        expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
-        expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
-        expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent);
         // ad specific properties
         expect(playbackSessionEvent.getAudioAdUrn()).toEqual(audioAd.get(AdProperty.AD_URN));
         expect(playbackSessionEvent.getAudioAdMonetizedUrn()).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        expect(playbackSessionEvent.getAudioAdProtocol()).toEqual(playEvent.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
     }
 
     @Test

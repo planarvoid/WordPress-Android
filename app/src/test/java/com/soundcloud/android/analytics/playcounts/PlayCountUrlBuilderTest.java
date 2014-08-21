@@ -4,6 +4,7 @@ import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestEvents;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.api.HttpProperties;
@@ -14,6 +15,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.api.Token;
 import com.soundcloud.propeller.PropertySet;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +23,6 @@ import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayCountUrlBuilderTest {
-
-    private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
 
     private PlayCountUrlBuilder urlBuilder;
 
@@ -36,22 +36,22 @@ public class PlayCountUrlBuilderTest {
     }
 
     @Test
-    public void shouldBuildPlayCountTrackingUrlFromPlaySessionEvent() {
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(TRACK_DATA, Urn.forUser(1), null, 0, 1000L);
+    public void shouldBuildPlayCountTrackingUrlFromPlaySessionEvent() throws CreateModelException {
+        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
 
         final String url = urlBuilder.buildUrl(event);
 
-        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/123/plays?client_id=ABCDEF&policy=allow"));
+        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/1/plays?client_id=ABCDEF&policy=allow"));
     }
 
     @Test
-    public void shouldAppendOauthTokenIfUserIsLoggedIn() {
+    public void shouldAppendOauthTokenIfUserIsLoggedIn() throws CreateModelException {
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(TRACK_DATA, Urn.forUser(1), null, 0, 1000L);
+        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
 
         final String url = urlBuilder.buildUrl(event);
 
-        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/123/plays?client_id=ABCDEF&oauth_token=access&policy=allow"));
+        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/1/plays?client_id=ABCDEF&oauth_token=access&policy=allow"));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class PlayCountUrlBuilderTest {
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.DURATION.bind(1000)
         );
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(policyMissing, Urn.forUser(1), null, 0, 1000L);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(policyMissing, Urn.forUser(1), "hls", null, 0, 1000L);
 
         final String url = urlBuilder.buildUrl(event);
 

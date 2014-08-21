@@ -7,18 +7,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.TestEvents;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,12 +103,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     @Test
     public void shouldAlwaysOpenSessionWhenReceivingStopPlaybackEvent() throws Exception {
-        localyticsProvider.handlePlaybackSessionEvent(buildStopEvent());
+        localyticsProvider.handlePlaybackSessionEvent(TestEvents.playbackSessionStopEvent());
         verify(localyticsSession).open();
-    }
-
-    private PlaybackSessionEvent buildStopEvent() throws CreateModelException {
-        PlaybackSessionEvent startEvent = TestHelper.getModelFactory().createModel(PlaybackSessionEvent.class);
-        return PlaybackSessionEvent.forStop(TRACK_DATA, Urn.forUser(2L), new TrackSourceInfo("", false), startEvent, 0, 0, 0);
     }
 }

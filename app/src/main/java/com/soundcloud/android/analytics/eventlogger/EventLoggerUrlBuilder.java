@@ -125,6 +125,7 @@ public class EventLoggerUrlBuilder {
             builder.appendQueryParameter(TRIGGER, "auto");
         }
         builder.appendQueryParameter(CONTEXT, formatOriginUrl(trackSourceInfo.getOriginScreen()));
+        builder.appendQueryParameter(PROTOCOL, event.getProtocol());
 
         if (trackSourceInfo.hasSource()) {
             builder.appendQueryParameter(SOURCE, trackSourceInfo.getSource());
@@ -142,7 +143,6 @@ public class EventLoggerUrlBuilder {
             builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
             builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
             builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
-            builder.appendQueryParameter(PROTOCOL, event.getAudioAdProtocol());
         }
 
         return builder.build().toString();

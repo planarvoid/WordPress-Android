@@ -46,6 +46,7 @@ public class EventLoggerUrlBuilderTest {
 
     private static final String APP_ID = "123";
     private static final String CDN_URL = "host.com";
+    private static final String PROTOCOL = "hls";
     private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
 
     @Mock private Resources resources;
@@ -70,13 +71,14 @@ public class EventLoggerUrlBuilderTest {
     @Test
     public void createAudioEventUrlWithOriginAndTrigger() throws Exception {
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=1000"
+                + "&protocol=hls"
                 + "&sound=soundcloud%3Asounds%3A123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&policy=allow"
@@ -90,11 +92,12 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&duration=1000"
+                + "&protocol=hls"
                 + "&ts=321"
                 + "&action=play"
                 + "&sound=soundcloud:sounds:123"
@@ -112,13 +115,14 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=321"
                 + "&action=play"
                 + "&duration=1000"
+                + "&protocol=hls"
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
@@ -135,13 +139,14 @@ public class EventLoggerUrlBuilderTest {
         experimentParams.put("exp_android-listen", 5);
         when(experimentOperations.getTrackingParams()).thenReturn(experimentParams);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=1000"
+                + "&protocol=hls"
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
@@ -160,13 +165,14 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=321"
                 + "&action=play"
                 + "&duration=1000"
+                + "&protocol=hls"
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
@@ -183,7 +189,7 @@ public class EventLoggerUrlBuilderTest {
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, "hls", trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -205,7 +211,7 @@ public class EventLoggerUrlBuilderTest {
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAdImpression(
-                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, "hls", trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"

@@ -10,7 +10,6 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
@@ -49,14 +48,13 @@ public class PlaybackSessionAnalyticsController {
         public void onNext(CurrentPlayQueueTrackEvent event) {
             if (lastStateTransition.playSessionIsActive()) {
                 if (event.wasNewQueue()){
-                    publishStopEvent(lastStateTransition.getProgress(),
-                            currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
+                    publishStopEvent(lastStateTransition, PlaybackSessionEvent.STOP_REASON_NEW_QUEUE);
                 } else {
-                    publishStopEvent(lastStateTransition.getProgress(),
-                            currentTrackSourceInfo, PlaybackSessionEvent.STOP_REASON_SKIP);
+                    publishStopEvent(lastStateTransition, PlaybackSessionEvent.STOP_REASON_SKIP);
                 }
             }
-            createTrackObservable(playQueueManager.getCurrentTrackUrn());
+            trackObservable = ReplaySubject.createWithSize(1);
+            trackOperations.track(playQueueManager.getCurrentTrackUrn()).subscribe(trackObservable);
         }
     }
 
@@ -68,19 +66,13 @@ public class PlaybackSessionAnalyticsController {
                 if (stateTransition.isPlayerPlaying()){
                     publishPlayEvent(stateTransition);
                 } else {
-                    publishStopEvent(stateTransition.getProgress(),
-                            currentTrackSourceInfo, getStopEvent(stateTransition));
+                    publishStopEvent(stateTransition, stopReasonFromTransition(stateTransition));
                 }
             }
         }
     }
 
-    private void createTrackObservable(TrackUrn trackUrn) {
-        trackObservable = ReplaySubject.createWithSize(1);
-        trackOperations.track(trackUrn).subscribe(trackObservable);
-    }
-
-    private int getStopEvent(Playa.StateTransition stateTransition) {
+    private int stopReasonFromTransition(Playa.StateTransition stateTransition) {
         if (stateTransition.isBuffering()){
             return PlaybackSessionEvent.STOP_REASON_BUFFERING;
         } else {
@@ -109,25 +101,27 @@ public class PlaybackSessionAnalyticsController {
             public PlaybackSessionEvent call(PropertySet track) {
                 final UserUrn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
                 final long progress = stateTransition.getProgress().position;
+                final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                 if (playQueueManager.isCurrentTrackAudioAd()) {
-                    final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                     lastPlayEventData = PlaybackSessionEvent.forAdPlay(playQueueManager.getAudioAd(), track,
                             loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
                 } else {
-                    lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo, progress);
+                    lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
                 }
                 return lastPlayEventData;
             }
         };
     }
 
-    private void publishStopEvent(final PlaybackProgress progress, final TrackSourceInfo trackSourceInfo, final int stopReason) {
-        if (lastPlayEventData != null && trackSourceInfo != null) {
+    private void publishStopEvent(final Playa.StateTransition stateTransition, final int stopReason) {
+        if (lastPlayEventData != null && currentTrackSourceInfo != null) {
+            final long progress = stateTransition.getProgress().position;
+            final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
             trackObservable.map(new Func1<PropertySet, PlaybackSessionEvent>() {
                 @Override
                 public PlaybackSessionEvent call(PropertySet track) {
-                    return PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(),
-                            trackSourceInfo, lastPlayEventData, stopReason, progress.position);
+                    return PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(), protocol,
+                            currentTrackSourceInfo, lastPlayEventData, stopReason, progress);
                 }
             }).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
             lastPlayEventData = null;

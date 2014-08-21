@@ -26,8 +26,7 @@ public class PlaybackSessionEvent {
 
     private static final int EXTRA_AD_URN = 0;
     private static final int EXTRA_MONETIZED_URN = 1;
-    private static final int EXTRA_PLAYBACK_PROTOCOL = 2;
-    private static final int EXTRA_TRACK_POLICY = 3;
+    private static final int EXTRA_TRACK_POLICY = 2;
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -35,6 +34,7 @@ public class PlaybackSessionEvent {
     private final int kind, duration;
     private final TrackUrn trackUrn;
     private final UserUrn userUrn;
+    private final String protocol;
 
     private final TrackSourceInfo trackSourceInfo;
     private final long timeStamp, progress;
@@ -56,38 +56,39 @@ public class PlaybackSessionEvent {
     }
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
-                                               TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
-        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp);
+                                               String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, protocol, trackSourceInfo, progress, timestamp);
     }
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
-                                               TrackSourceInfo trackSourceInfo, long progress) {
-        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis());
+                                               String protocol, TrackSourceInfo trackSourceInfo, long progress) {
+        return forPlay(trackData, userUrn, protocol, trackSourceInfo, progress, System.currentTimeMillis());
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
-                                               TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
+                                               String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
                                                int stopReason, long progress, long timestamp) {
         final PlaybackSessionEvent playbackSessionEvent =
-                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp);
+                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, protocol, trackSourceInfo, progress, timestamp);
         playbackSessionEvent.setListenTime(playbackSessionEvent.timeStamp - lastPlayEvent.getTimeStamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
-                                               TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
+                                               String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
                                                int stopReason, long progress) {
-        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
+        return forStop(trackData, userUrn, protocol, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
     }
 
     // Use this constructor for an ordinary audio playback event
     private PlaybackSessionEvent(int eventKind, PropertySet track, UserUrn userUrn,
-                                 TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
+                                 String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this.trackUrn = track.get(TrackProperty.URN);
         this.duration = track.get(PlayableProperty.DURATION);
         this.kind = eventKind;
         this.userUrn = userUrn;
+        this.protocol = protocol;
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.timeStamp = timestamp;
@@ -99,10 +100,9 @@ public class PlaybackSessionEvent {
     // Use this constructor for an audio ad playback event
     private PlaybackSessionEvent(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn, String protocol,
                                  TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
-        this(EVENT_KIND_PLAY, audioAdTrack, userUrn, trackSourceInfo, progress, timestamp);
+        this(EVENT_KIND_PLAY, audioAdTrack, userUrn, protocol, trackSourceInfo, progress, timestamp);
         this.extraAttributes.put(EXTRA_AD_URN, audioAd.get(AdProperty.AD_URN));
         this.extraAttributes.put(EXTRA_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        this.extraAttributes.put(EXTRA_PLAYBACK_PROTOCOL, protocol);
     }
 
     public int getKind() {
@@ -146,6 +146,10 @@ public class PlaybackSessionEvent {
         return progress;
     }
 
+    public String getProtocol() {
+        return protocol;
+    }
+
     private void setListenTime(long listenTime) {
         this.listenTime = listenTime;
     }
@@ -164,10 +168,6 @@ public class PlaybackSessionEvent {
 
     public String getAudioAdMonetizedUrn() {
         return extraAttributes.get(EXTRA_MONETIZED_URN);
-    }
-
-    public String getAudioAdProtocol() {
-        return extraAttributes.get(EXTRA_PLAYBACK_PROTOCOL);
     }
 
     @Override

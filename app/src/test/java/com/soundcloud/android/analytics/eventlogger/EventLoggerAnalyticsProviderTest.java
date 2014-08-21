@@ -3,8 +3,12 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestEvents;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
@@ -14,10 +18,8 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.users.UserUrn;
-import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,9 +68,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
-        final PropertySet track = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, Urn.forUser(123L),
-                new TrackSourceInfo("context", false), 0L, 12345L);
+        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
         when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
@@ -76,7 +76,7 @@ public class EventLoggerAnalyticsProviderTest {
         ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
         verify(eventTracker).trackEvent(captor.capture());
         expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
-        expect(captor.getValue().getTimeStamp()).toEqual(12345L);
+        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
         expect(captor.getValue().getUrl()).toEqual("url");
     }
 

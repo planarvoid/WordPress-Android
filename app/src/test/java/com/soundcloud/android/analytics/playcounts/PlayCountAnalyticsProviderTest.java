@@ -7,13 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.TestEvents;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.propeller.PropertySet;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,9 +36,7 @@ public class PlayCountAnalyticsProviderTest {
 
     @Test
     public void shouldTrackFirstPlayEvent() {
-        final int progress = 0;
-        PlaybackSessionEvent sessionEvent = PlaybackSessionEvent.forPlay(
-                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
+        PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(0);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handlePlaybackSessionEvent(sessionEvent);
@@ -51,12 +48,8 @@ public class PlayCountAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldNotTrackStopEventsAgainstPlayCounts() {
-        final int progress = 0;
-        final PropertySet trackData = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000);
-        PlaybackSessionEvent previousPlayEvent = PlaybackSessionEvent.forPlay(trackData, Urn.forUser(1), null, progress, 1000L);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(
-                trackData, Urn.forUser(1), null, previousPlayEvent, PlaybackSessionEvent.STOP_REASON_BUFFERING, progress, 1000L);
+    public void shouldNotTrackStopEventsAgainstPlayCounts() throws CreateModelException {
+        PlaybackSessionEvent stopEvent = TestEvents.playbackSessionStopEvent();
 
         provider.handlePlaybackSessionEvent(stopEvent);
 
@@ -65,9 +58,7 @@ public class PlayCountAnalyticsProviderTest {
 
     @Test
     public void shouldImmediatelyRequestFlushForPlayEvents() {
-        final int progress = 0;
-        PlaybackSessionEvent sessionEvent = PlaybackSessionEvent.forPlay(
-                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
+        PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(0);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handlePlaybackSessionEvent(sessionEvent);
@@ -77,9 +68,7 @@ public class PlayCountAnalyticsProviderTest {
 
     @Test
     public void shouldNotTrackSubsequentPlayEvents() {
-        final int progress = 1;
-        PlaybackSessionEvent sessionEvent = PlaybackSessionEvent.forPlay(
-                TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), "allow", 1000), Urn.forUser(1), null, progress, 1000L);
+        PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(1);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
         provider.handlePlaybackSessionEvent(sessionEvent);
