@@ -16,6 +16,7 @@ import com.soundcloud.android.events.UIEvent;
 
 import javax.inject.Inject;
 
+@SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     public static final String BACKEND_NAME = "promoted";
@@ -47,6 +48,8 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
+    // This method is all about sending potentially multiple tracking events
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
         if (event.isAd() && event.isFirstPlay()) {
             final long timeStamp = event.getTimeStamp();
