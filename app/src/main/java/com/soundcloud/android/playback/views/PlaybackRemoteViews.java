@@ -32,7 +32,7 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
     }
 
     public void setLikeShown(boolean showLike) {
-        setViewVisibility(R.id.btn_like, showLike ? View.VISIBLE : View.INVISIBLE);
+        setViewVisibility(R.id.btn_like, showLike ? View.VISIBLE : View.GONE);
     }
 
     public void setCurrentUsername(CharSequence username) {

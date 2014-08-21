@@ -20,13 +20,14 @@
                 android:layout_centerVertical="true"
                 style="@style/btn_sc_widget_like"
                 android:src="@drawable/ic_widget_like_states"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
         <LinearLayout
                 android:id="@+id/track_info"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@id/btn_like"
+                android:layout_alignWithParentIfMissing="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="1dp"
                 android:gravity="center"
