@@ -90,6 +90,7 @@ public class AudioAd implements PropertySetSource {
                 AdProperty.PRESSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getPressedBackgroundColor()),
                 AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.getDisplayProperties().getFocusedTextColor()),
                 AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getFocusedBackgroundColor()),
-                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(trackingImpressionUrls));
+                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(trackingImpressionUrls),
+                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.getTrackingImpressionUrls()));
     }
 }

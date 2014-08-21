@@ -39,6 +39,6 @@ public class AudioAdTest {
         expect(propertySet.contains(AdProperty.PRESSED_BACKGROUND_COLOR)).toBeTrue();
         expect(propertySet.contains(AdProperty.FOCUSED_TEXT_COLOR)).toBeTrue();
         expect(propertySet.contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
-
+        expect(propertySet.contains(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS)).toBeTrue();
     }
 }

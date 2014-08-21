@@ -16,7 +16,8 @@ import com.soundcloud.android.events.UIEvent;
 
 import javax.inject.Inject;
 
-@SuppressWarnings("PMD.UncommentedEmptyMethod")
+// This class is all about multiplexing out tracking events
+@SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UncommentedEmptyMethod"})
 public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     public static final String BACKEND_NAME = "promoted";
@@ -48,8 +49,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    // This method is all about sending potentially multiple tracking events
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
         if (event.isAd() && event.isFirstPlay()) {
             final long timeStamp = event.getTimeStamp();
@@ -91,6 +90,9 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {
-
+        final long timeStamp = event.getTimeStamp();
+        for (String url : event.getImpressionUrls()) {
+            eventTracker.trackEvent(new TrackingEvent(timeStamp, BACKEND_NAME, url));
+        }
     }
 }

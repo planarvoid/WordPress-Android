@@ -8,13 +8,16 @@ import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
 
+import java.util.List;
+
 public class AudioAdCompanionImpressionEvent {
     private final TrackUrn monetizableTrackUrn;
     private final long timeStamp;
     private final UserUrn userUrn;
     private final String adsWizzId;
-    private Uri artworkUri;
+    private final Uri artworkUri;
     private final Urn trackUrn;
+    private final List<String> impressionUrls;
 
     public AudioAdCompanionImpressionEvent(PropertySet adMetaData, Urn audioAdTrack, UserUrn userUrn) {
         this(adMetaData, audioAdTrack, userUrn, System.currentTimeMillis());
@@ -27,6 +30,7 @@ public class AudioAdCompanionImpressionEvent {
         this.monetizableTrackUrn = adMetaData.get(AdProperty.MONETIZABLE_TRACK_URN);
         this.artworkUri = adMetaData.get(AdProperty.ARTWORK);
         this.trackUrn = audioAdTrack;
+        this.impressionUrls = adMetaData.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);
     }
 
     public Urn getMonetizedTrackUrn() {
@@ -51,5 +55,9 @@ public class AudioAdCompanionImpressionEvent {
 
     public Urn getTrackUrn() {
         return trackUrn;
+    }
+
+    public List<String> getImpressionUrls() {
+        return impressionUrls;
     }
 }

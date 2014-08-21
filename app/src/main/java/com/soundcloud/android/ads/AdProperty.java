@@ -21,4 +21,5 @@ public class AdProperty {
     public static final Property<String> FOCUSED_TEXT_COLOR = Property.of(String.class);
     public static final Property<String> FOCUSED_BACKGROUND_COLOR = Property.of(String.class);
     public static final Property<List<String>> AUDIO_AD_IMPRESSION_URLS = Property.of((Class<List<String>>)(Class<?>) List.class);
+    public static final Property<List<String>> AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS = Property.of((Class<List<String>>)(Class<?>) List.class);
 }
