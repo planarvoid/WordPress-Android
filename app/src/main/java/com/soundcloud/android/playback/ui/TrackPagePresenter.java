@@ -159,7 +159,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
         holder.timestamp.setBufferingMode(isCurrentTrack && stateTransition.isBuffering());
 
-        if (stateTransition.playSessionIsActive() && !isCurrentTrack){
+        if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
             setProgress(trackPage, PlaybackProgress.empty());
         }
     }
@@ -180,20 +180,16 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
             holder.menuController.setIsUserRepost(isReposted);
 
-            if (playableUpdatedEvent.wasReposted()){
+            if (playableUpdatedEvent.isFromRepost()) {
                 showRepostToast(trackPage.getContext(), isReposted);
             }
         }
-
-
     }
 
     private void showRepostToast(final Context context, final boolean isReposted) {
-        if (isReposted) {
-            Toast.makeText(context, R.string.reposted_to_followers, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
-        }
+        Toast.makeText(context, isReposted
+                ? R.string.reposted_to_followers
+                : R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
     }
 
     private void updateLikeStatus(View view) {
@@ -396,9 +392,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
 
         public ProgressAware[] getProgressAwareItems() {
-            return new ProgressAware[] { waveformController, artworkController, timestamp };
+            return new ProgressAware[]{waveformController, artworkController, timestamp};
         }
-
     }
 
 }

@@ -52,15 +52,8 @@ public final class PlayableUpdatedEvent {
         return changeSet;
     }
 
-    public boolean wasLiked(){
-        return reason == REASON_LIKE;
-    }
-
-    public boolean wasReposted(){
+    public boolean isFromRepost(){
         return reason == REASON_REPOST;
     }
 
-    public boolean wasUpdated(){
-        return reason == REASON_UPDATED;
-    }
 }
