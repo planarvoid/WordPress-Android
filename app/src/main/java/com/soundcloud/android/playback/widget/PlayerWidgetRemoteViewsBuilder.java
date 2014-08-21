@@ -45,8 +45,10 @@ public class PlayerWidgetRemoteViewsBuilder {
 
         if (track.isAudioAd()) {
             widgetRemoteView.setCurrentUsername(ScTextUtils.EMPTY_STRING);
+            widgetRemoteView.setLikeShown(false);
         } else {
             widgetRemoteView.setCurrentUsername(track.getUserName());
+            widgetRemoteView.setLikeShown(true);
         }
     }
 

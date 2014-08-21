@@ -19,7 +19,8 @@
                 android:layout_height="fill_parent"
                 android:layout_centerVertical="true"
                 style="@style/btn_sc_widget_like"
-                android:src="@drawable/ic_widget_like_states"/>
+                android:src="@drawable/ic_widget_like_states"
+                android:visibility="invisible" />
 
         <LinearLayout
                 android:id="@+id/track_info"
@@ -74,8 +75,6 @@
                     android:layout_marginBottom="5dip"/>
         </LinearLayout>
 
-
-
         <ImageView  android:id="@+id/hr_1"
               android:layout_height="3px"
               android:layout_width="fill_parent"
@@ -105,7 +104,6 @@
               android:layout_width="3px"
               android:background="@drawable/widget_vert_separator_bg"/>
 
-
         <ImageButton
                 android:id="@+id/toggle_playback"
                 android:layout_height="fill_parent"
@@ -119,7 +117,6 @@
               android:layout_height="fill_parent"
               android:layout_width="3px"
               android:background="@drawable/widget_vert_separator_bg"/>
-
 
         <ImageButton
                 android:id="@+id/next"

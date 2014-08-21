@@ -31,6 +31,10 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
         setTextViewText(R.id.title_txt, title);
     }
 
+    public void setLikeShown(boolean showLike) {
+        setViewVisibility(R.id.btn_like, showLike ? View.VISIBLE : View.INVISIBLE);
+    }
+
     public void setCurrentUsername(CharSequence username) {
         if (TextUtils.isEmpty(username)){
             setViewVisibility(R.id.by_txt, View.GONE);
