@@ -19,20 +19,20 @@ import java.util.Locale;
 @Singleton
 public class ApplicationProperties {
 
-    public enum BuildType{
-        DEBUG,
-        BETA,
-        RELEASE
-    }
-
     private static BuildType BUILD_TYPE;
     private static boolean VERBOSE_LOGGING;
-    //TODO Need to keep these static as we need to do more refactoring around ACRA reporting. Do not reference directly
+
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
+
+    public enum BuildType{
+        DEBUG,
+        BETA,
+        RELEASE
+    }
 
     @Inject
     public ApplicationProperties(Resources resources){
