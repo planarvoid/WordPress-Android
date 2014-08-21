@@ -43,7 +43,7 @@ public class PlaybackSessionEvent {
     private int stopReason;
 
     // extra meta data that might not always be present goes here
-    private SparseArray<String> extraAttributes = new SparseArray<String>();
+    private final SparseArray<String> extraAttributes = new SparseArray<String>();
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
