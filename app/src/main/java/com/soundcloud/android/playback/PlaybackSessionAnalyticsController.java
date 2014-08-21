@@ -102,11 +102,9 @@ public class PlaybackSessionAnalyticsController {
                 final UserUrn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
                 final long progress = stateTransition.getProgress().position;
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
+                lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
                 if (playQueueManager.isCurrentTrackAudioAd()) {
-                    lastPlayEventData = PlaybackSessionEvent.forAdPlay(playQueueManager.getAudioAd(), track,
-                            loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
-                } else {
-                    lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
+                    lastPlayEventData = lastPlayEventData.withAudioAd(playQueueManager.getAudioAd());
                 }
                 return lastPlayEventData;
             }

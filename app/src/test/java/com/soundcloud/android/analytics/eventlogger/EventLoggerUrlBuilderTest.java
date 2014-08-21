@@ -189,7 +189,7 @@ public class EventLoggerUrlBuilderTest {
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L).withAudioAd(audioAd));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -211,7 +211,7 @@ public class EventLoggerUrlBuilderTest {
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAdImpression(
-                PlaybackSessionEvent.forAdPlay(audioAd, audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+                PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L).withAudioAd(audioAd));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"

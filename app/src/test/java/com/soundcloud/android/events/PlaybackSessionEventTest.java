@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -78,12 +79,13 @@ public class PlaybackSessionEventTest {
 
     @Test
     public void shouldPopulateAdAttributesFromAdPlaybackEvent() {
-        PlaybackSessionEvent event = PlaybackSessionEvent.forAdPlay(
-                TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN),
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
-                USER_URN, PROTOCOL, trackSourceInfo, PROGRESS, 1000L);
+                USER_URN, PROTOCOL, trackSourceInfo, PROGRESS, 1000L).withAudioAd(audioAd);
         expect(event.isAd()).toBeTrue();
         expect(event.getAudioAdUrn()).toEqual("adswizz:ads:456");
         expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
+        expect(event.getAudioAdArtworkUrl()).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
     }
 }

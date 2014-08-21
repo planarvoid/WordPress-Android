@@ -27,6 +27,7 @@ public class PlaybackSessionEvent {
     private static final int EXTRA_AD_URN = 0;
     private static final int EXTRA_MONETIZED_URN = 1;
     private static final int EXTRA_TRACK_POLICY = 2;
+    private static final int EXTRA_AD_ARTWORK = 3;
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -43,17 +44,6 @@ public class PlaybackSessionEvent {
 
     // extra meta data that might not always be present goes here
     private SparseArray<String> extraAttributes = new SparseArray<String>();
-
-    public static PlaybackSessionEvent forAdPlay(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn,
-                                                 String protocol, TrackSourceInfo trackSourceInfo, long progress) {
-        return forAdPlay(audioAd, audioAdTrack, userUrn, protocol, trackSourceInfo, progress, System.currentTimeMillis());
-    }
-
-    public static PlaybackSessionEvent forAdPlay(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn,
-                                                 String protocol, TrackSourceInfo trackSourceInfo,
-                                                 long progress, long timestamp) {
-        return new PlaybackSessionEvent(audioAd, audioAdTrack, userUrn, protocol, trackSourceInfo, progress, timestamp);
-    }
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
@@ -98,11 +88,11 @@ public class PlaybackSessionEvent {
     }
 
     // Use this constructor for an audio ad playback event
-    private PlaybackSessionEvent(PropertySet audioAd, PropertySet audioAdTrack, UserUrn userUrn, String protocol,
-                                 TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
-        this(EVENT_KIND_PLAY, audioAdTrack, userUrn, protocol, trackSourceInfo, progress, timestamp);
+    public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
         this.extraAttributes.put(EXTRA_AD_URN, audioAd.get(AdProperty.AD_URN));
         this.extraAttributes.put(EXTRA_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        this.extraAttributes.put(EXTRA_AD_ARTWORK, audioAd.get(AdProperty.ARTWORK).toString());
+        return this;
     }
 
     public int getKind() {
@@ -168,6 +158,10 @@ public class PlaybackSessionEvent {
 
     public String getAudioAdMonetizedUrn() {
         return extraAttributes.get(EXTRA_MONETIZED_URN);
+    }
+
+    public String getAudioAdArtworkUrl() {
+        return extraAttributes.get(EXTRA_AD_ARTWORK);
     }
 
     @Override
