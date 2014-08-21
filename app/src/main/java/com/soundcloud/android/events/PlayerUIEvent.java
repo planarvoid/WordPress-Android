@@ -69,8 +69,12 @@ public class PlayerUIEvent {
         return kind;
     }
 
-    public boolean isExpanding() {
-        return kind == PLAYER_EXPANDING;
+    public boolean isExpand() {
+        return kind == PLAYER_EXPANDING || kind == PLAYER_EXPANDED;
+    }
+
+    public boolean isCollapse() {
+        return kind == PLAYER_COLLAPSING || kind == PLAYER_COLLAPSED;
     }
 
     @Override

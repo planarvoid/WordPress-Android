@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,20 +35,13 @@ public class NavigationDrawerFragmentTest {
 
     private NavigationDrawerFragment fragment;
 
-    @Mock(extraInterfaces = NavigationFragment.NavigationCallbacks.class)
-    ActionBarActivity activity;
-    @Mock
-    DrawerLayout drawerLayout;
-    @Mock
-    ActionBar actionBar;
-    @Mock
-    View view;
-    @Mock
-    ImageOperations imageOperations;
-    @Mock
-    AccountOperations accountOperations;
-    @Mock
-    Resources resources;
+    @Mock(extraInterfaces = NavigationFragment.NavigationCallbacks.class) ActionBarActivity activity;
+    @Mock DrawerLayout drawerLayout;
+    @Mock ActionBar actionBar;
+    @Mock View view;
+    @Mock ImageOperations imageOperations;
+    @Mock AccountOperations accountOperations;
+    @Mock Resources resources;
 
     TestEventBus eventBus = new TestEventBus();
 
@@ -96,6 +88,16 @@ public class NavigationDrawerFragmentTest {
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);
 
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Test
+    public void shouldLockDrawerOnPlayerExpandingEvent() {
+        fragment.onViewCreated(view, null);
+        fragment.onActivityCreated(null);
+
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
 
         verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -103,6 +105,16 @@ public class NavigationDrawerFragmentTest {
 
     @Test
     public void shouldUnlockDrawerOnPlayerCollapsedEvent() {
+        fragment.onViewCreated(view, null);
+        fragment.onActivityCreated(null);
+
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    @Test
+    public void shouldUnlockDrawerOnPlayerCollapsingEvent() {
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);
 

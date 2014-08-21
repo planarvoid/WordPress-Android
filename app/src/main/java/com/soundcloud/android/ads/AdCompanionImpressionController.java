@@ -59,7 +59,7 @@ public class AdCompanionImpressionController {
                     currentPlayQueueTrackEvent.getCurrentTrackUrn(),
                     event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
                     playQueueManager.isCurrentTrackAudioAd(),
-                    playerUIEvent.isExpanding());
+                    playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDING);
         }
     };
 
