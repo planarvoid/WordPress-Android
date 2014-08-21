@@ -57,12 +57,12 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleSearchEvent(SearchEvent searchEvent) {}
+    public void handleSearchEvent(SearchEvent searchEvent) {
+    }
 
     @Override
     public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {
-        final String url = urlBuilder.buildForVisualAdImpression(event);
-        trackEvent(event.getTimeStamp(), url);
+        trackEvent(event.getTimeStamp(), urlBuilder.buildForVisualAdImpression(event));
     }
 
     @Override
@@ -84,21 +84,19 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlayControlEvent(PlayControlEvent eventData) {}
+    public void handlePlayControlEvent(PlayControlEvent eventData) {
+    }
 
     private void trackAudioAdImpression(PlaybackSessionEvent eventData) {
-        final String url = urlBuilder.buildForAdImpression(eventData);
-        trackEvent(eventData.getTimeStamp(), url);
+        trackEvent(eventData.getTimeStamp(), urlBuilder.buildForAdImpression(eventData));
     }
 
     private void trackAudioPlayEvent(PlaybackSessionEvent eventData) {
-        final String url = urlBuilder.buildForAudioEvent(eventData);
-        trackEvent(eventData.getTimeStamp(), url);
+        trackEvent(eventData.getTimeStamp(), urlBuilder.buildForAudioEvent(eventData));
     }
 
     private void trackEvent(long timeStamp, String url) {
-        final TrackingEvent event = new TrackingEvent(timeStamp, BACKEND_NAME, url);
-        eventTracker.trackEvent(event);
+        eventTracker.trackEvent(new TrackingEvent(timeStamp, BACKEND_NAME, url));
     }
 
 }
