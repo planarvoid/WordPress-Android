@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
+import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,6 +30,15 @@ public class TrackingApiConnectionFactoryTest {
         HttpURLConnection connection = factory.create(event);
 
         expect(connection.getRequestMethod()).toEqual("HEAD");
+    }
+
+    @Test
+    public void promotedExpectsGETRequests() throws IOException {
+        TrackingEvent event = new TrackingEvent(1L, PromotedAnalyticsProvider.BACKEND_NAME, "http://url");
+
+        HttpURLConnection connection = factory.create(event);
+
+        expect(connection.getRequestMethod()).toEqual("GET");
     }
 
     @Test

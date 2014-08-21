@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
+import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -35,7 +36,8 @@ public class AnalyticsModule {
                                                              EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider,
                                                              PlayCountAnalyticsProvider playCountAnalyticsProvider,
                                                              LocalyticsAnalyticsProvider localyticsAnalyticsProvider,
-                                                             @Nullable ComScoreAnalyticsProvider comScoreAnalyticsProvider) {
+                                                             @Nullable ComScoreAnalyticsProvider comScoreAnalyticsProvider,
+                                                             PromotedAnalyticsProvider promotedAnalyticsProvider) {
         Log.d(analyticsProperties.toString());
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.useVerboseLogging();
         // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
@@ -46,6 +48,7 @@ public class AnalyticsModule {
             providers.add(eventLoggerAnalyticsProvider);
             providers.add(playCountAnalyticsProvider);
             providers.add(localyticsAnalyticsProvider);
+            providers.add(promotedAnalyticsProvider);
             if (comScoreAnalyticsProvider != null) {
                 providers.add(comScoreAnalyticsProvider);
             }

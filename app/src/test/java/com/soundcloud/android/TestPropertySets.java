@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -12,9 +14,10 @@ import android.net.Uri;
 import java.util.Date;
 
 public abstract class TestPropertySets {
-    public static PropertySet audioAdProperties() {
+    public static PropertySet audioAdProperties(TrackUrn monetizedTrack) {
         return PropertySet.from(
                 AdProperty.AD_URN.bind("advertisement:123"),
+                AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
                 AdProperty.ARTWORK.bind(Uri.parse("http:a//d.artwork.url")),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://ad.click.through.url")),
                 AdProperty.DEFAULT_TEXT_COLOR.bind("#000000"),
@@ -22,7 +25,8 @@ public abstract class TestPropertySets {
                 AdProperty.PRESSED_TEXT_COLOR.bind("#111111"),
                 AdProperty.PRESSED_BACKGROUND_COLOR.bind("#222222"),
                 AdProperty.FOCUSED_TEXT_COLOR.bind("#333333"),
-                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444")
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#444444"),
+                AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(newArrayList("adswizzUrl", "advertiserUrl"))
         );
     }
 
@@ -73,12 +77,4 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
-    public static PropertySet expectedAudioAdForAnalytics(TrackUrn monetizedTrack) {
-        return PropertySet.from(
-                AdProperty.AD_URN.bind("adswizz:ads:456"),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://brand.com")),
-                AdProperty.ARTWORK.bind(Uri.parse("http://artwork"))
-        );
-    }
 }

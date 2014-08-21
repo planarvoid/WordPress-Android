@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
+import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -23,8 +24,9 @@ public class TrackingApiConnectionFactory {
         } else if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Length", "0");
+        } else if (PromotedAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
+            connection.setRequestMethod("GET");
         }
-
         return connection;
     }
 }

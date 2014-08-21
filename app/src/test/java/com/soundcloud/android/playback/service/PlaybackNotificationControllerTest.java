@@ -119,7 +119,7 @@ public class PlaybackNotificationControllerTest {
 
     @Test
     public void shouldMergeTrackAndAudioAdPropertiesWhenCurrentSoundIsAnAd() {
-        final PropertySet audioAdMetaDAta = audioAdProperties();
+        final PropertySet audioAdMetaDAta = audioAdProperties(Urn.forTrack(123L));
         final PropertySet expectedProperties = audioAdMetaDAta.merge(trackProperties);
 
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);

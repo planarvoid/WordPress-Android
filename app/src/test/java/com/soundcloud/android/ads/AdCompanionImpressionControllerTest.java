@@ -54,7 +54,7 @@ public class AdCompanionImpressionControllerTest {
         observer = new TestObserver<AudioAdCompanionImpressionEvent>();
 
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L)));
+        when(playQueueManager.getAudioAd()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
 
         controller.companionImpressionEvent().subscribe(observer);
     }

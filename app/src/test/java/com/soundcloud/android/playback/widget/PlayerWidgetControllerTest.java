@@ -71,7 +71,7 @@ public class PlayerWidgetControllerTest {
                 soundAssociationOps, eventBus);
         when(context.getResources()).thenReturn(Robolectric.application.getResources());
         widgetTrack = expectedTrackForWidget();
-        widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties());
+        widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
     }
 
     @Test
@@ -106,7 +106,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsAudioAd() throws CreateModelException {
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties());
+        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
@@ -145,7 +145,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingTrackAd() {
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties());
+        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
@@ -214,7 +214,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterTrackWithAdInformationWhenCurrentTrackIsAudioAd() {
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties());
+        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(widgetTrack));
 

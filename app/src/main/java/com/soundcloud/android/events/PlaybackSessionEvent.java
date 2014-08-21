@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 import android.util.SparseArray;
 
+import java.util.List;
+
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackSessionEvent {
 
@@ -28,6 +30,8 @@ public class PlaybackSessionEvent {
     private static final int EXTRA_MONETIZED_URN = 1;
     private static final int EXTRA_TRACK_POLICY = 2;
     private static final int EXTRA_AD_ARTWORK = 3;
+    private static final int EXTRA_PLAYBACK_PROTOCOL = 4;
+    private static final int EXTRA_AUDIO_IMPRESSION_URLS = 5;
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -43,7 +47,7 @@ public class PlaybackSessionEvent {
     private int stopReason;
 
     // extra meta data that might not always be present goes here
-    private final SparseArray<String> extraAttributes = new SparseArray<String>();
+    private final SparseArray<Object> extraAttributes = new SparseArray<Object>();
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
@@ -92,6 +96,8 @@ public class PlaybackSessionEvent {
         this.extraAttributes.put(EXTRA_AD_URN, audioAd.get(AdProperty.AD_URN));
         this.extraAttributes.put(EXTRA_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
         this.extraAttributes.put(EXTRA_AD_ARTWORK, audioAd.get(AdProperty.ARTWORK).toString());
+        this.extraAttributes.put(EXTRA_AUDIO_IMPRESSION_URLS, audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS));
+        this.extraAttributes.put(EXTRA_PLAYBACK_PROTOCOL, protocol);
         return this;
     }
 
@@ -105,7 +111,7 @@ public class PlaybackSessionEvent {
 
     @Nullable
     public String getTrackPolicy() {
-        return extraAttributes.get(EXTRA_TRACK_POLICY);
+        return (String) extraAttributes.get(EXTRA_TRACK_POLICY);
     }
 
     public boolean isPlayEvent() {
@@ -140,6 +146,14 @@ public class PlaybackSessionEvent {
         return protocol;
     }
 
+    public String getAudioAdProtocol() {
+        return (String) extraAttributes.get(EXTRA_PLAYBACK_PROTOCOL);
+    }
+
+    public List<String> getAudioAdImpressionUrls() {
+        return (List<String>) extraAttributes.get(EXTRA_AUDIO_IMPRESSION_URLS);
+    }
+
     private void setListenTime(long listenTime) {
         this.listenTime = listenTime;
     }
@@ -153,15 +167,15 @@ public class PlaybackSessionEvent {
     }
 
     public String getAudioAdUrn() {
-        return extraAttributes.get(EXTRA_AD_URN);
+        return (String) extraAttributes.get(EXTRA_AD_URN);
     }
 
     public String getAudioAdMonetizedUrn() {
-        return extraAttributes.get(EXTRA_MONETIZED_URN);
+        return (String) extraAttributes.get(EXTRA_MONETIZED_URN);
     }
 
     public String getAudioAdArtworkUrl() {
-        return extraAttributes.get(EXTRA_AD_ARTWORK);
+        return (String) extraAttributes.get(EXTRA_AD_ARTWORK);
     }
 
     @Override

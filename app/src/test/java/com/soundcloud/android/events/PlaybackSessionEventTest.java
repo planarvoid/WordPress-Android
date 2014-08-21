@@ -29,6 +29,8 @@ public class PlaybackSessionEventTest {
             TrackProperty.POLICY.bind("allow"),
             PlayableProperty.DURATION.bind(DURATION)
     );
+    private static final PropertySet AUDIO_AD_DATA = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+    private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
 
     @Mock TrackSourceInfo trackSourceInfo;
 
@@ -72,19 +74,31 @@ public class PlaybackSessionEventTest {
     }
 
     @Test
-    public void shouldRepudiateThatAnyAdsWerePlayed() {
+    public void noAdUrnIndicatesNoAd() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, PROGRESS);
         expect(playEvent.isAd()).toBeFalse();
     }
 
     @Test
+    public void anEventWithAnAdUrnIndicatesAnAd() {
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
+                AUDIO_AD_TRACK_DATA,
+                USER_URN,
+                "hls",
+                trackSourceInfo,
+                0L).withAudioAd(AUDIO_AD_DATA);
+
+        expect(playEvent.isAd()).toBeTrue();
+    }
+
+    @Test
     public void shouldPopulateAdAttributesFromAdPlaybackEvent() {
-        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
                 USER_URN, PROTOCOL, trackSourceInfo, PROGRESS, 1000L).withAudioAd(audioAd);
         expect(event.isAd()).toBeTrue();
-        expect(event.getAudioAdUrn()).toEqual("adswizz:ads:456");
+        expect(event.getAudioAdUrn()).toEqual("advertisement:123");
         expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
         expect(event.getAudioAdArtworkUrl()).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
     }

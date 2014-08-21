@@ -111,7 +111,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackUIEvents() {
-        UIEvent event = UIEvent.fromAudioAdClick(TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123)), Urn.forTrack(456));
+        UIEvent event = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456));
         when(eventLoggerUrlBuilder.buildForClick(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handleUIEvent(event);

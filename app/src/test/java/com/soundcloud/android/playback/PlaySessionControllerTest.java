@@ -16,6 +16,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -65,7 +66,7 @@ public class PlaySessionControllerTest {
         controller.subscribe();
 
         track = expectedTrackForPlayer();
-        trackWithAdMeta = audioAdProperties().merge(track);
+        trackWithAdMeta = audioAdProperties(Urn.forTrack(123L)).merge(track);
         trackUrn = track.get(TrackProperty.URN);
 
         when(trackOperations.track(trackUrn)).thenReturn(Observable.just(track));
@@ -112,7 +113,7 @@ public class PlaySessionControllerTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentAudioAdTrack() {
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties());
+        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.image(trackUrn, ApiImageSize.T500, true)).thenReturn(Observable.just(bitmap));
 

@@ -5,6 +5,8 @@ import com.soundcloud.propeller.Property;
 
 import android.net.Uri;
 
+import java.util.List;
+
 public class AdProperty {
     public static final Property<String> AD_URN = Property.of(String.class);
     public static final Property<TrackUrn> MONETIZABLE_TRACK_URN =  Property.of(TrackUrn.class);
@@ -18,4 +20,5 @@ public class AdProperty {
     public static final Property<String> PRESSED_BACKGROUND_COLOR = Property.of(String.class);
     public static final Property<String> FOCUSED_TEXT_COLOR = Property.of(String.class);
     public static final Property<String> FOCUSED_BACKGROUND_COLOR = Property.of(String.class);
+    public static final Property<List<String>> AUDIO_AD_IMPRESSION_URLS = Property.of((Class<List<String>>)(Class<?>) List.class);
 }

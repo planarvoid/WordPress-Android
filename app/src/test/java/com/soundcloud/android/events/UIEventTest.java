@@ -220,7 +220,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromAudioAdClick() {
-        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123));
+        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
         UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getTimestamp()).toEqual(1000L);
@@ -234,7 +234,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromSkipAudioAdClick() {
-        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123));
+        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
         UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SKIP_AUDIO_AD_CLICK);
         expect(uiEvent.getTimestamp()).toEqual(1000L);
