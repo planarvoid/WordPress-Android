@@ -43,7 +43,7 @@ public class AnalyticsModule {
         // Unfortunately, both Localytics and ComScore are unmockable in tests and were crashing the tests during
         // initialization of AnalyticsEngine, so we do not register them unless we're running on a real device
         List<AnalyticsProvider> providers = Collections.emptyList();
-        if (applicationProperties.isRunningOnDalvik()) {
+        if (applicationProperties.isRunningOnDevice()) {
             providers = new ArrayList<AnalyticsProvider>(EXPECTED_ANALYTICS_PROVIDERS);
             providers.add(eventLoggerAnalyticsProvider);
             providers.add(playCountAnalyticsProvider);

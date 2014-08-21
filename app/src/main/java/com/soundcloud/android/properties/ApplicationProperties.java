@@ -1,6 +1,5 @@
 package com.soundcloud.android.properties;
 
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,11 +29,10 @@ public class ApplicationProperties {
     private static boolean VERBOSE_LOGGING;
     //TODO Need to keep these static as we need to do more refactoring around ACRA reporting. Do not reference directly
     @VisibleForTesting
-    protected static final boolean IS_RUNNING_ON_DALVIK = Build.PRODUCT != null;
+    protected static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
-
 
     @Inject
     public ApplicationProperties(Resources resources){
@@ -62,19 +60,19 @@ public class ApplicationProperties {
     }
 
     public boolean shouldEnableNetworkProxy(){
-        return isDebugBuild() && IS_RUNNING_ON_DALVIK;
+        return isDebugBuild() && IS_RUNNING_ON_DEVICE;
     }
 
-    public boolean isRunningOnDalvik(){
-        return IS_RUNNING_ON_DALVIK;
+    public boolean isRunningOnDevice(){
+        return IS_RUNNING_ON_DEVICE;
     }
 
     public boolean isRunningOnEmulator(){
         return IS_RUNNING_ON_EMULATOR;
     }
 
-    public boolean isDevBuildRunningOnDalvik(){
-        return isDebugBuild() && IS_RUNNING_ON_DALVIK;
+    public boolean isDevBuildRunningOnDevice(){
+        return isDebugBuild() && IS_RUNNING_ON_DEVICE;
     }
 
     public boolean shouldUseRichNotifications() {
@@ -87,11 +85,11 @@ public class ApplicationProperties {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDalvik", IS_RUNNING_ON_DALVIK).
+        return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDevice", IS_RUNNING_ON_DEVICE).
                 add("isEmulator", IS_RUNNING_ON_EMULATOR).toString();
     }
 
     public static boolean shouldReportCrashes(){
-        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DALVIK && !BuildType.DEBUG.equals(BUILD_TYPE) && BUILD_TYPE != null;
+        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !BuildType.DEBUG.equals(BUILD_TYPE) && BUILD_TYPE != null;
     }
 }

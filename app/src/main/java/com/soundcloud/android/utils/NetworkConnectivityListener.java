@@ -173,7 +173,7 @@ public class NetworkConnectivityListener {
             mOtherNetworkInfo = intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
 
-            if (applicationProperties.isDevBuildRunningOnDalvik()) {
+            if (applicationProperties.isDevBuildRunningOnDevice()) {
                 Log.d(TAG, "onReceive(): mNetworkInfo="
                         + mNetworkInfo
                         + " mOtherNetworkInfo = "

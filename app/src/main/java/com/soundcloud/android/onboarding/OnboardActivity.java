@@ -197,7 +197,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_SIGN_UP.get());
                 eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
-                if (!applicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
+                if (!applicationProperties.isDevBuildRunningOnDevice() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
                     finish();
                 } else {

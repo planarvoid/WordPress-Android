@@ -21,7 +21,6 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -163,7 +162,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     @Override
     protected SSLSocketFactory getSSLSocketFactory() {
         //Why do we do this differentiation? Why not just use the standard one?
-        if (applicationProperties.isRunningOnDalvik()) {
+        if (applicationProperties.isRunningOnDevice()) {
             // make use of android's implementation
             return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                     new SSLSessionCache(context));

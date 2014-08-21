@@ -53,7 +53,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         initialBuilder.setTitle(R.string.create_new_playlist);
         initialBuilder.setView(dialogView);
 
-        if (!properties.isDevBuildRunningOnDalvik()){
+        if (!properties.isDevBuildRunningOnDevice()){
             privacy.setVisibility(View.GONE);
         }
 
@@ -70,7 +70,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
                 if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
-                    createPlaylist(playlistTitle, properties.isDevBuildRunningOnDalvik() && privacy.isChecked());
+                    createPlaylist(playlistTitle, properties.isDevBuildRunningOnDevice() && privacy.isChecked());
                     Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
                     getDialog().dismiss();
                 }

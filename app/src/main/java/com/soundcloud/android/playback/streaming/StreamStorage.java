@@ -205,7 +205,7 @@ public class StreamStorage {
 
             if (currentCount >= mCleanupInterval) {
                 if (cleanup(calculateUsableSpace())) {
-                    if (mApplicationProperties.isDevBuildRunningOnDalvik()) {
+                    if (mApplicationProperties.isDevBuildRunningOnDevice()) {
                         // print file stats again
                         calculateUsableSpace();
                     }

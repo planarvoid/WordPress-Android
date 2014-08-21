@@ -45,7 +45,6 @@ public class ApplicationPropertiesTest {
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
         expect(applicationProperties.isDebugBuild()).toBeTrue();
         expect(applicationProperties.isReleaseBuild()).toBeFalse();
-
     }
 
     @Test
@@ -57,8 +56,8 @@ public class ApplicationPropertiesTest {
     }
 
     @Test
-    public void shouldDetectThatItsNotRunningOnDalvikVM(){
-        expect(ApplicationProperties.IS_RUNNING_ON_DALVIK).toBeFalse();
+    public void shouldDetectThatItsNotRunningOnDevice(){
+        expect(ApplicationProperties.IS_RUNNING_ON_DEVICE).toBeFalse();
     }
 
     @Test

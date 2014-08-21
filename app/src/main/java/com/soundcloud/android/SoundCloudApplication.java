@@ -125,7 +125,7 @@ public class SoundCloudApplication extends Application {
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
         Log.d(TAG, applicationProperties.toString());
 
-        if (applicationProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
+        if (applicationProperties.isDevBuildRunningOnDevice() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
         }
 
