@@ -64,7 +64,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
     private Intent createLaunchIntent(Context context, TrackUrn trackUrn) {
         return new Intent(context, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, !trackUrn.equals(TrackUrn.NOT_SET));
     }
 
