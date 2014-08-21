@@ -74,7 +74,7 @@ public class EventLoggerUrlBuilder {
     public String buildForVisualAdImpression(AudioAdCompanionImpressionEvent event) {
         return buildUriForPath("impression", event.getTimeStamp())
                 .appendQueryParameter(USER, event.getUserUrn().toString())
-                .appendQueryParameter(AD_URN, event.getAdsWizzUrn().toString())
+                .appendQueryParameter(AD_URN, event.getAdsWizzUrn())
                 .appendQueryParameter(IMPRESSION_NAME, "companion_display")
                 .appendQueryParameter(IMPRESSION_OBJECT, event.getTrackUrn().toString())
                 .appendQueryParameter(MONETIZATION_TYPE, "audio_ad")

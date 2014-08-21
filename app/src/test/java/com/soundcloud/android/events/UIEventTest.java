@@ -221,7 +221,7 @@ public class UIEventTest {
     @Test
     public void shouldCreateEventFromAudioAdClick() {
         PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123));
-        UIEvent uiEvent = UIEvent.fromAudioAdClick(audioAd, Urn.forTrack(456), 1000L);
+        UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getTimestamp()).toEqual(1000L);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();

@@ -247,11 +247,11 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createAudioAdClickUrl() throws UnsupportedEncodingException {
+    public void createAudioAdCompanionDisplayClickUrl() throws UnsupportedEncodingException {
         final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(monetizedTrackUrn);
         final TrackUrn audioAdTrackUrn = Urn.forTrack(456);
-        final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromAudioAdClick(audioAd, audioAdTrackUrn, 1000L));
+        final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromAudioAdCompanionDisplayClick(audioAd, audioAdTrackUrn, 1000L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -266,7 +266,7 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createSkipAudioAdClickUrl() throws UnsupportedEncodingException {
+    public void createAudioAdSkippedClickUrl() throws UnsupportedEncodingException {
         final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(monetizedTrackUrn);
         final TrackUrn audioAdTrackUrn = Urn.forTrack(456);

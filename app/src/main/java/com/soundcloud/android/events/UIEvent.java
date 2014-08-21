@@ -102,7 +102,7 @@ public final class UIEvent {
     }
 
     @VisibleForTesting
-    public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
+    public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(Kind.AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
                 .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
     }
@@ -120,7 +120,7 @@ public final class UIEvent {
     }
 
     public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
-        return fromAudioAdClick(audioAd, audioAdTrack, System.currentTimeMillis());
+        return fromAudioAdCompanionDisplayClick(audioAd, audioAdTrack, System.currentTimeMillis());
     }
 
     public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
