@@ -38,6 +38,8 @@ import android.util.Log;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
+// remove this once we remove PlayQueueManager + TrackOperations by moving url loading out
+@SuppressWarnings({"PMD.ExcessiveParameterList"})
 public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Playa.PlayaListener {
     public static final String TAG = "CloudPlaybackService";
 
