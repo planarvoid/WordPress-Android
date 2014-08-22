@@ -69,7 +69,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() throws Exception {
-        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
+        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
         when(eventLoggerUrlBuilder.buildForAdFinished(event)).thenReturn("clickUrl");
         when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("audioEventUrl");

@@ -289,7 +289,7 @@ public class EventLoggerUrlBuilderTest {
     @Test
     public void createAudioAdFinishedClickUrl() throws UnsupportedEncodingException, CreateModelException {
         final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
-        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(monetizedTrackUrn);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(monetizedTrackUrn);
         final PlaybackSessionEvent stopEvent = TestEvents.playbackSessionStopEvent();
         final String url = eventLoggerUrlBuilder.buildForAdFinished(stopEvent.withAudioAd(audioAd));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"

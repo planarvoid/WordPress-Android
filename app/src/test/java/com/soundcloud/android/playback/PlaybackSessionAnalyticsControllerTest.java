@@ -97,7 +97,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     @Test
     public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() throws Exception {
-        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(TRACK_URN);
+        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getAudioAd()).thenReturn(audioAd);
         when(playQueueManager.hasNextTrack()).thenReturn(true);
