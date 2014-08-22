@@ -2,21 +2,16 @@ package com.soundcloud.android.analytics;
 
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.TestEvents;
-import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
@@ -27,12 +22,11 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.propeller.PropertySet;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,116 +39,36 @@ import rx.subscriptions.Subscriptions;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineTrackingTest {
 
-    private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
-
     private AnalyticsEngine analyticsEngine;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private AnalyticsProperties analyticsProperties;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private AnalyticsProvider analyticsProviderOne;
     @Mock private AnalyticsProvider analyticsProviderTwo;
+    @Mock private AnalyticsProvider analyticsProviderThree;
     @Mock private Scheduler scheduler;
     @Mock private Scheduler.Worker worker;
     @Mock private AdCompanionImpressionController adCompanionImpressionController;
+    @Mock private AnalyticsProviderFactory providersFactory;
 
     @Before
     public void setUp() throws Exception {
         when(adCompanionImpressionController.companionImpressionEvent()).thenReturn(Observable.<AudioAdCompanionImpressionEvent>empty());
         when(scheduler.createWorker()).thenReturn(worker);
         when(worker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
+        when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne, analyticsProviderTwo));
+
+        initialiseAnalyticsEngine();
     }
 
     @Test
-    public void shouldNotSubscribeToEventsIfAnalyticsDisabledForBuild() {
-        setAnalyticsEnabledViaSettings();
-        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(false);
-
-        initialiseAnalyticsEngine();
-
-        verifyZeroInteractions(analyticsProviderOne);
-        verifyZeroInteractions(analyticsProviderTwo);
-    }
-
-    @Test
-    public void shouldNotSubscribeToEventsIfAnalyticsEnabledForBuildButDisabledInSettings() {
-        setAnalyticsDisabledViaSettings();
-
-        initialiseAnalyticsEngine();
-
-        verifyZeroInteractions(analyticsProviderOne);
-        verifyZeroInteractions(analyticsProviderTwo);
-    }
-
-    @Test
-    public void shouldUnsubscribeFromEventsIfAnalyticsWasEnabledThenBecomesDisabledViaSettings() {
-        setAnalyticsEnabledViaSettings();
-
-        initialiseAnalyticsEngine();
-        // send the first event; should arrive
-        final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
-
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
-        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
-
-        // send the second event; should NOT arrive
-        eventBus.verifyUnsubscribed();
-
-        verify(analyticsProviderOne).handleActivityLifeCycleEvent(event);
-        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event);
-    }
-
-    @Test
-    public void shouldResubscribeToEventsIfAnalyticsWasDisabledThenBecomesEnabledViaSettings() {
-        setAnalyticsDisabledViaSettings();
-
-        initialiseAnalyticsEngine();
-        // send the first event; should not arrive
-        final ActivityLifeCycleEvent event1 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event1);
-
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
-        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
-
-        // send the second event; should arrive
-        final ActivityLifeCycleEvent event2 = ActivityLifeCycleEvent.forOnCreate(Activity.class);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event2);
-
-        verify(analyticsProviderOne, never()).handleActivityLifeCycleEvent(event1);
-        verify(analyticsProviderTwo, never()).handleActivityLifeCycleEvent(event1);
-        verify(analyticsProviderOne).handleActivityLifeCycleEvent(event2);
-        verify(analyticsProviderTwo).handleActivityLifeCycleEvent(event2);
-    }
-
-    @Test
-    public void shouldSubscribeToSharedPreferenceChanges() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
-        verify(sharedPreferences).registerOnSharedPreferenceChangeListener(analyticsEngine);
-    }
-
-    @Test
-    public void shouldOnlyHandleAnalyticsEnabledSettingInSharedPreferenceChangedCallback() {
-        initialiseAnalyticsEngine();
-
-        SharedPreferences preferences = mock(SharedPreferences.class);
-        analyticsEngine.onSharedPreferenceChanged(preferences, "wrong key");
-
-        verify(preferences, never()).getBoolean(anyString(), anyBoolean());
-    }
-
-    @Test
-    public void shouldTrackCurrentUserChangedEvent() throws Exception {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
+    public void shouldTrackCurrentUserChangedEvent() {
         final CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, event);
 
@@ -163,10 +77,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackActivityLifeCycleEvent() throws Exception {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
+    public void shouldTrackActivityLifeCycleEvent() {
         final ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnCreate(Activity.class);
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, event);
 
@@ -176,9 +87,6 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackScreenEvent() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
@@ -186,10 +94,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEvent() throws Exception {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
+    public void shouldTrackPlaybackEvent() throws CreateModelException {
         PlaybackSessionEvent playbackSessionEvent = TestEvents.playbackSessionPlayEvent();
 
         eventBus.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
@@ -199,10 +104,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackUIEvent() throws Exception {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
+    public void shouldTrackUIEvent() {
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 0);
         eventBus.publish(EventQueue.UI, uiEvent);
 
@@ -211,10 +113,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackOnboardingEvent() throws Exception {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
+    public void shouldTrackOnboardingEvent() {
         OnboardingEvent onboardingEvent = OnboardingEvent.authComplete();
         eventBus.publish(EventQueue.ONBOARDING, onboardingEvent);
 
@@ -224,9 +123,6 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackSearchEvent() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
         SearchEvent searchEvent = SearchEvent.searchSuggestion(Content.TRACK, true);
         eventBus.publish(EventQueue.SEARCH, searchEvent);
 
@@ -236,9 +132,6 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackPlayControlEvent() {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
-
         PlayControlEvent playControlEvent = PlayControlEvent.playerClickPlay();
         eventBus.publish(EventQueue.PLAY_CONTROL, playControlEvent);
 
@@ -247,10 +140,34 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldIsolateProvidersExceptions() throws Exception {
-        setAnalyticsEnabledViaSettings();
-        initialiseAnalyticsEngine();
+    public void shouldUpdateProvidersOnSharedPreferenceChanged() {
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
 
+        when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderThree));
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
+
+        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
+
+        verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen1"));
+        verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen1"));
+        verify(analyticsProviderThree, times(1)).handleScreenEvent(eq("screen2"));
+    }
+
+    @Test
+    public void shouldSubscribeToSharedPreferenceChanges() {
+        verify(sharedPreferences).registerOnSharedPreferenceChangeListener(analyticsEngine);
+    }
+
+    @Test
+    public void shouldOnlyHandleAnalyticsEnabledSettingInSharedPreferenceChangedCallback() {
+        SharedPreferences preferences = mock(SharedPreferences.class);
+        analyticsEngine.onSharedPreferenceChanged(preferences, "wrong key");
+
+        verify(providersFactory, times(1)).getProviders(); // Only setup providers in constructor
+    }
+
+    @Test
+    public void shouldIsolateProvidersExceptions() throws CreateModelException {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
@@ -276,19 +193,9 @@ public class AnalyticsEngineTrackingTest {
         verify(analyticsProviderTwo).handlePlayControlEvent(any(PlayControlEvent.class));
     }
 
-    private void setAnalyticsDisabledViaSettings() {
-        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(false);
-    }
-
-    private void setAnalyticsEnabledViaSettings() {
-        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
-    }
-
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
-                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo), adCompanionImpressionController);
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, scheduler,
+                adCompanionImpressionController, providersFactory);
     }
 
 }

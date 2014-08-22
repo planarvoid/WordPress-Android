@@ -127,7 +127,7 @@ public class SoundCloudApplication extends Application {
             setupStrictMode();
         }
 
-        if (ApplicationProperties.shouldReportCrashes() &&
+        if (applicationProperties.shouldReportCrashes() &&
                 sharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false)) {
             Crashlytics.start(this);
             ExceptionUtils.setupOOMInterception();

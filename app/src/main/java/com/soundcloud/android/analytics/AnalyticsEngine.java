@@ -1,12 +1,10 @@
 package com.soundcloud.android.analytics;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -16,6 +14,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -31,7 +30,6 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,12 +44,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     static final long FLUSH_DELAY_SECONDS = 120L;
 
     private final EventBus eventBus;
-    private final Collection<AnalyticsProvider> analyticsProviders;
-    private final AnalyticsProperties analyticsProperties;
-
+    private final AnalyticsProviderFactory analyticsProviderFactory;
     private final Scheduler scheduler;
     private final AdCompanionImpressionController adCompanionImpressionController;
-    private CompositeSubscription eventsSubscription;
+
+    private Collection<AnalyticsProvider> analyticsProviders;
     private SerialSubscription flushSubscription = new SerialSubscription();
 
     // will be called by the Rx scheduler after a given delay, as long as events come in
@@ -68,58 +65,47 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     };
 
     @Inject
-    public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
-                           List<AnalyticsProvider> analyticsProviders, AdCompanionImpressionController adCompanionImpressionController) {
-        this(eventBus, sharedPreferences, analyticsProperties, AndroidSchedulers.mainThread(), analyticsProviders, adCompanionImpressionController);
+    public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AdCompanionImpressionController adCompanionImpressionController,
+                           AnalyticsProviderFactory analyticsProviderFactory) {
+        this(eventBus, sharedPreferences, AndroidSchedulers.mainThread(), adCompanionImpressionController,
+                analyticsProviderFactory);
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences, AnalyticsProperties analyticsProperties,
-                              Scheduler scheduler, List<AnalyticsProvider> analyticsProviders, AdCompanionImpressionController adCompanionImpressionController) {
+    protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences,
+                              Scheduler scheduler, AdCompanionImpressionController adCompanionImpressionController,
+                              AnalyticsProviderFactory analyticsProviderFactory) {
         Log.d(this, "Creating analytics engine");
+        this.analyticsProviderFactory = analyticsProviderFactory;
+        this.analyticsProviders = analyticsProviderFactory.getProviders();
         this.eventBus = eventBus;
-        this.analyticsProviders = Lists.newArrayList(analyticsProviders);
-        this.analyticsProperties = analyticsProperties;
         this.scheduler = scheduler;
         this.adCompanionImpressionController = adCompanionImpressionController;
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        subscribeEventQueues();
+    }
 
-        handleAnalyticsAvailability(sharedPreferences);
+    private void subscribeEventQueues() {
+        Log.d(this, "Subscribing to events");
+        CompositeSubscription eventsSubscription = new CompositeSubscription();
+        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_SESSION, new PlaybackEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
+        eventsSubscription.add(adCompanionImpressionController.companionImpressionEvent().subscribe(new VisualAdImpressionSubscriber()));
     }
 
     @Override
     public final void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (SettingsActivity.ANALYTICS_ENABLED.equals(key)) {
-            handleAnalyticsAvailability(sharedPreferences);
-        }
-    }
-
-    private void handleAnalyticsAvailability(SharedPreferences sharedPreferences) {
-        unsubscribeFromEvents();
-        boolean analyticsEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
-        if (analyticsProperties.isAnalyticsAvailable() && analyticsEnabled) {
-            Log.d(this, "Subscribing to events");
-            eventsSubscription = new CompositeSubscription();
-            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_SESSION, new PlaybackEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
-            eventsSubscription.add(eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
-            eventsSubscription.add(adCompanionImpressionController.companionImpressionEvent().subscribe(new VisualAdImpressionSubscriber()));
-        }
-    }
-
-    @VisibleForTesting
-    void unsubscribeFromEvents() {
-        if (eventsSubscription != null) {
-            Log.d(this, "Unsubscribing from events");
-            eventsSubscription.unsubscribe();
+            analyticsProviders = analyticsProviderFactory.getProviders();
         }
     }
 
