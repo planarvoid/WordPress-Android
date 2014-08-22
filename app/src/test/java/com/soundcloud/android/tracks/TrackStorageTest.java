@@ -1,6 +1,8 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.model.ApiTrack;
@@ -9,13 +11,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.StorageIntegrationTest;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
 
@@ -43,22 +43,28 @@ public class TrackStorageTest extends StorageIntegrationTest {
         verify(observer).onCompleted();
     }
 
-    // there are still cases where we do not have these strings, so check before adding them
-    // Need to fix this as part of https://github.com/soundcloud/SoundCloud-Android/issues/2054
     @Test
-    public void shouldNotCrashIfEssentialFieldsLikeTitleAreMissing() throws CreateModelException {
-        ApiTrack trackWithoutTitle = TestHelper.getModelFactory().createModel(ApiTrack.class);
-        trackWithoutTitle.setTitle(null);
-        testHelper().insertTrack(trackWithoutTitle);
+    public void trackByUrnDoesNotEmitInsertedTrackWithoutTitle() throws CreateModelException {
+        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        track.setTitle(null);
+        testHelper().insertTrack(track);
 
-        storage.track(trackWithoutTitle.getUrn(), Urn.forUser(123)).subscribe(observer);
+        storage.track(track.getUrn(), Urn.forUser(123)).subscribe(observer);
 
-        ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
-        verify(observer).onNext(captor.capture());
-        expect(captor.getValue().get(PlayableProperty.TITLE)).toEqual(ScTextUtils.EMPTY_STRING);
+        verify(observer, never()).onNext(any(PropertySet.class));
+        verify(observer).onCompleted();
     }
 
-    private PropertySet createTrackPropertySet(final ApiTrack track) throws CreateModelException {
+    @Test
+    public void descriptionByUrnEmitsInsertedDescription() throws CreateModelException {
+        final TrackUrn trackUrn = Urn.forTrack(123);
+        testHelper().insertDescription(trackUrn, "description123");
+        storage.trackDetails(trackUrn).subscribe(observer);
+        verify(observer).onNext(eq(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123"))));
+        verify(observer).onCompleted();
+    }
+
+    private PropertySet createTrackPropertySet(final ApiTrack track) {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),

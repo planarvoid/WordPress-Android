@@ -54,7 +54,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_INFO.get());
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
-        loadTrack = trackOperations.trackDetailsWithUpdate(getArguments().<TrackUrn>getParcelable(EXTRA_URN))
+        loadTrack = trackOperations.fullTrackWithUpdate(getArguments().<TrackUrn>getParcelable(EXTRA_URN))
                 .observeOn(mainThread())
                 .cache();
     }

@@ -36,8 +36,7 @@ public enum APIEndpoints {
     SEARCH_ALL("/search"),
     SEARCH_TRACKS("/search/sounds"),
     SEARCH_PLAYLISTS("/search/sets"),
-    SEARCH_USERS("/search/people"),
-    TRACK_DETAILS("/tracks/%s"),;
+    SEARCH_USERS("/search/people");
 
     private final String path;
 

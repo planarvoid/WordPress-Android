@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 
 public class JaggedTextView extends CustomFontTextView {
@@ -73,7 +74,7 @@ public class JaggedTextView extends CustomFontTextView {
         }
 
         canvas.translate(getPaddingLeft(), getPaddingTop());
-        if (showBackground) {
+        if (showBackground && !TextUtils.isEmpty(getText())) {
             drawBackground(canvas, layout);
         }
 

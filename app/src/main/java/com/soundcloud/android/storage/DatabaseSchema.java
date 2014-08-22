@@ -41,6 +41,7 @@ final class DatabaseSchema {
             "user_id INTEGER," +
             "monetizable BOOLEAN DEFAULT 0," +
             "policy TEXT," +
+            "DESCRIPTION TEXT," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
@@ -257,6 +258,7 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.TRACK_COUNT + " as " + TableColumns.SoundView.TRACK_COUNT +
             ",Sounds." + TableColumns.Sounds.MONETIZABLE + " as " + TableColumns.SoundView.MONETIZABLE +
             ",Sounds." + TableColumns.Sounds.POLICY + " as " + TableColumns.SoundView.POLICY +
+            ",Sounds." + TableColumns.Sounds.DESCRIPTION + " as " + TableColumns.SoundView.DESCRIPTION +
             ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +

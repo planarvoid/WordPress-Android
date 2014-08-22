@@ -372,6 +372,7 @@ public class PublicApiTrack extends Playable {
         comment_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
         shared_to_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
         commentable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.COMMENTABLE)) == 1;
+        description = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DESCRIPTION));
 
         final int localPlayCountIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
@@ -397,6 +398,7 @@ public class PublicApiTrack extends Playable {
         if (comment_count  != NOT_SET) cv.put(TableColumns.Sounds.COMMENT_COUNT, comment_count);
         if (commentable) cv.put(TableColumns.Sounds.COMMENTABLE, commentable);
         if (shared_to_count != NOT_SET) cv.put(TableColumns.Sounds.SHARED_TO_COUNT, shared_to_count);
+        if (description != null) cv.put(TableColumns.Sounds.DESCRIPTION, description);
         if (isCompleteTrack()) {
             cv.put(TableColumns.Sounds.LAST_UPDATED, System.currentTimeMillis());
         }

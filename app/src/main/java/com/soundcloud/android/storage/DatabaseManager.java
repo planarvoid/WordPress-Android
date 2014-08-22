@@ -495,6 +495,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    // added policy, monetizable and description for new player / audio ads
     private static boolean upgradeTo28(SQLiteDatabase database, int oldVersion) {
         try {
             Table.SOUNDS.alterColumns(database);

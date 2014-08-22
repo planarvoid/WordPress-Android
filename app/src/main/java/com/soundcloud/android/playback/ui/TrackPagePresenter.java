@@ -130,6 +130,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
 
+        holder.timestamp.setVisibility(View.VISIBLE);
+
         setClickListener(this, holder.onClickViews);
     }
 
@@ -145,6 +147,8 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
         holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
         holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
+
+        holder.timestamp.setVisibility(View.GONE);
         return view;
     }
 

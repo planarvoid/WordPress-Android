@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -459,15 +458,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
-                    for (SearchSuggestions.Query q : searchSuggestions) {
-                        // make sure tracks exist in the DB, so that we can backfill them later
-                        if (SearchSuggestions.Query.KIND_TRACK.equals(q.kind)) {
-                            ContentValues values = new ContentValues(1);
-                            values.put(TableColumns.Sounds._ID, q.id);
-                            values.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
-                            resolver.insert(Content.TRACKS.uri, values);
-                        }
-                    }
                     adapter.onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {

@@ -4,14 +4,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
 
@@ -54,6 +55,13 @@ public class DatabaseHelper {
         final long id = insertInto(Table.SOUNDS, cv);
         track.setId(id);
         return id;
+    }
+
+    public long insertDescription(TrackUrn trackUrn, String description) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Sounds._ID, trackUrn.numericId);
+        cv.put(TableColumns.Sounds.DESCRIPTION, description);
+        return insertInto(Table.SOUNDS, cv);
     }
 
     public ApiPlaylist insertPlaylist() throws CreateModelException {

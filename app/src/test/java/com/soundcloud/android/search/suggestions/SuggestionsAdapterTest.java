@@ -95,23 +95,6 @@ public class SuggestionsAdapterTest {
     }
 
     @Test
-    public void shouldCacheTrackQueriesToDatabase() throws Exception {
-        mockPublicApi("suggest_highlight.json");
-        createAdapter();
-
-        adapter.runQueryOnBackgroundThread("foo");
-        shadowOf(adapter.getApiTaskLooper()).runToEndOfTasks();
-
-        ArgumentCaptor<Uri> trackUri = ArgumentCaptor.forClass(Uri.class);
-        ArgumentCaptor<ContentValues> content = ArgumentCaptor.forClass(ContentValues.class);
-        verify(contentResolver).insert(trackUri.capture(), content.capture());
-
-        expect(trackUri.getValue()).toEqual(Content.TRACKS.uri);
-        expect(content.getValue().getAsLong(TableColumns.Sounds._ID)).toEqual(16536884L);
-        expect(content.getValue().getAsInteger(TableColumns.Sounds._TYPE)).toEqual(TableColumns.Sounds.TYPE_TRACK);
-    }
-
-    @Test
     public void shouldPrefetchResources() throws IOException {
         mockPublicApi("suggest_mixed.json");
         createAdapter();
