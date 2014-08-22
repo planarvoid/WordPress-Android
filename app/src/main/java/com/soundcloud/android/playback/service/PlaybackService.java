@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -51,6 +52,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
     @Inject PlaybackNotificationController playbackNotificationController;
+    @Inject PlaybackSessionAnalyticsController analyticsController;
 
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;
@@ -126,7 +128,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     PlaybackServiceOperations playbackServiceOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
-                    PlaybackNotificationController playbackNotificationController) {
+                    PlaybackNotificationController playbackNotificationController,
+                    PlaybackSessionAnalyticsController analyticsController) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
@@ -136,6 +139,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
         this.playbackNotificationController = playbackNotificationController;
+        this.analyticsController = analyticsController;
     }
 
     @Override
@@ -291,6 +295,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             onIdleState();
         }
         updatePlaybackNotification(stateTransition);
+
+        analyticsController.onStateTransition(stateTransition);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
     }
 

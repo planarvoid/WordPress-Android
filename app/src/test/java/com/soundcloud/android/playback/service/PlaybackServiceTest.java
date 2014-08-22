@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -46,40 +47,27 @@ public class PlaybackServiceTest {
     private PropertySet track;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private ApplicationProperties applicationProperties;
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private TrackOperations trackOperations;
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private PlaybackServiceOperations playbackServiceOperations;
-    @Mock
-    private ImageOperations imageOperations;
-    @Mock
-    private StreamPlaya streamPlayer;
-    @Mock
-    private PlaybackReceiver.Factory playbackReceiverFactory;
-    @Mock
-    private PlaybackReceiver playbackReceiver;
-    @Mock
-    private Lazy<IRemoteAudioManager> audioManagerProvider;
-    @Mock
-    private IRemoteAudioManager remoteAudioManager;
-    @Mock
-    private PlayQueue playQueue;
-    @Mock
-    private Playa.StateTransition stateTransition;
-    @Mock
-    private PlaybackNotificationController playbackNotificationController;
+    @Mock private ApplicationProperties applicationProperties;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private TrackOperations trackOperations;
+    @Mock private AccountOperations accountOperations;
+    @Mock private PlaybackServiceOperations playbackServiceOperations;
+    @Mock private ImageOperations imageOperations;
+    @Mock private StreamPlaya streamPlayer;
+    @Mock private PlaybackReceiver.Factory playbackReceiverFactory;
+    @Mock private PlaybackReceiver playbackReceiver;
+    @Mock private Lazy<IRemoteAudioManager> audioManagerProvider;
+    @Mock private IRemoteAudioManager remoteAudioManager;
+    @Mock private PlayQueue playQueue;
+    @Mock private Playa.StateTransition stateTransition;
+    @Mock private PlaybackNotificationController playbackNotificationController;
+    @Mock private PlaybackSessionAnalyticsController analyticsController;
 
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations,
                 accountOperations, playbackServiceOperations, streamPlayer,
-                playbackReceiverFactory, audioManagerProvider, playbackNotificationController);
+                playbackReceiverFactory, audioManagerProvider, playbackNotificationController, analyticsController);
 
         track = TestPropertySets.expectedTrackForPlayer();
 
@@ -163,6 +151,15 @@ public class PlaybackServiceTest {
 
         Playa.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
         expect(broadcasted).toBe(stateTransition);
+    }
+
+    @Test
+    public void shouldForwardPlayerStateTransitionToAnalyticsController() {
+        playbackService.onCreate();
+
+        playbackService.onPlaystateChanged(stateTransition);
+
+        verify(analyticsController).onStateTransition(stateTransition);
     }
 
     @Test

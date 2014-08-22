@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +65,27 @@ public class EventLoggerAnalyticsProviderTest {
         expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(12345L);
         expect(adEvent.getUrl()).toEqual("adUrl");
+    }
+
+    @Test
+    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() throws Exception {
+        PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(Urn.forTrack(123L));
+        PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
+        when(eventLoggerUrlBuilder.buildForAdFinished(event)).thenReturn("clickUrl");
+        when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("audioEventUrl");
+
+        eventLoggerAnalyticsProvider.handlePlaybackSessionEvent(event);
+
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
+
+        List<TrackingEvent> allValues = captor.getAllValues();
+        expect(allValues.size()).toEqual(2);
+
+        TrackingEvent adEvent = allValues.get(0);
+        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
+        expect(adEvent.getUrl()).toEqual("clickUrl");
     }
 
     @Test

@@ -204,4 +204,8 @@ public class PlaybackSessionEvent {
     public boolean isFirstPlay() {
         return isPlayEvent() && progress == 0L;
     }
+
+    public boolean hasTrackFinished() {
+        return isStopEvent() && getStopReason() == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
+    }
 }

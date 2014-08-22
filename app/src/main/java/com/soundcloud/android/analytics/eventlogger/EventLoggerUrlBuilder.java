@@ -29,7 +29,7 @@ public class EventLoggerUrlBuilder {
     private static final String ACTION = "action";
     private static final String DURATION = "duration";
     private static final String SOUND = "sound";
-    private static final String CONTEXT = "context";
+    private static final String PAGE_NAME = "page_name";
     private static final String TRIGGER = "trigger";
     private static final String SOURCE = "source";
     private static final String POLICY = "policy";
@@ -124,7 +124,7 @@ public class EventLoggerUrlBuilder {
         } else {
             builder.appendQueryParameter(TRIGGER, "auto");
         }
-        builder.appendQueryParameter(CONTEXT, formatOriginUrl(trackSourceInfo.getOriginScreen()));
+        builder.appendQueryParameter(PAGE_NAME, formatOriginUrl(trackSourceInfo.getOriginScreen()));
         builder.appendQueryParameter(PROTOCOL, event.getProtocol());
 
         if (trackSourceInfo.hasSource()) {
@@ -202,6 +202,20 @@ public class EventLoggerUrlBuilder {
         builder.appendQueryParameter(MONETIZED_OBJECT, eventAttributes.get("ad_monetized_urn"));
         builder.appendQueryParameter(CLICK_OBJECT, eventAttributes.get("ad_track_urn"));
         builder.appendQueryParameter(EXTERNAL_MEDIA, eventAttributes.get("ad_image_url"));
+    }
+
+    // This variant generates a click event from a playback event, as the spec requires this in some cases
+    public String buildForAdFinished(PlaybackSessionEvent event) {
+        final Uri.Builder builder = buildUriForPath("click", event.getTimeStamp());
+
+        builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
+        builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+        builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
+        builder.appendQueryParameter(CLICK_OBJECT, event.getTrackUrn().toString());
+        builder.appendQueryParameter(EXTERNAL_MEDIA, event.getAudioAdArtworkUrl());
+        builder.appendQueryParameter(CLICK_NAME, "ad::finish");
+
+        return builder.toString();
     }
 
     private Uri.Builder buildUriForPath(String path, long timestamp) {

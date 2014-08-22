@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
+import com.soundcloud.android.TestEvents;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
@@ -83,7 +84,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&user=" + userUrn.toEncodedString()
                 + "&policy=allow"
                 + "&trigger=manual"
-                + "&context=origin")));
+                + "&page_name=origin")));
     }
 
     @Test
@@ -103,7 +104,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
-                + "&context=origin"
+                + "&page_name=origin"
                 + "&policy=allow"
                 + "&source=source1"
                 + "&source_version=version1")));
@@ -126,7 +127,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
-                + "&context=origin"
+                + "&page_name=origin"
                 + "&policy=allow"
                 + "&set_id=123"
                 + "&set_position=2")));
@@ -150,7 +151,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
-                + "&context=origin"
+                + "&page_name=origin"
                 + "&policy=allow"
                 + "&exp_android-ui=4"
                 + "&exp_android-listen=5")));
@@ -176,7 +177,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&sound=soundcloud:sounds:123"
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
-                + "&context=origin"
+                + "&page_name=origin"
                 + "&source=source1"
                 + "&source_version=version1"
                 + "&policy=allow"
@@ -199,7 +200,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&sound=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
-                + "&context=origin"
+                + "&page_name=origin"
                 + "&protocol=hls"
                 + "&ad_urn=" + URLEncoder.encode(audioAdMetadata.get(AdProperty.AD_URN), "utf8")
                 + "&monetization_type=audio_ad"
@@ -278,6 +279,26 @@ public class EventLoggerUrlBuilderTest {
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&click_name=ad::skip"
                 + "&click_object=" + audioAdTrackUrn.toEncodedString()
+                + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
+                + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
+                + "&monetization_type=audio_ad")));
+    }
+
+    // althought technically an audio event, we currently track this as a click:
+    // https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#clicks
+    @Test
+    public void createAudioAdFinishedClickUrl() throws UnsupportedEncodingException, CreateModelException {
+        final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
+        final PropertySet audioAd = TestPropertySets.expectedAudioAdForAnalytics(monetizedTrackUrn);
+        final PlaybackSessionEvent stopEvent = TestEvents.playbackSessionStopEvent();
+        final String url = eventLoggerUrlBuilder.buildForAdFinished(stopEvent.withAudioAd(audioAd));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=1000"
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&click_name=ad::finish"
+                + "&click_object=" + stopEvent.getTrackUrn().toEncodedString()
                 + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
                 + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
                 + "&monetization_type=audio_ad")));

@@ -66,11 +66,15 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlaybackSessionEvent(final PlaybackSessionEvent eventData) {
-        if (eventData.isAd() && eventData.isFirstPlay()) {
-            trackAudioAdImpression(eventData);
+    public void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
+        if (event.isAd()) {
+            if (event.isFirstPlay()) {
+                trackAudioAdImpression(event);
+            } else if (event.hasTrackFinished()) {
+                trackAudioAdFinished(event);
+            }
         }
-        trackAudioPlayEvent(eventData);
+        trackAudioPlayEvent(event);
     }
 
     @Override
@@ -89,6 +93,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void trackAudioAdImpression(PlaybackSessionEvent eventData) {
         trackEvent(eventData.getTimeStamp(), urlBuilder.buildForAdImpression(eventData));
+    }
+
+    private void trackAudioAdFinished(PlaybackSessionEvent eventData) {
+        trackEvent(eventData.getTimeStamp(), urlBuilder.buildForAdFinished(eventData));
     }
 
     private void trackAudioPlayEvent(PlaybackSessionEvent eventData) {
