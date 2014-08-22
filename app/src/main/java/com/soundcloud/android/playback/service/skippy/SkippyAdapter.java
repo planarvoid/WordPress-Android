@@ -17,6 +17,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -42,6 +43,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
     private static final long POSITION_START = 0L;
+    private final SkippyFactory skippyFactory;
     private int numberOfAttemptedPlaysBeforeDecoderError;
 
     private final EventBus eventBus;
@@ -59,6 +61,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackServiceOperations playbackOperations,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
+        this.skippyFactory = skippyFactory;
         skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.playbackOperations = playbackOperations;
@@ -69,7 +72,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     public boolean init(Context context) {
-        return skippy.init(context, null);
+        return skippy.init(context,skippyFactory.createConfiguration());
     }
 
     @Override

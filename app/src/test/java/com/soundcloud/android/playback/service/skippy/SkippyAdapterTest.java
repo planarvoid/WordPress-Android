@@ -38,6 +38,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +69,7 @@ public class SkippyAdapterTest {
     @Mock private PlaybackServiceOperations playbackOperations;
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private Skippy.Configuration configuration;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private UserUrn userUrn;
@@ -90,6 +92,13 @@ public class SkippyAdapterTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(listener.requestAudioFocus()).thenReturn(true);
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
+    }
+
+    @Test
+    public void initInitializesWithContextAndFactoryConfiguration() {
+        when(skippyFactory.createConfiguration()).thenReturn(configuration);
+        skippyAdapter.init(Robolectric.application);
+        verify(skippy).init(Robolectric.application, configuration);
     }
 
     @Test
