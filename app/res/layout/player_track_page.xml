@@ -73,12 +73,9 @@
             android:id="@+id/track_page_like"
             style="@style/PlayerLike" />
 
-        <FrameLayout
-            android:id="@+id/track_page_more"
-            style="@style/PlayerMoreTouch">
             <Button
+                android:id="@+id/track_page_more"
                 style="@style/PlayerMore" />
-        </FrameLayout>
     </LinearLayout>
 
     <include layout="@layout/player_play_controls_touch" />
