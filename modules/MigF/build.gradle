@@ -1,0 +1,52 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'provided-base'
+
+
+dependencies {
+  provided "com.google.android:android:4.1.1.4"
+  compile "com.google.guava:guava:16.0"
+  compile project(":core-utils")
+  testCompile "junit:junit:4.11"
+  testCompile "org.mockito:mockito-core:1.9.5"
+  testCompile "org.robolectric:robolectric:2.2"
+}
+
+test {
+  testLogging {
+    showStandardStreams = true
+    showStackTraces = true
+    exceptionFormat = "full"
+  }
+}
+
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allJava
+}
+
+publishing {
+  publications {
+    maven(MavenPublication) {
+      from components.java
+
+      version "1.0"
+      artifactId "com.soundcloud.android"
+      groupId "migf"
+
+      artifact sourceJar {
+        classifier "sources"
+      }
+    }
+  }
+
+  repositories {
+    maven {
+      url "http://maven.int.s-cloud.net/content/repositories/releases"
+    }
+  }
+
+}
+
+
+

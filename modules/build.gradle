@@ -1,0 +1,21 @@
+subprojects {
+
+  repositories {
+    mavenLocal()
+    maven {
+      url "http://maven.int.s-cloud.net/content/groups/hosted"
+    }
+  }
+
+  buildscript {
+    repositories { jcenter() }
+
+    dependencies {
+      classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
+    }
+  }
+
+}
+
+
+
