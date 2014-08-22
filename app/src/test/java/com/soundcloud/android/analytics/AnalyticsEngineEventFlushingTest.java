@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics;
 
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -10,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.TestEvents;
 import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -18,7 +16,6 @@ import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -37,15 +34,13 @@ import rx.functions.Action0;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AnalyticsEngineEventFlushingTest {
-    @SuppressWarnings("unused") // needs to stay alive since it subscribes to event queues
-    private AnalyticsEngine analyticsEngine;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private AnalyticsProperties analyticsProperties;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private AnalyticsProvider analyticsProviderOne;
     @Mock private AnalyticsProvider analyticsProviderTwo;
@@ -53,9 +48,8 @@ public class AnalyticsEngineEventFlushingTest {
     @Mock private Scheduler.Worker schedulerWorker;
     @Mock private Subscription flushSubscription;
     @Mock private AdCompanionImpressionController adCompanionImpressionController;
-    @Captor
-    private ArgumentCaptor<Action0> flushAction;
-
+    @Mock private AnalyticsProviderFactory analyticsProviderFactory;
+    @Captor private ArgumentCaptor<Action0> flushAction;
 
     @Before
     public void setUp() throws Exception {
@@ -63,10 +57,8 @@ public class AnalyticsEngineEventFlushingTest {
         when(scheduler.createWorker()).thenReturn(schedulerWorker);
         when(schedulerWorker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
 
-        when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(sharedPreferences.getBoolean(eq(SettingsActivity.ANALYTICS_ENABLED), anyBoolean())).thenReturn(true);
-        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsProperties, scheduler,
-                Lists.newArrayList(analyticsProviderOne, analyticsProviderTwo), adCompanionImpressionController);
+        when(analyticsProviderFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne, analyticsProviderTwo));
+        new AnalyticsEngine(eventBus, sharedPreferences, scheduler, adCompanionImpressionController, analyticsProviderFactory);
     }
 
     @Test

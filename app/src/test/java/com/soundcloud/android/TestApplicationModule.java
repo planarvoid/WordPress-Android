@@ -3,14 +3,13 @@ package com.soundcloud.android;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.AnalyticsProperties;
-import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
@@ -29,9 +28,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-
-import java.util.Collections;
-import java.util.List;
 
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
@@ -70,7 +66,6 @@ public class TestApplicationModule {
         return application;
     }
 
-
     @Provides
     public Resources provideResources() {
         return application.getResources();
@@ -81,19 +76,6 @@ public class TestApplicationModule {
         Resources mockResources = mock(Resources.class);
         when(mockResources.getString(R.string.build_type)).thenReturn("DEBUG");
         return new ApplicationProperties(mockResources);
-    }
-
-    @Provides
-    public AnalyticsProperties provideAnalyticsProperties() {
-        Resources mockResources = mock(Resources.class);
-        when(mockResources.getBoolean(R.bool.analytics_enabled)).thenReturn(false);
-        when(mockResources.getString(R.string.localytics_app_key)).thenReturn("123");
-        return new AnalyticsProperties(mockResources);
-    }
-
-    @Provides
-    public List<AnalyticsProvider> provideAnalyticsProviders() {
-        return Collections.emptyList();
     }
 
     @Provides
@@ -156,6 +138,11 @@ public class TestApplicationModule {
         final SkippyFactory skippyFactory = mock(SkippyFactory.class);
         when(skippyFactory.create()).thenReturn(mock(Skippy.class));
         return skippyFactory;
+    }
+
+    @Provides
+    public AnalyticsProviderFactory provideAnalyticsProviderFactory() {
+        return mock(AnalyticsProviderFactory.class);
     }
 }
 
