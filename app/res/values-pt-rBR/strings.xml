@@ -188,7 +188,7 @@
     <string name="commented_on">comentou sobre %s</string>
 
     <!-- Ads…  -->
-    <string name="advertisement">PUBLICIDADE</string>
+    <string name="advertisement">Publicidade</string>
     <string name="learn_more">SAIBA MAIS</string>
     <string name="why_ads">Por que anúncios?</string>
     <string name="why_ads_dialog_message">Toda vez que você vir ou ouvir um anúncio, os artistas são pagos. Os anúncios ocasionais permitem-nos continuar a apoiar os artistas e manter o SoundCloud gratuito para os ouvintes.</string>

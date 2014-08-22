@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="advertisement">PUBLICIDAD</string>
+    <string name="advertisement">Publicidad</string>
     <string name="learn_more">SABER MÁS</string>
     <string name="why_ads">¿Por qué publicidad?</string>
     <string name="why_ads_dialog_message">Cada vez que ves u oyes publicidad, se paga a un artista. La publicidad ocasional nos permite seguir apoyando a los artistas y hace que SoundCloud siga siendo gratis para los oyentes.</string>
