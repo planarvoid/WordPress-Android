@@ -58,11 +58,11 @@ class TrackingApi {
                 }
             } catch (IOException e) {
                 Log.w(EventTracker.TAG, "Failed pushing event " + event);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
-        }
-
-        if (connection != null) {
-            connection.disconnect();
         }
 
         return successes;
