@@ -5,7 +5,9 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionT
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.TestEvents;
@@ -132,17 +134,33 @@ public class EventLoggerAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldTrackUIEvents() {
-        UIEvent event = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456));
-        when(eventLoggerUrlBuilder.buildForClick(event)).thenReturn("url");
+    public void shouldTrackAudioAdRelatedUIEvents() {
+        UIEvent event1 = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456));
+        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), 1000);
+        when(eventLoggerUrlBuilder.buildForClick(event1)).thenReturn("url1");
+        when(eventLoggerUrlBuilder.buildForClick(event2)).thenReturn("url2");
+
+        eventLoggerAnalyticsProvider.handleUIEvent(event1);
+        eventLoggerAnalyticsProvider.handleUIEvent(event2);
+
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        expect(captor.getAllValues()).toNumber(2);
+        expect(captor.getAllValues().get(0).getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
+        expect(captor.getAllValues().get(0).getTimeStamp()).toEqual(event1.getTimestamp());
+        expect(captor.getAllValues().get(0).getUrl()).toEqual("url1");
+        expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
+        expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimestamp());
+        expect(captor.getAllValues().get(1).getUrl()).toEqual("url2");
+    }
+
+    @Test
+    public void shouldNotTrackOtherUIEvents() {
+        UIEvent event = new UIEvent(UIEvent.Kind.NAVIGATION);
 
         eventLoggerAnalyticsProvider.handleUIEvent(event);
 
-        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
-        verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
-        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
-        expect(captor.getValue().getUrl()).toEqual("url");
+        verifyZeroInteractions(eventTracker);
     }
 
     @Test

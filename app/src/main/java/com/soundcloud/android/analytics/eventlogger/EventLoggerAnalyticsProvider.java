@@ -49,7 +49,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleUIEvent(UIEvent event) {
-        trackEvent(event.getTimestamp(), urlBuilder.buildForClick(event));
+        if (event.getKind() == UIEvent.Kind.AUDIO_AD_CLICK || event.getKind() == UIEvent.Kind.SKIP_AUDIO_AD_CLICK) {
+            trackEvent(event.getTimestamp(), urlBuilder.buildForClick(event));
+        }
     }
 
     @Override
