@@ -17,7 +17,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 28;
+    public static final int DATABASE_VERSION = 29;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -128,6 +128,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 28:
                             success = upgradeTo28(db, oldVersion);
+                            break;
+                        case 29:
+                            success = upgradeTo29(db, oldVersion);
                             break;
                         default:
                             break;
@@ -495,14 +498,29 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    // added policy, monetizable and description for new player / audio ads
+    // added policy, monetizable for new player / audio ads
     private static boolean upgradeTo28(SQLiteDatabase database, int oldVersion) {
         try {
             Table.SOUNDS.alterColumns(database);
             Table.SOUND_VIEW.recreate(database);
             Table.ACTIVITY_VIEW.recreate(database);
+            return true;
         } catch (SQLException exception) {
             ErrorUtils.handleSilentException("error during upgrade28 " +
+                    "(from " + oldVersion + ")", exception);
+        }
+        return false;
+    }
+
+    // added description to track table
+    private static boolean upgradeTo29(SQLiteDatabase database, int oldVersion) {
+        try {
+            Table.SOUNDS.alterColumns(database);
+            Table.SOUND_VIEW.recreate(database);
+            Table.ACTIVITY_VIEW.recreate(database);
+            return true;
+        } catch (SQLException exception) {
+            ErrorUtils.handleSilentException("error during upgrade29 " +
                     "(from " + oldVersion + ")", exception);
         }
         return false;
