@@ -79,7 +79,7 @@ public class ApiWrapperTest {
                     @Override
                     public HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context)
                             throws HttpException, IOException {
-                        return layer.emulateRequest(target, request, context, this);
+                        return layer.emulateRequest(request);
                     }
                 };
             }
