@@ -63,6 +63,18 @@ public class PlaybackOperations {
         }
     };
 
+    private static final Func1<List<Long>, Boolean> FILTER_EMPTY_TRACK_LIST = new Func1<List<Long>, Boolean>() {
+        @Override
+        public Boolean call(List<Long> idList) {
+            if (idList.isEmpty()) {
+                ErrorUtils.handleSilentException(new IllegalStateException("Attempting to play a track on an empty track list"));
+                return false;
+            } else {
+                return true;
+            }
+        }
+    };
+
     private static final long SEEK_POSITION_RESET = 0L;
 
     private final Context context;
@@ -165,7 +177,9 @@ public class PlaybackOperations {
                 public Long call(TrackUrn trackUrn) {
                     return trackUrn.numericId;
                 }
-            }).toList().observeOn(AndroidSchedulers.mainThread())
+            }).toList()
+                    .filter(FILTER_EMPTY_TRACK_LIST)
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackListLoadedSubscriber(position, playSessionSource, initialTrack));
         } else {
             expandPlayer();
@@ -264,6 +278,7 @@ public class PlaybackOperations {
         if (shouldChangePlayQueue(initialTrack.getUrn(), playSessionSource)) {
             return trackStorage.getTrackIdsForUriAsync(uri)
                     .observeOn(AndroidSchedulers.mainThread())
+                    .filter(FILTER_EMPTY_TRACK_LIST)
                     .subscribe(trackListLoadedSubscriber(startPosition, playSessionSource, initialTrack.getUrn()));
         } else {
             expandPlayer();

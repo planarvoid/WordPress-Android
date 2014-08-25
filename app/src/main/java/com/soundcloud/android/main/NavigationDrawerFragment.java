@@ -113,6 +113,12 @@ public class NavigationDrawerFragment extends NavigationFragment {
     }
 
     @Override
+    protected void smoothSelectItem(int position) {
+        super.smoothSelectItem(position);
+        closeDrawer();
+    }
+
+    @Override
     protected void selectItem(int position) {
         super.selectItem(position);
         closeDrawer();

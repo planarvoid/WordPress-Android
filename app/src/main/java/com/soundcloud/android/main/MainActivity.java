@@ -201,7 +201,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     @Override
-    public void onNavigationItemSelected(final int position, final boolean setTitle) {
+    public void onSmoothSelectItem(final int position, final boolean setTitle) {
         if (position == lastSelection) return;
 
         if (!isProfile(position) && lastSelection != NO_SELECTION) {
@@ -212,6 +212,11 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
 
         displayContentDelayed(position, setTitle);
+    }
+
+    @Override
+    public void onSelectItem(int position, boolean setTitle) {
+        displayFragment(position, setTitle);
     }
 
     private void displayContentDelayed(final int position, final boolean setTitle) {

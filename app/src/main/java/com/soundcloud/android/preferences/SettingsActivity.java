@@ -74,11 +74,11 @@ public class SettingsActivity extends ScSettingsActivity {
         this.developerPreferences = developerPreferences;
     }
 
+    @SuppressWarnings({"PMD.ExcessiveMethodLength"})
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
-        applicationProperties = new ApplicationProperties(getResources());
 
         findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {

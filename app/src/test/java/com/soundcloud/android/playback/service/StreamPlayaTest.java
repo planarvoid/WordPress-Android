@@ -105,6 +105,15 @@ public class StreamPlayaTest {
     }
 
     @Test
+    public void playUrlCallsPlayUrlOnMediaPlayerOnGingerbreadEvenIfPreferenceSet() throws Exception {
+        when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
+        instantiateStreamPlaya();
+        when(sharedPreferences.getBoolean(SettingsActivity.FORCE_SKIPPY, false)).thenReturn(true);
+        streamPlayerWrapper.play(track);
+        verify(mediaPlayerAdapter).play(track);
+    }
+
+    @Test
     public void playUninterruptedCallsPlayUrlOnMediaPlayerByDefault() throws Exception {
         instantiateStreamPlaya();
         streamPlayerWrapper.playUninterrupted(track);
@@ -117,6 +126,15 @@ public class StreamPlayaTest {
         when(sharedPreferences.getBoolean(SettingsActivity.FORCE_SKIPPY, false)).thenReturn(true);
         streamPlayerWrapper.playUninterrupted(track);
         verify(skippyAdapter).playUninterrupted(track);
+    }
+
+    @Test
+    public void playUninterruptedCallsPlayUrlOnMediaPlayerIfOnGingerbreadEvenIfSkippyPreferenceSet() throws Exception {
+        when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
+        instantiateStreamPlaya();
+        when(sharedPreferences.getBoolean(SettingsActivity.FORCE_SKIPPY, false)).thenReturn(true);
+        streamPlayerWrapper.playUninterrupted(track);
+        verify(mediaPlayerAdapter).playUninterrupted(track);
     }
 
     @Test
