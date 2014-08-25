@@ -37,11 +37,6 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
     }
 
     @Override
-    public void cacheDependencies() {
-        this.playlist = SoundCloudApplication.sModelManager.cache(playlist);
-    }
-
-    @Override
     public Refreshable getRefreshableResource() {
         return playlist;
     }

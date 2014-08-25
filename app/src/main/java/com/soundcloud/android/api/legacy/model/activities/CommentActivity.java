@@ -47,12 +47,6 @@ public class CommentActivity extends Activity {
     }
 
     @Override
-    public void cacheDependencies() {
-        comment.user = SoundCloudApplication.sModelManager.cache(comment.user, PublicApiResource.CacheUpdateMode.MINI);
-        comment.track = SoundCloudApplication.sModelManager.cache(comment.track, PublicApiResource.CacheUpdateMode.MINI);
-    }
-
-    @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
         cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());

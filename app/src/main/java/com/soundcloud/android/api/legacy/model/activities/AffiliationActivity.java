@@ -46,11 +46,6 @@ public class AffiliationActivity extends Activity {
     }
 
     @Override
-    public void cacheDependencies() {
-        this.user = SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.MINI);
-    }
-
-    @Override
     public Refreshable getRefreshableResource() {
         return user;
     }
