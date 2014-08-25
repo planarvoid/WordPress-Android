@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
-import com.soundcloud.android.preferences.DeveloperPreferences;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
@@ -27,7 +27,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private final MediaPlayerAdapter mediaPlayaDelegate;
     private final SkippyAdapter skippyPlayaDelegate;
     private final BufferingPlaya bufferingPlayaDelegate;
-    private final SharedPreferences playbackPreferences;
+    private final SharedPreferences sharedPreferences;
     private final PlayerSwitcherInfo playerSwitcherInfo;
 
     private Playa currentPlaya, lastPlaya;
@@ -40,7 +40,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
                        SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo){
-        playbackPreferences = sharedPreferences;
+        this.sharedPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
@@ -218,10 +218,10 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     private void updateConsecutivePlays(boolean changedPlayers) {
         if (changedPlayers){
-            playbackPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, 1).apply();
+            sharedPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, 1).apply();
         } else {
-            int plays = playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0);
-            playbackPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, plays + 1).apply();
+            int plays = sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0);
+            sharedPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, plays + 1).apply();
         }
     }
 
@@ -234,13 +234,13 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
             return skippyPlayaDelegate;
         } else if (lastPlaya == skippyPlayaDelegate){
 
-            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveSkippyPlays()) {
+            if (sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveSkippyPlays()) {
                 return mediaPlayaDelegate;
             } else {
                 return skippyPlayaDelegate;
             }
         } else {
-            if (playbackPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveMpPlays()) {
+            if (sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveMpPlays()) {
                 return skippyPlayaDelegate;
             } else {
                 return mediaPlayaDelegate;
@@ -253,7 +253,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     private boolean isInForceSkippyMode() {
-        return playbackPreferences.getBoolean(DeveloperPreferences.DEV_FORCE_SKIPPY, false) ||
+        return sharedPreferences.getBoolean(SettingsActivity.FORCE_SKIPPY, false) ||
                 playerSwitcherInfo.getMaxConsecutiveMpPlays() <= 0;
     }
 
