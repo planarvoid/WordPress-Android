@@ -23,7 +23,6 @@ public class AdaptersUtils {
 
     public static List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {
         return Lists.transform(filter, new Function<PlayableHolder, TrackUrn>() {
-            @Nullable
             @Override
             public TrackUrn apply(@Nullable PlayableHolder input) {
                 return ((PublicApiTrack) input.getPlayable()).getUrn();

@@ -295,16 +295,17 @@ public class PlaybackOperations {
 
         int i = 0;
         Iterator<TrackUrn> iterator = trackUrns.iterator();
+        int adjustedPosition = startPosition;
         while (iterator.hasNext()) {
             final TrackUrn track = iterator.next();
-            if (i != startPosition && (seenTracks.contains(track) || track.equals(playedTrack))) {
+            if (i != adjustedPosition && (seenTracks.contains(track) || track.equals(playedTrack))) {
                 iterator.remove();
-                if (i < startPosition) startPosition--;
+                if (i < adjustedPosition) adjustedPosition--;
             } else {
                 seenTracks.add(track);
                 i++;
             }
         }
-        return startPosition;
+        return adjustedPosition;
     }
 }
