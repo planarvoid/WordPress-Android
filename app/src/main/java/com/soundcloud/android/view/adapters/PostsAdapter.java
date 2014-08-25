@@ -170,7 +170,6 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
 
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen) {
-
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
         if (playable instanceof PublicApiTrack) {
             if (Content.match(contentUri).isMine()) {
