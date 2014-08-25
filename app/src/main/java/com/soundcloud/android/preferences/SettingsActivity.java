@@ -78,7 +78,6 @@ public class SettingsActivity extends ScSettingsActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
-        applicationProperties = new ApplicationProperties(getResources());
 
         findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
