@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -28,6 +29,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.CollectionStorage;
@@ -304,12 +306,12 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
                 context.startActivity(new Intent(context, (r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
             }
         } else {
-            playTrack(position, screen);
+            playTrack(context, position, screen);
         }
         return ItemClickResults.LEAVING;
     }
 
-    private void playTrack(int position, Screen screen) {
+    private void playTrack(Context context, int position, Screen screen) {
         int positionExcludingRecordings = position - recordingData.size();
         Playable playable = ((PlayableHolder) data.get(positionExcludingRecordings)).getPlayable();
         if (playable instanceof PublicApiTrack) {
@@ -317,6 +319,8 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
             int adjustedPosition = filterPlayables(data.subList(0, positionExcludingRecordings)).size();
             TrackUrn initialTrack = trackUrns.get(adjustedPosition);
             playbackOperations.playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen), PlayerUIEvent.actionForExpandPlayer(eventBus));
+        } else if (playable instanceof PublicApiPlaylist) {
+            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
         }
     }
 
