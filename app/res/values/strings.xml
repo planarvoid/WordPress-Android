@@ -184,4 +184,9 @@
     <string name="optin_yes">Yes, please</string>
     <string name="optin_no">No, thank you</string>
 
+    <string name="pref_extras">Extras</string>
+
+    <!-- Skippy -->
+    <string name="pref_extras_skippy">Force Experimental Player</string>
+    <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
 </resources>

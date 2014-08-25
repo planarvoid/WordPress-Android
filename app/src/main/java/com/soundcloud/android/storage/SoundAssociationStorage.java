@@ -1,14 +1,19 @@
 package com.soundcloud.android.storage;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -16,6 +21,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
@@ -190,18 +196,25 @@ public class SoundAssociationStorage extends ScheduledOperations {
         return allSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
     }
 
-    public List<Long> getTrackLikesAsIds() {
+    @VisibleForTesting
+    List<Long> getTrackLikesAsIds() {
         return likesDAO.buildQuery()
                 .select(TableColumns.SoundAssociationView._ID)
                 .where(TableColumns.SoundAssociationView._TYPE + " = ?", String.valueOf(PublicApiTrack.DB_TYPE_TRACK))
                 .queryIds();
     }
 
-    public Observable<List<Long>> getTrackLikesAsIdsAsync(){
-        return schedule(Observable.create(new Observable.OnSubscribe<List<Long>>() {
+    public Observable<List<TrackUrn>> getLikesTrackUrnsAsync(){
+        return schedule(Observable.create(new Observable.OnSubscribe<List<TrackUrn>>() {
             @Override
-            public void call(Subscriber<? super List<Long>> observer) {
-                observer.onNext(getTrackLikesAsIds());
+            public void call(Subscriber<? super List<TrackUrn>> observer) {
+                observer.onNext(Lists.transform(getTrackLikesAsIds(), new Function<Long, TrackUrn>() {
+                    @Nullable
+                    @Override
+                    public TrackUrn apply(@Nullable Long id) {
+                        return Urn.forTrack(id);
+                    }
+                }));
                 observer.onCompleted();
             }
         }));

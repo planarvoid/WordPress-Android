@@ -6,7 +6,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
@@ -29,12 +28,6 @@ public class PlaylistDetailActivity extends ScActivity {
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
-
-    @Deprecated
-    public static void start(Context context, @NotNull PublicApiPlaylist playlist, ScModelManager modelManager, Screen screen) {
-        modelManager.cache(playlist);
-        context.startActivity(getIntent(playlist.getUrn(), screen));
-    }
 
     public static void start(Context context, Urn playlistUrn, Screen screen) {
         context.startActivity(getIntent(playlistUrn, screen));

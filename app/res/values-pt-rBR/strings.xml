@@ -7,7 +7,7 @@
     <string name="privacy_policy">Política de Privacidade</string>
 
     <string name="dialog_transcoding_failed_title">Falha na transcodificação</string>
-    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso apoio ao cliente.</string>
+    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso centro de apoio ao cliente.</string>
     <string name="visit_support">Visite o Apoio ao Cliente</string>
 
     <string name="tab_title_user_info">Informações</string>
@@ -17,7 +17,7 @@
     <string name="tab_title_user_followings">Seguindo</string>
 
     <string name="dialog_transcoding_processing_title">Processamento de som</string>
-    <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em poucos segundos.</string>
+    <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em alguns segundos.</string>
 
     <string name="yes">Sim</string>
     <string name="no">Não</string>
@@ -42,7 +42,7 @@
     <string name="tour_text_1">Explore a maior comunidade \nde artistas, bandas, criadores de podcasts, \nmúsica e áudio</string>
 
     <string name="tour_title_2">Descobrir</string>
-    <string name="tour_text_2">Todos os tipos música e áudio novos e exclusivos</string>
+    <string name="tour_text_2">Todos os tipos de música e áudio novos e exclusivos</string>
 
     <string name="tour_title_3">Conectar e compartilhar</string>
     <string name="tour_text_3">Descubra criadores de áudio e música\npara ouvir e seguir,\ncompartilhe os sons que você gosta</string>
@@ -65,7 +65,7 @@
     <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
     <string name="error_server_problems_message">Houve um problema no processamento de seu pedido. Tente novamente mais tarde.</string>
 
-    <string name="accessibility_search">Pesquisar no SoundCloud</string>
+    <string name="accessibility_search">Pesquisar na SoundCloud</string>
     <string name="accessibility_stats_user_liked">Curtido por você</string>
     <string name="accessibility_stats_user_reposted">Republicado por você</string>
     <string name="accessibility_like_action">Curtir</string>
@@ -88,7 +88,7 @@
     <string name="empty_playlist_title">Lista de reprodução vazia</string>
     <string name="empty_playlist_description">Esta lista de reprodução ainda não tem faixas</string>
 
-    <string name="playlist_removed">Esta lista não foi encontrada no SoundCloud</string>
+    <string name="playlist_removed">Esta lista não foi encontrada na SoundCloud</string>
     <string name="playlist_load_error">Não foi possível carregar esta lista de reprodução</string>
 
     <string name="list_empty_user_playlists_message">%1$s não tem nenhuma lista de reprodução no momento.</string>
@@ -106,7 +106,7 @@
     <string name="privacy">Privacidade</string>
 
     <string name="auth_disclaimer_title">Mais um passo</string>
-    <string name="auth_disclaimer_message">Ao clicar em \"Continuar\", você concorda com os Termos de Uso e a Política de Privacidade do SoundCloud.</string>
+    <string name="auth_disclaimer_message">Ao clicar em \"Continuar\", você concorda com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
 
     <string name="version">Versão</string>
     <string name="unavailable">Indisponível</string>
@@ -148,7 +148,7 @@
     <string name="explore_category_trending_music">Música</string>
     <string name="explore_category_trending_audio">Áudio</string>
 
-    <string name="error_soundcloud_no_response">O SoundCloud não está respondendo.</string>
+    <string name="error_soundcloud_no_response">A SoundCloud não está respondendo.</string>
     <string name="error_no_internet">Sem Internet.</string>
     <string name="error_connect_and_try_again">Conecte-se e tente novamente.</string>
 
@@ -167,7 +167,7 @@
     <string name="search_recent_tags">RECENTE</string>
     <string name="search_popular_tags">TAGS POPULARES</string>
     <string name="search_tags_title">Escolha a sua tag favorita</string>
-    <string name="search_tags_subtitle">Descubra listas de reprodução populares no SoundCloud</string>
+    <string name="search_tags_subtitle">Descubra listas de reprodução populares na SoundCloud</string>
     <string name="search_empty">Não foram encontrados resultados</string>
     <string name="search_empty_subtext">Verifique a ortografia ou tente uma pesquisa diferente</string>
 
@@ -177,8 +177,8 @@
 
     <!-- Email opt-in -->
     <string name="optin_title">Boletim SoundCloud</string>
-    <string name="optin_question">Deseja receber atualizações de e-mail sobre o SoundCloud?</string>
-    <string name="optin_info">Inclui Boletins, Atualizações de produtos, Ofertas especiais e Pesquisas. Você pode anular seu consentimento a qualquer momento. Para fazer isso, abra o Soundcloud.com e vá em configurações.</string>
+    <string name="optin_question">Deseja receber atualizações de e-mail sobre a SoundCloud?</string>
+    <string name="optin_info">Inclui Boletins, Atualizações de produtos, Ofertas especiais e pesquisas. Você pode anular seu consentimento a qualquer momento. Para fazer isso, abra a SoundCloud.com e vá em configurações.</string>
     <string name="optin_yes">Sim, por favor</string>
     <string name="optin_no">Não, obrigado</string>
 
@@ -191,7 +191,7 @@
     <string name="advertisement">Publicidade</string>
     <string name="learn_more">SAIBA MAIS</string>
     <string name="why_ads">Por que anúncios?</string>
-    <string name="why_ads_dialog_message">Toda vez que você vir ou ouvir um anúncio, os artistas são pagos. Os anúncios ocasionais permitem-nos continuar a apoiar os artistas e manter o SoundCloud gratuito para os ouvintes.</string>
+    <string name="why_ads_dialog_message">Toda vez que você ver ou ouvir um anúncio, os artistas são pagos. Os anúncios ocasionais permitem-nos continuar a apoiar os artistas e manter a SoundCloud gratuito para os ouvintes.</string>
     <string name="skip_ad">Pular anúncio</string>
     <string name="next_up">Seguinte: %1$s (%2$s)</string>
     <string name="ad_in_progress">Publicidade em andamento</string>
@@ -210,7 +210,7 @@
   <string name="authentication_add_info_add_image_msg">Sorria! Esta imagem aparecerá em seu perfil.</string>
   <string name="authentication_add_info_msg">Quase pronto. Agora, escolha um nome de usuário e adicione uma foto para personalizar seu perfil.</string>
   <string name="authentication_add_info_username_hint">Seu nome de usuário</string>
-  <string name="authentication_by_signing_in_I_agree_to_the">Ao assinar, Eu Concordo com os Termos de Uso e a Política de Privacidade de SoundCloud.</string>
+  <string name="authentication_by_signing_in_I_agree_to_the">Ao assinar, Eu concordo com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
   <string name="authentication_choose_a_password">Pelo menos 6 caracteres</string>
   <string name="authentication_error_incomplete_fields">Preencha todos os campos.</string>
   <string name="authentication_error_invalid_email">Insira um e-mail válido.</string>
@@ -228,7 +228,7 @@
   <string name="authentication_recover_password_failure_reason">Falha na recuperação de senha: %s</string>
   <string name="authentication_recover_password_success">Verifique o seu e-mail! Você receberá um e-mail com instruções sobre como redefinir sua senha em breve</string>
   <string name="authentication_recover_progress_message">Solicitação de redefinição de senha</string>
-  <string name="authentication_sign_up">Increva-se no SoundCloud</string>
+  <string name="authentication_sign_up">Cadastre-se na SoundCloud</string>
   <string name="authentication_signup_error_message">Parece haver um problema. Tente se inscrever em SoundCloud.com.</string>
   <string name="authentication_support">Suporte</string>
   <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
@@ -258,7 +258,7 @@
   <string name="connect_progress">Carregando</string>
   <string name="connect_success">Conexão com %1$s bem-sucedida</string>
   <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente em breve</string>
-  <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações no SoundCloud e selecione \"Conexões\"</string>
+  <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações na SoundCloud e selecione \"Conexões\"</string>
   <plurals name="dashboard_notifications_activity_message_activity">
     <item quantity="zero">Comentários e curtidas de %2$s, %3$s e outros</item>
     <item quantity="one">de %2$s em %1$s</item>
@@ -458,15 +458,15 @@
   <string name="email_confirmation_just_a_second">Só um segundo</string>
   <string name="email_confirmation_resend">Renviar o link de confirmação</string>
   <string name="email_confirmation_thanks_later">Obrigado, confirmo mais tarde</string>
-  <string name="email_confirmation_you_need_to_confirm">Para obter o máximo proveito do SoundCloud você precisa confirmar o seu endereço de e-mail.</string>
+  <string name="email_confirmation_you_need_to_confirm">Para obter o máximo proveito da SoundCloud você precisa confirmar o seu endereço de e-mail.</string>
   <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtidas.</string>
   <string name="empty_user_followers_text">%1$s não está\nsendo seguido por ninguém.</string>
   <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
   <string name="empty_user_tracks_text">%1$s não carregou nenhum som público ainda.</string>
-  <string name="error_loading_message">Houve um problema ao entrar em contato com o Soundcloud.</string>
+  <string name="error_loading_message">Houve um problema ao entrar em contato com a SoundCloud.</string>
   <string name="error_loading_title">Erro de rede</string>
   <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
-  <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login no SoundCloud antes que possa continuar a usar o aplicativo.</string>
+  <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login na SoundCloud antes que possa continuar a usar o aplicativo.</string>
   <string name="error_unauthorized_title">Erro na conta</string>
   <string name="facebook_authentication_error_no_connection_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
@@ -475,7 +475,7 @@
   <string name="image_where">Gostaria de adicionar uma imagem?</string>
   <string name="info_empty_other_message">Esta pessoa ainda não adicionou uma descrição de perfil.</string>
   <string name="info_empty_you_message">Seu perfil está vazio</string>
-  <string name="info_empty_you_secondary">Conecte-se ao SoundCloud em seu desktop para editar o seu perfil</string>
+  <string name="info_empty_you_secondary">Conecte-se a SoundCloud em seu desktop para editar o seu perfil</string>
   <string name="list_empty_activity_message">Você ainda não tem nenhuma atividade</string>
   <string name="list_empty_activity_secondary">Saiba mais sobre o compartilhamento de sons com nossos 101s</string>
   <string name="list_empty_stream_action">Encontrar pessoas para seguir</string>
@@ -490,7 +490,7 @@
   <string name="list_header_track_likers">Pessoas que curtiram esse som</string>
   <string name="location_picker_go_to_settings">Vá em configurações</string>
   <string name="location_picker_no_providers_enabled">Não há provedores de localização habilitados.</string>
-  <string name="menu_clear_user_desc">Você terá que reconectar sua conta do SoundCloud.</string>
+  <string name="menu_clear_user_desc">Você terá que reconectar sua conta dA SoundCloud.</string>
   <string name="menu_clear_user_title">Excluir dados de usuário?</string>
   <string name="menu_load_more">Carregar mais</string>
   <plurals name="minutes_available">
@@ -511,7 +511,7 @@
   <string name="pref_clear_stream_cache_desc">Excluir o cache de transmissão</string>
   <string name="pref_connection_and_data">Conexão e dados</string>
   <string name="pref_help">Ajuda</string>
-  <string name="pref_help_desc">Acesse o site de suporte do SoundCloud</string>
+  <string name="pref_help_desc">Acesse o site de suporte dA SoundCloud</string>
   <string name="pref_notifications">Notificações</string>
   <string name="pref_notifications_activity">Atividade</string>
   <string name="pref_notifications_comments">Comentários</string>
@@ -558,9 +558,9 @@
   <string name="sc_upload_add_image">Adicionar Imagem</string>
   <string name="sc_upload_private">Privado</string>
   <string name="sc_upload_public">Público</string>
-  <string name="sc_upload_sharing_options_private">Seu som se tornará privado no SoundCloud.</string>
-  <string name="sc_upload_sharing_options_public">Seu som se tornará público no SoundCloud. Com que outras redes gostaria de compartilhar este som?</string>
-  <string name="search_hint">Pesquisar no SoundCloud</string>
+  <string name="sc_upload_sharing_options_private">Seu som se tornará privado na SoundCloud.</string>
+  <string name="sc_upload_sharing_options_public">Seu som se tornará público na SoundCloud. Com que outras redes gostaria de compartilhar este som?</string>
+  <string name="search_hint">Pesquisar na SoundCloud</string>
   <string name="search_settings_description">Pesquisar sons</string>
   <plurals name="seconds_available">
     <item quantity="zero">%d segundos disponíveis</item>
@@ -587,7 +587,7 @@
   <string name="website">Website</string>
   <string name="what_hint">O que</string>
   <string name="where_hint">Onde</string>
-  <string name="widget_touch_to_open">Toque para abrir o SoundCloud</string>
+  <string name="widget_touch_to_open">Toque para abrir a SoundCloud</string>
   <string name="wifi_settings">Configurações sem fio e rede</string>
   <string name="wifi_settings_summary">Editar suas configurações. Usar Wi-Fi para um melhor desempenho.</string>
 
@@ -688,7 +688,7 @@
     <string name="reposted_to_followers">Republicado para seus seguidores</string>
     <string name="unposted_to_followers">Publicação excluída</string>
     <string name="share_by">por %s</string>
-    <string name="share_on_soundcloud">no SoundCloud</string>
+    <string name="share_on_soundcloud">na SoundCloud</string>
     <string name="info">Informações</string>
     <string name="uploaded_at">Carregado %s</string>
     <string name="track_info_no_description">Sem descrição disponível</string>
@@ -702,7 +702,7 @@
     <string name="rec_title_playing">Jogando</string>
     <string name="rec_title_editing">Editar</string>
 
-    <string name="rectip_default">Por que não gravar os sons de sua rua?.</string>
+    <string name="rectip_default">Por que não gravar os sons de sua rua ?.</string>
 
     <string name="rectip_memories_voice_notes">Grave notas de voz como lembretes úteis.</string>
     <string name="rectip_memories_voice_blog">Use o botão REC para criar um blog de voz – o que você compartilhará hoje?</string>

@@ -60,7 +60,7 @@ public class MediaPlayerAdapterTest {
 
     @Mock private Context context;
     @Mock private MediaPlayer mediaPlayer;
-    @Mock private MediaPlayerAdapter.MediaPlayerManager mediaPlayerManager;
+    @Mock private MediaPlayerManager mediaPlayerManager;
     @Mock private StreamProxy streamProxy;
     @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
     @Mock private StreamPlaya.PlayaListener listener;

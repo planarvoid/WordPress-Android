@@ -12,16 +12,19 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -88,7 +91,10 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
                 playbackOperations.togglePlayback();
             } else {
-                playbackOperations.playPlaylist(playlist, Screen.fromBundle(getArguments()));
+                final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
+                playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+                playbackOperations.playPlaylist(playlist, playSessionSource);
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
             }
         }
     };
@@ -270,12 +276,15 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - listView.getHeaderViewsCount();
-        final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
 
-        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
-                playlistOperations.trackUrnsForPlayback(playlist.getUrn()),
-                initialTrack.get(TrackProperty.URN),
-                trackPosition, Screen.fromBundle(getArguments()));
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
+        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+
+        final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
+        final Observable<TrackUrn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
+        if (!playbackOperations.playTracks(initialTrack.get(TrackProperty.URN), allTracks, trackPosition, playSessionSource, PlayerUIEvent.actionForExpandPlayer(eventBus))){
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        }
     }
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {

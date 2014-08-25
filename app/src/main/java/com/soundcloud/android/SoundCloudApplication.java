@@ -27,7 +27,6 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -153,10 +152,7 @@ public class SoundCloudApplication extends Application {
         playSessionController.subscribe();
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
-
-        if (featureFlags.isEnabled(Feature.AUDIO_ADS)) {
-            adsController.subscribe();
-        }
+        adsController.subscribe();
     }
 
     private void registerRxGlobalErrorHandler() {

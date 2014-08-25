@@ -45,7 +45,7 @@ public class ErrorUtils {
      * @param t the Exception or Error that was raised
      * @param context an extra message that can be attached to clarify the error context
      */
-    public static void handleThrowable(Throwable t, String context) {
+    public static synchronized void handleThrowable(Throwable t, String context) {
         Log.e(ERROR_CONTEXT_TAG, context);
 
         if (ApplicationProperties.shouldReportCrashes()) {
@@ -66,13 +66,6 @@ public class ErrorUtils {
         return t instanceof IOException || t instanceof APIRequestException || t instanceof SyncFailedException;
     }
 
-    // we use this exception to signal fatal conditions that should crash the app
-    public static class FatalException extends RuntimeException {
-        public FatalException(Throwable throwable) {
-            super(throwable);
-        }
-    }
-
     public static void handleSilentException(String message, Throwable e) {
         handleSilentException(e, "message", message);
     }
@@ -81,13 +74,21 @@ public class ErrorUtils {
         handleSilentException(e, null, null);
     }
 
-    private static void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+    private static synchronized void handleSilentException(
+            Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
                 Crashlytics.setString(contextKey, contextValue);
             }
             Crashlytics.logException(e);
+        }
+    }
+
+    // we use this exception to signal fatal conditions that should crash the app
+    public static class FatalException extends RuntimeException {
+        public FatalException(Throwable throwable) {
+            super(throwable);
         }
     }
 }

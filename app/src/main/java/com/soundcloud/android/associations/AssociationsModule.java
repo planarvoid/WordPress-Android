@@ -13,7 +13,9 @@ import dagger.Provides;
         addsTo = ApplicationModule.class,
         library = true,
         injects = {
-                WhoToFollowActivity.class
+                WhoToFollowActivity.class,
+                PlaylistInteractionActivity.class,
+                TrackInteractionActivity.class
         }
 )
 public class AssociationsModule {

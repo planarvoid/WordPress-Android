@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createTracksUrn;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
@@ -45,7 +46,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldAddTrackToPlayQueue() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
         playQueue.addTrack(Urn.forTrack(123L), "source3", "version3");
 
@@ -57,7 +58,7 @@ public class PlayQueueTest {
 
     @Test
     public void insertsAudioAdAtPosition() throws CreateModelException {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
         final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
         playQueue.insertAudioAd(audioAd, 1);
@@ -68,7 +69,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldRemoveAtPosition() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
         playQueue.remove(1);
 
@@ -78,37 +79,37 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReportCorrectSize() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L), playSessionSource);
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
         expect(playQueue.size()).toEqual(3);
     }
 
     @Test
     public void shouldReturnHasPreviousIfNotInFirstPosition() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L));
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L));
 
         expect(playQueue.hasPreviousTrack(1)).toBeTrue();
     }
 
     @Test
     public void shouldReturnNoPreviousIfInFirstPosition() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L));
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L));
 
         expect(playQueue.hasPreviousTrack(0)).toBeFalse();
     }
 
     @Test
     public void hasNextTrackIsTrueIfNotAtEnd() {
-        expect(createPlayQueue(Lists.newArrayList(1L, 2L)).hasNextTrack(0)).toBeTrue();
+        expect(createPlayQueue(createTracksUrn(1L, 2L)).hasNextTrack(0)).toBeTrue();
     }
 
     @Test
     public void hasNextTrackIsFalseIfAtEnd() {
-        expect(createPlayQueue(Lists.newArrayList(1L, 2L)).hasNextTrack(1)).toBeFalse();
+        expect(createPlayQueue(createTracksUrn(1L, 2L)).hasNextTrack(1)).toBeFalse();
     }
 
     @Test
     public void getUrnReturnsUrnForGivenPosition() throws Exception {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L));
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L));
         expect(playQueue.getUrn(1)).toEqual(Urn.forTrack(2L));
     }
 
@@ -147,23 +148,23 @@ public class PlayQueueTest {
 
     @Test
     public void getUrnAtInvalidPositionReturnsNotSet() throws Exception {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L));
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L));
         expect(playQueue.getUrn(-1)).toBe(TrackUrn.NOT_SET);
         expect(playQueue.getUrn(3)).toBe(TrackUrn.NOT_SET);
     }
 
     @Test
     public void getUrnAtPositionReturnsUrnAtPosition() throws Exception {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L, 3L));
+        PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L));
         expect(playQueue.getUrn(2)).toEqual(Urn.forTrack(3));
     }
 
-    private PlayQueue createPlayQueue(List<Long> idList, PlaySessionSource source) {
-        return PlayQueue.fromIdList(idList, source);
+    private PlayQueue createPlayQueue(List<TrackUrn> trackUrns, PlaySessionSource source) {
+        return PlayQueue.fromTrackUrnList(trackUrns, source);
     }
 
-    private PlayQueue createPlayQueue(List<Long> idList) {
-        return createPlayQueue(idList, PlaySessionSource.EMPTY);
+    private PlayQueue createPlayQueue(List<TrackUrn> trackUrns) {
+        return createPlayQueue(trackUrns, PlaySessionSource.EMPTY);
     }
 
 }

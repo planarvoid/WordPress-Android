@@ -7,6 +7,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamItem;
@@ -578,33 +579,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @VisibleForTesting
-    static class MediaPlayerManager {
-        @Inject
-        public MediaPlayerManager() {
-        }
-
-        public MediaPlayer create() {
-            return new MediaPlayer();
-        }
-
-        public void stopAndReleaseAsync(final MediaPlayer mediaPlayer) {
-            new Thread() {
-                @Override
-                public void run() {
-                    stopAndRelease(mediaPlayer);
-                }
-            }.start();
-        }
-
-        void stopAndRelease(MediaPlayer mediaPlayer) {
-            mediaPlayer.reset();
-            mediaPlayer.release();
-        }
-    }
-
-    @VisibleForTesting
     static class PlayerHandler extends Handler {
-        private static final long PROGRESS_DELAY_MS = 500L;
 
         static final int CLEAR_LAST_SEEK = 0;
         static final int SEND_PROGRESS = 1;
@@ -633,7 +608,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     break;
                 case SEND_PROGRESS:
                     mediaPlayerAdapter.sendProgress();
-                    sendEmptyMessageDelayed(SEND_PROGRESS, PROGRESS_DELAY_MS);
+                    sendEmptyMessageDelayed(SEND_PROGRESS, PlaybackConstants.PROGRESS_DELAY_MS);
                     break;
 
             }

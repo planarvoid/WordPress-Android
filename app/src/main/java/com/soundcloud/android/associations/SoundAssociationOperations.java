@@ -21,6 +21,7 @@ import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import org.apache.http.HttpStatus;
@@ -68,8 +69,8 @@ public class SoundAssociationOperations {
     // LIKING / UN-LIKING
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Observable<List<Long>> getLikedTracksIds() {
-        return soundAssocStorage.getTrackLikesAsIdsAsync();
+    public Observable<List<TrackUrn>> getLikedTracks() {
+        return soundAssocStorage.getLikesTrackUrnsAsync();
     }
 
     public Observable<PropertySet> toggleLike(final Urn soundUrn, final boolean addLike) {

@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,7 @@ public class AnalyticsProviderFactory {
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
 
+    @Inject
     public AnalyticsProviderFactory(AnalyticsProperties analyticsProperties,
                                     ApplicationProperties applicationProperties,
                                     SharedPreferences sharedPreferences,
@@ -58,7 +60,7 @@ public class AnalyticsProviderFactory {
 
         List<AnalyticsProvider> providers = getBaseProviders();
         if (sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)) {
-            getOptInProviders(providers);
+            addOptInProviders(providers);
         }
         return providers;
     }
@@ -69,6 +71,7 @@ public class AnalyticsProviderFactory {
         Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.useVerboseLogging();
     }
 
+    // A list of providers that should always be enabled, regardless of user preference
     private List<AnalyticsProvider> getBaseProviders() {
         List<AnalyticsProvider> providers = new ArrayList<AnalyticsProvider>(EXPECTED_PROVIDER_COUNT);
         providers.add(eventLoggerAnalyticsProvider);
@@ -77,12 +80,11 @@ public class AnalyticsProviderFactory {
         return providers;
     }
 
-    private List<AnalyticsProvider> getOptInProviders(List<AnalyticsProvider> providers) {
+    private void addOptInProviders(List<AnalyticsProvider> providers) {
         providers.add(localyticsAnalyticsProvider);
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);
         }
-        return providers;
     }
 
 }

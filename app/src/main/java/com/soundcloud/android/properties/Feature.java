@@ -1,11 +1,8 @@
 package com.soundcloud.android.properties;
 
-import com.soundcloud.android.R;
-
 public enum Feature {
 
-    TEST_FEATURE(-1),
-    AUDIO_ADS(R.bool.audio_ads);
+    TEST_FEATURE(-1);
 
     private final int resourceId;
 

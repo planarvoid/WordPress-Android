@@ -10,15 +10,16 @@ import static rx.android.OperatorPaged.Page;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -112,7 +113,8 @@ public class ExploreTracksFragmentTest {
 
         fragment.onItemClick(null, null, 0, 0);
 
-        verify(playbackOperations).playExploreTrack(new PublicApiTrack(track), null, "screen");
+        final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
+        verify(playbackOperations).playTrackWithRecommendations(new PublicApiTrack(track).getUrn(), playSessionSource);
     }
 
     @Test
@@ -127,7 +129,9 @@ public class ExploreTracksFragmentTest {
         fragment.onCreate(null);
         fragment.onItemClick(null, null, 0, 0);
 
-        verify(playbackOperations).playExploreTrack(new PublicApiTrack(track), "tag", "screen");
+        final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
+        playSessionSource.setExploreVersion("tag");
+        verify(playbackOperations).playTrackWithRecommendations(new PublicApiTrack(track).getUrn(), playSessionSource);
     }
 
     private View createFragmentView() {

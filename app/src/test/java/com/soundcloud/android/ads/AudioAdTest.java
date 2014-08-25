@@ -29,7 +29,9 @@ public class AudioAdTest {
     @Test
     public void shouldResolveToPropertySet() throws CreateModelException {
         AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+
         final PropertySet propertySet = audioAd.toPropertySet();
+
         expect(propertySet.contains(AdProperty.AD_URN)).toBeTrue();
         expect(propertySet.contains(AdProperty.ARTWORK)).toBeTrue();
         expect(propertySet.contains(AdProperty.CLICK_THROUGH_LINK)).toBeTrue();
@@ -39,6 +41,12 @@ public class AudioAdTest {
         expect(propertySet.contains(AdProperty.PRESSED_BACKGROUND_COLOR)).toBeTrue();
         expect(propertySet.contains(AdProperty.FOCUSED_TEXT_COLOR)).toBeTrue();
         expect(propertySet.contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
+
+        // tracking urls for promoted
+        expect(propertySet.contains(AdProperty.AUDIO_AD_IMPRESSION_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AUDIO_AD_FINISH_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AUDIO_AD_CLICKTHROUGH_URLS)).toBeTrue();
+        expect(propertySet.contains(AdProperty.AUDIO_AD_SKIP_URLS)).toBeTrue();
         expect(propertySet.contains(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS)).toBeTrue();
     }
 }

@@ -1,15 +1,24 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
+import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
@@ -138,9 +147,35 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
 
     @Override
     public int handleListItemClick(Context context, int position, long id, Screen screen) {
-        Uri streamUri = Content.match(contentUri).isMine() ? contentUri : null;
-        playbackOperations.playFromAdapter(context, data, position, streamUri, screen);
+        Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
+        if (playable instanceof PublicApiTrack) {
+            if (Content.match(contentUri).isMine()) {
+                playTrack(position, screen, contentUri);
+            } else {
+                playTrack(position, screen);
+            }
+        } else if (playable instanceof PublicApiPlaylist) {
+            startPlaylistActivity(context, screen, (PublicApiPlaylist) playable);
+        }
         return ItemClickResults.LEAVING;
+    }
+
+    private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable) {
+        PlaylistDetailActivity.start(context, playable.getUrn(), screen);
+    }
+
+    private void playTrack(int position, Screen screen) {
+        final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+        final int adjustedPosition = filterPlayables(data.subList(0, position)).size();
+        playbackOperations.playTracks(trackUrns, adjustedPosition, new PlaySessionSource(screen));
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+    }
+
+    private void playTrack(int position, Screen screen, Uri streamUri) {
+        List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+        int adjustedPosition = filterPlayables(data.subList(0, position)).size();
+        TrackUrn initialTrack = trackUrns.get(adjustedPosition);
+        playbackOperations.playFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen), PlayerUIEvent.actionForExpandPlayer(eventBus));
     }
 
     @Override

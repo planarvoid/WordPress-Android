@@ -2,6 +2,7 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
+import static com.soundcloud.android.robolectric.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -9,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.api.APIResponse;
@@ -27,6 +27,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
@@ -41,7 +42,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -102,10 +102,12 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void shouldObtainIdsOfLikedTracksFromLocalStorage() {
-        final ArrayList<Long> idList = Lists.newArrayList(1L, 2L, 3L);
-        when(storage.getTrackLikesAsIdsAsync()).thenReturn(rx.Observable.<List<Long>>from(idList));
-        operations.getLikedTracksIds().subscribe(observer);
-        verify(observer).onNext(idList);
+        final List<TrackUrn> idsListFromStorage = TestHelper.createTracksUrn(1L, 2L, 3L);
+        when(storage.getLikesTrackUrnsAsync()).thenReturn(rx.Observable.<List<TrackUrn>>from(idsListFromStorage));
+
+        operations.getLikedTracks().subscribe(observer);
+
+        verify(observer).onNext(createTracksUrn(1L, 2L, 3L));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

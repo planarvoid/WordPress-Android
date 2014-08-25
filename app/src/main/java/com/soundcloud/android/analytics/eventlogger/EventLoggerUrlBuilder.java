@@ -173,8 +173,6 @@ public class EventLoggerUrlBuilder {
                 .build().toString();
     }
 
-    // Can remove this once we have all the click tracking in place; I think a switch makes sense here
-    @SuppressWarnings("PMD.TooFewBranchesForASwitchStatement")
     public String buildForClick(UIEvent event) {
         final Uri.Builder builder = buildUriForPath("click", event.getTimestamp());
 

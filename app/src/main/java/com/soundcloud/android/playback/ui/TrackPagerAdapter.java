@@ -96,7 +96,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     void warmupViewCache(ViewGroup container){
         for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++){
             final View itemView = trackPagePresenter.createItemView(container);
-            subscribeToPlayEvents(trackPagePresenter, itemView);
             addScrapView(i, itemView, TYPE_TRACK_VIEW);
         }
     }
@@ -126,14 +125,19 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 ? presenter.createItemView(container)
                 : presenter.clearItemView(convertView);
 
+        final boolean isANewView = isANewView(contentView);
         final ViewPageData viewData = new ViewPageData(position, urn);
         trackByViews.put(contentView, viewData); // forcePut to remove existing entry
-        if (isNewView) {
+        if (isANewView) {
             subscribeToPlayEvents(presenter, contentView);
         }
 
         getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
+    }
+
+    private boolean isANewView(View contentView) {
+        return !trackByViews.containsKey(contentView);
     }
 
     private PagePresenter getPresenter(int position) {

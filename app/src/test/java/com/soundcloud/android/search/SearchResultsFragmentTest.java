@@ -6,22 +6,26 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
@@ -29,18 +33,21 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observables.ConnectableObservable;
 
-import android.content.Context;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
@@ -50,19 +57,17 @@ public class SearchResultsFragmentTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private SearchOperations searchOperations;
-    @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
-    private ListViewController listViewController;
-    @Mock
-    private SearchResultsAdapter adapter;
+    @Mock private SearchOperations searchOperations;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private ListViewController listViewController;
+    @Mock private SearchResultsAdapter adapter;
+    @Mock private FragmentActivity context;
+    @Captor private ArgumentCaptor<Intent> intentCaptor;
 
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        Robolectric.shadowOf(fragment).setActivity(mock(FragmentActivity.class));
+        Robolectric.shadowOf(fragment).setActivity(context);
         Robolectric.shadowOf(fragment).setAttached(true);
         when(listViewController.getEmptyView()).thenReturn(mock(EmptyView.class));
     }
@@ -149,7 +154,8 @@ public class SearchResultsFragmentTest {
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_EVERYTHING));
+        verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_EVERYTHING)));
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI)).toEqual(PlayerUIEvent.forExpandPlayer());
     }
 
     @Test
@@ -161,7 +167,7 @@ public class SearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_ALL));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_EVERYTHING));
+        verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_EVERYTHING)));
     }
 
     @Test
@@ -173,19 +179,22 @@ public class SearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_TRACKS));
+        verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_TRACKS)));
     }
 
     @Test
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
-        when(searchOperations.getPlaylistSearchResults(anyString()))
-                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(0)).thenReturn(new PublicApiPlaylist());
+        when(searchOperations.getPlaylistSearchResults(anyString())).thenReturn(Observable.<Page<SearchResultsCollection>>empty());
+        final PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        when(adapter.getItem(0)).thenReturn(playlist);
+        when(adapter.getItems()).thenReturn(Arrays.asList(((PublicApiResource) playlist)));
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        verify(playbackOperations).playFromAdapter(any(Context.class), anyList(), eq(0), isNull(Uri.class), eq(Screen.SEARCH_PLAYLISTS));
+        verify(context).startActivity(intentCaptor.capture());
+        expect(intentCaptor.getValue().getAction()).toBe(Actions.PLAYLIST);
+        expect(intentCaptor.getValue().getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toBe(playlist.getUrn());
     }
 
     @Test
@@ -205,9 +214,10 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldPublishSearchEventWhenResultOnPlaylistsTabIsClicked() throws Exception {
-        when(searchOperations.getPlaylistSearchResults(anyString()))
-                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        when(adapter.getItem(anyInt())).thenReturn(new PublicApiPlaylist());
+        when(searchOperations.getPlaylistSearchResults(anyString())) .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
+        final PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        when(adapter.getItem(anyInt())).thenReturn(playlist);
+        when(adapter.getItems()).thenReturn(Arrays.asList(((PublicApiResource) playlist)));
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);

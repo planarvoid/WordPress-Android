@@ -1,6 +1,9 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createNewUserPlaylist;
+import static com.soundcloud.android.robolectric.TestHelper.createTracks;
+import static com.soundcloud.android.robolectric.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -8,16 +11,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -39,9 +37,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.functions.Action1;
 
 import android.content.Intent;
-import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +62,7 @@ public class PlaybackOperationsTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlaybackToastViewController playbackToastViewController;
+    private final Action1<List<TrackUrn>> emptyAction = rx.functions.Actions.empty();
 
     @Before
     public void setUp() throws Exception {
@@ -76,13 +75,13 @@ public class PlaybackOperationsTest {
 
     @Test
      public void playTrackSetsPlayQueueOnPlayQueueManagerFromInitialTrack() {
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track.getUrn(), new PlaySessionSource(ORIGIN_SCREEN));
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
     }
 
     @Test
     public void playTrackOpensCurrentTrackThroughService() {
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track.getUrn(), new PlaySessionSource(ORIGIN_SCREEN));
 
         checkLastStartedServiceForPlayCurrentAction();
     }
@@ -90,7 +89,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track.getUrn(), new PlaySessionSource(ORIGIN_SCREEN));
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).toBeNull();
@@ -100,7 +99,7 @@ public class PlaybackOperationsTest {
     public void playTrackShouldSendServiceIntentIfTrackAlreadyPlayingWithDifferentContext() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
-        playbackOperations.playTrack(track, Screen.EXPLORE_TRENDING_AUDIO);
+        playbackOperations.playTrack(track.getUrn(), new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO));
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();
@@ -108,7 +107,9 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackSetsPlayQueueAndOriginOnPlayQueueManager() {
-        playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setExploreVersion(EXPLORE_VERSION);
+        playbackOperations.playTrackWithRecommendations(track.getUrn(), playSessionSource);
 
         final PlaySessionSource expected = new PlaySessionSource(ORIGIN_SCREEN.get());
         expected.setExploreVersion(EXPLORE_VERSION);
@@ -118,70 +119,97 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackPlaysCurrentTrackThroughService() {
-        playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setExploreVersion(EXPLORE_VERSION);
+        playbackOperations.playTrackWithRecommendations(track.getUrn(), playSessionSource);
 
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
     public void playExploreTrackCallsFetchRelatedTracksOnPlayQueueManager() {
-        playbackOperations.playExploreTrack(track, EXPLORE_VERSION, ORIGIN_SCREEN.get());
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setExploreVersion(EXPLORE_VERSION);
+        playbackOperations.playTrackWithRecommendations(track.getUrn(), playSessionSource);
 
         verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
 
     @Test
     public void playFromPlaylistSetsNewPlayqueueOnPlayQueueManagerFromPlaylist() throws CreateModelException {
-        List<PublicApiTrack> tracks = TestHelper.createTracks(3);
-        PublicApiPlaylist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        List<PublicApiTrack> tracks = createTracks(3);
+        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
-        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
-
-        playbackOperations.playPlaylistFromPosition(
-                playlist.toPropertySet(),
-                Observable.from(tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn()),
-                tracks.get(1).getUrn(),
-                1,
-                ORIGIN_SCREEN);
+        final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playbackOperations.playTracks(tracks.get(1).getUrn(), Observable.from(tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn()), 1, playSessionSource, emptyAction);
 
         checkSetNewPlayQueueArgs(1, playSessionSource, tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
     @Test
     public void playFromPlaylistPlaysCurrentTrackThroughPlaybackService() throws CreateModelException {
-        List<PublicApiTrack> tracks = TestHelper.createTracks(3);
-        PublicApiPlaylist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        List<PublicApiTrack> tracks = createTracks(3);
+        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
-        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
+        final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
-        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
-                Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, ORIGIN_SCREEN);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playbackOperations.playTracks(tracks.get(1).getUrn(), Observable.just(tracks.get(1).getUrn()), 1, playSessionSource, emptyAction);
 
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
     public void startsServiceIfPlayingQueueHasSameContextWithDifferentPlaylistSources() throws CreateModelException {
-        List<PublicApiTrack> tracks = TestHelper.createTracks(3);
-        PublicApiPlaylist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        List<PublicApiTrack> tracks = createTracks(3);
+        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final ArrayList<Long> trackIds = Lists.newArrayList(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
-        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(trackIds));
+        final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playQueueManager.isPlaylist()).thenReturn(true);
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
 
-        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
-                Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, Screen.EXPLORE_TRENDING_MUSIC);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.EXPLORE_TRENDING_MUSIC.get());
+        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        expect(playbackOperations.playTracks(tracks.get(1).getUrn(), Observable.just(tracks.get(1).getUrn()), 1, playSessionSource, emptyAction)).toBeTrue();
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();
+    }
+
+    @Test
+    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSource()  {
+        final String screen = "origin_screen";
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        when(playQueueManager.getScreenTag()).thenReturn(screen);
+        when(playQueueManager.isCurrentTrack(TRACK_URN)).thenReturn(true);
+        when(playQueueManager.isPlaylist()).thenReturn(false);
+
+        expect(playbackOperations.playTracks(TRACK_URN, Observable.just(TRACK_URN), 1, playSessionSource, emptyAction)).toBeFalse();
+    }
+
+    @Test
+    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndCurrentPlaylist()  {
+        final long playlistId = 456L;
+        final long playlistOwnerId = 789L;
+        final String screen = "origin_screen";
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.setPlaylist(playlistId, playlistOwnerId);
+        when(playQueueManager.getScreenTag()).thenReturn(screen);
+        when(playQueueManager.getPlaylistId()).thenReturn(playlistId);
+        when(playQueueManager.isPlaylist()).thenReturn(true);
+        when(playQueueManager.isCurrentTrack(TRACK_URN)).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlistId)).thenReturn(true);
+
+        expect(playbackOperations.playTracks(TRACK_URN, Observable.just(TRACK_URN), 1, playSessionSource, emptyAction)).toBeFalse();
     }
 
     @Test
@@ -377,10 +405,12 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playPlaylistSetsPlayQueueOnPlayQueueManagerFromPlaylist() throws CreateModelException {
-        List<PublicApiTrack> tracks = TestHelper.createTracks(3);
-        PublicApiPlaylist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        List<PublicApiTrack> tracks = createTracks(3);
+        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
+        final PlaySessionSource playSessionSource1 = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource1.setPlaylist(playlist.getId(), playlist.getUserId());
+        playbackOperations.playPlaylist(playlist, playSessionSource1);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
@@ -389,25 +419,19 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playPlaylistOpensCurrentTrackThroughService() throws CreateModelException {
-        List<PublicApiTrack> tracks = TestHelper.createTracks(3);
-        PublicApiPlaylist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
+        List<PublicApiTrack> tracks = createTracks(3);
+        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playbackOperations.playPlaylist(playlist, playSessionSource);
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
-    public void playPlaylistFiresShowPlayerEvent() {
-        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.SHOW_PLAYER);
-    }
-
-    @Test
     public void playFromIdsShuffledSetsPlayQueueOnPlayQueueManagerWithGivenTrackIdList() {
-        final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
-        playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
+        final List<TrackUrn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES));
 
         ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
@@ -425,90 +449,61 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromIdsShuffledOpensCurrentTrackThroughPlaybackService() {
-        final ArrayList<Long> idsOrig = Lists.newArrayList(1L, 2L, 3L);
-        playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
+        final List<TrackUrn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES));
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
+    public void playTracksWithTrackListContainsTracksOpensCurrentTrackThroughPlaybackService() {
+        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123L));
+        playbackOperations.playTracks(TRACK_URN, tracks, 2, new PlaySessionSource(ORIGIN_SCREEN), emptyAction);
+        checkLastStartedServiceForPlayCurrentAction();
+    }
+
+    @Test
+    public void playTracksWithEmptyTrackListDoesNotOpenCurrentTrackThroughPlaybackService() {
+        Observable<TrackUrn> tracks = Observable.empty();
+        playbackOperations.playTracks(TRACK_URN, tracks, 2, new PlaySessionSource(ORIGIN_SCREEN), emptyAction);
+        expectLastStartedServiceToBeNull();
+    }
+
+    @Test
     public void playFromAdapterShouldRemoveDuplicates() throws Exception {
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L), new PublicApiTrack(3L), new PublicApiTrack(2L), new PublicApiTrack(1L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_SCREEN);
+        List<TrackUrn> playables = createTracksUrn(1L, 2L, 3L, 2L, 1L);
+
+        playbackOperations.playTracks(playables, 4, new PlaySessionSource(ORIGIN_SCREEN));
         checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
     }
 
     @Test
     public void playFromAdapterSetsPlayQueueOnPlayQueueManagerFromListOfTracks() throws Exception {
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
+        List<TrackUrn> playables = createTracksUrn(1L, 2L);
+        playbackOperations.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN));
+
         checkSetNewPlayQueueArgs(1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
     }
 
     @Test
     public void playFromAdapterOpensCurrentTrackThroughPlaybackService() throws Exception {
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
+        List<TrackUrn> playables = createTracksUrn(1L, 2L);
+
+        playbackOperations.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN));
+
         checkLastStartedServiceForPlayCurrentAction();
     }
 
     @Test
-    public void playFromAdapterDoesNotIncludeNonTracksWhenSettingPlayQueue() throws Exception {
-        List<Playable> playables = Lists.newArrayList(new PublicApiTrack(1L), playlist, new PublicApiTrack(2L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_SCREEN);
-        checkSetNewPlayQueueArgs(1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
-    }
-
-    @Test
-    public void playFromAdapterWithUriShouldNotAdjustPlayPositionWhenPlayablesDoNotIncludePlaylists()  {
-        final List<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(5L), new PublicApiTrack(1L), new PublicApiTrack(2L));
-        final ArrayList<Long> trackIds = Lists.newArrayList(5L, 1L, 2L);
-
-        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
-
-        checkSetNewPlayQueueArgs(2, new PlaySessionSource(ORIGIN_SCREEN.get()), 5L, 1L, 2L);
-    }
-
-    @Test
-    public void playFromAdapterWithUriShouldAdjustPlayPositionWhenPlayablesIncludePlaylists()  {
-        final List<Playable> playables = Lists.newArrayList(new PublicApiTrack(1L), playlist, new PublicApiTrack(2L));
-        final ArrayList<Long> trackIds = Lists.newArrayList(1L, 2L);
-
-        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
-
-        checkSetNewPlayQueueArgs(1, new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
-    }
-
-    @Test
     public void playFromAdapterShouldFallBackToPositionZeroIfInitialItemNotFound()  {
-        final ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        final ArrayList<Long> ids = Lists.newArrayList(6L, 7L);
+        final List<TrackUrn> playables = createTracksUrn(1L, 2L);
+        final List<TrackUrn> ids = createTracksUrn(6L, 7L);
 
-        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(ids));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri, ORIGIN_SCREEN);
+        when(trackStorage.getTracksForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.just(ids));
+        TrackUrn initialTrack = playables.get(1);
+        playbackOperations.playFromUri(Content.ME_LIKES.uri, 1, initialTrack, new PlaySessionSource(ORIGIN_SCREEN), emptyAction);
+
 
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), 6L, 7L);
-    }
-
-    @Test
-    public void playFromAdapterShouldStartPlaylistActivity() {
-        List<Playable> playables = Lists.newArrayList(new PublicApiTrack(1L), playlist, new PublicApiTrack(2L));
-
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
-
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent startedActivity = application.getNextStartedActivity();
-
-        expect(startedActivity).not.toBeNull();
-        expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
-        expect(startedActivity.getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toEqual(playlist.getUrn());
-    }
-
-    @Test(expected = AssertionError.class)
-    public void playFromAdapterShouldThrowAssertionErrorWhenPositionGreaterThanSize() throws Exception {
-        List<Playable> playables = Lists.<Playable>newArrayList(track);
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri, ORIGIN_SCREEN);
     }
 
     @Test
@@ -558,47 +553,10 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void getUpIntentShouldReturnNullWithNoOriginScreen() {
-        when(playQueueManager.getScreenTag()).thenReturn(null);
-        expect(playbackOperations.getServiceBasedUpIntent()).toBeNull();
-    }
-
-    @Test
-    public void getUpIntentShouldReturnPlaylistUpIntent() {
-        when(playQueueManager.getScreenTag()).thenReturn(Screen.PLAYLIST_DETAILS.get());
-        when(playQueueManager.isPlaylist()).thenReturn(true);
-        when(playQueueManager.getPlaylistId()).thenReturn(123L);
-        final Intent intent = playbackOperations.getServiceBasedUpIntent();
-        expect(intent).toHaveAction("com.soundcloud.android.action.PLAYLIST");
-        expect(intent.getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toEqual(Urn.forPlaylist(123L));
-        expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        expect(intent.getIntExtra("ScreenOrdinal", -1)).toEqual(Screen.PLAYLIST_DETAILS.ordinal());
-    }
-
-    @Test
-    public void getUpIntentShouldReturnLikeUpIntent() {
-        when(playQueueManager.getScreenTag()).thenReturn(Screen.SIDE_MENU_LIKES.get());
-        when(playQueueManager.isPlaylist()).thenReturn(false);
-        final Intent intent = playbackOperations.getServiceBasedUpIntent();
-        expect(intent).toHaveAction("com.soundcloud.android.action.LIKES");
-        expect(intent).toHaveFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    }
-
-    @Test
-    public void playTracksShouldNotOpenLegacyPlayerIfVisualPlayerEnabled() {
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123));
-        playbackOperations.playTracks(Urn.forTrack(123), tracks, 0, ORIGIN_SCREEN);
-
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent startedActivity = application.getNextStartedActivity();
-        expect(startedActivity).toBeNull();
-    }
-
-    @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayTrack() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track.getUrn(), new PlaySessionSource(ORIGIN_SCREEN));
 
         expectUnskippableToastAndNoNewPlayQueueSet();
     }
@@ -608,7 +566,7 @@ public class PlaybackOperationsTest {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
-        playbackOperations.playTrack(track, ORIGIN_SCREEN);
+        playbackOperations.playTrack(track.getUrn(), new PlaySessionSource(ORIGIN_SCREEN));
 
         checkSetNewPlayQueueArgs(0, playSessionSource, track.getId());
     }
@@ -616,11 +574,12 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayFromAdapter() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final ArrayList<PublicApiTrack> tracks = Lists.newArrayList(new PublicApiTrack(1L));
-        final ArrayList<Long> trackIds = Lists.newArrayList(1L);
-        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(trackIds));
+        final List<TrackUrn> tracks = createTracksUrn(1L);
+        final List<TrackUrn> trackUrns = createTracksUrn(1L);
+        when(trackStorage.getTracksForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.just(trackUrns));
 
-        playbackOperations.playFromAdapter(Robolectric.application, tracks, 0, Content.ME_LIKES.uri, ORIGIN_SCREEN);
+        TrackUrn initialTrack = tracks.get(0);
+        playbackOperations.playFromUri(Content.ME_LIKES.uri, 0, initialTrack, new PlaySessionSource(ORIGIN_SCREEN), emptyAction);
 
         expectUnskippableToastAndNoNewPlayQueueSet();
     }
@@ -628,9 +587,9 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayFromShuffledIds() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final ArrayList<Long> idsOrig = Lists.newArrayList(1L);
+        final List<TrackUrn> trackUrns = createTracksUrn(1L);
 
-        playbackOperations.playFromIdListShuffled(idsOrig, Screen.YOUR_LIKES);
+        playbackOperations.playTracksShuffled(trackUrns, new PlaySessionSource(Screen.YOUR_LIKES));
 
         expectUnskippableToastAndNoNewPlayQueueSet();
 
@@ -640,7 +599,9 @@ public class PlaybackOperationsTest {
     public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylist() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
-        playbackOperations.playPlaylist(playlist, ORIGIN_SCREEN);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playbackOperations.playPlaylist(playlist, playSessionSource);
 
         expectUnskippableToastAndNoNewPlayQueueSet();
     }
@@ -648,10 +609,11 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylistFromPosition() throws CreateModelException {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(trackStorage.getTrackIdsForUriAsync(playlist.toUri())).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(123L)));
+        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTracksUrn(123L)));
 
-        playbackOperations.playPlaylistFromPosition(playlist.toPropertySet(),
-                Observable.just(TRACK_URN), TRACK_URN, 0, ORIGIN_SCREEN);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playbackOperations.playTracks(TRACK_URN, Observable.just(TRACK_URN), 0, playSessionSource, emptyAction);
 
         expectUnskippableToastAndNoNewPlayQueueSet();
     }
@@ -665,40 +627,6 @@ public class PlaybackOperationsTest {
         expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
-    @Test
-    public void sendsExpandPlayerEventWhenQueueNotChangedFromIdList() {
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        when(playQueueManager.isCurrentTrack(Urn.forTrack(2L))).thenReturn(true);
-        when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
-
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
-    }
-
-    @Test
-    public void sendsExpandPlayerEventWhenQueueNotChangedFromUri() {
-        Uri uri = Uri.parse("some:uri");
-        ArrayList<PublicApiTrack> playables = Lists.newArrayList(new PublicApiTrack(1L), new PublicApiTrack(2L));
-        when(playQueueManager.isCurrentTrack(Urn.forTrack(2L))).thenReturn(true);
-        when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, uri, ORIGIN_SCREEN);
-
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
-    }
-
-    @Test
-    public void sendsExpandPlayerEventWhenQueueNotChangedFromTracks() {
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123L));
-        when(playQueueManager.isCurrentTrack(Urn.forTrack(123L))).thenReturn(true);
-        when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-
-        playbackOperations.playTracks(Urn.forTrack(123L), tracks, 0, ORIGIN_SCREEN);
-
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
-    }
-
     private void setupAdInProgress(long currentProgress) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
         when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
@@ -707,13 +635,18 @@ public class PlaybackOperationsTest {
 
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){
         verify(playQueueManager).setNewPlayQueue(
-                eq(PlayQueue.fromIdList(Lists.newArrayList(ids), playSessionSource)), eq(startPosition),
+                eq(PlayQueue.fromTrackUrnList(createTracksUrn(ids), playSessionSource)), eq(startPosition),
                 eq(playSessionSource));
     }
 
     protected void checkLastStartedServiceForPlayCurrentAction() {
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
+    }
+
+    private void expectLastStartedServiceToBeNull() {
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        expect(application.getNextStartedService()).toBeNull();
     }
 
     private void expectUnskippableToastAndNoNewPlayQueueSet() {

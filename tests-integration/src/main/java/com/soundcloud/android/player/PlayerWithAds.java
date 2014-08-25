@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -30,7 +29,6 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     public PlayerWithAds() {
         super(MainActivity.class);
-        setDependsOn(Feature.AUDIO_ADS);
     }
 
     @Override

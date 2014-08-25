@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
@@ -247,7 +248,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void setProgress(View trackPage, PlaybackProgress progress) {
-        for (ProgressAware view : getViewHolder(trackPage).getProgressAwareItems()) {
+        for (ProgressAware view : getViewHolder(trackPage).progressAwares) {
             view.setProgress(progress);
         }
     }
@@ -377,6 +378,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         Iterable<View> fullScreenViews;
         Iterable<View> hideOnScrubViews;
         Iterable<View> onClickViews;
+        Iterable<ProgressAware> progressAwares;
 
         private Predicate<View> presentInConfig = new Predicate<View>() {
             @Override
@@ -390,13 +392,12 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, nextTouch, previousTouch, nextButton,
                     previousButton, playButton, footer, footerPlayToggle, likeToggle, user);
 
+
             fullScreenViews = Arrays.asList(title, user, close);
             hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
-        }
+            progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp);
 
-        public ProgressAware[] getProgressAwareItems() {
-            return new ProgressAware[]{waveformController, artworkController, timestamp};
         }
     }
 

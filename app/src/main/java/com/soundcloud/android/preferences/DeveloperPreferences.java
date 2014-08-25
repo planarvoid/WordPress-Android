@@ -36,7 +36,6 @@ public class DeveloperPreferences {
     public static final String DEV_HTTP_PROXY           = "dev.http.proxy";
     public static final String DEV_RECORDING_TYPE       = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW   = "raw";
-    public static final String DEV_FORCE_SKIPPY         = "dev.forceSkippy";
 
 
     private final SoundCloudApplication application;

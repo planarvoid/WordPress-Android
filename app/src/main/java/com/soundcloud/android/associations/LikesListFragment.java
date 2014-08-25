@@ -7,12 +7,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
+import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -78,25 +81,27 @@ public class LikesListFragment extends ScListFragment {
     }
 
     private void refreshLikeIds() {
-        fetchIdsSubscription = soundAssociationOperations.getLikedTracksIds()
+        fetchIdsSubscription = soundAssociationOperations
+                .getLikedTracks()
                 .observeOn(mainThread()).subscribe(new LikedIdsSubscriber());
     }
 
-    private void updateShuffleHeader(@NotNull final List<Long> likedTrackIds) {
+    private void updateShuffleHeader(@NotNull final List<TrackUrn> likedTracks) {
         View shuffleButton = getView().findViewById(R.id.shuffle_btn);
-        if (likedTrackIds.size() <= 1) {
+        if (likedTracks.size() <= 1) {
             shuffleButton.setVisibility(View.GONE);
         } else {
             shuffleButton.setVisibility(View.VISIBLE);
         }
 
-        ((TextView) headerView.findViewById(R.id.shuffle_txt)).setText(getHeaderText(likedTrackIds.size()));
-        headerView.findViewById(R.id.shuffle_btn).setEnabled(likedTrackIds.size() > 1);
+        ((TextView) headerView.findViewById(R.id.shuffle_txt)).setText(getHeaderText(likedTracks.size()));
+        headerView.findViewById(R.id.shuffle_btn).setEnabled(likedTracks.size() > 1);
 
         headerView.findViewById(R.id.shuffle_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playbackOperations.playFromIdListShuffled(likedTrackIds, Screen.SIDE_MENU_LIKES);
+                playbackOperations.playTracksShuffled(likedTracks, new PlaySessionSource(Screen.SIDE_MENU_LIKES));
+                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
                 eventBus.publish(EventQueue.UI, UIEvent.fromShuffleMyLikes());
             }
         });
@@ -110,11 +115,11 @@ public class LikesListFragment extends ScListFragment {
         }
     }
 
-    private class LikedIdsSubscriber extends DefaultSubscriber<List<Long>> {
+    private class LikedIdsSubscriber extends DefaultSubscriber<List<TrackUrn>> {
         @Override
-        public void onNext(List<Long> trackIds) {
+        public void onNext(List<TrackUrn> tracks) {
             if (isAdded()) {
-                updateShuffleHeader(trackIds);
+                updateShuffleHeader(tracks);
             }
         }
     }

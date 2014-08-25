@@ -1,9 +1,12 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -21,6 +24,7 @@ import java.util.Set;
 /**
  * Table object for activity model. Do not use outside this package; use {@link ActivitiesStorage} instead.
  */
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
 /* package */ class ActivityDAO extends BaseDAO<Activity> {
 
     @Inject
@@ -36,7 +40,17 @@ import java.util.Set;
     public int insert(Content content, Activities activities) {
         Set<PublicApiResource> models = new HashSet<PublicApiResource>();
         for (Activity a : activities) {
-            models.addAll(a.getDependentModels());
+            try {
+                models.addAll(a.getDependentModels());
+            } catch (RuntimeException e) {
+                // dirty hack by Matthias purely for logging, and I will remove it again, promised.
+                // https://github.com/soundcloud/SoundCloud-Android/issues/2099
+                final AccountOperations accountOps = SoundCloudApplication.instance.getAccountOperations();
+                final Exception exception = new Exception("Failed dependency lookup for Activity " + a + "; content="
+                        + content + "; token=" + accountOps.getSoundCloudToken() + "; next_href=" + activities.next_href);
+                ErrorUtils.handleSilentException(exception);
+                throw e;
+            }
         }
 
         Map<Uri, List<ContentValues>> values = new HashMap<Uri, List<ContentValues>>();
