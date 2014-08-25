@@ -9,7 +9,6 @@ import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.tracks.TrackUrn;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class AdaptersUtils {
@@ -24,7 +23,7 @@ public class AdaptersUtils {
     public static List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {
         return Lists.transform(filter, new Function<PlayableHolder, TrackUrn>() {
             @Override
-            public TrackUrn apply(@Nullable PlayableHolder input) {
+            public TrackUrn apply(PlayableHolder input) {
                 return ((PublicApiTrack) input.getPlayable()).getUrn();
             }
         });
