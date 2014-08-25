@@ -192,6 +192,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Cannot swap content Fragment after onSaveInstanceState
+        drawerHandler.removeCallbacksAndMessages(null);
+
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, lastTitle);
         navigationFragment.storeState(savedInstanceState);
@@ -208,6 +211,11 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             }
         }
 
+        displayContentDelayed(position, setTitle);
+    }
+
+    private void displayContentDelayed(final int position, final boolean setTitle) {
+        drawerHandler.removeCallbacksAndMessages(null);
         drawerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
