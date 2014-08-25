@@ -11,6 +11,7 @@ public class MediaPlayerManagerCompat implements MediaPlayerManager {
 
     @Inject
     public MediaPlayerManagerCompat() {
+        // no-op
     }
 
     public MediaPlayer create() {

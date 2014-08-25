@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.preferences.SettingsActivity;
@@ -15,7 +16,6 @@ import javax.inject.Inject;
 
 //Not a hater
 public class StreamPlaya implements Playa, Playa.PlayaListener {
-
 
     public static final String TAG = "StreamPlaya";
     @VisibleForTesting
@@ -226,7 +226,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     }
 
     private Playa getNextPlaya() {
-        if (skippyFailedToInitialize){
+        if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()){
             return mediaPlayaDelegate;
         }
 
@@ -272,6 +272,10 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
         public int getMaxConsecutiveMpPlays() {
             return mpCount;
+        }
+
+        public boolean shouldForceMediaPlayer() {
+            return PlaybackConstants.FORCE_MEDIA_PLAYER;
         }
     }
 

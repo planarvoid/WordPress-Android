@@ -74,6 +74,7 @@ public class SettingsActivity extends ScSettingsActivity {
         this.developerPreferences = developerPreferences;
     }
 
+    @SuppressWarnings({"PMD.ExcessiveMethodLength"})
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
