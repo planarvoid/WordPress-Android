@@ -24,6 +24,7 @@ import java.util.Set;
 /**
  * Table object for activity model. Do not use outside this package; use {@link ActivitiesStorage} instead.
  */
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
 /* package */ class ActivityDAO extends BaseDAO<Activity> {
 
     @Inject
