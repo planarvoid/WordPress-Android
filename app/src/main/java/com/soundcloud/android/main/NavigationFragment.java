@@ -66,6 +66,16 @@ public class NavigationFragment extends Fragment {
         }
     }
 
+    /**
+     * Callbacks interface that all activities using this fragment must implement.
+     */
+    public static interface NavigationCallbacks {
+
+        void onSmoothSelectItem(int position, boolean setTitle);
+
+        void onSelectItem(int position, boolean setTitle);
+    }
+
     // normal rows (below profile)
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
@@ -178,7 +188,7 @@ public class NavigationFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
+                smoothSelectItem(position);
             }
         });
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
@@ -224,15 +234,29 @@ public class NavigationFragment extends Fragment {
     }
 
     protected void selectItem(int position) {
+        adjustSelectionForProfile(position);
+
+        if (callbacks != null) {
+            callbacks.onSelectItem(position, shouldSetActionBarTitle());
+        }
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
+    protected void smoothSelectItem(int position) {
+        adjustSelectionForProfile(position);
+
+        if (callbacks != null) {
+            callbacks.onSmoothSelectItem(position, shouldSetActionBarTitle());
+        }
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
+    private void adjustSelectionForProfile(int position) {
         // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
         // index. Remove this workaround when the user browser has become a fragment too
         if (position != NavItem.PROFILE.ordinal()) {
             currentSelectedPosition = position;
         }
-        if (callbacks != null) {
-            callbacks.onNavigationItemSelected(position, shouldSetActionBarTitle());
-        }
-        getActivity().supportInvalidateOptionsMenu();
     }
 
     protected boolean shouldSetActionBarTitle() {
@@ -241,16 +265,6 @@ public class NavigationFragment extends Fragment {
 
     protected ActionBar getActionBar() {
         return ((ActionBarActivity) getActivity()).getSupportActionBar();
-    }
-
-    /**
-     * Callbacks interface that all activities using this fragment must implement.
-     */
-    public static interface NavigationCallbacks {
-        /**
-         * Called when an item in the navigation is selected.
-         */
-        void onNavigationItemSelected(int position, boolean setTitle);
     }
 
     private static class ProfileViewHolder {

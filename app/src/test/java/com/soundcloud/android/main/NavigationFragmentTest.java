@@ -126,7 +126,7 @@ public class NavigationFragmentTest {
     @Test
     public void navListenerShouldCallbackToActivityWhenItemSelected() throws Exception {
         getOnItemClickListener().onItemClick(listView, null, NavItem.LIKES.ordinal(), 0l);
-        verifyPositionSelected(NavItem.LIKES);
+        verify((NavigationCallbacks) activity).onSmoothSelectItem(NavItem.LIKES.ordinal(), true);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class NavigationFragmentTest {
     }
 
     private void verifyPositionSelected(NavItem navItem){
-        verify((NavigationCallbacks) activity).onNavigationItemSelected(navItem.ordinal(), true);
+        verify((NavigationCallbacks) activity).onSelectItem(navItem.ordinal(), true);
     }
 
     private AdapterView.OnItemClickListener getOnItemClickListener() {
