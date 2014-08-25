@@ -10,21 +10,15 @@ import org.junit.runner.RunWith;
 public class PlayerUIEventTest {
 
     @Test
-    public void createsEventFromPlayerExpanding() {
-        PlayerUIEvent event = PlayerUIEvent.fromPlayerExpanding();
+    public void createsEventFromPlayerExpanded() {
+        PlayerUIEvent event = PlayerUIEvent.fromPlayerExpanded();
         expect(event.getKind()).toEqual(0);
-    }
-
-    @Test
-    public void createsEventFromPlayerCollapsing() {
-        PlayerUIEvent event = PlayerUIEvent.fromPlayerCollapsing();
-        expect(event.getKind()).toEqual(1);
     }
 
     @Test
     public void createsEventFromPlayerCollapsed() {
         PlayerUIEvent event = PlayerUIEvent.fromPlayerCollapsed();
-        expect(event.getKind()).toEqual(5);
+        expect(event.getKind()).toEqual(1);
     }
 
     @Test

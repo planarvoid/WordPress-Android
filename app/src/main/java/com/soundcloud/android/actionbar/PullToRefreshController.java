@@ -35,8 +35,7 @@ public class PullToRefreshController {
     private final Func1<PlayerUIEvent, Boolean> isPlayerCollapsed = new Func1<PlayerUIEvent, Boolean>() {
         @Override
         public Boolean call(PlayerUIEvent event) {
-            return event.getKind() != PlayerUIEvent.PLAYER_EXPANDED
-                    && event.getKind() != PlayerUIEvent.PLAYER_EXPANDING;
+            return event.getKind() != PlayerUIEvent.PLAYER_EXPANDED;
         }
     };
 
@@ -122,7 +121,7 @@ public class PullToRefreshController {
     private final class PlayerExpandingSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDING) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
                 stopRefreshing();
             }
         }

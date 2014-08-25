@@ -96,13 +96,6 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
-    public void shouldNotStartRefreshingIfPlayerIsExpanding() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
-        controller.startRefreshing();
-        verify(wrapper, never()).setRefreshing(true);
-    }
-
-    @Test
     public void shouldForwardRefreshCompletedToPTRWrapper() {
         controller.stopRefreshing();
         verify(wrapper).setRefreshing(false);
@@ -141,7 +134,7 @@ public class PullToRefreshControllerTest {
     public void shouldStopRefreshingWhenPlayerExpandedEventIsReceived() {
         controller.onViewCreated(fragment, listener);
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(wrapper, times(2)).setRefreshing(false);
     }

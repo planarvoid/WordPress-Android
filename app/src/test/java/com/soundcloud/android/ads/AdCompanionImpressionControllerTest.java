@@ -26,11 +26,10 @@ import android.app.Activity;
 @RunWith(SoundCloudTestRunner.class)
 public class AdCompanionImpressionControllerTest {
     private final CurrentPlayQueueTrackEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L));
-    private final PlayerUIEvent PLAYER_EXPANDING_EVENT = PlayerUIEvent.fromPlayerExpanding();
+    private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();
     private final ActivityLifeCycleEvent ACTIVITY_RESUME_EVENT = ActivityLifeCycleEvent.forOnResume(Activity.class);
     private final ActivityLifeCycleEvent ACTIVITY_PAUSE_EVENT = ActivityLifeCycleEvent.forOnPause(Activity.class);
-
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
@@ -62,7 +61,7 @@ public class AdCompanionImpressionControllerTest {
     @Test
     public void shouldLogWhenAppIsForegroundAndCurrentTrackIsAnAdAndPlayerIsExpanded() {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
-        playerUiQueue.onNext(PLAYER_EXPANDING_EVENT);
+        playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -71,7 +70,7 @@ public class AdCompanionImpressionControllerTest {
     @Test
     public void shouldLogOnlyOnceTheCurrentAd() {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
-        playerUiQueue.onNext(PLAYER_EXPANDING_EVENT);
+        playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
         activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSE_EVENT);
@@ -86,7 +85,7 @@ public class AdCompanionImpressionControllerTest {
         when(playQueueManager.getAudioAd()).thenReturn(null);
 
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
-        playerUiQueue.onNext(PLAYER_EXPANDING_EVENT);
+        playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
         expect(observer.getOnNextEvents()).toBeEmpty();
@@ -95,7 +94,7 @@ public class AdCompanionImpressionControllerTest {
     @Test
     public void shouldNotLogWhenTheAppIsInBackground() {
         activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSE_EVENT);
-        playerUiQueue.onNext(PLAYER_EXPANDING_EVENT);
+        playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
 
         expect(observer.getOnNextEvents()).toBeEmpty();
@@ -113,7 +112,7 @@ public class AdCompanionImpressionControllerTest {
     @Test
     public void shouldLogWhenTheTrackChanged() {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
-        playerUiQueue.onNext(PLAYER_EXPANDING_EVENT);
+        playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
         expect(observer.getOnNextEvents()).toBeEmpty();
 
         currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
