@@ -739,7 +739,7 @@ public class PlaybackOperationsTest {
 
     private void expectLastStartedServiceToBeNull() {
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService().getAction()).toBeNull();
+        expect(application.getNextStartedService()).toBeNull();
     }
 
     private void expectUnskippableToastAndNoNewPlayQueueSet() {
