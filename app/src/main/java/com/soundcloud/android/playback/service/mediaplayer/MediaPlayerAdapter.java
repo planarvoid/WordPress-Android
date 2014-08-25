@@ -578,31 +578,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     @VisibleForTesting
-    static class MediaPlayerManager {
-        @Inject
-        public MediaPlayerManager() {
-        }
-
-        public MediaPlayer create() {
-            return new MediaPlayer();
-        }
-
-        public void stopAndReleaseAsync(final MediaPlayer mediaPlayer) {
-            new Thread() {
-                @Override
-                public void run() {
-                    stopAndRelease(mediaPlayer);
-                }
-            }.start();
-        }
-
-        void stopAndRelease(MediaPlayer mediaPlayer) {
-            mediaPlayer.reset();
-            mediaPlayer.release();
-        }
-    }
-
-    @VisibleForTesting
     static class PlayerHandler extends Handler {
         private static final long PROGRESS_DELAY_MS = 500L;
 
