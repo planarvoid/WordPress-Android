@@ -31,7 +31,9 @@ public class PlaybackSessionEvent {
     private static final int EXTRA_TRACK_POLICY = 2;
     private static final int EXTRA_AD_ARTWORK = 3;
     private static final int EXTRA_PLAYBACK_PROTOCOL = 4;
-    private static final int EXTRA_AUDIO_IMPRESSION_URLS = 5;
+    private static final int EXTRA_AUDIO_AD_IMPRESSION_URLS = 5;
+    private static final int EXTRA_AUDIO_AD_COMPANION_IMPRESSION_URLS = 6;
+    private static final int EXTRA_AUDIO_AD_FINISH_URLS = 7;
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -96,7 +98,9 @@ public class PlaybackSessionEvent {
         this.extraAttributes.put(EXTRA_AD_URN, audioAd.get(AdProperty.AD_URN));
         this.extraAttributes.put(EXTRA_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
         this.extraAttributes.put(EXTRA_AD_ARTWORK, audioAd.get(AdProperty.ARTWORK).toString());
-        this.extraAttributes.put(EXTRA_AUDIO_IMPRESSION_URLS, audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS));
+        this.extraAttributes.put(EXTRA_AUDIO_AD_IMPRESSION_URLS, audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS));
+        this.extraAttributes.put(EXTRA_AUDIO_AD_COMPANION_IMPRESSION_URLS, audioAd.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS));
+        this.extraAttributes.put(EXTRA_AUDIO_AD_FINISH_URLS, audioAd.get(AdProperty.AUDIO_AD_FINISH_URLS));
         this.extraAttributes.put(EXTRA_PLAYBACK_PROTOCOL, protocol);
         return this;
     }
@@ -151,7 +155,15 @@ public class PlaybackSessionEvent {
     }
 
     public List<String> getAudioAdImpressionUrls() {
-        return (List<String>) extraAttributes.get(EXTRA_AUDIO_IMPRESSION_URLS);
+        return (List<String>) extraAttributes.get(EXTRA_AUDIO_AD_IMPRESSION_URLS);
+    }
+
+    public List<String> getAudioAdFinishUrls() {
+        return (List<String>) extraAttributes.get(EXTRA_AUDIO_AD_FINISH_URLS);
+    }
+
+    public List<String> getAudioAdCompanionImpressionUrls() {
+        return (List<String>) extraAttributes.get(EXTRA_AUDIO_AD_COMPANION_IMPRESSION_URLS);
     }
 
     private void setListenTime(long listenTime) {

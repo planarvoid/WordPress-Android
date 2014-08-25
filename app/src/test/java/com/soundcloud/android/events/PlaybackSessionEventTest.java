@@ -94,12 +94,17 @@ public class PlaybackSessionEventTest {
     @Test
     public void shouldPopulateAdAttributesFromAdPlaybackEvent() {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
                 USER_URN, PROTOCOL, trackSourceInfo, PROGRESS, 1000L).withAudioAd(audioAd);
+
         expect(event.isAd()).toBeTrue();
         expect(event.getAudioAdUrn()).toEqual("advertisement:123");
         expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
         expect(event.getAudioAdArtworkUrl()).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
+        expect(event.getAudioAdImpressionUrls()).toContain("adswizzUrl", "advertiserUrl");
+        expect(event.getAudioAdCompanionImpressionUrls()).toContain("visual1", "visual2");
+        expect(event.getAudioAdFinishUrls()).toContain("finish1", "finish2");
     }
 }

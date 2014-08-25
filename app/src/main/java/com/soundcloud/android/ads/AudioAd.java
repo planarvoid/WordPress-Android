@@ -55,15 +55,18 @@ public class AudioAd implements PropertySetSource {
         return visualAd;
     }
 
-    public List<String> getTrackingImpressionUrls() {
+    @VisibleForTesting
+    /* package */ List<String> getTrackingImpressionUrls() {
         return trackingImpressionUrls;
     }
 
-    public List<String> getTrackingFinishUrls() {
+    @VisibleForTesting
+    /* package */ List<String> getTrackingFinishUrls() {
         return trackingFinishUrls;
     }
 
-    public List<String> getTrackingSkipUrls() {
+    @VisibleForTesting
+    /* package */ List<String> getTrackingSkipUrls() {
         return trackingSkipUrls;
     }
 
@@ -91,6 +94,9 @@ public class AudioAd implements PropertySetSource {
                 AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.getDisplayProperties().getFocusedTextColor()),
                 AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getFocusedBackgroundColor()),
                 AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(trackingImpressionUrls),
+                AdProperty.AUDIO_AD_FINISH_URLS.bind(trackingFinishUrls),
+                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(visualAd.getTrackingClickUrls()),
+                AdProperty.AUDIO_AD_SKIP_URLS.bind(trackingSkipUrls),
                 AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.getTrackingImpressionUrls()));
     }
 }

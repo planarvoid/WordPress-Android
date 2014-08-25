@@ -8,13 +8,19 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class UIEvent {
 
+    private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
+    private static final String SKIPS = "SKIPS";
+
     private final Kind kind;
     private final Map<String, String> attributes;
+    private final Map<String, List<String>> promotedTrackingUrls;
     private final long timestamp;
 
     public enum Kind {
@@ -104,7 +110,14 @@ public final class UIEvent {
     @VisibleForTesting
     public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(Kind.AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
-                .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
+                .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
+                .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.get(AdProperty.AUDIO_AD_CLICKTHROUGH_URLS));
+    }
+
+    @VisibleForTesting
+    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
+        return withBasicAudioAdAttributes(new UIEvent(Kind.SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
+                .addPromotedTrackingUrls(SKIPS, audioAd.get(AdProperty.AUDIO_AD_SKIP_URLS));
     }
 
     private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, TrackUrn audioAdTrack) {
@@ -112,11 +125,6 @@ public final class UIEvent {
                 .putAttribute("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .putAttribute("ad_image_url", audioAd.get(AdProperty.ARTWORK).toString())
                 .putAttribute("ad_track_urn", audioAdTrack.toString());
-    }
-
-    @VisibleForTesting
-    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
-        return withBasicAudioAdAttributes(new UIEvent(Kind.SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack);
     }
 
     public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
@@ -139,6 +147,7 @@ public final class UIEvent {
         this.kind = kind;
         this.timestamp = timestamp;
         attributes = new HashMap<String, String>();
+        promotedTrackingUrls = new HashMap<String, List<String>>();
     }
 
     public Kind getKind() {
@@ -153,6 +162,16 @@ public final class UIEvent {
         return attributes;
     }
 
+    public List<String> getAudioAdClickthroughUrls() {
+        List<String> urls = promotedTrackingUrls.get(CLICKTHROUGHS);
+        return urls == null ? Collections.<String>emptyList() : urls;
+    }
+
+    public List<String> getAudioAdSkipUrls() {
+        List<String> urls = promotedTrackingUrls.get(SKIPS);
+        return urls == null ? Collections.<String>emptyList() : urls;
+    }
+
     @Override
     public String toString() {
         return String.format("UI Event with type id %s and %s", kind, attributes.toString());
@@ -160,6 +179,11 @@ public final class UIEvent {
 
     private UIEvent putAttribute(String key, String value) {
         attributes.put(key, value);
+        return this;
+    }
+
+    private UIEvent addPromotedTrackingUrls(String key, List<String> urls) {
+        promotedTrackingUrls.put(key, urls);
         return this;
     }
 }
