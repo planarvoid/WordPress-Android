@@ -79,32 +79,12 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         }
     }
 
-    public long getCurrentTrackId() {
-        return getTrackIdAt(position);
-    }
-
-    public long getTrackIdAt(int position) {
-        return trackIds.get(position);
-    }
-
-    public int getPositionOfTrackId(long trackId) {
-        return trackIds.indexOf(trackId);
-    }
-
     public boolean isLastTrack() {
         return position >= trackIds.size() - 1;
     }
 
     public boolean isLoading() {
         return fetchState == FetchRecommendedState.LOADING;
-    }
-
-    public boolean lastLoadFailed() {
-        return fetchState == FetchRecommendedState.ERROR;
-    }
-
-    public boolean lastLoadWasEmpty() {
-        return fetchState == FetchRecommendedState.EMPTY;
     }
 
     @Override

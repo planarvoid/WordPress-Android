@@ -5,6 +5,8 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
@@ -38,12 +40,14 @@ import com.soundcloud.android.blueprints.UserSummaryBlueprint;
 import com.soundcloud.android.blueprints.UserUrnBlueprint;
 import com.soundcloud.android.blueprints.VisualAdBlueprint;
 import com.soundcloud.android.experiments.AssignmentBlueprint;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.suggestions.Category;
 import com.soundcloud.android.onboarding.suggestions.CategoryGroup;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -515,6 +519,15 @@ public class TestHelper {
             items.add(TestHelper.getModelFactory().createModel(PublicApiTrack.class));
         }
         return items;
+    }
+
+    public static List<TrackUrn> createTracksUrn(Long... ids){
+        return Lists.transform(new ArrayList<Long>(Arrays.asList(ids)), new Function<Long, TrackUrn>() {
+            @Override
+            public TrackUrn apply(Long id) {
+                return Urn.forTrack(id);
+            }
+        });
     }
 
     public static List<PublicApiUser> createUsers(int count) {

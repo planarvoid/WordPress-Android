@@ -20,8 +20,8 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return new PlayQueue(Collections.<PlayQueueItem>emptyList());
     }
 
-    public static PlayQueue fromIdList(List<Long> trackIds, PlaySessionSource playSessionSource) {
-        return new PlayQueue(getPlayQueueItemsFromIds(trackIds, playSessionSource));
+    public static PlayQueue fromTrackUrnList(List<TrackUrn> trackUrns, PlaySessionSource playSessionSource) {
+        return new PlayQueue(getPlayQueueItemsFromIds(trackUrns, playSessionSource));
     }
 
     public PlayQueue copy() {
@@ -110,11 +110,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return trackUrns;
     }
 
-    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource) {
-        return Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
+    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<TrackUrn> trackIds, final PlaySessionSource playSessionSource) {
+        return Lists.newArrayList(Lists.transform(trackIds, new Function<TrackUrn, PlayQueueItem>() {
             @Override
-            public PlayQueueItem apply(Long trackId) {
-                return PlayQueueItem.fromTrack(TrackUrn.forTrack(trackId), playSessionSource);
+            public PlayQueueItem apply(TrackUrn track) {
+                return PlayQueueItem.fromTrack(track, playSessionSource);
             }
         }));
     }

@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -34,7 +35,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
+import rx.functions.Action1;
 
 import android.view.ViewGroup;
 
@@ -125,7 +128,14 @@ public class PostsAdapterTest {
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
 
-        verify(playbackOperations).playFromAdapter(Robolectric.application, adapter.getItems(), 0, Content.ME_LIKES.uri, Screen.YOUR_LIKES);
+        List<TrackUrn> trackUrns = Arrays.asList(track.getUrn());
+        TrackUrn initialTrack = trackUrns.get(0);
+        verify(playbackOperations).playFromUri(
+                eq(Content.ME_LIKES.uri),
+                eq(0),
+                eq(initialTrack),
+                eq(new PlaySessionSource(Screen.YOUR_LIKES)),
+                Matchers.any(Action1.class));
     }
 
     @Test

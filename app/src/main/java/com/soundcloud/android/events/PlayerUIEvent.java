@@ -1,5 +1,11 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.TrackUrn;
+import rx.functions.Action1;
+
+import java.util.List;
+
 public class PlayerUIEvent {
 
     public static final int PLAYER_EXPANDING = 0;
@@ -61,6 +67,15 @@ public class PlayerUIEvent {
         return new PlayerUIEvent(SHOW_PLAYER);
     }
 
+    public static Action1<List<TrackUrn>> actionForExpandPlayer(final EventBus eventBus) {
+        return new Action1<List<TrackUrn>>() {
+            @Override
+            public void call(List<TrackUrn> trackUrns) {
+                eventBus.publish(EventQueue.PLAYER_UI, forExpandPlayer());
+            }
+        };
+    }
+
     public PlayerUIEvent(int kind) {
         this.kind = kind;
     }
@@ -80,5 +95,22 @@ public class PlayerUIEvent {
     @Override
     public String toString() {
         return "player UI event: " + kind;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayerUIEvent that = (PlayerUIEvent) o;
+
+        if (kind != that.kind) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return kind;
     }
 }

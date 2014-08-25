@@ -2,22 +2,32 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 import static com.soundcloud.android.associations.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
+import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
+import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.associations.PlayableInteractionActivity;
 import com.soundcloud.android.associations.PlaylistInteractionActivity;
 import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
+import com.soundcloud.android.crop.util.VisibleForTesting;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -39,6 +49,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Inject ImageOperations imageOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ActivityItemPresenter activityItemPresenter;
+    @Inject EventBus eventBus;
 
 
     public ActivitiesAdapter(Uri uri) {
@@ -48,12 +59,13 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @VisibleForTesting
-    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemPresenter presenter) {
+    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemPresenter presenter, EventBus eventBus) {
         super(uri);
         this.activitiesStorage = new ActivitiesStorage();
         this.imageOperations = imageOperations;
         this.playbackOperations = playbackOperations;
         this.activityItemPresenter = presenter;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -134,7 +146,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                playbackOperations.playFromAdapter(context, data, position, contentUri, Screen.SIDE_MENU_STREAM);
+                playTrackOrStartPlaylistFragment(context, position);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
@@ -146,7 +158,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(TrackInteractionActivity.PROPERTY_SET_EXTRA, getItem(position).getPlayable().toPropertySet())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    playbackOperations.playFromAdapter(context, data, position, contentUri, Screen.SIDE_MENU_STREAM);
+                    playTrackOrStartPlaylistFragment(context, position);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
@@ -154,10 +166,10 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                 if (content == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
                     context.startActivity(new Intent(context, PlaylistInteractionActivity.class)
-                            .putExtra(PublicApiPlaylist.EXTRA, getItem(position).getPlayable())
+                            .putExtra(PlayableInteractionActivity.PROPERTY_SET_EXTRA, getItem(position).getPlayable().toPropertySet())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    playbackOperations.playFromAdapter(context, data, position, contentUri, Screen.SIDE_MENU_STREAM);
+                    playTrackOrStartPlaylistFragment(context, position);
                 }
                 return ItemClickResults.LEAVING;
 
@@ -170,6 +182,18 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                 Log.i(SoundCloudApplication.TAG, "Clicked on item " + id);
         }
         return ItemClickResults.IGNORE;
+    }
+
+    private void playTrackOrStartPlaylistFragment(Context context, int position) {
+        Playable playable = data.get(position).getPlayable();
+        if (playable instanceof PublicApiTrack) {
+            List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+            int adjustedPosition = filterPlayables(data.subList(0, position)).size();
+            TrackUrn initialTrack = trackUrns.get(adjustedPosition);
+            playbackOperations.playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM), PlayerUIEvent.actionForExpandPlayer(eventBus));
+        } else if (playable instanceof PublicApiPlaylist) {
+            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
+        }
     }
 
 }

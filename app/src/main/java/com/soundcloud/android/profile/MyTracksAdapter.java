@@ -1,5 +1,8 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
+import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -13,20 +16,24 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
@@ -297,9 +304,20 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
                 context.startActivity(new Intent(context, (r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
             }
         } else {
-            playbackOperations.playFromAdapter(context, data, position - recordingData.size(), contentUri, screen);
+            playTrack(position, screen);
         }
         return ItemClickResults.LEAVING;
+    }
+
+    private void playTrack(int position, Screen screen) {
+        int positionExcludingRecordings = position - recordingData.size();
+        Playable playable = ((PlayableHolder) data.get(positionExcludingRecordings)).getPlayable();
+        if (playable instanceof PublicApiTrack) {
+            List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+            int adjustedPosition = filterPlayables(data.subList(0, positionExcludingRecordings)).size();
+            TrackUrn initialTrack = trackUrns.get(adjustedPosition);
+            playbackOperations.playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen), PlayerUIEvent.actionForExpandPlayer(eventBus));
+        }
     }
 
     public void onDestroy() {

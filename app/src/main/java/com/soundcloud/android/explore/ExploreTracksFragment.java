@@ -9,11 +9,15 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
@@ -40,6 +44,7 @@ public class ExploreTracksFragment extends Fragment
     @Inject ExploreTracksOperations exploreTracksOperations;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject ListViewController listViewController;
+    @Inject EventBus eventBus;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
@@ -110,7 +115,10 @@ public class ExploreTracksFragment extends Fragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final PublicApiTrack track = new PublicApiTrack(adapter.getItem(position));
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
-        playbackOperations.playExploreTrack(track, trackingTag, screenTagExtra);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screenTagExtra);
+        playSessionSource.setExploreVersion(trackingTag);
+        playbackOperations.playTrackWithRecommendations(track.getUrn(), playSessionSource);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
     }
 
     @Override

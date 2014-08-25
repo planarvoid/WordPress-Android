@@ -5,11 +5,10 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.legacy.model.activities.CommentActivity;
@@ -21,9 +20,11 @@ import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackLikeActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackRepostActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -43,6 +44,7 @@ public class ActivitiesAdapterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ActivityItemPresenter activityItemPresenter;
+    @Mock private EventBus eventBus;
 
     @InjectMocks
     private ActivitiesAdapter adapter;

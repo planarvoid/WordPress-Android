@@ -1,21 +1,29 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
+import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -35,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class SearchResultsFragment extends Fragment
@@ -160,10 +169,14 @@ public class SearchResultsFragment extends Fragment
         Context context = getActivity();
         if (item instanceof PublicApiTrack) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
-            playbackOperations.playFromAdapter(context, adapter.getItems(), position, null, getTrackingScreen());
+            final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
+            final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
+            playbackOperations.playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()));
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
         } else if (item instanceof PublicApiPlaylist) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
-            playbackOperations.playFromAdapter(context, adapter.getItems(), position, null, getTrackingScreen());
+            Playable playableAtPosition = ((PlayableHolder) adapter.getItems().get(position)).getPlayable();
+            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playableAtPosition).getUrn(), getTrackingScreen());
         } else if (item instanceof PublicApiUser) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));

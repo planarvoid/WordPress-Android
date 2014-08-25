@@ -113,8 +113,6 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         subscription.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(wasError).subscribe(new ErrorSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
-        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).filter(isNewQueueEvent).map(forPlayerExpandEvent)
-                .subscribe(eventBus.queue(EventQueue.PLAYER_UI)));
     }
 
     void onDestroyView() {

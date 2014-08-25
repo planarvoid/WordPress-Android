@@ -1,6 +1,8 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,11 +13,12 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.propeller.PropertySet;
@@ -28,6 +31,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.OperatorPaged;
+import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
 
 import android.content.Intent;
@@ -139,7 +143,12 @@ public class SoundStreamFragmentTest {
         when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
         fragment.onItemClick(null, null, 0, -1);
 
-        verify(playbackOperations).playTracks(Urn.forTrack(123), streamTracks, 0, Screen.SIDE_MENU_STREAM);
+        verify(playbackOperations).playTracks(
+                eq(Urn.forTrack(123)),
+                eq(streamTracks),
+                eq(0),
+                eq(new PlaySessionSource(Screen.SIDE_MENU_STREAM)),
+                any(Action1.class));
     }
 
     @Test

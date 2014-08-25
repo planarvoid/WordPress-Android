@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +19,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.views.PlayablePresenter;
@@ -139,7 +139,9 @@ public class PlaylistFragmentTest {
 
         getToggleButton(layout).performClick();
 
-        verify(playbackOperations).playPlaylist(eq(playlist), eq(Screen.SIDE_MENU_STREAM));
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        verify(playbackOperations).playPlaylist(playlist, playSessionSource);
     }
 
     @Test
