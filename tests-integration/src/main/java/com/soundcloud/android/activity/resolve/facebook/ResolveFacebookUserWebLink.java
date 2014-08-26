@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 
 import android.net.Uri;

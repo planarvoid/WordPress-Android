@@ -10,7 +10,6 @@ import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.waveform.WaveformResult;
 import rx.Observable;
 import rx.Scheduler;

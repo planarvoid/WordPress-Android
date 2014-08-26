@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.ErrorUtils.handleSilentException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;

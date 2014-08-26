@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests.matcher.view;
 
 
-import com.soundcloud.android.screens.elements.UIView;
 import com.soundcloud.android.tests.ViewElement;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;

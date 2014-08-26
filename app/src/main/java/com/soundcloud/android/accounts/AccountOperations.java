@@ -1,7 +1,6 @@
 package com.soundcloud.android.accounts;
 
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;

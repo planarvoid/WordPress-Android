@@ -1,16 +1,11 @@
 package com.soundcloud.android.screens.auth;
 
-import static junit.framework.Assert.assertNotNull;
-
 import com.robotium.solo.By;
-import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
-
-import android.webkit.WebView;
 
 public class FBWebViewScreen {
     private final ViewElement webview;

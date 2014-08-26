@@ -2,8 +2,6 @@ package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
-import com.soundcloud.android.screens.EmailConfirmScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.Han;
@@ -11,9 +9,6 @@ import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.R.id;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class SuggestedUsersScreen extends Screen {
     public static final Class ACTIVITY = SuggestedUsersActivity.class;
