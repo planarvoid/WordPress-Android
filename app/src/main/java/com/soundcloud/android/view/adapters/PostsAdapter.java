@@ -197,7 +197,7 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable) {
-        PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), screen);
+        PlaylistDetailActivity.start(context, playable.getUrn(), screen);
     }
 
     @Override
