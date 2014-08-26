@@ -2,8 +2,6 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 import static com.soundcloud.android.associations.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
-import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
-import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
