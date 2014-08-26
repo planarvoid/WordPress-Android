@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -49,6 +50,7 @@ import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistFragmentTest {
@@ -136,12 +138,18 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         View layout = createFragmentView();
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
+        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        final List<TrackUrn> trackUrns = Lists.transform(playlist.getTracks(), new Function<PublicApiTrack, TrackUrn>() {
+            @Override
+            public TrackUrn apply(PublicApiTrack track) {
+                return track.getUrn();
+            }
+        });
 
         getToggleButton(layout).performClick();
 
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-        verify(playbackOperations).playPlaylist(playlist, playSessionSource);
+        verify(playbackOperations).playTracks(trackUrns, 0, playSessionSource);
     }
 
     @Test

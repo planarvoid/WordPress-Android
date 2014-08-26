@@ -319,7 +319,7 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
             int adjustedPosition = filterPlayables(data.subList(0, positionExcludingRecordings)).size();
             TrackUrn initialTrack = trackUrns.get(adjustedPosition);
             playbackOperations
-                    .playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
+                    .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
                     .subscribe(new PlayQueueChangedSubscriber(eventBus));
         } else if (playable instanceof PublicApiPlaylist) {
             PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);

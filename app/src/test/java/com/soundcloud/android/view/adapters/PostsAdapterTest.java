@@ -66,7 +66,7 @@ public class PostsAdapterTest {
 
     @Before
     public void setup() {
-        when(playbackOperations.playFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class)))
+        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<List<TrackUrn>>empty());
         adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus);
@@ -135,7 +135,7 @@ public class PostsAdapterTest {
 
         List<TrackUrn> trackUrns = Arrays.asList(track.getUrn());
         TrackUrn initialTrack = trackUrns.get(0);
-        verify(playbackOperations).playFromUri(
+        verify(playbackOperations).playTracksFromUri(
                 eq(Content.ME_LIKES.uri),
                 eq(0),
                 eq(initialTrack),

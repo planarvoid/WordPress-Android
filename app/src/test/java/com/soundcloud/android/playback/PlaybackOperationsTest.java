@@ -24,7 +24,6 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -55,7 +54,6 @@ public class PlaybackOperationsTest {
 
     private PublicApiTrack track;
     private PublicApiPlaylist playlist;
-    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private ScModelManager modelManager;
     @Mock private TrackStorage trackStorage;
@@ -67,7 +65,7 @@ public class PlaybackOperationsTest {
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, eventBus, playSessionStateProvider, playbackToastViewController);
+                playQueueManager, playSessionStateProvider, playbackToastViewController);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
@@ -420,31 +418,6 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playPlaylistSetsPlayQueueOnPlayQueueManagerFromPlaylist() throws CreateModelException {
-        List<PublicApiTrack> tracks = createTracks(3);
-        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
-
-        final PlaySessionSource playSessionSource1 = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource1.setPlaylist(playlist.getId(), playlist.getUserId());
-        playbackOperations.playPlaylist(playlist, playSessionSource1);
-
-        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-        checkSetNewPlayQueueArgs(0, playSessionSource, tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
-    }
-
-    @Test
-    public void playPlaylistOpensCurrentTrackThroughService() throws CreateModelException {
-        List<PublicApiTrack> tracks = createTracks(3);
-        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
-
-        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-        playbackOperations.playPlaylist(playlist, playSessionSource);
-        checkLastStartedServiceForPlayCurrentAction();
-    }
-
-    @Test
     public void playFromIdsShuffledSetsPlayQueueOnPlayQueueManagerWithGivenTrackIdList() {
         final List<TrackUrn> idsOrig = createTracksUrn(1L, 2L, 3L);
         playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES));
@@ -521,7 +494,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.just(ids));
         TrackUrn initialTrack = playables.get(1);
         playbackOperations
-                .playFromUri(Content.ME_LIKES.uri, 1, initialTrack, new PlaySessionSource(ORIGIN_SCREEN))
+                .playTracksFromUri(Content.ME_LIKES.uri, 1, initialTrack, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
 
 
@@ -602,7 +575,7 @@ public class PlaybackOperationsTest {
 
         TrackUrn initialTrack = tracks.get(0);
         playbackOperations
-                .playFromUri(Content.ME_LIKES.uri, 0, initialTrack, new PlaySessionSource(ORIGIN_SCREEN))
+                .playTracksFromUri(Content.ME_LIKES.uri, 0, initialTrack, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
 
         expectUnskippableToastAndNoNewPlayQueueSet();
@@ -617,17 +590,6 @@ public class PlaybackOperationsTest {
 
         expectUnskippableToastAndNoNewPlayQueueSet();
 
-    }
-
-    @Test
-    public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylist() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-
-        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-        playbackOperations.playPlaylist(playlist, playSessionSource);
-
-        expectUnskippableToastAndNoNewPlayQueueSet();
     }
 
     @Test
