@@ -16,7 +16,6 @@ import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.crop.util.VisibleForTesting;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -26,6 +25,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -188,7 +188,9 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
             int adjustedPosition = filterPlayables(data.subList(0, position)).size();
             TrackUrn initialTrack = trackUrns.get(adjustedPosition);
-            playbackOperations.playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM), PlayerUIEvent.actionForExpandPlayer(eventBus));
+            playbackOperations
+                    .playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .subscribe(new PlayQueueChangedSubscriber(eventBus));
         } else if (playable instanceof PublicApiPlaylist) {
             PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
         }

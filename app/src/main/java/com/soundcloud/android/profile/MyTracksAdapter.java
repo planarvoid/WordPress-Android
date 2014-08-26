@@ -20,7 +20,6 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -35,6 +34,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
+import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
@@ -315,7 +315,9 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
             List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
             int adjustedPosition = filterPlayables(data.subList(0, positionExcludingRecordings)).size();
             TrackUrn initialTrack = trackUrns.get(adjustedPosition);
-            playbackOperations.playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen), PlayerUIEvent.actionForExpandPlayer(eventBus));
+            playbackOperations
+                    .playFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
+                    .subscribe(new PlayQueueChangedSubscriber(eventBus));
         } else if (playable instanceof PublicApiPlaylist) {
             PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
         }

@@ -191,7 +191,9 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
         List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
         int adjustedPosition = filterPlayables(data.subList(0, position)).size();
         TrackUrn initialTrack = trackUrns.get(adjustedPosition);
-        playbackOperations.playFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen), PlayerUIEvent.actionForExpandPlayer(eventBus));
+        playbackOperations
+                .playFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
+                .subscribe(new PlayQueueChangedSubscriber(eventBus));
     }
 
     private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable) {

@@ -13,17 +13,13 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ErrorUtils;
 import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -86,17 +82,28 @@ public class PlaybackOperations {
         playFromTrackUrnList(shuffled, 0, shuffled.get(0), playSessionSource);
     }
 
-    public boolean playTracks(TrackUrn initialTrack, Observable<TrackUrn> allTracks, int position, PlaySessionSource playSessionSource, Action1<List<TrackUrn>> action) {
-        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            allTracks
-                    .toList()
-                    .filter(FILTER_EMPTY_TRACK_LIST)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(action)
-                    .subscribe(trackListLoadedSubscriber(position, playSessionSource, initialTrack));
-            return true;
+    public Observable<List<TrackUrn>> playTracks(Observable<TrackUrn> allTracks, TrackUrn initialTrack, int position, PlaySessionSource playSessionSource) {
+        if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
+            return Observable.empty();
         }
-        return false;
+
+        return allTracks
+                .toList()
+                .filter(FILTER_EMPTY_TRACK_LIST)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(playNewQueueAction(position, playSessionSource, initialTrack));
+    }
+
+    @Deprecated
+    public Observable<List<TrackUrn>> playFromUri(Uri uri, final int startPosition, final TrackUrn initialTrack,
+                                    final PlaySessionSource playSessionSource) {
+        if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
+            return Observable.empty();
+        }
+
+        return trackStorage.getTracksForUriAsync(uri)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(playNewQueueAction(startPosition, playSessionSource, initialTrack));
     }
 
     public void playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource) {
@@ -186,28 +193,14 @@ public class PlaybackOperations {
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
-    @Deprecated
-    public Subscription playFromUri(Uri uri, final int startPosition, final TrackUrn initialTrack,
-                                    final PlaySessionSource playSessionSource, Action1<List<TrackUrn>> action) {
-        if (shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            return trackStorage.getTracksForUriAsync(uri)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(action)
-                    .subscribe(trackListLoadedSubscriber(startPosition, playSessionSource, initialTrack));
-        } else {
-            return Subscriptions.empty();
-        }
-    }
-
-    private Subscriber<List<TrackUrn>> trackListLoadedSubscriber(final int startPosition,
-                                                             final PlaySessionSource playSessionSource,
-                                                             final TrackUrn initialTrackUrn) {
-        return new DefaultSubscriber<List<TrackUrn>>() {
+    private Action1<List<TrackUrn>> playNewQueueAction(final int startPosition,
+                                                       final PlaySessionSource playSessionSource,
+                                                       final TrackUrn initialTrackUrn) {
+        return new Action1<List<TrackUrn>>() {
             @Override
-            public void onNext(List<TrackUrn> urnList) {
-                final int updatedPosition = correctStartPositionAndDeduplicateList(urnList, startPosition, initialTrackUrn);
-                playNewQueue(urnList, updatedPosition, playSessionSource);
-
+            public void call(List<TrackUrn> trackUrns) {
+                final int updatedPosition = correctStartPositionAndDeduplicateList(trackUrns, startPosition, initialTrackUrn);
+                playNewQueue(trackUrns, updatedPosition, playSessionSource);
             }
         };
     }

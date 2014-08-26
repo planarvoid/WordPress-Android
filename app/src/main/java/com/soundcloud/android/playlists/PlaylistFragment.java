@@ -30,6 +30,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -282,9 +283,9 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
         final Observable<TrackUrn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
-        if (!playbackOperations.playTracks(initialTrack.get(TrackProperty.URN), allTracks, trackPosition, playSessionSource, PlayerUIEvent.actionForExpandPlayer(eventBus))){
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-        }
+        playbackOperations
+                .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
+                .subscribe(new PlayQueueChangedSubscriber(eventBus));
     }
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {

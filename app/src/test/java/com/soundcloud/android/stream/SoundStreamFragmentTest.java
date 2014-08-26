@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
@@ -31,7 +33,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.OperatorPaged;
-import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
 
 import android.content.Intent;
@@ -58,6 +59,7 @@ public class SoundStreamFragmentTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private Subscription subscription;
     @Mock private EmptyView emptyView;
+    @Mock private EventBus eventBus;
 
     @Before
     public void setup() {
@@ -65,7 +67,7 @@ public class SoundStreamFragmentTest {
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
-    }
+        when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());  }
 
     @Test
     public void shouldRequestAvailableSoundStreamItemsWhenCreated() {
@@ -144,11 +146,10 @@ public class SoundStreamFragmentTest {
         fragment.onItemClick(null, null, 0, -1);
 
         verify(playbackOperations).playTracks(
-                eq(Urn.forTrack(123)),
                 eq(streamTracks),
+                eq(Urn.forTrack(123)),
                 eq(0),
-                eq(new PlaySessionSource(Screen.SIDE_MENU_STREAM)),
-                any(Action1.class));
+                eq(new PlaySessionSource(Screen.SIDE_MENU_STREAM)));
     }
 
     @Test
