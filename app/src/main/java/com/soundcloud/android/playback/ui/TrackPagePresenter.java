@@ -324,10 +324,13 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final View.OnClickListener nextListener = getOnNextListener(skipListener);
         final View.OnClickListener previousListener = getOnPreviousListener(skipListener);
         holder.nextTouch.setOnClickListener(nextListener);
-        holder.nextButton.setOnClickListener(nextListener);
         holder.previousTouch.setOnClickListener(previousListener);
-        holder.previousButton.setOnClickListener(previousListener);
-
+        if (holder.nextButton != null){
+            holder.nextButton.setOnClickListener(nextListener);
+        }
+        if (holder.previousButton != null){
+            holder.previousButton.setOnClickListener(previousListener);
+        }
     }
 
     private View.OnClickListener getOnPreviousListener(final SkipListener skipListener) {
