@@ -48,7 +48,7 @@ public class AdPagePresenterTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
         adView = presenter.createItemView(new FrameLayout(new FragmentActivity()));
-        presenter.bindItemView(adView, buildAd());
+        presenter.bindItemView(adView, buildAd(), true);
     }
 
     @Test

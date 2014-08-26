@@ -114,11 +114,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         wrappedImageView.setImageDrawable(null);
     }
 
-    public void loadArtwork(TrackUrn urn) {
+    public void loadArtwork(TrackUrn urn, boolean isHighPriority) {
         final Resources resources = wrappedImageView.getResources();
         final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
         final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);
-        imageOperations.displayInPlayer(urn, size, wrappedImageView, this, cachedListBitmap);
+        imageOperations.displayInPlayer(urn, size, wrappedImageView, this, cachedListBitmap, isHighPriority);
     }
 
     private void configureBounds() {

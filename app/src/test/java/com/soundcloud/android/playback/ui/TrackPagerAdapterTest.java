@@ -7,7 +7,6 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -252,7 +251,7 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(pageView, track);
+        verify(trackPagePresenter).bindItemView(pageView, track, true);
     }
 
     @Test
@@ -268,7 +267,7 @@ public class TrackPagerAdapterTest {
         setupAudioAd();
         View pageView = getPageView();
 
-        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true));
 
         expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeTrue();
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);

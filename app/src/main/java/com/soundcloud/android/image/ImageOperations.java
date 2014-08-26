@@ -147,7 +147,7 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayInPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener, Bitmap placeholder) {
+    public void displayInPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener, Bitmap placeholder, boolean isHighPriority) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable placeholderDrawable = placeholder != null ? new BitmapDrawable(placeholder) :
                 getPlaceholderDrawable(urn, imageAware);
@@ -155,7 +155,7 @@ public class ImageOperations {
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
-                ImageOptionsFactory.player(placeholderDrawable),
+                ImageOptionsFactory.player(placeholderDrawable, isHighPriority),
                 new ImageListenerUILAdapter(imageListener));
     }
 

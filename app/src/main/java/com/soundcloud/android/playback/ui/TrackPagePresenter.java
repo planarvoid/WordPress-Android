@@ -108,18 +108,18 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet track) {
-        bindItemView(view, new PlayerTrack(track));
+    public void bindItemView(View view, PropertySet track, boolean isCurrentTrack) {
+        bindItemView(view, new PlayerTrack(track), isCurrentTrack);
     }
 
-    private void bindItemView(View trackView, PlayerTrack track) {
+    private void bindItemView(View trackView, PlayerTrack track, boolean isCurrentTrack) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.title.setText(track.getTitle());
 
         holder.user.setText(track.getUserName());
         holder.user.setTag(track.getUserUrn());
 
-        holder.artworkController.loadArtwork(track.getUrn());
+        holder.artworkController.loadArtwork(track.getUrn(), isCurrentTrack);
         holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());

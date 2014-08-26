@@ -45,13 +45,17 @@ class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable) {
-        return fullCacheBuilder()
+    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable, boolean isHighPriority) {
+        DisplayImageOptions.Builder options = fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
                 .showImageOnFail(placeholderDrawable)
-                .displayer(new PlaceholderTransitionDisplayer())
-                .build();
+                .displayer(new PlaceholderTransitionDisplayer());
+
+        if (!isHighPriority) {
+            options.delayBeforeLoading(DELAY_BEFORE_LOADING);
+        }
+        return options.build();
     }
 
     public static DisplayImageOptions playerAd(@Nullable Drawable placeholderDrawable) {
