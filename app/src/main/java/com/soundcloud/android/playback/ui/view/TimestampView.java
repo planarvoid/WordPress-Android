@@ -42,7 +42,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private static final long BUFFERING_RESET_ANIMATION_DURATION = 300;
 
     private final View timestampLayout;
-    private final View timestampHolderHolder;
+    private final View timestampHolder;
     private final TextView progressText;
     private final TextView durationText;
     private final View background;
@@ -66,7 +66,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
             ViewHelper.setTranslationY(timestampLayout, value * getTimestampScrubY());
             ViewHelper.setScaleX(timestampLayout, value * SCRUB_SCALE);
             ViewHelper.setScaleY(timestampLayout, value * SCRUB_SCALE);
-            invalidate();
+            selectiveInvalidate(true);
         }
     };
 
@@ -87,7 +87,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         durationText = (TextView) findViewById(R.id.timestamp_duration);
         background = findViewById(R.id.timestamp_background);
         timestampLayout = findViewById(R.id.timestamp_layout);
-        timestampHolderHolder = findViewById(R.id.timestamp_holder);
+        timestampHolder = findViewById(R.id.timestamp_holder);
         dividerView = findViewById(R.id.timestamp_divider);
 
         animatePercentage = getResources().getInteger(R.integer.timestamp_animate_percentage);
@@ -170,7 +170,26 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     public void displayScrubPosition(float scrubPosition) {
         long scrubTime = (long) (scrubPosition * duration);
         progressText.setText(format(scrubTime));
-        invalidate(); // TODO: Selectively invalidate the final animated position
+        selectiveInvalidate(false);
+    }
+
+    private void selectiveInvalidate(boolean isTransition) {
+        int left = background.getLeft();
+        int top = timestampLayout.getTop() + background.getTop();
+        int right = background.getRight();
+
+        int bottom;
+        if (isTransition) {
+            bottom = getBottom();
+        } else {
+            bottom = (int) (timestampLayout.getTop() + background.getBottom() + background.getHeight() * SCRUB_SCALE);
+        }
+
+        float adjustWidth = background.getWidth() * SCRUB_SCALE / 2;
+        right += adjustWidth;
+        left -= adjustWidth;
+
+        invalidate(left, top, right, bottom);
     }
 
     @Override
@@ -205,7 +224,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     private int getTimestampScrubY() {
-        final double holderTopToTarget = timestampHolderHolder.getTop() - getHeight() * (animatePercentage / 100f);
+        final double holderTopToTarget = timestampHolder.getTop() - getHeight() * (animatePercentage / 100f);
         return (int) -(holderTopToTarget + waveformBaseline - timestampOriginalHeight);
     }
 
