@@ -1,7 +1,6 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.inOrder;
@@ -13,9 +12,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -87,13 +86,13 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldReturnFalseIfAccountDoesNotExist() {
-        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{});
         expect(accountOperations.isUserLoggedIn()).toBeFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAccountDoesExist() {
-        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
+        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
         expect(accountOperations.isUserLoggedIn()).toBeTrue();
     }
 

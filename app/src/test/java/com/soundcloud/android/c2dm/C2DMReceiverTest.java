@@ -3,14 +3,16 @@ package com.soundcloud.android.c2dm;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf_;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.robolectric.shadows.ShadowSCAccountManager;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -99,7 +101,9 @@ public class C2DMReceiverTest {
     @Test
     public void shouldForceSyncOnPushNotification() throws Exception {
         Account account = new Account("test", "com.soundcloud.android.account");
-        shadowOf(ShadowAccountManager.get(DefaultTestRunner.application)).addAccount(account);
+        shadowOf(ShadowSCAccountManager.get(DefaultTestRunner.application)).addAccount(account);
+        ((ShadowSCAccountManager) shadowOf_(ShadowSCAccountManager.get(DefaultTestRunner.application)))
+                .setUserData(account, AccountOperations.AccountInfoKeys.USER_ID.getKey(), "123");
 
         C2DMReceiver receiver = new C2DMReceiver();
 
