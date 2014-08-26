@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -33,6 +34,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +42,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
-
 import android.net.Uri;
+import android.content.Intent;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
@@ -140,6 +142,20 @@ public class PostsAdapterTest {
                 eq(0),
                 eq(initialTrack),
                 eq(new PlaySessionSource(Screen.YOUR_LIKES)));
+    }
+
+    @Test
+    public void opensPlaylistActivityWhenPlaylistItemIsClicked() throws CreateModelException {
+        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        adapter.addItems(Arrays.<PublicApiResource>asList(playlist));
+
+        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent startedActivity = application.getNextStartedActivity();
+        expect(startedActivity).not.toBeNull();
+        expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
+        expect(startedActivity.getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toEqual(playlist.getUrn());
     }
 
     @Test
