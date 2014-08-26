@@ -47,6 +47,11 @@ public class TrackActivity extends Activity implements PlayableHolder {
     }
 
     @Override
+    public void cacheDependencies() {
+        this.track = SoundCloudApplication.sModelManager.cache(track);
+    }
+
+    @Override
     public Refreshable getRefreshableResource() {
         return track;
     }

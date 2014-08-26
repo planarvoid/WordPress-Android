@@ -3,6 +3,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activities.ActivityProperty;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.propeller.PropertySet;
@@ -29,6 +30,12 @@ public class PlaylistLikeActivity extends PlaylistActivity implements PlayableHo
     @Override
     public PublicApiUser getUser() {
         return user;
+    }
+
+    @Override
+    public void cacheDependencies() {
+        super.cacheDependencies();
+        this.user = SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.MINI);
     }
 
     @Override
