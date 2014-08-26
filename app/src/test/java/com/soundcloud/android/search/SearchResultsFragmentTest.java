@@ -155,7 +155,7 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_EVERYTHING)));
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI)).toEqual(PlayerUIEvent.forExpandPlayer());
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test
