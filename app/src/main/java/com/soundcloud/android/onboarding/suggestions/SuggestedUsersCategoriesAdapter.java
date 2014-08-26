@@ -190,8 +190,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 viewHolder.emptyMessage.setText(category.getEmptyMessage(view.getResources()));
                 break;
 
-            default:
             case DEFAULT:
+            default:
                 if (convertView == null) {
                     view = inflater.inflate(R.layout.suggested_users_category_list_item, parent, false);
                     viewHolder = getContentItemViewHolder(view);
