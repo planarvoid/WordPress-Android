@@ -7,7 +7,6 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -46,20 +45,6 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         @Override
         public void call(PlaybackProgressEvent ignored) {
             trackPager.setPagingEnabled(true);
-        }
-    };
-
-    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isNewQueueEvent = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueTrackEvent playQueueEvent) {
-            return !playQueueManager.isQueueEmpty() && playQueueEvent.wasNewQueue();
-        }
-    };
-
-    private final Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent>() {
-        @Override
-        public PlayerUIEvent call(CurrentPlayQueueTrackEvent ignored) {
-            return PlayerUIEvent.forExpandPlayer();
         }
     };
 
