@@ -123,6 +123,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
 
     // TODO: this should not depend on content URIs, since we're trying to move away from it. Difficult to do without
     // migrating the front end first to not use content URIs
+    @SuppressWarnings("PMD.NPathComplexity")
     public Observable<List<TrackUrn>> getTracksForUriAsync(final Uri uri) {
         return schedule(Observable.create(new Observable.OnSubscribe<List<TrackUrn>>() {
             @Override
