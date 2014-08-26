@@ -24,7 +24,6 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -55,7 +54,6 @@ public class PlaybackOperationsTest {
 
     private PublicApiTrack track;
     private PublicApiPlaylist playlist;
-    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private ScModelManager modelManager;
     @Mock private TrackStorage trackStorage;
@@ -67,7 +65,7 @@ public class PlaybackOperationsTest {
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, eventBus, playSessionStateProvider, playbackToastViewController);
+                playQueueManager, playSessionStateProvider, playbackToastViewController);
         track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());

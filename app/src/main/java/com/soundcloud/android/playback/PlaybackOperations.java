@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -63,7 +62,7 @@ public class PlaybackOperations {
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
-                              PlayQueueManager playQueueManager, EventBus eventBus,
+                              PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider, PlaybackToastViewController playbackToastViewController) {
         this.context = context;
         this.modelManager = modelManager;
@@ -300,7 +299,9 @@ public class PlaybackOperations {
             final TrackUrn track = iterator.next();
             if (i != adjustedPosition && (seenTracks.contains(track) || track.equals(playedTrack))) {
                 iterator.remove();
-                if (i < adjustedPosition) adjustedPosition--;
+                if (i < adjustedPosition) {
+                    adjustedPosition--;
+                }
             } else {
                 seenTracks.add(track);
                 i++;
