@@ -173,7 +173,7 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
         int adjustedPosition = filterPlayables(data.subList(0, position)).size();
         TrackUrn initialTrack = trackUrns.get(adjustedPosition);
         playbackOperations
-                .playFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
+                .playTracksFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
                 .subscribe(new PlayQueueChangedSubscriber(eventBus));
     }
 

@@ -4,6 +4,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -94,11 +96,20 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             } else {
                 final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
                 playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-                playbackOperations.playPlaylist(playlist, playSessionSource);
+                playbackOperations.playTracks(toTrackUrnList(playlist.getTracks()), 0, playSessionSource);
                 eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
             }
         }
     };
+
+    private List<TrackUrn> toTrackUrnList(List<PublicApiTrack> tracksList) {
+        return Lists.transform(tracksList, new Function<PublicApiTrack, TrackUrn>() {
+            @Override
+            public TrackUrn apply(PublicApiTrack track) {
+                return track.getUrn();
+            }
+        });
+    }
 
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override

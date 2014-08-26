@@ -65,7 +65,7 @@ public class SoundAdapterTest {
     public void setup() {
         adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus);
-        when(playbackOperations.playFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SoundAdapterTest {
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
 
-        verify(playbackOperations).playFromUri(
+        verify(playbackOperations).playTracksFromUri(
                 eq(Content.ME_LIKES.uri),
                 eq(0),
                 eq(track.getUrn()),
