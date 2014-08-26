@@ -179,10 +179,10 @@ public class GridViewCompat extends GridView {
          * memory allocation to store the specified number of mappings.
          */
         public LongSparseArray(int initialCapacity) {
-            initialCapacity = ArrayUtils.idealIntArraySize(initialCapacity);
+            final int idealArraySize = ArrayUtils.idealIntArraySize(initialCapacity);
 
-            keys = new long[initialCapacity];
-            values = new Object[initialCapacity];
+            keys = new long[idealArraySize];
+            values = new Object[idealArraySize];
             size = 0;
         }
 

@@ -63,11 +63,14 @@ public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
+            final View view;
             if (convertView == null) {
-                convertView = View.inflate(parent.getContext(), progressItemLayoutResId, null);
+                view = View.inflate(parent.getContext(), progressItemLayoutResId, null);
+            } else {
+                view = convertView;
             }
-            configureAppendingLayout(convertView);
-            return convertView;
+            configureAppendingLayout(view);
+            return view;
 
         } else {
             return super.getView(position, convertView, parent);

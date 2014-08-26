@@ -165,42 +165,47 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         ItemViewHolder viewHolder = null;
 
         final Category category = getItem(position);
+        final View view;
         switch (category.getDisplayType()) {
             case PROGRESS:
                 if (convertView == null) {
-                    convertView = inflater.inflate(R.layout.suggested_users_category_list_loading_item, parent, false);
-                    viewHolder = getItemViewHolder(convertView);
+                    view = inflater.inflate(R.layout.suggested_users_category_list_loading_item, parent, false);
+                    viewHolder = getItemViewHolder(view);
                 } else {
-                    viewHolder = (ItemViewHolder) convertView.getTag();
+                    view = convertView;
+                    viewHolder = (ItemViewHolder) view.getTag();
                 }
                 break;
 
             case EMPTY:
             case ERROR:
                 if (convertView == null) {
-                    convertView = inflater.inflate(R.layout.suggested_users_category_list_empty_item, parent, false);
-                    viewHolder = getItemViewHolder(convertView);
-                    viewHolder.emptyMessage = (TextView) convertView.findViewById(android.R.id.text1);
+                    view = inflater.inflate(R.layout.suggested_users_category_list_empty_item, parent, false);
+                    viewHolder = getItemViewHolder(view);
+                    viewHolder.emptyMessage = (TextView) view.findViewById(android.R.id.text1);
                 } else {
-                    viewHolder = (ItemViewHolder) convertView.getTag();
+                    view = convertView;
+                    viewHolder = (ItemViewHolder) view.getTag();
                 }
-                viewHolder.emptyMessage.setText(category.getEmptyMessage(convertView.getResources()));
+                viewHolder.emptyMessage.setText(category.getEmptyMessage(view.getResources()));
                 break;
 
+            default:
             case DEFAULT:
                 if (convertView == null) {
-                    convertView = inflater.inflate(R.layout.suggested_users_category_list_item, parent, false);
-                    viewHolder = getContentItemViewHolder(convertView);
+                    view = inflater.inflate(R.layout.suggested_users_category_list_item, parent, false);
+                    viewHolder = getContentItemViewHolder(view);
                 } else {
-                    viewHolder = (ItemViewHolder) convertView.getTag();
+                    view = convertView;
+                    viewHolder = (ItemViewHolder) view.getTag();
                 }
                 viewHolder.toggleFollow.setTag(position);
                 configureItemContent(parent.getContext(), category, viewHolder);
                 break;
         }
 
-        configureSectionHeader(position, convertView, viewHolder);
-        return convertView;
+        configureSectionHeader(position, view, viewHolder);
+        return view;
     }
 
     private ItemViewHolder getContentItemViewHolder(View convertView) {

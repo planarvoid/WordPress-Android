@@ -282,18 +282,20 @@ public class NavigationFragment extends Fragment {
             ViewHolder holder = null;
             NavItem navItem = getItem(position);
 
+            final View view;
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_item, parent, false);
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_item, parent, false);
                 holder = new ViewHolder();
-                holder.icon = (ImageView) convertView.findViewById(R.id.nav_item_image);
-                holder.text = (TextView) convertView.findViewById(R.id.nav_item_text);
-                convertView.setTag(holder);
-            } else
-                holder = (ViewHolder) convertView.getTag();
-
+                holder.icon = (ImageView) view.findViewById(R.id.nav_item_image);
+                holder.text = (TextView) view.findViewById(R.id.nav_item_text);
+                view.setTag(holder);
+            } else {
+                view = convertView;
+                holder = (ViewHolder) view.getTag();
+            }
             holder.text.setText(navItem.textId);
             holder.icon.setImageResource(navItem.imageId);
-            return convertView;
+            return view;
         }
 
         private class ViewHolder {
