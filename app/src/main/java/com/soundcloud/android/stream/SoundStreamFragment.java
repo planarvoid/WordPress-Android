@@ -26,6 +26,7 @@ import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,7 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 import java.util.List;
 
+@SuppressLint("ValidFragment")
 public class SoundStreamFragment extends Fragment
         implements RefreshableListComponent<ConnectableObservable<Page<List<PropertySet>>>> {
 
