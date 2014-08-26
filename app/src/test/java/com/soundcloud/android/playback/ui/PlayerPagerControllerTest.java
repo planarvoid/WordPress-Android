@@ -153,6 +153,7 @@ public class PlayerPagerControllerTest {
         controller.onResume();
         controller.onPageSelected(2);
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+        Robolectric.runUiThreadTasksIncludingDelayedTasks();
         verify(playbackOperations).setPlayQueuePosition(2);
     }
 

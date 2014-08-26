@@ -7,7 +7,6 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -22,12 +21,17 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import javax.inject.Inject;
 
 class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTrackPager.OnBlockedSwipeListener {
+
+    private static final int CHANGE_TRACKS_MESSAGE = 0;
+    private static final int CHANGE_TRACKS_DELAY = 350;
 
     private final TrackPagerAdapter adapter;
     private final EventBus eventBus;
@@ -42,24 +46,17 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private boolean shouldChangeTrackOnIdle;
     private boolean isResumed;
 
+    private final Handler changeTracksHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
+        }
+    };
+
     private final Action1<PlaybackProgressEvent> unlockPager = new Action1<PlaybackProgressEvent>() {
         @Override
         public void call(PlaybackProgressEvent ignored) {
             trackPager.setPagingEnabled(true);
-        }
-    };
-
-    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isNewQueueEvent = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueTrackEvent playQueueEvent) {
-            return !playQueueManager.isQueueEmpty() && playQueueEvent.wasNewQueue();
-        }
-    };
-
-    private final Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent> forPlayerExpandEvent = new Func1<CurrentPlayQueueTrackEvent, PlayerUIEvent>() {
-        @Override
-        public PlayerUIEvent call(CurrentPlayQueueTrackEvent ignored) {
-            return PlayerUIEvent.forExpandPlayer();
         }
     };
 
@@ -119,6 +116,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         subscription.unsubscribe();
         unblockPagerSubscription.unsubscribe();
         adapter.unsubscribe();
+        changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
         ObjectAnimator.clearAllAnimations();
     }
 
@@ -186,7 +184,8 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     private void changeTracksIfInForeground() {
         if (isResumed) {
-            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
+            changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
+            changeTracksHandler.sendEmptyMessageDelayed(CHANGE_TRACKS_MESSAGE, CHANGE_TRACKS_DELAY);
         }
     }
 
