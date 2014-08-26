@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 public interface PagePresenter {
 
-    View createItemView(ViewGroup container);
+    View createItemView(ViewGroup container, SkipListener skipListener);
     View clearItemView(View convertView);
     void bindItemView(View view, PropertySet propertySet);
 

@@ -49,6 +49,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
 
+    private SkipListener skipListener;
+
     private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
     private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(EXPECTED_TRACKVIEW_COUNT);
@@ -95,9 +97,13 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     void warmupViewCache(ViewGroup container){
         for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++){
-            final View itemView = trackPagePresenter.createItemView(container);
+            final View itemView = trackPagePresenter.createItemView(container, skipListener);
             addScrapView(i, itemView, TYPE_TRACK_VIEW);
         }
+    }
+
+    void setSkipListener(SkipListener skipListener) {
+        this.skipListener = skipListener;
     }
 
     @Override
@@ -122,7 +128,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         final boolean isNewView = convertView == null;
         final PagePresenter presenter = getPresenter(position);
         final View contentView = isNewView
-                ? presenter.createItemView(container)
+                ? presenter.createItemView(container, skipListener)
                 : presenter.clearItemView(convertView);
 
         final boolean isANewView = isANewView(contentView);

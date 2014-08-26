@@ -25,6 +25,8 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -40,6 +42,7 @@ public class PlayerPagerControllerTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private View container;
     @Mock private PlayerTrackPager viewPager;
+    @Captor private ArgumentCaptor<SkipListener> skipListenerArgumentCaptor;
 
     private PlayerPagerController controller;
     private TestEventBus eventBus = new TestEventBus();
@@ -61,6 +64,26 @@ public class PlayerPagerControllerTest {
         controller.onViewCreated(container);
 
         verify(viewPager).setCurrentItem(eq(3), anyBoolean());
+    }
+
+    @Test
+    public void onNextOnSkipListenerSetsPagerToNextPosition() {
+        when(viewPager.getCurrentItem()).thenReturn(3);
+
+        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        skipListenerArgumentCaptor.getValue().onNext();
+
+        verify(viewPager).setCurrentItem(eq(4));
+    }
+
+    @Test
+    public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
+        when(viewPager.getCurrentItem()).thenReturn(3);
+
+        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        skipListenerArgumentCaptor.getValue().onPrevious();
+
+        verify(viewPager).setCurrentItem(eq(2));
     }
 
     @Test

@@ -7,7 +7,6 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -58,6 +57,7 @@ public class TrackPagerAdapterTest {
     @Mock private AdPagePresenter adPagePresenter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
+    @Mock private SkipListener skipListener;
 
     @Captor private ArgumentCaptor<PropertySet> captorPropertySet;
 
@@ -69,9 +69,11 @@ public class TrackPagerAdapterTest {
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
+        adapter.setSkipListener(skipListener);
+
         final View mockedView1 = mock(View.class);
         final View mockedView2 = mock(View.class);
-        when(trackPagePresenter.createItemView(container)).thenReturn(mockedView1, mockedView2);
+        when(trackPagePresenter.createItemView(container, skipListener)).thenReturn(mockedView1, mockedView2);
         track = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
 
         when(trackOperations.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
@@ -102,7 +104,7 @@ public class TrackPagerAdapterTest {
 
         getPageView();
 
-        verify(trackPagePresenter).createItemView(container);
+        verify(trackPagePresenter).createItemView(container, skipListener);
     }
 
     @Test
@@ -244,7 +246,7 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         getPageView();
 
-        verify(trackPagePresenter).createItemView(container);
+        verify(trackPagePresenter).createItemView(container, skipListener);
     }
 
     @Test
@@ -260,7 +262,7 @@ public class TrackPagerAdapterTest {
         setupAudioAd();
         getPageView();
 
-        verify(adPagePresenter).createItemView(container);
+        verify(adPagePresenter).createItemView(container, skipListener);
     }
 
     @Test

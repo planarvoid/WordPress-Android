@@ -71,14 +71,6 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.track_page_artwork:
                 listener.onTogglePlay();
                 break;
-            case R.id.player_next:
-            case R.id.player_next_touch_area:
-                listener.onNext();
-                break;
-            case R.id.player_previous:
-            case R.id.player_previous_touch_area:
-                listener.onPrevious();
-                break;
             case R.id.footer_controls:
                 listener.onFooterTap();
                 break;
@@ -101,9 +93,10 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public View createItemView(ViewGroup container) {
+    public View createItemView(ViewGroup container, SkipListener skipListener) {
         final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
+        setupSkipListener(trackView, skipListener);
         return trackView;
     }
 
@@ -325,6 +318,36 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         trackView.setTag(holder);
     }
 
+    private void setupSkipListener(View trackView, final SkipListener skipListener) {
+        TrackPageHolder holder = getViewHolder(trackView);
+
+        final View.OnClickListener nextListener = getOnNextListener(skipListener);
+        final View.OnClickListener previousListener = getOnPreviousListener(skipListener);
+        holder.nextTouch.setOnClickListener(nextListener);
+        holder.nextButton.setOnClickListener(nextListener);
+        holder.previousTouch.setOnClickListener(previousListener);
+        holder.previousButton.setOnClickListener(previousListener);
+
+    }
+
+    private View.OnClickListener getOnPreviousListener(final SkipListener skipListener) {
+        return new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    skipListener.onPrevious();
+                }
+            };
+    }
+
+    private View.OnClickListener getOnNextListener(final SkipListener skipListener) {
+        return new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    skipListener.onNext();
+                }
+            };
+    }
+
     private ScrubController.OnScrubListener createScrubViewAnimations(final TrackPageHolder holder) {
         return new ScrubController.OnScrubListener() {
             @Override
@@ -389,8 +412,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
         public void populateViewSets() {
             List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton);
-            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, nextTouch, previousTouch, nextButton,
-                    previousButton, playButton, footer, footerPlayToggle, likeToggle, user);
+            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, user);
 
 
             fullScreenViews = Arrays.asList(title, user, close);

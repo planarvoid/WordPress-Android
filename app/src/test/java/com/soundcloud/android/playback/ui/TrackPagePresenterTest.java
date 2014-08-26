@@ -49,6 +49,7 @@ public class TrackPagePresenterTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
     @Mock private PlayerOverlayController playerVisualStateController;
+    @Mock private SkipListener skipListener;
 
     @Mock private TrackMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackMenuController trackMenuController;
@@ -67,7 +68,7 @@ public class TrackPagePresenterTest {
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
-        trackView = presenter.createItemView(container);
+        trackView = presenter.createItemView(container, skipListener);
     }
 
     @Test
@@ -342,7 +343,7 @@ public class TrackPagePresenterTest {
 
         getHolder(trackView).nextTouch.performClick();
 
-        verify(listener).onNext();
+        verify(skipListener).onNext();
     }
 
     @Test
@@ -351,7 +352,7 @@ public class TrackPagePresenterTest {
 
         getHolder(trackView).previousTouch.performClick();
 
-        verify(listener).onPrevious();
+        verify(skipListener).onPrevious();
     }
 
     @Test

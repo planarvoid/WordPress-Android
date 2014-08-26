@@ -50,7 +50,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public View createItemView(ViewGroup container) {
+    public View createItemView(ViewGroup container, SkipListener skipListener) {
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);

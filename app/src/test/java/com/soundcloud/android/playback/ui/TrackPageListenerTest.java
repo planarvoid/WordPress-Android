@@ -79,13 +79,6 @@ public class TrackPageListenerTest {
     }
 
     @Test
-    public void shouldPerformPreviousAction() {
-        listener.onPrevious();
-
-        verify(playbackOperations).previousTrack();
-    }
-
-    @Test
     public void onGotoUserPostsEventToClosePlayer() throws Exception {
         UserUrn userUrn = Urn.forUser(42L);
 

@@ -44,14 +44,6 @@ class TrackPageListener {
         playbackOperations.togglePlayback();
     }
 
-    public void onNext() {
-        playbackOperations.nextTrack();
-    }
-
-    public void onPrevious() {
-        playbackOperations.previousTrack();
-    }
-
     public void onFooterTap() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
     }

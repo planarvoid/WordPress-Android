@@ -120,14 +120,30 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         ObjectAnimator.clearAllAnimations();
     }
 
-    private void setPager(PlayerTrackPager trackPager) {
+    private void setPager(final PlayerTrackPager trackPager) {
         this.presenter.initialize(trackPager);
         this.trackPager = trackPager;
         this.trackPager.setOnBlockedSwipeListener(this);
         this.trackPager.setOnPageChangeListener(this);
         trackPager.setAdapter(adapter);
         setQueuePosition(playQueueManager.getCurrentPosition());
+
+        adapter.setSkipListener(getSkipListener(trackPager));
         adapter.warmupViewCache(trackPager);
+    }
+
+    private SkipListener getSkipListener(final PlayerTrackPager trackPager) {
+        return new SkipListener() {
+            @Override
+            public void onNext() {
+                trackPager.setCurrentItem(trackPager.getCurrentItem() + 1);
+            }
+
+            @Override
+            public void onPrevious() {
+                trackPager.setCurrentItem(trackPager.getCurrentItem() - 1);
+            }
+        };
     }
 
     private void setQueuePosition(int position) {
