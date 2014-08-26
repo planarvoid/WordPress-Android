@@ -16,7 +16,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
         return TestConsts.BROKEN_LINK;
     }
 
-    public void test_should_land_on_stream_if_cannot_resolve_deeplink() {
+    public void testShouldLandOnStreamIfCannotResolveDeeplink() {
         waiter.expectToast().toHaveText("There was a problem loading that url");
         assertThat(new StreamScreen(solo), is(Visible()));
     }
