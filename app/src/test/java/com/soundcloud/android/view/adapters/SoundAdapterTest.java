@@ -2,11 +2,13 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Association;
@@ -36,8 +38,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.functions.Action1;
+import rx.Observable;
 
+import android.net.Uri;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
@@ -51,7 +54,7 @@ public class SoundAdapterTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private PlaybackOperations playlistOperations;
+    @Mock private PlaybackOperations playbackOperations;
     @Mock private TrackItemPresenter trackPresenter;
     @Mock private PlaylistItemPresenter playlistPresenter;
     @Mock private ViewGroup itemView;
@@ -60,8 +63,9 @@ public class SoundAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new SoundAdapter(Content.ME_LIKES.uri, playlistOperations,
+        adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus);
+        when(playbackOperations.playFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test
@@ -137,12 +141,11 @@ public class SoundAdapterTest {
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
 
-        verify(playlistOperations).playFromUri(
+        verify(playbackOperations).playFromUri(
                 eq(Content.ME_LIKES.uri),
                 eq(0),
                 eq(track.getUrn()),
-                eq(new PlaySessionSource(Screen.YOUR_LIKES)),
-                any(Action1.class));
+                eq(new PlaySessionSource(Screen.YOUR_LIKES)));
     }
 
     @Test

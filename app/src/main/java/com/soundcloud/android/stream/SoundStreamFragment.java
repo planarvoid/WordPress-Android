@@ -9,8 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -22,6 +20,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
+import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -64,6 +63,16 @@ public class SoundStreamFragment extends Fragment
 
     public SoundStreamFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    SoundStreamFragment(SoundStreamOperations soundStreamOperations, SoundStreamAdapter adapter, ListViewController listViewController, PullToRefreshController pullToRefreshController, PlaybackOperations playbackOperations, EventBus eventBus) {
+        this.soundStreamOperations = soundStreamOperations;
+        this.adapter = adapter;
+        this.listViewController = listViewController;
+        this.pullToRefreshController = pullToRefreshController;
+        this.playbackOperations = playbackOperations;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -140,10 +149,9 @@ public class SoundStreamFragment extends Fragment
         final PropertySet item = adapter.getItem(position);
         final Urn playableUrn = item.get(PlayableProperty.URN);
         if (playableUrn instanceof TrackUrn) {
-            final boolean success = playbackOperations.playTracks((TrackUrn) playableUrn, soundStreamOperations.trackUrnsForPlayback(), position, new PlaySessionSource(Screen.SIDE_MENU_STREAM), PlayerUIEvent.actionForExpandPlayer(eventBus));
-            if (!success) {
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-            }
+            playbackOperations
+                    .playTracks(soundStreamOperations.trackUrnsForPlayback(), (TrackUrn) playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .subscribe(new PlayQueueChangedSubscriber(eventBus));
         } else if (playableUrn instanceof PlaylistUrn) {
             PlaylistDetailActivity.start(getActivity(), (PlaylistUrn) playableUrn, Screen.SIDE_MENU_STREAM);
         }

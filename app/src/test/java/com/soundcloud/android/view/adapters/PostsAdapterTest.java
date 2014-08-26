@@ -1,11 +1,14 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.analytics.Screen;
@@ -35,10 +38,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import rx.functions.Action1;
+import rx.Observable;
 
+import android.net.Uri;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
@@ -63,6 +66,8 @@ public class PostsAdapterTest {
 
     @Before
     public void setup() {
+        when(playbackOperations.playFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<List<TrackUrn>>empty());
         adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus);
     }
@@ -134,8 +139,7 @@ public class PostsAdapterTest {
                 eq(Content.ME_LIKES.uri),
                 eq(0),
                 eq(initialTrack),
-                eq(new PlaySessionSource(Screen.YOUR_LIKES)),
-                Matchers.any(Action1.class));
+                eq(new PlaySessionSource(Screen.YOUR_LIKES)));
     }
 
     @Test
