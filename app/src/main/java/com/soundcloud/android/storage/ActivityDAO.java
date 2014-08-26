@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Table object for activity model. Do not use outside this package; use {@link ActivitiesStorage} instead.
  */
-@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
+@SuppressWarnings({"PMD.AvoidThrowingRawExceptionTypes", "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException"})
 /* package */ class ActivityDAO extends BaseDAO<Activity> {
 
     @Inject
@@ -45,6 +45,8 @@ import java.util.Set;
             } catch (RuntimeException e) {
                 // dirty hack by Matthias purely for logging, and I will remove it again, promised.
                 // https://github.com/soundcloud/SoundCloud-Android/issues/2099
+
+                // Remove SuppressWarnings when removing this hack
                 final AccountOperations accountOps = SoundCloudApplication.instance.getAccountOperations();
                 final Exception exception = new Exception("Failed dependency lookup for Activity " + a + "; content="
                         + content + "; token=" + accountOps.getSoundCloudToken() + "; next_href=" + activities.next_href);
