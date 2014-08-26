@@ -47,22 +47,24 @@ class SuggestedUsersAdapter extends BaseAdapter {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat getCheckedItemPositions
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ItemViewHolder viewHolder;
+        final ItemViewHolder viewHolder;
+        final View view;
         if (convertView == null) {
-            convertView = View.inflate(parent.getContext(), R.layout.suggested_user_grid_item,null);
-            viewHolder = getItemViewHolder(convertView);
-            convertView.setTag(viewHolder);
+            view = View.inflate(parent.getContext(), R.layout.suggested_user_grid_item,null);
+            viewHolder = getItemViewHolder(view);
+            view.setTag(viewHolder);
         }else {
-            viewHolder = (ItemViewHolder) convertView.getTag();
+            view = convertView;
+            viewHolder = (ItemViewHolder) view.getTag();
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             final boolean checked = ((GridViewCompat) parent).getCheckedItemPositions().get(position);
-            ((SuggestedUserItemLayout) convertView).setChecked(checked);
+            ((SuggestedUserItemLayout) view).setChecked(checked);
         }
 
         configureViewHolder(getItem(position), viewHolder);
-        return convertView;
+        return view;
     }
 
     private ItemViewHolder getItemViewHolder(View convertView) {
