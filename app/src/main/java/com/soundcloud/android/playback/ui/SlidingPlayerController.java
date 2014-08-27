@@ -191,12 +191,10 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
             dimSystemBars(true);
-            notifyExpandingState();
             isExpanding = true;
         } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
             dimSystemBars(false);
-            notifyCollapsingState();
             isExpanding = false;
         }
     }
@@ -240,14 +238,6 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     private void notifyExpandedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-    }
-
-    private void notifyExpandingState() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanding());
-    }
-
-    private void notifyCollapsingState() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
     }
 
     private void notifyCollapsedState() {
