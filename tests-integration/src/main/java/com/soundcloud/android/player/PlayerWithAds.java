@@ -43,7 +43,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
-        playerElement.tapTrackPageNext();
+        playerElement.tapNext();
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
