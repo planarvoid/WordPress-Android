@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class AdPagePresenter implements PagePresenter, View.OnClickListener {
+class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -198,6 +198,11 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
 
     @Override
     public void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent) {
+        // no-op
+    }
+
+    @Override
+    public void onPositionSet(View trackPage, int position, int size) {
         // no-op
     }
 

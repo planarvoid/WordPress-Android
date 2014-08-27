@@ -389,7 +389,46 @@ public class TrackPagePresenterTest {
         presenter.onPageChange(trackView);
 
         verify(trackMenuController).dismiss();
+    }
 
+    @Test
+    public void onPositionSetHidesPreviousButtonForFirstTrack() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 0, 5);
+
+        expect(getHolder(trackView).nextButton).toBeVisible();
+        expect(getHolder(trackView).previousButton).toBeInvisible();
+    }
+
+    @Test
+    public void onPositionSetHidesNextButtonForLastTrack() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 4, 5);
+
+        expect(getHolder(trackView).nextButton).toBeInvisible();
+        expect(getHolder(trackView).previousButton).toBeVisible();
+    }
+
+    @Test
+    public void onPositionSetShowsBothNavigationButtonsForTrackInMiddleOfQueue() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 2, 5);
+
+        expect(getHolder(trackView).nextButton).toBeVisible();
+        expect(getHolder(trackView).previousButton).toBeVisible();
+    }
+
+    @Test
+    public void onPositionSetHidesBothNavigationButtonsForSingleTrack() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 0, 1);
+
+        expect(getHolder(trackView).nextButton).toBeInvisible();
+        expect(getHolder(trackView).previousButton).toBeInvisible();
     }
 
     @Test(expected = IllegalArgumentException.class)

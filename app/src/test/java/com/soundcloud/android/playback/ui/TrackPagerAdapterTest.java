@@ -283,7 +283,6 @@ public class TrackPagerAdapterTest {
         expect(captorPropertySet.getValue().contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
         expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_BACKGROUND_COLOR)).toBeTrue();
         expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_TEXT_COLOR)).toBeTrue();
-
     }
 
     @Test
@@ -363,6 +362,26 @@ public class TrackPagerAdapterTest {
         final View pageView = getPageView();
         adapter.onPlayerSlide(0.5f);
         verify(trackPagePresenter).onPlayerSlide(pageView, 0.5f);
+    }
+
+    @Test
+    public void bindingTrackViewSetsPositionOnPresenter() {
+        when(playQueueManager.getPositionForUrn(Urn.forTrack(123L))).thenReturn(3);
+        when(playQueueManager.getQueueSize()).thenReturn(5);
+        final View pageView = getPageView();
+
+        verify(trackPagePresenter).onPositionSet(pageView, 3, 5);
+    }
+
+    @Test
+    public void notifyDataSetChangedUpdatesTrackPagePosition() {
+        final View pageView = getPageView();
+        when(playQueueManager.getPositionForUrn(Urn.forTrack(123L))).thenReturn(1);
+        when(playQueueManager.getQueueSize()).thenReturn(2);
+
+        adapter.notifyDataSetChanged();
+
+        verify(trackPagePresenter).onPositionSet(pageView, 1, 2);
     }
 
     private View getPageView() {

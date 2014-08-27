@@ -96,8 +96,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         subscription = new CompositeSubscription();
     }
 
-    void warmupViewCache(ViewGroup container){
-        for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++){
+    void warmupViewCache(ViewGroup container) {
+        for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++) {
             final View itemView = trackPagePresenter.createItemView(container, skipListener);
             addScrapView(i, itemView, TYPE_TRACK_VIEW);
         }
@@ -126,16 +126,16 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     public View getView(int position, View convertView, ViewGroup container) {
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
-        final boolean isNewView = convertView == null;
-        final PagePresenter presenter = getPresenter(position);
-        final View contentView = isNewView
+        final boolean shouldCreateView = convertView == null;
+        final PlayerPagePresenter presenter = getPresenter(position);
+        final View contentView = shouldCreateView
                 ? presenter.createItemView(container, skipListener)
                 : presenter.clearItemView(convertView);
 
-        final boolean isANewView = isANewView(contentView);
+        final boolean isNewView = isNewView(contentView);
         final ViewPageData viewData = new ViewPageData(position, urn);
         trackByViews.put(contentView, viewData); // forcePut to remove existing entry
-        if (isANewView) {
+        if (isNewView) {
             subscribeToPlayEvents(presenter, contentView);
         }
 
@@ -143,11 +143,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return contentView;
     }
 
-    private boolean isANewView(View contentView) {
+    private boolean isNewView(View contentView) {
         return !trackByViews.containsKey(contentView);
     }
 
-    private PagePresenter getPresenter(int position) {
+    private PlayerPagePresenter getPresenter(int position) {
         if (getItemViewType(position) == TYPE_TRACK_VIEW) {
             return trackPagePresenter;
         }
@@ -177,7 +177,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         });
     }
 
-    private View subscribeToPlayEvents(PagePresenter presenter, View trackPage) {
+    private View subscribeToPlayEvents(PlayerPagePresenter presenter, View trackPage) {
         subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus
@@ -204,6 +204,20 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     @Override
+    public void notifyDataSetChanged() {
+        removeCachedAudioAdPages();
+        super.notifyDataSetChanged();
+        updatePagePositions();
+    }
+
+    private void updatePagePositions() {
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            TrackUrn urn = entry.getValue().trackUrn;
+            trackPagePresenter.onPositionSet(entry.getKey(), playQueueManager.getPositionForUrn(urn), playQueueManager.getQueueSize());
+        }
+    }
+
+    @Override
     public int getItemPosition(Object object) {
         final View view = (View) object;
         if (isViewInSamePosition(view)) {
@@ -218,13 +232,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             trackByViews.remove(object);
             return POSITION_NONE;
         }
-    }
-
-    @Override
-    public void notifyDataSetChanged() {
-        removeCachedAudioAdPages();
-
-        super.notifyDataSetChanged();
     }
 
     // since we remove audio ads from the play queue after they played, we need to make sure we're not trying
@@ -288,15 +295,15 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(urn);
     }
 
-    private void updateProgress(PagePresenter presenter, View trackView, TrackUrn urn) {
+    private void updateProgress(PlayerPagePresenter presenter, View trackView, TrackUrn urn) {
         presenter.setProgress(trackView, playSessionStateProvider.getLastProgressByUrn(urn));
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
-        private final PagePresenter presenter;
+        private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        private TrackSubscriber(PagePresenter presenter, View trackPage) {
+        private TrackSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
@@ -306,16 +313,17 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             TrackUrn trackUrn = track.get(TrackProperty.URN);
             if (isTrackRelatedToView(trackPage, trackUrn)) {
                 presenter.bindItemView(trackPage, track);
+                presenter.onPositionSet(trackPage, playQueueManager.getPositionForUrn(trackUrn), playQueueManager.getQueueSize());
                 updateProgress(presenter, trackPage, trackUrn);
             }
         }
     }
 
     private final class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
-        private final PagePresenter presenter;
+        private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        public PlaybackStateSubscriber(PagePresenter presenter, View trackPage) {
+        public PlaybackStateSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
@@ -327,10 +335,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private  final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
-        private final PagePresenter presenter;
+        private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        public PlaybackProgressSubscriber(PagePresenter presenter, View trackPage) {
+        public PlaybackProgressSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
@@ -344,10 +352,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private final class PlayerPanelSubscriber extends DefaultSubscriber<PlayerUIEvent> {
-        private final PagePresenter presenter;
+        private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        public PlayerPanelSubscriber(PagePresenter presenter, View trackPage) {
+        public PlayerPanelSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
@@ -364,10 +372,10 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
-        private final PagePresenter presenter;
+        private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        public PlayableChangedSubscriber(PagePresenter presenter, View trackPage) {
+        public PlayableChangedSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }

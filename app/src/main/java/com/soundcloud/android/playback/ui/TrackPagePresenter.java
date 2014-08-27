@@ -37,7 +37,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class TrackPagePresenter implements PagePresenter, View.OnClickListener {
+class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
 
@@ -184,6 +184,17 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
+    @Override
+    public void onPositionSet(View trackPage, int position, int size) {
+        final TrackPageHolder holder = getViewHolder(trackPage);
+        if (holder.hasNextButton()) {
+            holder.nextButton.setVisibility(position == size - 1 ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (holder.hasPreviousButton()) {
+            holder.previousButton.setVisibility(position == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
+    }
+
     private void showRepostToast(final Context context, final boolean isReposted) {
         Toast.makeText(context, isReposted
                 ? R.string.reposted_to_followers
@@ -325,10 +336,10 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final View.OnClickListener previousListener = getOnPreviousListener(skipListener);
         holder.nextTouch.setOnClickListener(nextListener);
         holder.previousTouch.setOnClickListener(previousListener);
-        if (holder.nextButton != null){
+        if (holder.hasNextButton()) {
             holder.nextButton.setOnClickListener(nextListener);
         }
-        if (holder.previousButton != null){
+        if (holder.hasPreviousButton()) {
             holder.previousButton.setOnClickListener(previousListener);
         }
     }
@@ -417,12 +428,18 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton);
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, user);
 
-
             fullScreenViews = Arrays.asList(title, user, close);
             hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
             progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp);
+        }
 
+        private boolean hasNextButton() {
+            return nextButton != null;
+        }
+
+        private boolean hasPreviousButton() {
+            return previousButton != null;
         }
     }
 
