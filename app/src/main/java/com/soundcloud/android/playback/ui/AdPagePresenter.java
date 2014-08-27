@@ -187,7 +187,7 @@ class AdPagePresenter implements PagePresenter, View.OnClickListener {
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
+        holder.footerPlayToggle.setChecked(playSessionIsActive);
 
         if (stateTransition.playSessionIsActive()) {
             holder.playerOverlayController.showPlayingState();

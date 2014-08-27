@@ -151,7 +151,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
+        holder.footerPlayToggle.setChecked(playSessionIsActive);
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
         setViewPlayState(holder, stateTransition, isCurrentTrack);
 
