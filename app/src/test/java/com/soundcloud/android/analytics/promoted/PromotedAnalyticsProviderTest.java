@@ -165,5 +165,10 @@ public class PromotedAnalyticsProviderTest {
         expect(event2.getUrl()).toEqual("visual2");
     }
 
+    @Test
+    public void shouldForwardFlushCallToEventTracker() {
+        analyticsProvider.flush();
+        verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
+    }
 
 }

@@ -164,7 +164,7 @@ public class EventLoggerAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldForwardFlushCallToEventLogger() {
+    public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
         verify(eventTracker).flush(EventLoggerAnalyticsProvider.BACKEND_NAME);
     }

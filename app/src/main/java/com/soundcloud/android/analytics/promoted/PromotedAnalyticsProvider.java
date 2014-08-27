@@ -31,7 +31,7 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void flush() {
-
+        eventTracker.flush(BACKEND_NAME);
     }
 
     @Override
