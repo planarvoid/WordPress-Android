@@ -22,7 +22,7 @@
             style="@style/SkipContainer"
             android:clickable="true"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/player_engagement_height"
+            android:layout_height="@dimen/player_engagement"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true">
 
@@ -45,7 +45,7 @@
     <RelativeLayout
             android:id="@+id/preview_container"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/player_engagement_height"
+            android:layout_height="@dimen/player_engagement"
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@id/skip_container">
 
@@ -76,6 +76,5 @@
     </RelativeLayout>
 
     <include layout="@layout/player_play_controls" />
-    <include layout="@layout/player_play_controls_touch" />
 
 </RelativeLayout>

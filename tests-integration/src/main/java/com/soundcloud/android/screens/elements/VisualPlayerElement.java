@@ -29,20 +29,12 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.player_previous));
     }
 
-    public ViewElement previousPageArea() {
-        return solo.findElement(With.id(R.id.player_previous_touch_area));
-    }
-
     public ViewElement playButton() {
         return solo.findElement(With.id(R.id.player_play));
     }
 
     public ViewElement nextButton() {
         return solo.findElement(With.id(R.id.player_next));
-    }
-
-    public ViewElement nextPageArea() {
-        return solo.findElement(With.id(R.id.player_next_touch_area));
     }
 
     public ViewElement skipAd() {
@@ -119,16 +111,6 @@ public class VisualPlayerElement extends Element {
 
     public void tapPrevious() {
         previousButton().click();
-        waiter.waitForPlayerPage();
-    }
-
-    public void tapTrackPageNext() {
-        nextPageArea().click();
-        waiter.waitForPlayerPage();
-    }
-
-    public void tapTrackPagePrevious() {
-        previousPageArea().click();
         waiter.waitForPlayerPage();
     }
 

@@ -107,16 +107,6 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
     }
 
-    public void testSkippingWithNextAndPreviousChangesTrackWhilePlaying() {
-        playerElement = streamScreen.clickFirstTrack();
-        String originalTrack = playerElement.getTrackTitle();
-
-        playerElement.tapTrackPageNext();
-        assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
-        playerElement.tapTrackPagePrevious();
-        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
-    }
-
     public void testSwipingNextAndPreviousChangesTrack() {
         playTrackFromLikes();
         String originalTrack = playerElement.getTrackTitle();

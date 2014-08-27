@@ -49,6 +49,7 @@ public class TrackPagePresenterTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
     @Mock private PlayerOverlayController playerVisualStateController;
+    @Mock private SkipListener skipListener;
 
     @Mock private TrackMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackMenuController trackMenuController;
@@ -67,7 +68,7 @@ public class TrackPagePresenterTest {
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
-        trackView = presenter.createItemView(container);
+        trackView = presenter.createItemView(container, skipListener);
     }
 
     @Test
@@ -159,7 +160,7 @@ public class TrackPagePresenterTest {
     @Test
     public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
-        verify(artworkController).showSessionActiveState();
+        verify(artworkController).showIdleState();
     }
 
     @Test
@@ -178,7 +179,7 @@ public class TrackPagePresenterTest {
     @Test
     public void bufferingStateWithCurrentTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true);
-        verify(artworkController).showSessionActiveState();
+        verify(artworkController).showIdleState();
     }
 
     @Test
@@ -197,7 +198,7 @@ public class TrackPagePresenterTest {
     @Test
     public void bufferingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false);
-        verify(artworkController).showSessionActiveState();
+        verify(artworkController).showIdleState();
     }
 
     @Test
@@ -340,18 +341,18 @@ public class TrackPagePresenterTest {
     public void nextOnTrackPagerNextClick() {
         populateTrackPage();
 
-        getHolder(trackView).nextTouch.performClick();
+        getHolder(trackView).nextButton.performClick();
 
-        verify(listener).onNext();
+        verify(skipListener).onNext();
     }
 
     @Test
     public void nextOnTrackPagerPreviousClick() {
         populateTrackPage();
 
-        getHolder(trackView).previousTouch.performClick();
+        getHolder(trackView).previousButton.performClick();
 
-        verify(listener).onPrevious();
+        verify(skipListener).onPrevious();
     }
 
     @Test
@@ -388,7 +389,46 @@ public class TrackPagePresenterTest {
         presenter.onPageChange(trackView);
 
         verify(trackMenuController).dismiss();
+    }
 
+    @Test
+    public void onPositionSetHidesPreviousButtonForFirstTrack() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 0, 5);
+
+        expect(getHolder(trackView).nextButton).toBeVisible();
+        expect(getHolder(trackView).previousButton).toBeInvisible();
+    }
+
+    @Test
+    public void onPositionSetHidesNextButtonForLastTrack() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 4, 5);
+
+        expect(getHolder(trackView).nextButton).toBeInvisible();
+        expect(getHolder(trackView).previousButton).toBeVisible();
+    }
+
+    @Test
+    public void onPositionSetShowsBothNavigationButtonsForTrackInMiddleOfQueue() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 2, 5);
+
+        expect(getHolder(trackView).nextButton).toBeVisible();
+        expect(getHolder(trackView).previousButton).toBeVisible();
+    }
+
+    @Test
+    public void onPositionSetHidesBothNavigationButtonsForSingleTrack() {
+        populateTrackPage();
+
+        presenter.onPositionSet(trackView, 0, 1);
+
+        expect(getHolder(trackView).nextButton).toBeInvisible();
+        expect(getHolder(trackView).previousButton).toBeInvisible();
     }
 
     @Test(expected = IllegalArgumentException.class)

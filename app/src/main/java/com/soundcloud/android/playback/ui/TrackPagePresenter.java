@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -37,7 +38,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class TrackPagePresenter implements PagePresenter, View.OnClickListener {
+class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
 
@@ -71,14 +72,6 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             case R.id.track_page_artwork:
                 listener.onTogglePlay();
                 break;
-            case R.id.player_next:
-            case R.id.player_next_touch_area:
-                listener.onNext();
-                break;
-            case R.id.player_previous:
-            case R.id.player_previous_touch_area:
-                listener.onPrevious();
-                break;
             case R.id.footer_controls:
                 listener.onFooterTap();
                 break;
@@ -101,9 +94,10 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
     }
 
     @Override
-    public View createItemView(ViewGroup container) {
+    public View createItemView(ViewGroup container, SkipListener skipListener) {
         final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
+        setupSkipListener(trackView, skipListener);
         return trackView;
     }
 
@@ -158,7 +152,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
-        holder.footerPlayToggle.setChecked(playSessionIsActive && isCurrentTrack);
+        holder.footerPlayToggle.setChecked(playSessionIsActive);
         setWaveformPlayState(holder, stateTransition, isCurrentTrack);
         setViewPlayState(holder, stateTransition, isCurrentTrack);
 
@@ -188,6 +182,17 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             if (playableUpdatedEvent.isFromRepost()) {
                 showRepostToast(trackPage.getContext(), isReposted);
             }
+        }
+    }
+
+    @Override
+    public void onPositionSet(View trackPage, int position, int size) {
+        final TrackPageHolder holder = getViewHolder(trackPage);
+        if (holder.hasNextButton()) {
+            holder.nextButton.setVisibility(position == size - 1 ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (holder.hasPreviousButton()) {
+            holder.previousButton.setVisibility(position == 0 ? View.INVISIBLE : View.VISIBLE);
         }
     }
 
@@ -223,7 +228,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
             if (isCurrentTrack && state.isPlayerPlaying()) {
                 holder.artworkController.showPlayingState(state.getProgress());
             } else {
-                holder.artworkController.showSessionActiveState();
+                holder.artworkController.showIdleState();
             }
             holder.playerOverlayController.showPlayingState();
         } else {
@@ -282,6 +287,56 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         }
     }
 
+    private void setupSkipListener(View trackView, final SkipListener skipListener) {
+        TrackPageHolder holder = getViewHolder(trackView);
+
+        final View.OnClickListener nextListener = getOnNextListener(skipListener);
+        final View.OnClickListener previousListener = getOnPreviousListener(skipListener);
+        if (holder.hasNextButton()) {
+            holder.nextButton.setOnClickListener(nextListener);
+        }
+        if (holder.hasPreviousButton()) {
+            holder.previousButton.setOnClickListener(previousListener);
+        }
+    }
+
+    private View.OnClickListener getOnPreviousListener(final SkipListener skipListener) {
+        return new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    skipListener.onPrevious();
+                }
+            };
+    }
+
+    private View.OnClickListener getOnNextListener(final SkipListener skipListener) {
+        return new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    skipListener.onNext();
+                }
+            };
+    }
+
+    private ScrubController.OnScrubListener createScrubViewAnimations(final TrackPageHolder holder) {
+        return new ScrubController.OnScrubListener() {
+            @Override
+            public void scrubStateChanged(int newScrubState) {
+                for (View v : holder.hideOnScrubViews) {
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", ViewHelper.getAlpha(v),
+                            newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);
+                    animator.setDuration(SCRUB_TRANSITION_ALPHA_DURATION);
+                    animator.start();
+                }
+            }
+
+            @Override
+            public void displayScrubPosition(float scrubPosition) {
+                // no-op
+            }
+        };
+    }
+
     private TrackPageHolder getViewHolder(View trackView) {
         return (TrackPageHolder) trackView.getTag();
     }
@@ -297,9 +352,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         holder.more = trackView.findViewById(R.id.track_page_more);
         holder.close = trackView.findViewById(R.id.player_close);
         holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
-        holder.nextTouch = trackView.findViewById(R.id.player_next_touch_area);
         holder.nextButton = trackView.findViewById(R.id.player_next);
-        holder.previousTouch = trackView.findViewById(R.id.player_previous_touch_area);
         holder.previousButton = trackView.findViewById(R.id.player_previous);
         holder.playButton = trackView.findViewById(R.id.player_play);
 
@@ -325,25 +378,6 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         trackView.setTag(holder);
     }
 
-    private ScrubController.OnScrubListener createScrubViewAnimations(final TrackPageHolder holder) {
-        return new ScrubController.OnScrubListener() {
-            @Override
-            public void scrubStateChanged(int newScrubState) {
-                for (View v : holder.hideOnScrubViews) {
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", ViewHelper.getAlpha(v),
-                            newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);
-                    animator.setDuration(SCRUB_TRANSITION_ALPHA_DURATION);
-                    animator.start();
-                }
-            }
-
-            @Override
-            public void displayScrubPosition(float scrubPosition) {
-                // no-op
-            }
-        };
-    }
-
     static class TrackPageHolder {
 
         // Expanded player
@@ -359,9 +393,7 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
         View more;
         View close;
         View bottomClose;
-        View nextTouch;
         View nextButton;
-        View previousTouch;
         View previousButton;
         View playButton;
         View playControlsHolder;
@@ -389,15 +421,20 @@ class TrackPagePresenter implements PagePresenter, View.OnClickListener {
 
         public void populateViewSets() {
             List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton);
-            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, nextTouch, previousTouch, nextButton,
-                    previousButton, playButton, footer, footerPlayToggle, likeToggle, user);
-
+            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, user);
 
             fullScreenViews = Arrays.asList(title, user, close);
             hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
             progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp);
+        }
 
+        private boolean hasNextButton() {
+            return nextButton != null;
+        }
+
+        private boolean hasPreviousButton() {
+            return previousButton != null;
         }
     }
 

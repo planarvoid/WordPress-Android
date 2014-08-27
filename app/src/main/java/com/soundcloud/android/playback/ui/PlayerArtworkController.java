@@ -9,7 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -26,7 +25,6 @@ import javax.inject.Inject;
 
 public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener, ImageListener {
     private final PlayerTrackArtworkView artworkView;
-    private final PlaySessionStateProvider playSessionStateProvider;
     private final ImageView wrappedImageView;
     private final ProgressController progressController;
     private final ImageOperations imageOperations;
@@ -35,24 +33,16 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     private boolean suppressProgress;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
+    private boolean isPlaying;
 
     public PlayerArtworkController(PlayerTrackArtworkView artworkView,
                                    ProgressController.Factory animationControllerFactory,
-                                   PlaySessionStateProvider playSessionStateProvider,
                                    ImageOperations imageOperations) {
         this.artworkView = artworkView;
-        this.playSessionStateProvider = playSessionStateProvider;
         this.imageOperations = imageOperations;
         wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
         progressController = animationControllerFactory.create(wrappedImageView);
         artworkView.setOnWidthChangedListener(this);
-    }
-
-    public void showPlayingState(PlaybackProgress progress) {
-        showSessionActiveState();
-        if (progress != null && !suppressProgress) {
-            progressController.startProgressAnimation(progress);
-        }
     }
 
     @Override
@@ -63,11 +53,15 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
-    public void showSessionActiveState() {
-        progressController.cancelProgressAnimation();
+    public void showPlayingState(PlaybackProgress progress) {
+        isPlaying = true;
+        if (progress != null && !suppressProgress) {
+            progressController.startProgressAnimation(progress);
+        }
     }
 
     public void showIdleState() {
+        isPlaying = false;
         progressController.cancelProgressAnimation();
     }
 
@@ -77,7 +71,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         if (suppressProgress) {
             progressController.cancelProgressAnimation();
         }
-        if (newScrubState == SCRUB_STATE_CANCELLED && playSessionStateProvider.isPlaying()) {
+        if (newScrubState == SCRUB_STATE_CANCELLED && isPlaying) {
             progressController.startProgressAnimation(latestProgress);
         }
     }
@@ -133,20 +127,17 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
-        private final PlaySessionStateProvider playSessionStateProvider;
         private final ImageOperations imageOperations;
 
         @Inject
-        Factory(ProgressController.Factory animationControllerFactory, PlaySessionStateProvider playSessionStateProvider,
-                ImageOperations imageOperations) {
+        Factory(ProgressController.Factory animationControllerFactory, ImageOperations imageOperations) {
             this.animationControllerFactory = animationControllerFactory;
-            this.playSessionStateProvider = playSessionStateProvider;
             this.imageOperations = imageOperations;
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
             return new PlayerArtworkController(artworkView, animationControllerFactory,
-                    playSessionStateProvider, imageOperations);
+                    imageOperations);
         }
     }
 }

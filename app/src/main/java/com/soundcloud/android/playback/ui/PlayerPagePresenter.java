@@ -8,15 +8,16 @@ import com.soundcloud.propeller.PropertySet;
 import android.view.View;
 import android.view.ViewGroup;
 
-public interface PagePresenter {
+public interface PlayerPagePresenter {
 
-    View createItemView(ViewGroup container);
+    View createItemView(ViewGroup container, SkipListener skipListener);
     View clearItemView(View convertView);
     void bindItemView(View view, PropertySet propertySet, boolean viewPresentingCurrentTrack);
 
     void setProgress(View trackPage, PlaybackProgress progress);
-    void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean viewPresentingCurrentTrack);
+    void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean isCurrentTrack);
     void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent);
+    void onPositionSet(View trackPage, int position, int size);
 
     void setCollapsed(View trackPage);
     void setExpanded(View trackPage);

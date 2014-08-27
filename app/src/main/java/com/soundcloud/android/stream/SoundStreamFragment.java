@@ -25,6 +25,7 @@ import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
+@SuppressLint("ValidFragment")
 public class SoundStreamFragment extends Fragment
         implements RefreshableListComponent<ConnectableObservable<Page<List<PropertySet>>>> {
 
@@ -158,7 +160,7 @@ public class SoundStreamFragment extends Fragment
                     .playTracks(soundStreamOperations.trackUrnsForPlayback(), (TrackUrn) playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playableUrn instanceof PlaylistUrn) {
-            PlaylistDetailActivity.start(getActivity(), (PlaylistUrn) playableUrn, Screen.SIDE_MENU_STREAM);
+            PlaylistDetailActivity.start(getActivity(), playableUrn, Screen.SIDE_MENU_STREAM);
         }
     }
 }

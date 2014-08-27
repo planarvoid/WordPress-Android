@@ -112,7 +112,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         uriSubscription.unsubscribe();
         uriSubscription = proxy.uriObservable(getStreamUrlAppendedId(this.track), null)
-                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MediaPlayerDataSourceObserver());
     }
 
@@ -566,7 +566,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 mediaPlayer.stop();
             }
 
-            mediaPlayerManager.stopAndRelease(mediaPlayer);
+            mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
 
             setInternalState(PlaybackState.STOPPED, progress, duration);

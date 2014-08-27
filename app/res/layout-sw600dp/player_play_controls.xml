@@ -19,7 +19,7 @@
                  android:layout_weight="1">
         <Button
                 android:id="@+id/player_play"
-                style="@style/PlayerToggle"
+                style="@style/PlayerPlay"
                 android:layout_gravity="center"/>
     </FrameLayout>
 

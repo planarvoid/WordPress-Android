@@ -57,6 +57,7 @@ public class TrackPagerAdapterTest {
     @Mock private AdPagePresenter adPagePresenter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
+    @Mock private SkipListener skipListener;
 
     @Captor private ArgumentCaptor<PropertySet> captorPropertySet;
 
@@ -68,9 +69,11 @@ public class TrackPagerAdapterTest {
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
+        adapter.setSkipListener(skipListener);
+
         final View mockedView1 = mock(View.class);
         final View mockedView2 = mock(View.class);
-        when(trackPagePresenter.createItemView(container)).thenReturn(mockedView1, mockedView2);
+        when(trackPagePresenter.createItemView(container, skipListener)).thenReturn(mockedView1, mockedView2);
         track = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
 
         when(trackOperations.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
@@ -101,7 +104,7 @@ public class TrackPagerAdapterTest {
 
         getPageView();
 
-        verify(trackPagePresenter).createItemView(container);
+        verify(trackPagePresenter).createItemView(container, skipListener);
     }
 
     @Test
@@ -243,7 +246,7 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         getPageView();
 
-        verify(trackPagePresenter).createItemView(container);
+        verify(trackPagePresenter).createItemView(container, skipListener);
     }
 
     @Test
@@ -259,7 +262,7 @@ public class TrackPagerAdapterTest {
         setupAudioAd();
         getPageView();
 
-        verify(adPagePresenter).createItemView(container);
+        verify(adPagePresenter).createItemView(container, skipListener);
     }
 
     @Test
@@ -280,7 +283,6 @@ public class TrackPagerAdapterTest {
         expect(captorPropertySet.getValue().contains(AdProperty.FOCUSED_BACKGROUND_COLOR)).toBeTrue();
         expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_BACKGROUND_COLOR)).toBeTrue();
         expect(captorPropertySet.getValue().contains(AdProperty.PRESSED_TEXT_COLOR)).toBeTrue();
-
     }
 
     @Test
@@ -360,6 +362,26 @@ public class TrackPagerAdapterTest {
         final View pageView = getPageView();
         adapter.onPlayerSlide(0.5f);
         verify(trackPagePresenter).onPlayerSlide(pageView, 0.5f);
+    }
+
+    @Test
+    public void bindingTrackViewSetsPositionOnPresenter() {
+        when(playQueueManager.getPositionForUrn(Urn.forTrack(123L))).thenReturn(3);
+        when(playQueueManager.getQueueSize()).thenReturn(5);
+        final View pageView = getPageView();
+
+        verify(trackPagePresenter).onPositionSet(pageView, 3, 5);
+    }
+
+    @Test
+    public void notifyDataSetChangedUpdatesTrackPagePosition() {
+        final View pageView = getPageView();
+        when(playQueueManager.getPositionForUrn(Urn.forTrack(123L))).thenReturn(1);
+        when(playQueueManager.getQueueSize()).thenReturn(2);
+
+        adapter.notifyDataSetChanged();
+
+        verify(trackPagePresenter).onPositionSet(pageView, 1, 2);
     }
 
     private View getPageView() {

@@ -514,7 +514,7 @@ public class TestHelper {
         ShadowAccountManager shadowAccountManager = shadowOf(ShadowAccountManager.get(DefaultTestRunner.application));
         AccountOperations accountOperations = DefaultTestRunner.application.getAccountOperations();
 
-        if (!accountOperations.isUserLoggedIn()) {
+        if (!accountOperations.accountManagerHasSoundCloudAccount()) {
             shadowAccountManager.addAccount(new Account("name", "com.soundcloud.android.account"));
         }
 

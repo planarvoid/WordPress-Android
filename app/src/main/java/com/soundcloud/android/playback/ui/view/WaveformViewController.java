@@ -1,9 +1,13 @@
 package com.soundcloud.android.playback.ui.view;
 
+import static com.soundcloud.android.playback.service.Playa.PlayaState.BUFFERING;
+import static com.soundcloud.android.playback.service.Playa.PlayaState.IDLE;
+import static com.soundcloud.android.playback.service.Playa.PlayaState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
@@ -44,10 +48,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     private int adjustedWidth;
     private boolean suppressProgress;
-    private boolean playSessionIsActive;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
     private boolean isExpanded;
+    private Playa.PlayaState currentState = IDLE;
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
@@ -73,7 +77,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         if (suppressProgress) {
             cancelProgressAnimations();
         }
-        if (newScrubState == SCRUB_STATE_CANCELLED && playSessionIsActive) {
+        if (newScrubState == SCRUB_STATE_CANCELLED && currentState == PLAYING) {
             startProgressAnimations(latestProgress);
         }
     }
@@ -82,7 +86,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public void displayScrubPosition(float scrubPosition) {
         leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), scrubPosition);
         rightProgressHelper.setValueFromProportion( waveformView.getRightWaveform(), scrubPosition);
-        if (!playSessionIsActive){
+        if (currentState == IDLE){
             leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), scrubPosition);
             rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), scrubPosition);
         }
@@ -98,7 +102,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             rightProgressController.setPlaybackProgress(progress);
             dragProgressController.setPlaybackProgress(progress);
 
-            if (!playSessionIsActive){
+            if (currentState == IDLE){
                 waveformView.showIdleLinesAtWaveformPositions();
             }
         }
@@ -142,7 +146,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void showPlayingState(PlaybackProgress progress) {
-        playSessionIsActive = true;
+        currentState = PLAYING;
         waveformView.showExpandedWaveform();
         if (!suppressProgress) {
             startProgressAnimations(progress);
@@ -150,13 +154,13 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void showBufferingState() {
-        playSessionIsActive = true;
+        currentState = BUFFERING;
         waveformView.showExpandedWaveform();
         cancelProgressAnimations();
     }
 
     public void showIdleState() {
-        playSessionIsActive = false;
+        currentState = IDLE;
         // must happen in order to retain translation values for nine-old-androids on pre-honeycomb
         waveformView.showIdleLinesAtWaveformPositions();
         waveformView.showCollapsedWaveform();
@@ -225,7 +229,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         @Override
         public void onNext(Pair<Bitmap, Bitmap> bitmaps) {
             waveformView.setWaveformBitmaps(bitmaps);
-            if (playSessionIsActive){
+            if (currentState != IDLE){
                 waveformView.showExpandedWaveform();
             }
         }

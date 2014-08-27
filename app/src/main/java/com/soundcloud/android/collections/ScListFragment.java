@@ -488,7 +488,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
      * that is also in idle state. If not in that state, then set the loading state to prevent unwanted refreshes/syncs
      */
     private void configurePullToRefreshState() {
-        if (isInLayout() && listView != null && localCollection != null) {
+        if (pullToRefreshController.isAttached()
+                && isInLayout() && listView != null && localCollection != null) {
             if (localCollection.isIdle()) {
                 pullToRefreshController.stopRefreshing();
             } else {

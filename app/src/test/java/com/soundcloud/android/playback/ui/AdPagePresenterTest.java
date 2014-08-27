@@ -42,12 +42,13 @@ public class AdPagePresenterTest {
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
+    @Mock private SkipListener skipListener;
 
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
-        adView = presenter.createItemView(new FrameLayout(new FragmentActivity()));
+        adView = presenter.createItemView(new FrameLayout(new FragmentActivity()), skipListener);
         presenter.bindItemView(adView, buildAd(), true);
     }
 
@@ -183,14 +184,6 @@ public class AdPagePresenterTest {
 
     private View skipAd() {
         return adView.findViewById(R.id.skip_ad);
-    }
-
-    private View nextArea() {
-        return adView.findViewById(R.id.player_next_touch_area);
-    }
-
-    private View previousArea() {
-        return adView.findViewById(R.id.player_previous_touch_area);
     }
 
     private View previewArtworkOverlay() {

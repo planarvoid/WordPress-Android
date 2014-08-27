@@ -12,17 +12,17 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Token;
 import dagger.Lazy;
@@ -61,7 +61,9 @@ public class AccountOperations extends ScheduledOperations {
     private final EventBus eventBus;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
 
+    @Deprecated
     private volatile PublicApiUser loggedInUser;
+    private volatile UserUrn loggedInUserUrn;
 
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
@@ -106,6 +108,7 @@ public class AccountOperations extends ScheduledOperations {
      * Returns the logged in user. You should not rely on the return value unless you have checked the user is
      * actually logged in.
      */
+    @Deprecated
     public PublicApiUser getLoggedInUser() {
         if (loggedInUser == null) {
             // this means we haven't received all user metadata yet, fall back temporarily to a minimal representation
@@ -129,7 +132,10 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public UserUrn getLoggedInUserUrn() {
-        return Urn.forUser(getLoggedInUserId());
+        if (loggedInUserUrn == null){
+            loggedInUserUrn = Urn.forUser(getLoggedInUserId());
+        }
+        return loggedInUserUrn;
     }
 
     public boolean isLoggedInUser(UserUrn user) {
@@ -150,10 +156,12 @@ public class AccountOperations extends ScheduledOperations {
 
     private void updateLoggedInUser(final PublicApiUser user) {
         loggedInUser = modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
+        loggedInUserUrn = user.getUrn();
     }
 
     public void clearLoggedInUser() {
         loggedInUser = null;
+        loggedInUserUrn = null;
     }
 
     public String getGoogleAccountToken(String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
@@ -166,7 +174,7 @@ public class AccountOperations extends ScheduledOperations {
 
     //TODO: now that this class is a singleton, we should probably cache the current account?
     public boolean isUserLoggedIn() {
-        return getSoundCloudAccount() != null;
+        return !getLoggedInUserUrn().equals(UserUrn.NOT_SET);
     }
 
     public void triggerLoginFlow(Activity currentActivityContext) {
@@ -241,10 +249,10 @@ public class AccountOperations extends ScheduledOperations {
 
     @Nullable
     private String getAccountDataString(String key) {
-        if (isUserLoggedIn()) {
-            return accountManager.getUserData(getSoundCloudAccount(), key);
+        final Account soundCloudAccount = getSoundCloudAccount();
+        if (soundCloudAccount != null) {
+            return accountManager.getUserData(soundCloudAccount, key);
         }
-
         return null;
     }
 
@@ -262,7 +270,8 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public boolean setAccountData(String key, String value) {
-        if (isUserLoggedIn()) {
+        final Account soundCloudAccount = getSoundCloudAccount();
+        if (soundCloudAccount != null) {
             /*
             TODO: not sure : setUserData off the ui thread??
                 StrictMode policy violation; ~duration=161 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=279 violation=1
@@ -274,7 +283,7 @@ public class AccountOperations extends ScheduledOperations {
                 D/StrictMode(15333): 	at android.accounts.AccountManager.setUserData(AccountManager.java:684)
                 D/StrictMode(15333): 	at com.soundcloud.android.SoundCloudApplication.setAccountData(SoundCloudApplication.java:314)
              */
-            accountManager.setUserData(getSoundCloudAccount(), key, value);
+            accountManager.setUserData(soundCloudAccount, key, value);
             return true;
         } else {
             return false;
@@ -283,11 +292,15 @@ public class AccountOperations extends ScheduledOperations {
 
     @Nullable
     public Token getSoundCloudToken() {
-        if (isUserLoggedIn()) {
+        if (accountManagerHasSoundCloudAccount()) {
             return tokenOperations.getSoundCloudToken(getSoundCloudAccount());
         }
 
         return null;
+    }
+
+    public boolean accountManagerHasSoundCloudAccount() {
+        return getSoundCloudAccount() != null;
     }
 
     public void invalidateSoundCloudToken(Token token) {
@@ -295,7 +308,7 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public void storeSoundCloudTokenData(Token token) {
-        checkState(isUserLoggedIn(), "SoundCloud Account needs to exist before storing token info");
+        checkState(accountManagerHasSoundCloudAccount(), "SoundCloud Account needs to exist before storing token info");
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 

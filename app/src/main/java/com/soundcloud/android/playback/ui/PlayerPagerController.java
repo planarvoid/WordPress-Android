@@ -21,12 +21,17 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import javax.inject.Inject;
 
 class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTrackPager.OnBlockedSwipeListener {
+
+    private static final int CHANGE_TRACKS_MESSAGE = 0;
+    private static final int CHANGE_TRACKS_DELAY = 350;
 
     private final TrackPagerAdapter adapter;
     private final EventBus eventBus;
@@ -40,6 +45,13 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private PlayerTrackPager trackPager;
     private boolean shouldChangeTrackOnIdle;
     private boolean isResumed;
+
+    private final Handler changeTracksHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
+        }
+    };
 
     private final Action1<PlaybackProgressEvent> unlockPager = new Action1<PlaybackProgressEvent>() {
         @Override
@@ -104,17 +116,34 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         subscription.unsubscribe();
         unblockPagerSubscription.unsubscribe();
         adapter.unsubscribe();
+        changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
         ObjectAnimator.clearAllAnimations();
     }
 
-    private void setPager(PlayerTrackPager trackPager) {
+    private void setPager(final PlayerTrackPager trackPager) {
         this.presenter.initialize(trackPager);
         this.trackPager = trackPager;
         this.trackPager.setOnBlockedSwipeListener(this);
         this.trackPager.setOnPageChangeListener(this);
         trackPager.setAdapter(adapter);
         setQueuePosition(playQueueManager.getCurrentPosition());
+
+        adapter.setSkipListener(getSkipListener(trackPager));
         adapter.warmupViewCache(trackPager);
+    }
+
+    private SkipListener getSkipListener(final PlayerTrackPager trackPager) {
+        return new SkipListener() {
+            @Override
+            public void onNext() {
+                trackPager.setCurrentItem(trackPager.getCurrentItem() + 1);
+            }
+
+            @Override
+            public void onPrevious() {
+                trackPager.setCurrentItem(trackPager.getCurrentItem() - 1);
+            }
+        };
     }
 
     private void setQueuePosition(int position) {
@@ -171,7 +200,8 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     private void changeTracksIfInForeground() {
         if (isResumed) {
-            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
+            changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
+            changeTracksHandler.sendEmptyMessageDelayed(CHANGE_TRACKS_MESSAGE, CHANGE_TRACKS_DELAY);
         }
     }
 
