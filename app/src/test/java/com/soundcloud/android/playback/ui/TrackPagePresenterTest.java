@@ -341,7 +341,7 @@ public class TrackPagePresenterTest {
     public void nextOnTrackPagerNextClick() {
         populateTrackPage();
 
-        getHolder(trackView).nextTouch.performClick();
+        getHolder(trackView).nextButton.performClick();
 
         verify(skipListener).onNext();
     }
@@ -350,7 +350,7 @@ public class TrackPagePresenterTest {
     public void nextOnTrackPagerPreviousClick() {
         populateTrackPage();
 
-        getHolder(trackView).previousTouch.performClick();
+        getHolder(trackView).previousButton.performClick();
 
         verify(skipListener).onPrevious();
     }

@@ -286,56 +286,11 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         }
     }
 
-    private TrackPageHolder getViewHolder(View trackView) {
-        return (TrackPageHolder) trackView.getTag();
-    }
-
-    private void setupHolder(View trackView) {
-        TrackPageHolder holder = new TrackPageHolder();
-        holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
-        holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
-        holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
-        holder.artworkOverlay = holder.artworkView.findViewById(R.id.artwork_overlay);
-        holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
-        holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
-        holder.more = trackView.findViewById(R.id.track_page_more);
-        holder.close = trackView.findViewById(R.id.player_close);
-        holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
-        holder.nextTouch = trackView.findViewById(R.id.player_next_touch_area);
-        holder.nextButton = trackView.findViewById(R.id.player_next);
-        holder.previousTouch = trackView.findViewById(R.id.player_previous_touch_area);
-        holder.previousButton = trackView.findViewById(R.id.player_previous);
-        holder.playButton = trackView.findViewById(R.id.player_play);
-
-        holder.footer = trackView.findViewById(R.id.footer_controls);
-        holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
-        holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
-        holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
-
-        final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
-        holder.waveformController = waveformControllerFactory.create(waveform);
-        holder.artworkController = artworkControllerFactory.create(holder.artworkView);
-        holder.playerOverlayController = playerOverlayControllerFactory.create(holder.artworkOverlay);
-
-        holder.waveformController.addScrubListener(holder.artworkController);
-        holder.waveformController.addScrubListener(holder.timestamp);
-        holder.waveformController.addScrubListener(holder.playerOverlayController);
-        holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
-        holder.menuController = trackMenuControllerFactory.create(holder.more);
-        holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
-        holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
-
-        holder.populateViewSets();
-        trackView.setTag(holder);
-    }
-
     private void setupSkipListener(View trackView, final SkipListener skipListener) {
         TrackPageHolder holder = getViewHolder(trackView);
 
         final View.OnClickListener nextListener = getOnNextListener(skipListener);
         final View.OnClickListener previousListener = getOnPreviousListener(skipListener);
-        holder.nextTouch.setOnClickListener(nextListener);
-        holder.previousTouch.setOnClickListener(previousListener);
         if (holder.hasNextButton()) {
             holder.nextButton.setOnClickListener(nextListener);
         }
@@ -381,6 +336,47 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         };
     }
 
+    private TrackPageHolder getViewHolder(View trackView) {
+        return (TrackPageHolder) trackView.getTag();
+    }
+
+    private void setupHolder(View trackView) {
+        TrackPageHolder holder = new TrackPageHolder();
+        holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
+        holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
+        holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
+        holder.artworkOverlay = holder.artworkView.findViewById(R.id.artwork_overlay);
+        holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
+        holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
+        holder.more = trackView.findViewById(R.id.track_page_more);
+        holder.close = trackView.findViewById(R.id.player_close);
+        holder.bottomClose = trackView.findViewById(R.id.player_bottom_close);
+        holder.nextButton = trackView.findViewById(R.id.player_next);
+        holder.previousButton = trackView.findViewById(R.id.player_previous);
+        holder.playButton = trackView.findViewById(R.id.player_play);
+
+        holder.footer = trackView.findViewById(R.id.footer_controls);
+        holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
+        holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
+        holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
+
+        final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
+        holder.waveformController = waveformControllerFactory.create(waveform);
+        holder.artworkController = artworkControllerFactory.create(holder.artworkView);
+        holder.playerOverlayController = playerOverlayControllerFactory.create(holder.artworkOverlay);
+
+        holder.waveformController.addScrubListener(holder.artworkController);
+        holder.waveformController.addScrubListener(holder.timestamp);
+        holder.waveformController.addScrubListener(holder.playerOverlayController);
+        holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
+        holder.menuController = trackMenuControllerFactory.create(holder.more);
+        holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
+        holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
+
+        holder.populateViewSets();
+        trackView.setTag(holder);
+    }
+
     static class TrackPageHolder {
 
         // Expanded player
@@ -396,9 +392,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         View more;
         View close;
         View bottomClose;
-        View nextTouch;
         View nextButton;
-        View previousTouch;
         View previousButton;
         View playButton;
         View playControlsHolder;

@@ -76,6 +76,5 @@
     </RelativeLayout>
 
     <include layout="@layout/player_play_controls" />
-    <include layout="@layout/player_play_controls_touch" />
 
 </RelativeLayout>

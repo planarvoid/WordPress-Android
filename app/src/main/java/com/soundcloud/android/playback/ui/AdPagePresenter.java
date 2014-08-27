@@ -130,11 +130,9 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 listener.onTogglePlay();
                 break;
             case R.id.player_next:
-            case R.id.player_next_touch_area:
                 listener.onNext();
                 break;
             case R.id.player_previous:
-            case R.id.player_previous_touch_area:
                 listener.onPrevious();
                 break;
             case R.id.player_close:
@@ -247,8 +245,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         private final View playButton;
         private final View nextButton;
         private final View previousButton;
-        private final View nextArea;
-        private final View previousArea;
         private final ToggleButton footerPlayToggle;
         private final View close;
         private final TextView previewTitle;
@@ -278,8 +274,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             playButton = adView.findViewById(R.id.player_play);
             nextButton = adView.findViewById(R.id.player_next);
             previousButton = adView.findViewById(R.id.player_previous);
-            previousArea = adView.findViewById(R.id.player_previous_touch_area);
-            nextArea = adView.findViewById(R.id.player_next_touch_area);
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_close);
             previewTitle = (TextView) adView.findViewById(R.id.preview_title);
@@ -309,8 +303,8 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         private void populateViewSets() {
             List<View> disableViews = Arrays.asList(previousButton, nextButton);
-            List<View> clickViews = Arrays.asList(artworkView, artworkIdleOverlay, playButton, nextArea, previousArea,
-                    nextButton, previousButton, learnMore, whyAds, skipAd, previewContainer, footerPlayToggle, close, footer);
+            List<View> clickViews = Arrays.asList(artworkView, artworkIdleOverlay, playButton, nextButton,
+                    previousButton, learnMore, whyAds, skipAd, previewContainer, footerPlayToggle, close, footer);
 
             skipDisableViews = Iterables.filter(disableViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);

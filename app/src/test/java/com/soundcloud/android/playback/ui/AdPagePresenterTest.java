@@ -186,14 +186,6 @@ public class AdPagePresenterTest {
         return adView.findViewById(R.id.skip_ad);
     }
 
-    private View nextArea() {
-        return adView.findViewById(R.id.player_next_touch_area);
-    }
-
-    private View previousArea() {
-        return adView.findViewById(R.id.player_previous_touch_area);
-    }
-
     private View previewArtworkOverlay() {
         return adView.findViewById(R.id.preview_artwork_overlay);
     }

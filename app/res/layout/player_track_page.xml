@@ -77,7 +77,6 @@
             style="@style/PlayerMore" />
     </LinearLayout>
 
-    <include layout="@layout/player_play_controls_touch" />
     <include layout="@layout/player_play_controls" />
 
 </RelativeLayout>
