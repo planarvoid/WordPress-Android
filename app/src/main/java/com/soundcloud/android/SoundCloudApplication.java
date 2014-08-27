@@ -135,7 +135,7 @@ public class SoundCloudApplication extends Application {
         IOUtils.checkState(this);
 
         // initialise skippy so it can do it's expensive one-shot ops
-        skippyFactory.create().init(this, skippyFactory.createConfiguration());
+        skippyFactory.create().preload(this);
 
         imageOperations.initialise(this, applicationProperties);
 
