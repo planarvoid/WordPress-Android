@@ -32,7 +32,7 @@ public class PullToRefreshController {
     private Subscription refreshSubscription = Subscriptions.empty();
     private boolean wasRefreshing;
 
-    private final Func1<PlayerUIEvent, Boolean> isPlayerCollapsed = new Func1<PlayerUIEvent, Boolean>() {
+    private final Func1<PlayerUIEvent, Boolean> playerIsNotExpanded = new Func1<PlayerUIEvent, Boolean>() {
         @Override
         public Boolean call(PlayerUIEvent event) {
             return event.getKind() != PlayerUIEvent.PLAYER_EXPANDED;
@@ -49,7 +49,7 @@ public class PullToRefreshController {
     public void onViewCreated(FragmentActivity activity, PullToRefreshLayout pullToRefreshLayout, OnRefreshListener listener) {
         wrapper.attach(activity, pullToRefreshLayout, listener);
         wrapper.setRefreshing(wasRefreshing);
-        playerExpandedSubscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpandingSubscriber());
+        playerExpandedSubscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpandedSubscriber());
     }
 
     /**
@@ -103,22 +103,22 @@ public class PullToRefreshController {
     public void startRefreshing() {
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first()
-                .filter(isPlayerCollapsed)
-                .subscribe(new PlayerCollapsedSubscriber());
+                .filter(playerIsNotExpanded)
+                .subscribe(new StartRefreshSubscriber());
     }
 
     public void stopRefreshing() {
         wrapper.setRefreshing(false);
     }
 
-    private final class PlayerCollapsedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private final class StartRefreshSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             wrapper.setRefreshing(true);
         }
     }
 
-    private final class PlayerExpandingSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private final class PlayerExpandedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
             if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
