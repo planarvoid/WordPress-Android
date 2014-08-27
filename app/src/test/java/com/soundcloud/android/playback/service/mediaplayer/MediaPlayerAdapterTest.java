@@ -192,7 +192,7 @@ public class MediaPlayerAdapterTest {
     public void pauseShouldStopReleaseMediaPlayerIfPausedWhilePreparing() throws Exception {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.pause();
-        verify(mediaPlayerManager).stopAndRelease(mediaPlayer);
+        verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
 
     @Test
