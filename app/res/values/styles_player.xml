@@ -10,7 +10,7 @@
         <item name="android:background">@drawable/btn_footer_play_toggle</item>
     </style>
 
-    <style name="PlayerToggle">
+    <style name="PlayerPlay">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/btn_player_play</item>
