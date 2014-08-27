@@ -19,6 +19,7 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -219,6 +220,27 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
+    @Override
+    public void notifyDataSetChanged() {
+        removeCachedAudioAdPages();
+
+        super.notifyDataSetChanged();
+    }
+
+    // since we remove audio ads from the play queue after they played, we need to make sure we're not trying
+    // to reuse their views if they were cached
+    private void removeCachedAudioAdPages() {
+        View adPageKey = null;
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            if (entry.getValue().isAdPage) {
+                adPageKey = entry.getKey();
+            }
+        }
+        if (adPageKey != null) {
+            trackByViews.remove(adPageKey);
+        }
+    }
+
     private boolean isViewInSamePosition(View view) {
         if (trackByViews.containsKey(view)) {
             final ViewPageData viewPageData = trackByViews.get(view);
@@ -228,6 +250,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         return false;
     }
 
+    @Nullable
     private ViewPageData getUpdatedViewPageData(View view) {
         if (trackByViews.containsKey(view)) {
             final ViewPageData viewPageData = trackByViews.get(view);
@@ -357,13 +380,15 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    private static class ViewPageData {
+    private class ViewPageData {
         private final int positionInPlayQueue;
         private final TrackUrn trackUrn;
+        private final boolean isAdPage;
 
         ViewPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
             this.positionInPlayQueue = positionInPlayQueue;
             this.trackUrn = trackUrn;
+            this.isAdPage = playQueueManager.isAudioAdAtPosition(positionInPlayQueue);
         }
     }
 
