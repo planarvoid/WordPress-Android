@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
@@ -40,8 +42,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
-import android.net.Uri;
+
 import android.content.Intent;
+import android.net.Uri;
 import android.view.ViewGroup;
 
 import java.util.Arrays;

@@ -40,8 +40,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import android.content.Intent;
+import rx.Observable;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
