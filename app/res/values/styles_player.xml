@@ -74,7 +74,7 @@
 
     <style name="PlayerLike" parent="CustomToggle">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:paddingLeft">36dp</item> <!-- Padding from left of view to right of text -->
         <item name="android:minWidth">0dp</item>
         <item name="android:textColor">@color/white</item>
@@ -82,8 +82,8 @@
     </style>
 
     <style name="PlayerMore">
-        <item name="android:layout_width">44dp</item>
-        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:background">@drawable/btn_player_more</item>
     </style>
 

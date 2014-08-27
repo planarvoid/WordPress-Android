@@ -64,18 +64,17 @@
     <LinearLayout
         android:id="@id/player_bottom_close"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/player_engagement_height"
+        android:layout_height="@dimen/player_engagement"
         android:layout_alignParentBottom="true"
-        android:gravity="right|center_vertical"
-        android:paddingRight="8dp">
+        android:gravity="right|center_vertical">
 
         <ToggleButton
             android:id="@+id/track_page_like"
             style="@style/PlayerLike" />
 
-            <Button
-                android:id="@+id/track_page_more"
-                style="@style/PlayerMore" />
+        <Button
+            android:id="@+id/track_page_more"
+            style="@style/PlayerMore" />
     </LinearLayout>
 
     <include layout="@layout/player_play_controls_touch" />

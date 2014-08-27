@@ -3,7 +3,7 @@
     <dimen name="empty_message_margin_left_right">40dp</dimen>
     <dimen name="explore_category_page_size">.5px</dimen><!-- ratio used for pager adapter -->
     <dimen name="playlist_header_padding">10dp</dimen>
-    <dimen name="player_engagement_height">48dp</dimen>
+    <dimen name="player_engagement">48dp</dimen>
     <dimen name="player_title_top">48dp</dimen>
     <dimen name="ad_learn_more_bottom">60dp</dimen>
     <dimen name="ad_learn_more_height">30dp</dimen>
