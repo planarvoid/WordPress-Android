@@ -14,9 +14,10 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -32,7 +33,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -53,6 +53,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,6 +70,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlayablePresenter playablePresenter;
+    @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    @Inject Provider<ShowPlayerSubscriber> showPlayerSubscriberProvider;
 
     private ListView listView;
     private View progressView;
@@ -96,8 +99,9 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
             } else {
                 final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
                 playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-                playbackOperations.playTracks(toTrackUrnList(playlist.getTracks()), 0, playSessionSource);
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
+                playbackOperations
+                        .playTracks(toTrackUrnList(playlist.getTracks()), 0, playSessionSource)
+                        .subscribe(showPlayerSubscriberProvider.get());
             }
         }
     };
@@ -132,7 +136,9 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      PlaylistEngagementsController playlistEngagementsController,
                      PullToRefreshController pullToRefreshController,
                      PlayQueueManager playQueueManager,
-                     PlayablePresenter playablePresenter) {
+                     PlayablePresenter playablePresenter,
+                     Provider<ShowPlayerSubscriber> showPlayerSubscriberProvider,
+                     Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.controller = controller;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
@@ -142,6 +148,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
         this.playablePresenter = playablePresenter;
+        this.showPlayerSubscriberProvider = showPlayerSubscriberProvider;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
     public static PlaylistFragment create(Bundle args) {
@@ -296,7 +304,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         final Observable<TrackUrn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
-                .subscribe(new PlayQueueChangedSubscriber(eventBus));
+                .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {

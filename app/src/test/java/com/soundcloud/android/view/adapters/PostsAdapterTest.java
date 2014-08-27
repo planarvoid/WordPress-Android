@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -22,6 +23,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -63,6 +65,7 @@ public class PostsAdapterTest {
     @Mock private TrackItemPresenter trackPresenter;
     @Mock private PlaylistItemPresenter playlistPresenter;
     @Mock private ViewGroup itemView;
+    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     @Captor private ArgumentCaptor<List<PropertySet>> propSetCaptor;
 
@@ -71,8 +74,9 @@ public class PostsAdapterTest {
         when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<List<TrackUrn>>empty());
         adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
-                trackPresenter, playlistPresenter, eventBus);
+                trackPresenter, playlistPresenter, eventBus, buildProvider(expandPlayerSubscriber));
     }
+
 
     @Test
     public void shouldBindTrackRowViaPresenter() throws CreateModelException {

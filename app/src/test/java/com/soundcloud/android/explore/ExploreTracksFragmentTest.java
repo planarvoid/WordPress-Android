@@ -17,6 +17,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -34,6 +35,8 @@ import rx.observables.ConnectableObservable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksFragmentTest {
@@ -62,6 +65,8 @@ public class ExploreTracksFragmentTest {
 
         observable = TestObservables.emptyConnectableObservable(subscription);
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
+        when(playbackOperations.playTrackWithRecommendations(any(TrackUrn.class), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test

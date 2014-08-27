@@ -323,7 +323,7 @@ public class ScShadowParcel extends ShadowParcel {
     @Implementation
     public final boolean[] createBooleanArray() {
         int N = readInt();
-        // >>2 as a fast divide-by-4 works in the create*Array() functions
+        // >>2 as a fast divide-by-4 works in the build*Array() functions
         // because dataAvail() will never return a negative number.  4 is
         // the size of a stored boolean in the stream.
         if (N >= 0) {

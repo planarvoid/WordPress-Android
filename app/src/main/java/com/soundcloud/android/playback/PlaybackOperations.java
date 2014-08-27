@@ -66,49 +66,30 @@ public class PlaybackOperations {
         this.playbackToastViewController = playbackToastViewController;
     }
 
-    public boolean playTrack(TrackUrn track, PlaySessionSource playSessionSource) {
-        return playTracks(Lists.newArrayList(track), 0, playSessionSource, false);
-    }
-
-    public boolean playTrackWithRecommendations(TrackUrn track, PlaySessionSource playSessionSource) {
-        return playTracks(Lists.newArrayList(track), 0, playSessionSource, true);
-    }
-
-    public boolean playTracksShuffled(List<TrackUrn> trackUrns, PlaySessionSource playSessionSource) {
-        List<TrackUrn> shuffled = Lists.newArrayList(trackUrns);
-        Collections.shuffle(shuffled);
-        return playTracks(shuffled, 0, playSessionSource);
-    }
-
-    public boolean playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource) {
-        return playTracks(trackUrns, position, playSessionSource, false);
-    }
-
-    private boolean playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource, boolean loadRelated) {
-        if (position >= trackUrns.size()) {
-            throw new AssertionError("Invalid position is greater that the list size");
-        }
-
-        final TrackUrn initialTrack= trackUrns.get(position);
-        final boolean changePlayQueue = shouldChangePlayQueue(initialTrack, playSessionSource);
-
-        if (changePlayQueue) {
-            final int adjustedPosition = getDeduplicatedList(trackUrns, position);
-            startPlaySession(trackUrns, adjustedPosition, playSessionSource, loadRelated);
-        }
-        return changePlayQueue;
+    public Observable<List<TrackUrn>> playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource) {
+        return playTracksList(Observable.from(trackUrns).toList(), trackUrns.get(position), position, playSessionSource, false);
     }
 
     public Observable<List<TrackUrn>> playTracks(Observable<TrackUrn> allTracks, TrackUrn initialTrack, int position, PlaySessionSource playSessionSource) {
-        return playTracksList(allTracks.toList(), initialTrack, position, playSessionSource);
+        return playTracksList(allTracks.toList(), initialTrack, position, playSessionSource, false);
     }
 
     @Deprecated
     public Observable<List<TrackUrn>> playTracksFromUri(Uri uri, final int startPosition, final TrackUrn initialTrack, final PlaySessionSource playSessionSource) {
-        return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition, playSessionSource);
+        return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition, playSessionSource, false);
+    }
+    
+    public Observable<List<TrackUrn>> playTrackWithRecommendations(TrackUrn track, PlaySessionSource playSessionSource) {
+        return playTracksList(Observable.from(track).toList(), track, 0, playSessionSource, true);
     }
 
-    private Observable<List<TrackUrn>> playTracksList(Observable<List<TrackUrn>> trackUrns, final TrackUrn initialTrack, final int startPosition, final PlaySessionSource playSessionSource) {
+    public Observable<List<TrackUrn>> playTracksShuffled(List<TrackUrn> trackUrns, PlaySessionSource playSessionSource) {
+        List<TrackUrn> shuffled = Lists.newArrayList(trackUrns);
+        Collections.shuffle(shuffled);
+        return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, true);
+    }
+
+    private Observable<List<TrackUrn>> playTracksList(Observable<List<TrackUrn>> trackUrns, final TrackUrn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, boolean loadRelated) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return Observable.empty();
         }
@@ -116,16 +97,16 @@ public class PlaybackOperations {
         return trackUrns
                 .filter(FILTER_EMPTY_TRACK_LIST)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(playNewQueueAction(startPosition, playSessionSource, initialTrack));
+                .doOnNext(playNewQueueAction(startPosition, playSessionSource, initialTrack, loadRelated));
     }
 
-    public void startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
+    public Observable<List<TrackUrn>> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
         modelManager.cache(track);
-        startPlaybackWithRecommendations(track.getUrn(), screen);
+        return playTracksList(Observable.from(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);
     }
 
-    public void startPlaybackWithRecommendations(TrackUrn urn, Screen screen) {
-        startPlaySession(Lists.newArrayList(urn), 0, new PlaySessionSource(screen), true);
+    public Observable<List<TrackUrn>> startPlaybackWithRecommendations(TrackUrn urn, Screen screen) {
+        return playTracksList(Observable.from(urn).toList(), urn, 0, new PlaySessionSource(screen), true);
     }
 
     public void togglePlayback() {
@@ -189,12 +170,16 @@ public class PlaybackOperations {
 
     private Action1<List<TrackUrn>> playNewQueueAction(final int startPosition,
                                                        final PlaySessionSource playSessionSource,
-                                                       final TrackUrn initialTrackUrn) {
+                                                       final TrackUrn initialTrackUrn,
+                                                       final boolean loadRecommended) {
         return new Action1<List<TrackUrn>>() {
             @Override
             public void call(List<TrackUrn> trackUrns) {
                 final int updatedPosition = correctStartPositionAndDeduplicateList(trackUrns, startPosition, initialTrackUrn);
                 playNewQueue(trackUrns, updatedPosition, playSessionSource);
+                if (loadRecommended) {
+                    playQueueManager.fetchTracksRelatedToCurrentTrack();
+                }
             }
         };
     }
@@ -219,22 +204,14 @@ public class PlaybackOperations {
         return playQueueManager.isCurrentTrack(trackUrn);
     }
 
-    private void startPlaySession(final List<TrackUrn> trackUrns, int startPosition,
-                                  PlaySessionSource playSessionSource, boolean loadRecommended) {
-        playNewQueue(trackUrns, startPosition, playSessionSource);
-        if (loadRecommended) {
-            playQueueManager.fetchTracksRelatedToCurrentTrack();
-        }
-    }
-
     private void playNewQueue(List<TrackUrn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnkippableAdToast();
-        } else {
-            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
-            playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
-            playCurrent();
+            throw new UnSkippablePeriodException();
         }
+
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
+        playCurrent();
     }
 
     private int correctStartPositionAndDeduplicateList(List<TrackUrn> trackUrns, int startPosition, TrackUrn initialTrack) {
@@ -277,5 +254,8 @@ public class PlaybackOperations {
             }
         }
         return adjustedPosition;
+    }
+
+    public static class UnSkippablePeriodException extends RuntimeException {
     }
 }

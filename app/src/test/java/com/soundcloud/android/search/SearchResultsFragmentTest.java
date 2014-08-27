@@ -20,13 +20,13 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.xtremelabs.robolectric.Robolectric;
@@ -48,6 +48,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
@@ -70,6 +71,7 @@ public class SearchResultsFragmentTest {
         Robolectric.shadowOf(fragment).setActivity(context);
         Robolectric.shadowOf(fragment).setAttached(true);
         when(listViewController.getEmptyView()).thenReturn(mock(EmptyView.class));
+        when(playbackOperations.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test
@@ -155,7 +157,6 @@ public class SearchResultsFragmentTest {
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_EVERYTHING)));
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -15,11 +16,11 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
@@ -28,7 +29,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
@@ -49,7 +49,6 @@ public class SoundStreamFragmentTest {
     private FragmentActivity activity = new FragmentActivity();
     private ConnectableObservable<OperatorPaged.Page<List<PropertySet>>> streamItems;
 
-    @InjectMocks
     private SoundStreamFragment fragment;
 
     @Mock private SoundStreamOperations soundStreamOperations;
@@ -59,7 +58,7 @@ public class SoundStreamFragmentTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private Subscription subscription;
     @Mock private EmptyView emptyView;
-    @Mock private EventBus eventBus;
+    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     @Before
     public void setup() {
@@ -67,7 +66,9 @@ public class SoundStreamFragmentTest {
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
-        when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());  }
+        when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController, playbackOperations, buildProvider(expandPlayerSubscriber));
+    }
 
     @Test
     public void shouldRequestAvailableSoundStreamItemsWhenCreated() {

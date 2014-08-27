@@ -5,26 +5,26 @@ import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
     @Inject TrackItemPresenter trackPresenter;
     @Inject PlaylistItemPresenter playlistPresenter;
     @Inject EventBus eventBus;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
 
@@ -68,13 +70,14 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     PostsAdapter(Uri uri, String relatedUsername, PlaybackOperations playbackOperations, TrackItemPresenter trackPresenter,
-                 PlaylistItemPresenter playlistPresenter, EventBus eventBus) {
+                 PlaylistItemPresenter playlistPresenter, EventBus eventBus, Provider<ExpandPlayerSubscriber> subscriberProvider) {
         super(uri);
         this.relatedUsername = relatedUsername;
         this.playbackOperations = playbackOperations;
         this.trackPresenter = trackPresenter;
         this.playlistPresenter = playlistPresenter;
         this.eventBus = eventBus;
+        this.subscriberProvider = subscriberProvider;
     }
 
     @Override
@@ -183,8 +186,9 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
     private void playTrack(int position, Screen screen) {
         final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
         final int adjustedPosition = filterPlayables(data.subList(0, position)).size();
-        playbackOperations.playTracks(trackUrns, adjustedPosition, new PlaySessionSource(screen));
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        playbackOperations
+                .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(screen))
+                .subscribe(subscriberProvider.get());
     }
 
     private void playTrack(int position, Screen screen, Uri streamUri) {
@@ -193,7 +197,7 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
         TrackUrn initialTrack = trackUrns.get(adjustedPosition);
         playbackOperations
                 .playTracksFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
-                .subscribe(new PlayQueueChangedSubscriber(eventBus));
+                .subscribe(subscriberProvider.get());
     }
 
     private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable) {

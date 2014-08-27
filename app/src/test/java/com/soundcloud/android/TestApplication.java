@@ -51,7 +51,7 @@ public class TestApplication extends SoundCloudApplication {
     public static Recording getValidRecording() throws IOException {
         Recording r = new Recording(createEmptyWavFile());
         if (!r.getEncodedFile().exists() &&
-            !r.getEncodedFile().createNewFile()) throw new RuntimeException("could not create encoded file");
+            !r.getEncodedFile().createNewFile()) throw new RuntimeException("could not build encoded file");
         fill(r.getEncodedFile());
         return r;
     }

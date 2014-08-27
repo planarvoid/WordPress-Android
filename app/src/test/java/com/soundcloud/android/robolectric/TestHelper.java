@@ -72,6 +72,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
+import javax.inject.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -360,6 +361,15 @@ public class TestHelper {
         categoryGroup.setKey(key);
         categoryGroup.setCategories(createCategories(categoryCount));
         return categoryGroup;
+    }
+
+    public static <T> Provider<T> buildProvider(final T mock) {
+        return new Provider<T>() {
+            @Override
+            public T get() {
+                return mock;
+            }
+        };
     }
 
     private static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri,

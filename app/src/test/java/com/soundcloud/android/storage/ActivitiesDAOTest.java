@@ -35,7 +35,7 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
 
     @Test
     public void shouldPersistAllActivityTypes() throws Exception {
-        // need to create track owner for joins to work
+        // need to build track owner for joins to work
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Users._ID, OWNER_ID);
         cv.put(TableColumns.Users.USERNAME, "Foo Bar");
