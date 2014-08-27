@@ -2,7 +2,9 @@ package com.soundcloud.android.deeplinks;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
@@ -12,13 +14,17 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.content.Intent;
+
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ResolveActivityTest {
@@ -28,6 +34,7 @@ public class ResolveActivityTest {
     @Before
     public void setUp() throws Exception {
         activity = new ResolveActivity(playbackOperations);
+        when(playbackOperations.startPlaybackWithRecommendations(any(PublicApiTrack.class), any(Screen.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test
