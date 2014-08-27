@@ -140,24 +140,25 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
                 Cursor cursor = resolver.query(adjustedUri, new String[]{idColumn}, typeColumn + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
                 if (!observer.isUnsubscribed()) {
-                    if (cursor == null) {
-                        observer.onNext(Collections.<TrackUrn>emptyList());
+                    try {
+                        observer.onNext(toTrackUrns(idColumn, cursor));
                         observer.onCompleted();
-
-                    } else {
-                            List<TrackUrn> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
-                        try {
-                            while (cursor.moveToNext()) {
-                                newQueue.add(TrackUrn.forTrack(cursor.getLong(cursor.getColumnIndex(idColumn))));
-                            }
-                            observer.onNext(newQueue);
-                            observer.onCompleted();
-
-                        } finally {
-                            cursor.close();
-                        }
+                    } finally {
+                        cursor.close();
                     }
                 }
+            }
+
+            private List<TrackUrn> toTrackUrns(String idColumn, Cursor cursor) {
+                if (cursor == null) {
+                    return Collections.<TrackUrn>emptyList();
+                }
+
+                List<TrackUrn> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
+                while (cursor.moveToNext()) {
+                    newQueue.add(TrackUrn.forTrack(cursor.getLong(cursor.getColumnIndex(idColumn))));
+                }
+                return newQueue;
             }
         }));
     }

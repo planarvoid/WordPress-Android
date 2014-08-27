@@ -1,10 +1,12 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
-import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -18,6 +20,7 @@ import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -49,7 +52,13 @@ import java.util.List;
 public class SearchResultsFragment extends Fragment
         implements ReactiveListComponent<ConnectableObservable<Page<SearchResultsCollection>>> {
 
-    public static final String TAG = "search_results";
+    private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
+        @Override
+        public boolean apply(ScModel input) {
+            return input instanceof PlayableHolder &&
+                    ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
+        }
+    };
 
     static final int TYPE_ALL = 0;
     static final int TYPE_TRACKS = 1;
@@ -181,6 +190,19 @@ public class SearchResultsFragment extends Fragment
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
         }
+    }
+
+    private List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {
+        return Lists.transform(filter, new Function<PlayableHolder, TrackUrn>() {
+            @Override
+            public TrackUrn apply(PlayableHolder input) {
+                return ((PublicApiTrack) input.getPlayable()).getUrn();
+            }
+        });
+    }
+
+    private List<? extends PlayableHolder> filterPlayables(List<? extends ScModel> data) {
+        return Lists.newArrayList((Iterable<? extends PlayableHolder>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE));
     }
 
     private Screen getTrackingScreen() {

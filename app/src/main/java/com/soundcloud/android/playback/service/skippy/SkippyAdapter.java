@@ -17,7 +17,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;

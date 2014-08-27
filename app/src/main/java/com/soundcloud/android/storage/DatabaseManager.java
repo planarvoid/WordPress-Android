@@ -37,7 +37,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.d(TAG, "onCreate(" + db + "");
+        Log.d(TAG, "onCreate(" + db + ")");
 
         try {
             for (Table t : Table.values()) {
@@ -155,7 +155,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public void onRecreateDb(SQLiteDatabase db) {
-        Log.d(TAG, "onRecreate(" + db + "");
+        Log.d(TAG, "onRecreate(" + db + ")");
 
         for (Table t : Table.values()) {
             t.drop(db);

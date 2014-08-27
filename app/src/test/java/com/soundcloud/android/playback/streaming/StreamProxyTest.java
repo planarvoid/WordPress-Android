@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Before;
@@ -24,7 +25,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class StreamProxyTest {
     private StreamProxy subject;
 
@@ -97,7 +98,7 @@ public class StreamProxyTest {
 
         subject.start();
         Observable<Uri> observable = subject.uriObservable(url, nextUrl);
-        Uri result = observable.toBlockingObservable().getIterator().next();
+        Uri result = observable.toBlocking().getIterator().next();
 
         expect(result.toString()).toMatch(
                 Pattern.quote("http://127.0.0.1:") + "\\d+" +

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -121,8 +122,8 @@ public class PlayerArtworkControllerTest {
     public void loadArtworkDisplaysArtworkThroughImageOperations() throws Exception {
         final TrackUrn urn = Urn.forTrack(123L);
         when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
-        playerArtworkController.loadArtwork(urn);
+        playerArtworkController.loadArtwork(urn, true);
         verify(imageOperations).displayInPlayer(same(urn), same(ApiImageSize.T500),
-                same(wrappedImageView), any(ImageListener.class), any(Bitmap.class));
+                same(wrappedImageView), any(ImageListener.class), any(Bitmap.class), eq(true));
     }
 }

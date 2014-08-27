@@ -254,7 +254,7 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(pageView, track);
+        verify(trackPagePresenter).bindItemView(pageView, track, true);
     }
 
     @Test
@@ -270,7 +270,7 @@ public class TrackPagerAdapterTest {
         setupAudioAd();
         View pageView = getPageView();
 
-        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true));
 
         expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeTrue();
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);

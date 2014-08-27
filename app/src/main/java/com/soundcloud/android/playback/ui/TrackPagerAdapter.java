@@ -314,6 +314,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             if (isTrackRelatedToView(trackPage, trackUrn)) {
                 presenter.bindItemView(trackPage, track);
                 presenter.onPositionSet(trackPage, playQueueManager.getPositionForUrn(trackUrn), playQueueManager.getQueueSize());
+                presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn));
                 updateProgress(presenter, trackPage, trackUrn);
             }
         }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.storage;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

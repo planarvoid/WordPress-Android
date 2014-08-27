@@ -69,7 +69,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet propertySet) {
+    public void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack) {
         bindItemView(view, new PlayerAd(propertySet, resources));
     }
 

@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.tests.Han;
 
 public class MyProfileScreen extends ProfileScreen {

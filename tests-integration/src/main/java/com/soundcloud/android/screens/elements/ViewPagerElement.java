@@ -3,7 +3,6 @@ package com.soundcloud.android.screens.elements;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
-import com.soundcloud.android.view.SafeViewPager;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;

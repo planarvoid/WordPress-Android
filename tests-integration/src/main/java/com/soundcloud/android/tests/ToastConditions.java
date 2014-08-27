@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests;
 
+import static junit.framework.Assert.assertTrue;
+
 import com.robotium.solo.Condition;
 import com.soundcloud.android.tests.with.With;
 
@@ -17,8 +19,8 @@ public class ToastConditions {
         this.testDriver = testDriver;
     }
 
-    public boolean toHaveText(String text) {
-        return testDriver.waitForCondition(new ToastHasText(text), TOAST_TIMEOUT);
+    public void toHaveText(String text) {
+        assertTrue(testDriver.waitForCondition(new ToastHasText(text), TOAST_TIMEOUT));
     }
 
     private List<ViewElement> getToasts() {

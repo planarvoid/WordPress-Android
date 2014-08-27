@@ -1,7 +1,6 @@
 package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.ErrorUtils.handleSilentException;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;

@@ -41,7 +41,7 @@ class SoundCloudTokenOperations {
     }
 
     public void storeSoundCloudTokenData(@Nullable Account account, Token token) {
-        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), "" + token.expiresIn);
+        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), Long.toString(token.expiresIn));
         accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.scope);
         accountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.access);
         accountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.refresh);

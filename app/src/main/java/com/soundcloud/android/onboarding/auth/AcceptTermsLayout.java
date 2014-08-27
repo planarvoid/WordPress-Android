@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,9 +56,6 @@ public class AcceptTermsLayout extends RelativeLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-
-        final Context context = getContext();
-        final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
         findViewById(R.id.btn_cancel).setOnClickListener(new OnClickListener() {
             @Override

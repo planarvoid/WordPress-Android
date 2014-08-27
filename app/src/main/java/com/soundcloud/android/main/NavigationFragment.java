@@ -279,7 +279,7 @@ public class NavigationFragment extends Fragment {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
+            ViewHolder holder;
             NavItem navItem = getItem(position);
 
             final View view;

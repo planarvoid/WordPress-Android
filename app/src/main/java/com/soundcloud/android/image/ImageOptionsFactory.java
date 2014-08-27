@@ -6,7 +6,6 @@ import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
-import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,8 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.view.View;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 
 class ImageOptionsFactory {
@@ -48,13 +45,17 @@ class ImageOptionsFactory {
                 .build();
     }
 
-    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable) {
-        return fullCacheBuilder()
+    public static DisplayImageOptions player(@Nullable Drawable placeholderDrawable, boolean isHighPriority) {
+        DisplayImageOptions.Builder options = fullCacheBuilder()
                 .showImageOnLoading(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
                 .showImageOnFail(placeholderDrawable)
-                .displayer(new PlaceholderTransitionDisplayer())
-                .build();
+                .displayer(new PlaceholderTransitionDisplayer());
+
+        if (!isHighPriority) {
+            options.delayBeforeLoading(DELAY_BEFORE_LOADING);
+        }
+        return options.build();
     }
 
     public static DisplayImageOptions playerAd(@Nullable Drawable placeholderDrawable) {

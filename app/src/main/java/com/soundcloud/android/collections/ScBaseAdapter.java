@@ -1,6 +1,10 @@
 
 package com.soundcloud.android.collections;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -10,15 +14,17 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.behavior.Creation;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
+import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.collections.tasks.UpdateCollectionTask;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.legacy.model.behavior.Creation;
-import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +47,13 @@ import java.util.Set;
 @Deprecated
 @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
+    private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
+        @Override
+        public boolean apply(ScModel input) {
+            return input instanceof PlayableHolder &&
+                    ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
+        }
+    };
     protected final Content content;
     protected final Uri contentUri;
     @NotNull protected List<T> data = new ArrayList<T>();
@@ -100,6 +113,19 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             return IGNORE_ITEM_VIEW_TYPE;
         }
         return 0;
+    }
+
+    protected List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {
+        return Lists.transform(filter, new Function<PlayableHolder, TrackUrn>() {
+            @Override
+            public TrackUrn apply(PlayableHolder input) {
+                return ((PublicApiTrack) input.getPlayable()).getUrn();
+            }
+        });
+    }
+
+    protected List<? extends PlayableHolder> filterPlayables(List<? extends ScModel> data) {
+        return Lists.newArrayList((Iterable<? extends PlayableHolder>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE));
     }
 
     protected boolean isPositionOfProgressElement(int position) {
@@ -220,18 +246,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             }
             page++;
             addItems(data.newItems);
-
-            /*
-            if (IOUtils.isWifiConnected(mContext)){
-                // prefetch playable artwork
-                for (ScModel model : data.newItems){
-                    if (model instanceof PlayableHolder){
-                        final String artworkUrl = Consts.ImageSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
-                        if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
-                    }
-                }
-            }
-            */
 
             if (activity != null) {
                 checkForStaleItems(activity, this.data);

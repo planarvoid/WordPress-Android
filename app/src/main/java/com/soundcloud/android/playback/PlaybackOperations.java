@@ -269,7 +269,9 @@ public class PlaybackOperations {
             final TrackUrn track = iterator.next();
             if (i != adjustedPosition && (seenTracks.contains(track) || track.equals(playedTrack))) {
                 iterator.remove();
-                if (i < adjustedPosition) adjustedPosition--;
+                if (i < adjustedPosition) {
+                    adjustedPosition--;
+                }
             } else {
                 seenTracks.add(track);
                 i++;

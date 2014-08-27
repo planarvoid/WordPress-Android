@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Environment;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 public final class Consts {
     public static final int NOT_SET = -1;

@@ -1,8 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.view.adapters.AdaptersUtils.filterPlayables;
-import static com.soundcloud.android.view.adapters.AdaptersUtils.toTrackUrn;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
@@ -200,7 +197,7 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable) {
-        PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), screen);
+        PlaylistDetailActivity.start(context, playable.getUrn(), screen);
     }
 
     @Override
