@@ -299,7 +299,7 @@ public class AccountOperations extends ScheduledOperations {
         return null;
     }
 
-    private boolean accountManagerHasSoundCloudAccount() {
+    public boolean accountManagerHasSoundCloudAccount() {
         return getSoundCloudAccount() != null;
     }
 
