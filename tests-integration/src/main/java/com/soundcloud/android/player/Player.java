@@ -126,24 +126,6 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(playerElement.isPlayControlsVisible(), is(true));
     }
 
-    public void testPreviousButtonDoesNothingOnFirstTrack() {
-        playExploreTrack();
-        String originalTrack = playerElement.getTrackTitle();
-        playerElement.clickArtwork();
-
-        playerElement.tapPrevious();
-        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
-    }
-
-    public void testNextButtonDoesNothingOnLastTrack() {
-        playLastTrackOnPlaylist();
-        String originalTrack = playerElement.getTrackTitle();
-        playerElement.clickArtwork();
-
-        playerElement.tapNext();
-        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
-    }
-
     private void playLastTrackOnPlaylist() {
         PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Two Tracks Playlist"));
         solo.scrollToBottom(solo.getCurrentListView());
