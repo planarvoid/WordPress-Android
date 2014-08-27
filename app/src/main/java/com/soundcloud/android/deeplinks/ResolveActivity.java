@@ -1,5 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -115,9 +117,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     private void startActivityForResource(PublicApiResource resource) {
         if (resource instanceof PublicApiTrack) {
-            playbackOperations
-                    .startPlaybackWithRecommendations(((PublicApiTrack) resource), Screen.DEEPLINK)
-                    .subscribe();
+            fireAndForget(playbackOperations.startPlaybackWithRecommendations(((PublicApiTrack) resource), Screen.DEEPLINK));
             startStreamScreenWithAnExpandedPlayer();
         } else {
             Intent intent = resource.getViewIntent();
