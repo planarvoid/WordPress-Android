@@ -115,7 +115,9 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     private void startActivityForResource(PublicApiResource resource) {
         if (resource instanceof PublicApiTrack) {
-            playbackOperations.startPlaybackWithRecommendations(((PublicApiTrack) resource), Screen.DEEPLINK);
+            playbackOperations
+                    .startPlaybackWithRecommendations(((PublicApiTrack) resource), Screen.DEEPLINK)
+                    .subscribe();
             startStreamScreenWithAnExpandedPlayer();
         } else {
             Intent intent = resource.getViewIntent();
