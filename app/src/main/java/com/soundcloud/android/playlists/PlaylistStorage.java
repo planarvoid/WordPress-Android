@@ -35,7 +35,8 @@ public class PlaylistStorage extends ScheduledOperations {
     public Observable<TrackUrn> trackUrns(final PlaylistUrn playlistUrn) {
         Query query = Query.from(Table.PLAYLIST_TRACKS.name)
                 .select(TableColumns.PlaylistTracks.TRACK_ID)
-                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.numericId);
+                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.numericId)
+                .order(TableColumns.PlaylistTracks.POSITION, Query.ORDER_ASC);
         return schedule(Observable.from(database.query(query)).map(new TrackUrnMapper()));
     }
 
