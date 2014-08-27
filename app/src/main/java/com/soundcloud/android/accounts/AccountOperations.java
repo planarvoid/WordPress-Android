@@ -63,7 +63,7 @@ public class AccountOperations extends ScheduledOperations {
 
     @Deprecated
     private volatile PublicApiUser loggedInUser;
-    private volatile UserUrn loggedInUserUrn = UserUrn.NOT_SET;
+    private volatile UserUrn loggedInUserUrn;
 
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
@@ -132,7 +132,7 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public UserUrn getLoggedInUserUrn() {
-        if (loggedInUserUrn.equals(UserUrn.NOT_SET)){
+        if (loggedInUserUrn == null){
             loggedInUserUrn = Urn.forUser(getLoggedInUserId());
         }
         return loggedInUserUrn;
@@ -156,11 +156,12 @@ public class AccountOperations extends ScheduledOperations {
 
     private void updateLoggedInUser(final PublicApiUser user) {
         loggedInUser = modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
+        loggedInUserUrn = user.getUrn();
     }
 
     public void clearLoggedInUser() {
         loggedInUser = null;
-        loggedInUserUrn = UserUrn.NOT_SET;
+        loggedInUserUrn = null;
     }
 
     public String getGoogleAccountToken(String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
