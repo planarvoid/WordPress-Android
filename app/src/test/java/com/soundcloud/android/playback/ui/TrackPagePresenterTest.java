@@ -160,7 +160,7 @@ public class TrackPagePresenterTest {
     @Test
     public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
-        verify(artworkController).showSessionActiveState();
+        verify(artworkController).showIdleState();
     }
 
     @Test
@@ -179,7 +179,7 @@ public class TrackPagePresenterTest {
     @Test
     public void bufferingStateWithCurrentTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true);
-        verify(artworkController).showSessionActiveState();
+        verify(artworkController).showIdleState();
     }
 
     @Test
@@ -198,7 +198,7 @@ public class TrackPagePresenterTest {
     @Test
     public void bufferingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false);
-        verify(artworkController).showSessionActiveState();
+        verify(artworkController).showIdleState();
     }
 
     @Test

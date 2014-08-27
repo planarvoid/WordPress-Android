@@ -123,6 +123,19 @@ public class WaveformViewControllerTest {
     }
 
     @Test
+    public void scrubStateCancelledDoesntStartProgressAnimationsFromLastPositionIfBuffering() {
+        waveformViewController.showBufferingState();
+        PlaybackProgress latest = new PlaybackProgress(5, 10);
+
+        waveformViewController.setProgress(latest);
+        waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
+
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+    }
+
+    @Test
     public void scrubStateCancelledDoesNotStartAnimationsIfNotPlaying() {
         waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
 

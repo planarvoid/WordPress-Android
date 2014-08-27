@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -227,7 +228,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             if (isCurrentTrack && state.isPlayerPlaying()) {
                 holder.artworkController.showPlayingState(state.getProgress());
             } else {
-                holder.artworkController.showSessionActiveState();
+                holder.artworkController.showIdleState();
             }
             holder.playerOverlayController.showPlayingState();
         } else {

@@ -12,7 +12,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -42,7 +41,6 @@ public class PlayerArtworkControllerTest {
     @Mock private ImageView wrappedImageView;
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private ImageOperations imageOperations;
 
     @Before
@@ -51,7 +49,7 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
-        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playSessionStateProvider, imageOperations).create(playerTrackArtworkView);
+        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, imageOperations).create(playerTrackArtworkView);
     }
 
     @Test
@@ -69,7 +67,6 @@ public class PlayerArtworkControllerTest {
 
     @Test
     public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         playerArtworkController.showPlayingState(playbackProgress);
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 
@@ -83,12 +80,6 @@ public class PlayerArtworkControllerTest {
     public void scrubStateCancelledDoesNotStartAnimationsIfNotPlaying() {
         playerArtworkController.scrubStateChanged(SCRUB_STATE_CANCELLED);
         verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class));
-    }
-
-    @Test
-    public void showSessionActiveStateCancelsExistingAnimations() {
-        playerArtworkController.showSessionActiveState();
-        verify(progressController).cancelProgressAnimation();
     }
 
     @Test
