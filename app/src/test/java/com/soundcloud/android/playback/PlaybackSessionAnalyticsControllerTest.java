@@ -172,6 +172,27 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(events.get(1).getTrackUrn()).toEqual(TRACK_URN);
     }
 
+    @Test
+    public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
+        PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final TrackUrn nextTrack = Urn.forTrack(456L);
+        when(trackOperations.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
+
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+
+        publishPlayingEventForTrack(TRACK_URN);
+
+        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        publishPlayingEventForTrack(nextTrack);
+
+        List<PlaybackSessionEvent> events = eventBus.eventsOn(EventQueue.PLAYBACK_SESSION);
+        expect(events).toNumber(3);
+        expect(events.get(1).isStopEvent()).toBeTrue();
+        expect(events.get(1).getTrackUrn()).toEqual(TRACK_URN);
+        expect(events.get(1).getAudioAdUrn()).toEqual(audioAd.get(AdProperty.AD_URN));
+    }
+
     protected Playa.StateTransition publishPlayingEvent() {
         return publishPlayingEventForTrack(TRACK_URN);
     }

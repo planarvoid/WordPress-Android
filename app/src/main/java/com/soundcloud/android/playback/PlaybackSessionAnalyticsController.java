@@ -23,6 +23,7 @@ public class PlaybackSessionAnalyticsController {
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private PlaybackSessionEvent lastPlayEventData;
+    private PropertySet lastPlayAudioAd;
 
     private TrackSourceInfo currentTrackSourceInfo;
     private Playa.StateTransition lastStateTransition = Playa.StateTransition.DEFAULT;
@@ -90,9 +91,10 @@ public class PlaybackSessionAnalyticsController {
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                 lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
                 if (playQueueManager.isCurrentTrackAudioAd()) {
-                    lastPlayEventData = lastPlayEventData.withAudioAd(playQueueManager.getAudioAd());
+                    lastPlayAudioAd = playQueueManager.getAudioAd();
+                    lastPlayEventData = lastPlayEventData.withAudioAd(lastPlayAudioAd);
                 } else {
-                    lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
+                    lastPlayAudioAd = null;
                 }
                 return lastPlayEventData;
             }
@@ -103,6 +105,7 @@ public class PlaybackSessionAnalyticsController {
         if (lastPlayEventData != null && currentTrackSourceInfo != null) {
             trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition)).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
             lastPlayEventData = null;
+            lastPlayAudioAd = null;
         }
     }
 
@@ -114,8 +117,9 @@ public class PlaybackSessionAnalyticsController {
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                 PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(), protocol,
                         currentTrackSourceInfo, lastPlayEventData, stopReason, progress);
-                if (playQueueManager.isCurrentTrackAudioAd()) {
-                    stopEvent = stopEvent.withAudioAd(playQueueManager.getAudioAd());
+
+                if (lastPlayAudioAd != null) {
+                    stopEvent = stopEvent.withAudioAd(lastPlayAudioAd);
                 }
                 return stopEvent;
             }

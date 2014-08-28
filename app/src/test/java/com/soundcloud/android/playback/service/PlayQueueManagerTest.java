@@ -350,6 +350,26 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldSetCurrentTriggerToManualIfSettingDifferentPosition() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.autoNextTrack(); // set to auto trigger
+
+        playQueueManager.setPosition(2);
+
+        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotSetCurrentTriggerToManualIfSettingSamePosition() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
+        playQueueManager.autoNextTrack(); // set to auto trigger
+
+        playQueueManager.setPosition(1);
+
+        expect(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).toBeFalse();
+    }
+
+    @Test
     public void shouldPublishTrackChangeEventOnPreviousTrack() {
         playQueueManager.setNewPlayQueue(playQueue, 5, playSessionSource);
         when(playQueue.hasPreviousTrack(5)).thenReturn(true);
