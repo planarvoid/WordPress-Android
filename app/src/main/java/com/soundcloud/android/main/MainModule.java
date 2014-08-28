@@ -10,12 +10,14 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersSyncActivity;
 import com.soundcloud.android.preferences.AccountSettingsActivity;
 import com.soundcloud.android.preferences.NotificationSettingsActivity;
 import com.soundcloud.android.preferences.ScSettingsActivity;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchActivity;
 import dagger.Module;
 
@@ -39,6 +41,8 @@ import dagger.Module;
                 AccountSettingsActivity.class,
                 NotificationSettingsActivity.class,
                 WhoToFollowActivity.class,
-                SearchActivity.class
+                SearchActivity.class,
+                SuggestedUsersCategoryActivity.class,
+                ProfileActivity.class
         }, includes = AssociationsModule.class)
 public class MainModule { }
