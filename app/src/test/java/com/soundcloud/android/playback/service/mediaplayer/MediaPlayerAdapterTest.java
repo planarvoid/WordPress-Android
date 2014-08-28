@@ -47,6 +47,7 @@ import rx.Subscription;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
@@ -360,6 +361,17 @@ public class MediaPlayerAdapterTest {
         InOrder inOrder = inOrder(listener);
         inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
         inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, track.get(TrackProperty.URN), 0, 123456)));
+    }
+
+    @Test
+    public void playUrlShouldSetErrorStateWithNotFoundIfProxyObservableCallsOnErrorWhileConnected() throws Exception {
+        when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
+        mediaPlayerAdapter.play(track);
+
+        InOrder inOrder = inOrder(listener);
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.ERROR_NOT_FOUND, track.get(TrackProperty.URN), 0, 123456)));
     }
 
     @Test
