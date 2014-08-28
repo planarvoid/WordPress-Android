@@ -29,7 +29,7 @@ public class PlayerUICommand {
         return new PlayerUICommand(SHOW_PLAYER);
     }
 
-    public PlayerUICommand(int kind) {
+    private PlayerUICommand(int kind) {
         this.kind = kind;
     }
 
