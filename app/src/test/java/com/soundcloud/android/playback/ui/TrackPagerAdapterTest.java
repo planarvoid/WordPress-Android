@@ -384,6 +384,18 @@ public class TrackPagerAdapterTest {
         verify(trackPagePresenter).onPositionSet(pageView, 1, 2);
     }
 
+    @Test
+    public void notifyDataSetChangedUpdatesTrackPagePositionWithAdInQueue() {
+        setupAudioAd();
+        final View pageView = getPageView();
+        when(playQueueManager.isAudioAdAtPosition(1)).thenReturn(true);
+        when(playQueueManager.getPositionForUrn(Urn.forTrack(123L))).thenReturn(1);
+        when(playQueueManager.getQueueSize()).thenReturn(2);
+        adapter.notifyDataSetChanged();
+
+        verify(adPagePresenter).onPositionSet(pageView, 1, 2);
+    }
+
     private View getPageView() {
         setCurrentTrackState(3, Urn.forTrack(123L), true);
         return getPageView(3, Urn.forTrack(123L));
