@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
@@ -8,6 +8,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ public class ExpandPlayerSubscriberTest {
     public void subscriberExpandPlayerOnComplete() {
         subscriber.onCompleted();
 
+        Robolectric.runUiThreadTasksIncludingDelayedTasks();
         expect(eventbus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toBe(PlayerUIEvent.EXPAND_PLAYER);
     }
 

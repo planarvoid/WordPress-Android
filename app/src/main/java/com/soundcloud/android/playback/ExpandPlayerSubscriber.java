@@ -9,13 +9,23 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
 
+import android.os.Handler;
+import android.os.Message;
+
 import javax.inject.Inject;
 import java.util.List;
 
 public class ExpandPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
+    public static final int EXPAND_DELAY_MILLIS = 100;
     private final EventBus eventBus;
     private final PlaybackToastViewController playbackToastViewController;
 
+    private final Handler expandDelayHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        }
+    };
 
     @Inject
     public ExpandPlayerSubscriber(EventBus eventBus, PlaybackToastViewController playbackToastViewController) {
@@ -25,7 +35,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
 
     @Override
     public void onCompleted() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        expandDelayHandler.sendEmptyMessageDelayed(0, EXPAND_DELAY_MILLIS);
     }
 
     @Override
