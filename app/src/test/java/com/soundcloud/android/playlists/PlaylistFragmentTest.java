@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -18,7 +19,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
@@ -68,6 +71,8 @@ public class PlaylistFragmentTest {
     @Mock private ItemAdapter adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Mock private ShowPlayerSubscriber showPlayerSubscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -80,7 +85,10 @@ public class PlaylistFragmentTest {
                 playlistEngagementsController,
                 ptrController,
                 playQueueManager,
-                new PlayablePresenter(imageOperations, Robolectric.application.getResources()));
+                new PlayablePresenter(imageOperations, Robolectric.application.getResources()),
+                buildProvider(showPlayerSubscriber),
+                buildProvider(expandPlayerSubscriber)
+        );
 
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
@@ -89,6 +97,7 @@ public class PlaylistFragmentTest {
 
         when(controller.getAdapter()).thenReturn(adapter);
         when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(playbackOperations.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test

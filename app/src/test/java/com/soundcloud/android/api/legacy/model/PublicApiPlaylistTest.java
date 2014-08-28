@@ -108,7 +108,7 @@ public class PublicApiPlaylistTest {
                 getClass().getResourceAsStream("e1_playlist.json"),
                 PublicApiPlaylist.class);
 
-        //create mode
+        //build mode
         PlaylistApiCreateObject createObject = new PlaylistApiCreateObject(playlist);
 
         expect(createObject.toJson())

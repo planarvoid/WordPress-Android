@@ -18,9 +18,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
@@ -73,6 +74,7 @@ public class SearchResultsFragment extends Fragment
     @Inject ListViewController listViewController;
     @Inject EventBus eventBus;
     @Inject SearchResultsAdapter adapter;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private int searchType;
     private ConnectableObservable<Page<SearchResultsCollection>> observable;
@@ -180,8 +182,9 @@ public class SearchResultsFragment extends Fragment
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
             final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
             final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
-            playbackOperations.playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()));
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+            playbackOperations
+                    .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()))
+                    .subscribe(subscriberProvider.get());
         } else if (item instanceof PublicApiPlaylist) {
             eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
             Playable playableAtPosition = ((PlayableHolder) adapter.getItems().get(position)).getPlayable();

@@ -17,15 +17,14 @@ import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -36,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +47,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Inject ImageOperations imageOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ActivityItemPresenter activityItemPresenter;
-    @Inject EventBus eventBus;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
 
     public ActivitiesAdapter(Uri uri) {
@@ -57,13 +57,12 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @VisibleForTesting
-    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemPresenter presenter, EventBus eventBus) {
+    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemPresenter presenter) {
         super(uri);
         this.activitiesStorage = new ActivitiesStorage();
         this.imageOperations = imageOperations;
         this.playbackOperations = playbackOperations;
         this.activityItemPresenter = presenter;
-        this.eventBus = eventBus;
     }
 
     @Override
@@ -190,7 +189,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             TrackUrn initialTrack = trackUrns.get(adjustedPosition);
             playbackOperations
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
-                    .subscribe(new PlayQueueChangedSubscriber(eventBus));
+                    .subscribe(subscriberProvider.get());
         } else if (playable instanceof PublicApiPlaylist) {
             PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
         }

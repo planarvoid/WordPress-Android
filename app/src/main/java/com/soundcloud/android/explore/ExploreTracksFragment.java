@@ -9,11 +9,9 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -31,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class ExploreTracksFragment extends Fragment
         implements RefreshableListComponent<ConnectableObservable<Page<SuggestedTracksCollection>>> {
@@ -44,7 +43,7 @@ public class ExploreTracksFragment extends Fragment
     @Inject ExploreTracksOperations exploreTracksOperations;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject ListViewController listViewController;
-    @Inject EventBus eventBus;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
@@ -117,8 +116,9 @@ public class ExploreTracksFragment extends Fragment
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTagExtra);
         playSessionSource.setExploreVersion(trackingTag);
-        playbackOperations.playTrackWithRecommendations(track.getUrn(), playSessionSource);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        playbackOperations
+                .playTrackWithRecommendations(track.getUrn(), playSessionSource)
+                .subscribe(subscriberProvider.get());
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -34,7 +35,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
-import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
@@ -53,6 +53,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,7 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     @Inject PlaylistItemPresenter playlistItemPresenter;
     @Inject PendingRecordingItemPresenter pendingRecordingItemPresenter;
     @Inject EventBus eventBus;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
     private final List<PropertySet> propertySets = new ArrayList<PropertySet>(Consts.LIST_PAGE_SIZE);
@@ -317,7 +319,7 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
             TrackUrn initialTrack = trackUrns.get(adjustedPosition);
             playbackOperations
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
-                    .subscribe(new PlayQueueChangedSubscriber(eventBus));
+                    .subscribe(subscriberProvider.get());
         } else if (playable instanceof PublicApiPlaylist) {
             PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
         }

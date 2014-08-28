@@ -7,17 +7,18 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
-import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
+import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 
 public class LikesListFragment extends ScListFragment {
@@ -34,9 +36,16 @@ public class LikesListFragment extends ScListFragment {
     @Inject EventBus eventBus;
     @Inject PlaybackOperations playbackOperations;
     @Inject SoundAssociationOperations soundAssociationOperations;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ViewGroup headerView;
     private Subscription fetchIdsSubscription = Subscriptions.empty();
+    private final Action0 sendShuffleLikesAnalytics = new Action0() {
+        @Override
+        public void call() {
+            eventBus.publish(EventQueue.UI, UIEvent.fromShuffleMyLikes());
+        }
+    };;
 
     public LikesListFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -97,14 +106,17 @@ public class LikesListFragment extends ScListFragment {
         ((TextView) headerView.findViewById(R.id.shuffle_txt)).setText(getHeaderText(likedTracks.size()));
         headerView.findViewById(R.id.shuffle_btn).setEnabled(likedTracks.size() > 1);
 
-        headerView.findViewById(R.id.shuffle_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playbackOperations.playTracksShuffled(likedTracks, new PlaySessionSource(Screen.SIDE_MENU_LIKES));
-                eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-                eventBus.publish(EventQueue.UI, UIEvent.fromShuffleMyLikes());
-            }
-        });
+        headerView.findViewById(R.id.shuffle_btn).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        playbackOperations
+                                .playTracksShuffled(likedTracks, new PlaySessionSource(Screen.SIDE_MENU_LIKES))
+                                .doOnCompleted(sendShuffleLikesAnalytics)
+                                .subscribe(subscriberProvider.get());
+                    }
+                }
+        );
     }
 
     private String getHeaderText(int trackCount) {
@@ -123,5 +135,6 @@ public class LikesListFragment extends ScListFragment {
             }
         }
     }
+
 
 }

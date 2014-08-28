@@ -11,16 +11,15 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistUrn;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.PlayQueueChangedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -36,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
@@ -50,7 +50,7 @@ public class SoundStreamFragment extends Fragment
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlaybackOperations playbackOperations;
-    @Inject EventBus eventBus;
+    @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ConnectableObservable<Page<List<PropertySet>>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
@@ -68,13 +68,18 @@ public class SoundStreamFragment extends Fragment
     }
 
     @VisibleForTesting
-    SoundStreamFragment(SoundStreamOperations soundStreamOperations, SoundStreamAdapter adapter, ListViewController listViewController, PullToRefreshController pullToRefreshController, PlaybackOperations playbackOperations, EventBus eventBus) {
+    SoundStreamFragment(SoundStreamOperations soundStreamOperations,
+                        SoundStreamAdapter adapter,
+                        ListViewController listViewController,
+                        PullToRefreshController pullToRefreshController,
+                        PlaybackOperations playbackOperations,
+                        Provider<ExpandPlayerSubscriber> subscriberProvider) {
         this.soundStreamOperations = soundStreamOperations;
         this.adapter = adapter;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
         this.playbackOperations = playbackOperations;
-        this.eventBus = eventBus;
+        this.subscriberProvider = subscriberProvider;
     }
 
     @Override
@@ -153,7 +158,7 @@ public class SoundStreamFragment extends Fragment
         if (playableUrn instanceof TrackUrn) {
             playbackOperations
                     .playTracks(soundStreamOperations.trackUrnsForPlayback(), (TrackUrn) playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
-                    .subscribe(new PlayQueueChangedSubscriber(eventBus));
+                    .subscribe(subscriberProvider.get());
         } else if (playableUrn instanceof PlaylistUrn) {
             PlaylistDetailActivity.start(getActivity(), playableUrn, Screen.SIDE_MENU_STREAM);
         }
