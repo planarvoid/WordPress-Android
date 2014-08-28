@@ -17,8 +17,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.xtremelabs.robolectric.Robolectric;
@@ -135,15 +135,6 @@ public class PullToRefreshControllerTest {
         controller.onViewCreated(fragment, listener);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-
-        verify(wrapper, times(2)).setRefreshing(false);
-    }
-
-    @Test
-    public void shouldStopRefreshingWhenExpandPlayerEventIsReceived() {
-        controller.onViewCreated(fragment, listener);
-
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
 
         verify(wrapper, times(2)).setRefreshing(false);
     }

@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -45,7 +46,7 @@ class TrackPageListener {
     }
 
     public void onFooterTap() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
     }
 
     public void onPlayerClose() {
@@ -65,7 +66,7 @@ class TrackPageListener {
     }
 
     private void requestPlayerCollapse() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
     }
 
     private Action1<PlayerUIEvent> startProfileActivity(final Context activityContext, final UserUrn userUrn) {

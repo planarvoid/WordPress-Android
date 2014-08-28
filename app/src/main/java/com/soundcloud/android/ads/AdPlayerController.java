@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.main.DefaultLifeCycleComponent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -88,7 +89,7 @@ public class AdPlayerController extends DefaultLifeCycleComponent {
     private final class PlayQueueSubscriber extends DefaultSubscriber<State> {
         @Override
         public void onNext(State event) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
             adHasBeenSeen = event.trackUrn;
         }
     }

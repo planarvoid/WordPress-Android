@@ -13,6 +13,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
@@ -113,7 +114,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume();
         controller.onPause();
 
-        eventBus.verifyUnsubscribed(EventQueue.PLAYER_UI);
+        eventBus.verifyUnsubscribed(EventQueue.PLAYER_COMMAND);
     }
 
     @Test
@@ -121,7 +122,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume();
         when(slidingPanel.isPanelHidden()).thenReturn(false);
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
         verify(slidingPanel).expandPanel();
     }
@@ -133,7 +134,7 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
 
         controller.onResume();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
         verify(slidingPanel).expandPanel();
     }
@@ -141,7 +142,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void closesPlayerWhenPlayCloseEventIsReceived() {
         controller.onResume();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
 
         verify(slidingPanel).collapsePanel();
     }
@@ -158,7 +159,7 @@ public class SlidingPlayerControllerTest {
     public void showPanelWhenShowPlayerEventIsReceived() {
         controller.onResume();
 
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
 
         verify(slidingPanel).showPanel();
     }

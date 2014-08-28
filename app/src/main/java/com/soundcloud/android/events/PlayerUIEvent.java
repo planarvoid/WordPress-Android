@@ -4,9 +4,6 @@ public class PlayerUIEvent {
 
     public static final int PLAYER_EXPANDED = 0;
     public static final int PLAYER_COLLAPSED = 1;
-    public static final int EXPAND_PLAYER = 2;
-    public static final int COLLAPSE_PLAYER = 3;
-    public static final int SHOW_PLAYER = 4;
 
     private final int kind;
 
@@ -24,26 +21,6 @@ public class PlayerUIEvent {
         return new PlayerUIEvent(PLAYER_COLLAPSED);
     }
 
-    /**
-     * Signals any on-screen instance of the player to expand.
-     */
-    public static PlayerUIEvent forExpandPlayer() {
-        return new PlayerUIEvent(EXPAND_PLAYER);
-    }
-
-    /**
-     * Signal any on-screen instance of the player to collapse.
-     */
-    public static PlayerUIEvent forCollapsePlayer() {
-        return new PlayerUIEvent(COLLAPSE_PLAYER);
-    }
-
-    /**
-     * Signals player panel to show panel (become visible).
-     */
-    public static PlayerUIEvent forShowPlayer() {
-        return new PlayerUIEvent(SHOW_PLAYER);
-    }
 
     public PlayerUIEvent(int kind) {
         this.kind = kind;
@@ -51,10 +28,6 @@ public class PlayerUIEvent {
 
     public int getKind() {
         return kind;
-    }
-
-    public boolean isExpand() {
-        return kind == PLAYER_EXPANDED || kind == EXPAND_PLAYER;
     }
 
     @Override

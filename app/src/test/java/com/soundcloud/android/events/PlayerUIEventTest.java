@@ -21,22 +21,4 @@ public class PlayerUIEventTest {
         expect(event.getKind()).toEqual(1);
     }
 
-    @Test
-    public void createEventForExpandPlayer() {
-        PlayerUIEvent event = PlayerUIEvent.forExpandPlayer();
-        expect(event.getKind()).toEqual(2);
-    }
-
-    @Test
-    public void createsEventForClosePlayer() {
-        PlayerUIEvent event = PlayerUIEvent.forCollapsePlayer();
-        expect(event.getKind()).toEqual(3);
-    }
-
-    @Test
-    public void createsEventForShowPlayer() {
-        PlayerUIEvent event = PlayerUIEvent.forShowPlayer();
-        expect(event.getKind()).toEqual(4);
-    }
-
 }

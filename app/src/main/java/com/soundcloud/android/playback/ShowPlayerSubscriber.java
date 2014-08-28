@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.PlaybackOperations.UnSkippablePeriodException;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -24,9 +24,8 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
 
     @Override
     public void onCompleted() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forShowPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
     }
-
 
     @Override
     public void onError(Throwable e) {

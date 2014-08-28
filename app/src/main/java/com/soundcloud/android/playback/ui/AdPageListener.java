@@ -5,7 +5,7 @@ import static eu.inmite.android.lib.dialogs.SimpleDialogFragment.createBuilder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -49,11 +49,11 @@ class AdPageListener {
     }
 
     public void onFooterTap() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
     }
 
     public void onPlayerClose() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
     }
 
     public void onClickThrough() {

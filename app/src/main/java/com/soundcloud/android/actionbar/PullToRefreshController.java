@@ -121,7 +121,7 @@ public class PullToRefreshController {
     private final class PlayerExpandedSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.isExpand()) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
                 stopRefreshing();
             }
         }
