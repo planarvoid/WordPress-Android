@@ -123,19 +123,17 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public int getItemViewTypeFromObject(Object object) {
-        return trackPagePresenter.accept(((View) object)) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
+        return trackPagePresenter.accept((View) object) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup container) {
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
-        final boolean shouldCreateView = convertView == null;
         final PlayerPagePresenter presenter = getPresenter(position);
-        final View contentView = shouldCreateView
+        final View contentView = convertView == null
                 ? presenter.createItemView(container, skipListener)
                 : presenter.clearItemView(convertView);
-
 
         final ViewPageData viewData = new ViewPageData(position, urn);
         trackByViews.put(contentView, viewData); // forcePut to remove existing entry
