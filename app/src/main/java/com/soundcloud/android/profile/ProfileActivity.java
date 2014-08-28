@@ -102,7 +102,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     public ProfileActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
+        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

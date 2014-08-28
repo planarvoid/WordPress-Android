@@ -2,7 +2,6 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
@@ -23,7 +22,7 @@ public class WhoToFollowActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
 
     public WhoToFollowActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
+        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

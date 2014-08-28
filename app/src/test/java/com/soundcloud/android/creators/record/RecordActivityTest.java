@@ -6,37 +6,41 @@ import static junit.framework.Assert.assertNotSame;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.Intent;
+import android.content.res.Resources;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class RecordActivityTest {
 
-    RecordActivity activity;
+    private RecordActivity activity;
+    private Resources resources;
 
     @Before
     public void setUp() throws Exception {
         activity = new RecordActivity();
+        resources = Robolectric.application.getResources();
     }
 
     @Test
     public void shouldFindAllSuggestions() throws Exception {
-        checkKeys(DefaultTestRunner.application.getResources().getStringArray(R.array.record_suggestion_keys));
+        checkKeys(resources.getStringArray(R.array.record_suggestion_keys));
     }
 
     @Test
     public void shouldFindAllPrivateSuggestions() throws Exception {
-        checkKeys(DefaultTestRunner.application.getResources().getStringArray(R.array.record_suggestion_keys_private));
+        checkKeys(resources.getStringArray(R.array.record_suggestion_keys_private));
     }
 
     private void checkKeys(String[] keys) throws Exception {
         for (String key : keys) {
             assertNotSame("[string resource needed for record suggestions with keyname " + RecordMessageView.STRING_RESOURCE_PREFIX + key + "]",
-                    DefaultTestRunner.application.getResources().getIdentifier(RecordMessageView.STRING_RESOURCE_PREFIX + key, "string", DefaultTestRunner.application.getPackageName()), 0);
+                    resources.getIdentifier(RecordMessageView.STRING_RESOURCE_PREFIX + key, "string", Robolectric.application.getPackageName()), 0);
         }
     }
 

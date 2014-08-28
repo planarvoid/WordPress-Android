@@ -1,7 +1,6 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.collections.ScListFragment;
@@ -31,8 +30,6 @@ public abstract class PlayableInteractionActivity extends ScActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
-        SoundCloudApplication.getObjectGraph().inject(this);
 
         setContentView(R.layout.playable_interaction_activity);
 

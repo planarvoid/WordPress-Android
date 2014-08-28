@@ -1,7 +1,6 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -18,7 +17,7 @@ public class ExploreTracksCategoryActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
 
     public ExploreTracksCategoryActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
+        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

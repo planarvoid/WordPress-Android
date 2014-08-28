@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
@@ -61,7 +60,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     public SearchActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
+        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
