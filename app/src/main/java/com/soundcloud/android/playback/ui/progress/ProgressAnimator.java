@@ -47,6 +47,10 @@ public abstract class ProgressAnimator {
         wrappedAnimator.addListener(listenerAdapter);
     }
 
+    protected void removeListener(AnimatorListenerAdapter listenerAdapter) {
+        wrappedAnimator.removeListener(listenerAdapter);
+    }
+    
     @VisibleForTesting
     List<AnimatorListener> getWrappedAnimationListeners(){
         return wrappedAnimator.getListeners();

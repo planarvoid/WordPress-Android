@@ -115,6 +115,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         imageOperations.displayInPlayer(urn, size, wrappedImageView, this, cachedListBitmap, isHighPriority);
     }
 
+    public void reset() {
+        progressController.reset();
+        clear();
+    }
+
     private void configureBounds() {
         final int width = artworkView.getWidth();
         final int imageViewWidth = wrappedImageView.getMeasuredWidth();

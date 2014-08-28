@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui.progress;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyFloat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -42,7 +43,7 @@ public class ProgressControllerTest {
         controller = new ProgressController(progressView, helper);
 
         when(progress.getProgressProportion()).thenReturn(.2f);
-        when(helper.createAnimator(progressView, .2f)).thenReturn(progressAnimator);
+        when(helper.createAnimator(eq(progressView), anyFloat())).thenReturn(progressAnimator);
     }
 
     @Test
@@ -159,5 +160,17 @@ public class ProgressControllerTest {
 
         verify(progressAnimator, never()).cancel();
         verifyZeroInteractions(secondAnimator);
+    }
+
+    @Test
+    public void setHelperAfterResettingDoesNotStartAnimation() {
+        controller.startProgressAnimation(progress);
+        Mockito.reset(progressAnimator);
+
+        controller.reset();
+        controller.setHelper(helper);
+
+        verify(progressAnimator, never()).start();
+
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.google.common.collect.Sets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
@@ -35,6 +36,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
@@ -49,6 +51,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
+    private final Set<View> subscribedTrackViews = Sets.newHashSetWithExpectedSize(EXPECTED_TRACKVIEW_COUNT);
 
     private SkipListener skipListener;
 
@@ -94,6 +97,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     void unsubscribe() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
+        subscribedTrackViews.clear();
     }
 
     void warmupViewCache(ViewGroup container) {
@@ -132,19 +136,17 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
                 ? presenter.createItemView(container, skipListener)
                 : presenter.clearItemView(convertView);
 
-        final boolean isNewView = isNewView(contentView);
+
         final ViewPageData viewData = new ViewPageData(position, urn);
         trackByViews.put(contentView, viewData); // forcePut to remove existing entry
-        if (isNewView) {
+
+        if (!subscribedTrackViews.contains(contentView)) {
             subscribeToPlayEvents(presenter, contentView);
+            subscribedTrackViews.add(contentView);
         }
 
         getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
-    }
-
-    private boolean isNewView(View contentView) {
-        return !trackByViews.containsKey(contentView);
     }
 
     private PlayerPagePresenter getPresenter(int position) {

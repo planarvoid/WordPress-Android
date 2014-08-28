@@ -136,8 +136,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.likeToggle.setChecked(false);
         holder.likeToggle.setEnabled(true);
 
+        holder.artworkController.reset();
         holder.waveformController.reset();
-        holder.artworkController.clear();
 
         holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
         holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
