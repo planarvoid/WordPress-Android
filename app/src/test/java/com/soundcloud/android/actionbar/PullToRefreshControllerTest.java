@@ -140,6 +140,15 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
+    public void shouldStopRefreshingWhenExpandPlayerEventIsReceived() {
+        controller.onViewCreated(fragment, listener);
+
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+
+        verify(wrapper, times(2)).setRefreshing(false);
+    }
+
+    @Test
     public void shouldRegisterRefreshListenerForPagedListViews() {
         controller.onViewCreated(fragment, observable, adapter);
 
