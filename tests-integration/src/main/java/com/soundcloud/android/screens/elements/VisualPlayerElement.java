@@ -178,6 +178,10 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.skip_ad);
     }
 
+    public void waitForPlayButton() {
+        waiter.waitForElement(R.id.player_play);
+    }
+
     public void waitForAdPage() {
         waiter.waitForElement(R.id.player_ad_page);
     }
