@@ -195,9 +195,9 @@ public class NavigationDrawerFragment extends NavigationFragment {
     private final class PlayerExpansionSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.isExpand()) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
                 setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            } else if (event.isCollapse()) {
+            } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
                 setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
         }

@@ -149,7 +149,7 @@ public class SlidingPlayerControllerTest {
     @Test
     public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
         controller.onResume();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsing());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(slidingPanel, times(0)).expandPanel();
     }
@@ -261,8 +261,6 @@ public class SlidingPlayerControllerTest {
         collapsePanel();
 
         verify(actionBarController, times(1)).setVisible(true);
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSING);
     }
 
     @Test
@@ -270,8 +268,6 @@ public class SlidingPlayerControllerTest {
         expandPanel();
 
         verify(actionBarController, times(1)).setVisible(false);
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDING);
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
