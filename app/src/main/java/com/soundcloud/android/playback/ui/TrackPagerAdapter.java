@@ -313,8 +313,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         public void onNext(PropertySet track) {
             TrackUrn trackUrn = track.get(TrackProperty.URN);
             if (isTrackRelatedToView(trackPage, trackUrn)) {
-                presenter.onPositionSet(trackPage, playQueueManager.getPositionForUrn(trackUrn), playQueueManager.getQueueSize());
                 presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn));
+                presenter.onPositionSet(trackPage, playQueueManager.getPositionForUrn(trackUrn), playQueueManager.getQueueSize());
                 updateProgress(presenter, trackPage, trackUrn);
             }
         }
