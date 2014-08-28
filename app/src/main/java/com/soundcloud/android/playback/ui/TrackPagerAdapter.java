@@ -212,8 +212,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     private void updatePagePositions() {
         for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
-            TrackUrn urn = entry.getValue().trackUrn;
-            trackPagePresenter.onPositionSet(entry.getKey(), playQueueManager.getPositionForUrn(urn), playQueueManager.getQueueSize());
+            final TrackUrn urn = entry.getValue().trackUrn;
+            final int position = entry.getValue().positionInPlayQueue;
+            getPresenter(position).onPositionSet(entry.getKey(), playQueueManager.getPositionForUrn(urn), playQueueManager.getQueueSize());
         }
     }
 
