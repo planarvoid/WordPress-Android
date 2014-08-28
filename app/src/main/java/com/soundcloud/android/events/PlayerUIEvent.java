@@ -53,6 +53,10 @@ public class PlayerUIEvent {
         return kind;
     }
 
+    public boolean isExpand() {
+        return kind == PLAYER_EXPANDED || kind == EXPAND_PLAYER;
+    }
+
     @Override
     public String toString() {
         return "player UI event: " + kind;

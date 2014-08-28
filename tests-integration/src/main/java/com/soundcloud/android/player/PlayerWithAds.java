@@ -56,6 +56,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
     public void testTappingArtworkTwiceResumePlayingAd() {
         swipeToAd();
         playerElement.clickArtwork();
+        playerElement.waitForPlayButton();
         playerElement.clickArtwork();
         assertThat(playerElement, is(Playing()));
     }
@@ -124,5 +125,6 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
 
     private void swipeToAd() {
         playerElement.swipeNext();
+        playerElement.waitForAdPage();
     }
 }
