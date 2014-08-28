@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -79,7 +78,7 @@ public class PlaybackOperations {
     public Observable<List<TrackUrn>> playTracksFromUri(Uri uri, final int startPosition, final TrackUrn initialTrack, final PlaySessionSource playSessionSource) {
         return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition, playSessionSource, false);
     }
-    
+
     public Observable<List<TrackUrn>> playTrackWithRecommendations(TrackUrn track, PlaySessionSource playSessionSource) {
         return playTracksList(Observable.from(track).toList(), track, 0, playSessionSource, true);
     }
@@ -131,7 +130,7 @@ public class PlaybackOperations {
             playbackToastViewController.showUnkippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
-                    && !playQueueManager.isCurrentTrackAudioAd()){
+                    && !playQueueManager.isCurrentTrackAudioAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
                 playQueueManager.moveToPreviousTrack();
@@ -152,7 +151,7 @@ public class PlaybackOperations {
     }
 
     public void seek(long position) {
-        if (!shouldDisableSkipping()){
+        if (!shouldDisableSkipping()) {
             if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
                 Intent intent = new Intent(PlaybackService.Actions.SEEK);
                 intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
@@ -164,7 +163,7 @@ public class PlaybackOperations {
         }
     }
 
-    public boolean shouldDisableSkipping(){
+    public boolean shouldDisableSkipping() {
         return playQueueManager.isCurrentTrackAudioAd() &&
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
