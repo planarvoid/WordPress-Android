@@ -285,9 +285,8 @@ public class AccountOperations extends ScheduledOperations {
              */
             accountManager.setUserData(soundCloudAccount, key, value);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Nullable
