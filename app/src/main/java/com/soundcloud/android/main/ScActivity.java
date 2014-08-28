@@ -41,6 +41,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 /**
@@ -65,6 +66,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     protected AccountOperations accountOperations;
     protected EventBus eventBus;
+
+    @Inject ActionBarController.Factory actionBarControllerFactory;
 
     @Nullable
     protected ActionBarController actionBarController;
@@ -146,7 +149,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, eventBus);
+        return actionBarControllerFactory.create(this);
     }
 
     public void restoreActionBar() {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -47,10 +46,6 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
                 eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_GENRE.get());
             }
         }
-    }
-
-    protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, eventBus);
     }
 
     @Override
