@@ -61,10 +61,11 @@
     <style name="PlayerTitleBase" parent="FooterTitle">
         <item name="android:textSize">18sp</item>
         <item name="jagged_background">@color/overlay_text_background</item>
-        <item name="android:lineSpacingExtra">4dp</item>
+        <item name="android:lineSpacingExtra">2dp</item>
         <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingRight">8dp</item>
         <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
     </style>
 
     <style name="PlayerTitle" parent="PlayerTitleBase">
