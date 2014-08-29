@@ -167,11 +167,6 @@
     <item quantity="one">Hace un año</item>
     <item quantity="other">Hace %d años</item>
   </plurals>
-  <string name="email_confirmation_cant_find_it">¿No puede encontrarlo en su bandeja de entrada?</string>
-  <string name="email_confirmation_confirm_later">Gracias, lo confirmaré más adelante</string>
-  <string name="email_confirmation_just_a_second">Un segundo</string>
-  <string name="email_confirmation_resend">Reenviar enlace de confirmación</string>
-  <string name="email_confirmation_you_need_to_confirm">Para sacar el máximo provecho de SoundCloud, necesitas confirmar dirección de correo electrónico.</string>
   <string name="empty_user_likes_text">%1$s no tiene aún ningún favorito.</string>
   <string name="empty_user_followers_text">Nadie está siguiendo aún a %1$s.</string>
   <string name="empty_user_followings_text">%1$s todavía no está siguiendo a nadie.</string>
