@@ -60,19 +60,22 @@
   <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
   <plurals name="dashboard_notifications_activity_message_activity">
     <item quantity="one">from %2$s on %1$s</item>
-    <item quantity="other">Comments and likes from %2$s and others</item>
+    <item quantity="two">Comments and likes from %2$s and %3$s</item>
+    <item quantity="other">Comments and likes from %2$s, %3$s and others</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_comment">
-    <item quantity="one">Comment from  %1$s</item>
-    <item quantity="other">Comments from %1$s and others</item>
+    <item quantity="two">Comments from %1$s and %2$s</item>
+    <item quantity="other">Comments from %1$s, %2$s and others</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_comment_single_track">
     <item quantity="one">new comment on %2$s from %3$s</item>
-    <item quantity="other">%1$d new comments on %2$s from %3$s and others</item>
+    <item quantity="two">%1$d new comments on %2$s from %3$s and %4$s</item>
+    <item quantity="other">%1$d new comments on %2$s from %3$s, %4$s and others</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_like">
     <item quantity="one">on %1$s</item>
-    <item quantity="other">on %1$s and other sounds</item>
+    <item quantity="two">on %1$s and %2$s</item>
+    <item quantity="other">on %1$s, %2$s and other sounds</item>
   </plurals>
   <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
   <plurals name="dashboard_notifications_activity_ticker_activity">
