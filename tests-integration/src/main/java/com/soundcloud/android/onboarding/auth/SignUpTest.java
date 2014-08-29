@@ -151,62 +151,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         solo.assertText(R.string.authentication_error_password_too_short);
     }
 
-    @Suppress
-    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupNoThanks() {
-        // perform a full signup
-        ignore_testSignup();
-
-        // exit app
-        solo.goBack();
-        solo.finishOpenedActivities();
-
-        // relaunch activity
-        setActivity(null);
-        getActivity();
-
-        solo.assertText(R.string.email_confirmation_you_need_to_confirm);
-        solo.clickOnText(R.string.email_confirmation_confirm_later);
-        solo.assertText(R.string.side_menu_stream);
-
-        // relaunch activity, make sure email screen doesn't show up again
-        solo.goBack();
-        solo.finishOpenedActivities();
-
-        setActivity(null);
-        getActivity();
-        solo.assertText(R.string.side_menu_stream);
-    }
-
-
-    @Suppress
-    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupResendEmail() {
-        // perform a full signup
-        ignore_testSignup();
-
-        // exit app
-        solo.goBack();
-        solo.finishOpenedActivities();
-
-        // relaunch activity
-        setActivity(null);
-        getActivity();
-
-        solo.sleep(500); // should not be needed
-
-        solo.assertText(R.string.email_confirmation_you_need_to_confirm);
-        solo.clickOnText(R.string.email_confirmation_resend);
-        solo.assertText(R.string.side_menu_stream);
-
-        // relaunch activity, make sure email screen doesn't show up again
-        solo.goBack();
-        solo.finishOpenedActivities();
-
-        setActivity(null);
-        getActivity();
-        solo.assertText(R.string.side_menu_stream);
-    }
-
-
     // helper methods
     private String generateEmail() {
         String uuid = UUID.randomUUID().toString();
