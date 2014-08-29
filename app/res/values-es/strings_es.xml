@@ -60,22 +60,19 @@
   <string name="connection_list_footer">Para cambiar sus opciones de configuración por defecto, abra los ajustes de SoundCloud y seleccione \""Connections\""</string>
   <plurals name="dashboard_notifications_activity_message_activity">
     <item quantity="one">de %2$s sobre %1$s</item>
-    <item quantity="other">Comentarios y gustos de %2$s, %3$s y otros</item>
-    <item quantity="two">Comentarios y gustos de %2$s y %3$s</item>
+    <item quantity="other">Comentarios y gustos de %2$s y otros</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_comment">
-    <item quantity="other">Comentarios de %1$s, %2$s y otros</item>
-    <item quantity="two">Comentarios de %1$s y %2$s</item>
+    <item quantity="one">Comentario de %1$s</item>
+    <item quantity="other">Comentarios de %1$s y otros</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_comment_single_track">
     <item quantity="one">nuevo comentario sobre %2$s de %3$s</item>
-    <item quantity="other">%1$d nuevos comentarios sobre %2$s de %3$s, %4$s y otros</item>
-    <item quantity="two">%1$d nuevos comentarios sobre %2$s de %3$s y %4$s</item>
+    <item quantity="other">%1$d nuevos comentarios sobre %2$s de %3$s y otros</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_message_like">
     <item quantity="one">sobre %1$s</item>
-    <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
-    <item quantity="two">sobre %1$s y %2$s</item>
+    <item quantity="other">sobre %1$s y otros sonidos</item>
   </plurals>
   <string name="dashboard_notifications_activity_message_likes">A %1$s le gusta %2$s</string>
   <plurals name="dashboard_notifications_activity_ticker_activity">
