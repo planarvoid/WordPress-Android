@@ -177,7 +177,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
         String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        viewHolder.timeUntilSkip.setText(formattedTime);
+        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ad_skip, formattedTime));
     }
 
     @Override
