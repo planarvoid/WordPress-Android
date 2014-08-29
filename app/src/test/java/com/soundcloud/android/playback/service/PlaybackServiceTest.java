@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -142,10 +143,14 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
-        playbackService.onCreate();
-
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
+        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+
+        playbackService.onCreate();
+        playbackService.openCurrent(track, false);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -154,12 +159,37 @@ public class PlaybackServiceTest {
     }
 
     @Test
+    public void onPlaystateChangedDoesNotPublishStateTransitionWithDifferentUrnThanCurrent() {
+        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+
+        playbackService.onPlaystateChanged(stateTransition);
+
+        expect(eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED)).toBeEmpty();
+    }
+
+    @Test
     public void shouldForwardPlayerStateTransitionToAnalyticsController() {
+        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
+        when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
+        when(stateTransition.trackEnded()).thenReturn(false);
+        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+
         playbackService.onCreate();
+        playbackService.openCurrent(track, false);
 
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(analyticsController).onStateTransition(stateTransition);
+    }
+
+    @Test
+    public void doesNotForwardPlayerStateTransitionToAnalyticsControllerWithDifferentUrnThenCurrent() {
+        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+
+        playbackService.onPlaystateChanged(stateTransition);
+
+        verify(analyticsController, never()).onStateTransition(any(Playa.StateTransition.class));
     }
 
     @Test

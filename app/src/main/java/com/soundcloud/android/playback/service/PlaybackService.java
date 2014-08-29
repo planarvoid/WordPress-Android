@@ -292,14 +292,16 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onPlaystateChanged(Playa.StateTransition stateTransition) {
+        // TODO : Fix threading in Skippy so we can never receive delayed messages
+        if (getCurrentTrackUrn().equals(stateTransition.getTrackUrn())) {
+            if (!stateTransition.isPlaying()) {
+                onIdleState();
+            }
+            updatePlaybackNotification(stateTransition);
 
-        if (!stateTransition.isPlaying()) {
-            onIdleState();
+            analyticsController.onStateTransition(stateTransition);
+            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         }
-        updatePlaybackNotification(stateTransition);
-
-        analyticsController.onStateTransition(stateTransition);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
     }
 
     private void updatePlaybackNotification(Playa.StateTransition stateTransition) {
