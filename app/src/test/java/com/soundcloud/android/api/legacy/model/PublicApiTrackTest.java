@@ -8,6 +8,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -351,8 +352,18 @@ public class PublicApiTrackTest {
     public void shouldConvertToPropertySetWithBlankUsernameIfUsernameNull() throws CreateModelException {
         PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         track.setUser(new PublicApiUser());
+
         PropertySet propertySet = track.toPropertySet();
         expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(ScTextUtils.EMPTY_STRING);
+    }
+
+    @Test
+    public void shouldConvertToPropertySetWithUserUrnCreatedFromUserId() throws CreateModelException {
+        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        track.setUser(null);
+
+        PropertySet propertySet = track.toPropertySet();
+        expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(UserUrn.forUser(track.getUserId()));
     }
 
     private void compareTracks(PublicApiTrack t, PublicApiTrack t2) {
