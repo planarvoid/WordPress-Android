@@ -53,7 +53,7 @@ class LocalyticsUIEventHandler {
                 localyticsSession.tagEvent(LocalyticsEvents.UI.NAVIGATION, eventAttributes);
                 break;
             default:
-                throw new IllegalArgumentException("UI Event type is invalid");
+                break;
         }
     }
 

@@ -39,7 +39,6 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     public PlaylistDetailActivity() {
-        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

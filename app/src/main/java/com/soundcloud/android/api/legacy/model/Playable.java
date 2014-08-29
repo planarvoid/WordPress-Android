@@ -12,9 +12,11 @@ import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -361,6 +363,10 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return this;
     }
 
+    public UserUrn getUserUrn() {
+        return user != null ? user.getUrn() : Urn.forUser(user_id);
+    }
+
     public long getUserId() {
         return user != null ? user.getId() : user_id;
     }
@@ -417,10 +423,11 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     @Override
     public PropertySet toPropertySet() {
-        return PropertySet.from(PlayableProperty.DURATION.bind(duration),
+        return PropertySet.from(
+                PlayableProperty.DURATION.bind(duration),
                 PlayableProperty.TITLE.bind(title),
                 PlayableProperty.URN.bind(getUrn()),
-                PlayableProperty.CREATOR_URN.bind(user.getUrn()),
+                PlayableProperty.CREATOR_URN.bind(getUserUrn()),
                 PlayableProperty.IS_PRIVATE.bind(sharing.isPrivate()),
                 PlayableProperty.REPOSTS_COUNT.bind(reposts_count),
                 PlayableProperty.LIKES_COUNT.bind(likes_count),
@@ -428,7 +435,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
                 PlayableProperty.IS_LIKED.bind(user_like),
                 PlayableProperty.CREATED_AT.bind(created_at),
                 // we may have null usernames if it is my like/sound that hasn't been lazily updated
-                PlayableProperty.CREATOR_NAME.bind(user.getUsername() != null ? user.getUsername()
+                PlayableProperty.CREATOR_NAME.bind(user != null && user.getUsername() != null ? user.getUsername()
                         : ScTextUtils.EMPTY_STRING)
         );
     }

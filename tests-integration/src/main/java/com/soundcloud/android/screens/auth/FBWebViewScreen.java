@@ -15,6 +15,7 @@ public class FBWebViewScreen {
     public FBWebViewScreen(Han driver) {
         solo = driver;
         waiter = new Waiter(solo);
+        waiter.waitForDialogToClose();
         waiter.waitForElement(com.soundcloud.android.R.id.webview);
         webview = solo.findElement(With.id(com.soundcloud.android.R.id.webview));
         waiter.waitForWebViewToLoad(webview.toWebView());
@@ -43,7 +44,7 @@ public class FBWebViewScreen {
         if (solo.findElement(With.text("Do you want the browser to remember this password?")).isVisible()) {
             solo.findElement(With.text("Never")).click();
         }
-        waiter.waitForLogInDialog();
+        waiter.waitForDialogToClose();
         return new MainScreen(solo);
 
     }

@@ -22,7 +22,6 @@ public class WhoToFollowActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
 
     public WhoToFollowActivity() {
-        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

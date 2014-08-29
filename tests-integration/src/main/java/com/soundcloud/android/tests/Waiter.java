@@ -149,7 +149,7 @@ public class Waiter {
         return solo.waitForCondition(new DrawerStateCondition(true), TIMEOUT);
     }
 
-    public void waitForLogInDialog() {
+    public void waitForDialogToClose() {
         solo.waitForDialogToClose(NETWORK_TIMEOUT);
     }
 

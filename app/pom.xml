@@ -15,7 +15,7 @@
     <properties>
         <dagger.version>1.2.1</dagger.version>
         <rxjava.version>0.20.0-RC3</rxjava.version>
-        <propeller.version>0.20</propeller.version>
+        <propeller.version>0.21</propeller.version>
     </properties>
 
     <build>
@@ -372,7 +372,7 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>skippy</artifactId>
-            <version>522</version>
+            <version>524</version>
             <type>apklib</type>
         </dependency>
         <dependency>

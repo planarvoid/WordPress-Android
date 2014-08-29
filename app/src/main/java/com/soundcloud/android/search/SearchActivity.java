@@ -60,7 +60,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     public SearchActivity() {
-        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

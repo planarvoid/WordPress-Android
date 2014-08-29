@@ -150,10 +150,6 @@ public class PlaybackSessionEvent {
         return protocol;
     }
 
-    public String getAudioAdProtocol() {
-        return (String) extraAttributes.get(EXTRA_PLAYBACK_PROTOCOL);
-    }
-
     public List<String> getAudioAdImpressionUrls() {
         return (List<String>) extraAttributes.get(EXTRA_AUDIO_AD_IMPRESSION_URLS);
     }
