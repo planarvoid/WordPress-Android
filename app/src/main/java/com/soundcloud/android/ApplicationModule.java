@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LruCache;
 import android.telephony.TelephonyManager;
 
@@ -87,6 +88,11 @@ public class ApplicationModule {
     @Provides
     public NotificationManager provideNotificationManager() {
         return (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    @Provides
+    public LocalBroadcastManager provideLocalBroadcastManager() {
+        return LocalBroadcastManager.getInstance(application);
     }
 
     @Provides

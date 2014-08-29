@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import static rx.android.observables.AndroidObservable.fromFragment;
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,6 +18,10 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -26,7 +30,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -39,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 public class AddToPlaylistDialogFragment extends BaseDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -52,9 +56,24 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     private static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter adapter;
+    private Subscription addTrackSubscription = Subscriptions.empty();
 
     @Inject LegacyPlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
+    @Inject LocalBroadcastManager broadcastManager;
+
+    private final Action1<PublicApiPlaylist> broadcastTrackAdded = new Action1<PublicApiPlaylist>() {
+        @Override
+        public void call(PublicApiPlaylist playlist) {
+            // TODO: move to an Rx event
+            // broadcast the information that the number of tracks changed
+            Intent intent = new Intent(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
+            intent.putExtra(PublicApiPlaylist.EXTRA_ID, playlist.getId());
+            intent.putExtra(PublicApiPlaylist.EXTRA_TRACKS_COUNT, playlist.getTrackCount());
+
+            broadcastManager.sendBroadcast(intent);
+        }
+    };
 
     public static AddToPlaylistDialogFragment from(PropertySet track, String originScreen) {
         Bundle b = new Bundle();
@@ -107,11 +126,20 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         long newTracksCount = ScTextUtils.safeParseLong(String.valueOf(txtTrackCount.getText())) + 1;
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
-        fromFragment(this, playlistOperations.addTrackToPlaylist(
-                playlistId, trackId)).subscribe(new TrackAddedSubscriber());
+        addTrackSubscription = bindFragment(this,
+                playlistOperations.addTrackToPlaylist(playlistId, trackId)
+                        .doOnNext(broadcastTrackAdded)
+                        .delay(CLOSE_DELAY_MILLIS, TimeUnit.MILLISECONDS, Schedulers.immediate())
+        ).subscribe(new TrackAddedSubscriber());
 
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
         eventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
+    }
+
+    @Override
+    public void onDestroy() {
+        addTrackSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
@@ -160,22 +188,11 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
 
         @Override
         public void onNext(PublicApiPlaylist playlist) {
-            // TODO: move to an Rx event
-            // broadcast the information that the number of tracks changed
-            Intent intent = new Intent(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
-            intent.putExtra(PublicApiPlaylist.EXTRA_ID, playlist.getId());
-            intent.putExtra(PublicApiPlaylist.EXTRA_TRACKS_COUNT, playlist.getTrackCount());
-
-            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
-
-            // brief pause to show them the updated track count
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    final Dialog toDismiss = getDialog();
-                    Toast.makeText(AddToPlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
-                    if (toDismiss != null) toDismiss.dismiss();
-                }
-            }, CLOSE_DELAY_MILLIS);
+            final Dialog toDismiss = getDialog();
+            Toast.makeText(getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
+            if (toDismiss != null) {
+                toDismiss.dismiss();
+            }
         }
 
         @Override
