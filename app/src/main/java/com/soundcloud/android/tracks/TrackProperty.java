@@ -3,12 +3,12 @@ package com.soundcloud.android.tracks;
 import com.soundcloud.propeller.Property;
 
 public final class TrackProperty {
-    public static final Property<TrackUrn> URN = Property.of(TrackUrn.class);
-    public static final Property<Integer> PLAY_COUNT = Property.of(Integer.class);
-    public static final Property<String> WAVEFORM_URL = Property.of(String.class);
-    public static final Property<Boolean> MONETIZABLE = Property.of(Boolean.class);
-    public static final Property<String> POLICY = Property.of(String.class);
-    public static final Property<String> DESCRIPTION = Property.of(String.class);
-    public static final Property<Integer> COMMENTS_COUNT = Property.of(Integer.class);
-    public static final Property<String> STREAM_URL = Property.of(String.class);
+    public static final Property<TrackUrn> URN = Property.of(TrackProperty.class, TrackUrn.class);
+    public static final Property<Integer> PLAY_COUNT = Property.of(TrackProperty.class, Integer.class);
+    public static final Property<String> WAVEFORM_URL = Property.of(TrackProperty.class, String.class);
+    public static final Property<Boolean> MONETIZABLE = Property.of(TrackProperty.class, Boolean.class);
+    public static final Property<String> POLICY = Property.of(TrackProperty.class, String.class);
+    public static final Property<String> DESCRIPTION = Property.of(TrackProperty.class, String.class);
+    public static final Property<Integer> COMMENTS_COUNT = Property.of(TrackProperty.class, Integer.class);
+    public static final Property<String> STREAM_URL = Property.of(TrackProperty.class, String.class);
 }
