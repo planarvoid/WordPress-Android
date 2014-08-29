@@ -55,13 +55,20 @@ public class ImageOptionsFactoryTest {
     public void shouldCreateAdapterViewOptions() throws Exception {
         Resources resources = mock(Resources.class);
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, null);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisk()).toBeTrue();
         expect(displayImageOptions.getImageForEmptyUri(resources)).toBe(drawable);
         expect(displayImageOptions.getImageOnFail(resources)).toBe(drawable);
         expect(displayImageOptions.getImageOnLoading(resources)).toBe(drawable);
         expect(displayImageOptions.getDisplayer()).toBeInstanceOf(ImageOptionsFactory.PlaceholderTransitionDisplayer.class);
+    }
+
+    @Test
+    public void shouldCreateAdapterViewWithRGB565BitmapConfigForSmallImageSize() {
+        Drawable drawable = mock(Drawable.class);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.MINI);
+        expect(displayImageOptions.getDecodingOptions().inPreferredConfig).toEqual(Bitmap.Config.RGB_565);
     }
 
     @Test

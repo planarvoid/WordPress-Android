@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
+import java.util.EnumSet;
+
 public enum ApiImageSize {
     T500("t500x500", 500, 500),
     CROP("crop", 400, 400),
@@ -25,6 +27,14 @@ public enum ApiImageSize {
     public final int width;
     public final int height;
     public final String sizeSpec;
+
+    public static final EnumSet<ApiImageSize> SMALL_SIZES = EnumSet.of(
+            ApiImageSize.BADGE,
+            ApiImageSize.SMALL,
+            ApiImageSize.TINY_ARTWORK,
+            ApiImageSize.TINY_AVATAR,
+            ApiImageSize.MINI
+    );
 
     ApiImageSize(String sizeSpec, int width, int height) {
         this.sizeSpec = sizeSpec;

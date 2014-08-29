@@ -135,7 +135,7 @@ public class ImageOperations {
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
-                ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware)), notFoundListener);
+                ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware), apiImageSize), notFoundListener);
     }
 
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {

@@ -19,14 +19,19 @@ class ImageOptionsFactory {
 
     static final int DELAY_BEFORE_LOADING = 200;
 
-    static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable) {
-        return fullCacheBuilder()
+    static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize) {
+        DisplayImageOptions.Builder options = fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnLoading(placeholderDrawable)
                 .showImageOnFail(placeholderDrawable)
                 .showImageForEmptyUri(placeholderDrawable)
-                .displayer(new PlaceholderTransitionDisplayer())
-                .build();
+                .displayer(new PlaceholderTransitionDisplayer());
+
+        if (ApiImageSize.SMALL_SIZES.contains(apiImageSize)) {
+            options.bitmapConfig(Bitmap.Config.RGB_565);
+        }
+
+        return options.build();
     }
 
     public static DisplayImageOptions fullImageDialog() {
