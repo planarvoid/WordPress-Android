@@ -302,7 +302,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private long fixPosition(long position, long duration) {
         if (position > duration){
-            ErrorUtils.handleSilentException("position [" + position + "] > duration [" + duration + "].",
+            ErrorUtils.handleSilentException("track ["+ currentTrackUrn + "] : position [" + position + "] > duration [" + duration + "].",
                     new IllegalStateException("Skippy inconsistent state : position > duration"));
             return duration;
         }
