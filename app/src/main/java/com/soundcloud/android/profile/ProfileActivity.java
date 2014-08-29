@@ -102,7 +102,6 @@ public class ProfileActivity extends ScActivity implements
     }
 
     public ProfileActivity() {
-        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);

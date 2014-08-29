@@ -21,7 +21,6 @@ public class ActivitiesActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
 
     public ActivitiesActivity() {
-        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
