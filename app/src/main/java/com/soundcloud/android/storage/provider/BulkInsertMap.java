@@ -44,10 +44,6 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
             this.contentValues = contentValues;
         }
 
-        public ContentValues getContentValues() {
-            return contentValues;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
