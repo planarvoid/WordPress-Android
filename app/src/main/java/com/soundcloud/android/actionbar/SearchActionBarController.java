@@ -47,7 +47,7 @@ public class SearchActionBarController extends ActionBarController {
     private final PublicCloudAPI publicApi;
     private final PlaybackOperations playbackOperations;
     private final SearchCallback searchCallback;
-    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
 
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
@@ -281,9 +281,9 @@ public class SearchActionBarController extends ActionBarController {
     public static class Factory {
 
         private final EventBus eventBus;
-        private PublicCloudAPI publicCloudAPI;
-        private PlaybackOperations playbackOperations;
-        private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+        private final PublicCloudAPI publicCloudAPI;
+        private final PlaybackOperations playbackOperations;
+        private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
         @Inject
         public Factory(EventBus eventBus, PublicCloudAPI publicCloudAPI, PlaybackOperations playbackOperations,
