@@ -134,7 +134,7 @@ public class AdPagePresenterTest {
         expect(skipAd()).toBeGone();
         expect(previewArtworkOverlay()).toBeVisible();
         expect(timeUntilSkip()).toBeVisible();
-        expect(timeUntilSkip().getText()).toEqual("15 sec.");
+        expect(timeUntilSkip().getText()).toEqual("Skip in: 15 sec.");
     }
 
     @Test
@@ -144,7 +144,7 @@ public class AdPagePresenterTest {
         expect(skipAd()).toBeGone();
         expect(previewArtworkOverlay()).toBeVisible();
         expect(timeUntilSkip()).toBeVisible();
-        expect(timeUntilSkip().getText()).toEqual("8 sec.");
+        expect(timeUntilSkip().getText()).toEqual("Skip in: 8 sec.");
     }
 
     @Test
@@ -179,7 +179,7 @@ public class AdPagePresenterTest {
     }
 
     private TextView timeUntilSkip() {
-        return ((TextView) adView.findViewById(R.id.time_until_skip));
+        return (TextView) adView.findViewById(R.id.time_until_skip);
     }
 
     private View skipAd() {
