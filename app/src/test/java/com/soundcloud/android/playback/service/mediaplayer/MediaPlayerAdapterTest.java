@@ -47,7 +47,6 @@ import rx.Subscription;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
@@ -418,18 +417,25 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onTrackEndedeResetsRetryCount() throws IOException {
+    public void onTrackEndedResetsRetryCount() throws IOException {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
-            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
-        }
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         mediaPlayerAdapter.onTrackEnded();
-        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
-            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
-        }
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, times(4)).reset();
+        verify(mediaPlayer, never()).release();
+    }
+
+    @Test
+    public void onSeekResetsRetryCount() {
+        when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
+        mediaPlayerAdapter.play(track);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
+        mediaPlayerAdapter.seek(10, true);
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, never()).release();
     }
 
@@ -438,9 +444,7 @@ public class MediaPlayerAdapterTest {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
-            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
-        }
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, times(2)).reset();
         verify(mediaPlayer, times(3)).setDataSource(streamUrlWithId);
         verify(mediaPlayer, never()).release();
@@ -453,9 +457,7 @@ public class MediaPlayerAdapterTest {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1; i++) {
-            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
-        }
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1);
 
         InOrder inOrder = inOrder(listener);
         inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 123456)));
@@ -475,9 +477,7 @@ public class MediaPlayerAdapterTest {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        for (int i = 0; i < MediaPlayerAdapter.MAX_CONNECT_RETRIES; i++) {
-            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
-        }
+        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         expect(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).toBeTrue();
     }
 
@@ -712,6 +712,7 @@ public class MediaPlayerAdapterTest {
     public void shouldNotInteractWithMediaPlayertWhenPreparedIfUserIsNotLoggedIn(){
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
+
         verifyZeroInteractions(mediaPlayer);
 
     }
@@ -726,5 +727,11 @@ public class MediaPlayerAdapterTest {
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(listener.requestAudioFocus()).thenReturn(true);
 
+    }
+
+    private void causeMediaPlayerErrors(int numberOfErrors) {
+        for (int i = 0; i < numberOfErrors; i++) {
+            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
+        }
     }
 }

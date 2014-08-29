@@ -143,6 +143,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         waveformSubscription.unsubscribe(); // Matthias, help test this
         waveformResultObservable = null;
         waveformView.showLoading();
+        leftProgressController.reset();
+        rightProgressController.reset();
+        dragProgressController.reset();
     }
 
     public void showPlayingState(PlaybackProgress progress) {

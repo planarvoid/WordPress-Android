@@ -3,7 +3,7 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -189,7 +189,7 @@ public class AdsController {
     private final class ExpandPlayerForAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
-            eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
         }
     }
 

@@ -1,7 +1,6 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -16,14 +15,11 @@ import javax.inject.Inject;
 
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
-
     @Inject PlaybackOperations playbackOperations;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
-        SoundCloudApplication.getObjectGraph().inject(this);
 
         switch (interaction) {
             case TRACK_LIKE:

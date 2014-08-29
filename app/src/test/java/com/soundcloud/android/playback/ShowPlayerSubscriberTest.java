@@ -4,7 +4,6 @@ import static com.pivotallabs.greatexpectations.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -30,7 +29,7 @@ public class ShowPlayerSubscriberTest {
     public void subscriberExpandPlayerOnComplete() {
         subscriber.onCompleted();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toBe(PlayerUIEvent.SHOW_PLAYER);
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).toBeTrue();
     }
 
     @Test

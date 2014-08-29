@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui.progress;
 
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.soundcloud.android.playback.PlaybackProgress;
 
 import android.view.View;
@@ -16,6 +18,13 @@ public class ProgressController {
     private View progressView;
     private ProgressHelper helper;
     private boolean animationRequested;
+    private final AnimatorListenerAdapter resetProgressListener = new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            progressAnimator.removeListener(this);
+            helper.setValueFromProportion(progressView, 0);
+        }
+    };
 
     public ProgressController(View progressView) {
         this(progressView, new EmptyProgressHelper());
@@ -31,6 +40,16 @@ public class ProgressController {
 
         if (hasRunningAnimation() || animationRequested) {
             startProgressAnimationInternal();
+        }
+    }
+
+    public void reset() {
+        animationRequested = false;
+        if (progressAnimator != null && progressAnimator.isRunning()) {
+            progressAnimator.addListener(resetProgressListener);
+            progressAnimator.cancel();
+        } else {
+            setPlaybackProgress(PlaybackProgress.empty());
         }
     }
 

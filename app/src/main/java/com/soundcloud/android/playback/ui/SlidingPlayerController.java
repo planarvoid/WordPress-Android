@@ -6,6 +6,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.main.DefaultLifeCycleComponent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -131,7 +132,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
             restorePlayerState();
         }
         expandOnResume = false;
-        subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerUISubscriber());
+        subscription = eventBus.subscribe(EventQueue.PLAYER_COMMAND, new PlayerCommandSubscriber());
     }
 
     private void restorePlayerState() {
@@ -207,21 +208,15 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         }
     }
 
-    private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {
         @Override
-        public void onNext(PlayerUIEvent event) {
-            switch (event.getKind()) {
-                case PlayerUIEvent.EXPAND_PLAYER:
-                    expand();
-                    break;
-                case PlayerUIEvent.COLLAPSE_PLAYER:
-                    collapse();
-                    break;
-                case PlayerUIEvent.SHOW_PLAYER:
-                    show();
-                    break;
-                default:
-                    /* No-op */ break;
+        public void onNext(PlayerUICommand event) {
+            if (event.isExpand()) {
+                expand();
+            } else if (event.isCollapse()) {
+                collapse();
+            } else if (event.isShow()) {
+                show();
             }
         }
     }

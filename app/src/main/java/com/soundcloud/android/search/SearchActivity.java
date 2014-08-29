@@ -2,12 +2,10 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -41,6 +39,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
     @Inject PlaybackOperations playbackOperations;
+    @Inject SearchActionBarController.Factory searchActionBarControllerFactory;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
@@ -61,7 +60,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     public SearchActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
+        super();
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
         presenter.attach(this);
@@ -120,7 +119,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     protected ActionBarController createActionBarController() {
         if (searchActionBarController == null) {
-            searchActionBarController = new SearchActionBarController(this, new PublicApi(this), searchCallback, playbackOperations, eventBus);
+            searchActionBarController = searchActionBarControllerFactory.create(this, searchCallback);
         }
         return searchActionBarController;
     }

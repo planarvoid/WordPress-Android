@@ -4,12 +4,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.main.ScActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
+public class SuggestedUsersActivity extends ScActivity {
 
     @Override
     protected void onCreate(Bundle state) {

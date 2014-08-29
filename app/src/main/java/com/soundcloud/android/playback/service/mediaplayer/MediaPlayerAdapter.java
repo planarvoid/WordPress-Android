@@ -453,6 +453,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                         Log.d(TAG, "seeking to " + newPos);
                     }
 
+                    resetConnectionRetries();
                     playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
                     seekPos = newPos;
                     waitingForSeek = true;

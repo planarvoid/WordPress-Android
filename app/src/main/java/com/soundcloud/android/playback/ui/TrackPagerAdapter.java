@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
@@ -33,8 +35,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
@@ -49,6 +54,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
+
+    // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
+    private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
 
     private SkipListener skipListener;
 
@@ -94,6 +102,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     void unsubscribe() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
+        subscribedTrackViews.clear();
     }
 
     void warmupViewCache(ViewGroup container) {
@@ -119,32 +128,47 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public int getItemViewTypeFromObject(Object object) {
-        return trackPagePresenter.accept(((View) object)) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
+        return trackPagePresenter.accept((View) object) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup container) {
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
-        final boolean shouldCreateView = convertView == null;
         final PlayerPagePresenter presenter = getPresenter(position);
-        final View contentView = shouldCreateView
+        final View contentView = convertView == null
                 ? presenter.createItemView(container, skipListener)
                 : presenter.clearItemView(convertView);
 
-        final boolean isNewView = isNewView(contentView);
         final ViewPageData viewData = new ViewPageData(position, urn);
-        trackByViews.put(contentView, viewData); // forcePut to remove existing entry
-        if (isNewView) {
+        updateViewMap(contentView, viewData);
+
+        if (!subscribedTrackViews.contains(contentView)) {
             subscribeToPlayEvents(presenter, contentView);
+            subscribedTrackViews.add(contentView);
         }
 
         getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
     }
 
-    private boolean isNewView(View contentView) {
-        return !trackByViews.containsKey(contentView);
+    private void updateViewMap(View contentView, ViewPageData viewData) {
+        // ensure uniqueness in current view at position map
+        final View existingView = getCurrentViewAtPosition(viewData.positionInPlayQueue);
+        if (existingView != null) {
+            trackByViews.remove(existingView);
+        }
+        trackByViews.put(contentView, viewData);
+    }
+
+    private View getCurrentViewAtPosition(final int position) {
+        Map.Entry<View, ViewPageData> entry = Iterables.find(trackByViews.entrySet(), new Predicate<Map.Entry<View, ViewPageData>>() {
+            @Override
+            public boolean apply(Map.Entry<View, ViewPageData> input) {
+                return input.getValue().positionInPlayQueue == position;
+            }
+        }, null);
+        return entry == null ? null : entry.getKey();
     }
 
     private PlayerPagePresenter getPresenter(int position) {
@@ -227,7 +251,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         final ViewPageData viewPageData = getUpdatedViewPageData(view);
         if (viewPageData != null) {
-            trackByViews.put(view, viewPageData);
+            updateViewMap(view, viewPageData);
             return viewPageData.positionInPlayQueue;
         } else {
             trackByViews.remove(object);

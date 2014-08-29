@@ -6,14 +6,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -34,6 +34,8 @@ import android.view.Menu;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.lang.reflect.Field;
 
 public class SearchActionBarController extends ActionBarController {
@@ -45,6 +47,8 @@ public class SearchActionBarController extends ActionBarController {
     private final PublicCloudAPI publicApi;
     private final PlaybackOperations playbackOperations;
     private final SearchCallback searchCallback;
+    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+
 
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
         @Override
@@ -92,8 +96,8 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     private void playTrack(Urn urn) {
-        playbackOperations.startPlaybackWithRecommendations((TrackUrn) urn, Screen.SEARCH_SUGGESTIONS);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
+        playbackOperations.startPlaybackWithRecommendations((TrackUrn) urn, Screen.SEARCH_SUGGESTIONS)
+                .subscribe(expandPlayerSubscriberProvider.get());
         clearFocus();
         searchView.setSuggestionsAdapter(null);
     }
@@ -125,12 +129,14 @@ public class SearchActionBarController extends ActionBarController {
         void exitSearchMode();
     }
 
-    public SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
-                                     SearchCallback searchCallback, PlaybackOperations playbackOperations, EventBus eventBus) {
+    SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
+                              SearchCallback searchCallback, PlaybackOperations playbackOperations,
+                              EventBus eventBus, Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         super(owner, eventBus);
-        publicApi = publicCloudAPI;
+        this.publicApi = publicCloudAPI;
         this.searchCallback = searchCallback;
         this.playbackOperations = playbackOperations;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
     public void onDestroy() {
@@ -269,6 +275,29 @@ public class SearchActionBarController extends ActionBarController {
     public void clearFocus() {
         if (isInitialised()) {
             searchView.clearFocus();
+        }
+    }
+
+    public static class Factory {
+
+        private final EventBus eventBus;
+        private PublicCloudAPI publicCloudAPI;
+        private PlaybackOperations playbackOperations;
+        private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+
+        @Inject
+        public Factory(EventBus eventBus, PublicCloudAPI publicCloudAPI, PlaybackOperations playbackOperations,
+                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+            this.eventBus = eventBus;
+            this.publicCloudAPI = publicCloudAPI;
+            this.playbackOperations = playbackOperations;
+            this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        }
+
+        public SearchActionBarController create(ActionBarOwner owner, SearchCallback searchCallback ){
+            return new SearchActionBarController(owner, publicCloudAPI, searchCallback, playbackOperations,
+                    eventBus, expandPlayerSubscriberProvider);
+
         }
     }
 

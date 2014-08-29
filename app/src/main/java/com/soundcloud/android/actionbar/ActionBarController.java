@@ -18,6 +18,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
 public class ActionBarController {
     @NotNull
     protected ActionBarOwner owner;
@@ -27,13 +29,13 @@ public class ActionBarController {
     protected EventBus eventBus;
 
     public interface ActionBarOwner {
-
         @NotNull
         ActionBarActivity getActivity();
         int getMenuResourceId();
         void restoreActionBar();
     }
-    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
+
+    protected ActionBarController(@NotNull ActionBarOwner owner, @NotNull EventBus eventBus) {
         this.owner = owner;
         this.activity = owner.getActivity();
         this.eventBus = eventBus;
@@ -90,5 +92,19 @@ public class ActionBarController {
 
     private void startActivity(Class target) {
         owner.getActivity().startActivity(new Intent(owner.getActivity(), target));
+    }
+
+    public static class Factory {
+
+        private final EventBus eventBus;
+
+        @Inject
+        public Factory(EventBus eventBus) {
+            this.eventBus = eventBus;
+        }
+
+        public ActionBarController create(ActionBarOwner owner){
+            return new ActionBarController(owner, eventBus);
+        }
     }
 }

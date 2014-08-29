@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -66,16 +67,16 @@ public class TrackPageListenerTest {
     public void onFooterTapPostsEventToExpandPlayer() {
         listener.onFooterTap();
 
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
+        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
+        expect(event.isExpand()).toBeTrue();
     }
 
     @Test
     public void onPlayerClosePostsEventToClosePlayer() {
         listener.onPlayerClose();
 
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.COLLAPSE_PLAYER);
+        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
+        expect(event.isCollapse()).toBeTrue();
     }
 
     @Test
@@ -84,8 +85,8 @@ public class TrackPageListenerTest {
 
         listener.onGotoUser(Robolectric.application, userUrn);
 
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        expect(event.getKind()).toEqual(PlayerUIEvent.COLLAPSE_PLAYER);
+        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
+        expect(event.isCollapse()).toBeTrue();
     }
 
     @Test

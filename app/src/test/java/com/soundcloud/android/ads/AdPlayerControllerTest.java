@@ -29,34 +29,33 @@ public class AdPlayerControllerTest {
 
     @Test
     public void doesNotExpandPlayerWhenAudioAdIsNotPlaying() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         setAudioAdIsPlaying(false);
 
         resumeFromBackground();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).not.toBe(PlayerUIEvent.EXPAND_PLAYER);
+        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).toBeEmpty();
     }
 
     @Test
     public void expandsPlayerWhenAudioAdIsPlaying() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         setAudioAdIsPlaying(true);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
 
         resumeFromBackground();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
     }
 
     @Test
     public void doesNotExpandAudioAdIfItHasAlreadyBeenExpanded() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         setAudioAdIsPlaying(true);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forCollapsePlayer());
 
         resumeFromBackground();
         resumeFromBackground();
 
-        expect(eventBus.eventsOn(EventQueue.PLAYER_UI)).toNumber(2); // Initialised to collapsed
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_UI).getKind()).toEqual(PlayerUIEvent.EXPAND_PLAYER);
+        expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).toNumber(0);
     }
 
     @Test

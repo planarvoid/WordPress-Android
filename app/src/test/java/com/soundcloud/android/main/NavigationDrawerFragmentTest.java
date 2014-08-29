@@ -94,16 +94,6 @@ public class NavigationDrawerFragmentTest {
     }
 
     @Test
-    public void shouldLockDrawerOnExpandPlayerEvent() {
-        fragment.onViewCreated(view, null);
-        fragment.onActivityCreated(null);
-
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.forExpandPlayer());
-
-        verify(drawerLayout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-    }
-
-    @Test
     public void shouldUnlockDrawerOnPlayerCollapsedEvent() {
         fragment.onViewCreated(view, null);
         fragment.onActivityCreated(null);

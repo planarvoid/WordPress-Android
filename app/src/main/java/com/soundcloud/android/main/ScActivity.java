@@ -41,6 +41,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 /**
@@ -61,10 +62,10 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     private Subscription userEventSubscription = Subscriptions.empty();
 
-    private ImageOperations imageOperations;
-
-    protected AccountOperations accountOperations;
-    protected EventBus eventBus;
+    @Inject ImageOperations imageOperations;
+    @Inject protected AccountOperations accountOperations;
+    @Inject protected EventBus eventBus;
+    @Inject ActionBarController.Factory actionBarControllerFactory;
 
     @Nullable
     protected ActionBarController actionBarController;
@@ -76,15 +77,15 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         lifeCycleDispatcher.add(lifeCycleComponent);
     }
 
+    public ScActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView();
-
-        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
-        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
-        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
 
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
@@ -146,7 +147,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     }
 
     protected ActionBarController createActionBarController() {
-        return new ActionBarController(this, eventBus);
+        return actionBarControllerFactory.create(this);
     }
 
     public void restoreActionBar() {
