@@ -171,7 +171,6 @@
   <string name="email_confirmation_confirm_later">Thanks, I will confirm it later</string>
   <string name="email_confirmation_just_a_second">Just a second</string>
   <string name="email_confirmation_resend">Resend the confirmation link</string>
-  <string name="email_confirmation_thanks_later">Thanks, I will confirm it later</string>
   <string name="email_confirmation_you_need_to_confirm">To get the most out of SoundCloud you need to confirm your email address.</string>
   <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
   <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>

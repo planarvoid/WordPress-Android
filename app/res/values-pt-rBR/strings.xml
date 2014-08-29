@@ -458,7 +458,6 @@
     <string name="email_confirmation_confirm_later">Obrigado, confirmo mais tarde</string>
     <string name="email_confirmation_just_a_second">Só um segundo</string>
     <string name="email_confirmation_resend">Renviar o link de confirmação</string>
-    <string name="email_confirmation_thanks_later">Obrigado, confirmo mais tarde</string>
     <string name="email_confirmation_you_need_to_confirm">Para obter o máximo proveito da SoundCloud você precisa confirmar o seu endereço de e-mail.</string>
     <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtidas.</string>
     <string name="empty_user_followers_text">%1$s não está\nsendo seguido por ninguém.</string>
