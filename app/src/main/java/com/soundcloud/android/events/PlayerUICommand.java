@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public class PlayerUICommand {
+public final class PlayerUICommand {
 
     private static final int EXPAND_PLAYER = 0;
     private static final int COLLAPSE_PLAYER = 1;
