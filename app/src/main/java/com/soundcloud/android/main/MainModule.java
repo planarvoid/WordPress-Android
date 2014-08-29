@@ -8,7 +8,6 @@ import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersSyncActivity;
@@ -24,7 +23,6 @@ import dagger.Module;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 MainActivity.class,
-                EmailConfirmationActivity.class,
                 MeActivity.class,
                 PlayableInteractionActivity.class,
                 PlaylistInteractionActivity.class,

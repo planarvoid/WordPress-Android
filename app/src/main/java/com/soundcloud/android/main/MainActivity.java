@@ -17,7 +17,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
-import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -354,10 +353,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void updateUser(PublicApiUser user) {
         navigationFragment.updateProfileItem(user);
-        if (!user.isPrimaryEmailConfirmed()) {
-                    startActivityForResult(new Intent(this, EmailConfirmationActivity.class)
-            .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
-        }
     }
 
 }
