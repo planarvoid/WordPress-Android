@@ -12,7 +12,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.storage.ResolverHelper;
@@ -256,8 +255,6 @@ public class PublicApiTrack extends Playable {
 
     public PropertySet toPropertySet() {
         return super.toPropertySet()
-                .put(PlayableProperty.DURATION, duration)
-                .put(PlayableProperty.TITLE, title)
                 .put(TrackProperty.URN, Urn.forTrack(getId()))
                 .put(TrackProperty.PLAY_COUNT, playback_count)
                 .put(TrackProperty.COMMENTS_COUNT, comment_count)

@@ -28,82 +28,92 @@ public class PublicApiTrackTest {
     @Test
     public void shouldConstructTrackFromId() {
         PublicApiTrack t = new PublicApiTrack(1L);
+
         expect(t.getUrn().toString()).toEqual("soundcloud:sounds:1");
         expect(t.getId()).toEqual(1L);
     }
 
     @Test
-    public void setIdShouldUpdateUrn() throws Exception {
+    public void setIdShouldUpdateUrn() {
         PublicApiTrack t = new PublicApiTrack();
         t.setId(1000L);
+
         expect(t.getUrn().toString()).toEqual("soundcloud:sounds:1000");
     }
 
     @Test
-    public void setUrnShouldUpdateId() throws Exception {
+    public void setUrnShouldUpdateId() {
         PublicApiTrack t = new PublicApiTrack();
         t.setUrn("soundcloud:sounds:1000");
+
         expect(t.getId()).toEqual(1000L);
     }
 
     @Test
-    public void shouldFilterOutMachineTags() throws Exception {
+    public void shouldFilterOutMachineTags() {
         PublicApiTrack t = new PublicApiTrack();
         t.tag_list = "soundcloud:source=web-record jazz geo:lat=10.23 geo:long=32.232 punk";
+
         expect(t.humanTags()).toContainInOrder("jazz", "punk");
     }
 
     @Test
-    public void shouldHandleMultiWordTags() throws Exception {
+    public void shouldHandleMultiWordTags() {
         PublicApiTrack t = new PublicApiTrack();
         t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+
         expect(t.humanTags()).toContainInOrder("multiword tags", "in the api", "suck", "bigtime");
     }
 
     @Test
-    public void getGenreOrFirstTagShouldReturnNullIfGenreEmptyAndHumanTagsMissing(){
+    public void getGenreOrFirstTagShouldReturnNullIfGenreEmptyAndHumanTagsMissing() {
         expect(new PublicApiTrack().getGenreOrTag()).toBeNull();
     }
 
     @Test
-    public void getGenreOrFirstTagShouldReturnGenreIfNotEmpty() throws Exception {
+    public void getGenreOrFirstTagShouldReturnGenreIfNotEmpty() {
         PublicApiTrack t = new PublicApiTrack();
         t.genre = "some genre";
         t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+
         expect(t.getGenreOrTag()).toEqual("some genre");
     }
 
     @Test
-    public void getGenreOrFirstTagShouldReturnFirstTagIfGenreEmptyAndHumanTagsNotEmpty() throws Exception {
+    public void getGenreOrFirstTagShouldReturnFirstTagIfGenreEmptyAndHumanTagsNotEmpty() {
         PublicApiTrack t = new PublicApiTrack();
         t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+
         expect(t.getGenreOrTag()).toEqual("multiword tags");
     }
 
     @Test
-    public void shouldGenerateTrackInfo() throws Exception {
+    public void shouldGenerateTrackInfo() {
         PublicApiTrack t = new PublicApiTrack();
         t.description = "Cool track";
+
         expect(t.trackInfo()).toEqual("Cool track<br/><br/>");
     }
 
     @Test
-    public void shouldAddLineBreaksToTrackInfo() throws Exception {
+    public void shouldAddLineBreaksToTrackInfo() {
         PublicApiTrack t = new PublicApiTrack();
         t.description = "Cool\ntrack";
+
         expect(t.trackInfo()).toEqual("Cool<br/>track<br/><br/>");
     }
 
     @Test
-    public void shouldNotShowAllRightsReserved() throws Exception {
+    public void shouldNotShowAllRightsReserved() {
         PublicApiTrack t = new PublicApiTrack();
         expect(t.formattedLicense()).toEqual("");
+
         t.license = "all-rights-reserved";
         expect(t.formattedLicense()).toEqual("");
     }
 
     @Test
-    public void shouldDisplayNiceCCLicensesWithLinks() throws Exception {
+    public void shouldDisplayNiceCCLicensesWithLinks() {
         PublicApiTrack t = new PublicApiTrack();
         t.license = "cc-by-nd";
         expect(t.formattedLicense()).toEqual("Licensed under a Creative Commons License " +
@@ -114,7 +124,7 @@ public class PublicApiTrackTest {
     }
 
     @Test
-    public void shouldShowBpm() throws Exception {
+    public void shouldShowBpm() {
         PublicApiTrack t = new PublicApiTrack();
         t.bpm = 122.3f;
 
@@ -126,7 +136,7 @@ public class PublicApiTrackTest {
 
 
     @Test
-    public void shouldDisplayRecordWith() throws Exception {
+    public void shouldDisplayRecordWith() {
         PublicApiTrack t = new PublicApiTrack();
         t.created_with = new PublicApiTrack.CreatedWith();
         t.created_with.name = "FooMaster 3000";
@@ -136,51 +146,59 @@ public class PublicApiTrackTest {
     }
 
     @Test
-    public void shouldBuildContentValuesEmpty() throws Exception{
+    public void shouldBuildContentValuesEmpty() {
         PublicApiTrack t = new PublicApiTrack();
         ContentValues v = t.buildContentValues();
+
         expect(v).not.toBeNull();
     }
 
     @Test
-    public void shouldBuildContentValuesWithContent() throws Exception{
+    public void shouldBuildContentValuesWithContent() {
         PublicApiTrack t = new PublicApiTrack();
         t.setId(1000);
         ContentValues v = t.buildContentValues();
+
         expect(v).not.toBeNull();
         expect(v.getAsLong(TableColumns.Sounds._ID)).toEqual(1000L);
     }
 
     @Test
-    public void shouldBuildContentValuesWithNoLastUpdated() throws Exception{
+    public void shouldBuildContentValuesWithNoLastUpdated() {
         PublicApiTrack t = new PublicApiTrack();
         t.setId(1000);
+
         ContentValues v = t.buildContentValues();
         expect(v.get(TableColumns.Sounds.LAST_UPDATED)).toBeNull();
+
         t.created_at = new Date(System.currentTimeMillis());
         v = t.buildContentValues();
         expect(v.get(TableColumns.Sounds.LAST_UPDATED)).toBeNull();
+
         t.duration = 1000;
         v = t.buildContentValues();
         expect(v.get(TableColumns.Sounds.LAST_UPDATED)).toBeNull();
+
         t.state = PublicApiTrack.State.FINISHED;
         v = t.buildContentValues();
         expect(v.get(TableColumns.Sounds.LAST_UPDATED)).not.toBeNull();
     }
 
     @Test
-    public void testHasAvatar() throws Exception {
+    public void testHasAvatar() {
         PublicApiTrack t = new PublicApiTrack();
         expect(t.hasAvatar()).toBeFalse();
+
         t.user = new PublicApiUser();
         t.user.avatar_url = "";
         expect(t.hasAvatar()).toBeFalse();
+
         t.user.avatar_url = "http://foo.com";
         expect(t.hasAvatar()).toBeTrue();
     }
 
     @Test
-    public void shouldGetArtworkUrl() throws Exception {
+    public void shouldGetArtworkUrl() {
         expect(new PublicApiTrack().getArtwork()).toBeNull();
 
         PublicApiTrack t = new PublicApiTrack();
@@ -195,12 +213,14 @@ public class PublicApiTrackTest {
     }
 
     @Test
-    public void shouldGenerateShareIntentForPublicTrack() throws Exception {
+    public void shouldGenerateShareIntentForPublicTrack() {
         PublicApiTrack t = new PublicApiTrack();
         t.sharing = Sharing.PUBLIC;
         t.title = "A track";
         t.permalink_url = "http://soundcloud.com/foo/bar";
+
         Intent intent = t.getShareIntent();
+
         expect(intent).not.toBeNull();
         expect(intent.getType()).toEqual("text/plain");
         expect(intent.getAction()).toEqual(Intent.ACTION_SEND);
@@ -209,36 +229,42 @@ public class PublicApiTrackTest {
     }
 
     @Test
-    public void shouldNotGenerateShareIntentForPrivateTrack() throws Exception {
+    public void shouldNotGenerateShareIntentForPrivateTrack() {
         PublicApiTrack t = new PublicApiTrack();
+
         Intent intent = t.getShareIntent();
         expect(intent).toBeNull();
     }
 
     @Test
-    public void testShouldIconLoad() throws Exception {
+    public void testShouldIconLoad() {
         PublicApiTrack t = new PublicApiTrack();
         expect(t.shouldLoadArtwork()).toBeFalse();
+
         t.artwork_url = "";
         expect(t.shouldLoadArtwork()).toBeFalse();
+
         t.artwork_url = "NULL";
         expect(t.shouldLoadArtwork()).toBeFalse();
+
         t.artwork_url = "http://foo.com";
         expect(t.shouldLoadArtwork()).toBeTrue();
     }
 
     @Test
-    public void shouldGetEstimatedFileSize() throws Exception {
+    public void shouldGetEstimatedFileSize() {
         PublicApiTrack t = new PublicApiTrack();
         expect(t.getEstimatedFileSize()).toEqual(0);
+
         t.duration = 100;
         expect(t.getEstimatedFileSize()).toEqual(1638400);
     }
 
     @Test
-    public void shouldGetUserTrackPermalink() throws Exception {
+    public void shouldGetUserTrackPermalink() {
         PublicApiTrack t = new PublicApiTrack();
         expect(t.userTrackPermalink()).toBeNull();
+
         t.permalink = "foo";
         expect(t.userTrackPermalink()).toEqual("foo");
 
@@ -254,7 +280,7 @@ public class PublicApiTrackTest {
 
 
     @Test
-    public void shouldParcelAndUnparcelCorrectly() throws Exception {
+    public void shouldParcelAndUnparcelCorrectly() throws IOException {
         PublicApiTrack t = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("track.json"),
                 PublicApiTrack.class);
@@ -267,7 +293,7 @@ public class PublicApiTrackTest {
     }
 
     @Test
-    public void shouldGetWaveformDataURL() throws Exception {
+    public void shouldGetWaveformDataURL() {
         PublicApiTrack t = new PublicApiTrack();
         expect(t.getWaveformDataURL()).toBeNull();
         t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
