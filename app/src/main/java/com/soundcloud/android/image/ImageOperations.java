@@ -181,7 +181,7 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void load(Urn urn, ApiImageSize apiImageSize, int targetWidth, int targetHeight, ImageListener imageListener) {
+    private void load(Urn urn, ApiImageSize apiImageSize, int targetWidth, int targetHeight, ImageListener imageListener) {
         imageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 new ImageSize(targetWidth, targetHeight),
@@ -189,18 +189,8 @@ public class ImageOperations {
     }
 
     @Deprecated // use the variants that take URNs instead
-    public void load(String imageUrl, ImageListener imageListener) {
-        imageLoader.loadImage(adjustUrl(imageUrl), new ImageListenerUILAdapter(imageListener));
-    }
-
-    @Deprecated // use the variants that take URNs instead
     public void display(String imageUrl, ImageView imageView) {
         imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
-    }
-
-    @Deprecated // use the variants that take URNs instead
-    public void prefetch(String imageUrl) {
-        imageLoader.loadImage(adjustUrl(imageUrl), ImageOptionsFactory.prefetch(), null);
     }
 
     public Observable<Bitmap> image(final Urn resourceUrn, final ApiImageSize apiImageSize, final boolean emitCopy) {
@@ -251,10 +241,6 @@ public class ImageOperations {
 
     public void resume() {
         imageLoader.resume();
-    }
-
-    public void cancel(ImageView imageView) {
-        imageLoader.cancelDisplayTask(imageView);
     }
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,

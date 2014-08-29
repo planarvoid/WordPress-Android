@@ -169,34 +169,6 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void shouldLoadImageByURLWithHeadlessListener() {
-        imageOperations.load(URL, imageListener);
-        verify(imageLoader).loadImage(eq(ADJUSTED_URL), imageListenerUILAdapterCaptor.capture());
-        verifyCapturedListener();
-    }
-
-    @Test
-    public void shouldLoadImageByURLWithListenerAndParameterizedUrl() {
-        imageOperations.load(URL_WITH_PARAMS, imageListener);
-        verify(imageLoader).loadImage(eq(ADJUSTED_URL_WITH_PARAMS), imageListenerUILAdapterCaptor.capture());
-        verifyCapturedListener();
-    }
-
-    @Test
-    public void shouldAcceptNullImageUrl() {
-        imageOperations.load(null, imageListener);
-        verify(imageLoader).loadImage(isNull(String.class), imageListenerUILAdapterCaptor.capture());
-        verifyCapturedListener();
-    }
-
-    @Test
-    public void shouldNotAdjustUrlIfDoesNotMatch() {
-        imageOperations.load("does_not_match_url", imageListener);
-        verify(imageLoader).loadImage(eq("does_not_match_url"), imageListenerUILAdapterCaptor.capture());
-        verifyCapturedListener();
-    }
-
-    @Test
     public void displayShouldCallDisplayWithAdjustedUrlAndImageViewAware() {
         imageOperations.display(URL, imageView);
         verify(imageLoader).displayImage(eq(ADJUSTED_URL), imageViewAwareCaptor.capture());
@@ -325,14 +297,6 @@ public class ImageOperationsTest {
         expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeTrue();
         expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
         verifyFallbackDrawableOptions(RES_ID);
-    }
-
-    @Test
-    public void prefetchShouldCallDisplayWithAdjustedUrlImageViewAwareAndPlaceholderOptions() {
-        imageOperations.prefetch(URL);
-        verify(imageLoader).loadImage(eq(ADJUSTED_URL), displayOptionsCaptor.capture(), isNull(ImageLoadingListener.class));
-        expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeFalse();
-        expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeTrue();
     }
 
     @Test
