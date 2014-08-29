@@ -250,12 +250,12 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
 
         final ViewPageData viewPageData = getUpdatedViewPageData(view);
-        if (viewPageData != null) {
-            updateViewMap(view, viewPageData);
-            return viewPageData.positionInPlayQueue;
-        } else {
+        if (viewPageData == null) {
             trackByViews.remove(object);
             return POSITION_NONE;
+        } else {
+            updateViewMap(view, viewPageData);
+            return viewPageData.positionInPlayQueue;
         }
     }
 
@@ -328,7 +328,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        private TrackSubscriber(PlayerPagePresenter presenter, View trackPage) {
+        public TrackSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
