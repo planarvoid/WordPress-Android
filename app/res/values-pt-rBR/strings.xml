@@ -1,38 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+
+    <!-- __MISC / UNSORTED -->
     <string name="legal">Termos legais</string>
     <string name="legal_summary">Informação legal</string>
 
     <string name="terms_of_use">Termos de uso</string>
     <string name="privacy_policy">Política de Privacidade</string>
-
-    <string name="dialog_transcoding_failed_title">Falha na transcodificação</string>
-    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso centro de apoio ao cliente.</string>
     <string name="visit_support">Visite o Apoio ao Cliente</string>
-
-    <string name="tab_title_user_info">Informações</string>
-    <string name="tab_title_user_sounds">Publicações</string>
-    <string name="tab_title_user_likes">Curtidas</string>
-    <string name="tab_title_user_followers">Seguidores</string>
-    <string name="tab_title_user_followings">Seguindo</string>
-
-    <string name="dialog_transcoding_processing_title">Processamento de som</string>
-    <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em alguns segundos.</string>
 
     <string name="yes">Sim</string>
     <string name="no">Não</string>
 
-    <string name="side_menu_activity">Atividade</string>
-    <string name="side_menu_record">Gravar</string>
     <string name="title_search">Pesquisar</string>
-    <string name="side_menu_stream">Transmitir</string>
-    <string name="side_menu_you">Você</string>
-    <string name="side_menu_settings">Configurações</string>
-
-    <string name="side_menu_likes">Curtidas</string>
-    <string name="side_menu_who_to_follow">Quem seguir</string>
-
-    <string name="side_menu_profile">Perfil</string>
 
     <string name="list_header_track_reposters">Pessoas que publicaram este som</string>
 
@@ -59,15 +39,6 @@
 
     <string name="dashboard_notifications_activity_message_repost">%1$s republicou %2$s</string>
 
-    <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
-    <string name="error_server_problems_message">Houve um problema no processamento de seu pedido. Tente novamente mais tarde.</string>
-
-    <string name="accessibility_search">Pesquisar na SoundCloud</string>
-    <string name="accessibility_stats_user_liked">Curtido por você</string>
-    <string name="accessibility_stats_user_reposted">Republicado por você</string>
-    <string name="accessibility_like_action">Curtir</string>
-    <string name="accessibility_repost_action">Republicar</string>
-    <string name="accessibility_comment_action">Comentário</string>
     <string name="playlist_info_header_text">Esta lista de reprodução contém %1$s, tempo total: %2$s</string>
     <string name="imprint">Imprint</string>
 
@@ -81,29 +52,11 @@
     <string name="tab_title_user_playlists">Listas de reprodução</string>
     <string name="activity_title_playlist">Lista de reprodução</string>
 
-    <string name="side_menu_playlists">Listas de reprodução</string>
-    <string name="empty_playlist_title">Lista de reprodução vazia</string>
-    <string name="empty_playlist_description">Esta lista de reprodução ainda não tem faixas</string>
-
     <string name="playlist_removed">Esta lista não foi encontrada na SoundCloud</string>
     <string name="playlist_load_error">Não foi possível carregar esta lista de reprodução</string>
 
-    <string name="list_empty_user_playlists_message">%1$s não tem nenhuma lista de reprodução no momento.</string>
-    <string name="list_empty_you_playlists_message">Crie listas de reprodução para misturar seus sons favoritos</string>
-
-    <string name="dialog_select_google_account">Selecione uma conta do Google para se conectar</string>
-    <string name="authentication_login_error_message">Nós não conseguimos fazer seu login. Tente novamente.</string>
-    <string name="authentication_add_info_error">Não foi possível atualizar suas informações. Tente novamente.</string>
-    <string name="authentication_no_google_accounts">Configure uma conta do Google primeiro.</string>
-
-    <string name="authentication_log_in_with_google">Faça login no Google</string>
-    <string name="error_google_sign_in_failed">Não conseguimos efetuar seu login com o Google+. Visite plus.google.com para ativar sua conta do Google+ e tente novamente</string>
-
     <string name="btn_continue">Continuar</string>
     <string name="privacy">Privacidade</string>
-
-    <string name="auth_disclaimer_title">Mais um passo</string>
-    <string name="auth_disclaimer_message">Ao clicar em \"Continuar\", você concorda com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
 
     <string name="version">Versão</string>
     <string name="unavailable">Indisponível</string>
@@ -114,18 +67,11 @@
 
     <string name="title_now_playing">Tocando agora</string>
 
-    <string name="error_soundcloud_no_response">A SoundCloud não está respondendo.</string>
-    <string name="error_no_internet">Sem Internet.</string>
-    <string name="error_connect_and_try_again">Conecte-se e tente novamente.</string>
-
-    <string name="appending_failed">Erro no carregamento. Toque para tentar novamente</string>
-
     <string name="navigation_drawer_open">Abrir guia de navegação</string>
     <string name="navigation_drawer_close">Fechar guia de navegação</string>
 
     <string name="shuffle">embaralhar</string>
 
-    <!-- Default…  -->
     <string name="copyright_information">Informações sobre direitos autorais</string>
     <string name="account_one_active">Você pode ter só uma conta ativa</string>
     <string name="add_image">Adicionar\nImagem</string>
@@ -140,12 +86,6 @@
     <string name="cloud_recorder_event_title">Gravação em andamento</string>
     <string name="cloud_recorder_playback_event_title">Reprodução em andamento</string>
     <string name="cloud_upload_clear_artwork">Segure para excluir ilustração</string>
-    <string name="cloud_uploader_notification_error_message">Houve um erro ao enviar %s</string>
-    <string name="cloud_uploader_notification_error_ticker">Erro no Upload</string>
-    <string name="cloud_uploader_notification_error_title">Erro no Upload</string>
-    <string name="cloud_uploader_notification_finished_message">%s foi carregado</string>
-    <string name="cloud_uploader_notification_finished_ticker">Carregamento finalizado</string>
-    <string name="cloud_uploader_notification_finished_title">Carregamento finalizado</string>
     <string name="compressed">Comprimido</string>
     <string name="configure">Configurar</string>
     <string name="connect_failure">Falha de conexão com %1$s</string>
@@ -156,37 +96,12 @@
 
     <string name="delete">Excluir</string>
     <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
-    <string name="dialog_confirm_delete_recording_message">Tem certeza de que deseja excluir este registro?</string>
-    <string name="dialog_reset_recording_message">Redefinir? A gravação será excluída.</string>
-    <string name="dialog_unsaved_recordings_message">Gravações não salvas encontradas. Os itens verificados serão salvos.</string>
     <string name="discogs">Discogs</string>
-    <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtidas.</string>
-    <string name="empty_user_followers_text">%1$s não está\nsendo seguido por ninguém.</string>
-    <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
-    <string name="empty_user_tracks_text">%1$s não carregou nenhum som público ainda.</string>
-    <string name="error_loading_message">Houve um problema ao entrar em contato com a SoundCloud.</string>
-    <string name="error_loading_title">Erro de rede</string>
-    <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
-    <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login na SoundCloud antes que possa continuar a usar o aplicativo.</string>
-    <string name="error_unauthorized_title">Erro na conta</string>
     <string name="facebook_authentication_error_no_connection_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
     <string name="facebook_authentication_failed_title">Hmm, não foi possível conectar ao Facebook no momento.</string>
     <string name="image_load_error">Houve um problema ao carregar a imagem</string>
     <string name="image_where">Gostaria de adicionar uma imagem?</string>
-    <string name="info_empty_other_message">Esta pessoa ainda não adicionou uma descrição de perfil.</string>
-    <string name="info_empty_you_message">Seu perfil está vazio</string>
-    <string name="info_empty_you_secondary">Conecte-se a SoundCloud em seu desktop para editar o seu perfil</string>
-    <string name="list_empty_activity_message">Você ainda não tem nenhuma atividade</string>
-    <string name="list_empty_activity_secondary">Saiba mais sobre o compartilhamento de sons com nossos 101s</string>
-    <string name="list_empty_stream_action">Encontrar pessoas para seguir</string>
-    <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as suas faixas mais recentes</string>
-    <string name="list_empty_user_followers_message">Você ainda não tem nenhum seguidor.</string>
-    <string name="list_empty_user_followers_secondary">Compartilhe suas faixas e listas de reprodução favoritas para construir sua comunidade</string>
-    <string name="list_empty_user_following_action">Encontre pessoas para seguir</string>
-    <string name="list_empty_user_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as suas faixas mais recentes</string>
-    <string name="list_empty_user_likes_message">Curta seus sons favoritos para ouvi-los novamente</string>
-    <string name="list_empty_user_sounds_message">Republicar sons para compartilhar com seus seguidores</string>
     <string name="list_header_track_comments">Comentários sobre este som</string>
     <string name="list_header_track_likers">Pessoas que curtiram esse som</string>
     <string name="location_picker_go_to_settings">Vá em configurações</string>
@@ -197,16 +112,6 @@
     <string name="myspace">Myspace</string>
     <string name="new_connection_error">Houve um problema ao adicionar a rede</string>
     <string name="raw">Bruto</string>
-    <string name="record_another_sound">Gravar outro som</string>
-    <string name="record_insert_sd_card">Insira um cartão SD para gravar.</string>
-    <string name="record_instructions">Compartilhar seus sons</string>
-    <string name="record_storage_is_full">Armazenamento cheio</string>
-    <string name="recorded_afternoon">%s tarde</string>
-    <string name="recorded_at">%1$s em %2$s</string>
-    <string name="recorded_evening">%s entardecer</string>
-    <string name="recorded_morning">%s manhã</string>
-    <string name="recorded_night">%s noite</string>
-    <string name="recording_not_found">Gravação não encontrada</string>
     <string name="reset">Descartar</string>
     <string name="sc_upload_add_image">Adicionar Imagem</string>
     <string name="sc_upload_private">Privado</string>
@@ -253,32 +158,20 @@
     <string name="btn_publish">Próximo</string>
     <string name="btn_apply">Aplicar</string>
 
-    <string name="rec_your_sound_is_saved_locally_at">Seu som é gravado localmente</string>
-
     <string name="playback_error_logging">Registro de erros de reprodução: %s</string>
     <string name="enabled">Habilitado</string>
     <string name="disabled">Desabilitado</string>
 
-    <string name="uploader_event_processing">Processando</string>
-    <string name="uploader_event_processing_percent">Processando: %d %%</string>
-    <string name="uploader_event_not_yet_uploading">Ainda não carregado</string>
-    <string name="uploader_event_uploading_percent">Carregando: %d %%</string>
-    <string name="uploader_event_cancelling">Cancelando</string>
-    <string name="uploader_event_processing_finished">Processamento terminado</string>
-
     <string name="cancel">Cancelar</string>
     <string name="retry">Repetir</string>
 
-    <string name="error_loading_url">Houve um problema ao carregar esse URL</string>
-
-    <string name="cloud_uploader_notification_transcoding_error_message">Houve um erro de transcodificação %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
-
-    <!-- error to show when signup scope was revoked on server side -->
-    <string name="signup_scope_revoked">Ops! Não foi possível inscrevê-lo. Tente atualizar o aplicativo ou inscrever-se em SoundCloud.com.</string>
-
-    <!-- !! Unorganised above here !! -->
+    <!-- __ACCESSIBILITY -->
+    <string name="accessibility_search">Pesquisar na SoundCloud</string>
+    <string name="accessibility_stats_user_liked">Curtido por você</string>
+    <string name="accessibility_stats_user_reposted">Republicado por você</string>
+    <string name="accessibility_like_action">Curtir</string>
+    <string name="accessibility_repost_action">Republicar</string>
+    <string name="accessibility_comment_action">Comentário</string>
 
     <!-- __ACTIVITIES  -->
     <string name="liked">curtiu %s</string>
@@ -326,6 +219,14 @@
     <string name="authentication_your_email_address">Seu endereço de e-mail</string>
     <string name="authentication_your_password">Sua senha</string>
     <string name="authentication_clear_image">Segure para excluir a imagem</string>
+    <string name="dialog_select_google_account">Selecione uma conta do Google para se conectar</string>
+    <string name="authentication_login_error_message">Nós não conseguimos fazer seu login. Tente novamente.</string>
+    <string name="authentication_add_info_error">Não foi possível atualizar suas informações. Tente novamente.</string>
+    <string name="authentication_no_google_accounts">Configure uma conta do Google primeiro.</string>
+    <string name="authentication_log_in_with_google">Faça login no Google</string>
+    <string name="error_google_sign_in_failed">Não conseguimos efetuar seu login com o Google+. Visite plus.google.com para ativar sua conta do Google+ e tente novamente</string>
+    <string name="auth_disclaimer_title">Mais um passo</string>
+    <string name="auth_disclaimer_message">Ao clicar em \"Continuar\", você concorda com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Conecte-se para abrir este link</string>
@@ -337,13 +238,63 @@
     <string name="optin_yes">Sim, por favor</string>
     <string name="optin_no">Não, obrigado</string>
 
+    <!-- __EMPTY_STATES -->
+    <string name="info_empty_other_message">Esta pessoa ainda não adicionou uma descrição de perfil.</string>
+    <string name="info_empty_you_message">Seu perfil está vazio</string>
+    <string name="info_empty_you_secondary">Conecte-se a SoundCloud em seu desktop para editar o seu perfil</string>
+    <string name="list_empty_activity_message">Você ainda não tem nenhuma atividade</string>
+    <string name="list_empty_activity_secondary">Saiba mais sobre o compartilhamento de sons com nossos 101s</string>
+    <string name="list_empty_stream_action">Encontrar pessoas para seguir</string>
+    <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as suas faixas mais recentes</string>
+    <string name="list_empty_user_followers_message">Você ainda não tem nenhum seguidor.</string>
+    <string name="list_empty_user_followers_secondary">Compartilhe suas faixas e listas de reprodução favoritas para construir sua comunidade</string>
+    <string name="list_empty_user_following_action">Encontre pessoas para seguir</string>
+    <string name="list_empty_user_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as suas faixas mais recentes</string>
+    <string name="list_empty_user_likes_message">Curta seus sons favoritos para ouvi-los novamente</string>
+    <string name="list_empty_user_sounds_message">Republicar sons para compartilhar com seus seguidores</string>
+    <string name="empty_playlist_title">Lista de reprodução vazia</string>
+    <string name="empty_playlist_description">Esta lista de reprodução ainda não tem faixas</string>
+    <string name="list_empty_user_playlists_message">%1$s não tem nenhuma lista de reprodução no momento.</string>
+    <string name="list_empty_you_playlists_message">Crie listas de reprodução para misturar seus sons favoritos</string>
+    <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtidas.</string>
+    <string name="empty_user_followers_text">%1$s não está\nsendo seguido por ninguém.</string>
+    <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
+    <string name="empty_user_tracks_text">%1$s não carregou nenhum som público ainda.</string>
+
+    <!-- __ERRORS -->
+    <string name="error_loading_message">Houve um problema ao entrar em contato com a SoundCloud.</string>
+    <string name="error_loading_title">Erro de rede</string>
+    <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
+    <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login na SoundCloud antes que possa continuar a usar o aplicativo.</string>
+    <string name="error_unauthorized_title">Erro na conta</string>
+    <string name="error_loading_url">Houve um problema ao carregar esse URL</string>
+    <string name="error_soundcloud_no_response">A SoundCloud não está respondendo.</string>
+    <string name="error_no_internet">Sem Internet.</string>
+    <string name="error_connect_and_try_again">Conecte-se e tente novamente.</string>
+    <string name="appending_failed">Erro no carregamento. Toque para tentar novamente</string>
+    <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
+    <string name="error_server_problems_message">Houve um problema no processamento de seu pedido. Tente novamente mais tarde.</string>
+    <!-- signup scope was revoked on server side -->
+    <string name="signup_scope_revoked">Ops! Não foi possível inscrevê-lo. Tente atualizar o aplicativo ou inscrever-se em SoundCloud.com.</string>
+
     <!-- __EXPLORE -->
-    <string name="side_menu_explore">Explorar</string>
     <string name="explore_genres">Gêneros</string>
     <string name="explore_genre_header_music">Música</string>
     <string name="explore_genre_header_audio">Áudio</string>
     <string name="explore_category_trending_music">Música</string>
     <string name="explore_category_trending_audio">Áudio</string>
+
+    <!-- __NAVIGATION -->
+    <string name="side_menu_activity">Atividade</string>
+    <string name="side_menu_record">Gravar</string>
+    <string name="side_menu_stream">Transmitir</string>
+    <string name="side_menu_you">Você</string>
+    <string name="side_menu_settings">Configurações</string>
+    <string name="side_menu_likes">Curtidas</string>
+    <string name="side_menu_who_to_follow">Quem seguir</string>
+    <string name="side_menu_profile">Perfil</string>
+    <string name="side_menu_playlists">Listas de reprodução</string>
+    <string name="side_menu_explore">Explorar</string>
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_message_follower">%s agora está seguindo você. Seguir de volta?</string>
@@ -427,6 +378,13 @@
     <string name="playback_error_connection">Por favor verique sua conexão</string>
     <string name="playback_error_unable_to_play">Não foi possível reproduzir a faixa</string>
 
+    <!-- __PROFILE -->
+    <string name="tab_title_user_info">Informações</string>
+    <string name="tab_title_user_sounds">Publicações</string>
+    <string name="tab_title_user_likes">Curtidas</string>
+    <string name="tab_title_user_followers">Seguidores</string>
+    <string name="tab_title_user_followings">Seguindo</string>
+
     <!-- __PTR -->
     <string name="ptr_swiping">Deslize para atualizar</string>
     <string name="ptr_loading">Carregando</string>
@@ -438,6 +396,20 @@
     <string name="rec_title_idle_play">Em pausa</string>
     <string name="rec_title_playing">Jogando</string>
     <string name="rec_title_editing">Editar</string>
+    <string name="record_another_sound">Gravar outro som</string>
+    <string name="record_insert_sd_card">Insira um cartão SD para gravar.</string>
+    <string name="record_instructions">Compartilhar seus sons</string>
+    <string name="record_storage_is_full">Armazenamento cheio</string>
+    <string name="recorded_afternoon">%s tarde</string>
+    <string name="recorded_at">%1$s em %2$s</string>
+    <string name="recorded_evening">%s entardecer</string>
+    <string name="recorded_morning">%s manhã</string>
+    <string name="recorded_night">%s noite</string>
+    <string name="recording_not_found">Gravação não encontrada</string>
+    <string name="rec_your_sound_is_saved_locally_at">Seu som é gravado localmente</string>
+    <string name="dialog_confirm_delete_recording_message">Tem certeza de que deseja excluir este registro?</string>
+    <string name="dialog_reset_recording_message">Redefinir? A gravação será excluída.</string>
+    <string name="dialog_unsaved_recordings_message">Gravações não salvas encontradas. Os itens verificados serão salvos.</string>
 
     <!-- __RECORD TIPS -->
     <string name="rectip_default">Por que não gravar os sons de sua rua ?.</string>
@@ -546,4 +518,24 @@
     <string name="format_abbreviated_seconds">%d s</string>
     <string name="format_abbreviated_minutes">%d min.</string>
 
+    <!-- __UPLOAD -->
+    <string name="uploader_event_processing">Processando</string>
+    <string name="uploader_event_processing_percent">Processando: %d %%</string>
+    <string name="uploader_event_not_yet_uploading">Ainda não carregado</string>
+    <string name="uploader_event_uploading_percent">Carregando: %d %%</string>
+    <string name="uploader_event_cancelling">Cancelando</string>
+    <string name="uploader_event_processing_finished">Processamento terminado</string>
+    <string name="cloud_uploader_notification_error_message">Houve um erro ao enviar %s</string>
+    <string name="cloud_uploader_notification_error_ticker">Erro no Upload</string>
+    <string name="cloud_uploader_notification_error_title">Erro no Upload</string>
+    <string name="cloud_uploader_notification_finished_message">%s foi carregado</string>
+    <string name="cloud_uploader_notification_finished_ticker">Carregamento finalizado</string>
+    <string name="cloud_uploader_notification_finished_title">Carregamento finalizado</string>
+    <string name="cloud_uploader_notification_transcoding_error_message">Houve um erro de transcodificação %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
+    <string name="dialog_transcoding_failed_title">Falha na transcodificação</string>
+    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso centro de apoio ao cliente.</string>
+    <string name="dialog_transcoding_processing_title">Processamento de som</string>
+    <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em alguns segundos.</string>
 </resources>
