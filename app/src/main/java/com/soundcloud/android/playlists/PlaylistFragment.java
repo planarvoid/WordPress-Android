@@ -131,6 +131,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     PlaylistFragment(PlaylistDetailsController controller,
                      PlaybackOperations playbackOperations,
                      LegacyPlaylistOperations legacyPlaylistOperations,
+                     PlaylistOperations playlistOperations,
                      EventBus eventBus,
                      ImageOperations imageOperations,
                      PlaylistEngagementsController playlistEngagementsController,
@@ -142,6 +143,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.controller = controller;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
+        this.playlistOperations = playlistOperations;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
         this.playlistEngagementsController = playlistEngagementsController;

@@ -65,7 +65,8 @@ public class PlaylistFragmentTest {
 
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private LegacyPlaylistOperations playlistOperations;
+    @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
+    @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistEngagementsController playlistEngagementsController;
     @Mock private ItemAdapter adapter;
@@ -79,6 +80,7 @@ public class PlaylistFragmentTest {
         fragment = new PlaylistFragment(
                 controller,
                 playbackOperations,
+                legacyPlaylistOperations,
                 playlistOperations,
                 eventBus,
                 imageOperations,
@@ -96,7 +98,7 @@ public class PlaylistFragmentTest {
         playlist = createPlaylist();
 
         when(controller.getAdapter()).thenReturn(adapter);
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playbackOperations.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
@@ -138,7 +140,7 @@ public class PlaylistFragmentTest {
 
         final PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
 
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
         View layout = createFragmentView();
 
         expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
@@ -216,7 +218,7 @@ public class PlaylistFragmentTest {
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
         PublicApiUser user = new PublicApiUser();
         playlist.setUser(user);
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId());
         View layout = createFragmentView();
 
@@ -247,7 +249,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void callsShowContentWhenErrorIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
@@ -263,7 +265,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsEmptyViewToErrorWhenErrorIsReturned() throws Exception {
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
         createFragmentView();
         verify(controller).setEmptyViewStatus(EmptyView.Status.ERROR);
@@ -278,7 +280,7 @@ public class PlaylistFragmentTest {
     @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() throws Exception {
         PublicApiPlaylist playlist2 = createPlaylist();
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
 
@@ -311,7 +313,7 @@ public class PlaylistFragmentTest {
         PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track1, track2);
 
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlist, playlist2)));
 
         createFragmentView();
@@ -331,8 +333,8 @@ public class PlaylistFragmentTest {
         playlist.tracks = Lists.newArrayList(track1);
         PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist2));
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist2));
 
         createFragmentView();
         fragment.onRefreshStarted(mock(View.class));
@@ -345,7 +347,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void showsToastErrorWhenContentAlreadyShownAndRefreshFails() {
-        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
@@ -359,8 +361,8 @@ public class PlaylistFragmentTest {
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
         final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
-        when(playlistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
@@ -372,7 +374,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void hidesRefreshStateWhenRefreshFails() {
-        when(playlistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
