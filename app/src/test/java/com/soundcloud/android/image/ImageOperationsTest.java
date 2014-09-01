@@ -80,7 +80,7 @@ public class ImageOperationsTest {
     @Captor ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
-    @Captor ArgumentCaptor<SimpleImageLoadingListener> simpleImageLoadingListenerCaptor;
+    @Captor ArgumentCaptor<ImageLoadingListener> imageLoadingListenerCaptor;
 
     final private String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
@@ -106,8 +106,8 @@ public class ImageOperationsTest {
         // 1st load
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
-        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
-        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
+        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
 
         // 2nd load
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
@@ -120,8 +120,8 @@ public class ImageOperationsTest {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
-        verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
-        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+        verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
+        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
 
         expect(imageOperations.getCachedBitmap(URN, ApiImageSize.LARGE, 100, 100)).toBeNull();
         verifyZeroInteractions(imageLoader);
@@ -134,8 +134,8 @@ public class ImageOperationsTest {
         // 1st load
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
-        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
-        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
+        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
 
         // 2nd load
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
@@ -149,8 +149,8 @@ public class ImageOperationsTest {
         // 1st load
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
-        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), simpleImageLoadingListenerCaptor.capture());
-        simpleImageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
+        inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageViewAware.class), any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
+        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL_LARGE, imageView, failReason);
 
         // 2nd load
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);

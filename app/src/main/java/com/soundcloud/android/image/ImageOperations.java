@@ -11,8 +11,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cache.FileCache;
@@ -71,32 +71,7 @@ public class ImageOperations {
 
     }
 
-    private final SimpleImageLoadingListener notFoundListener = new SimpleImageLoadingListener() {
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            super.onLoadingComplete(imageUri, view, loadedImage);
-            if (loadedImage == null) {
-                animatePlaceholder(view);
-            }
-        }
-
-        @Override
-        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-            super.onLoadingFailed(imageUri, view, failReason);
-            if (failReason.getCause() instanceof FileNotFoundException) {
-                notFoundUris.add(imageUri);
-            }
-            animatePlaceholder(view);
-        }
-
-        private void animatePlaceholder(View view) {
-            if (view instanceof ImageView && ((ImageView) view).getDrawable() instanceof OneShotTransitionDrawable) {
-                final OneShotTransitionDrawable transitionDrawable = (OneShotTransitionDrawable) ((ImageView) view).getDrawable();
-                transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
-            }
-        }
-    };
+    private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory, Cache<String, Drawable> placeholderCache,
@@ -156,7 +131,7 @@ public class ImageOperations {
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
                 ImageOptionsFactory.player(placeholderDrawable, isHighPriority),
-                new ImageListenerUILAdapter(imageListener));
+                new FallbackImageListener(imageListener, notFoundUris));
     }
 
     public void displayAdInPlayer(Uri uri, ImageView imageView, Drawable placeholderDrawable) {
@@ -290,5 +265,62 @@ public class ImageOperations {
     private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
         final String imageUrl = imageEndpointBuilder.imageUrl(urn, apiImageSize);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
+    }
+
+    @VisibleForTesting
+    static class FallbackImageListener implements ImageLoadingListener {
+        private final ImageListenerUILAdapter listenerAdapter;
+        private final Set<String> notFoundUris;
+
+        public FallbackImageListener(Set<String> notFoundUris) {
+            this(null, notFoundUris);
+        }
+
+        public FallbackImageListener(@Nullable ImageListener imageListener, Set<String> notFoundUris) {
+            this.notFoundUris = notFoundUris;
+            listenerAdapter = imageListener != null ? new ImageListenerUILAdapter(imageListener) : null;
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage == null) {
+                animatePlaceholder(view);
+            }
+            if (listenerAdapter != null) {
+                listenerAdapter.onLoadingComplete(imageUri, view, loadedImage);
+            }
+        }
+
+        @Override
+        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+            if (failReason.getCause() instanceof FileNotFoundException) {
+                notFoundUris.add(imageUri);
+            }
+            animatePlaceholder(view);
+            if (listenerAdapter != null) {
+                listenerAdapter.onLoadingFailed(imageUri, view, failReason);
+            }
+        }
+
+        @Override
+        public void onLoadingStarted(String imageUri, View view) {
+            if (listenerAdapter != null) {
+                listenerAdapter.onLoadingStarted(imageUri, view);
+            }
+        }
+
+        @Override
+        public void onLoadingCancelled(String imageUri, View view) {
+            if (listenerAdapter != null) {
+                listenerAdapter.onLoadingCancelled(imageUri, view);
+            }
+        }
+
+        private void animatePlaceholder(View view) {
+            if (view instanceof ImageView && ((ImageView) view).getDrawable() instanceof OneShotTransitionDrawable) {
+                final OneShotTransitionDrawable transitionDrawable = (OneShotTransitionDrawable) ((ImageView) view).getDrawable();
+                transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
+            }
+        }
     }
 }
