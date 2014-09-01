@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
+import com.soundcloud.android.utils.ErrorUtils;
+
 import android.media.MediaPlayer;
 
 import javax.inject.Inject;
@@ -19,8 +21,12 @@ public class MediaPlayerManager {
         new Thread() {
             @Override
             public void run() {
-                mediaPlayer.reset();
-                mediaPlayer.release();
+                try {
+                    mediaPlayer.reset();
+                    mediaPlayer.release();
+                } catch (IllegalStateException ex) {
+                    ErrorUtils.handleSilentException(ex);
+                }
             }
         }.start();
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="132" android:versionName="14.08.25" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="133" android:versionName="14.08.28" package="com.soundcloud.android">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="19"/>
@@ -307,7 +307,6 @@
         <!-- settings -->
 
         <activity android:name=".creators.upload.LocationPickerActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
-        <activity android:name=".onboarding.auth.EmailConfirmationActivity"/>
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
