@@ -35,6 +35,7 @@ import rx.Observable;
 
 import android.app.Notification;
 import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.media.AudioManager;
 
 import java.util.ArrayList;
@@ -139,6 +140,16 @@ public class PlaybackServiceTest {
 
         PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
         expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_DESTROYED);
+    }
+
+    @Test
+    public void onStartPublishesServiceLifecycleForStarted() throws Exception {
+        playbackService.onCreate();
+        playbackService.stop();
+        playbackService.onStartCommand(new Intent(), 0, 0);
+
+        PlayerLifeCycleEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYER_LIFE_CYCLE);
+        expect(broadcasted.getKind()).toBe(PlayerLifeCycleEvent.STATE_STARTED);
     }
 
     @Test

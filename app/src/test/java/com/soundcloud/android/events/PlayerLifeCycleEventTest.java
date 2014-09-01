@@ -31,6 +31,11 @@ public class PlayerLifeCycleEventTest {
     }
 
     @Test
+    public void serviceIsRunningForStartedEvent() throws Exception {
+        expect(PlayerLifeCycleEvent.forCreated().isServiceRunning()).toBeTrue();
+    }
+
+    @Test
     public void serviceIsNotRunningForStoppedEvent() throws Exception {
         expect(PlayerLifeCycleEvent.forStopped().isServiceRunning()).toBeFalse();
     }

@@ -99,6 +99,16 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
+    public void playQueueEventUpdatesNotificationAfterPlaybackServiceWasStoppedAndStartedAgain() {
+        controller.subscribe();
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
+
+        verify(notificationManager).notify(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
+    }
+
+    @Test
     public void serviceDestroyedEventCancelsAnyCurrentNotification() {
         controller.subscribe();
 

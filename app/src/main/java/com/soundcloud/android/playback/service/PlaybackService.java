@@ -229,6 +229,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public int onStartCommand(Intent intent, int flags, int startId) {
         serviceStartId = startId;
         delayedStopHandler.removeCallbacksAndMessages(null);
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
 
         if (intent != null) {
             boolean hasAccount = accountOperations.isUserLoggedIn();
