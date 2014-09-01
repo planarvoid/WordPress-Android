@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="error_toast_user_not_logged_in">Please log in to open this link</string>
-</resources>

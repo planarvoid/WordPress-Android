@@ -432,4 +432,128 @@
 
     <!-- error to show when signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
+
+    <!-- __ACTIVITIES -->
+    <string name="liked">liked %s</string>
+    <string name="reposted">reposted %s</string>
+    <string name="commented_on">commented on %s</string>
+
+    <!-- __ADS -->
+    <string name="advertisement">Advertisement</string>
+    <string name="learn_more">LEARN MORE</string>
+    <string name="why_ads">Why ads?</string>
+    <string name="why_ads_dialog_message">Every time you see or hear an ad, artists get paid. Occasional ads allow us to continue to support artists and keep SoundCloud free for listeners.</string>
+    <string name="skip_ad">Skip Ad</string>
+    <string name="next_up">Next up: %1$s (%2$s)</string>
+    <string name="ad_in_progress">Advertisement in progress</string>
+    <string name="ad_resume_playing_to_continue">Resume playing ad to continue</string>
+    <string name="ad_skip">Skip in: %s</string>
+
+    <!-- __DEEPLINKS -->
+    <string name="error_toast_user_not_logged_in">Please log in to open this link</string>
+
+    <!-- __ONBOARDING -->
+    <string name="category_facebook_friends">Facebook Friends</string>
+    <string name="category_facebook_likes">Facebook Likes</string>
+    <string name="category_rock">Rock</string>
+    <string name="category_indie">Indie</string>
+    <string name="category_dubstep">Dubstep</string>
+    <string name="category_pop">Pop</string>
+    <string name="category_punk">Punk</string>
+    <string name="category_country">Country</string>
+    <string name="category_alternative">Alternative</string>
+    <string name="category_electronic">Electronic</string>
+    <string name="category_house">House</string>
+    <string name="category_rnb_and_soul">RnB and Soul</string>
+    <string name="category_hiphop_and_rap">HipHop and Rap</string>
+    <string name="category_reggae">Reggae</string>
+    <string name="category_singer_songwriter">Singer Songwriter</string>
+    <string name="category_jazz_and_blues">Jazz and Blues</string>
+    <string name="category_metal">Metal</string>
+    <string name="category_classical">Classical</string>
+    <string name="category_folk_and_world">Folk and World</string>
+    <string name="category_ideas">Ideas</string>
+    <string name="category_business">Business</string>
+    <string name="category_religion_and_spirituality">Religion and Spirituality</string>
+    <string name="category_audiobooks">Audiobooks</string>
+    <string name="category_arts_and_entertainment">Arts and Entertainment</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_science_and_technology">Science and Technology</string>
+    <string name="category_comedy">Comedy</string>
+    <string name="category_news">News</string>
+    <string name="category_storytelling">Storytelling</string>
+    <string name="category_learning">Learning</string>
+
+    <!-- __PLAYABLE -->
+    <string name="private_indicator">Private</string>
+    <string name="recording_pending_upload">Pending Upload</string>
+    <string name="recording_uploading">Uploading...</string>
+    <string name="recording_upload_failed">Upload Failed</string>
+
+    <!-- __PLAYER -->
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="share">Share</string>
+    <string name="repost">Repost</string>
+    <string name="unpost">Unpost</string>
+    <string name="reposted_to_followers">Reposted to your followers</string>
+    <string name="unposted_to_followers">Unposted</string>
+    <string name="share_by">by %s</string>
+    <string name="share_on_soundcloud">on SoundCloud</string>
+    <string name="info">Info</string>
+    <string name="uploaded_at">Uploaded %s</string>
+    <string name="track_info_no_description">No description available</string>
+
+    <string name="playback_error_connection">Please check your connection</string>
+    <string name="playback_error_unable_to_play">Unable to playback track</string>
+
+    <!-- __TIME -->
+    <string name="format_abbreviated_seconds">%d sec.</string>
+    <string name="format_abbreviated_minutes">%d min.</string>
+
+    <!-- __RECORD TIPS -->
+    <string name="rec_title_generating_waveform">Please Wait...</string>
+    <string name="rec_title_idle_rec">Record</string>
+    <string name="rec_title_recording">Recording</string>
+    <string name="rec_title_idle_play">Paused</string>
+    <string name="rec_title_playing">Playing</string>
+    <string name="rec_title_editing">Edit</string>
+    <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
+    <string name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
+    <string name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
+    <string name="rectip_memories_what_are_you_doing_right_now">What are you doing right now?</string>
+    <string name="rectip_memories_child_first_words">Capture the moment: a child\’s first words</string>
+    <string name="rectip_memories_sound_your_pet_makes">Capture the moment: the sounds your pet makes</string>
+    <string name="rectip_memories_voice_of_someone_you_care_about">Capture the moment: the voice of someone you care about</string>
+    <string name="rectip_memories_shopping_reminders">Going shopping?  Record reminders so you don\’t forget what to buy.</string>
+    <string name="rectip_memories_great_idea">Had a great idea?  Capture it with the REC button.</string>
+    <string name="rectip_social_good_joke">Heard a good joke lately? Share it!</string>
+    <string name="rectip_social_great_conversaion">Enjoying a great conversation?  Why not record it for posterity?</string>
+    <string name="rectip_social_hilarious_moment">Capture a hilarious moment in sound</string>
+    <string name="rectip_general_did_you_know">Did you know you can save private recordings if you don\’t want to share them?</string>
+    <string name="rectip_general_best_recording_device">Sometimes the best recording device is the one you have with you.</string>
+    <string name="rectip_general_unmute_yourself">Unmute yourself!</string>
+    <string name="rectip_general_unmute_internet">Unmute the internet.</string>
+    <string name="rectip_general_unmute_the_world">Unmute the world.</string>
+    <string name="rectip_general_express_yourself">Express yourself!</string>
+    <string name="rectip_general_professional_minutes_of_meeting">Why not record the minutes of your next meeting?</string>
+    <string name="rectip_general_professional_capture_ideas_for_later">Use the REC button to capture ideas for later.</string>
+    <string name="rectip_general_professional_study_aid">Use the REC button as a study aid: store your notes on the go.</string>
+    <string name="rectip_general_professional_record_interviews_and_meetings">You can use the REC button to record interviews and meetings.</string>
+    <string name="rectip_environmental_ocean_waves">Record the sound of the ocean waves at the beach</string>
+    <string name="rectip_environmental_vibrant_rush_hour">Capture the sounds of a vibrant city at rush hour</string>
+    <string name="rectip_environmental_crazy_sound">Heard a crazy sound?  Capture it with the REC button!</string>
+    <string name="rectip_music_feel_inspired">Feel inspired? Capture your idea with the REC button.</string>
+    <string name="rectip_music_track_idea">Got an idea for a new track? Save it with the REC button.</string>
+    <string name="rectip_music_tune_stuck">Tune stuck in your head? Capture it with the REC button.</string>
+    <string name="rectip_music_song_lyric_ideas">Ideas for song lyrics? Capture them instantly with the REC button.</string>
+    <string name="rectip_events_whats_going_on">What’s going on right now?</string>
+    <string name="rectip_events_current_events_as_they_happen">Record current events as they happen and share them with the world.</string>
+    <string name="rectip_events_something_interesting">Is something interesting happening?  Capture the moment in audio.</string>
+    <string name="rectip_events_citizen_reporter">Citizen Reporter?  Tell the world what\’s happening where you are.</string>
+    <string name="rectip_private_happy_birthday">Wish %s a Happy Birthday</string>
+    <string name="rectip_private_record_a_message">Why not record a message for %s?</string>
+    <string name="rectip_private_how_much_they_mean">Tell %s how much they mean to you.</string>
+    <string name="rectip_private_send_reminder">Send %s a reminder</string>
+    <string name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
+    <string name="rectip_private_leave_feedback">Leave some feedback for %s</string>
 </resources>
