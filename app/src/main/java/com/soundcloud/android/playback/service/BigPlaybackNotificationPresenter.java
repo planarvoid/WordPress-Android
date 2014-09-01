@@ -8,7 +8,7 @@ import com.soundcloud.propeller.PropertySet;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
@@ -37,9 +37,9 @@ public class BigPlaybackNotificationPresenter extends RichNotificationPresenter 
     }
 
     @Override
-    void setIcon(Notification notification, Uri bitmapUri) {
-        super.setIcon(notification, bitmapUri);
-        ((NotificationPlaybackRemoteViews) notification.bigContentView).setIcon(bitmapUri);
+    void setIcon(Notification notification, Bitmap bitmap) {
+        super.setIcon(notification, bitmap);
+        ((NotificationPlaybackRemoteViews) notification.bigContentView).setIcon(bitmap);
     }
 
     @Override

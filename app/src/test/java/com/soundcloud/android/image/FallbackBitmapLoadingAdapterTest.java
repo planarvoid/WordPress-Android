@@ -15,54 +15,55 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.observers.TestSubscriber;
 
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.View;
 
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ViewlessLoadingAdapterTest {
+public class FallbackBitmapLoadingAdapterTest {
 
-    private ViewlessLoadingAdapter adapter;
+    private FallbackBitmapLoadingAdapter adapter;
 
     TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
 
-    @Mock
-    View view;
-    @Mock
-    Bitmap bitmap;
+    private @Mock View view;
+    private @Mock Bitmap bitmap;
+    private @Mock Bitmap fallbackImage;
 
     @Test
-    public void onLoadingFailedEmitsError() throws Exception {
-        adapter = new ViewlessLoadingAdapter(subscriber, false);
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    public void onLoadingFailedFallBackToDrawable() throws Exception {
+        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         adapter.onLoadingFailed("uri", view, "failure reason");
-        final List<Throwable> onErrorEvents = subscriber.getOnErrorEvents();
-        expect(onErrorEvents.size()).toBe(1);
+
+        expect(subscriber.getOnErrorEvents()).toBeEmpty();
+        expect(subscriber.getOnNextEvents()).toEqual(Lists.newArrayList(fallbackImage));
     }
 
     @Test
     public void onLoadingCompleteEmitsBitmap() throws Exception {
-        adapter = new ViewlessLoadingAdapter(subscriber, false);
+        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         adapter.onLoadingComplete("uri", view, bitmap);
         subscriber.assertReceivedOnNext(Lists.newArrayList(bitmap));
-
     }
 
     @Test
-    public void onLoadingCompleteEmitsImmutableARGB_8888BitmapCopy() throws Exception {
-        final Bitmap copiedBitmap = Mockito.mock(Bitmap.class);
-        when(bitmap.copy(Bitmap.Config.ARGB_8888, false)).thenReturn(copiedBitmap);
-        adapter = new ViewlessLoadingAdapter(subscriber, true);
+    public void onLoadingCompleteRecycleFallbackBitmap() throws Exception {
+        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
+
         adapter.onLoadingComplete("uri", view, bitmap);
-        subscriber.assertReceivedOnNext(Lists.newArrayList(copiedBitmap));
+
+        verify(fallbackImage).recycle();
     }
 
     @Test
     public void onLoadingCompleteDoesNotEmitBitmapIfUnsubscribed() throws Exception {
         final Bitmap copiedBitmap = Mockito.mock(Bitmap.class);
         when(bitmap.copy(Bitmap.Config.ARGB_8888, false)).thenReturn(copiedBitmap);
-        adapter = new ViewlessLoadingAdapter(subscriber, true);
+        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         subscriber.unsubscribe();
         adapter.onLoadingComplete("uri", view, bitmap);
         subscriber.assertReceivedOnNext(Collections.<Bitmap>emptyList());
@@ -70,7 +71,7 @@ public class ViewlessLoadingAdapterTest {
 
     @Test
     public void onLoadingCompleteDoesNotCopyBitmapIfUnsubscribed() throws Exception {
-        adapter = new ViewlessLoadingAdapter(subscriber, true);
+        adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         subscriber.unsubscribe();
         adapter.onLoadingComplete("uri", view, bitmap);
         verify(bitmap, never()).copy(any(Bitmap.Config.class), anyBoolean());

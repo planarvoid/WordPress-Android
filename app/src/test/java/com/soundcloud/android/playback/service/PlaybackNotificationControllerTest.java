@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -180,8 +179,8 @@ public class PlaybackNotificationControllerTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        verify(playbackNotificationPresenter).setIcon(notification, uri);
-        verify(imageOperations, never()).image(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt(), anyBoolean());
+        verify(playbackNotificationPresenter).setIcon(notification, bitmap);
+        verify(imageOperations, never()).artwork(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt());
     }
 
     @Test
@@ -198,20 +197,20 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void playQueueEventSetsLoadedBitmapWithPresenterWhenArtworkCapableAndNoCachedBitmap() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.image(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        verify(playbackNotificationPresenter).setIcon(notification, uri);
+        verify(playbackNotificationPresenter).setIcon(notification, bitmap);
     }
 
     @Test
     public void playQueueEventNotifiesAgainAfterBitmapLoaded() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.image(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         controller.subscribe();
@@ -224,7 +223,7 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceNotCreated() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.image(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         controller.subscribe();
@@ -236,7 +235,7 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceDestroyed() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
-        when(imageOperations.image(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
 
         controller.subscribe();
@@ -250,7 +249,7 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void playQueueEventUnsubscribesExistingImageLoadingObservable() {
         Observable<Bitmap> imageObservable = TestObservables.endlessObservablefromSubscription(subscription);
-        when(imageOperations.image(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt(), eq(false))).thenReturn(imageObservable, Observable.<Bitmap>never());
+        when(imageOperations.artwork(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(imageObservable, Observable.<Bitmap>never());
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
 
         controller.subscribe();

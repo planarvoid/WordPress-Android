@@ -38,6 +38,12 @@ public class PlaySessionController {
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
+        @Override
+        public Bitmap call(Bitmap bitmap) {
+            return bitmap.copy(Bitmap.Config.ARGB_8888, false);
+        }
+    };
 
     private Subscription currentTrackSubscription = Subscriptions.empty();
     private PropertySet currentPlayQueueTrack; // the track that is currently set in the queue
@@ -122,7 +128,8 @@ public class PlaySessionController {
     private void updateRemoteAudioManager() {
         if (audioManager.isTrackChangeSupported()) {
             audioManager.onTrackChanged(currentPlayQueueTrack, null); // set initial data without bitmap so it doesn't have to wait
-            currentTrackSubscription = imageOperations.image(currentPlayQueueTrack.get(TrackProperty.URN), ApiImageSize.getFullImageSize(resources), true)
+            currentTrackSubscription = imageOperations.artwork(currentPlayQueueTrack.get(TrackProperty.URN), ApiImageSize.getFullImageSize(resources))
+                    .map(copyBitmap)
                     .subscribe(new ArtworkSubscriber());
         }
     }

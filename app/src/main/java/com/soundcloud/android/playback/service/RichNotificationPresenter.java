@@ -9,7 +9,7 @@ import rx.functions.Func1;
 
 import android.app.Notification;
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
 
 import javax.inject.Provider;
@@ -41,8 +41,8 @@ public class RichNotificationPresenter extends PlaybackNotificationPresenter {
         return true;
     }
 
-    void setIcon(Notification notification, Uri bitmapUri) {
-        ((NotificationPlaybackRemoteViews) notification.contentView).setIcon(bitmapUri);
+    void setIcon(Notification notification, Bitmap bitmap) {
+        ((NotificationPlaybackRemoteViews) notification.contentView).setIcon(bitmap);
     }
 
     void clearIcon(Notification notification) {

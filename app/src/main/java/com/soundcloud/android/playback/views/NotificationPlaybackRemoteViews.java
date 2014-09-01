@@ -7,7 +7,7 @@ import com.soundcloud.android.playback.external.PlaybackAction;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.view.View;
 
@@ -37,9 +37,9 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
         setOnClickPendingIntent(R.id.close, createPendingIntent(context, PlaybackAction.CLOSE));
     }
 
-    public void setIcon(Uri bitmapUri) {
-        if (bitmapUri != null){
-            setImageViewUri(R.id.icon, bitmapUri);
+    public void setIcon(Bitmap bitmap) {
+        if (bitmap != null){
+            setImageViewBitmap(R.id.icon, bitmap);
             setViewVisibility(R.id.icon, View.VISIBLE);
         } else {
             setViewVisibility(R.id.icon,View.GONE);

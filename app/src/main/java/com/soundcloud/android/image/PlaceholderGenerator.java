@@ -5,8 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.TransitionDrawable;
 
 import javax.inject.Inject;
 
@@ -34,11 +34,11 @@ public class PlaceholderGenerator {
         this.resources = resources;
     }
 
-    public Drawable generate(String key) {
-        return ImageUtils.createTransitionDrawable(resources.getDrawable(R.drawable.placeholder), build(key));
+    public TransitionDrawable generateTransitionDrawable(String key) {
+        return ImageUtils.createTransitionDrawable(resources.getDrawable(R.drawable.placeholder), generateDrawable(key));
     }
 
-    private GradientDrawable build(String key) {
+    public GradientDrawable generateDrawable(String key) {
         int[] colorIds = COLOR_COMBINATIONS[pickCombination(key)];
         int[] colors = {resources.getColor(colorIds[0]), resources.getColor(colorIds[1])};
         return new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);

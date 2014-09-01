@@ -30,6 +30,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.view.View;
 import android.widget.AbsListView;
@@ -58,15 +60,15 @@ public class ImageOperations {
     private final PlaceholderGenerator placeholderGenerator;
 
     private final Set<String> notFoundUris = Sets.newHashSet();
-    private final Cache<String, Drawable> placeholderCache;
-    private final ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
+    private final Cache<String, TransitionDrawable> placeholderCache;
+    private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final FileNameGenerator fileNameGenerator;
 
     @Inject
     public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator,
-                           ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory) {
-        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory,
-                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, Drawable>build(),
+                           FallbackBitmapLoadingAdapter.Factory adapterFactory) {
+        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, adapterFactory,
+                CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, TransitionDrawable>build(),
                 new HashCodeFileNameGenerator());
 
     }
@@ -74,13 +76,13 @@ public class ImageOperations {
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory, Cache<String, Drawable> placeholderCache,
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, FallbackBitmapLoadingAdapter.Factory adapterFactory, Cache<String, TransitionDrawable> placeholderCache,
                     FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.imageEndpointBuilder = imageEndpointBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.placeholderCache = placeholderCache;
-        this.viewlessLoadingAdapterFactory = viewlessLoadingAdapterFactory;
+        this.adapterFactory = adapterFactory;
         this.fileNameGenerator = fileNameGenerator;
     }
 
@@ -150,7 +152,7 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void load(Urn urn, ApiImageSize apiImageSize, ImageListener imageListener) {
+    private void load(Urn urn, ApiImageSize apiImageSize, ImageListener imageListener) {
         imageLoader.loadImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 new ImageListenerUILAdapter(imageListener));
@@ -168,21 +170,24 @@ public class ImageOperations {
         imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }
 
-    public Observable<Bitmap> image(final Urn resourceUrn, final ApiImageSize apiImageSize, final boolean emitCopy) {
+    public Observable<Bitmap> artwork(final Urn resourceUrn, final ApiImageSize apiImageSize) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                load(resourceUrn, apiImageSize, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
+                final Bitmap fallback = createFallbackBitmap(resourceUrn, apiImageSize);
+                load(resourceUrn, apiImageSize, adapterFactory.create(subscriber, fallback));
             }
         });
     }
 
-    public Observable<Bitmap> image(final Urn resourceUrn, final ApiImageSize apiImageSize, final int targetWidth,
-                                    final int targetHeight, final boolean emitCopy) {
+    public Observable<Bitmap> artwork(final Urn resourceUrn, final ApiImageSize apiImageSize, final int targetWidth,
+                                      final int targetHeight) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                load(resourceUrn, apiImageSize, targetWidth, targetHeight, viewlessLoadingAdapterFactory.create(subscriber, emitCopy));
+                final GradientDrawable fallbackDrawable = placeholderGenerator.generateDrawable(resourceUrn.toString());
+                final Bitmap fallback = ImageUtils.toBitmap(fallbackDrawable, targetWidth, targetHeight);
+                load(resourceUrn, apiImageSize, targetWidth, targetHeight, adapterFactory.create(subscriber, fallback));
             }
         });
     }
@@ -191,6 +196,19 @@ public class ImageOperations {
         return getCachedBitmap(resourceUrn, ApiImageSize.getListItemImageSize(resources),
                 resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
                 resources.getDimensionPixelSize(R.dimen.list_item_image_dimension));
+    }
+
+    private Bitmap createFallbackBitmap(Urn resourceUrn, ApiImageSize apiImageSize) {
+        // This bitmap is only used by the current track for the components that can't use
+        // drawables (i.e. the notification and the remote client for the lock screen)
+        //
+        // Unless we refactor the cache to store a /GradientDrawable/ and not a /TransitionDrawable/
+        // we don't have a cache for this guy.
+        //
+        // Also, we don't cache bitmap in the /ImageOperations/ since it does not worth it. A cache
+        // may have a impact on the memory usage and without the performance seems pretty good, though.
+        final GradientDrawable fallbackDrawable = placeholderGenerator.generateDrawable(resourceUrn.toString());
+        return ImageUtils.toBitmap(fallbackDrawable, apiImageSize.width, apiImageSize.height);
     }
 
     @Nullable
@@ -240,25 +258,28 @@ public class ImageOperations {
         return url; // fallback to original url
     }
 
+    private Drawable getPlaceholderDrawable(final Urn urn, ImageViewAware imageViewAware) {
+        return getPlaceholderDrawable(urn, imageViewAware.getWidth(), imageViewAware.getHeight());
+
+    }
+
     /**
      * We have to store these so so we don't animate on every load attempt. this prevents flickering
      */
     @Nullable
-    private Drawable getPlaceholderDrawable(final Urn urn, ImageViewAware imageViewAware) {
-        final String key = String.format(PLACEHOLDER_KEY_BASE, urn,
-                String.valueOf(imageViewAware.getWidth()), String.valueOf(imageViewAware.getHeight()));
+    private TransitionDrawable getPlaceholderDrawable(final Urn urn, int width, int height) {
+        final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
         try {
-            return placeholderCache.get(key, new Callable<Drawable>() {
+            return placeholderCache.get(key, new Callable<TransitionDrawable>() {
                 @Override
-                public Drawable call() throws Exception {
-                    return placeholderGenerator.generate(urn.toString());
+                public TransitionDrawable call() throws Exception {
+                    return placeholderGenerator.generateTransitionDrawable(urn.toString());
                 }
             });
         } catch (ExecutionException e) {
             e.printStackTrace();
             return null;
         }
-
     }
 
     @Nullable

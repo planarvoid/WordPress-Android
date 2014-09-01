@@ -143,15 +143,15 @@ public class PlaybackNotificationController {
         final Bitmap cachedBitmap = imageOperations.getCachedBitmap(trackUrn, apiImageSize, targetIconWidth, targetIconHeight);
 
         if (cachedBitmap != null) {
-            presenter.setIcon(notification, imageOperations.getLocalImageUri(trackUrn, apiImageSize));
+            presenter.setIcon(notification, cachedBitmap);
         } else {
             presenter.clearIcon(notification);
 
-            imageSubscription = imageOperations.image(trackUrn, getApiImageSize(), targetIconWidth, targetIconHeight, false)
+            imageSubscription = imageOperations.artwork(trackUrn, getApiImageSize(), targetIconWidth, targetIconHeight)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                 @Override
-                public void onNext(Bitmap args) {
-                    presenter.setIcon(notification, imageOperations.getLocalImageUri(trackUrn, getApiImageSize()));
+                public void onNext(Bitmap bitmap) {
+                    presenter.setIcon(notification, bitmap);
                     if (lastPlayerLifecycleEvent.isServiceRunning()){
                         notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
                     }

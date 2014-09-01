@@ -8,7 +8,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -43,7 +42,8 @@ import rx.observers.TestSubscriber;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,15 +69,15 @@ public class ImageOperationsTest {
     @Mock ImageListener imageListener;
     @Mock ImageView imageView;
     @Mock Resources resources;
-    @Mock Drawable drawable;
+    @Mock TransitionDrawable transitionDrawable;
+    @Mock GradientDrawable gradientDrawable;
     @Mock View parentView;
     @Mock FailReason failReason;
     @Mock Cache cache;
-    @Mock ViewlessLoadingAdapter.Factory viewlessLoadingAdapterFactory;
-    @Mock ViewlessLoadingAdapter viewlessLoadingAdapter;
+    @Mock FallbackBitmapLoadingAdapter.Factory viewlessLoadingAdapterFactory;
+    @Mock FallbackBitmapLoadingAdapter fallbackBitmapLoadingAdapter;
     @Mock FileNameGenerator fileNameGenerator;
 
-    @Captor ArgumentCaptor<ImageListenerUILAdapter> imageListenerUILAdapterCaptor;
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
     @Captor ArgumentCaptor<ImageLoadingListener> imageLoadingListenerCaptor;
@@ -96,7 +96,8 @@ public class ImageOperationsTest {
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
-        when(placeholderGenerator.generate(any(String.class))).thenReturn(drawable);
+        when(placeholderGenerator.generateTransitionDrawable(any(String.class))).thenReturn(transitionDrawable);
+        when(placeholderGenerator.generateDrawable(any(String.class))).thenReturn(gradientDrawable);
     }
 
     @Test
@@ -112,7 +113,7 @@ public class ImageOperationsTest {
         // 2nd load
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
-        when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
     }
 
     @Test
@@ -155,17 +156,6 @@ public class ImageOperationsTest {
         // 2nd load
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
-    }
-
-    @Test
-    public void shouldLoadImageByUrnWithHeadlessListener() {
-        final String imageUrl = RESOLVER_URL_LARGE;
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
-
-        imageOperations.load(URN, ApiImageSize.LARGE, imageListener);
-
-        verify(imageLoader).loadImage(eq(imageUrl), imageListenerUILAdapterCaptor.capture());
-        verifyCapturedListener();
     }
 
     @Test
@@ -226,15 +216,6 @@ public class ImageOperationsTest {
     }
 
     @Test
-    public void displayInFullDialogViewShouldUseCorrectImageListener() {
-        imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
-
-        verify(imageLoader).displayImage(
-                anyString(), any(ImageAware.class), any(DisplayImageOptions.class), imageListenerUILAdapterCaptor.capture());
-        verifyCapturedListener();
-    }
-
-    @Test
     public void displayInFullDialogViewShouldUseCorrectDisplayOptions() {
         imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
 
@@ -249,7 +230,7 @@ public class ImageOperationsTest {
     public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
-        when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
 
@@ -263,7 +244,7 @@ public class ImageOperationsTest {
     public void displayInPlayerShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
-        when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
         imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap, true);
@@ -279,7 +260,7 @@ public class ImageOperationsTest {
     public void displayInPlayerShouldDelayLoadingIfHighPriorityFlagIsNotSet() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
-        when(cache.get(anyString(), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
         imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap, false);
@@ -290,7 +271,7 @@ public class ImageOperationsTest {
 
     @Test
     public void displayAdInPlayerShouldNotCacheImageToDisk() {
-        imageOperations.displayAdInPlayer(Uri.parse(URL), imageView, drawable);
+        imageOperations.displayAdInPlayer(Uri.parse(URL), imageView, transitionDrawable);
 
         verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture());
         expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeFalse();
@@ -302,75 +283,54 @@ public class ImageOperationsTest {
     @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(cache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
-        expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(drawable);
-        expect(displayOptionsCaptor.getValue().getImageOnFail(Robolectric.application.getResources())).toBe(drawable);
-        expect(displayOptionsCaptor.getValue().getImageForEmptyUri(Robolectric.application.getResources())).toBe(drawable);
+        expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageOnFail(Robolectric.application.getResources())).toBe(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageForEmptyUri(Robolectric.application.getResources())).toBe(transitionDrawable);
     }
 
     @Test
     public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(cache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(drawable);
+        when(cache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
-        expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(drawable);
-        expect(displayOptionsCaptor.getValue().getImageOnFail(Robolectric.application.getResources())).toBe(drawable);
-        expect(displayOptionsCaptor.getValue().getImageForEmptyUri(Robolectric.application.getResources())).toBe(drawable);
+        expect(displayOptionsCaptor.getValue().getImageOnLoading(Robolectric.application.getResources())).toBe(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageOnFail(Robolectric.application.getResources())).toBe(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageForEmptyUri(Robolectric.application.getResources())).toBe(transitionDrawable);
     }
 
     @Test
-    public void imageObservablePassesBitmapFromLoadCompleteToLoadingAdapter() {
+    public void artworkObservablePassesBitmapFromLoadCompleteToLoadingAdapter() {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.image(URN, ApiImageSize.LARGE, true);
+        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.LARGE);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
-        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), eq(true))).thenReturn(viewlessLoadingAdapter);
+        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class))).thenReturn(fallbackBitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
         verify(imageLoader).loadImage(eq(RESOLVER_URL_LARGE), captor.capture());
         captor.getValue().onLoadingComplete("asdf", imageView, bitmap);
-        verify(viewlessLoadingAdapter).onLoadingComplete("asdf", imageView, bitmap);
+        verify(fallbackBitmapLoadingAdapter).onLoadingComplete("asdf", imageView, bitmap);
     }
 
     @Test
-    public void imageObservablePassesLoadFailedToLoadingAdapter() {
+    public void artworkObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.image(URN, ApiImageSize.LARGE, true);
+        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.LARGE);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
-        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), eq(true))).thenReturn(viewlessLoadingAdapter);
+        when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class))).thenReturn(fallbackBitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
         verify(imageLoader).loadImage(eq(RESOLVER_URL_LARGE), captor.capture());
         captor.getValue().onLoadingFailed("asdf", imageView, new FailReason(FailReason.FailType.DECODING_ERROR, new Exception("Decoding error")));
-        verify(viewlessLoadingAdapter).onLoadingFailed("asdf", imageView, "Decoding error");
-    }
-
-    private void verifyCapturedListener() {
-        ImageListenerUILAdapter imageListenerUILAdapter = imageListenerUILAdapterCaptor.getValue();
-        View view = mock(View.class);
-        Bitmap bitmap = mock(Bitmap.class);
-
-        FailReason failReason = mock(FailReason.class);
-        Throwable cause = mock(Throwable.class);
-
-        when(failReason.getCause()).thenReturn(cause);
-        final String message = "Cause message";
-        when(cause.getMessage()).thenReturn(message);
-
-        imageListenerUILAdapter.onLoadingStarted(ADJUSTED_URL, view);
-        imageListenerUILAdapter.onLoadingFailed(ADJUSTED_URL, view, failReason);
-        imageListenerUILAdapter.onLoadingComplete(ADJUSTED_URL, view, bitmap);
-
-        verify(imageListener).onLoadingStarted(ADJUSTED_URL, view);
-        verify(imageListener).onLoadingFailed(ADJUSTED_URL, view, message);
-        verify(imageListener).onLoadingComplete(ADJUSTED_URL, view, bitmap);
+        verify(fallbackBitmapLoadingAdapter).onLoadingFailed("asdf", imageView, "Decoding error");
     }
 
     private void verifyFullCacheOptions() {
@@ -379,9 +339,9 @@ public class ImageOperationsTest {
     }
 
     private void verifyFallbackDrawableOptions(int fallbackImageResId) {
-        when(resources.getDrawable(fallbackImageResId)).thenReturn(drawable);
-        expect(displayOptionsCaptor.getValue().getImageForEmptyUri(resources)).toBe(drawable);
-        expect(displayOptionsCaptor.getValue().getImageOnFail(resources)).toBe(drawable);
-        expect(displayOptionsCaptor.getValue().getImageOnLoading(resources)).toBe(drawable);
+        when(resources.getDrawable(fallbackImageResId)).thenReturn(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageForEmptyUri(resources)).toBe(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageOnFail(resources)).toBe(transitionDrawable);
+        expect(displayOptionsCaptor.getValue().getImageOnLoading(resources)).toBe(transitionDrawable);
     }
 }

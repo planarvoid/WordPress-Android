@@ -19,7 +19,7 @@ import rx.functions.Action1;
 
 import android.app.Notification;
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
 
 import javax.inject.Provider;
@@ -37,7 +37,7 @@ public class RichNotificationPresenterTest {
     @Mock private NotificationPlaybackRemoteViews remoteViews;
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Context context;
-    @Mock private Uri uri;
+    @Mock private Bitmap bitmap;
 
     @Before
     public void setUp() throws Exception {
@@ -76,8 +76,8 @@ public class RichNotificationPresenterTest {
     @Test
     public void setIconSetsIconOnRemoteViews() throws Exception {
         notification.contentView = remoteViews;
-        presenter.setIcon(notification, uri);
-        verify(remoteViews).setIcon(uri);
+        presenter.setIcon(notification, bitmap);
+        verify(remoteViews).setIcon(bitmap);
     }
 
     @Test
