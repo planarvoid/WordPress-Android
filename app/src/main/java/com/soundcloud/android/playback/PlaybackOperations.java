@@ -6,11 +6,14 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -30,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-// TODO, move to playback package level
 public class PlaybackOperations {
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
@@ -53,17 +55,20 @@ public class PlaybackOperations {
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final PlaybackToastViewController playbackToastViewController;
+    private final EventBus eventBus;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
-                              PlaySessionStateProvider playSessionStateProvider, PlaybackToastViewController playbackToastViewController) {
+                              PlaySessionStateProvider playSessionStateProvider,
+                              PlaybackToastViewController playbackToastViewController, EventBus eventBus) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.playSessionStateProvider = playSessionStateProvider;
         this.playbackToastViewController = playbackToastViewController;
+        this.eventBus = eventBus;
     }
 
     public Observable<List<TrackUrn>> playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource) {
@@ -122,6 +127,7 @@ public class PlaybackOperations {
     }
 
     public void setPlayQueuePosition(int position) {
+        publishSkipEventIfAudioAd();
         playQueueManager.setPosition(position);
     }
 
@@ -133,6 +139,7 @@ public class PlaybackOperations {
                     && !playQueueManager.isCurrentTrackAudioAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
+                publishSkipEventIfAudioAd();
                 playQueueManager.moveToPreviousTrack();
             }
         }
@@ -142,7 +149,15 @@ public class PlaybackOperations {
         if (shouldDisableSkipping()) {
             playbackToastViewController.showUnkippableAdToast();
         } else {
+            publishSkipEventIfAudioAd();
             playQueueManager.nextTrack();
+        }
+    }
+
+    private void publishSkipEventIfAudioAd() {
+        if (playQueueManager.isCurrentTrackAudioAd()) {
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getAudioAd(), playQueueManager.getCurrentTrackUrn());
+            eventBus.publish(EventQueue.UI, event);
         }
     }
 

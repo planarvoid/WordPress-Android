@@ -65,17 +65,4 @@ public class AdPageListenerTest {
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }
-
-    @Test
-    public void skipAdShouldPublishUIEventForSkipAudioAdClick() {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(456));
-        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
-
-        listener.skipAd();
-
-        final UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
-        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SKIP_AUDIO_AD_CLICK);
-        expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
-    }
 }

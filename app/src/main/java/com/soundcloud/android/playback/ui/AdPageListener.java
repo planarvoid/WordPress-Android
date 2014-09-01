@@ -42,9 +42,6 @@ class AdPageListener {
     }
 
     public void skipAd() {
-        // track this click
-        eventBus.publish(EventQueue.UI, UIEvent.fromSkipAudioAdClick(playQueueManager.getAudioAd(), playQueueManager.getCurrentTrackUrn()));
-
         playbackOperations.nextTrack();
     }
 
