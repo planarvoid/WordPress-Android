@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
@@ -27,7 +27,7 @@ public class ResolveTrackLoggedIn extends ResolveBaseTest {
     }
 
     public void testShouldOpenPlayerFromDeeplink() {
-        assertThat(new StreamScreen(solo), is(Visible()));
+        assertThat(new StreamScreen(solo), is(visible()));
         visualPlayer.waitForExpandedPlayer();
         assertThat(visualPlayer.isExpanded(), is(true));
         assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));

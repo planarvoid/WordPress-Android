@@ -19,7 +19,7 @@ public class IsVisible extends TypeSafeMatcher<UIView> {
     }
 
     @Factory
-    public static Matcher<UIView> Visible() {
+    public static Matcher<UIView> visible() {
         return new IsVisible();
     }
 }

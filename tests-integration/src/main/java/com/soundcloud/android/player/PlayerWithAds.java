@@ -1,10 +1,10 @@
 package com.soundcloud.android.player;
 
-import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
-import static com.soundcloud.android.tests.matcher.player.IsExpanded.Expanded;
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.tests.matcher.player.IsPlaying.Playing;
 import static com.soundcloud.android.tests.matcher.player.IsSkipAllowed.SkipAllowed;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -86,17 +86,17 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         playlistDetailsScreen.scrollToBottom();
         playlistDetailsScreen.clickFirstTrack();
 
-        assertThat(playerElement, is(Collapsed()));
+        assertThat(playerElement, is(collapsed()));
         assertThat(playerElement.getFooterTrackCreator(), equalTo(footerTrackCreator));
     }
 
     public void testShowWhyAdsDialogWhenClickingWhyAds() {
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
-        assertThat(dialog, is(Visible()));
+        assertThat(dialog, is(visible()));
 
         dialog.clickOK();
-        assertThat(dialog, is(not(Visible())));
+        assertThat(dialog, is(not(visible())));
     }
 
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
@@ -105,7 +105,7 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         playerElement.waitForAdPage();
 
         assertTrue(playerElement.isAdPageVisible());
-        assertThat(playerElement, is(Expanded()));
+        assertThat(playerElement, is(expanded()));
     }
 
     /**

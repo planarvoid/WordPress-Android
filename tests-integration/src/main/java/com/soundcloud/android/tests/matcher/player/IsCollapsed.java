@@ -18,7 +18,7 @@ public class IsCollapsed extends TypeSafeMatcher<VisualPlayerElement> {
     }
 
     @Factory
-    public static Matcher<VisualPlayerElement> Collapsed() {
+    public static Matcher<VisualPlayerElement> collapsed() {
         return new IsCollapsed();
     }
 }

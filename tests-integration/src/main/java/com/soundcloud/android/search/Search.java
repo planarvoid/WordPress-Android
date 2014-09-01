@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -74,8 +74,8 @@ public class Search extends ActivityTestCase<MainActivity> {
         VisualPlayerElement playerElement = new VisualPlayerElement(solo);
         playerElement.pressBackToCollapse();
 
-        assertThat(playerElement, is(Collapsed()));
-        assertThat(resultsScreen, is(Visible()));
+        assertThat(playerElement, is(collapsed()));
+        assertThat(resultsScreen, is(visible()));
     }
 
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {

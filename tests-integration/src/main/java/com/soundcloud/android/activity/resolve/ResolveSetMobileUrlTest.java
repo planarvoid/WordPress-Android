@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
@@ -15,7 +15,7 @@ public class ResolveSetMobileUrlTest extends ResolveBaseTest {
     public void testShouldOpenPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = new PlaylistDetailsScreen(solo);
 
-        assertThat(playlistDetailsScreen, is(Visible()));
+        assertThat(playlistDetailsScreen, is(visible()));
         assertThat(playlistDetailsScreen.getTitle(), is(equalToIgnoringCase("Ecclesia Inspiration")));
     }
 

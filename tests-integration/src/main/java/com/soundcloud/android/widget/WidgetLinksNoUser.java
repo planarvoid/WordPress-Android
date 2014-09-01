@@ -1,6 +1,6 @@
 package com.soundcloud.android.widget;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -22,7 +22,7 @@ public class WidgetLinksNoUser extends ActivityTestCase<MainActivity> {
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false));
 
-        assertThat(new HomeScreen(solo), is(Visible()));
+        assertThat(new HomeScreen(solo), is(visible()));
     }
 
 }

@@ -1,8 +1,8 @@
 package com.soundcloud.android.playlist;
 
-import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
-import static com.soundcloud.android.tests.matcher.player.IsExpanded.Expanded;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -31,18 +31,18 @@ public class Player extends ActivityTestCase<MainActivity> {
 
     public void testVisualPlayerIsAccessible() throws Exception {
         final VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
-        assertThat(playerElement, is(Expanded()));
+        assertThat(playerElement, is(expanded()));
         playerElement.pressBackToCollapse();
 
         openPlaylist();
-        assertThat(playerElement, is(Visible()));
-        assertThat(playerElement, is(Collapsed()));
+        assertThat(playerElement, is(visible()));
+        assertThat(playerElement, is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
         openPlaylist();
 
-        assertThat(new VisualPlayerElement(solo), is(not(Visible())));
+        assertThat(new VisualPlayerElement(solo), is(not(visible())));
     }
 
     public void testPlayerAddTrackToPlaylist() {
@@ -53,7 +53,7 @@ public class Player extends ActivityTestCase<MainActivity> {
 
         final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
         addToPlaylistsScreen.waitForDialog();
-        assertThat(addToPlaylistsScreen, is(Visible()));
+        assertThat(addToPlaylistsScreen, is(visible()));
     }
 
     private void openPlaylist() {

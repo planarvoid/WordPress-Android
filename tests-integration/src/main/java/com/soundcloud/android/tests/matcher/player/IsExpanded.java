@@ -18,7 +18,7 @@ public class IsExpanded extends TypeSafeMatcher<VisualPlayerElement> {
     }
 
     @Factory
-    public static Matcher<VisualPlayerElement> Expanded() {
+    public static Matcher<VisualPlayerElement> expanded() {
         return new IsExpanded();
     }
 }

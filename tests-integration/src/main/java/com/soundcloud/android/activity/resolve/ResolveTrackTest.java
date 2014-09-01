@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -22,7 +22,7 @@ public class ResolveTrackTest extends ActivityTestCase<ResolveActivity> {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         // We are not logged in
 
-        assertThat(new HomeScreen(solo), is(Visible()));
+        assertThat(new HomeScreen(solo), is(visible()));
         waiter.expectToast().toHaveText("Please log in to open this link");
     }
 

@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
@@ -18,7 +18,7 @@ public class ResolveUserNomalUserUrlTest extends ResolveBaseTest {
 
     public void testResolveUrl() {
         ProfileScreen profileScreen = new ProfileScreen(solo);
-        assertThat(profileScreen, is(Visible()));
+        assertThat(profileScreen, is(visible()));
         assertThat(profileScreen.getUserName(), is(equalToIgnoringWhiteSpace("steveangello")));
     }
 }

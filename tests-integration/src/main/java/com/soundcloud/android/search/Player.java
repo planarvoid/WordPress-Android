@@ -1,8 +1,8 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
-import static com.soundcloud.android.tests.matcher.player.IsExpanded.Expanded;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -35,18 +35,18 @@ public class Player extends ActivityTestCase<MainActivity> {
     public void testVisualPlayerIsAccessibleFromSearch() throws Exception {
         streamScreen().clickFirstTrack();
         player().waitForContent();
-        assertThat(player(), is(Expanded()));
+        assertThat(player(), is(expanded()));
         player().pressBackToCollapse();
 
         NavigationHelper.openSearch(streamScreen());
-        assertThat(player(), is(Visible()));
-        assertThat(player(), is(Collapsed()));
+        assertThat(player(), is(visible()));
+        assertThat(player(), is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
         NavigationHelper.openSearch(streamScreen());
 
-        assertThat(player(), is(not(Visible())));
+        assertThat(player(), is(not(visible())));
     }
 
     public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
@@ -54,7 +54,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         searchScreen().actionBar().doSearch("nasa");
         player = searchScreen().clickFirstTrackItem();
 
-        assertThat(player, is(Expanded()));
+        assertThat(player, is(expanded()));
     }
 
     private VisualPlayerElement player() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {

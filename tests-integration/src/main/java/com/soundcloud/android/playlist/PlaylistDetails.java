@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlist;
 
 import static com.soundcloud.android.tests.TestUser.playlistUser;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
@@ -39,17 +39,17 @@ public class PlaylistDetails extends ActivityTestCase<LauncherActivity> {
     }
 
     public void testPlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {
-        assertThat(playlistDetailsScreen, is(Visible()));
+        assertThat(playlistDetailsScreen, is(visible()));
     }
 
     public void testHeaderPlayClickShouldNotOpenPlayer() {
         VisualPlayerElement player = new VisualPlayerElement(solo);
-        assertThat(player, is(not(Visible())));
+        assertThat(player, is(not(visible())));
         playlistDetailsScreen.clickHeaderPlay();
-        assertThat(player, is(Visible()));
+        assertThat(player, is(visible()));
 
         playlistDetailsScreen.clickHeaderPause();
-        assertThat(playlistDetailsScreen, is(Visible()));
+        assertThat(playlistDetailsScreen, is(visible()));
     }
 
     public void testToggleStateIsNotCheckedAfterPausingPlayer() {

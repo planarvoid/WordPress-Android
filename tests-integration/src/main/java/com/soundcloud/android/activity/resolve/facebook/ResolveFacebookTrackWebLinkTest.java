@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve.facebook;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -26,7 +26,7 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
 
         assertThat(player.isVisible(), is(true));
         assertThat(player.getTrackTitle(), is(TRACK_NAME));
-        assertThat(player, is(Visible()));
+        assertThat(player, is(visible()));
 
         player.swipeNext();
         assertThat(player.getTrackTitle(), is(not(TRACK_NAME)));

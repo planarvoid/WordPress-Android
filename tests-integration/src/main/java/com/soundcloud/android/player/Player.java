@@ -1,7 +1,7 @@
 package com.soundcloud.android.player;
 
-import static com.soundcloud.android.tests.matcher.player.IsCollapsed.Collapsed;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.Visible;
+import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -73,7 +73,7 @@ public class Player extends ActivityTestCase<MainActivity> {
                 .clickUserProfile()
                 .playTrack(0);
 
-        assertThat(new VisualPlayerElement(solo), is(Visible()));
+        assertThat(new VisualPlayerElement(solo), is(visible()));
     }
 
     public void testPlayStateCanBeToggledFromPlayerFooter() {
@@ -138,7 +138,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         String originalUser = playerElement.getTrackCreator();
         ProfileScreen profileScreen = playerElement.clickCreator();
 
-        assertThat(playerElement, is(Collapsed()));
+        assertThat(playerElement, is(collapsed()));
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
