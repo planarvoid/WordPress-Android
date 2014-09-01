@@ -61,9 +61,6 @@
 
     <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
 
-    <string name="pref_notifications_reposts">Reposts</string>
-    <string name="pref_notifications_reposts_description">Receive updates on new reposts on your sounds</string>
-
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again later.</string>
 
@@ -119,37 +116,6 @@
 
     <string name="title_now_playing">Now Playing</string>
 
-    <!-- Onboarding -->
-    <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
-    <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community.</string>
-    <string name="suggested_users_section_facebook">Facebook</string>
-    <string name="suggested_users_section_music">Music</string>
-    <string name="suggested_users_section_audio">Audio</string>
-
-    <string name="suggested_users_section_empty">No results found</string>
-    <string name="suggested_users_section_error">No results found, tap to retry</string>
-
-    <string name="suggested_users_btn_select_all">Select All</string>
-    <string name="suggested_users_btn_deselect_all">Deselect All</string>
-
-    <string name="problem_connecting_to_SoundCloud">There\'s a problem connecting to\nSoundCloud.</string>
-
-    <string name="and_conjunction">%1$s and %2$s</string>
-    <string name="try_again">Try Again</string>
-    <string name="finish">Finish</string>
-
-    <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
-
-    <!-- Explore -->
-    <string name="side_menu_explore">Explore</string>
-
-    <string name="explore_genres">Genres</string>
-    <string name="explore_genre_header_music">Music</string>
-    <string name="explore_genre_header_audio">Audio</string>
-
-    <string name="explore_category_trending_music">Music</string>
-    <string name="explore_category_trending_audio">Audio</string>
-
     <string name="error_soundcloud_no_response">SoundCloud isn\'t responding.</string>
     <string name="error_no_internet">No Internet.</string>
     <string name="error_connect_and_try_again">Connect and try again.</string>
@@ -161,70 +127,13 @@
 
     <string name="shuffle">shuffle</string>
 
-    <!-- Search -->
-    <string name="search_type_all">All</string>
-    <string name="search_type_tracks">Tracks</string>
-    <string name="search_type_playlists">Playlists</string>
-    <string name="search_type_people">People</string>
-    <string name="search_recent_tags">RECENT</string>
-    <string name="search_popular_tags">POPULAR TAGS</string>
-    <string name="search_tags_title">Choose your favorite tag</string>
-    <string name="search_tags_subtitle">Discover popular playlists on SoundCloud</string>
-    <string name="search_empty">No results found</string>
-    <string name="search_empty_subtext">Check the spelling or try a different search</string>
-
-    <!-- Pull to refresh -->
-    <string name="ptr_swiping">Swipe down to refresh</string>
-    <string name="ptr_loading">Loading</string>
-
-    <!-- Email opt-in -->
-    <string name="optin_title">SoundCloud Newsletter</string>
-    <string name="optin_question">Do you want to receive email updates about SoundCloud?</string>
-    <string name="optin_info">This includes Newsletters, Product updates, Special offers and Surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
-    <string name="optin_yes">Yes, please</string>
-    <string name="optin_no">No, thank you</string>
-
     <string name="pref_extras">Extras</string>
-
-    <!-- Skippy -->
-    <string name="pref_extras_skippy">Force Experimental Player</string>
-    <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
 
     <!-- Moved from strings_default -->
     <string name="copyright_information">Copyright information</string>
     <string name="account_one_active">You can only have one active account</string>
     <string name="add_image">Add\nImage</string>
     <string name="app_name">SoundCloud</string>
-    <string name="authentication_I_forgot_my_password">I forgot my password</string>
-    <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
-    <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
-    <string name="authentication_add_info_username_hint">Your username</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
-    <string name="authentication_choose_a_password">At least 6 characters</string>
-    <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
-    <string name="authentication_error_invalid_email">Please enter a valid email.</string>
-    <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Please check your network settings.</string>
-    <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
-    <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
-    <string name="authentication_error_title">Error</string>
-    <string name="authentication_log_in">Log In</string>
-    <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
-    <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
-    <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
-    <string name="authentication_login_progress_message">Logging you in</string>
-    <string name="authentication_recover_password">Recover password</string>
-    <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
-    <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
-    <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
-    <string name="authentication_recover_progress_message">Requesting password reset</string>
-    <string name="authentication_sign_up">Sign up for SoundCloud</string>
-    <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
-    <string name="authentication_support">Support</string>
-    <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
-    <string name="authentication_terms_of_use">Terms of Use</string>
-    <string name="authentication_your_email_address">Your email address</string>
-    <string name="authentication_your_password">Your password</string>
-    <string name="authentication_clear_image">Hold to clear image</string>
     <string name="btn_follow">Follow</string>
     <string name="btn_following">Following</string>
     <string name="btn_save">Save</string>
@@ -248,19 +157,6 @@
     <string name="connect_success">Successfully connected with %1$s</string>
     <string name="connection_list_error">There seems to be a connection problem. Please try again shortly.</string>
     <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
-
-    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
-    <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
-    <string name="dashboard_notifications_message_incoming">from %s</string>
-    <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
-    <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
-    <string name="dashboard_notifications_ticker">%s new sounds</string>
-    <string name="dashboard_notifications_ticker_follower">New follower</string>
-    <string name="dashboard_notifications_ticker_single">1 new sound</string>
-    <string name="dashboard_notifications_title">%s new sounds</string>
-    <string name="dashboard_notifications_title_follower">You have a new follower</string>
-    <string name="dashboard_notifications_title_single">1 new sound</string>
-
     <string name="delete">Delete</string>
     <string name="dialog_cancel_upload_message">Cancel upload?</string>
     <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
@@ -303,46 +199,6 @@
     <string name="menu_load_more">Load more</string>
     <string name="myspace">Myspace</string>
     <string name="new_connection_error">There was a problem adding the network</string>
-    <string name="pref_app_details">App Details</string>
-    <string name="pref_basic_settings">Basic settings</string>
-    <string name="pref_clear_cache">Clear Image Cache</string>
-    <string name="pref_clear_cache_desc">Clear the application cache to free up memory</string>
-    <string name="pref_clear_stream_cache">Clear Stream Cache</string>
-    <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
-    <string name="pref_connection_and_data">Connection and data</string>
-    <string name="pref_help">Help</string>
-    <string name="pref_help_desc">Access the SoundCloud support site</string>
-    <string name="pref_notifications">Notifications</string>
-    <string name="pref_notifications_activity">Activity</string>
-    <string name="pref_notifications_comments">Comments</string>
-    <string name="pref_notifications_comments_description">Receive updates on new comments on your sounds</string>
-    <string name="pref_notifications_description">Which updates would you like to receive?</string>
-    <string name="pref_notifications_favoritings">Likes</string>
-    <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
-    <string name="pref_notifications_followers">Followers</string>
-    <string name="pref_notifications_followers_description">Receive updates when have a new follower</string>
-    <string name="pref_notifications_frequency">Notifications Frequency</string>
-    <string name="pref_notifications_frequency_description">Set the frequency between updates</string>
-    <string name="pref_notifications_incoming">Incoming Sounds</string>
-    <string name="pref_notifications_incoming_description">Receive updates on new public sounds shared with you</string>
-    <string name="pref_notifications_stream">Stream</string>
-    <string name="pref_notifications_wifi_only">Wifi only notifications</string>
-    <string name="pref_notifications_wifi_only_description">Request updates only when connected via wifi</string>
-    <string name="pref_revoke_access">Log Out</string>
-    <string name="pref_revoke_desc">Log out current user</string>
-    <string name="pref_sync_my_likes">My Likes</string>
-    <string name="pref_sync_my_likes_description">Keep my likes updated locally</string>
-    <string name="pref_sync_my_followers">My Followers</string>
-    <string name="pref_sync_my_followers_description">Keep the people that follow me updated locally</string>
-    <string name="pref_sync_my_following">My Following</string>
-    <string name="pref_sync_my_following_description">Keep the people I follow updated locally</string>
-    <string name="pref_sync_my_sounds">My Sounds</string>
-    <string name="pref_sync_my_sounds_description">Keep my sounds updated locally</string>
-    <string name="pref_sync_settings">Account Sync Settings</string>
-    <string name="pref_sync_settings_summary">Manage your synced resources</string>
-    <string name="pref_sync_toggles">Synced Resources</string>
-    <string name="pref_sync_wifi_only">Wifi only syncing</string>
-    <string name="pref_sync_wifi_only_description">Sync my data only when connected via wifi</string>
     <string name="raw">Raw</string>
     <string name="record_another_sound">Record another sound</string>
     <string name="record_insert_sd_card">Please insert an SD card to record.</string>
@@ -391,9 +247,6 @@
     <string name="optimize_toggle_on">Optimized</string>
     <string name="optimize_toggle_off">Not Optimized</string>
 
-    <string name="pref_stream_cache_size">Stream Cache Size</string>
-    <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
-
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
     <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
 
@@ -404,11 +257,6 @@
     <string name="btn_apply">Apply</string>
 
     <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
-
-    <string name="pref_analytics">Analytics</string>
-    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
-    <string name="pref_crashlogs">Crashlogs</string>
-    <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
 
     <string name="playback_error_logging">Playback error logging : %s</string>
     <string name="enabled">Enabled</string>
@@ -433,6 +281,8 @@
     <!-- error to show when signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 
+    <!-- !! Unorganised above here !! -->
+
     <!-- __ACTIVITIES -->
     <string name="liked">liked %s</string>
     <string name="reposted">reposted %s</string>
@@ -449,10 +299,86 @@
     <string name="ad_resume_playing_to_continue">Resume playing ad to continue</string>
     <string name="ad_skip">Skip in: %s</string>
 
+    <!-- __AUTHENTICATION -->
+    <string name="authentication_I_forgot_my_password">I forgot my password</string>
+    <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
+    <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
+    <string name="authentication_add_info_username_hint">Your username</string>
+    <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
+    <string name="authentication_choose_a_password">At least 6 characters</string>
+    <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
+    <string name="authentication_error_invalid_email">Please enter a valid email.</string>
+    <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Please check your network settings.</string>
+    <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
+    <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
+    <string name="authentication_error_title">Error</string>
+    <string name="authentication_log_in">Log In</string>
+    <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
+    <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
+    <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
+    <string name="authentication_login_progress_message">Logging you in</string>
+    <string name="authentication_recover_password">Recover password</string>
+    <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
+    <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
+    <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
+    <string name="authentication_recover_progress_message">Requesting password reset</string>
+    <string name="authentication_sign_up">Sign up for SoundCloud</string>
+    <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
+    <string name="authentication_support">Support</string>
+    <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
+    <string name="authentication_terms_of_use">Terms of Use</string>
+    <string name="authentication_your_email_address">Your email address</string>
+    <string name="authentication_your_password">Your password</string>
+    <string name="authentication_clear_image">Hold to clear image</string>
+
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please log in to open this link</string>
 
+    <!-- __EMAIL OPT-IN -->
+    <string name="optin_title">SoundCloud Newsletter</string>
+    <string name="optin_question">Do you want to receive email updates about SoundCloud?</string>
+    <string name="optin_info">This includes Newsletters, Product updates, Special offers and Surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
+    <string name="optin_yes">Yes, please</string>
+    <string name="optin_no">No, thank you</string>
+
+    <!-- __EXPLORE -->
+    <string name="side_menu_explore">Explore</string>
+    <string name="explore_genres">Genres</string>
+    <string name="explore_genre_header_music">Music</string>
+    <string name="explore_genre_header_audio">Audio</string>
+    <string name="explore_category_trending_music">Music</string>
+    <string name="explore_category_trending_audio">Audio</string>
+
+    <!-- __NOTIFICATIONS -->
+    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
+    <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
+    <string name="dashboard_notifications_message_incoming">from %s</string>
+    <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
+    <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
+    <string name="dashboard_notifications_ticker">%s new sounds</string>
+    <string name="dashboard_notifications_ticker_follower">New follower</string>
+    <string name="dashboard_notifications_ticker_single">1 new sound</string>
+    <string name="dashboard_notifications_title">%s new sounds</string>
+    <string name="dashboard_notifications_title_follower">You have a new follower</string>
+    <string name="dashboard_notifications_title_single">1 new sound</string>
+
     <!-- __ONBOARDING -->
+    <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
+    <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community.</string>
+    <string name="suggested_users_section_facebook">Facebook</string>
+    <string name="suggested_users_section_music">Music</string>
+    <string name="suggested_users_section_audio">Audio</string>
+    <string name="suggested_users_section_empty">No results found</string>
+    <string name="suggested_users_section_error">No results found, tap to retry</string>
+    <string name="suggested_users_btn_select_all">Select All</string>
+    <string name="suggested_users_btn_deselect_all">Deselect All</string>
+    <string name="problem_connecting_to_SoundCloud">There\'s a problem connecting to\nSoundCloud.</string>
+    <string name="and_conjunction">%1$s and %2$s</string>
+    <string name="try_again">Try Again</string>
+    <string name="finish">Finish</string>
+    <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
+
+    <!-- __ONBOARDING CATEGORIES -->
     <string name="category_facebook_friends">Facebook Friends</string>
     <string name="category_facebook_likes">Facebook Likes</string>
     <string name="category_rock">Rock</string>
@@ -502,21 +428,22 @@
     <string name="info">Info</string>
     <string name="uploaded_at">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
-
     <string name="playback_error_connection">Please check your connection</string>
     <string name="playback_error_unable_to_play">Unable to playback track</string>
 
-    <!-- __TIME -->
-    <string name="format_abbreviated_seconds">%d sec.</string>
-    <string name="format_abbreviated_minutes">%d min.</string>
+    <!-- __PTR -->
+    <string name="ptr_swiping">Swipe down to refresh</string>
+    <string name="ptr_loading">Loading</string>
 
-    <!-- __RECORD TIPS -->
+    <!-- __RECORD -->
     <string name="rec_title_generating_waveform">Please Wait...</string>
     <string name="rec_title_idle_rec">Record</string>
     <string name="rec_title_recording">Recording</string>
     <string name="rec_title_idle_play">Paused</string>
     <string name="rec_title_playing">Playing</string>
     <string name="rec_title_editing">Edit</string>
+
+    <!-- __RECORD TIPS -->
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
     <string name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
     <string name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
@@ -556,4 +483,74 @@
     <string name="rectip_private_send_reminder">Send %s a reminder</string>
     <string name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
     <string name="rectip_private_leave_feedback">Leave some feedback for %s</string>
+
+    <!-- __SEARCH -->
+    <string name="search_type_all">All</string>
+    <string name="search_type_tracks">Tracks</string>
+    <string name="search_type_playlists">Playlists</string>
+    <string name="search_type_people">People</string>
+    <string name="search_recent_tags">RECENT</string>
+    <string name="search_popular_tags">POPULAR TAGS</string>
+    <string name="search_tags_title">Choose your favorite tag</string>
+    <string name="search_tags_subtitle">Discover popular playlists on SoundCloud</string>
+    <string name="search_empty">No results found</string>
+    <string name="search_empty_subtext">Check the spelling or try a different search</string>
+
+    <!-- __SETTINGS -->
+    <string name="pref_app_details">App Details</string>
+    <string name="pref_basic_settings">Basic settings</string>
+    <string name="pref_clear_cache">Clear Image Cache</string>
+    <string name="pref_clear_cache_desc">Clear the application cache to free up memory</string>
+    <string name="pref_clear_stream_cache">Clear Stream Cache</string>
+    <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
+    <string name="pref_connection_and_data">Connection and data</string>
+    <string name="pref_help">Help</string>
+    <string name="pref_help_desc">Access the SoundCloud support site</string>
+    <string name="pref_notifications">Notifications</string>
+    <string name="pref_notifications_activity">Activity</string>
+    <string name="pref_notifications_comments">Comments</string>
+    <string name="pref_notifications_comments_description">Receive updates on new comments on your sounds</string>
+    <string name="pref_notifications_description">Which updates would you like to receive?</string>
+    <string name="pref_notifications_favoritings">Likes</string>
+    <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
+    <string name="pref_notifications_followers">Followers</string>
+    <string name="pref_notifications_followers_description">Receive updates when have a new follower</string>
+    <string name="pref_notifications_frequency">Notifications Frequency</string>
+    <string name="pref_notifications_frequency_description">Set the frequency between updates</string>
+    <string name="pref_notifications_incoming">Incoming Sounds</string>
+    <string name="pref_notifications_incoming_description">Receive updates on new public sounds shared with you</string>
+    <string name="pref_notifications_stream">Stream</string>
+    <string name="pref_notifications_wifi_only">Wifi only notifications</string>
+    <string name="pref_notifications_wifi_only_description">Request updates only when connected via wifi</string>
+    <string name="pref_notifications_reposts">Reposts</string>
+    <string name="pref_notifications_reposts_description">Receive updates on new reposts on your sounds</string>
+    <string name="pref_revoke_access">Log Out</string>
+    <string name="pref_revoke_desc">Log out current user</string>
+    <string name="pref_sync_my_likes">My Likes</string>
+    <string name="pref_sync_my_likes_description">Keep my likes updated locally</string>
+    <string name="pref_sync_my_followers">My Followers</string>
+    <string name="pref_sync_my_followers_description">Keep the people that follow me updated locally</string>
+    <string name="pref_sync_my_following">My Following</string>
+    <string name="pref_sync_my_following_description">Keep the people I follow updated locally</string>
+    <string name="pref_sync_my_sounds">My Sounds</string>
+    <string name="pref_sync_my_sounds_description">Keep my sounds updated locally</string>
+    <string name="pref_sync_settings">Account Sync Settings</string>
+    <string name="pref_sync_settings_summary">Manage your synced resources</string>
+    <string name="pref_sync_toggles">Synced Resources</string>
+    <string name="pref_sync_wifi_only">Wifi only syncing</string>
+    <string name="pref_sync_wifi_only_description">Sync my data only when connected via wifi</string>
+    <string name="pref_analytics">Analytics</string>
+    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
+    <string name="pref_crashlogs">Crashlogs</string>
+    <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
+    <string name="pref_stream_cache_size">Stream Cache Size</string>
+    <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
+
+    <!-- __SKIPPY -->
+    <string name="pref_extras_skippy">Force Experimental Player</string>
+    <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
+
+    <!-- __TIME -->
+    <string name="format_abbreviated_seconds">%d sec.</string>
+    <string name="format_abbreviated_minutes">%d min.</string>
 </resources>
