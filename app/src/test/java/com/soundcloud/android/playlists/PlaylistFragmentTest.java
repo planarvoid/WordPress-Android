@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -21,7 +20,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
@@ -73,7 +71,6 @@ public class PlaylistFragmentTest {
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
-    @Mock private ShowPlayerSubscriber showPlayerSubscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -88,7 +85,6 @@ public class PlaylistFragmentTest {
                 ptrController,
                 playQueueManager,
                 new PlayablePresenter(imageOperations, Robolectric.application.getResources()),
-                buildProvider(showPlayerSubscriber),
                 buildProvider(expandPlayerSubscriber)
         );
 
@@ -99,7 +95,7 @@ public class PlaylistFragmentTest {
 
         when(controller.getAdapter()).thenReturn(adapter);
         when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(playbackOperations.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test
@@ -148,19 +144,17 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
+        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        when(adapter.getItem(0)).thenReturn(track.toPropertySet());
+        Observable<TrackUrn> trackLoadDescriptor = Observable.empty();
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
         View layout = createFragmentView();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-        final List<TrackUrn> trackUrns = Lists.transform(playlist.getTracks(), new Function<PublicApiTrack, TrackUrn>() {
-            @Override
-            public TrackUrn apply(PublicApiTrack track) {
-                return track.getUrn();
-            }
-        });
 
         getToggleButton(layout).performClick();
 
-        verify(playbackOperations).playTracks(trackUrns, 0, playSessionSource);
+        verify(playbackOperations).playTracks(trackLoadDescriptor, track.getUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -176,6 +170,9 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
+        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<TrackUrn>empty());
+        when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);
 

@@ -4,8 +4,6 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -17,11 +15,12 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -35,6 +34,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -70,8 +70,8 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlayablePresenter playablePresenter;
+    @Inject PlaybackToastViewController playbackToastViewController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    @Inject Provider<ShowPlayerSubscriber> showPlayerSubscriberProvider;
 
     private ListView listView;
     private View progressView;
@@ -96,24 +96,11 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
 
             if (playQueueManager.isCurrentPlaylist(playlist.getId())) {
                 playbackOperations.togglePlayback();
-            } else {
-                final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
-                playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
-                playbackOperations
-                        .playTracks(toTrackUrnList(playlist.getTracks()), 0, playSessionSource)
-                        .subscribe(showPlayerSubscriberProvider.get());
+            } else  {
+                playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
             }
         }
     };
-
-    private List<TrackUrn> toTrackUrnList(List<PublicApiTrack> tracksList) {
-        return Lists.transform(tracksList, new Function<PublicApiTrack, TrackUrn>() {
-            @Override
-            public TrackUrn apply(PublicApiTrack track) {
-                return track.getUrn();
-            }
-        });
-    }
 
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
@@ -138,7 +125,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                      PullToRefreshController pullToRefreshController,
                      PlayQueueManager playQueueManager,
                      PlayablePresenter playablePresenter,
-                     Provider<ShowPlayerSubscriber> showPlayerSubscriberProvider,
                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.controller = controller;
         this.playbackOperations = playbackOperations;
@@ -150,7 +136,6 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
         this.playablePresenter = playablePresenter;
-        this.showPlayerSubscriberProvider = showPlayerSubscriberProvider;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
@@ -298,7 +283,10 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - listView.getHeaderViewsCount();
+        playTracksAtPosition(trackPosition, expandPlayerSubscriberProvider.get());
+    }
 
+    private void playTracksAtPosition(int trackPosition, Subscriber playbackSubscriber) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
         playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
 
@@ -306,7 +294,7 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         final Observable<TrackUrn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
-                .subscribe(expandPlayerSubscriberProvider.get());
+                .subscribe(playbackSubscriber);
     }
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {
@@ -378,6 +366,21 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
                 pullToRefreshController.stopRefreshing();
             } else {
                 super.onError(e);
+            }
+        }
+    }
+
+    private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
+
+        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, PlaybackToastViewController playbackToastViewController) {
+            super(eventBus, playbackToastViewController);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+            if (e instanceof IllegalStateException) {
+                playToggle.setChecked(false);
             }
         }
     }

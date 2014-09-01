@@ -41,8 +41,7 @@ public class PlaybackOperations {
         @Override
         public Boolean call(List<TrackUrn> trackUrnList) {
             if (trackUrnList.isEmpty()) {
-                ErrorUtils.handleSilentException(new IllegalStateException("Attempting to play a track on an empty track list"));
-                return false;
+                throw new IllegalStateException("Attempting to play a track on an empty track list");
             } else {
                 return true;
             }
