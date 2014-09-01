@@ -1,77 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
 
-    <!-- __MISC / UNSORTED -->
+    <!-- __MISC / LOST&FOUND / UNSORTED -->
     <string name="legal">Termos legais</string>
     <string name="legal_summary">Informação legal</string>
-
     <string name="terms_of_use">Termos de uso</string>
     <string name="privacy_policy">Política de Privacidade</string>
     <string name="visit_support">Visite o Apoio ao Cliente</string>
-
     <string name="yes">Sim</string>
     <string name="no">Não</string>
-
     <string name="title_search">Pesquisar</string>
-
     <string name="list_header_track_reposters">Pessoas que publicaram este som</string>
-
     <string name="started_following_you">começou a seguir você</string>
-
-    <string name="tour_title_1">Ouvir os sons do mundo</string>
-    <string name="tour_text_1">Explore a maior comunidade \nde artistas, bandas, criadores de podcasts, \nmúsica e áudio</string>
-
-    <string name="tour_title_2">Descobrir</string>
-    <string name="tour_text_2">Todos os tipos de música e áudio novos e exclusivos</string>
-
-    <string name="tour_title_3">Conectar e compartilhar</string>
-    <string name="tour_text_3">Descubra criadores de áudio e música\npara ouvir e seguir,\ncompartilhe os sons que você gosta</string>
-
     <string name="search_for_query">Pesquisar por \'%s\'</string>
     <string name="authentication_recover_password_msg">Digite seu endereço de e-mail, e nós lhe enviaremos um link que permite mudar sua senha. Problemas? Entre em contato com o apoio ao cliente.</string>
     <string name="done">Concluído</string>
-    <string name="tour_signup_header">Ou cadastre-se com o seu endereço eletrônico</string>
     <string name="email">E-mail</string>
     <string name="password">Senha</string>
-    <string name="tour_login_header">Ou cadastre-se com a sua conta</string>
-
     <string name="title_settings">Configurações</string>
-
     <string name="dashboard_notifications_activity_message_repost">%1$s republicou %2$s</string>
-
     <string name="playlist_info_header_text">Esta lista de reprodução contém %1$s, tempo total: %2$s</string>
     <string name="imprint">Imprint</string>
-
     <string name="add_track_to_playlist">Adicionar à lista de reprodução...</string>
     <string name="added_to_playlist">Adicionado à lista de reprodução</string>
     <string name="create_new_playlist">Criar uma nova lista de reprodução</string>
     <string name="create_new_playlist_hint">Digite o título da lista de reprodução</string>
     <string name="error_new_playlist_blank_title">Insira um título válido</string>
     <string name="add_playlist_private">Privado</string>
-
     <string name="tab_title_user_playlists">Listas de reprodução</string>
     <string name="activity_title_playlist">Lista de reprodução</string>
-
     <string name="playlist_removed">Esta lista não foi encontrada na SoundCloud</string>
     <string name="playlist_load_error">Não foi possível carregar esta lista de reprodução</string>
-
     <string name="btn_continue">Continuar</string>
     <string name="privacy">Privacidade</string>
-
     <string name="version">Versão</string>
     <string name="unavailable">Indisponível</string>
-
     <string name="title_notification_settings">Configurações de notificação</string>
     <string name="title_about">Sobre</string>
     <string name="title_legal">Legal</string>
-
-    <string name="title_now_playing">Tocando agora</string>
-
     <string name="navigation_drawer_open">Abrir guia de navegação</string>
     <string name="navigation_drawer_close">Fechar guia de navegação</string>
-
     <string name="shuffle">embaralhar</string>
-
     <string name="copyright_information">Informações sobre direitos autorais</string>
     <string name="account_one_active">Você pode ter só uma conta ativa</string>
     <string name="add_image">Adicionar\nImagem</string>
@@ -93,13 +62,8 @@
     <string name="connect_success">Conexão com %1$s bem-sucedida</string>
     <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente em breve</string>
     <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações na SoundCloud e selecione \"Conexões\"</string>
-
     <string name="delete">Excluir</string>
-    <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
     <string name="discogs">Discogs</string>
-    <string name="facebook_authentication_error_no_connection_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
-    <string name="facebook_authentication_failed_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
-    <string name="facebook_authentication_failed_title">Hmm, não foi possível conectar ao Facebook no momento.</string>
     <string name="image_load_error">Houve um problema ao carregar a imagem</string>
     <string name="image_where">Gostaria de adicionar uma imagem?</string>
     <string name="list_header_track_comments">Comentários sobre este som</string>
@@ -113,11 +77,6 @@
     <string name="new_connection_error">Houve um problema ao adicionar a rede</string>
     <string name="raw">Bruto</string>
     <string name="reset">Descartar</string>
-    <string name="sc_upload_add_image">Adicionar Imagem</string>
-    <string name="sc_upload_private">Privado</string>
-    <string name="sc_upload_public">Público</string>
-    <string name="sc_upload_sharing_options_private">Seu som se tornará privado na SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Seu som se tornará público na SoundCloud. Com que outras redes gostaria de compartilhar este som?</string>
     <string name="search_hint">Pesquisar na SoundCloud</string>
     <string name="search_settings_description">Pesquisar sons</string>
     <string name="share_fail_message">OK, deu errado.</string>
@@ -140,28 +99,17 @@
     <string name="widget_touch_to_open">Toque para abrir a SoundCloud</string>
     <string name="wifi_settings">Configurações sem fio e rede</string>
     <string name="wifi_settings_summary">Editar suas configurações. Usar Wi-Fi para um melhor desempenho.</string>
-
     <string name="btn_revert_to_original">Voltar ao original</string>
-
     <string name="fade_toggle_on">Aparecer/Desaparecer</string>
     <string name="fade_toggle_off">Não aparecer/desaparecer</string>
-
     <string name="optimize_toggle_on">Otimizado</string>
     <string name="optimize_toggle_off">Não otimizado</string>
-
     <string name="create_autosave_message">Suas gravações serão salvas automaticamente quando criadas. Você poderá encontrá-las em sua lista de sons.</string>
     <string name="create_regenerating_waveform_message">Regenerando forma de onda, aguarde.</string>
-
     <string name="dialog_revert_recording_message">Todas as edições serão perdida. Continuar?</string>
-
     <string name="post">Publicar</string>
     <string name="btn_publish">Próximo</string>
     <string name="btn_apply">Aplicar</string>
-
-    <string name="playback_error_logging">Registro de erros de reprodução: %s</string>
-    <string name="enabled">Habilitado</string>
-    <string name="disabled">Desabilitado</string>
-
     <string name="cancel">Cancelar</string>
     <string name="retry">Repetir</string>
 
@@ -227,6 +175,9 @@
     <string name="error_google_sign_in_failed">Não conseguimos efetuar seu login com o Google+. Visite plus.google.com para ativar sua conta do Google+ e tente novamente</string>
     <string name="auth_disclaimer_title">Mais um passo</string>
     <string name="auth_disclaimer_message">Ao clicar em \"Continuar\", você concorda com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
+    <string name="facebook_authentication_error_no_connection_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
+    <string name="facebook_authentication_failed_message">Tente novamente em breve ou efetue o login usando seu nome de usuário e a senha SoundCloud.</string>
+    <string name="facebook_authentication_failed_title">Hmm, não foi possível conectar ao Facebook no momento.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Conecte-se para abrir este link</string>
@@ -362,8 +313,9 @@
     <string name="recording_pending_upload">Carregamento pendente</string>
     <string name="recording_uploading">Carregando...</string>
     <string name="recording_upload_failed">Falha no carregamento</string>
+    <string name="title_now_playing">Tocando agora</string>
 
-	<!-- __PLAYER -->
+    <!-- __PLAYER -->
     <string name="add_to_playlist">Adicionar à lista de reprodução</string>
     <string name="share">Compartilhar</string>
     <string name="repost">Republicar</string>
@@ -513,10 +465,23 @@
     <string name="pref_crashlogs_desc">A habilitação do Crashlogs nos ajuda a melhorar significativamente o aplicativo. Não recolhem quaisquer dados pessoais. Consulte nossa Política de Privacidade para obter mais detalhes.</string>
     <string name="pref_stream_cache_size">Tamanho do cache de transmissão</string>
     <string name="pref_stream_cache_size_desc">O tamanho do cache de transmissão em percentagem</string>
+    <string name="playback_error_logging">Registro de erros de reprodução: %s</string>
+    <string name="enabled">Habilitado</string>
+    <string name="disabled">Desabilitado</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d s</string>
     <string name="format_abbreviated_minutes">%d min.</string>
+
+    <!-- __TOUR -->
+    <string name="tour_title_1">Ouvir os sons do mundo</string>
+    <string name="tour_text_1">Explore a maior comunidade \nde artistas, bandas, criadores de podcasts, \nmúsica e áudio</string>
+    <string name="tour_title_2">Descobrir</string>
+    <string name="tour_text_2">Todos os tipos de música e áudio novos e exclusivos</string>
+    <string name="tour_title_3">Conectar e compartilhar</string>
+    <string name="tour_text_3">Descubra criadores de áudio e música\npara ouvir e seguir,\ncompartilhe os sons que você gosta</string>
+    <string name="tour_signup_header">Ou cadastre-se com o seu endereço eletrônico</string>
+    <string name="tour_login_header">Ou cadastre-se com a sua conta</string>
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Processando</string>
@@ -538,4 +503,10 @@
     <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso centro de apoio ao cliente.</string>
     <string name="dialog_transcoding_processing_title">Processamento de som</string>
     <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em alguns segundos.</string>
+    <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
+    <string name="sc_upload_add_image">Adicionar Imagem</string>
+    <string name="sc_upload_private">Privado</string>
+    <string name="sc_upload_public">Público</string>
+    <string name="sc_upload_sharing_options_private">Seu som se tornará privado na SoundCloud.</string>
+    <string name="sc_upload_sharing_options_public">Seu som se tornará público na SoundCloud. Com que outras redes gostaria de compartilhar este som?</string>
 </resources>
