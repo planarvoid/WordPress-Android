@@ -101,7 +101,7 @@ public class MenuScreen {
 
     public LikesScreen clickLikes() {
         likesMenuItem().click();
-        waiter.waitForDrawerToClose();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return new LikesScreen(testDriver);
     }
 
