@@ -81,20 +81,7 @@
     <string name="side_menu_likes">Favoritos</string>
     <string name="side_menu_who_to_follow">A quién seguir</string>
 
-    <!--
-     no longer used !
-    <string name="problem_getting_connections">Error al intentar conexión</string>
-    <string name="list_no_facebook_friends">Actualmente no tienes amigos en Facebook</string>
-    -->
-
-    <!-- <el cheapo translation> -->
-
     <string name="dashboard_notifications_activity_message_repost">%1$s ha vuelto a publicar %2$s</string>
-    <plurals name="dashboard_notifications_activity_message_repost">
-        <item quantity="one">sobre %1$s</item>
-        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
-        <item quantity="two">sobre %1$s y %2$s</item>
-    </plurals>
 
     <string name="pref_notifications_reposts">Volver a publicar</string>
     <string name="pref_notifications_reposts_description">Reciba actualizaciones de los reposts nuevos en sus sonidos</string>
@@ -105,8 +92,6 @@
     <string name="terms_of_use">Condiciones</string>
     <string name="privacy_policy">Política de privacidad</string>
     <string name="privacy">Privacidad</string>
-
-    <!-- </el cheapo translation> -->
 
     <string name="list_header_track_reposters">Gente que ha vuelto a publicar este sonido</string>
 
@@ -130,16 +115,6 @@
 
     <string name="crop_image_error">Se ha producido un error recortar la imagen.</string>
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
-
-    <plurals name="accessibility_stats_likes">
-        <item quantity="one">1 me gusta</item>
-        <item quantity="other">%d me gusta</item>
-    </plurals>
-
-    <plurals name="accessibility_stats_reposts">
-        <item quantity="one">1 republicaciónt</item>
-        <item quantity="other">%d republicaciones</item>
-    </plurals>
 
     <string name="accessibility_search">Buscar SoundCloud</string>
     <string name="accessibility_stats_user_liked">Has dado a Me gusta</string>
@@ -244,7 +219,7 @@
     <string name="optin_yes">Sí, por favor</string>
     <string name="optin_no">No, gracias</string>
 
-    <!-- Legacy -->
+    <!-- Moved from strings_es -->
     <string name="copyright_information">Información sobre los derechos de autor</string>
     <string name="account_one_active">Solamente puedes tener una cuenta activa</string>
     <string name="add_image">Añadir\nimagen</string>
@@ -302,115 +277,26 @@
     <string name="connect_success">Conectado correctamente con %1$s</string>
     <string name="connection_list_error">¡Lo sentimos! Parece que existe un problema de conexión. Por favor, inténtelo de nuevo en unos minutos.</string>
     <string name="connection_list_footer">Para cambiar sus opciones de configuración por defecto, abra los ajustes de SoundCloud y seleccione \""Connections\""</string>
-    <plurals name="dashboard_notifications_activity_message_activity">
-        <item quantity="one">de %2$s sobre %1$s</item>
-        <item quantity="other">Comentarios y gustos de %2$s, %3$s y otros</item>
-        <item quantity="two">Comentarios y gustos de %2$s y %3$s</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment">
-        <item quantity="other">Comentarios de %1$s, %2$s y otros</item>
-        <item quantity="two">Comentarios de %1$s y %2$s</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment_single_track">
-        <item quantity="one">nuevo comentario sobre %2$s de %3$s</item>
-        <item quantity="other">%1$d nuevos comentarios sobre %2$s de %3$s, %4$s y otros</item>
-        <item quantity="two">%1$d nuevos comentarios sobre %2$s de %3$s y %4$s</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_like">
-        <item quantity="one">sobre %1$s</item>
-        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
-        <item quantity="two">sobre %1$s y %2$s</item>
-    </plurals>
+
     <string name="dashboard_notifications_activity_message_likes">A %1$s le gusta %2$s</string>
-    <plurals name="dashboard_notifications_activity_ticker_activity">
-        <item quantity="one">Una nueva actividad</item>
-        <item quantity="other">%d nuevas actividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_comment">
-        <item quantity="one">Un nuevo comentario</item>
-        <item quantity="other">%d nuevos comentarios</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_like">
-        <item quantity="one">Nuevo me gusta</item>
-        <item quantity="other">%d nuevos gustos</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_activity">
-        <item quantity="one">Una nueva actividad</item>
-        <item quantity="other">%d nuevas actividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_comment">
-        <item quantity="one">Un nuevo comentario</item>
-        <item quantity="other">%d nuevos comentarios</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_like">
-        <item quantity="one">Nuevo me gusta</item>
-        <item quantity="other">%d nuevos gustos</item>
-    </plurals>
     <string name="dashboard_notifications_message_follower">%s le está siguiendo. ¿Desea seguirle también?</string>
     <string name="dashboard_notifications_message_incoming">de %s</string>
     <string name="dashboard_notifications_message_incoming_2">de %1$s y %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s y otros</string>
-
     <string name="dashboard_notifications_ticker">%s nuevos sonidos</string>
     <string name="dashboard_notifications_ticker_follower">Nuevo seguidor</string>
     <string name="dashboard_notifications_ticker_single">Un nuevo sonido</string>
     <string name="dashboard_notifications_title">%s nuevos sonidos</string>
     <string name="dashboard_notifications_title_follower">Tiene un nuevo seguidor</string>
     <string name="dashboard_notifications_title_single">Un nuevo sonido</string>
+
     <string name="delete">Eliminar</string>
     <string name="dialog_cancel_upload_message">¿Cancelar subida?</string>
     <string name="dialog_confirm_delete_recording_message">¿Está seguro de querer eliminar esta grabación?</string>
     <string name="dialog_reset_recording_message">¿Quiere reiniciar? La grabación se borrará.</string>
     <string name="dialog_unsaved_recordings_message">Se encontraron grabaciones sin guardar. Los elementos marcados se guardarán.</string>
     <string name="discogs">Discogs</string>
-    <plurals name="elapsed_days">
-        <item quantity="one">Un día</item>
-        <item quantity="other">%d días</item>
-    </plurals>
-    <plurals name="elapsed_days_ago">
-        <item quantity="one">Hace un día</item>
-        <item quantity="other">Hace %d días</item>
-    </plurals>
-    <plurals name="elapsed_hours">
-        <item quantity="one">Una hora</item>
-        <item quantity="other">%d horas</item>
-    </plurals>
-    <plurals name="elapsed_hours_ago">
-        <item quantity="one">Hace una hora</item>
-        <item quantity="other">Hace %d horas</item>
-    </plurals>
-    <plurals name="elapsed_minutes">
-        <item quantity="one">Un minuto</item>
-        <item quantity="other">%d minutos</item>
-    </plurals>
-    <plurals name="elapsed_minutes_ago">
-        <item quantity="one">Hace un minuto</item>
-        <item quantity="other">Hace %d minutos</item>
-    </plurals>
-    <plurals name="elapsed_months">
-        <item quantity="one">Un mes</item>
-        <item quantity="other">%d meses</item>
-    </plurals>
-    <plurals name="elapsed_months_ago">
-        <item quantity="one">Hace un mes</item>
-        <item quantity="other">Hace %d meses</item>
-    </plurals>
-    <plurals name="elapsed_seconds">
-        <item quantity="one">Un segundo</item>
-        <item quantity="other">%d segundos</item>
-    </plurals>
-    <plurals name="elapsed_seconds_ago">
-        <item quantity="one">Hace un segundo</item>
-        <item quantity="other">Hace %d segundos</item>
-    </plurals>
-    <plurals name="elapsed_years">
-        <item quantity="one">Un año</item>
-        <item quantity="other">%d años</item>
-    </plurals>
-    <plurals name="elapsed_years_ago">
-        <item quantity="one">Hace un año</item>
-        <item quantity="other">Hace %d años</item>
-    </plurals>
+
     <string name="empty_user_likes_text">%1$s no tiene aún ningún favorito.</string>
     <string name="empty_user_followers_text">Nadie está siguiendo aún a %1$s.</string>
     <string name="empty_user_followings_text">%1$s todavía no está siguiendo a nadie.</string>
@@ -444,10 +330,7 @@
     <string name="menu_clear_user_title">¿Borrar los datos de usuario?</string>
     <string name="menu_load_more">Cargar más</string>
     <string name="title_settings">Ajustes</string>
-    <plurals name="minutes_available">
-        <item quantity="one">1 minuto disponible</item>
-        <item quantity="other">%d minutos disponibles</item>
-    </plurals>
+
     <string name="myspace">Myspace</string>
     <string name="new_connection_error">Se produjo un problema al añadir su red.</string>
     <string name="pref_app_details">Detalles de la aplicación</string>
@@ -509,10 +392,6 @@
     <string name="sc_upload_sharing_options_public">Tu sonido se hará público en SoundCloud. ¿Qué otras redes desearía compartir?</string>
     <string name="search_hint">Buscar SoundCloud</string>
     <string name="search_settings_description">Buscar sonidos</string>
-    <plurals name="seconds_available">
-        <item quantity="one">1 segundo disponible</item>
-        <item quantity="other">%d segundos disponibles</item>
-    </plurals>
     <string name="share_fail_message">Vale, no salió bien.</string>
     <string name="share_log_out">Desconectar</string>
     <string name="share_success_message">¡Sí, funcionó!</string>

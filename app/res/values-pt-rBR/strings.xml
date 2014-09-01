@@ -260,115 +260,25 @@
     <string name="connect_success">Conexão com %1$s bem-sucedida</string>
     <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente em breve</string>
     <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações na SoundCloud e selecione \"Conexões\"</string>
-    <plurals name="dashboard_notifications_activity_message_activity">
-      <item quantity="one">de %2$s em %1$s</item>
-      <item quantity="two">Comentários e curtidas de %2$s e %3$s</item>
-      <item quantity="other">Comentários e curtidas de %2$s, %3$s e outros</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment">
-      <item quantity="two">Comentários de %1$s e %2$s</item>
-      <item quantity="other">Comentários de %1$s, %2$s e outros</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_comment_single_track">
-      <item quantity="one">novo comentário em %2$s de %3$s</item>
-      <item quantity="two">%1$d novos comentários em %2$s de %3$s e %4$s</item>
-      <item quantity="other">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_message_like">
-      <item quantity="one">em %1$s</item>
-      <item quantity="two">em %1$s e %2$s</item>
-      <item quantity="other">em %1$s, %2$s e outros sons</item>
-    </plurals>
-    <string name="dashboard_notifications_activity_message_likes">%1$s gosta %2$s</string>
-    <plurals name="dashboard_notifications_activity_ticker_activity">
-      <item quantity="one">1 nova atividade</item>
-      <item quantity="other">%d novas atividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_comment">
-      <item quantity="one">1 novo comentário</item>
-      <item quantity="other">%d novos comentários</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_like">
-      <item quantity="one">Nova curtida</item>
-      <item quantity="other">%d novas curtidas</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_activity">
-      <item quantity="one">1 nova atividade</item>
-      <item quantity="other">%d novas atividades</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_comment">
-      <item quantity="one">1 novo comentário</item>
-      <item quantity="other">%d novos comentários</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_like">
-      <item quantity="one">Uma nova curtida</item>
-      <item quantity="other">%d novas curtidas</item>
-    </plurals>
+
     <string name="dashboard_notifications_message_follower">%s agora está seguindo você. Seguir de volta?</string>
     <string name="dashboard_notifications_message_incoming">de %s</string>
     <string name="dashboard_notifications_message_incoming_2">de %1$s e %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s e outros</string>
-
+    <string name="dashboard_notifications_activity_message_likes">%1$s gosta %2$s</string>
     <string name="dashboard_notifications_ticker">%s novos sons</string>
     <string name="dashboard_notifications_ticker_follower">Novo seguidor</string>
     <string name="dashboard_notifications_ticker_single">1 novo som</string>
     <string name="dashboard_notifications_title">%s novos sons</string>
     <string name="dashboard_notifications_title_follower">Você tem um novo seguidor</string>
     <string name="dashboard_notifications_title_single">1 novo som</string>
+
     <string name="delete">Excluir</string>
     <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
     <string name="dialog_confirm_delete_recording_message">Tem certeza de que deseja excluir este registro?</string>
     <string name="dialog_reset_recording_message">Redefinir? A gravação será excluída.</string>
     <string name="dialog_unsaved_recordings_message">Gravações não salvas encontradas. Os itens verificados serão salvos.</string>
     <string name="discogs">Discogs</string>
-    <plurals name="elapsed_days">
-      <item quantity="one">1 dia</item>
-      <item quantity="other">%d dias</item>
-    </plurals>
-    <plurals name="elapsed_days_ago">
-      <item quantity="one">1 dia atrás</item>
-      <item quantity="other">%d dias atrás</item>
-    </plurals>
-    <plurals name="elapsed_hours">
-      <item quantity="one">1 hora</item>
-      <item quantity="other">%d horas</item>
-    </plurals>
-    <plurals name="elapsed_hours_ago">
-      <item quantity="one">1 hora atrás</item>
-      <item quantity="other">%d horas atrás</item>
-    </plurals>
-    <plurals name="elapsed_minutes">
-      <item quantity="one">1 minuto</item>
-      <item quantity="other">%d minutos</item>
-    </plurals>
-    <plurals name="elapsed_minutes_ago">
-      <item quantity="one">1 hora atrás</item>
-      <item quantity="other">%d minutos atrás</item>
-    </plurals>
-    <plurals name="elapsed_months">
-      <item quantity="one">1 mês</item>
-      <item quantity="other">%d meses</item>
-    </plurals>
-    <plurals name="elapsed_months_ago">
-      <item quantity="one">1 mês atrás</item>
-      <item quantity="other">%d meses atrás</item>
-    </plurals>
-    <plurals name="elapsed_seconds">
-      <item quantity="one">1 segundo</item>
-      <item quantity="other">%d segundos</item>
-    </plurals>
-    <plurals name="elapsed_seconds_ago">
-      <item quantity="one">1 segundo atrás</item>
-      <item quantity="other">%d segundos atrás</item>
-    </plurals>
-    <plurals name="elapsed_years">
-      <item quantity="one">1 ano</item>
-      <item quantity="other">%d anos</item>
-    </plurals>
-    <plurals name="elapsed_years_ago">
-      <item quantity="one">1 ano atrás</item>
-      <item quantity="other">%d anos atrás</item>
-    </plurals>
     <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtidas.</string>
     <string name="empty_user_followers_text">%1$s não está\nsendo seguido por ninguém.</string>
     <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
@@ -403,10 +313,6 @@
     <string name="menu_clear_user_desc">Você terá que reconectar sua conta dA SoundCloud.</string>
     <string name="menu_clear_user_title">Excluir dados de usuário?</string>
     <string name="menu_load_more">Carregar mais</string>
-    <plurals name="minutes_available">
-      <item quantity="one">1 minuto disponível</item>
-      <item quantity="other">%d minutos disponíveis</item>
-    </plurals>
     <string name="myspace">Myspace</string>
     <string name="new_connection_error">Houve um problema ao adicionar a rede</string>
     <string name="pref_app_details">Detalhes do aplicativo</string>
@@ -468,10 +374,6 @@
     <string name="sc_upload_sharing_options_public">Seu som se tornará público na SoundCloud. Com que outras redes gostaria de compartilhar este som?</string>
     <string name="search_hint">Pesquisar na SoundCloud</string>
     <string name="search_settings_description">Pesquisar sons</string>
-    <plurals name="seconds_available">
-      <item quantity="one">1 segundo disponível</item>
-      <item quantity="other">%d segundos disponíveis</item>
-    </plurals>
     <string name="share_fail_message">OK, deu errado.</string>
     <string name="share_log_out">Sair</string>
     <string name="share_success_message">Oba, funcionou!</string>

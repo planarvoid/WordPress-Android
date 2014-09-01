@@ -1,15 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- __ACCESSIBILITY -->
+
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">1 me gusta</item>
+        <item quantity="other">%d me gusta</item>
+    </plurals>
+
+    <plurals name="accessibility_stats_reposts">
+        <item quantity="one">1 republicaciónt</item>
+        <item quantity="other">%d republicaciones</item>
+    </plurals>
+
+    <!-- __SOUNDCLOUD -->
 
     <plurals name="number_of_sounds">
         <item quantity="one">un sonido</item>
         <item quantity="other">%d sonidos</item>
     </plurals>
 
-    <!-- Player -->
+    <!-- __PLAYER -->
     <plurals name="trackinfo_comments">
         <item quantity="one">1 comentario sobre esta pista</item>
         <item quantity="other">%d comentarios sobre esta pista</item>
+    </plurals>
+
+    <!-- __NOTIFICATIONS -->
+
+    <plurals name="dashboard_notifications_activity_message_repost" tools:ignore="UnusedQuantity">
+        <item quantity="one">sobre %1$s</item>
+        <item quantity="two">sobre %1$s y %2$s</item>
+        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_message_activity" tools:ignore="UnusedQuantity">
+        <item quantity="one">de %2$s sobre %1$s</item>
+        <item quantity="two">Comentarios y gustos de %2$s y %3$s</item>
+        <item quantity="other">Comentarios y gustos de %2$s, %3$s y otros</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_message_comment" tools:ignore="UnusedQuantity">
+        <item quantity="two">Comentarios de %1$s y %2$s</item>
+        <item quantity="other">Comentarios de %1$s, %2$s y otros</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_message_comment_single_track" tools:ignore="UnusedQuantity">
+        <item quantity="one">nuevo comentario sobre %2$s de %3$s</item>
+        <item quantity="two">%1$d nuevos comentarios sobre %2$s de %3$s y %4$s</item>
+        <item quantity="other">%1$d nuevos comentarios sobre %2$s de %3$s, %4$s y otros</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_message_like" tools:ignore="UnusedQuantity">
+        <item quantity="one">sobre %1$s</item>
+        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
+        <item quantity="two">sobre %1$s y %2$s</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+        <item quantity="one">Una nueva actividad</item>
+        <item quantity="other">%d nuevas actividades</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity="one">Un nuevo comentario</item>
+        <item quantity="other">%d nuevos comentarios</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity="one">Nuevo me gusta</item>
+        <item quantity="other">%d nuevos gustos</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_title_activity">
+        <item quantity="one">Una nueva actividad</item>
+        <item quantity="other">%d nuevas actividades</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity="one">Un nuevo comentario</item>
+        <item quantity="other">%d nuevos comentarios</item>
+    </plurals>
+
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity="one">Nuevo me gusta</item>
+        <item quantity="other">%d nuevos gustos</item>
+    </plurals>
+
+    <!-- __TIME -->
+    <plurals name="elapsed_days">
+        <item quantity="one">Un día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">Hace un día</item>
+        <item quantity="other">Hace %d días</item>
+    </plurals>
+
+    <plurals name="elapsed_hours">
+        <item quantity="one">Una hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">Hace una hora</item>
+        <item quantity="other">Hace %d horas</item>
+    </plurals>
+
+    <plurals name="elapsed_minutes">
+        <item quantity="one">Un minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">Hace un minuto</item>
+        <item quantity="other">Hace %d minutos</item>
+    </plurals>
+
+    <plurals name="elapsed_months">
+        <item quantity="one">Un mes</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+
+    <plurals name="elapsed_months_ago">
+        <item quantity="one">Hace un mes</item>
+        <item quantity="other">Hace %d meses</item>
+    </plurals>
+
+    <plurals name="elapsed_seconds">
+        <item quantity="one">Un segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+
+    <plurals name="elapsed_seconds_ago">
+        <item quantity="one">Hace un segundo</item>
+        <item quantity="other">Hace %d segundos</item>
+    </plurals>
+
+    <plurals name="elapsed_years">
+        <item quantity="one">Un año</item>
+        <item quantity="other">%d años</item>
+    </plurals>
+
+    <plurals name="elapsed_years_ago">
+        <item quantity="one">Hace un año</item>
+        <item quantity="other">Hace %d años</item>
+    </plurals>
+
+    <plurals name="minutes_available">
+        <item quantity="one">1 minuto disponible</item>
+        <item quantity="other">%d minutos disponibles</item>
+    </plurals>
+
+    <plurals name="seconds_available">
+        <item quantity="one">1 segundo disponible</item>
+        <item quantity="other">%d segundos disponibles</item>
     </plurals>
 
 </resources>
