@@ -5,16 +5,16 @@ import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
 
-import android.support.v7.internal.view.menu.ListMenuItemView;
+import android.widget.TextView;
 
 import java.util.List;
 
-public class MenuElement {
+public class PlayerMenuElement {
 
     private final Han testDriver;
     private final Waiter waiter;
 
-    public MenuElement(Han solo) {
+    public PlayerMenuElement(Han solo) {
         testDriver = solo;
         waiter = new Waiter(testDriver);
     }
@@ -36,11 +36,11 @@ public class MenuElement {
     }
 
     private ViewElement container() {
-        return testDriver.findElement(With.classStringName("android.widget.PopupWindow$PopupViewContainer"));
+        return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
 
     private List<ViewElement> menuItems() {
-        waiter.waitForElement(ListMenuItemView.class);
-        return container().findElements(With.className(ListMenuItemView.class));
+        waiter.waitForElement(TextView.class);
+        return container().findElements(With.classSimpleName("ListMenuItemView"));
     }
 }
