@@ -14,6 +14,7 @@ public class ScrollXHelper extends ProgressHelper {
     }
 
     @Override
+    @TargetApi(14)
     public void setValue(View progressView, float value) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR2) {
             setScrollICS(progressView, (int) value);
