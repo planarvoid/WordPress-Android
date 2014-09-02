@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui.progress;
 import com.nineoldandroids.view.animation.AnimatorProxy;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
 
@@ -13,6 +14,7 @@ public class ScrollXHelper extends ProgressHelper {
     }
 
     @Override
+    @TargetApi(14)
     public void setValue(View progressView, float value) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR2) {
             progressView.setScrollX((int) value);
