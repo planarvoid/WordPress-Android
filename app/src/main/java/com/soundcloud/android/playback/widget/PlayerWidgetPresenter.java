@@ -16,6 +16,7 @@ class PlayerWidgetPresenter {
     private static final ComponentName PLAYER_WIDGET_PROVIDER = new ComponentName("com.soundcloud.android",
             PlayerAppWidgetProvider.class.getCanonicalName());
     private AppWidgetManager appWidgetManager;
+    private WidgetTrack widgetTrack;
 
     @Inject
     PlayerWidgetPresenter(AppWidgetManager appWidgetManager) {
@@ -23,14 +24,17 @@ class PlayerWidgetPresenter {
     }
 
     /* package */ void updatePlayState(Context context, boolean isPlaying) {
-        PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
-                .forIsPlaying(isPlaying)
-                .build(context);
-        pushUpdate(remoteViews);
+
+        if (widgetTrack != null) {
+            PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
+                    .forIsPlaying(widgetTrack, isPlaying)
+                    .build(context);
+            pushUpdate(remoteViews);
+        }
     }
 
     /* package */ void updateTrackInformation(Context context, PropertySet trackProperties) {
-        WidgetTrack widgetTrack = new WidgetTrack(trackProperties);
+        widgetTrack = new WidgetTrack(trackProperties);
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
                 .forTrack(widgetTrack)
                 .build(context);
@@ -39,6 +43,8 @@ class PlayerWidgetPresenter {
 
     /* package */ void reset(Context context) {
         Log.d(PlayerWidgetPresenter.this, "resetting widget");
+        widgetTrack = null;
+
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder().build(context);
         pushUpdate(remoteViews);
     }

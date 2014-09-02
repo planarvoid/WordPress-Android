@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.widget;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.TestPropertySets;
@@ -33,9 +34,10 @@ public class PlayerWidgetPresenterTest {
 
     @Test
     public void shouldUpdateWidgetUsingPlayerAppWidgetProviderWhenPlayStateChange() throws Exception {
+        presenter.updateTrackInformation(context, TestPropertySets.expectedTrackForWidget());
         presenter.updatePlayState(context, true);
 
-        verifyUpdateViaPlayBackWidgetProvider();
+        verifyUpdateViaPlayBackWidgetProvider(2); // one for track info and one for update state
     }
 
     @Test
@@ -50,6 +52,11 @@ public class PlayerWidgetPresenterTest {
         presenter.reset(context);
 
         verifyUpdateViaPlayBackWidgetProvider();
+    }
+
+    private void verifyUpdateViaPlayBackWidgetProvider(int noOfTimes) {
+        ComponentName expectedComponentName = new ComponentName("com.soundcloud.android", PlayerAppWidgetProvider.class.getCanonicalName());
+        verify(appWidgetManager, times(noOfTimes)).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
 
     private void verifyUpdateViaPlayBackWidgetProvider() {

@@ -60,8 +60,9 @@ public class PlayerWidgetRemoteViewsBuilder {
         return this;
     }
 
-    public PlayerWidgetRemoteViewsBuilder forIsPlaying(boolean isPlaying) {
+    public PlayerWidgetRemoteViewsBuilder forIsPlaying(WidgetTrack track, boolean isPlaying) {
         this.optionalIsPlaying = Optional.of(isPlaying);
+        this.optionalTrack  = Optional.of(track);
         return this;
     }
 
