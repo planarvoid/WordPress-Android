@@ -64,13 +64,14 @@ public class PullToRefreshControllerTest {
         controller = new PullToRefreshController(eventBus, wrapper);
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
+        when(wrapper.isAttached()).thenReturn(true);
         observable = TestObservables.emptyConnectableObservable(subscription);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
     @Test
     public void shouldAttachPullToRefreshWrapperWhenViewsAreCreated() {
-        expect(controller.isAttached()).toBeFalse();
+        when(wrapper.isAttached()).thenReturn(false);
         controller.onViewCreated(fragment, listener);
 
         verify(wrapper).attach(activity, layout, listener);
@@ -106,6 +107,20 @@ public class PullToRefreshControllerTest {
         controller.onViewCreated(fragment, listener);
         controller.onDestroyView();
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldNotForwardRefreshStartedToPTRWrapperIfNotAttached() {
+        when(wrapper.isAttached()).thenReturn(false);
+        controller.startRefreshing();
+        verify(wrapper, never()).setRefreshing(true);
+    }
+
+    @Test
+    public void shouldNotForwardRefreshCompletedToPTRWrapperIfNotAttached() {
+        when(wrapper.isAttached()).thenReturn(false);
+        controller.stopRefreshing();
+        verify(wrapper, never()).setRefreshing(false);
     }
 
     @Test
