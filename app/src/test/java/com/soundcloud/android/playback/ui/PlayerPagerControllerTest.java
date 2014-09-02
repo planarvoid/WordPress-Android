@@ -232,6 +232,16 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
+    public void dontDisablePagingWhenThePageSelectedIsAnAudioAdAndAlreadyTheCurrentTrack() {
+        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
+        when(playQueueManager.isCurrentPosition(2)).thenReturn(true);
+
+        controller.onPageSelected(2);
+
+        verify(viewPager).setPagingEnabled(true);
+    }
+
+    @Test
     public void enablePagingWhenThePageSelectedIsNotAnAudioAd() {
         when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(false);
 
