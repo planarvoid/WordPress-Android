@@ -17,7 +17,9 @@ import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.MemoryReporter;
 import com.soundcloud.android.waveform.WaveformData;
 import dagger.Module;
 import dagger.Provides;
@@ -161,5 +163,15 @@ public class ApplicationModule {
     @Provides
     public LruCache<TrackUrn, WaveformData> provideWaveformCache() {
         return new LruCache<TrackUrn, WaveformData>(DEFAULT_WAVEFORM_CACHE_SIZE);
+    }
+
+    @Singleton
+    @Provides
+    public MemoryReporter provideMemoryReporter() {
+        if (application.isReportingCrashes()) {
+            return new CrashlyticsMemoryReporter();
+        } else {
+            return new MemoryReporter();
+        }
     }
 }

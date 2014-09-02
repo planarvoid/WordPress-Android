@@ -40,6 +40,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.MemoryReporter;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -88,8 +89,9 @@ public class SoundCloudApplication extends Application {
     @Inject PlaybackNotificationController playbackNotificationController;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
+    @Inject MemoryReporter memoryReporter;
 
-    // we need this object to exist througout the life time of the app,
+    // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
     @Inject @SuppressWarnings("unused") AnalyticsEngine analyticsEngine;
 
@@ -126,11 +128,11 @@ public class SoundCloudApplication extends Application {
             setupStrictMode();
         }
 
-        if (applicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false)) {
+        if (isReportingCrashes()) {
             Crashlytics.start(this);
             ExceptionUtils.setupOOMInterception();
         }
+        memoryReporter.reportSystemMemoryStats(this);
 
         IOUtils.checkState(this);
 
@@ -295,4 +297,21 @@ public class SoundCloudApplication extends Application {
                     .build());
         }
     }
+
+    @Override
+    public void onLowMemory() {
+        final int TRIM_MEMORY_COMPLETE = 80; // is only available at API 14, we are currently targeting API 9
+        onTrimMemory(TRIM_MEMORY_COMPLETE);
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        memoryReporter.reportMemoryTrim(level);
+    }
+
+    boolean isReportingCrashes() {
+        return ApplicationProperties.shouldReportCrashes() &&
+                sharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false);
+    }
+
 }
