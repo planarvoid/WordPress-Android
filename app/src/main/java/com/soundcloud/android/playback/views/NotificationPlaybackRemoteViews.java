@@ -66,7 +66,7 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
 
     private Intent createIntent(String playbackAction) {
         return new Intent(playbackAction)
-                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_WIDGET);
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
     }
 
     public static class Factory {
