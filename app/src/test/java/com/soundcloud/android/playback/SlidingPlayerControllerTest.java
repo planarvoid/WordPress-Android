@@ -15,6 +15,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -320,6 +321,18 @@ public class SlidingPlayerControllerTest {
 
         expect(controller.handleBackPressed()).toBeTrue();
         verify(slidingPanel).collapsePanel();
+    }
+
+    @Test
+    public void onBackPressedWithExpandedPlayerEmitsPlayerClosedUIEvent() {
+        expandPanel();
+
+        controller.handleBackPressed();
+
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON);
+        expect(event.getKind()).toEqual(expectedEvent.getKind());
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 
     private void attachController() {

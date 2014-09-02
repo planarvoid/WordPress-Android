@@ -8,6 +8,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.DefaultLifeCycleComponent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -93,6 +94,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     public boolean handleBackPressed() {
         if (slidingPanel.isPanelExpanded()) {
             collapse();
+            eventBus.publish(EventQueue.UI, UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON));
             return true;
         }
         return false;
