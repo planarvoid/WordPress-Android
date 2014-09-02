@@ -10,8 +10,8 @@ public final class PlayControlEvent {
     public static final String SOURCE_NOTIFICATION = "notification";
     public static final String SOURCE_WIDGET = "widget";
     public static final String SOURCE_REMOTE = "lockscreen";
-    public static final String FOOTER_PLAYER = "footer_player";
-    public static final String FULL_PLAYER = "full_player";
+    public static final String SOURCE_FOOTER_PLAYER = "footer_player";
+    public static final String SOURCE_FULL_PLAYER = "full_player";
 
     private final Map<String, String> attributes;
 

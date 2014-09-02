@@ -49,7 +49,7 @@ class TrackPageListener {
 
     public void onTogglePlay() {
         playbackOperations.togglePlayback();
-        trackTogglePlay(PlayControlEvent.FULL_PLAYER);
+        trackTogglePlay(PlayControlEvent.SOURCE_FULL_PLAYER);
     }
 
     public void onFooterTap() {
@@ -74,7 +74,7 @@ class TrackPageListener {
 
     public void onFooterTogglePlay() {
         playbackOperations.togglePlayback();
-        trackTogglePlay(PlayControlEvent.FOOTER_PLAYER);
+        trackTogglePlay(PlayControlEvent.SOURCE_FOOTER_PLAYER);
     }
 
     private void trackTogglePlay(String location) {

@@ -56,7 +56,7 @@ public class TrackPageListenerTest {
         listener.onFooterTogglePlay();
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.FOOTER_PLAYER));
+        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FOOTER_PLAYER));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TrackPageListenerTest {
         listener.onFooterTogglePlay();
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.FOOTER_PLAYER));
+        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FOOTER_PLAYER));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TrackPageListenerTest {
         listener.onTogglePlay();
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.FULL_PLAYER));
+        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class TrackPageListenerTest {
         listener.onTogglePlay();
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.FULL_PLAYER));
+        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
