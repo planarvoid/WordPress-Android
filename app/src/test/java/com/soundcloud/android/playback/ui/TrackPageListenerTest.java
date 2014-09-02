@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -113,6 +114,16 @@ public class TrackPageListenerTest {
     }
 
     @Test
+    public void onFooterTapEmitsUIEventOpenPlayer() {
+        listener.onFooterTap();
+
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER);
+        expect(event.getKind()).toEqual(expectedEvent.getKind());
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+    }
+
+    @Test
     public void onFooterTapPostsEventToExpandPlayer() {
         listener.onFooterTap();
 
@@ -126,6 +137,16 @@ public class TrackPageListenerTest {
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         expect(event.isCollapse()).toBeTrue();
+    }
+
+    @Test
+    public void onPlayerCloseEmitsUIEventClosePlayer() {
+        listener.onPlayerClose();
+
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_HIDE_BUTTON);
+        expect(event.getKind()).toEqual(expectedEvent.getKind());
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 
     @Test

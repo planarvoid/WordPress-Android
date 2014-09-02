@@ -15,12 +15,17 @@ import java.util.Map;
 
 public final class UIEvent {
 
+    public static final String METHOD_TAP_FOOTER = "tap_footer";
+    public static final String METHOD_HIDE_BUTTON = "hide_button";
+    public static final String METHOD_BACK_BUTTON = "back_button";
+
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
 
     private final Kind kind;
     private final Map<String, String> attributes;
     private final Map<String, List<String>> promotedTrackingUrls;
+
     private final long timestamp;
 
     public enum Kind {
@@ -36,7 +41,19 @@ public final class UIEvent {
         SHUFFLE_LIKES,
         NAVIGATION,
         AUDIO_AD_CLICK,
-        SKIP_AUDIO_AD_CLICK
+        SKIP_AUDIO_AD_CLICK,
+        PLAYER_OPEN,
+        PLAYER_CLOSE
+    }
+
+    public static UIEvent fromPlayerOpen(String method) {
+        return new UIEvent(Kind.PLAYER_OPEN)
+                .putAttribute("method", method);
+    }
+
+    public static UIEvent fromPlayerClose(String method) {
+        return new UIEvent(Kind.PLAYER_CLOSE)
+                .putAttribute("method", method);
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {

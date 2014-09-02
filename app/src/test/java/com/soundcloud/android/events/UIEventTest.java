@@ -18,7 +18,25 @@ import java.util.Map;
 public class UIEventTest {
 
     @Test
-    public void shouldCreateEventFromToggleToFollow() throws Exception {
+    public void shouldCreateEventFromPlayerClose() {
+        UIEvent uiEvent = UIEvent.fromPlayerClose("tap_footer");
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.PLAYER_CLOSE);
+        expect(uiEventAttributes.get("method")).toEqual("tap_footer");
+    }
+
+    @Test
+    public void shouldCreateEventFromPlayerOpen() {
+        UIEvent uiEvent = UIEvent.fromPlayerOpen("tap_footer");
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.PLAYER_OPEN);
+        expect(uiEventAttributes.get("method")).toEqual("tap_footer");
+    }
+
+    @Test
+    public void shouldCreateEventFromToggleToFollow() {
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.FOLLOW);
@@ -27,7 +45,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromToggleToUnfollow() throws Exception {
+    public void shouldCreateEventFromToggleToUnfollow() {
         UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNFOLLOW);
@@ -36,7 +54,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromLikedTrack() throws Exception {
+    public void shouldCreateEventFromLikedTrack() {
         UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.LIKE);
@@ -46,7 +64,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromLikedPlaylist() throws Exception {
+    public void shouldCreateEventFromLikedPlaylist() {
         UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.LIKE);
@@ -56,7 +74,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromUnlikedTrack() throws Exception {
+    public void shouldCreateEventFromUnlikedTrack() {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNLIKE);
@@ -66,7 +84,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromUnlikedPlaylist() throws Exception {
+    public void shouldCreateEventFromUnlikedPlaylist() {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNLIKE);
@@ -76,7 +94,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromRepostedTrack() throws Exception {
+    public void shouldCreateEventFromRepostedTrack() {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.REPOST);
@@ -86,7 +104,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromRepostedPlaylist() throws Exception {
+    public void shouldCreateEventFromRepostedPlaylist() {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.REPOST);
@@ -96,7 +114,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromUnrepostedTrack() throws Exception {
+    public void shouldCreateEventFromUnrepostedTrack() {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNREPOST);
@@ -106,7 +124,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromUnrepostedPlaylist() throws Exception {
+    public void shouldCreateEventFromUnrepostedPlaylist() {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNREPOST);
@@ -116,7 +134,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromAddToPlaylistWhenPlaylistIsNew() throws Exception {
+    public void shouldCreateEventFromAddToPlaylistWhenPlaylistIsNew() {
         UIEvent uiEvent = UIEvent.fromAddToPlaylist("screen", true, 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.ADD_TO_PLAYLIST);
@@ -126,7 +144,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromAddToPlaylistWhenPlaylistExisted() throws Exception {
+    public void shouldCreateEventFromAddToPlaylistWhenPlaylistExisted() {
         UIEvent uiEvent = UIEvent.fromAddToPlaylist("screen", false, 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.ADD_TO_PLAYLIST);
@@ -136,7 +154,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromComment() throws Exception {
+    public void shouldCreateEventFromComment() {
         UIEvent uiEvent = UIEvent.fromComment("screen", 30);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.COMMENT);
@@ -145,7 +163,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromTrackShare() throws Exception {
+    public void shouldCreateEventFromTrackShare() {
         UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiTrack(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SHARE);
@@ -155,7 +173,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromPlaylistShare() throws Exception {
+    public void shouldCreateEventFromPlaylistShare() {
         UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiPlaylist(30));
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SHARE);
@@ -165,12 +183,12 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromShuffleMyLikes() throws Exception {
+    public void shouldCreateEventFromShuffleMyLikes() {
         expect(UIEvent.fromShuffleMyLikes().getKind()).toEqual(UIEvent.Kind.SHUFFLE_LIKES);
     }
 
     @Test
-    public void shouldCreateEventFromProfileNavigation() throws Exception {
+    public void shouldCreateEventFromProfileNavigation() {
         UIEvent uiEvent = UIEvent.fromProfileNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
@@ -178,7 +196,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromStreamNavigation() throws Exception {
+    public void shouldCreateEventFromStreamNavigation() {
         UIEvent uiEvent = UIEvent.fromStreamNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
@@ -186,7 +204,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromExploreNavigation() throws Exception {
+    public void shouldCreateEventFromExploreNavigation() {
         UIEvent uiEvent = UIEvent.fromExploreNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
@@ -194,7 +212,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromLikesNavigation() throws Exception {
+    public void shouldCreateEventFromLikesNavigation() {
         UIEvent uiEvent = UIEvent.fromLikesNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
@@ -202,7 +220,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromPlaylistsNavigation() throws Exception {
+    public void shouldCreateEventFromPlaylistsNavigation() {
         UIEvent uiEvent = UIEvent.fromPlaylistsNav();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
@@ -210,7 +228,7 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromSearchNavigation() throws Exception {
+    public void shouldCreateEventFromSearchNavigation() {
         UIEvent uiEvent = UIEvent.fromSearchAction();
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.NAVIGATION);
