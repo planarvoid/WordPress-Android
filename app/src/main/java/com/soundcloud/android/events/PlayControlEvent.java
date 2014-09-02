@@ -106,6 +106,12 @@ public final class PlayControlEvent {
                 .putAttribute("location", source);
     }
 
+    public static PlayControlEvent scrub(String source) {
+        return new PlayControlEvent()
+                .putAttribute("action", "scrub")
+                .putAttribute("location", source);
+    }
+
     private PlayControlEvent putAttribute(String key, String value) {
         attributes.put(key, value);
         return this;

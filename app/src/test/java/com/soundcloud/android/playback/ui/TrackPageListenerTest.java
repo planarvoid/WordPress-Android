@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -135,6 +136,20 @@ public class TrackPageListenerTest {
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         expect(event.isCollapse()).toBeTrue();
+    }
+
+    @Test
+    public void onScrubbingShouldEmitPlayerControlScrubEvent() {
+        listener.onScrub(ScrubController.SCRUB_STATE_SCRUBBING);
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
+    }
+
+    @Test
+    public void onScrubbingCancelledShouldNotEmitPlayerControlScrubEvent() {
+        listener.onScrub(ScrubController.SCRUB_STATE_CANCELLED);
+        eventBus.verifyNoEventsOn(EventQueue.PLAY_CONTROL);
     }
 
     @Test

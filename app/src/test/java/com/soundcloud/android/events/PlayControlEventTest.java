@@ -91,4 +91,11 @@ public class PlayControlEventTest {
         expect(event.getAttributes().get("location")).toEqual("widget");
     }
 
+    @Test
+    public void shouldCreateEventFromScrubWithSource() {
+        event = PlayControlEvent.scrub("widget");
+        expect(event.getAttributes().get("action")).toEqual("scrub");
+        expect(event.getAttributes().get("location")).toEqual("widget");
+    }
+
 }

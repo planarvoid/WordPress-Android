@@ -10,6 +10,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.users.UserUrn;
@@ -70,6 +71,12 @@ class TrackPageListener {
                 .subscribe(startProfileActivity(activityContext, userUrn));
 
         requestPlayerCollapse();
+    }
+
+    public void onScrub(int newScrubState) {
+        if (newScrubState == ScrubController.SCRUB_STATE_SCRUBBING) {
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
+        }
     }
 
     public void onFooterTogglePlay() {
