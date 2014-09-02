@@ -18,8 +18,12 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithClass(classToSearch);
     }
 
-    public static With classStringName(String classStringName) {
-        return new WithClassStringName(classStringName);
+    public static With className(String classStringName) {
+        return new WithClassName(classStringName);
+    }
+
+    public static With classSimpleName(String classStringName) {
+        return new WithClassSimpleName(classStringName);
     }
 
     static class WithId extends With {
@@ -61,16 +65,29 @@ public abstract class With implements Predicate<ViewElement> {
         }
     }
 
-    private static class WithClassStringName extends With {
-        private String classString;
+    private static class WithClassName extends With {
+        private String className;
 
-        public WithClassStringName(String classStringName) {
-            classString = classStringName;
+        public WithClassName(String classStringName) {
+            className = classStringName;
         }
 
         @Override
         public boolean apply(ViewElement viewElement) {
-            return viewElement.getViewClass().getName().toString().equals(classString);
+            return viewElement.getViewClass().getName().toString().equals(className);
+        }
+    }
+
+    private static class WithClassSimpleName extends With {
+        private String classSimpleName;
+
+        public WithClassSimpleName(String classStringName) {
+            classSimpleName = classStringName;
+        }
+
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            return viewElement.getViewClass().getSimpleName().toString().equals(classSimpleName);
         }
     }
 }

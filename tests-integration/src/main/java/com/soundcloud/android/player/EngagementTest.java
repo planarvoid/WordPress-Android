@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.MenuElement;
+import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 
@@ -22,7 +22,7 @@ public class EngagementTest extends ActivityTestCase<MainActivity> {
     }
 
     public void testPrivateTrackHasDisabledShareAndRepost() {
-        MenuElement menu = menuScreen.open()
+        PlayerMenuElement menu = menuScreen.open()
                 .clickUserProfile()
                 .playTrack(0)
                 .clickMenu();
@@ -32,7 +32,7 @@ public class EngagementTest extends ActivityTestCase<MainActivity> {
     }
 
     public void testPublicTrackHasEnabledShareAndRepost() {
-        MenuElement menu = menuScreen.open()
+        PlayerMenuElement menu = menuScreen.open()
                 .clickLikes()
                 .clickItem(1)
                 .clickMenu();

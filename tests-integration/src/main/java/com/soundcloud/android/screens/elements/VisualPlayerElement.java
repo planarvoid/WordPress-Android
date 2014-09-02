@@ -216,9 +216,9 @@ public class VisualPlayerElement extends Element {
         return trackContainer().isVisible();
     }
 
-    public MenuElement clickMenu() {
+    public PlayerMenuElement clickMenu() {
         menu().click();
-        return new MenuElement(solo);
+        return new PlayerMenuElement(solo);
     }
 
     private ViewElement menu() {
