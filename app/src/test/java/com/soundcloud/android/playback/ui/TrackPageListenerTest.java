@@ -150,13 +150,23 @@ public class TrackPageListenerTest {
     }
 
     @Test
-    public void onGotoUserPostsEventToClosePlayer() throws Exception {
+    public void onGotoUserEmitsEventToClosePlayer() {
         UserUrn userUrn = Urn.forUser(42L);
 
         listener.onGotoUser(Robolectric.application, userUrn);
 
         PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
         expect(event.isCollapse()).toBeTrue();
+    }
+
+    @Test
+    public void onGotoUserEmitsUIEventClosePlayer() {
+        listener.onGotoUser(Robolectric.application, Urn.forUser(42L));
+
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_CONTENT_INTERACTION);
+        expect(event.getKind()).toEqual(expectedEvent.getKind());
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 
     @Test
@@ -174,7 +184,7 @@ public class TrackPageListenerTest {
     }
 
     @Test
-    public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() throws Exception {
+    public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
         UserUrn userUrn = Urn.forUser(42L);
 
         listener.onGotoUser(Robolectric.application, userUrn);

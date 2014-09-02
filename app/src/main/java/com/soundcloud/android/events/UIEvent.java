@@ -18,6 +18,7 @@ public final class UIEvent {
     public static final String METHOD_TAP_FOOTER = "tap_footer";
     public static final String METHOD_HIDE_BUTTON = "hide_button";
     public static final String METHOD_BACK_BUTTON = "back_button";
+    public static final String METHOD_CONTENT_INTERACTION = "content_interaction";
 
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
