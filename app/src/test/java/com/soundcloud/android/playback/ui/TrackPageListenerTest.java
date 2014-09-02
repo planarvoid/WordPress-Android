@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
@@ -33,9 +34,9 @@ import android.content.Intent;
 public class TrackPageListenerTest {
 
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private SoundAssociationOperations soundAssociationOperations;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -44,7 +45,54 @@ public class TrackPageListenerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playbackOperations,
-                soundAssociationOperations, playQueueManager, eventBus);
+                soundAssociationOperations, playQueueManager,
+                playSessionStateProvider, eventBus);
+    }
+
+    @Test
+    public void onToggleFooterPlayEmitsPauseEventWhenWasPlaying() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
+        listener.onFooterTogglePlay();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.FOOTER_PLAYER));
+    }
+
+    @Test
+    public void onToggleFooterPlayEmitsPlayEventWhenWasPaused() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+
+        listener.onFooterTogglePlay();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.FOOTER_PLAYER));
+    }
+
+    @Test
+    public void onToggleFooterPlayTogglesPlaybackViaPlaybackOperations() {
+        listener.onFooterTogglePlay();
+        verify(playbackOperations).togglePlayback();
+    }
+
+    @Test
+    public void onTogglePlayEmitsPauseEventWhenWasPlaying() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
+        listener.onTogglePlay();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.FULL_PLAYER));
+    }
+
+    @Test
+    public void onTogglePlayEmitsPlayEventWhenWasPaused() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+
+        listener.onTogglePlay();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.FULL_PLAYER));
     }
 
     @Test

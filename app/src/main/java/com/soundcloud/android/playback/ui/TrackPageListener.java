@@ -4,8 +4,10 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -29,20 +31,25 @@ class TrackPageListener {
     private final PlaybackOperations playbackOperations;
     private final SoundAssociationOperations associationOperations;
     private final PlayQueueManager playQueueManager;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final EventBus eventBus;
 
     @Inject
     public TrackPageListener(PlaybackOperations playbackOperations,
                              SoundAssociationOperations associationOperations,
-                             PlayQueueManager playQueueManager, EventBus eventBus) {
+                             PlayQueueManager playQueueManager,
+                             PlaySessionStateProvider playSessionStateProvider,
+                             EventBus eventBus) {
         this.playbackOperations = playbackOperations;
         this.associationOperations = associationOperations;
         this.playQueueManager = playQueueManager;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.eventBus = eventBus;
     }
 
     public void onTogglePlay() {
         playbackOperations.togglePlayback();
+        trackTogglePlay(PlayControlEvent.FULL_PLAYER);
     }
 
     public void onFooterTap() {
@@ -57,12 +64,25 @@ class TrackPageListener {
         fireAndForget(associationOperations.toggleLike(playQueueManager.getCurrentTrackUrn(), isLike));
     }
 
-    public void onGotoUser(final Context activityContext, final UserUrn userUrn){
+    public void onGotoUser(final Context activityContext, final UserUrn userUrn) {
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PLAYER_IS_COLLAPASED)
                 .subscribe(startProfileActivity(activityContext, userUrn));
 
         requestPlayerCollapse();
+    }
+
+    public void onFooterTogglePlay() {
+        playbackOperations.togglePlayback();
+        trackTogglePlay(PlayControlEvent.FOOTER_PLAYER);
+    }
+
+    private void trackTogglePlay(String location) {
+        if (playSessionStateProvider.isPlaying()) {
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(location));
+        } else {
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(location));
+        }
     }
 
     private void requestPlayerCollapse() {

@@ -319,12 +319,12 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void togglePlayOnFooterToggleClick() {
+    public void togglePlayOnFooterTogglePlayClick() {
         populateTrackPage();
 
         getHolder(trackView).footerPlayToggle.performClick();
 
-        verify(listener).onTogglePlay();
+        verify(listener).onFooterTogglePlay();
     }
 
     @Test

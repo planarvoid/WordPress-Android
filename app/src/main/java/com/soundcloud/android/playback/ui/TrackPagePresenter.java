@@ -67,6 +67,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.footer_toggle:
+                listener.onFooterTogglePlay();
+                break;
             case R.id.player_play:
             case R.id.track_page_artwork:
                 listener.onTogglePlay();
