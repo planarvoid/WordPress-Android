@@ -424,7 +424,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         };
 
         public void populateViewSets() {
-            List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton);
+            List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton, bottomClose);
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, profileLink);
 
             fullScreenViews = Arrays.asList(title, user, close, timestamp);
