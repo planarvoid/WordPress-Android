@@ -13,18 +13,18 @@ public class PlayControlEventTest {
 
     @Test
     public void shouldCreateEventFromPlayerSwipePrevious() {
-        event = PlayControlEvent.playerSwipePrevious();
+        event = PlayControlEvent.swipePrevious("full_player");
         expect(event.getAttributes().get("action")).toEqual("prev");
         expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
-        expect(event.getAttributes().get("location")).toEqual("player");
+        expect(event.getAttributes().get("location")).toEqual("full_player");
     }
 
     @Test
     public void shouldCreateEventFromPlayerSwipeSkip() {
-        event = PlayControlEvent.playerSwipeSkip();
+        event = PlayControlEvent.swipeSkip("full_player");
         expect(event.getAttributes().get("action")).toEqual("skip");
         expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
-        expect(event.getAttributes().get("location")).toEqual("player");
+        expect(event.getAttributes().get("location")).toEqual("full_player");
     }
 
     @Test
