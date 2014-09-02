@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="waveform_ratio_top">5</integer>
+    <integer name="waveform_ratio_bottom">2</integer>
+</resources>
