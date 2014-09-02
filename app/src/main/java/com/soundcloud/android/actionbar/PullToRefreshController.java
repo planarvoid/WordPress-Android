@@ -108,13 +108,17 @@ public class PullToRefreshController {
     }
 
     public void stopRefreshing() {
-        wrapper.setRefreshing(false);
+        if (isAttached()) {
+            wrapper.setRefreshing(false);
+        }
     }
 
     private final class StartRefreshSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            wrapper.setRefreshing(true);
+            if (isAttached()) {
+                wrapper.setRefreshing(true);
+            }
         }
     }
 

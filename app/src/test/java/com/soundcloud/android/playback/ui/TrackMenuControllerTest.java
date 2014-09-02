@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -18,6 +19,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -25,9 +27,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -38,13 +42,17 @@ public class TrackMenuControllerTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private SoundAssociationOperations soundAssociationOps;
+    @Mock private PopupMenuWrapper popupMenuWrapper;
+    @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private MockObservable<PropertySet> repostObservable;
 
 
     @Before
     public void setUp() throws Exception {
         track = new PlayerTrack(TestPropertySets.expectedTrackForPlayer());
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps).create(new TextView(new FragmentActivity()));
+        when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
+        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory)
+                .create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
         when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
