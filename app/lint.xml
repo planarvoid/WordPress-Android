@@ -54,8 +54,6 @@
     <issue id="UnusedResources" severity="error">
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
-        <ignore path="res/values/strings_record_tips.xml"/>
-        <ignore path="res/values/strings_onboarding_categories.xml"/>
         <ignore path="res/values/app_properties.xml"/>
         <!-- these appear to be unused, but they will be pulled in by the holo dialogs lib we use -->
         <ignore path="res/layout/dialog_part_list.xml"/>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- __MISC / LOST&FOUND / UNSORTED -->
     <string name="app_name">SoundCloud</string>
@@ -240,36 +240,36 @@
     <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
 
     <!-- __ONBOARDING CATEGORIES -->
-    <string name="category_facebook_friends">Facebook Friends</string>
-    <string name="category_facebook_likes">Facebook Likes</string>
-    <string name="category_rock">Rock</string>
-    <string name="category_indie">Indie</string>
-    <string name="category_dubstep">Dubstep</string>
-    <string name="category_pop">Pop</string>
-    <string name="category_punk">Punk</string>
-    <string name="category_country">Country</string>
-    <string name="category_alternative">Alternative</string>
-    <string name="category_electronic">Electronic</string>
-    <string name="category_house">House</string>
-    <string name="category_rnb_and_soul">RnB and Soul</string>
-    <string name="category_hiphop_and_rap">HipHop and Rap</string>
-    <string name="category_reggae">Reggae</string>
-    <string name="category_singer_songwriter">Singer Songwriter</string>
-    <string name="category_jazz_and_blues">Jazz and Blues</string>
-    <string name="category_metal">Metal</string>
-    <string name="category_classical">Classical</string>
-    <string name="category_folk_and_world">Folk and World</string>
-    <string name="category_ideas">Ideas</string>
-    <string name="category_business">Business</string>
-    <string name="category_religion_and_spirituality">Religion and Spirituality</string>
-    <string name="category_audiobooks">Audiobooks</string>
-    <string name="category_arts_and_entertainment">Arts and Entertainment</string>
-    <string name="category_sports">Sports</string>
-    <string name="category_science_and_technology">Science and Technology</string>
-    <string name="category_comedy">Comedy</string>
-    <string name="category_news">News</string>
-    <string name="category_storytelling">Storytelling</string>
-    <string name="category_learning">Learning</string>
+    <string tools:ignore="UnusedResources" name="category_facebook_friends">Facebook Friends</string>
+    <string tools:ignore="UnusedResources" name="category_facebook_likes">Facebook Likes</string>
+    <string tools:ignore="UnusedResources" name="category_rock">Rock</string>
+    <string tools:ignore="UnusedResources" name="category_indie">Indie</string>
+    <string tools:ignore="UnusedResources" name="category_dubstep">Dubstep</string>
+    <string tools:ignore="UnusedResources" name="category_pop">Pop</string>
+    <string tools:ignore="UnusedResources" name="category_punk">Punk</string>
+    <string tools:ignore="UnusedResources" name="category_country">Country</string>
+    <string tools:ignore="UnusedResources" name="category_alternative">Alternative</string>
+    <string tools:ignore="UnusedResources" name="category_electronic">Electronic</string>
+    <string tools:ignore="UnusedResources" name="category_house">House</string>
+    <string tools:ignore="UnusedResources" name="category_rnb_and_soul">RnB and Soul</string>
+    <string tools:ignore="UnusedResources" name="category_hiphop_and_rap">HipHop and Rap</string>
+    <string tools:ignore="UnusedResources" name="category_reggae">Reggae</string>
+    <string tools:ignore="UnusedResources" name="category_singer_songwriter">Singer Songwriter</string>
+    <string tools:ignore="UnusedResources" name="category_jazz_and_blues">Jazz and Blues</string>
+    <string tools:ignore="UnusedResources" name="category_metal">Metal</string>
+    <string tools:ignore="UnusedResources" name="category_classical">Classical</string>
+    <string tools:ignore="UnusedResources" name="category_folk_and_world">Folk and World</string>
+    <string tools:ignore="UnusedResources" name="category_ideas">Ideas</string>
+    <string tools:ignore="UnusedResources" name="category_business">Business</string>
+    <string tools:ignore="UnusedResources" name="category_religion_and_spirituality">Religion and Spirituality</string>
+    <string tools:ignore="UnusedResources" name="category_audiobooks">Audiobooks</string>
+    <string tools:ignore="UnusedResources" name="category_arts_and_entertainment">Arts and Entertainment</string>
+    <string tools:ignore="UnusedResources" name="category_sports">Sports</string>
+    <string tools:ignore="UnusedResources" name="category_science_and_technology">Science and Technology</string>
+    <string tools:ignore="UnusedResources" name="category_comedy">Comedy</string>
+    <string tools:ignore="UnusedResources" name="category_news">News</string>
+    <string tools:ignore="UnusedResources" name="category_storytelling">Storytelling</string>
+    <string tools:ignore="UnusedResources" name="category_learning">Learning</string>
 
     <!-- __PLAYABLE -->
     <string name="private_indicator">Private</string>
@@ -355,45 +355,45 @@
     <string name="cloud_recorder_playback_event_title">Playback in progress</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
-    <string name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
-    <string name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now">What are you doing right now?</string>
-    <string name="rectip_memories_child_first_words">Capture the moment: a child\’s first words</string>
-    <string name="rectip_memories_sound_your_pet_makes">Capture the moment: the sounds your pet makes</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about">Capture the moment: the voice of someone you care about</string>
-    <string name="rectip_memories_shopping_reminders">Going shopping?  Record reminders so you don\’t forget what to buy.</string>
-    <string name="rectip_memories_great_idea">Had a great idea?  Capture it with the REC button.</string>
-    <string name="rectip_social_good_joke">Heard a good joke lately? Share it!</string>
-    <string name="rectip_social_great_conversaion">Enjoying a great conversation?  Why not record it for posterity?</string>
-    <string name="rectip_social_hilarious_moment">Capture a hilarious moment in sound</string>
-    <string name="rectip_general_did_you_know">Did you know you can save private recordings if you don\’t want to share them?</string>
-    <string name="rectip_general_best_recording_device">Sometimes the best recording device is the one you have with you.</string>
-    <string name="rectip_general_unmute_yourself">Unmute yourself!</string>
-    <string name="rectip_general_unmute_internet">Unmute the internet.</string>
-    <string name="rectip_general_unmute_the_world">Unmute the world.</string>
-    <string name="rectip_general_express_yourself">Express yourself!</string>
-    <string name="rectip_general_professional_minutes_of_meeting">Why not record the minutes of your next meeting?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later">Use the REC button to capture ideas for later.</string>
-    <string name="rectip_general_professional_study_aid">Use the REC button as a study aid: store your notes on the go.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings">You can use the REC button to record interviews and meetings.</string>
-    <string name="rectip_environmental_ocean_waves">Record the sound of the ocean waves at the beach</string>
-    <string name="rectip_environmental_vibrant_rush_hour">Capture the sounds of a vibrant city at rush hour</string>
-    <string name="rectip_environmental_crazy_sound">Heard a crazy sound?  Capture it with the REC button!</string>
-    <string name="rectip_music_feel_inspired">Feel inspired? Capture your idea with the REC button.</string>
-    <string name="rectip_music_track_idea">Got an idea for a new track? Save it with the REC button.</string>
-    <string name="rectip_music_tune_stuck">Tune stuck in your head? Capture it with the REC button.</string>
-    <string name="rectip_music_song_lyric_ideas">Ideas for song lyrics? Capture them instantly with the REC button.</string>
-    <string name="rectip_events_whats_going_on">What’s going on right now?</string>
-    <string name="rectip_events_current_events_as_they_happen">Record current events as they happen and share them with the world.</string>
-    <string name="rectip_events_something_interesting">Is something interesting happening?  Capture the moment in audio.</string>
-    <string name="rectip_events_citizen_reporter">Citizen Reporter?  Tell the world what\’s happening where you are.</string>
-    <string name="rectip_private_happy_birthday">Wish %s a Happy Birthday</string>
-    <string name="rectip_private_record_a_message">Why not record a message for %s?</string>
-    <string name="rectip_private_how_much_they_mean">Tell %s how much they mean to you.</string>
-    <string name="rectip_private_send_reminder">Send %s a reminder</string>
-    <string name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
-    <string name="rectip_private_leave_feedback">Leave some feedback for %s</string>
+    <string tools:ignore="UnusedResources" name="rectip_default">Why don\'t you record the sounds of your street?.</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_what_are_you_doing_right_now">What are you doing right now?</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_child_first_words">Capture the moment: a child\’s first words</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_sound_your_pet_makes">Capture the moment: the sounds your pet makes</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_voice_of_someone_you_care_about">Capture the moment: the voice of someone you care about</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_shopping_reminders">Going shopping?  Record reminders so you don\’t forget what to buy.</string>
+    <string tools:ignore="UnusedResources" name="rectip_memories_great_idea">Had a great idea?  Capture it with the REC button.</string>
+    <string tools:ignore="UnusedResources" name="rectip_social_good_joke">Heard a good joke lately? Share it!</string>
+    <string tools:ignore="UnusedResources" name="rectip_social_great_conversaion">Enjoying a great conversation?  Why not record it for posterity?</string>
+    <string tools:ignore="UnusedResources" name="rectip_social_hilarious_moment">Capture a hilarious moment in sound</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_did_you_know">Did you know you can save private recordings if you don\’t want to share them?</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_best_recording_device">Sometimes the best recording device is the one you have with you.</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_unmute_yourself">Unmute yourself!</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_unmute_internet">Unmute the internet.</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_unmute_the_world">Unmute the world.</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_express_yourself">Express yourself!</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_professional_minutes_of_meeting">Why not record the minutes of your next meeting?</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_professional_capture_ideas_for_later">Use the REC button to capture ideas for later.</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_professional_study_aid">Use the REC button as a study aid: store your notes on the go.</string>
+    <string tools:ignore="UnusedResources" name="rectip_general_professional_record_interviews_and_meetings">You can use the REC button to record interviews and meetings.</string>
+    <string tools:ignore="UnusedResources" name="rectip_environmental_ocean_waves">Record the sound of the ocean waves at the beach</string>
+    <string tools:ignore="UnusedResources" name="rectip_environmental_vibrant_rush_hour">Capture the sounds of a vibrant city at rush hour</string>
+    <string tools:ignore="UnusedResources" name="rectip_environmental_crazy_sound">Heard a crazy sound?  Capture it with the REC button!</string>
+    <string tools:ignore="UnusedResources" name="rectip_music_feel_inspired">Feel inspired? Capture your idea with the REC button.</string>
+    <string tools:ignore="UnusedResources" name="rectip_music_track_idea">Got an idea for a new track? Save it with the REC button.</string>
+    <string tools:ignore="UnusedResources" name="rectip_music_tune_stuck">Tune stuck in your head? Capture it with the REC button.</string>
+    <string tools:ignore="UnusedResources" name="rectip_music_song_lyric_ideas">Ideas for song lyrics? Capture them instantly with the REC button.</string>
+    <string tools:ignore="UnusedResources" name="rectip_events_whats_going_on">What’s going on right now?</string>
+    <string tools:ignore="UnusedResources" name="rectip_events_current_events_as_they_happen">Record current events as they happen and share them with the world.</string>
+    <string tools:ignore="UnusedResources" name="rectip_events_something_interesting">Is something interesting happening?  Capture the moment in audio.</string>
+    <string tools:ignore="UnusedResources" name="rectip_events_citizen_reporter">Citizen Reporter?  Tell the world what\’s happening where you are.</string>
+    <string tools:ignore="UnusedResources" name="rectip_private_happy_birthday">Wish %s a Happy Birthday</string>
+    <string tools:ignore="UnusedResources" name="rectip_private_record_a_message">Why not record a message for %s?</string>
+    <string tools:ignore="UnusedResources" name="rectip_private_how_much_they_mean">Tell %s how much they mean to you.</string>
+    <string tools:ignore="UnusedResources" name="rectip_private_send_reminder">Send %s a reminder</string>
+    <string tools:ignore="UnusedResources" name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
+    <string tools:ignore="UnusedResources" name="rectip_private_leave_feedback">Leave some feedback for %s</string>
 
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
