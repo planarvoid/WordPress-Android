@@ -82,14 +82,10 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldTrackPlayControlEvent() {
-        Map<String, String> attribures = new HashMap<String, String>();
-        attribures.put("action", "skip");
-        attribures.put("click or swipe", "click");
-        attribures.put("location", "player");
+        PlayControlEvent event = PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER);
+        localyticsProvider.handlePlayControlEvent(event);
 
-        localyticsProvider.handlePlayControlEvent(PlayControlEvent.playerClickSkip());
-
-        verify(localyticsSession).tagEvent(eq(LocalyticsEvents.PLAY_CONTROLS), eq(attribures));
+        verify(localyticsSession).tagEvent(eq(LocalyticsEvents.PLAY_CONTROLS), eq(event.getAttributes()));
     }
 
 }

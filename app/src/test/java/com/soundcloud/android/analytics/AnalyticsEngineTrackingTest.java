@@ -132,7 +132,7 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldTrackPlayControlEvent() {
-        PlayControlEvent playControlEvent = PlayControlEvent.playerClickPlay();
+        PlayControlEvent playControlEvent = PlayControlEvent.play(PlayControlEvent.SOURCE_WIDGET);
         eventBus.publish(EventQueue.PLAY_CONTROL, playControlEvent);
 
         verify(analyticsProviderOne, times(1)).handlePlayControlEvent(playControlEvent);
@@ -182,7 +182,7 @@ public class AnalyticsEngineTrackingTest {
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         eventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
-        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.playerClickPlay());
+        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(PlayControlEvent.SOURCE_WIDGET));
 
         verify(analyticsProviderTwo).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));

@@ -42,34 +42,6 @@ public final class PlayControlEvent {
                 .putAttribute("location", "player");
     }
 
-    public static PlayControlEvent playerClickPrevious() {
-        return new PlayControlEvent()
-                .putAttribute("action", "prev")
-                .putAttribute("click or swipe", "click")
-                .putAttribute("location", "player");
-    }
-
-    public static PlayControlEvent playerClickSkip() {
-        return new PlayControlEvent()
-                .putAttribute("action", "skip")
-                .putAttribute("click or swipe", "click")
-                .putAttribute("location", "player");
-    }
-
-    public static PlayControlEvent playerClickPause() {
-        return new PlayControlEvent()
-                .putAttribute("action", "pause")
-                .putAttribute("click or swipe", "click")
-                .putAttribute("location", "player");
-    }
-
-    public static PlayControlEvent playerClickPlay() {
-        return new PlayControlEvent()
-                .putAttribute("action", "play")
-                .putAttribute("click or swipe", "click")
-                .putAttribute("location", "player");
-    }
-
     public static PlayControlEvent toggle(String source, boolean isPlaying) {
         return new PlayControlEvent()
                 .putAttribute("action", isPlaying ? "pause" : "play")

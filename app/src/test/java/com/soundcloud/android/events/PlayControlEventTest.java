@@ -28,38 +28,6 @@ public class PlayControlEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromPlayerClickPrevious() {
-        event = PlayControlEvent.playerClickPrevious();
-        expect(event.getAttributes().get("action")).toEqual("prev");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
-        expect(event.getAttributes().get("location")).toEqual("player");
-    }
-
-    @Test
-    public void shouldCreateEventFromPlayerClickSkip() {
-        event = PlayControlEvent.playerClickSkip();
-        expect(event.getAttributes().get("action")).toEqual("skip");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
-        expect(event.getAttributes().get("location")).toEqual("player");
-    }
-
-    @Test
-    public void shouldCreateEventFromPlayerClickPause() {
-        event = PlayControlEvent.playerClickPause();
-        expect(event.getAttributes().get("action")).toEqual("pause");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
-        expect(event.getAttributes().get("location")).toEqual("player");
-    }
-
-    @Test
-    public void shouldCreateEventFromPlayerClickPlay() {
-        event = PlayControlEvent.playerClickPlay();
-        expect(event.getAttributes().get("action")).toEqual("play");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
-        expect(event.getAttributes().get("location")).toEqual("player");
-    }
-
-    @Test
     public void shouldCreateEventFromPlayIntentWithSource() {
         event = PlayControlEvent.play("widget");
         expect(event.getAttributes().get("action")).toEqual("play");
