@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -313,7 +312,7 @@ public class TrackPagePresenterTest {
     public void clickUsernameCallsListenerOnClickUsernameWithActivityContext() {
         populateTrackPage();
 
-        final JaggedTextView user = getHolder(trackView).user;
+        final View user = getHolder(trackView).profileLink;
         user.performClick();
 
         verify(listener).onGotoUser(user.getContext(), Urn.forUser(456L));
