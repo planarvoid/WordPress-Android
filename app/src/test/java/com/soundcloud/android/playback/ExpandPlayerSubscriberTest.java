@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -39,5 +40,15 @@ public class ExpandPlayerSubscriberTest {
         subscriber.onError(new PlaybackOperations.UnSkippablePeriodException());
 
         verify(toastViewController).showUnkippableAdToast();
+    }
+
+    @Test
+    public void subscriberEmitsOpenPlayerFromTrackPlay() {
+        subscriber.onCompleted();
+
+        Robolectric.runUiThreadTasksIncludingDelayedTasks();
+        UIEvent event = eventbus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY);
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 }

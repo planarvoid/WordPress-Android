@@ -158,6 +158,11 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     private void restoreExpanded() {
         expand();
         notifyExpandedState();
+        trackPlayerExpandedFromExternalSource();
+    }
+
+    private void trackPlayerExpandedFromExternalSource(){
+        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerOpen(UIEvent.METHOD_CONTENT_INTERACTION));
     }
 
     private void showPanelIfNeeded() {

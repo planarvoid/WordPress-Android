@@ -222,6 +222,17 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
+    public void emitsOpenPlayerEventWhenRestoringExpandedState() {
+        controller.onCreate(createBundleWithExpandingCommand());
+        controller.onResume();
+
+        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_CONTENT_INTERACTION);
+
+        expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
+    }
+
+    @Test
     public void sendsExpandedPlayerEventWhenResumingToExpandedPlayer() {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
 

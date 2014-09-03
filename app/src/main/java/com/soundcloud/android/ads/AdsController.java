@@ -3,7 +3,6 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -68,13 +67,6 @@ public class AdsController {
         }
     };
 
-    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isAudioAd = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentPlayQueueTrackEvent event) {
-            return playQueueManager.isCurrentTrackAudioAd();
-        }
-    };
-
     private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAd = new Func1<PropertySet, Observable<AudioAd>>() {
         @Override
         public Observable<AudioAd> call(PropertySet propertySet) {
@@ -130,10 +122,6 @@ public class AdsController {
                 .filter(hasNextNonAudioAdTrack)
                 .subscribe(new PlayQueueSubscriber());
 
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .filter(isAudioAd)
-                .subscribe(new ExpandPlayerForAdSubscriber());
-
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .doOnNext(unsubscribeSkipAd)
                 .filter(isBufferingAudioAd)
@@ -183,13 +171,6 @@ public class AdsController {
                             playQueueManager.autoNextTrack();
                         }
                     });
-        }
-    }
-
-    private final class ExpandPlayerForAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
         }
     }
 

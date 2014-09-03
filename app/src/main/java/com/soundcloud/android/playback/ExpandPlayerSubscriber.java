@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.PlaybackOperations.UnSkippablePeri
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -24,6 +25,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
         @Override
         public void handleMessage(Message msg) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+            eventBus.publish(EventQueue.UI, UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY));
         }
     };
 
