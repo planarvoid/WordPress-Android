@@ -18,11 +18,13 @@
     </style>
 
     <style name="TrackInfo.Text.Main.Creator">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="TrackInfo.Text.Main.Title">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:maxLines">2</item>
@@ -38,6 +40,7 @@
         <item name="android:paddingBottom">10dp</item>
         <item name="android:background">@drawable/list_selector_gray</item>
         <item name="android:visibility">gone</item>
+        <item name="android:lineSpacingMultiplier">1</item>
     </style>
 
     <style name="TrackInfo.Text.Main.UploadedAt">
@@ -58,11 +61,13 @@
     </style>
 
     <style name="TrackInfo.Text.Stats">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:gravity">left</item>
+        <item name="android:gravity">left|center_vertical</item>
         <item name="android:singleLine">true</item>
         <item name="android:drawablePadding">8dp</item>
+        <item name="android:lineSpacingMultiplier">1</item>
     </style>
 
     <style name="TrackInfoDivider" parent="Divider.Vertical">
