@@ -28,18 +28,22 @@ public final class PlayControlEvent {
         return String.format("PlayControlEvent with attributes %s", attributes.toString());
     }
 
-    public static PlayControlEvent swipePrevious(String source) {
+    public static PlayControlEvent swipePrevious(boolean isExpanded) {
         return new PlayControlEvent()
                 .putAttribute("action", "prev")
                 .putAttribute("click or swipe", "swipe")
-                .putAttribute("location", source);
+                .putAttribute("location", getSourcePlayerFrom(isExpanded));
     }
 
-    public static PlayControlEvent swipeSkip(String source) {
+    public static PlayControlEvent swipeSkip(boolean isExpanded) {
         return new PlayControlEvent()
                 .putAttribute("action", "skip")
                 .putAttribute("click or swipe", "swipe")
-                .putAttribute("location", source);
+                .putAttribute("location", getSourcePlayerFrom(isExpanded));
+    }
+
+    private static String getSourcePlayerFrom(boolean isExpanded) {
+        return isExpanded ? SOURCE_FULL_PLAYER : SOURCE_FOOTER_PLAYER;
     }
 
     public static PlayControlEvent toggle(String source, boolean isPlaying) {
