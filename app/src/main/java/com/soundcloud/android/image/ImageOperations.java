@@ -203,10 +203,10 @@ public class ImageOperations {
 
     public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final Urn resourceUrn) {
         final Bitmap cached = getCachedListItemBitmap(resources, resourceUrn);
-        if (cached != null) {
-            return blurBitmap(cached);
-        } else {
+        if (cached == null) {
             return artwork(resourceUrn, ApiImageSize.getListItemImageSize(resources)).map(blurBitmap);
+        } else {
+            return blurBitmap(cached);
         }
     }
 

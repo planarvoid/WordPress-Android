@@ -39,7 +39,7 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     }
 
     private class BlurredOverlaySubscriber extends DefaultSubscriber<Bitmap> {
-        private WeakReference<ImageView> imageOverlayRef;
+        private final WeakReference<ImageView> imageOverlayRef;
 
         public BlurredOverlaySubscriber(ImageView imageOverlay) {
             this.imageOverlayRef = new WeakReference<ImageView>(imageOverlay);
