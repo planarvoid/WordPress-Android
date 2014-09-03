@@ -249,7 +249,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void emitsPlayerControlSwipeSkipEventOnSwipeNextWithExpandedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 2, 1);
+        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 1, 2);
 
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
@@ -259,7 +259,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void emitsPlayerControlSwipeSkipEventOnSwipeNextWithCollapsedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 2, 1);
+        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 1, 2);
 
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
@@ -269,7 +269,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void emitsPlayerControlSwipePreviousEventOnSwipePreviousWithExpandedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 1, 2);
+        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 2, 1);
 
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
@@ -279,7 +279,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void emitsPlayerControlSwipePreviousEventOnSwipePreviousWithCollapsedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 1, 2);
+        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 2, 1);
 
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
