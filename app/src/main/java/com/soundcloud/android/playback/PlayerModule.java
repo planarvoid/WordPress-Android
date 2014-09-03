@@ -2,17 +2,21 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
+import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
+import com.soundcloud.android.playback.ui.PlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerFragment;
+import com.soundcloud.android.playback.ui.view.WaveformView;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.menu.PopupMenuWrapperCompat;
 import com.soundcloud.android.view.menu.PopupMenuWrapperICS;
-import com.soundcloud.android.playback.ui.view.WaveformView;
-import com.soundcloud.android.rx.ScSchedulers;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
 
+import android.content.res.Resources;
 import android.os.Build;
 
 import javax.inject.Named;
@@ -36,6 +40,16 @@ public class PlayerModule {
             return new PopupMenuWrapperICS.Factory();
         } else {
             return new PopupMenuWrapperCompat.Factory();
+        }
+    }
+
+    @Provides
+    public PlayerArtworkLoader providePlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
+                                                          @Named("GraphicsScheduler") Scheduler graphicsScheduler) {
+        if (Build.VERSION_CODES.JELLY_BEAN_MR1 <= Build.VERSION.SDK_INT){
+            return new BlurringPlayerArtworkLoader(imageOperations, resources, graphicsScheduler);
+        } else {
+            return new PlayerArtworkLoader(imageOperations, resources);
         }
     }
 }

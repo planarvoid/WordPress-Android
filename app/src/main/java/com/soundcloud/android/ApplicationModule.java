@@ -5,6 +5,9 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.image.ImageProcessor;
+import com.soundcloud.android.image.ImageProcessorCompat;
+import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.RichNotificationPresenter;
@@ -172,6 +175,16 @@ public class ApplicationModule {
             return new CrashlyticsMemoryReporter();
         } else {
             return new MemoryReporter();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Provides
+    public ImageProcessor provideImageProcessor(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return new ImageProcessorJB(context);
+        } else {
+            return new ImageProcessorCompat();
         }
     }
 }

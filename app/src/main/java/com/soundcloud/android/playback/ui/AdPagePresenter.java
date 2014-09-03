@@ -223,7 +223,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     @Override
     public void onPlayerSlide(View trackView, float slideOffset) {
         final Holder holder = getViewHolder(trackView);
-        helper.configureViewsFromSlide(slideOffset, holder.playerOverlayController, holder.footer, holder.close);
+        helper.configureViewsFromSlide(slideOffset, holder.footer, holder.close, holder.playerOverlayController);
     }
 
     private void setEnabled(boolean enabled, Iterable<View> views) {

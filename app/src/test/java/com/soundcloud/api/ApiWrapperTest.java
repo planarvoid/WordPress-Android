@@ -217,7 +217,7 @@ public class ApiWrapperTest {
         layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"fr3sh\",\n" +
                 "  \"expires_in\":    3600,\n" +
-                "  \"scope\":         null,\n" +
+                "  \"scope\":         \"default\",\n" +
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 
@@ -387,7 +387,7 @@ public class ApiWrapperTest {
         layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"fr3sh\",\n" +
                 "  \"expires_in\":    3600,\n" +
-                "  \"scope\":         null,\n" +
+                "  \"scope\":         \"default\",\n" +
                 "  \"refresh_token\": \"refresh\"\n" +
                 "}");
 

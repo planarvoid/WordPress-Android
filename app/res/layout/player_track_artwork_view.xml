@@ -3,11 +3,17 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:layout_width="match_parent"
        android:layout_height="match_parent">
+
     <com.soundcloud.android.view.AspectRatioImageView
             android:id="@+id/artwork_image_view"
-            style="@style/PlayerTrackArtwork" />
-    <View android:id="@+id/artwork_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/artwork_overlay" />
+            style="@style/PlayerTrackArtwork"/>
+
+    <com.soundcloud.android.view.AspectRatioImageView
+            android:id="@+id/artwork_overlay_image"
+            style="@style/PlayerTrackArtwork"/>
+
+    <View android:id="@+id/artwork_overlay_dark"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:background="@color/artwork_overlay"/>
 </merge>

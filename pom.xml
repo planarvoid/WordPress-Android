@@ -19,7 +19,7 @@
     <properties>
         <maven.build.timestamp.format>yy.MM.dd</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <androidApiLevel>16</androidApiLevel>
+        <androidApiLevel>19</androidApiLevel>
         <android.maven.plugin.version>3.8.1</android.maven.plugin.version>
         <source.version>1.6</source.version>
     </properties>
