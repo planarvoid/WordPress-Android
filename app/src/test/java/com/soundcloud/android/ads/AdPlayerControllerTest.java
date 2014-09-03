@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -48,6 +49,18 @@ public class AdPlayerControllerTest {
     }
 
     @Test
+    public void emitPlayerOpenWhenAudioAdIsPlaying() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        setAudioAdIsPlaying(true);
+
+        resumeFromBackground();
+
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY);
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+    }
+
+    @Test
     public void doesNotExpandAudioAdIfItHasAlreadyBeenExpanded() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         setAudioAdIsPlaying(true);
@@ -56,6 +69,17 @@ public class AdPlayerControllerTest {
         resumeFromBackground();
 
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).toNumber(0);
+    }
+
+    @Test
+    public void doNotEmitPlayerOpenIfItHasAlreadyBeenExpanded() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        setAudioAdIsPlaying(true);
+
+        resumeFromBackground();
+        resumeFromBackground();
+
+        eventBus.verifyNoEventsOn(EventQueue.UI);
     }
 
     @Test

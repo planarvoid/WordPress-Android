@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
@@ -282,23 +281,5 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
 
         verify(playQueueManager, never()).autoNextTrack();
-    }
-
-    @Test
-    public void sendExpandPlayerEventWhenCurrentTrackIsAudioAdOnPlayQueueEvent() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
-
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
-    }
-
-    @Test
-    public void doNotSendExpandPlayerEventWhenCurrentTrackIsNotAudioAdOnPlayQueueEvent() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
-
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
-
-        eventBus.verifyNoEventsOn(EventQueue.PLAYER_UI);
     }
 }
