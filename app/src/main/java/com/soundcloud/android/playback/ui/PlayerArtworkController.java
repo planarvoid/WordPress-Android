@@ -5,10 +5,9 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
+import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -16,7 +15,6 @@ import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.tracks.TrackUrn;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,8 +24,9 @@ import javax.inject.Inject;
 public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener, ImageListener {
     private final PlayerTrackArtworkView artworkView;
     private final ImageView wrappedImageView;
+    private final ImageView imageOverlay;
     private final ProgressController progressController;
-    private final ImageOperations imageOperations;
+    private final PlayerArtworkLoader playerArtworkLoader;
 
     private TranslateXHelper helper;
     private boolean suppressProgress;
@@ -37,10 +36,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public PlayerArtworkController(PlayerTrackArtworkView artworkView,
                                    ProgressController.Factory animationControllerFactory,
-                                   ImageOperations imageOperations) {
+                                   PlayerArtworkLoader playerArtworkLoader) {
         this.artworkView = artworkView;
-        this.imageOperations = imageOperations;
+        this.playerArtworkLoader = playerArtworkLoader;
         wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
+        imageOverlay = (ImageView) artworkView.findViewById(R.id.artwork_overlay_image);
         progressController = animationControllerFactory.create(wrappedImageView);
         artworkView.setOnWidthChangedListener(this);
     }
@@ -63,6 +63,10 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     public void showIdleState() {
         isPlaying = false;
         progressController.cancelProgressAnimation();
+        if (helper != null){
+            ViewHelper.setTranslationX(imageOverlay, ViewHelper.getTranslationX(wrappedImageView));
+        }
+
     }
 
     @Override
@@ -80,6 +84,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     public void displayScrubPosition(float scrubPosition) {
         if (helper != null) {
             helper.setValueFromProportion(wrappedImageView, scrubPosition);
+            helper.setValueFromProportion(imageOverlay, scrubPosition);
         }
     }
 
@@ -106,13 +111,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public void clear(){
         wrappedImageView.setImageDrawable(null);
+        imageOverlay.setImageDrawable(null);
     }
 
     public void loadArtwork(TrackUrn urn, boolean isHighPriority) {
-        final Resources resources = wrappedImageView.getResources();
-        final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
-        final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);
-        imageOperations.displayInPlayer(urn, size, wrappedImageView, this, cachedListBitmap, isHighPriority);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlay, this, isHighPriority);
     }
 
     public void reset() {
@@ -127,22 +130,24 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         if (width > 0 && imageViewWidth > 0) {
             helper = new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width)));
             progressController.setHelper(helper);
+
         }
     }
 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
-        private final ImageOperations imageOperations;
+        private final PlayerArtworkLoader playerArtworkLoader;
 
         @Inject
-        Factory(ProgressController.Factory animationControllerFactory, ImageOperations imageOperations) {
+        Factory(ProgressController.Factory animationControllerFactory, PlayerArtworkLoader playerArtworkLoader) {
             this.animationControllerFactory = animationControllerFactory;
-            this.imageOperations = imageOperations;
+            this.playerArtworkLoader = playerArtworkLoader;
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
             return new PlayerArtworkController(artworkView, animationControllerFactory,
-                    imageOperations);
+                    playerArtworkLoader);
         }
     }
+
 }

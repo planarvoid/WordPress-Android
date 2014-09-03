@@ -24,6 +24,7 @@ import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -63,11 +64,18 @@ public class ImageOperations {
     private final Cache<String, TransitionDrawable> placeholderCache;
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final FileNameGenerator fileNameGenerator;
+    private final Func1<Bitmap, Bitmap> blurBitmap = new Func1<Bitmap, Bitmap>() {
+        @Override
+        public Bitmap call(Bitmap bitmap) {
+            return imageProcessor.blurBitmap(bitmap);
+        }
+    };
+    private ImageProcessor imageProcessor;
 
     @Inject
     public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator,
-                           FallbackBitmapLoadingAdapter.Factory adapterFactory) {
-        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, adapterFactory,
+                           FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
+        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, adapterFactory,imageProcessor,
                 CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, TransitionDrawable>build(),
                 new HashCodeFileNameGenerator());
 
@@ -76,13 +84,14 @@ public class ImageOperations {
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, FallbackBitmapLoadingAdapter.Factory adapterFactory, Cache<String, TransitionDrawable> placeholderCache,
+    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
                     FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.imageEndpointBuilder = imageEndpointBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.placeholderCache = placeholderCache;
         this.adapterFactory = adapterFactory;
+        this.imageProcessor = imageProcessor;
         this.fileNameGenerator = fileNameGenerator;
     }
 
@@ -188,6 +197,25 @@ public class ImageOperations {
                 final GradientDrawable fallbackDrawable = placeholderGenerator.generateDrawable(resourceUrn.toString());
                 final Bitmap fallback = ImageUtils.toBitmap(fallbackDrawable, targetWidth, targetHeight);
                 load(resourceUrn, apiImageSize, targetWidth, targetHeight, adapterFactory.create(subscriber, fallback));
+            }
+        });
+    }
+
+    public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final Urn resourceUrn) {
+        final Bitmap cached = getCachedListItemBitmap(resources, resourceUrn);
+        if (cached != null) {
+            return blurBitmap(cached);
+        } else {
+            return artwork(resourceUrn, ApiImageSize.getListItemImageSize(resources)).map(blurBitmap);
+        }
+    }
+
+    private Observable<Bitmap> blurBitmap(final Bitmap original) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                subscriber.onNext(imageProcessor.blurBitmap(original));
+                subscriber.onCompleted();
             }
         });
     }

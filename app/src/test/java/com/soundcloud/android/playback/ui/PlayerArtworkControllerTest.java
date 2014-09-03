@@ -9,9 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -27,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.annotation.TargetApi;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,9 +37,10 @@ public class PlayerArtworkControllerTest {
     @Mock private PlayerTrackArtworkView playerTrackArtworkView;
     @Mock private ProgressController progressController;
     @Mock private ImageView wrappedImageView;
+    @Mock private ImageView artworkOverlayImage;
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
-    @Mock private ImageOperations imageOperations;
+    @Mock private PlayerArtworkLoader playerArtworkLoader;
 
     @Before
     public void setUp() throws Exception {
@@ -50,7 +48,8 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
-        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, imageOperations).create(playerTrackArtworkView);
+        when(playerTrackArtworkView.findViewById(R.id.artwork_overlay_image)).thenReturn(artworkOverlayImage);
+        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playerArtworkLoader).create(playerTrackArtworkView);
     }
 
     @Test
@@ -108,6 +107,18 @@ public class PlayerArtworkControllerTest {
         verify(progressController).cancelProgressAnimation();
     }
 
+    @Test
+    public void clearClearsWrappedImageView() {
+        playerArtworkController.clear();
+        verify(wrappedImageView).setImageDrawable(null);
+    }
+
+    @Test
+    public void clearClearsImageOverlay() {
+        playerArtworkController.clear();
+        verify(artworkOverlayImage).setImageDrawable(null);
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionUsesHelperToSetImageViewPosition() {
@@ -122,8 +133,9 @@ public class PlayerArtworkControllerTest {
     public void loadArtworkDisplaysArtworkThroughImageOperations() throws Exception {
         final TrackUrn urn = Urn.forTrack(123L);
         when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
+        when(wrappedImageView.getContext()).thenReturn(Robolectric.application);
+
         playerArtworkController.loadArtwork(urn, true);
-        verify(imageOperations).displayInPlayer(same(urn), same(ApiImageSize.T500),
-                same(wrappedImageView), any(ImageListener.class), any(Bitmap.class), eq(true));
+        verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), any(ImageListener.class), eq(true));
     }
 }

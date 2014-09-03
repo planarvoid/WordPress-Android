@@ -77,6 +77,7 @@ public class ImageOperationsTest {
     @Mock FallbackBitmapLoadingAdapter.Factory viewlessLoadingAdapterFactory;
     @Mock FallbackBitmapLoadingAdapter fallbackBitmapLoadingAdapter;
     @Mock FileNameGenerator fileNameGenerator;
+    @Mock ImageProcessor imageProcessor;
 
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
@@ -92,7 +93,7 @@ public class ImageOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory, cache, fileNameGenerator);
+        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory, imageProcessor, cache, fileNameGenerator);
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
         when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
@@ -331,6 +332,21 @@ public class ImageOperationsTest {
         verify(imageLoader).loadImage(eq(RESOLVER_URL_LARGE), captor.capture());
         captor.getValue().onLoadingFailed("asdf", imageView, new FailReason(FailReason.FailType.DECODING_ERROR, new Exception("Decoding error")));
         verify(fallbackBitmapLoadingAdapter).onLoadingFailed("asdf", imageView, "Decoding error");
+    }
+
+    @Test
+    public void blurredPlayerArtworkReturnsBlurredImageFromCache() throws Exception {
+        final TestSubscriber<Bitmap> subscriber = new TestSubscriber<Bitmap>();
+        Bitmap cachedBitmaop = Bitmap.createBitmap(1,0, Bitmap.Config.RGB_565);
+        Bitmap blurredBitmap = Bitmap.createBitmap(0,1, Bitmap.Config.RGB_565);
+
+        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.BADGE)).thenReturn(RESOLVER_URL_LARGE);
+        when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
+        when(imageProcessor.blurBitmap(cachedBitmaop)).thenReturn(blurredBitmap);
+
+        imageOperations.blurredPlayerArtwork(Robolectric.application.getResources(), URN).subscribe(subscriber);
+
+        expect(subscriber.getOnNextEvents()).toContainExactly(blurredBitmap);
     }
 
     private void verifyFullCacheOptions() {
