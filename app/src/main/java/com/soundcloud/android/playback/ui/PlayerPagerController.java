@@ -70,6 +70,16 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         }
     };
 
+    private final Action1<PlayerUIEvent> trackPlayerSwipeAction = new Action1<PlayerUIEvent>() {
+        @Override
+        public void call(PlayerUIEvent event) {
+            final boolean isExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+            final PlayControlEvent trackEvent = isSwipeNext() ?
+                    PlayControlEvent.swipeSkip(isExpanded) : PlayControlEvent.swipePrevious(isExpanded);
+            eventBus.publish(EventQueue.PLAY_CONTROL, trackEvent);
+        }
+    };
+
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
@@ -215,15 +225,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     private void trackPageChangedOnSwipe() {
         if (wasDragging) {
-            eventBus.queue(EventQueue.PLAYER_UI).first().subscribe(new Action1<PlayerUIEvent>() {
-                @Override
-                public void call(PlayerUIEvent event) {
-                    final boolean isExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
-                    final PlayControlEvent trackEvent = isSwipeNext() ?
-                          PlayControlEvent.swipeSkip(isExpanded) : PlayControlEvent.swipePrevious(isExpanded);
-                    eventBus.publish(EventQueue.PLAY_CONTROL, trackEvent);
-                }
-            });
+            eventBus.queue(EventQueue.PLAYER_UI).first().subscribe(trackPlayerSwipeAction);
         }
     }
 
