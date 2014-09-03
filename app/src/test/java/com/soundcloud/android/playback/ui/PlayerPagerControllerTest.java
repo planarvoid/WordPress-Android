@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -11,8 +12,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -220,6 +223,54 @@ public class PlayerPagerControllerTest {
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
         verify(adapter).onTrackChange(); // times(1)
+    }
+
+    @Test
+    public void emitsPlayerControlSwipeSkipEventOnSwipeNextWithExpandedPlayer() {
+        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 2, 1);
+
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.swipeSkip(true));
+    }
+
+    @Test
+    public void emitsPlayerControlSwipeSkipEventOnSwipeNextWithCollapsedPlayer() {
+        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 2, 1);
+
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.swipeSkip(false));
+    }
+
+    @Test
+    public void emitsPlayerControlSwipePreviousEventOnSwipePreviousWithExpandedPlayer() {
+        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 1, 2);
+
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.swipePrevious(true));
+    }
+
+    @Test
+    public void emitsPlayerControlSwipePreviousEventOnSwipePreviousWithCollapsedPlayer() {
+        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 1, 2);
+
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.swipePrevious(false));
+    }
+
+    private void startPagerSwipe(PlayerUIEvent lastSlidingPlayerEvent, int newPosition, int oldPosition) {
+        eventBus.publish(EventQueue.PLAYER_UI, lastSlidingPlayerEvent);
+        when(playQueueManager.getCurrentPosition()).thenReturn(newPosition);
+        when(viewPager.getCurrentItem()).thenReturn(oldPosition);
+        controller.onPageScrollStateChanged(ViewPager.SCROLL_STATE_DRAGGING);
+        controller.onPageSelected(newPosition);
     }
 
     @Test

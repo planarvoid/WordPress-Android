@@ -5,8 +5,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -43,8 +45,9 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private CompositeSubscription subscription;
     private Subscription unblockPagerSubscription = Subscriptions.empty();
     private PlayerTrackPager trackPager;
-    private boolean shouldChangeTrackOnIdle;
     private boolean isResumed;
+    private boolean wasPageChanged;
+    private boolean wasDragging;
 
     private final Handler changeTracksHandler = new Handler() {
         @Override
@@ -169,7 +172,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
             unblockPagerSubscription.unsubscribe();
             setQueuePosition(playQueueManager.getCurrentPosition());
 
-            if (playQueueManager.isCurrentTrackAudioAd()){
+            if (playQueueManager.isCurrentTrackAudioAd()) {
                 trackPager.setPagingEnabled(false);
                 unblockPagerSubscription = checkAdProgress.subscribe(unlockPager);
             } else {
@@ -187,16 +190,45 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     public void onPageSelected(int position) {
         trackPager.setPagingEnabled(!playQueueManager.isAudioAdAtPosition(position)
                 || playQueueManager.isCurrentPosition(position));
-        shouldChangeTrackOnIdle = true;
+        wasPageChanged = true;
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-        if (shouldChangeTrackOnIdle && state == ViewPager.SCROLL_STATE_IDLE) {
+        if (wasPageChanged && state == ViewPager.SCROLL_STATE_IDLE) {
+            trackPageChangedOnSwipe();
             changeTracksIfInForeground();
             adapter.onTrackChange();
-            shouldChangeTrackOnIdle = false;
+            wasPageChanged = false;
         }
+
+        updateDraggingState(state);
+    }
+
+    private void updateDraggingState(int state) {
+        if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+            wasDragging = true;
+        } else if (state == ViewPager.SCROLL_STATE_IDLE) {
+            wasDragging = false;
+        }
+    }
+
+    private void trackPageChangedOnSwipe() {
+        if (wasDragging) {
+            eventBus.queue(EventQueue.PLAYER_UI).first().subscribe(new Action1<PlayerUIEvent>() {
+                @Override
+                public void call(PlayerUIEvent event) {
+                    final boolean isExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+                    final PlayControlEvent trackEvent = isSwipeNext() ?
+                          PlayControlEvent.swipeSkip(isExpanded) : PlayControlEvent.swipePrevious(isExpanded);
+                    eventBus.publish(EventQueue.PLAY_CONTROL, trackEvent);
+                }
+            });
+        }
+    }
+
+    private boolean isSwipeNext() {
+        return playQueueManager.getCurrentPosition() > trackPager.getCurrentItem();
     }
 
     private void changeTracksIfInForeground() {
@@ -206,7 +238,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         }
     }
 
-    private final class ErrorSubscriber extends DefaultSubscriber<Playa.StateTransition>{
+    private final class ErrorSubscriber extends DefaultSubscriber<Playa.StateTransition> {
         @Override
         public void onNext(Playa.StateTransition newState) {
             playbackToastViewController.showError(newState.getReason());

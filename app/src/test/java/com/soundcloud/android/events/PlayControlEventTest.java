@@ -12,19 +12,35 @@ public class PlayControlEventTest {
     private PlayControlEvent event;
 
     @Test
-    public void shouldCreateEventFromPlayerSwipePrevious() {
-        event = PlayControlEvent.swipePrevious("full_player");
+    public void shouldCreateEventFromExpandedPlayerSwipePrevious() {
+        event = PlayControlEvent.swipePrevious(true);
         expect(event.getAttributes().get("action")).toEqual("prev");
         expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
-        expect(event.getAttributes().get("location")).toEqual("full_player");
+        expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FULL_PLAYER);
     }
 
     @Test
-    public void shouldCreateEventFromPlayerSwipeSkip() {
-        event = PlayControlEvent.swipeSkip("full_player");
+    public void shouldCreateEventFromCollapsedPlayerSwipePrevious() {
+        event = PlayControlEvent.swipePrevious(false);
+        expect(event.getAttributes().get("action")).toEqual("prev");
+        expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
+        expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FOOTER_PLAYER);
+    }
+
+    @Test
+    public void shouldCreateEventFromExpandedPlayerSwipeSkip() {
+        event = PlayControlEvent.swipeSkip(true);
         expect(event.getAttributes().get("action")).toEqual("skip");
         expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
-        expect(event.getAttributes().get("location")).toEqual("full_player");
+        expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FULL_PLAYER);
+    }
+
+    @Test
+    public void shouldCreateEventFromCollapsedPlayerSwipeSkip() {
+        event = PlayControlEvent.swipeSkip(false);
+        expect(event.getAttributes().get("action")).toEqual("skip");
+        expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
+        expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FOOTER_PLAYER);
     }
 
     @Test
