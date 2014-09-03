@@ -232,7 +232,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     }
 
     private boolean isSwipeNext() {
-        return playQueueManager.getCurrentPosition() > trackPager.getCurrentItem();
+        return trackPager.getCurrentItem() > playQueueManager.getCurrentPosition();
     }
 
     private void changeTracksIfInForeground() {
