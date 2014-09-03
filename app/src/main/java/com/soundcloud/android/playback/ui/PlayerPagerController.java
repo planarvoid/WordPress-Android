@@ -150,11 +150,13 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
             @Override
             public void onNext() {
                 trackPager.setCurrentItem(trackPager.getCurrentItem() + 1);
+                eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
             }
 
             @Override
             public void onPrevious() {
                 trackPager.setCurrentItem(trackPager.getCurrentItem() - 1);
+                eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
             }
         };
     }

@@ -80,6 +80,28 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
+    public void onNextOnSkipListenerEmitsPlayerSkipClickEvent() {
+        when(viewPager.getCurrentItem()).thenReturn(3);
+
+        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        skipListenerArgumentCaptor.getValue().onNext();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
+    }
+
+    @Test
+    public void onPreviousOnSkipListenerEmitsPlayerPreviousClickEvent() {
+        when(viewPager.getCurrentItem()).thenReturn(3);
+
+        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        skipListenerArgumentCaptor.getValue().onPrevious();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
+    }
+
+    @Test
     public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
