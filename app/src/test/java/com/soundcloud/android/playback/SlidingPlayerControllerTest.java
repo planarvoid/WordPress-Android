@@ -227,7 +227,7 @@ public class SlidingPlayerControllerTest {
         controller.onResume();
 
         UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_CONTENT_INTERACTION);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_EXTERNAL_SOURCE);
 
         expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
     }

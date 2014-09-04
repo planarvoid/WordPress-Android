@@ -74,7 +74,7 @@ class TrackPageListener {
                 .subscribe(startProfileActivity(activityContext, userUrn));
 
         requestPlayerCollapse();
-        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerClose(UIEvent.METHOD_CONTENT_INTERACTION));
+        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN));
     }
 
     public void onScrub(int newScrubState) {
