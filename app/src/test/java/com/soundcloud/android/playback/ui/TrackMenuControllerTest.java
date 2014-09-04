@@ -13,11 +13,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
@@ -44,24 +47,25 @@ public class TrackMenuControllerTest {
     @Mock private SoundAssociationOperations soundAssociationOps;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private MockObservable<PropertySet> repostObservable;
 
+    private MockObservable<PropertySet> repostObservable;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
         track = new PlayerTrack(TestPropertySets.expectedTrackForPlayer());
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory)
+        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
                 .create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
         when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
+        when(playQueueManager.getScreenTag()).thenReturn("screen");
     }
 
     @Test
     public void clickingShareMenuItemSendsShareIntentWithAllData() {
-        MenuItem share = mock(MenuItem.class);
-        when(share.getItemId()).thenReturn(R.id.share);
+        MenuItem share = mockMenuItem(R.id.share);
 
         controller.onMenuItemClick(share);
 
@@ -72,8 +76,7 @@ public class TrackMenuControllerTest {
 
     @Test
     public void clickingShareMenuItemSendsShareIntentWithoutUser() {
-        MenuItem share = mock(MenuItem.class);
-        when(share.getItemId()).thenReturn(R.id.share);
+        MenuItem share = mockMenuItem(R.id.share);
         PlayerTrack withoutUser = new PlayerTrack(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
@@ -92,8 +95,7 @@ public class TrackMenuControllerTest {
 
     @Test
     public void doesNotSendShareIntentForPrivateTracks() {
-        MenuItem share = mock(MenuItem.class);
-        when(share.getItemId()).thenReturn(R.id.share);
+        MenuItem share = mockMenuItem(R.id.share);
         PlayerTrack privateTrack = new PlayerTrack(PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.IS_PRIVATE.bind(true),
@@ -109,9 +111,18 @@ public class TrackMenuControllerTest {
     }
 
     @Test
-    public void clickingRepostMenuItemCallsOnRepostWithTrue() throws Exception {
-        MenuItem repost = mock(MenuItem.class);
-        when(repost.getItemId()).thenReturn(R.id.repost);
+    public void clickingShareMenuItemEmitsShareEvent() {
+        MenuItem share = mockMenuItem(R.id.share);
+
+        controller.onMenuItemClick(share);
+
+        UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn());
+        expectUIEvent(expectedEvent);
+    }
+
+    @Test
+    public void clickingRepostMenuItemCallsOnRepostWithTrue() {
+        MenuItem repost = mockMenuItem(R.id.repost);
 
         controller.onMenuItemClick(repost);
 
@@ -120,13 +131,42 @@ public class TrackMenuControllerTest {
     }
 
     @Test
-    public void clickingUnpostMenuItemCallsOnRepostWithFalse() throws Exception {
-        MenuItem unpost = mock(MenuItem.class);
-        when(unpost.getItemId()).thenReturn(R.id.unpost);
+    public void clickingUnpostMenuItemCallsOnRepostWithFalse() {
+        MenuItem unpost = mockMenuItem(R.id.unpost);
 
         controller.onMenuItemClick(unpost);
 
         verify(soundAssociationOps).toggleRepost(track.getUrn(), false);
         expect(repostObservable.subscribedTo()).toBeTrue();
+    }
+
+    @Test
+    public void clickingRepostMenuItemEmitsRepostEvent() {
+        MenuItem repost = mockMenuItem(R.id.repost);
+        controller.onMenuItemClick(repost);
+
+        UIEvent expectedEvent = UIEvent.fromToggleRepost(true, "screen", track.getUrn());
+        expectUIEvent(expectedEvent);
+    }
+
+    @Test
+    public void clickingUnpostMenuItemEmitsRepostEvent() {
+        MenuItem unpost = mockMenuItem(R.id.unpost);
+        controller.onMenuItemClick(unpost);
+
+        UIEvent expectedEvent = UIEvent.fromToggleRepost(false, "screen", track.getUrn());
+        expectUIEvent(expectedEvent);
+    }
+
+    private void expectUIEvent(UIEvent expectedEvent) {
+        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toEqual(expectedEvent.getKind());
+        expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
+    }
+
+    private MenuItem mockMenuItem(int menuteItemId) {
+        MenuItem menuItem = mock(MenuItem.class);
+        when(menuItem.getItemId()).thenReturn(menuteItemId);
+        return menuItem;
     }
 }

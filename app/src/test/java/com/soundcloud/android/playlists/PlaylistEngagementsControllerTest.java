@@ -137,7 +137,7 @@ public class PlaylistEngagementsControllerTest {
 
     @Test
     public void shouldLikeTrackWhenCheckingLikeButton() {
-        PublicApiTrack track = new PublicApiTrack();
+        PublicApiTrack track = new PublicApiTrack(123L);
         controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -155,7 +155,7 @@ public class PlaylistEngagementsControllerTest {
 
     @Test
     public void shouldRepostTrackWhenCheckingRepostButton() {
-        PublicApiTrack track = new PublicApiTrack();
+        PublicApiTrack track = new PublicApiTrack(123L);
         controller.setPlayable(track);
 
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
@@ -172,7 +172,7 @@ public class PlaylistEngagementsControllerTest {
 
     @Test
     public void shouldUnsubscribeFromOngoingSubscriptionsWhenActivityDestroyed() {
-        PublicApiTrack track = new PublicApiTrack();
+        PublicApiTrack track = new PublicApiTrack(123L);
         controller.setPlayable(track);
 
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);

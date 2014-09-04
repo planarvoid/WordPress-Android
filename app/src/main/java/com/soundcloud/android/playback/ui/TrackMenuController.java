@@ -5,9 +5,13 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
@@ -30,6 +34,7 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
+    private final EventBus eventBus;
 
     @Nullable private PlayerTrack track;
 
@@ -37,11 +42,13 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
                                 PlayQueueManager playQueueManager,
                                 SoundAssociationOperations associationOperations,
                                 FragmentActivity context,
-                                PopupMenuWrapper popupMenuWrapper) {
+                                PopupMenuWrapper popupMenuWrapper,
+                                EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
+        this.eventBus = eventBus;
         setupMenu(anchorView);
     }
 
@@ -61,28 +68,43 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         checkNotNull(track);
         switch (menuItem.getItemId()) {
             case R.id.share:
-                if (!track.isPrivate()) {
-                    activity.startActivity(buildShareIntent(track));
-                }
+                handleShare(track);
                 return true;
             case R.id.repost:
-                fireAndForget(associationOperations.toggleRepost(track.getUrn(), true));
+                handleRepost(track.getUrn());
                 return true;
             case R.id.unpost:
-                fireAndForget(associationOperations.toggleRepost(track.getUrn(), false));
+                handleUnpost(track.getUrn());
                 return true;
             case R.id.info:
                 TrackInfoFragment.create(track.getUrn()).show(activity.getSupportFragmentManager(), INFO_DIALOG_TAG);
                 return true;
             case R.id.add_to_playlist:
-                showAddToPlaylistDialog();
+                showAddToPlaylistDialog(track);
                 return true;
             default:
                 return false;
         }
     }
 
-    private void showAddToPlaylistDialog() {
+    private void handleShare(PlayerTrack track) {
+        if (!track.isPrivate()) {
+            activity.startActivity(buildShareIntent(track));
+            eventBus.publish(EventQueue.UI, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn()));
+        }
+    }
+
+    private void handleUnpost(TrackUrn urn) {
+        fireAndForget(associationOperations.toggleRepost(urn, false));
+        eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(false, playQueueManager.getScreenTag(), urn));
+    }
+
+    private void handleRepost(TrackUrn urn) {
+        fireAndForget(associationOperations.toggleRepost(urn, true));
+        eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
+    }
+
+    private void showAddToPlaylistDialog(PlayerTrack track) {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.toPropertySet(), playQueueManager.getScreenTag());
         from.show(activity.getSupportFragmentManager(), PLAYLIST_DIALOG_TAG);
     }
@@ -93,12 +115,12 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         setMenuPrivacy(track.isPrivate());
     }
 
-    public void setIsUserRepost(boolean isUserRepost){
+    public void setIsUserRepost(boolean isUserRepost) {
         popupMenuWrapper.setItemVisible(R.id.unpost, isUserRepost);
         popupMenuWrapper.setItemVisible(R.id.repost, !isUserRepost);
     }
 
-    private void setMenuPrivacy(boolean isPrivate){
+    private void setMenuPrivacy(boolean isPrivate) {
         popupMenuWrapper.setItemEnabled(R.id.unpost, isPrivate);
         popupMenuWrapper.setItemEnabled(R.id.repost, !isPrivate);
         popupMenuWrapper.setItemEnabled(R.id.share, !isPrivate);
@@ -130,18 +152,23 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         private final PlayQueueManager playQueueManager;
         private final SoundAssociationOperations associationOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
+        private final EventBus eventBus;
 
         @Inject
-        Factory(PlayQueueManager playQueueManager, SoundAssociationOperations associationOperations, PopupMenuWrapper.Factory popupMenuWrapperFactory) {
+        Factory(PlayQueueManager playQueueManager,
+                SoundAssociationOperations associationOperations,
+                PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                EventBus eventBus) {
             this.playQueueManager = playQueueManager;
             this.associationOperations = associationOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
+            this.eventBus = eventBus;
         }
 
         TrackMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
             return new TrackMenuController(anchorView, playQueueManager, associationOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView));
+                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
         }
     }
 
