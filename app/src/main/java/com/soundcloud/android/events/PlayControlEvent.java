@@ -42,6 +42,13 @@ public final class PlayControlEvent {
                 .putAttribute("location", getSourcePlayerFrom(isExpanded));
     }
 
+    public static PlayControlEvent skipAd() {
+        return new PlayControlEvent()
+                .putAttribute("action", "skip_ad")
+                .putAttribute("tap or swipe", "tap")
+                .putAttribute("location", SOURCE_FULL_PLAYER);
+    }
+
     private static String getSourcePlayerFrom(boolean isExpanded) {
         return isExpanded ? SOURCE_FULL_PLAYER : SOURCE_FOOTER_PLAYER;
     }

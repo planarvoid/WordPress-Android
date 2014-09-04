@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -69,4 +70,27 @@ public class AdPageListenerTest {
         expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }
 
+    @Test
+    public void onNextEmitsSkipEventWithFullPlayer() {
+        listener.onNext();
+
+        PlayControlEvent expectedEvent = PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expectedEvent);
+    }
+
+    @Test
+    public void onPreviousEmitsPreviousEventWithFullPlayer() {
+        listener.onPrevious();
+
+        PlayControlEvent expectedEvent = PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expectedEvent);
+    }
+
+    @Test
+    public void skipAdEmitsSkipADEventWithFullPlayer() {
+        listener.onSkipAd();
+
+        PlayControlEvent expectedEvent = PlayControlEvent.skipAd();
+        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expectedEvent);
+    }
 }

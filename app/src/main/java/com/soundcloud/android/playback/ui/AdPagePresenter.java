@@ -149,7 +149,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 listener.onAboutAds((FragmentActivity) view.getContext());
                 break;
             case R.id.skip_ad:
-                listener.skipAd();
+                listener.onSkipAd();
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID");

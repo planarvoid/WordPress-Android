@@ -112,7 +112,7 @@ public class AdPagePresenterTest {
     public void clickSkipAdShouldSkipAd() {
         adView.findViewById(R.id.skip_ad).performClick();
 
-        verify(pageListener).skipAd();
+        verify(pageListener).onSkipAd();
     }
 
     @Test

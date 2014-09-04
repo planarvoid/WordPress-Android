@@ -5,6 +5,7 @@ import static eu.inmite.android.lib.dialogs.SimpleDialogFragment.createBuilder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -37,14 +38,17 @@ class AdPageListener extends PageListener {
 
     public void onNext() {
         playbackOperations.nextTrack();
+        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onPrevious() {
         playbackOperations.previousTrack();
+        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
-    public void skipAd() {
+    public void onSkipAd() {
         playbackOperations.nextTrack();
+        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skipAd());
     }
 
     public void onClickThrough() {

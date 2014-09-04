@@ -44,6 +44,14 @@ public class PlayControlEventTest {
     }
 
     @Test
+    public void shouldCreateEventFromSkipAd() {
+        event = PlayControlEvent.skipAd();
+        expect(event.getAttributes().get("action")).toEqual("skip_ad");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("tap");
+        expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FULL_PLAYER);
+    }
+
+    @Test
     public void shouldCreateEventFromPlayIntentWithSource() {
         event = PlayControlEvent.play("widget");
         expect(event.getAttributes().get("action")).toEqual("play");
