@@ -18,6 +18,8 @@ final class LocalyticsEvents {
         static final String SHARE = "Share";
         static final String SHUFFLE_LIKES = "Shuffle likes";
         static final String NAVIGATION = "Navigation";
+        static final String PLAYER_CLOSE = "Player close";
+        static final String PLAYER_OPEN = "Player open";
     }
 
     static final class Onboarding {

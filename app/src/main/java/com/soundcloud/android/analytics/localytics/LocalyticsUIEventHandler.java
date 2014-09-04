@@ -52,6 +52,12 @@ class LocalyticsUIEventHandler {
             case NAVIGATION:
                 localyticsSession.tagEvent(LocalyticsEvents.UI.NAVIGATION, eventAttributes);
                 break;
+            case PLAYER_OPEN:
+                localyticsSession.tagEvent(LocalyticsEvents.UI.PLAYER_OPEN, eventAttributes);
+                break;
+            case PLAYER_CLOSE:
+                localyticsSession.tagEvent(LocalyticsEvents.UI.PLAYER_CLOSE, eventAttributes);
+                break;
             default:
                 break;
         }

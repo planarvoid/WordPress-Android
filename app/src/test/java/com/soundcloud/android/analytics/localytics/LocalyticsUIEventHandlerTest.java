@@ -17,8 +17,7 @@ public class LocalyticsUIEventHandlerTest {
 
     private LocalyticsUIEventHandler localyticsUIEventHandler;
 
-    @Mock
-    private LocalyticsSession localyticsSession;
+    @Mock private LocalyticsSession localyticsSession;
 
     @Before
     public void setUp() throws Exception {
@@ -26,80 +25,93 @@ public class LocalyticsUIEventHandlerTest {
     }
 
     @Test
-    public void shouldHandleEventFollow() throws Exception {
+    public void shouldHandleEventFollow() {
         UIEvent event = UIEvent.fromToggleFollow(true, "screen", 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Follow", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventUnfollow() throws Exception {
+    public void shouldHandleEventUnfollow() {
         UIEvent event = UIEvent.fromToggleFollow(false, "screen", 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unfollow", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventLike() throws Exception {
+    public void shouldHandleEventLike() {
         UIEvent event = UIEvent.fromToggleLike(true, "screen", new PublicApiTrack(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Like", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventUnlike() throws Exception {
+    public void shouldHandleEventUnlike() {
         UIEvent event = UIEvent.fromToggleLike(false, "screen", new PublicApiTrack(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unlike", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventRepost() throws Exception {
+    public void shouldHandleEventRepost() {
         UIEvent event = UIEvent.fromToggleRepost(true, "screen", new PublicApiTrack(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Repost", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventUnrepost() throws Exception {
+    public void shouldHandleEventUnrepost() {
         UIEvent event = UIEvent.fromToggleRepost(false, "screen", new PublicApiTrack(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unrepost", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventAddToPlaylist() throws Exception {
+    public void shouldHandleEventAddToPlaylist() {
         UIEvent event = UIEvent.fromAddToPlaylist("screen", true, 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Add to playlist", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventComment() throws Exception {
+    public void shouldHandleEventComment() {
         UIEvent event = UIEvent.fromComment("screen", 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Comment", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventShare() throws Exception {
+    public void shouldHandleEventShare() {
         UIEvent event = UIEvent.fromShare("screen", new PublicApiTrack(30L));
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Share", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventShuffleMyLikes() throws Exception {
+    public void shouldHandleEventShuffleMyLikes() {
         UIEvent event = UIEvent.fromShuffleMyLikes();
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Shuffle likes", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEventNavigation() throws Exception {
+    public void shouldHandleEventNavigation() {
         UIEvent event = UIEvent.fromStreamNav();
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Navigation", event.getAttributes());
     }
 
+    @Test
+    public void shouldHandleEventPlayerOpen() {
+        UIEvent event = UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER);
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("Player open", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleEventPlayerClose() {
+        UIEvent event = UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON);
+        localyticsUIEventHandler.handleEvent(event);
+        verify(localyticsSession).tagEvent("Player close", event.getAttributes());
+    }
 }
