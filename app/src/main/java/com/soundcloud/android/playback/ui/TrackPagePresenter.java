@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
@@ -82,7 +83,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 listener.onPlayerClose();
                 break;
             case R.id.track_page_like:
-                updateLikeStatus(view);
+                final TrackUrn trackUrn = (TrackUrn) view.getTag();
+                updateLikeStatus(view, trackUrn);
                 break;
             case R.id.profile_link:
                 final Context activityContext = view.getContext();
@@ -123,6 +125,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         setLikeCount(holder, track.getLikeCount());
         holder.likeToggle.setChecked(track.isUserLike());
+        holder.likeToggle.setTag(track.getUrn());
 
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
@@ -204,9 +207,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 : R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
     }
 
-    private void updateLikeStatus(View view) {
+    private void updateLikeStatus(View view, TrackUrn trackUrn) {
         boolean isLike = ((Checkable) view).isChecked();
-        listener.onToggleLike(isLike);
+        listener.onToggleLike(isLike, trackUrn);
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {

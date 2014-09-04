@@ -35,6 +35,8 @@ import android.content.Intent;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPageListenerTest {
 
+    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+
     @Mock private PlaybackOperations playbackOperations;
     @Mock private SoundAssociationOperations soundAssociationOperations;
     @Mock private PlayQueueManager playQueueManager;
@@ -53,12 +55,33 @@ public class TrackPageListenerTest {
 
     @Test
     public void onToggleLikeTogglesLikeViaAssociationOperations() {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
         when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
-        listener.onToggleLike(true);
+        listener.onToggleLike(true, TRACK_URN);
 
-        verify(soundAssociationOperations).toggleLike(Urn.forTrack(123L), true);
+        verify(soundAssociationOperations).toggleLike(TRACK_URN, true);
+    }
+
+    @Test
+    public void onToggleLikeEmitsLikeEvent() {
+        when(playQueueManager.getScreenTag()).thenReturn("screen");
+        when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleLike(true, TRACK_URN);
+
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "screen", TRACK_URN);
+        expectUIEvent(expectedEvent);
+    }
+
+    @Test
+    public void onToggleLikeEmitsUnlikeEvent() {
+        when(playQueueManager.getScreenTag()).thenReturn("screen");
+        when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleLike(false, TRACK_URN);
+
+        UIEvent expectedEvent = UIEvent.fromToggleLike(false, "screen", TRACK_URN);
+        expectUIEvent(expectedEvent);
     }
 
     @Test
@@ -106,5 +129,11 @@ public class TrackPageListenerTest {
         expect(nextStartedActivity).not.toBeNull();
         expect(nextStartedActivity.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
         expect(nextStartedActivity.getExtras().get("userUrn")).toEqual(UserUrn.forUser(42L));
+    }
+
+    private void expectUIEvent(UIEvent expectedEvent) {
+        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
+        expect(uiEvent.getKind()).toEqual(expectedEvent.getKind());
+        expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 }

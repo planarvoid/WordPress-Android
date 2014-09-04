@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 public class TrackPagePresenterTest {
 
     private static final int DURATION = 123456;
+    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private Resources resources;
     @Mock private WaveformOperations waveformOperations;
@@ -256,7 +257,7 @@ public class TrackPagePresenterTest {
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(Urn.forTrack(1L), true, 1);
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(TRACK_URN, true, 1);
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
@@ -265,7 +266,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(Urn.forTrack(1L), true, 9999);
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(TRACK_URN, true, 9999);
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
@@ -274,7 +275,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(Urn.forTrack(1L), true, 1);
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(TRACK_URN, true, 1);
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
@@ -283,7 +284,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void showToastWhenUserRepostedATrack() {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(Urn.forTrack(1L), true, 1);
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(TRACK_URN, true, 1);
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
@@ -292,7 +293,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void showToastWhenUserUnpostedATrack() {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(Urn.forTrack(1L), false, 1);
+        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(TRACK_URN, false, 1);
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
@@ -305,7 +306,7 @@ public class TrackPagePresenterTest {
 
         getHolder(trackView).likeToggle.performClick();
 
-        verify(listener).onToggleLike(false);
+        verify(listener).onToggleLike(false, TRACK_URN);
     }
 
     @Test

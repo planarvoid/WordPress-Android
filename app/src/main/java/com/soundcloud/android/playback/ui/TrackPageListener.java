@@ -13,6 +13,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -43,8 +44,9 @@ class TrackPageListener extends PageListener {
         this.playQueueManager = playQueueManager;
     }
 
-    public void onToggleLike(boolean isLike) {
-        fireAndForget(associationOperations.toggleLike(playQueueManager.getCurrentTrackUrn(), isLike));
+    public void onToggleLike(boolean isLike, TrackUrn trackUrn) {
+        fireAndForget(associationOperations.toggleLike(trackUrn, isLike));
+        eventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(), trackUrn));
     }
 
     public void onGotoUser(final Context activityContext, final UserUrn userUrn) {
