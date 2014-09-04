@@ -449,7 +449,6 @@
             <artifactId>google-play-services</artifactId>
             <version>6</version>
             <type>apklib</type>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>android</groupId>
