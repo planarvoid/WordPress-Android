@@ -15,7 +15,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromExpandedPlayerSwipePrevious() {
         event = PlayControlEvent.swipePrevious(true);
         expect(event.getAttributes().get("action")).toEqual("prev");
-        expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("swipe");
         expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FULL_PLAYER);
     }
 
@@ -23,7 +23,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromCollapsedPlayerSwipePrevious() {
         event = PlayControlEvent.swipePrevious(false);
         expect(event.getAttributes().get("action")).toEqual("prev");
-        expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("swipe");
         expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FOOTER_PLAYER);
     }
 
@@ -31,7 +31,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromExpandedPlayerSwipeSkip() {
         event = PlayControlEvent.swipeSkip(true);
         expect(event.getAttributes().get("action")).toEqual("skip");
-        expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("swipe");
         expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FULL_PLAYER);
     }
 
@@ -39,7 +39,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromCollapsedPlayerSwipeSkip() {
         event = PlayControlEvent.swipeSkip(false);
         expect(event.getAttributes().get("action")).toEqual("skip");
-        expect(event.getAttributes().get("click or swipe")).toEqual("swipe");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("swipe");
         expect(event.getAttributes().get("location")).toEqual(PlayControlEvent.SOURCE_FOOTER_PLAYER);
     }
 
@@ -47,7 +47,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromPlayIntentWithSource() {
         event = PlayControlEvent.play("widget");
         expect(event.getAttributes().get("action")).toEqual("play");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("tap");
         expect(event.getAttributes().get("location")).toEqual("widget");
     }
 
@@ -55,7 +55,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromPauseIntentWithSource() {
         event = PlayControlEvent.pause("notification");
         expect(event.getAttributes().get("action")).toEqual("pause");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("tap");
         expect(event.getAttributes().get("location")).toEqual("notification");
     }
 
@@ -63,7 +63,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromSkipIntentWithSource() {
         event = PlayControlEvent.skip("notification");
         expect(event.getAttributes().get("action")).toEqual("skip");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("tap");
         expect(event.getAttributes().get("location")).toEqual("notification");
     }
 
@@ -71,7 +71,7 @@ public class PlayControlEventTest {
     public void shouldCreateEventFromPreviousIntentWithSource() {
         event = PlayControlEvent.previous("widget");
         expect(event.getAttributes().get("action")).toEqual("prev");
-        expect(event.getAttributes().get("click or swipe")).toEqual("click");
+        expect(event.getAttributes().get("tap or swipe")).toEqual("tap");
         expect(event.getAttributes().get("location")).toEqual("widget");
     }
 

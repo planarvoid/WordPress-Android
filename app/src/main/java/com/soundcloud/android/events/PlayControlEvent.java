@@ -31,14 +31,14 @@ public final class PlayControlEvent {
     public static PlayControlEvent swipePrevious(boolean isExpanded) {
         return new PlayControlEvent()
                 .putAttribute("action", "prev")
-                .putAttribute("click or swipe", "swipe")
+                .putAttribute("tap or swipe", "swipe")
                 .putAttribute("location", getSourcePlayerFrom(isExpanded));
     }
 
     public static PlayControlEvent swipeSkip(boolean isExpanded) {
         return new PlayControlEvent()
                 .putAttribute("action", "skip")
-                .putAttribute("click or swipe", "swipe")
+                .putAttribute("tap or swipe", "swipe")
                 .putAttribute("location", getSourcePlayerFrom(isExpanded));
     }
 
@@ -49,14 +49,14 @@ public final class PlayControlEvent {
     public static PlayControlEvent toggle(String source, boolean isPlaying) {
         return new PlayControlEvent()
                 .putAttribute("action", isPlaying ? "pause" : "play")
-                .putAttribute("click or swipe", "click")
+                .putAttribute("tap or swipe", "tap")
                 .putAttribute("location", source);
     }
 
     public static PlayControlEvent close(String source) {
         return new PlayControlEvent()
                 .putAttribute("action", "close")
-                .putAttribute("click or swipe", "click")
+                .putAttribute("tap or swipe", "tap")
                 .putAttribute("location", source);
     }
 
@@ -71,14 +71,14 @@ public final class PlayControlEvent {
     public static PlayControlEvent skip(String source) {
         return new PlayControlEvent()
                 .putAttribute("action", "skip")
-                .putAttribute("click or swipe", "click")
+                .putAttribute("tap or swipe", "tap")
                 .putAttribute("location", source);
     }
 
     public static PlayControlEvent previous(String source) {
         return new PlayControlEvent()
                 .putAttribute("action", "prev")
-                .putAttribute("click or swipe", "click")
+                .putAttribute("tap or swipe", "tap")
                 .putAttribute("location", source);
     }
 
