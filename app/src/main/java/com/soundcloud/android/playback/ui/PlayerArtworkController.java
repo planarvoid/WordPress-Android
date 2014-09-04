@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener, ImageListener {
     private final PlayerTrackArtworkView artworkView;
@@ -136,17 +137,17 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
-        private final PlayerArtworkLoader playerArtworkLoader;
+        private final Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
 
         @Inject
-        Factory(ProgressController.Factory animationControllerFactory, PlayerArtworkLoader playerArtworkLoader) {
+        Factory(ProgressController.Factory animationControllerFactory, Provider<PlayerArtworkLoader> playerArtworkLoaderProvider) {
             this.animationControllerFactory = animationControllerFactory;
-            this.playerArtworkLoader = playerArtworkLoader;
+            this.playerArtworkLoaderProvider = playerArtworkLoaderProvider;
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
             return new PlayerArtworkController(artworkView, animationControllerFactory,
-                    playerArtworkLoader);
+                    playerArtworkLoaderProvider.get());
         }
     }
 

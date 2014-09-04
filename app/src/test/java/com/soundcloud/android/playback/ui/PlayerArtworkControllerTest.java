@@ -29,6 +29,8 @@ import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 
+import javax.inject.Provider;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerArtworkControllerTest {
     private PlayerArtworkController playerArtworkController;
@@ -42,6 +44,8 @@ public class PlayerArtworkControllerTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlayerArtworkLoader playerArtworkLoader;
 
+    private Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
+
     @Before
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
@@ -49,7 +53,14 @@ public class PlayerArtworkControllerTest {
         when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay_image)).thenReturn(artworkOverlayImage);
-        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playerArtworkLoader).create(playerTrackArtworkView);
+        playerArtworkLoaderProvider = new Provider<PlayerArtworkLoader>() {
+            @Override
+            public PlayerArtworkLoader get() {
+                return playerArtworkLoader;
+            }
+        };
+
+        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playerArtworkLoaderProvider).create(playerTrackArtworkView);
     }
 
     @Test
