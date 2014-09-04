@@ -92,6 +92,16 @@ public class UrnTest {
     }
 
     @Test
+    public void isPlaylistShouldBeTrueForPlaylist() {
+        expect(Urn.parse("soundcloud:playlists:123").isPlaylist()).toBeTrue();
+    }
+
+    @Test
+    public void isPlaylistShouldBeFalseForTrack() {
+        expect(Urn.parse("soundcloud:tracks:123").isPlaylist()).toBeFalse();
+    }
+
+    @Test
     public void isUserShouldBeTrueForUser() {
         expect(Urn.parse("soundcloud:users:123").isUser()).toBeTrue();
     }

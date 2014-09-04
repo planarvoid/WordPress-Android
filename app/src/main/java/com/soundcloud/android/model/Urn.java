@@ -113,6 +113,10 @@ public abstract class Urn implements Parcelable {
         return TRACKS_TYPE.equalsIgnoreCase(type) || SOUNDS_TYPE.equalsIgnoreCase(type);
     }
 
+    public boolean isPlaylist() {
+        return PLAYLISTS_TYPE.equalsIgnoreCase(type);
+    }
+
     public boolean isUser() {
         return USERS_TYPE.equalsIgnoreCase(type);
     }

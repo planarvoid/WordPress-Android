@@ -4,8 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
@@ -16,6 +14,10 @@ import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UIEventTest {
+
+    private static final Urn TRACK_URN = Urn.forTrack(30L);
+    private static final Urn PLAYLIST_URN = Urn.forPlaylist(42L);
+    private static final Urn USER_URN = Urn.forUser(2L);
 
     @Test
     public void shouldCreateEventFromPlayerClose() {
@@ -55,7 +57,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromLikedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiTrack(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", TRACK_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.LIKE);
         expect(uiEventAttributes.get("context")).toEqual("screen");
@@ -65,17 +67,17 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromLikedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", new PublicApiPlaylist(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", PLAYLIST_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.LIKE);
         expect(uiEventAttributes.get("context")).toEqual("screen");
         expect(uiEventAttributes.get("resource")).toEqual("playlist");
-        expect(uiEventAttributes.get("resource_id")).toEqual("30");
+        expect(uiEventAttributes.get("resource_id")).toEqual("42");
     }
 
     @Test
     public void shouldCreateEventFromUnlikedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiTrack(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", TRACK_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNLIKE);
         expect(uiEventAttributes.get("context")).toEqual("screen");
@@ -85,17 +87,27 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnlikedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", new PublicApiPlaylist(30));
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", PLAYLIST_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNLIKE);
         expect(uiEventAttributes.get("context")).toEqual("screen");
         expect(uiEventAttributes.get("resource")).toEqual("playlist");
-        expect(uiEventAttributes.get("resource_id")).toEqual("30");
+        expect(uiEventAttributes.get("resource_id")).toEqual("42");
+    }
+
+    @Test
+    public void shouldCreateEventWithUnknownResourceForUnexpectedUrnType() {
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", USER_URN);
+        Map<String, String> uiEventAttributes = uiEvent.getAttributes();
+        expect(uiEvent.getKind()).toEqual(UIEvent.Kind.LIKE);
+        expect(uiEventAttributes.get("context")).toEqual("screen");
+        expect(uiEventAttributes.get("resource")).toEqual("unknown");
+        expect(uiEventAttributes.get("resource_id")).toEqual("2");
     }
 
     @Test
     public void shouldCreateEventFromRepostedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiTrack(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", TRACK_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.REPOST);
         expect(uiEventAttributes.get("context")).toEqual("screen");
@@ -105,17 +117,17 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromRepostedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", new PublicApiPlaylist(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true, "screen", PLAYLIST_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.REPOST);
         expect(uiEventAttributes.get("context")).toEqual("screen");
         expect(uiEventAttributes.get("resource")).toEqual("playlist");
-        expect(uiEventAttributes.get("resource_id")).toEqual("30");
+        expect(uiEventAttributes.get("resource_id")).toEqual("42");
     }
 
     @Test
     public void shouldCreateEventFromUnrepostedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiTrack(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", TRACK_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNREPOST);
         expect(uiEventAttributes.get("context")).toEqual("screen");
@@ -125,12 +137,12 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromUnrepostedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", new PublicApiPlaylist(30));
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false, "screen", PLAYLIST_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.UNREPOST);
         expect(uiEventAttributes.get("context")).toEqual("screen");
         expect(uiEventAttributes.get("resource")).toEqual("playlist");
-        expect(uiEventAttributes.get("resource_id")).toEqual("30");
+        expect(uiEventAttributes.get("resource_id")).toEqual("42");
     }
 
     @Test
@@ -164,7 +176,7 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromTrackShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiTrack(30));
+        UIEvent uiEvent = UIEvent.fromShare("screen", TRACK_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SHARE);
         expect(uiEventAttributes.get("context")).toEqual("screen");
@@ -174,12 +186,12 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromPlaylistShare() {
-        UIEvent uiEvent = UIEvent.fromShare("screen", new PublicApiPlaylist(30));
+        UIEvent uiEvent = UIEvent.fromShare("screen", PLAYLIST_URN);
         Map<String, String> uiEventAttributes = uiEvent.getAttributes();
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.SHARE);
         expect(uiEventAttributes.get("context")).toEqual("screen");
         expect(uiEventAttributes.get("resource")).toEqual("playlist");
-        expect(uiEventAttributes.get("resource_id")).toEqual("30");
+        expect(uiEventAttributes.get("resource_id")).toEqual("42");
     }
 
     @Test

@@ -2,8 +2,7 @@ package com.soundcloud.android.events;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -66,18 +65,18 @@ public final class UIEvent {
                 .putAttribute("user_id", String.valueOf(userId));
     }
 
-    public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(isLike ? Kind.LIKE : Kind.UNLIKE)
                 .putAttribute("context", screenTag)
-                .putAttribute("resource", getPlayableType(playable))
-                .putAttribute("resource_id", String.valueOf(playable.getId()));
+                .putAttribute("resource", getPlayableType(resourceUrn))
+                .putAttribute("resource_id", String.valueOf(resourceUrn.numericId));
     }
 
-    public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(isRepost ? Kind.REPOST : Kind.UNREPOST)
                 .putAttribute("context", screenTag)
-                .putAttribute("resource", getPlayableType(playable))
-                .putAttribute("resource_id", String.valueOf(playable.getId()));
+                .putAttribute("resource", getPlayableType(resourceUrn))
+                .putAttribute("resource_id", String.valueOf(resourceUrn.numericId));
     }
 
     public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
@@ -93,11 +92,11 @@ public final class UIEvent {
                 .putAttribute("track_id", String.valueOf(trackId));
     }
 
-    public static UIEvent fromShare(String screenTag, @NotNull Playable playable) {
+    public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(Kind.SHARE)
                 .putAttribute("context", screenTag)
-                .putAttribute("resource", getPlayableType(playable))
-                .putAttribute("resource_id", String.valueOf(playable.getId()));
+                .putAttribute("resource", getPlayableType(resourceUrn))
+                .putAttribute("resource_id", String.valueOf(resourceUrn.numericId));
     }
 
     public static UIEvent fromShuffleMyLikes() {
@@ -156,8 +155,14 @@ public final class UIEvent {
         return fromSkipAudioAdClick(audioAd, audioAdTrack, System.currentTimeMillis());
     }
 
-    private static String getPlayableType(Playable playable) {
-        return playable instanceof PublicApiTrack ? "track" : "playlist";
+    private static String getPlayableType(Urn resourceUrn) {
+        if (resourceUrn.isTrack()) {
+            return "track";
+        } else if (resourceUrn.isPlaylist()) {
+            return "playlist";
+        } else {
+            return "unknown";
+        }
     }
 
     public UIEvent(Kind kind) {
