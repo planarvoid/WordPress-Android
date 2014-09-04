@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui.progress;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.view.ListenableHorizontalScrollView.OnScrollListener;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -7,8 +8,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +39,7 @@ public class ScrubControllerTest {
     private Message message;
     private OnScrollListener scrollListener;
     private View.OnTouchListener touchListener;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +48,7 @@ public class ScrubControllerTest {
 
         when(seekHandlerFactory.create(any(ScrubController.class))).thenReturn(seekHandler);
 
-        scrubController = new ScrubController(scrollView, playbackOperations, seekHandlerFactory);
+        scrubController = new ScrubController(scrollView, playbackOperations, seekHandlerFactory, eventBus);
         scrubController.setDuration(100);
         scrubController.setProgressHelper(progressHelper);
         scrubController.addScrubListener(scrubListener);
@@ -200,6 +205,14 @@ public class ScrubControllerTest {
     public void finshSeekSetsScrubStateToNone() {
         scrubController.finishSeek(.3F);
         verify(scrubListener).scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+    }
+
+    @Test
+    public void finishSeekEmitsPlayControlScrubEvent() {
+        scrubController.finishSeek(.3f);
+
+        PlayControlEvent expected = PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expected);
     }
 
 }
