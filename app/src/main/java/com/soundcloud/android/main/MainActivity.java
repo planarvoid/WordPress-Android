@@ -36,6 +36,7 @@ import javax.inject.Inject;
 
 public class MainActivity extends ScActivity implements NavigationCallbacks {
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
+    public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
 
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
     private static final String PLAYLISTS_FRAGMENT_TAG = "playlists_fragment";
@@ -51,6 +52,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private NavigationFragment navigationFragment;
     private CharSequence lastTitle;
     private int lastSelection = NO_SELECTION;
+    private boolean refreshStream;
 
     @Inject ScreenPresenter presenter;
     @Inject UserOperations userOperations;
@@ -121,7 +123,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
+        refreshStream = intent.getBooleanExtra(EXTRA_REFRESH_STREAM, false);
         final boolean setFragmentViaIntent = navigationFragment.handleIntent(intent);
         if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
@@ -306,7 +308,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayStream() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(STREAM_FRAGMENT_TAG);
         boolean onboardingSucceeded = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
-        if (fragment == null) {
+        if (fragment == null || refreshStream) {
+            refreshStream = false;
             fragment = SoundStreamFragment.create(onboardingSucceeded);
             attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
         }

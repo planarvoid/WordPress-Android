@@ -6,10 +6,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 
+import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
@@ -104,7 +106,9 @@ class SyncServiceResultReceiver extends ResultReceiver {
             message = NotificationMessage.getIncomingNotificationMessage(app, stream);
             String artwork_url = stream.getFirstAvailableArtwork();
 
-            NotificationMessage.showDashboardNotification(app, ticker, title, message, NotificationMessage.createNotificationIntent(Actions.STREAM),
+            final Intent intent = NotificationMessage.createNotificationIntent(Actions.STREAM);
+            intent.putExtra(MainActivity.EXTRA_REFRESH_STREAM, true);
+            NotificationMessage.showDashboardNotification(app, ticker, title, message, intent,
                     Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
             ContentStats.setLastNotified(app, Content.ME_SOUND_STREAM, System.currentTimeMillis());
