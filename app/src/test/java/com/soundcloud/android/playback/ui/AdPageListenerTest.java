@@ -6,8 +6,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -30,10 +32,12 @@ public class AdPageListenerTest {
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setUp() throws Exception {
         listener = new AdPageListener(Robolectric.application,
+                 playSessionStateProvider,
                  playbackOperations,
                  playQueueManager,
                  eventBus);
@@ -64,5 +68,15 @@ public class AdPageListenerTest {
         final UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
+    }
+
+    @Test
+    public void onTogglePlayEmitsPauseEventWhenWasPlaying() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
+        listener.onTogglePlay();
+
+        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 }

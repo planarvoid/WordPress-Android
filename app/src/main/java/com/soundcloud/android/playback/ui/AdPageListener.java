@@ -5,8 +5,10 @@ import static eu.inmite.android.lib.dialogs.SimpleDialogFragment.createBuilder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -22,16 +24,19 @@ import javax.inject.Inject;
 class AdPageListener {
 
     private final Context context;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final PlaybackOperations playbackOperations;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
 
     @Inject
     public AdPageListener(Context context,
+                          PlaySessionStateProvider playSessionStateProvider,
                           PlaybackOperations playbackOperations,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus) {
         this.context = context;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
@@ -39,6 +44,7 @@ class AdPageListener {
 
     public void onTogglePlay() {
         playbackOperations.togglePlayback();
+        trackTogglePlay(PlayControlEvent.SOURCE_FULL_PLAYER);
     }
 
     public void skipAd() {
@@ -82,5 +88,13 @@ class AdPageListener {
         final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
+    }
+
+    private void trackTogglePlay(String location) {
+        if (playSessionStateProvider.isPlaying()) {
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(location));
+        } else {
+            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(location));
+        }
     }
 }
