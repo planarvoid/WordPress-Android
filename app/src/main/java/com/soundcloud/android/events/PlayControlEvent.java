@@ -13,6 +13,10 @@ public final class PlayControlEvent {
     public static final String SOURCE_FOOTER_PLAYER = "footer_player";
     public static final String SOURCE_FULL_PLAYER = "full_player";
 
+    private static final String ATTRIBUTE_LOCATION = "location";
+    private static final String ATTRIBUTE_ACTION = "action";
+    private static final String ATTRIBUTE_TAB_OR_SWIPE = "tap or swipe";
+
     private final Map<String, String> attributes;
 
     private PlayControlEvent() {
@@ -38,16 +42,16 @@ public final class PlayControlEvent {
 
     private static PlayControlEvent swipe(boolean isExpanded, boolean isSkip) {
         return new PlayControlEvent()
-                .putAttribute("action", isSkip ? "skip" : "prev")
-                .putAttribute("tap or swipe", "swipe")
-                .putAttribute("location", getSourcePlayerFrom(isExpanded));
+                .putAttribute(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
+                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "swipe")
+                .putAttribute(ATTRIBUTE_LOCATION, getSourcePlayerFrom(isExpanded));
     }
 
     public static PlayControlEvent skipAd() {
         return new PlayControlEvent()
-                .putAttribute("action", "skip_ad")
-                .putAttribute("tap or swipe", "tap")
-                .putAttribute("location", SOURCE_FULL_PLAYER);
+                .putAttribute(ATTRIBUTE_ACTION, "skip_ad")
+                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .putAttribute(ATTRIBUTE_LOCATION, SOURCE_FULL_PLAYER);
     }
 
     private static String getSourcePlayerFrom(boolean isExpanded) {
@@ -56,16 +60,16 @@ public final class PlayControlEvent {
 
     public static PlayControlEvent toggle(String source, boolean isPlaying) {
         return new PlayControlEvent()
-                .putAttribute("action", isPlaying ? "pause" : "play")
-                .putAttribute("tap or swipe", "tap")
-                .putAttribute("location", source);
+                .putAttribute(ATTRIBUTE_ACTION, isPlaying ? "pause" : "play")
+                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .putAttribute(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent close(String source) {
         return new PlayControlEvent()
-                .putAttribute("action", "close")
-                .putAttribute("tap or swipe", "tap")
-                .putAttribute("location", source);
+                .putAttribute(ATTRIBUTE_ACTION, "close")
+                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .putAttribute(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent play(String source) {
@@ -77,23 +81,24 @@ public final class PlayControlEvent {
     }
 
     public static PlayControlEvent skip(String source) {
-        return new PlayControlEvent()
-                .putAttribute("action", "skip")
-                .putAttribute("tap or swipe", "tap")
-                .putAttribute("location", source);
+        return tap(source, true);
     }
 
     public static PlayControlEvent previous(String source) {
+        return tap(source, false);
+    }
+
+    private static PlayControlEvent tap(String source, boolean isSkip) {
         return new PlayControlEvent()
-                .putAttribute("action", "prev")
-                .putAttribute("tap or swipe", "tap")
-                .putAttribute("location", source);
+                .putAttribute(ATTRIBUTE_ACTION, isSkip ? "skip":"prev")
+                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .putAttribute(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent scrub(String source) {
         return new PlayControlEvent()
-                .putAttribute("action", "scrub")
-                .putAttribute("location", source);
+                .putAttribute(ATTRIBUTE_ACTION, "scrub")
+                .putAttribute(ATTRIBUTE_LOCATION, source);
     }
 
     private PlayControlEvent putAttribute(String key, String value) {
