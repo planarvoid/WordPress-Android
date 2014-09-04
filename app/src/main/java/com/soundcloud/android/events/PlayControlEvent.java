@@ -29,15 +29,16 @@ public final class PlayControlEvent {
     }
 
     public static PlayControlEvent swipePrevious(boolean isExpanded) {
-        return new PlayControlEvent()
-                .putAttribute("action", "prev")
-                .putAttribute("tap or swipe", "swipe")
-                .putAttribute("location", getSourcePlayerFrom(isExpanded));
+        return swipe(isExpanded, false);
     }
 
     public static PlayControlEvent swipeSkip(boolean isExpanded) {
+        return swipe(isExpanded, true);
+    }
+
+    private static PlayControlEvent swipe(boolean isExpanded, boolean isSkip) {
         return new PlayControlEvent()
-                .putAttribute("action", "skip")
+                .putAttribute("action", isSkip ? "skip" : "prev")
                 .putAttribute("tap or swipe", "swipe")
                 .putAttribute("location", getSourcePlayerFrom(isExpanded));
     }

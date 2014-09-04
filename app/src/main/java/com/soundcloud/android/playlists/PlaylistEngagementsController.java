@@ -107,13 +107,17 @@ public class PlaylistEngagementsController {
                     if (playable != null) {
                         eventBus.publish(EventQueue.UI,
                                 UIEvent.fromShare(PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
-                        Intent shareIntent = playable.getShareIntent();
-                        if (shareIntent != null) {
-                            context.startActivity(shareIntent);
-                        }
+                        sendShareIntent();
                     }
                 }
             });
+        }
+    }
+
+    private void sendShareIntent() {
+        Intent shareIntent = playable.getShareIntent();
+        if (shareIntent != null) {
+            context.startActivity(shareIntent);
         }
     }
 
