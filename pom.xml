@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>19</androidApiLevel>
         <android.maven.plugin.version>3.8.1</android.maven.plugin.version>
-        <source.version>1.6</source.version>
+        <source.version>1.7</source.version>
     </properties>
 
     <build>

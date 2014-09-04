@@ -132,6 +132,15 @@
     <dependencies>
 
         <!-- test dependencies. Those dependencies should be declared first -->
+
+        <!-- this fixes JDK7 support for RL1 -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.7.15-M1</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
@@ -169,7 +178,7 @@
         <dependency>
             <groupId>com.github.xian</groupId>
             <artifactId>great-expectations</artifactId>
-            <version>0.13</version>
+            <version>0.14</version>
             <scope>test</scope>
         </dependency>
 
