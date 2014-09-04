@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -22,7 +21,7 @@ import android.content.Context;
 
 import javax.inject.Inject;
 
-class TrackPageListener {
+class TrackPageListener extends PageListener {
     private static final Func1<PlayerUIEvent, Boolean> PLAYER_IS_COLLAPASED = new Func1<PlayerUIEvent, Boolean>() {
         @Override
         public Boolean call(PlayerUIEvent playerUIEvent) {
@@ -30,11 +29,8 @@ class TrackPageListener {
         }
     };
 
-    private final PlaybackOperations playbackOperations;
     private final SoundAssociationOperations associationOperations;
     private final PlayQueueManager playQueueManager;
-    private final PlaySessionStateProvider playSessionStateProvider;
-    private final EventBus eventBus;
 
     @Inject
     public TrackPageListener(PlaybackOperations playbackOperations,
@@ -42,26 +38,9 @@ class TrackPageListener {
                              PlayQueueManager playQueueManager,
                              PlaySessionStateProvider playSessionStateProvider,
                              EventBus eventBus) {
-        this.playbackOperations = playbackOperations;
+        super(playbackOperations, playSessionStateProvider, eventBus);
         this.associationOperations = associationOperations;
         this.playQueueManager = playQueueManager;
-        this.playSessionStateProvider = playSessionStateProvider;
-        this.eventBus = eventBus;
-    }
-
-    public void onTogglePlay() {
-        playbackOperations.togglePlayback();
-        trackTogglePlay(PlayControlEvent.SOURCE_FULL_PLAYER);
-    }
-
-    public void onFooterTap() {
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER));
-    }
-
-    public void onPlayerClose() {
-        requestPlayerCollapse();
-        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerOpen(UIEvent.METHOD_HIDE_BUTTON));
     }
 
     public void onToggleLike(boolean isLike) {
@@ -81,23 +60,6 @@ class TrackPageListener {
         if (newScrubState == ScrubController.SCRUB_STATE_SCRUBBING) {
             eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
         }
-    }
-
-    public void onFooterTogglePlay() {
-        playbackOperations.togglePlayback();
-        trackTogglePlay(PlayControlEvent.SOURCE_FOOTER_PLAYER);
-    }
-
-    private void trackTogglePlay(String location) {
-        if (playSessionStateProvider.isPlaying()) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(location));
-        } else {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(location));
-        }
-    }
-
-    private void requestPlayerCollapse() {
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
     }
 
     private Action1<PlayerUIEvent> startProfileActivity(final Context activityContext, final UserUrn userUrn) {

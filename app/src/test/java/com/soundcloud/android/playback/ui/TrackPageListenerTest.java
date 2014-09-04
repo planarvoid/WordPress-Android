@@ -52,58 +52,6 @@ public class TrackPageListenerTest {
     }
 
     @Test
-    public void onToggleFooterPlayEmitsPauseEventWhenWasPlaying() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-
-        listener.onFooterTogglePlay();
-
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FOOTER_PLAYER));
-    }
-
-    @Test
-    public void onToggleFooterPlayEmitsPlayEventWhenWasPaused() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        listener.onFooterTogglePlay();
-
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FOOTER_PLAYER));
-    }
-
-    @Test
-    public void onToggleFooterPlayTogglesPlaybackViaPlaybackOperations() {
-        listener.onFooterTogglePlay();
-        verify(playbackOperations).togglePlayback();
-    }
-
-    @Test
-    public void onTogglePlayEmitsPauseEventWhenWasPlaying() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-
-        listener.onTogglePlay();
-
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
-    }
-
-    @Test
-    public void onTogglePlayEmitsPlayEventWhenWasPaused() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        listener.onTogglePlay();
-
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER));
-    }
-
-    @Test
-    public void onTogglePlayTogglesPlaybackViaPlaybackOperations() {
-        listener.onTogglePlay();
-        verify(playbackOperations).togglePlayback();
-    }
-
-    @Test
     public void onToggleLikeTogglesLikeViaAssociationOperations() {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
         when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
@@ -111,42 +59,6 @@ public class TrackPageListenerTest {
         listener.onToggleLike(true);
 
         verify(soundAssociationOperations).toggleLike(Urn.forTrack(123L), true);
-    }
-
-    @Test
-    public void onFooterTapEmitsUIEventOpenPlayer() {
-        listener.onFooterTap();
-
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
-    }
-
-    @Test
-    public void onFooterTapPostsEventToExpandPlayer() {
-        listener.onFooterTap();
-
-        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        expect(event.isExpand()).toBeTrue();
-    }
-
-    @Test
-    public void onPlayerClosePostsEventToClosePlayer() {
-        listener.onPlayerClose();
-
-        PlayerUICommand event = eventBus.lastEventOn(EventQueue.PLAYER_COMMAND);
-        expect(event.isCollapse()).toBeTrue();
-    }
-
-    @Test
-    public void onPlayerCloseEmitsUIEventClosePlayer() {
-        listener.onPlayerClose();
-
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_HIDE_BUTTON);
-        expect(event.getKind()).toEqual(expectedEvent.getKind());
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
 
     @Test
