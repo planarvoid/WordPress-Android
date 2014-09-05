@@ -34,9 +34,8 @@ public class PageListener {
 
     public void onPlayerClose() {
         requestPlayerCollapse();
-        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerOpen(UIEvent.METHOD_HIDE_BUTTON));
+        eventBus.publish(EventQueue.UI, UIEvent.fromPlayerClose(UIEvent.METHOD_HIDE_BUTTON));
     }
-
 
     public void onFooterTogglePlay() {
         playbackOperations.togglePlayback();

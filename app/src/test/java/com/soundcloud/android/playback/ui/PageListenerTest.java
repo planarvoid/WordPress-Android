@@ -117,7 +117,7 @@ public class PageListenerTest extends TestCase {
         listener.onPlayerClose();
 
         UIEvent event = eventBus.lastEventOn(EventQueue.UI);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_HIDE_BUTTON);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_HIDE_BUTTON);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
