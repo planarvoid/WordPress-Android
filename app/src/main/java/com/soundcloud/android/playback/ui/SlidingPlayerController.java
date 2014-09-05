@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.MotionEvent;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -45,6 +46,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
 
     private boolean isExpanding;
     private boolean expandOnResume;
+    private boolean wasDragged;
 
     @Inject
     public SlidingPlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
@@ -59,6 +61,7 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
+        slidingPanel.setOnTouchListener(new TrackingDragListener());
         expandOnResume = false;
 
         playerFragment = getPlayerFragmentFromActivity((FragmentActivity) activity);
@@ -228,14 +231,36 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
         }
     }
 
+    private class TrackingDragListener implements View.OnTouchListener {
+
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+                wasDragged = false;
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                wasDragged = true;
+            }
+            return false;
+        }
+    }
+
     @Override
     public void onPanelCollapsed(View panel) {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        trackPlayerSlide(UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE));
     }
 
     @Override
     public void onPanelExpanded(View panel) {
         notifyExpandedState();
+        trackPlayerSlide(UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER));
+    }
+
+    private void trackPlayerSlide(UIEvent event) {
+        if (wasDragged) {
+            wasDragged = false;
+            eventBus.publish(EventQueue.UI, event);
+        }
     }
 
     private void notifyExpandedState() {

@@ -21,6 +21,8 @@ public final class UIEvent {
     public static final String METHOD_EXTERNAL_SOURCE = "external_source";
     public static final String METHOD_TRACK_PLAY = "track_play";
     public static final String METHOD_AD_PLAY = "ad_play";
+    public static final String METHOD_SLIDE_FOOTER = "slide_footer";
+    public static final String METHOD_SLIDE = "slide";
 
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
