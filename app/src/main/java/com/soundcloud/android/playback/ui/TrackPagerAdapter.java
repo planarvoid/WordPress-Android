@@ -120,12 +120,6 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void notifyDataSetChanged() {
-        trackByViews.clear();
-        super.notifyDataSetChanged();
-    }
-
-    @Override
     public final Object instantiateItem(ViewGroup container, int position) {
         View view;
         if (getItemViewType(position) == TYPE_TRACK_VIEW) {
@@ -146,6 +140,8 @@ public class TrackPagerAdapter extends PagerAdapter {
         if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
             trackPageRecycler.recyclePage(trackByViews.get(view).trackUrn, view);
         }
+
+        trackByViews.remove(view);
     }
 
     @Override
