@@ -29,10 +29,9 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 
-@SuppressWarnings({"unchecked", "UnusedDeclaration", "TypeParameterExplicitlyExtendsObject"})
 public class Expect {
 
-    public static <T extends Object, M extends ObjectMatcher<T, M>> ObjectMatcher<T, ?> expect(@Nullable T actual) {
+    public static <T extends Object> ObjectMatcher<T, ?> expect(@Nullable T actual) {
         return wrapped(ObjectMatcher.class, actual);
     }
 
@@ -40,61 +39,59 @@ public class Expect {
         return wrapped(BooleanMatcher.class, actual);
     }
 
-    public static <T extends Boolean, M extends BooleanMatcher<T, M>> BooleanMatcher<T, ?> expect(T actual) {
+    public static <T extends Boolean> BooleanMatcher<T, ?> expect(T actual) {
         return wrapped(BooleanMatcher.class, actual);
     }
 
-    public static <T extends Comparable, M extends ComparableMatcher<T, M>> ComparableMatcher<T, ?> expect(T actual) {
+    public static <T extends Comparable> ComparableMatcher<T, ?> expect(T actual) {
         return wrapped(ComparableMatcher.class, actual);
     }
 
-    public static <T extends java.util.Date, M extends DateMatcher<T, M>> DateMatcher<T, ?> expect(T actual) {
+    public static <T extends java.util.Date> DateMatcher<T, ?> expect(T actual) {
         return wrapped(DateMatcher.class, actual);
     }
 
-    public static <T extends Iterable<X>, X, M extends IterableMatcher<T, X, M>> IterableMatcher<T, X, ?> expect(T actual) {
+    public static <T extends Iterable<X>, X> IterableMatcher<T, X, ?> expect(T actual) {
         return wrapped(IterableMatcher.class, actual);
     }
 
-    public static <T extends String, M extends StringMatcher<T, M>> StringMatcher<T, ?> expect(T actual) {
+    public static <T extends String> StringMatcher<T, ?> expect(T actual) {
         return wrapped(StringMatcher.class, actual);
     }
 
-    public static <T extends java.util.Set<X>, X, M extends SetMatcher<T, X, M>> SetMatcher<T, X, ?> expect(T actual) {
+    public static <T extends java.util.Set<X>, X> SetMatcher<T, X, ?> expect(T actual) {
         return wrapped(SetMatcher.class, actual);
     }
-//    public static <T extends Long, M extends LongMatcher<T, M>> LongMatcher<T, ?> expect(T actual) {
-//        return wrapped(LongMatcher.class, actual);
-//    }
-    public static <T extends Content, M extends ContentMatcher<T, M>> ContentMatcher<T, ?> expect(T actual) {
+
+    public static <T extends Content> ContentMatcher<T, ?> expect(T actual) {
         return wrapped(ContentMatcher.class, actual);
     }
 
-    public static <T extends Uri, M extends UriMatcher<T, M>> UriMatcher<T, ?> expect(@Nullable T actual) {
+    public static <T extends Uri> UriMatcher<T, ?> expect(@Nullable T actual) {
         return wrapped(UriMatcher.class, actual);
     }
 
-    public static <T extends Cursor, M extends CursorMatcher<T, M>> CursorMatcher<T, ?> expect(T actual) {
+    public static <T extends Cursor> CursorMatcher<T, ?> expect(T actual) {
         return wrapped(CursorMatcher.class, actual);
     }
 
-    public static <T extends Notification, M extends NotificationMatcher<T, M>> NotificationMatcher<T, ?> expect(T actual) {
+    public static <T extends Notification> NotificationMatcher<T, ?> expect(T actual) {
         return wrapped(NotificationMatcher.class, actual);
     }
 
-    public static <T extends ContentResolver, M extends ContentResolverMatcher<T, M>> ContentResolverMatcher<T, ?> expect(T actual) {
+    public static <T extends ContentResolver> ContentResolverMatcher<T, ?> expect(T actual) {
         return wrapped(ContentResolverMatcher.class, actual);
     }
 
-    public static <T extends Intent, M extends IntentMatcher<T, M>> IntentMatcher<T, ?> expect(T actual) {
+    public static <T extends Intent> IntentMatcher<T, ?> expect(T actual) {
         return wrapped(IntentMatcher.class, actual);
     }
 
-    public static <T extends View, M extends ViewMatcher<T, M>> ViewMatcher<T, ?> expect(T actual) {
+    public static <T extends View> ViewMatcher<T, ?> expect(T actual) {
         return wrapped(ViewMatcher.class, actual);
     }
 
-    public static <T extends Toast, M extends ToastMatcher<T, M>> ToastMatcher<T, ?> expect(T actual) {
+    public static <T extends Toast> ToastMatcher<T, ?> expect(T actual) {
         return wrapped(ToastMatcher.class, actual);
     }
 

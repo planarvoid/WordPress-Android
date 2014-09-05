@@ -47,7 +47,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     public void shouldNotNotifyOnFirstSync() throws Exception {
         addCannedActivities(
                 "empty_collection.json",
-                "e1_activities.json"
+                "e1_activities.json",
+                "empty_collection.json"
         );
         expect(doPerformSyncWithValidToken(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
     }
