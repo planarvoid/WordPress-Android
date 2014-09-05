@@ -46,7 +46,8 @@ public class PlayerModule {
     @Provides
     public PlayerArtworkLoader providePlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
                                                           @Named("GraphicsScheduler") Scheduler graphicsScheduler) {
-        if (Build.VERSION_CODES.JELLY_BEAN_MR1 <= Build.VERSION.SDK_INT){
+        // ScriptIntrinsicBlur is available in JB_MR1 but is very buggy
+        if (Build.VERSION_CODES.JELLY_BEAN_MR1 < Build.VERSION.SDK_INT){
             return new BlurringPlayerArtworkLoader(imageOperations, resources, graphicsScheduler);
         } else {
             return new PlayerArtworkLoader(imageOperations, resources);
