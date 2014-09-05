@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
@@ -58,11 +56,6 @@ public class ScrubController {
         playbackOperations.seek(position);
         setScrubState(SCRUB_STATE_NONE);
         pendingSeek = null;
-        trackScrub();
-    }
-
-    private void trackScrub() {
-        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations,
