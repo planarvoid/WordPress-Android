@@ -98,7 +98,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         session.tagScreen(screenTag);
         Map<String, String> eventAttributes = new HashMap<String, String>();
         eventAttributes.put("context", screenTag);
-        session.tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
+        tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
     }
 
     @Override
@@ -125,11 +125,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             }
             eventAttributes.put("stop_reason", getStopReason(eventData));
 
-            if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
-                logAttributes(eventAttributes);
-            }
-
-            session.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
+            tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }
 
@@ -144,7 +140,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     public void handlePlayControlEvent(PlayControlEvent event) {
-        session.tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
+        tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
+    }
+
+    private void tagEvent(String tagName, Map<String, String> attributes) {
+        logAttributes(tagName, attributes);
+        session.tagEvent(tagName, attributes);
     }
 
     @Override
@@ -220,12 +221,14 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    private void logAttributes(Map<String, String> eventAttributes) {
-        final Objects.ToStringHelper toStringHelper = Objects.toStringHelper("EventAttributes");
-        for (String key : eventAttributes.keySet()) {
-            toStringHelper.add(key, eventAttributes.get(key));
+    private void logAttributes(String tagName, Map<String, String> eventAttributes) {
+        if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
+            final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(tagName + " with EventAttributes");
+            for (String key : eventAttributes.keySet()) {
+                toStringHelper.add(key, eventAttributes.get(key));
+            }
+            Log.d(TAG, toStringHelper.toString());
         }
-        Log.d(TAG, toStringHelper.toString());
     }
 
     private String getPercentListenedBucket(PlaybackSessionEvent eventData, long duration) {

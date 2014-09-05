@@ -1,11 +1,15 @@
 package com.soundcloud.android.analytics.localytics;
 
+import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.utils.Log;
 
 import java.util.Map;
 
 class LocalyticsUIEventHandler {
+
+    public static final String TAG = "LocalyticsUIHandler";
 
     private LocalyticsSession localyticsSession;
 
@@ -20,46 +24,61 @@ class LocalyticsUIEventHandler {
     private void handleEvent(UIEvent.Kind sourceEventType, Map<String, String> eventAttributes) {
         switch (sourceEventType) {
             case FOLLOW:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.FOLLOW, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.FOLLOW, eventAttributes);
                 break;
             case UNFOLLOW:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.UNFOLLOW, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.UNFOLLOW, eventAttributes);
                 break;
             case LIKE:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.LIKE, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.LIKE, eventAttributes);
                 break;
             case UNLIKE:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.UNLIKE, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.UNLIKE, eventAttributes);
                 break;
             case REPOST:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.REPOST, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.REPOST, eventAttributes);
                 break;
             case UNREPOST:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.UNREPOST, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.UNREPOST, eventAttributes);
                 break;
             case ADD_TO_PLAYLIST:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.ADD_TO_PLAYLIST, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.ADD_TO_PLAYLIST, eventAttributes);
                 break;
             case COMMENT:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.COMMENT, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.COMMENT, eventAttributes);
                 break;
             case SHARE:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.SHARE, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.SHARE, eventAttributes);
                 break;
             case SHUFFLE_LIKES:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.SHUFFLE_LIKES, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.SHUFFLE_LIKES, eventAttributes);
                 break;
             case NAVIGATION:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.NAVIGATION, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.NAVIGATION, eventAttributes);
                 break;
             case PLAYER_OPEN:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.PLAYER_OPEN, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.PLAYER_OPEN, eventAttributes);
                 break;
             case PLAYER_CLOSE:
-                localyticsSession.tagEvent(LocalyticsEvents.UI.PLAYER_CLOSE, eventAttributes);
+                tagEvent(LocalyticsEvents.UI.PLAYER_CLOSE, eventAttributes);
                 break;
             default:
                 break;
+        }
+    }
+
+    private void tagEvent(String tagName, Map<String, String> attributes) {
+        logAttributes(tagName, attributes);
+        localyticsSession.tagEvent(tagName, attributes);
+    }
+
+    private void logAttributes(String tagName, Map<String, String> eventAttributes) {
+        if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
+            final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(tagName + " with EventAttributes");
+            for (String key : eventAttributes.keySet()) {
+                toStringHelper.add(key, eventAttributes.get(key));
+            }
+            Log.d(TAG, toStringHelper.toString());
         }
     }
 
