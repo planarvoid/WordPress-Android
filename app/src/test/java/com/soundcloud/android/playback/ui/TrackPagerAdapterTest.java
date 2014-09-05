@@ -60,6 +60,7 @@ public class TrackPagerAdapterTest {
     @Mock private View view2;
     @Mock private View view3;
     @Mock private View view4;
+    @Mock private View view5;
 
     @Captor private ArgumentCaptor<PropertySet> captorPropertySet;
 
@@ -70,7 +71,7 @@ public class TrackPagerAdapterTest {
     @Before
     public void setUp() throws Exception {
 
-        when(trackPagePresenter.createItemView(container, skipListener)).thenReturn(view1, view2, view3, view4);
+        when(trackPagePresenter.createItemView(container, skipListener)).thenReturn(view1, view2, view3, view4, view5);
 
         eventBus = new TestEventBus();
         adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
@@ -231,7 +232,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void shouldCreateTrackViewForTracks() {
         when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
-        expect(getPageView()).toBe(view4);
+        expect(getPageView()).toBe(view5);
     }
 
     @Test

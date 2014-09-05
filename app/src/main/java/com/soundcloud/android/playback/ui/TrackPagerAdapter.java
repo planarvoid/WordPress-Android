@@ -41,7 +41,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AD_VIEW = 1;
-    static final int EXPECTED_TRACKVIEW_COUNT = 4;
+    static final int EXPECTED_TRACKVIEW_COUNT = 5;
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
