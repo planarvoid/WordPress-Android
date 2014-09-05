@@ -14,7 +14,7 @@ class TrackPageRecycler {
     private final LinkedList<View> scrapViews;
 
     TrackPageRecycler() {
-        viewMap = new LinkedHashMap<>(TrackPagerAdapter.EXPECTED_TRACKVIEW_COUNT);
+        viewMap = new LinkedHashMap<>(TrackPagerAdapter.TRACKVIEW_POOL_SIZE);
         scrapViews = new LinkedList<>();
     }
 

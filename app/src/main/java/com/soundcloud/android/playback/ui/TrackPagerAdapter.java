@@ -39,9 +39,9 @@ import java.util.WeakHashMap;
 
 public class TrackPagerAdapter extends PagerAdapter {
 
+    static final int TRACKVIEW_POOL_SIZE = 6;
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AD_VIEW = 1;
-    static final int EXPECTED_TRACKVIEW_COUNT = 5;
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
@@ -59,7 +59,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
-    private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(EXPECTED_TRACKVIEW_COUNT);
+    private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(TRACKVIEW_POOL_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
@@ -105,7 +105,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     void initialize(ViewGroup container, SkipListener skipListener) {
         this.skipListener = skipListener;
-        for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++) {
+        for (int i = 0; i < TRACKVIEW_POOL_SIZE; i++) {
             final View itemView = trackPagePresenter.createItemView(container, skipListener);
             trackPageRecycler.addScrapView(itemView);
         }
@@ -117,6 +117,12 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     public int getItemViewTypeFromObject(Object object) {
         return trackPagePresenter.accept((View) object) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        trackByViews.clear();
+        super.notifyDataSetChanged();
     }
 
     @Override
@@ -140,8 +146,6 @@ public class TrackPagerAdapter extends PagerAdapter {
         if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
             trackPageRecycler.recyclePage(trackByViews.get(view).trackUrn, view);
         }
-
-        trackByViews.remove(view);
     }
 
     @Override
@@ -163,7 +167,6 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
 
         onPagePositionSet(view, position);
-
         return view;
     }
 
