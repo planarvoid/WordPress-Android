@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -73,7 +74,7 @@ public class PlayerPagerControllerTest {
     public void onNextOnSkipListenerSetsPagerToNextPosition() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture());
         skipListenerArgumentCaptor.getValue().onNext();
 
         verify(viewPager).setCurrentItem(eq(4));
@@ -83,7 +84,7 @@ public class PlayerPagerControllerTest {
     public void onNextOnSkipListenerEmitsPlayerSkipClickEvent() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture());
         skipListenerArgumentCaptor.getValue().onNext();
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
@@ -94,7 +95,7 @@ public class PlayerPagerControllerTest {
     public void onPreviousOnSkipListenerEmitsPlayerPreviousClickEvent() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture());
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
@@ -105,7 +106,7 @@ public class PlayerPagerControllerTest {
     public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).setSkipListener(skipListenerArgumentCaptor.capture());
+        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture());
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         verify(viewPager).setCurrentItem(eq(2));

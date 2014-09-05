@@ -1,8 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
@@ -18,10 +15,8 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.view.RecyclingPager.RecyclingPagerAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -31,6 +26,7 @@ import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
 import android.support.v4.util.LruCache;
+import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -41,11 +37,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-public class TrackPagerAdapter extends RecyclingPagerAdapter {
+public class TrackPagerAdapter extends PagerAdapter {
 
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AD_VIEW = 1;
-    private static final int EXPECTED_TRACKVIEW_COUNT = 5;
+    static final int EXPECTED_TRACKVIEW_COUNT = 4;
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
@@ -54,6 +50,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
+    private final TrackPageRecycler trackPageRecycler;
 
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
     private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
@@ -90,6 +87,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         this.playSessionStateProvider = playSessionStateProvider;
         this.adPagePresenter = adPagePresenter;
         this.eventBus = eventBus;
+        this.trackPageRecycler = new TrackPageRecycler();
     }
 
     public void onPlayerSlide(float slideOffset) {
@@ -105,70 +103,90 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         subscribedTrackViews.clear();
     }
 
-    void warmupViewCache(ViewGroup container) {
+    void initialize(ViewGroup container, SkipListener skipListener) {
+        this.skipListener = skipListener;
         for (int i = 0; i < EXPECTED_TRACKVIEW_COUNT; i++) {
             final View itemView = trackPagePresenter.createItemView(container, skipListener);
-            addScrapView(i, itemView, TYPE_TRACK_VIEW);
+            trackPageRecycler.addScrapView(itemView);
         }
     }
 
-    void setSkipListener(SkipListener skipListener) {
-        this.skipListener = skipListener;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
-
-    @Override
     public int getItemViewType(int position) {
         return playQueueManager.isAudioAdAtPosition(position) ? TYPE_AD_VIEW : TYPE_TRACK_VIEW;
     }
 
-    @Override
     public int getItemViewTypeFromObject(Object object) {
         return trackPagePresenter.accept((View) object) ? TYPE_TRACK_VIEW : TYPE_AD_VIEW;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup container) {
+    public final Object instantiateItem(ViewGroup container, int position) {
+        View view;
+        if (getItemViewType(position) == TYPE_TRACK_VIEW) {
+            view = instantiateTrackView(position);
+        } else {
+            view = instantiateAdView(container, position);
+        }
+
+        container.addView(view);
+        return view;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        View view = (View) object;
+        container.removeView(view);
+
+        if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
+            trackPageRecycler.recyclePage(trackByViews.get(view).trackUrn, view);
+        }
+
+        trackByViews.remove(view);
+    }
+
+    @Override
+    public boolean isViewFromObject(View view, Object object) {
+        return view == object;
+    }
+
+    private View instantiateTrackView(int position) {
+        View view;
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
+        if (trackPageRecycler.hasExistingPage(urn)){
+            view = trackPageRecycler.getPageByUrn(urn);
+            trackByViews.put(view, new ViewPageData(position, urn));
+
+        } else {
+            view = trackPageRecycler.getRecycledPage();
+            bindView(position, view);
+        }
+
+        onPagePositionSet(view, position);
+
+        return view;
+    }
+
+    private View instantiateAdView(ViewGroup container, int position) {
+        View view = adPagePresenter.createItemView(container, skipListener);
+        bindView(position, view);
+        return view;
+    }
+
+    private View bindView(int position, View view) {
         final PlayerPagePresenter presenter = getPresenter(position);
-        final View contentView = convertView == null
-                ? presenter.createItemView(container, skipListener)
-                : presenter.clearItemView(convertView);
+        presenter.clearItemView(view);
 
-        final ViewPageData viewData = new ViewPageData(position, urn);
-        updateViewMap(contentView, viewData);
+        final ViewPageData viewData = new ViewPageData(position, playQueueManager.getUrnAtPosition(position));
+        trackByViews.put(view, viewData);
 
-        if (!subscribedTrackViews.contains(contentView)) {
-            subscribeToPlayEvents(presenter, contentView);
-            subscribedTrackViews.add(contentView);
+        if (!subscribedTrackViews.contains(view)) {
+            subscribeToPlayEvents(presenter, view);
+            subscribedTrackViews.add(view);
         }
 
-        getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
-        return contentView;
-    }
-
-    private void updateViewMap(View contentView, ViewPageData viewData) {
-        // ensure uniqueness in current view at position map
-        final View existingView = getCurrentViewAtPosition(viewData.positionInPlayQueue);
-        if (existingView != null) {
-            trackByViews.remove(existingView);
-        }
-        trackByViews.put(contentView, viewData);
-    }
-
-    private View getCurrentViewAtPosition(final int position) {
-        Map.Entry<View, ViewPageData> entry = Iterables.find(trackByViews.entrySet(), new Predicate<Map.Entry<View, ViewPageData>>() {
-            @Override
-            public boolean apply(Map.Entry<View, ViewPageData> input) {
-                return input.getValue().positionInPlayQueue == position;
-            }
-        }, null);
-        return entry == null ? null : entry.getKey();
+        getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, view));
+        return view;
     }
 
     private PlayerPagePresenter getPresenter(int position) {
@@ -227,71 +245,14 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-        removeCachedAudioAdPages();
-        super.notifyDataSetChanged();
-        updatePagePositions();
+    private void onPagePositionSet(View view, int position) {
+        getPresenter(position).onPositionSet(view, position, playQueueManager.getQueueSize());
     }
 
-    private void updatePagePositions() {
-        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
-            final TrackUrn urn = entry.getValue().trackUrn;
-            final int position = entry.getValue().positionInPlayQueue;
-            getPresenter(position).onPositionSet(entry.getKey(), playQueueManager.getPositionForUrn(urn), playQueueManager.getQueueSize());
-        }
-    }
-
+    // Getter with side effects. We are forced to adjust our internal datasets based on position changes here.
     @Override
     public int getItemPosition(Object object) {
-        final View view = (View) object;
-        if (isViewInSamePosition(view)) {
-            return POSITION_UNCHANGED;
-        }
-
-        final ViewPageData viewPageData = getUpdatedViewPageData(view);
-        if (viewPageData == null) {
-            trackByViews.remove(object);
-            return POSITION_NONE;
-        } else {
-            updateViewMap(view, viewPageData);
-            return viewPageData.positionInPlayQueue;
-        }
-    }
-
-    // since we remove audio ads from the play queue after they played, we need to make sure we're not trying
-    // to reuse their views if they were cached
-    private void removeCachedAudioAdPages() {
-        View adPageKey = null;
-        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
-            if (entry.getValue().isAdPage) {
-                adPageKey = entry.getKey();
-            }
-        }
-        if (adPageKey != null) {
-            trackByViews.remove(adPageKey);
-        }
-    }
-
-    private boolean isViewInSamePosition(View view) {
-        if (trackByViews.containsKey(view)) {
-            final ViewPageData viewPageData = trackByViews.get(view);
-            final TrackUrn trackInPlayQueue = playQueueManager.getUrnAtPosition(viewPageData.positionInPlayQueue);
-            return viewPageData.trackUrn.equals(trackInPlayQueue);
-        }
-        return false;
-    }
-
-    @Nullable
-    private ViewPageData getUpdatedViewPageData(View view) {
-        if (trackByViews.containsKey(view)) {
-            final ViewPageData viewPageData = trackByViews.get(view);
-            final int newPosition = playQueueManager.getPositionForUrn(viewPageData.trackUrn);
-            if (newPosition != Consts.NOT_SET) {
-                return new ViewPageData(newPosition, viewPageData.trackUrn);
-            }
-        }
-        return null;
+        return POSITION_NONE;
     }
 
     @Override
@@ -338,7 +299,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             TrackUrn trackUrn = track.get(TrackProperty.URN);
             if (isTrackRelatedToView(trackPage, trackUrn)) {
                 presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn));
-                presenter.onPositionSet(trackPage, playQueueManager.getPositionForUrn(trackUrn), playQueueManager.getQueueSize());
                 updateProgress(presenter, trackPage, trackUrn);
             }
         }
@@ -423,6 +383,14 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             this.trackUrn = trackUrn;
             this.isAdPage = playQueueManager.isAudioAdAtPosition(positionInPlayQueue);
         }
-    }
 
+        @Override
+        public String toString() {
+            return "ViewPageData{" +
+                    "positionInPlayQueue=" + positionInPlayQueue +
+                    ", trackUrn=" + trackUrn +
+                    ", isAdPage=" + isAdPage +
+                    '}';
+        }
+    }
 }
