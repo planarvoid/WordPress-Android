@@ -23,7 +23,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.content.Context;
@@ -61,9 +63,12 @@ public class ImageOperations {
     private final PlaceholderGenerator placeholderGenerator;
 
     private final Set<String> notFoundUris = Sets.newHashSet();
-    private final Cache<String, TransitionDrawable> placeholderCache;
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final FileNameGenerator fileNameGenerator;
+
+    private final Cache<String, TransitionDrawable> placeholderCache;
+    private final Cache<Urn, Bitmap> blurredImageCache;
+
     private final Func1<Bitmap, Bitmap> blurBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
         public Bitmap call(Bitmap bitmap) {
@@ -77,6 +82,7 @@ public class ImageOperations {
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
         this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, adapterFactory,imageProcessor,
                 CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, TransitionDrawable>build(),
+                CacheBuilder.newBuilder().weakValues().maximumSize(10).<Urn, Bitmap>build(),
                 new HashCodeFileNameGenerator());
 
     }
@@ -85,11 +91,12 @@ public class ImageOperations {
 
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
-                    FileNameGenerator fileNameGenerator) {
+                    Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.imageEndpointBuilder = imageEndpointBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.placeholderCache = placeholderCache;
+        this.blurredImageCache = blurredImageCache;
         this.adapterFactory = adapterFactory;
         this.imageProcessor = imageProcessor;
         this.fileNameGenerator = fileNameGenerator;
@@ -201,13 +208,36 @@ public class ImageOperations {
         });
     }
 
-    public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final Urn resourceUrn) {
-        final Bitmap cached = getCachedListItemBitmap(resources, resourceUrn);
-        if (cached == null) {
-            return artwork(resourceUrn, ApiImageSize.getListItemImageSize(resources)).map(blurBitmap);
+    public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final Urn resourceUrn,
+                                                   Scheduler scheduleOn, Scheduler observeOn) {
+        final Bitmap cachedBlurImage = blurredImageCache.getIfPresent(resourceUrn);
+        if (cachedBlurImage != null){
+            return Observable.just(cachedBlurImage);
         } else {
-            return blurBitmap(cached);
+            final Bitmap cached = getCachedListItemBitmap(resources, resourceUrn);
+            if (cached == null) {
+                return artwork(resourceUrn, ApiImageSize.getListItemImageSize(resources))
+                        .map(blurBitmap)
+                        .subscribeOn(scheduleOn)
+                        .observeOn(observeOn)
+                        .doOnNext(cacheBlurredBitmap(resourceUrn));
+            } else {
+                return blurBitmap(cached)
+                        .subscribeOn(scheduleOn)
+                        .observeOn(observeOn)
+                        .doOnNext(cacheBlurredBitmap(resourceUrn));
+            }
         }
+
+    }
+
+    private Action1<Bitmap> cacheBlurredBitmap(final Urn resourceUrn) {
+        return new Action1<Bitmap>() {
+            @Override
+            public void call(Bitmap bitmap) {
+                blurredImageCache.put(resourceUrn, bitmap);
+            }
+        };
     }
 
     private Observable<Bitmap> blurBitmap(final Bitmap original) {

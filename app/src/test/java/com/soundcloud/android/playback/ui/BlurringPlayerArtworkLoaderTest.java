@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 
@@ -36,16 +37,17 @@ public class BlurringPlayerArtworkLoaderTest {
     private Resources resources = Robolectric.application.getResources();
     private TrackUrn urn = Urn.forTrack(123L);
     private Bitmap cachedBitmap = Bitmap.createBitmap(0, 0, Bitmap.Config.RGB_565);
+    private Scheduler immediateScheduler = Schedulers.immediate();
 
     @Before
     public void setUp() throws Exception {
-        playerArtworkLoader = new BlurringPlayerArtworkLoader(imageOperations, Robolectric.application.getResources(), Schedulers.immediate());
+        playerArtworkLoader = new BlurringPlayerArtworkLoader(imageOperations, Robolectric.application.getResources(), Schedulers.immediate(), Schedulers.immediate());
     }
 
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() throws Exception {
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources, urn)).thenReturn(Observable.<Bitmap>empty());
+        when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler)).thenReturn(Observable.<Bitmap>empty());
 
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
 
@@ -57,7 +59,7 @@ public class BlurringPlayerArtworkLoaderTest {
     public void loadArtworkSetsBlurredArtworkOnImageOverlay() throws Exception {
         final Bitmap blurredBitmap = Bitmap.createBitmap(0, 0, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources, urn)).thenReturn(Observable.just(blurredBitmap));
+        when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler)).thenReturn(Observable.just(blurredBitmap));
 
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
 
@@ -68,7 +70,8 @@ public class BlurringPlayerArtworkLoaderTest {
     @Test
     public void loadArtworkUnsubscribesFromOldBlurringOperations() throws Exception {
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources, urn)).thenReturn(TestObservables.<Bitmap>endlessObservablefromSubscription(subscription));
+        when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler))
+                .thenReturn(TestObservables.<Bitmap>endlessObservablefromSubscription(subscription));
 
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);

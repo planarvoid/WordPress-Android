@@ -18,13 +18,21 @@ import java.lang.ref.WeakReference;
 public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
 
     private final Scheduler graphicsScheduler;
+    private final Scheduler observeOnScheduler;
 
     private Subscription blurSubscription = Subscriptions.empty();
 
+
     public BlurringPlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
                                        Scheduler graphicsScheduler) {
+        this(imageOperations, resources, graphicsScheduler, AndroidSchedulers.mainThread());
+    }
+
+    public BlurringPlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
+                                       Scheduler graphicsScheduler, Scheduler observeOnScheduler) {
         super(imageOperations, resources);
         this.graphicsScheduler = graphicsScheduler;
+        this.observeOnScheduler = observeOnScheduler;
     }
 
     @Override
@@ -32,9 +40,7 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
         super.loadArtwork(urn, wrappedImageView, imageOverlay, listener, isHighPriority);
 
         blurSubscription.unsubscribe();
-        blurSubscription = imageOperations.blurredPlayerArtwork(resources, urn)
-                .subscribeOn(graphicsScheduler)
-                .observeOn(AndroidSchedulers.mainThread())
+        blurSubscription = imageOperations.blurredPlayerArtwork(resources, urn, graphicsScheduler, observeOnScheduler)
                 .subscribe(new BlurredOverlaySubscriber(imageOverlay));
     }
 
@@ -42,7 +48,7 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
         private final WeakReference<ImageView> imageOverlayRef;
 
         public BlurredOverlaySubscriber(ImageView imageOverlay) {
-            this.imageOverlayRef = new WeakReference<ImageView>(imageOverlay);
+            this.imageOverlayRef = new WeakReference<>(imageOverlay);
         }
 
         @Override
