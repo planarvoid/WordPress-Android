@@ -40,11 +40,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private static final int HAS_WAVEFORM_DATA = 3;
     private static final int IS_CREATION_PENDING = 4;
 
-    private static final BitSet SHOULD_CREATE_WAVEFORM = new BitSet(NUM_FLAGS);
-    static {
-        SHOULD_CREATE_WAVEFORM.flip(0, NUM_FLAGS);
-    }
-
+    private static final BitSet SHOULD_CREATE_WAVEFORM = trueSet(NUM_FLAGS);
     private final BitSet createState = new BitSet(NUM_FLAGS);
 
     private final WaveformView waveformView;
@@ -282,4 +278,11 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             return new WaveformViewController(waveformView, animationControllerFactory,scrubControllerFactory, scheduler);
         }
     }
+
+    private static BitSet trueSet(int numFlags) {
+        BitSet bitSet = new BitSet(numFlags);
+        bitSet.set(0, numFlags);
+        return bitSet;
+    }
+
 }
