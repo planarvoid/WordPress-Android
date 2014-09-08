@@ -15,8 +15,8 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
@@ -53,9 +53,9 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         }
     };
 
-    private final Action1<PlaybackProgressEvent> unlockPager = new Action1<PlaybackProgressEvent>() {
+    private final Subscriber<PlaybackProgressEvent> unlockPager = new DefaultSubscriber<PlaybackProgressEvent>() {
         @Override
-        public void call(PlaybackProgressEvent ignored) {
+        public void onNext(PlaybackProgressEvent ignored) {
             trackPager.setPagingEnabled(true);
         }
     };

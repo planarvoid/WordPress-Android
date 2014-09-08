@@ -10,8 +10,9 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.UserUrn;
-import rx.functions.Action1;
+import rx.Subscriber;
 import rx.functions.Func1;
 
 import android.content.Context;
@@ -69,10 +70,10 @@ class TrackPageListener {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
     }
 
-    private Action1<PlayerUIEvent> startProfileActivity(final Context activityContext, final UserUrn userUrn) {
-        return new Action1<PlayerUIEvent>() {
+    private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final UserUrn userUrn) {
+        return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
-            public void call(PlayerUIEvent playerUIEvent) {
+            public void onNext(PlayerUIEvent playerUIEvent) {
                 activityContext.startActivity(ProfileActivity.getIntent(activityContext, userUrn));
             }
         };
