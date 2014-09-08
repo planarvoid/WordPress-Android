@@ -265,7 +265,9 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         final ViewPageData viewPageData = getUpdatedViewPageData(view);
         if (viewPageData == null) {
             trackByViews.remove(view);
-            trackPagePresenter.onBackground(view);
+            if (trackPagePresenter.accept(view)) {
+                trackPagePresenter.onBackground(view);
+            }
             return POSITION_NONE;
         } else {
             updateViewMap(view, viewPageData);
