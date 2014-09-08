@@ -13,9 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
-import rx.functions.Action1;
+import rx.observers.TestSubscriber;
 
 import android.app.Notification;
 import android.content.Context;
@@ -103,15 +102,15 @@ public class RichNotificationPresenterTest {
     @Test
     public void updateToIdleStateFunctionUpdatesPlayingStateToFalseOnRemoteViews() throws Exception {
         notification.contentView = remoteViews;
-        presenter.updateToIdleState(Observable.just(notification), Mockito.mock(Action1.class));
+        presenter.updateToIdleState(Observable.just(notification), new TestSubscriber<Notification>());
         verify(remoteViews).setPlaybackStatus(false);
     }
 
     @Test
-    public void updateToIdleStateFunctionEmotsNotificationToNotifyFunction() throws Exception {
+    public void updateToIdleStateFunctionSubscribesToNotificationObservable() throws Exception {
         notification.contentView = remoteViews;
-        final Action1<Notification> notifyAction = Mockito.mock(Action1.class);
-        presenter.updateToIdleState(Observable.just(notification), notifyAction);
-        verify(notifyAction).call(notification);
+        final TestSubscriber<Notification> subscriber = new TestSubscriber<>();
+        presenter.updateToIdleState(Observable.just(notification), subscriber);
+        expect(subscriber.getOnNextEvents()).toNumber(1);
     }
 }

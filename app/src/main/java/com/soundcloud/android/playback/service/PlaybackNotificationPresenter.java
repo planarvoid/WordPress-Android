@@ -5,7 +5,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
-import rx.functions.Action1;
+import rx.Subscriber;
 import rx.functions.Func1;
 import rx.functions.Functions;
 
@@ -57,7 +57,7 @@ public class PlaybackNotificationPresenter {
         return Functions.identity();
     }
 
-    boolean updateToIdleState(Observable<Notification> notificationObservable, Action1<Notification> notifyAction) {
+    boolean updateToIdleState(Observable<Notification> notificationObservable, Subscriber<Notification> notificationSubscriber) {
         return false;
     }
 

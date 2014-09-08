@@ -13,9 +13,9 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
@@ -50,9 +50,9 @@ public class PlaybackNotificationController {
     private Observable<Notification> notificationObservable;
     private Subscription imageSubscription = Subscriptions.empty();
 
-    private final Action1<Notification> notifyAction = new Action1<Notification>() {
+    private final Subscriber<Notification> notificationSubscriber = new DefaultSubscriber<Notification>() {
         @Override
-        public void call(Notification notification) {
+        public void onNext(Notification notification) {
             if (lastPlayerLifecycleEvent.isServiceRunning()){
                 notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
             }
@@ -113,7 +113,7 @@ public class PlaybackNotificationController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .mergeMap(onPlayQueueEventFunc).doOnNext(notifyAction).subscribe(new DefaultSubscriber<Notification>());
+                .mergeMap(onPlayQueueEventFunc).subscribe(notificationSubscriber);
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
             @Override
@@ -131,7 +131,7 @@ public class PlaybackNotificationController {
     }
 
     boolean notifyIdleState() {
-        return presenter.updateToIdleState(notificationObservable, notifyAction);
+        return presenter.updateToIdleState(notificationObservable, notificationSubscriber);
     }
 
     private ApiImageSize getApiImageSize() {

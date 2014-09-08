@@ -4,7 +4,7 @@ import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
-import rx.functions.Action1;
+import rx.Subscriber;
 import rx.functions.Func1;
 
 import android.app.Notification;
@@ -55,8 +55,8 @@ public class RichNotificationPresenter extends PlaybackNotificationPresenter {
     }
 
     @Override
-    boolean updateToIdleState(Observable<Notification> notificationObservable, Action1<Notification> notifyAction) {
-        notificationObservable.map(updatePlaybackStatusFunc(false)).subscribe(notifyAction);
+    boolean updateToIdleState(Observable<Notification> notificationObservable, final Subscriber<Notification> notificationSubscriber) {
+        notificationObservable.map(updatePlaybackStatusFunc(false)).subscribe(notificationSubscriber);
         return true;
     }
 

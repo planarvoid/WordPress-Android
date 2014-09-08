@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
-import rx.functions.Action1;
+import rx.Subscriber;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -90,7 +90,7 @@ public class BigPlaybackNotificationPresenterTest {
     public void updateToIdleStateFunctionUpdatesPlayingStateToFalseOnRemoteViews() {
         notification.bigContentView = bigRemoteViews;
         notification.contentView = Mockito.mock(NotificationPlaybackRemoteViews.class);
-        presenter.updateToIdleState(Observable.just(notification), Mockito.mock(Action1.class));
+        presenter.updateToIdleState(Observable.just(notification), Mockito.mock(Subscriber.class));
 
         verify(bigRemoteViews).setPlaybackStatus(false);
     }
