@@ -56,22 +56,14 @@ public class AccountOperationsTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private AccountManager accountManager;
-    @Mock
-    private SoundCloudTokenOperations tokenOperations;
-    @Mock
-    private ScModelManager modelManager;
-    @Mock
-    private UserStorage userStorage;
-    @Mock
-    private Account scAccount;
-    @Mock
-    private Observer observer;
-    @Mock
-    private Token token;
-    @Mock
-    private AccountCleanupAction accountCleanupAction;
+    @Mock private AccountManager accountManager;
+    @Mock private SoundCloudTokenOperations tokenOperations;
+    @Mock private ScModelManager modelManager;
+    @Mock private UserStorage userStorage;
+    @Mock private Account scAccount;
+    @Mock private Observer observer;
+    @Mock private Token token;
+    @Mock private AccountCleanupAction accountCleanupAction;
 
     private PublicApiUser user;
 
