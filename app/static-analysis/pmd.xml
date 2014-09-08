@@ -13,6 +13,7 @@
     </rule>
     <rule ref="rulesets/java/design.xml">
         <exclude name="TooFewBranchesForASwitchStatement"/>
+        <exclude name="UncommentedEmptyConstructor"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>
 <!--
