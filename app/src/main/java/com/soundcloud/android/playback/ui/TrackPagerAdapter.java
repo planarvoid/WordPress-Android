@@ -150,8 +150,11 @@ public class TrackPagerAdapter extends PagerAdapter {
         container.removeView(view);
 
         if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
-            trackPageRecycler.recyclePage(trackByViews.get(view).trackUrn, view);
-            trackPagePresenter.onBackground(view);
+            final TrackUrn trackUrn = trackByViews.get(view).trackUrn;
+            trackPageRecycler.recyclePage(trackUrn, view);
+            if (!playQueueManager.isCurrentTrack(trackUrn)){
+                trackPagePresenter.onBackground(view);
+            }
         }
 
         trackByViews.remove(view);

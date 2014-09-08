@@ -364,9 +364,21 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
+    public void destroyingViewDoesNotSetBackgroundStateOnPresenterOnCurrentTrack() {
+        final View view = getPageView();
+        when(trackPagePresenter.accept(view)).thenReturn(true);
+        when(playQueueManager.isCurrentTrack(eq(TRACK_URN))).thenReturn(true);
+
+        adapter.destroyItem(container, 3, view);
+
+        verify(trackPagePresenter, never()).onBackground(view);
+    }
+
+    @Test
     public void destroyingViewSetsBackgroundStateOnPresenter() {
         final View view = getPageView();
         when(trackPagePresenter.accept(view)).thenReturn(true);
+        when(playQueueManager.isCurrentTrack(eq(TRACK_URN))).thenReturn(false);
 
         adapter.destroyItem(container, 3, view);
 
