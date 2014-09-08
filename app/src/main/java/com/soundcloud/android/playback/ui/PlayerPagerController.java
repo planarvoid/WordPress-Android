@@ -168,7 +168,7 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     private void onPlayQueueChanged() {
         adapter.notifyDataSetChanged();
-        setQueuePosition(playQueueManager.getCurrentPosition());
+        trackPager.setCurrentItem(playQueueManager.getCurrentPosition(), false);
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
