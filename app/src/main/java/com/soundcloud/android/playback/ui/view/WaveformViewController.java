@@ -28,8 +28,24 @@ import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.BitSet;
 
 public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
+
+    private static final int NUM_FLAGS = 5;
+
+    private static final int IS_FOREGROUND = 0;
+    private static final int HAS_WIDTH = 1;
+    private static final int IS_EXPANDED = 2;
+    private static final int HAS_WAVEFORM_DATA = 3;
+    private static final int IS_CREATION_PENDING = 4;
+
+    private static final BitSet SHOULD_CREATE_WAVEFORM = new BitSet(NUM_FLAGS);
+    static {
+        SHOULD_CREATE_WAVEFORM.flip(0, NUM_FLAGS);
+    }
+
+    private final BitSet createState = new BitSet(NUM_FLAGS);
 
     private final WaveformView waveformView;
     private final Scheduler graphicsScheduler;
@@ -50,7 +66,6 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private boolean suppressProgress;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
-    private boolean isExpanded;
     private Playa.PlayaState currentState = IDLE;
 
     WaveformViewController(WaveformView waveform,
@@ -60,6 +75,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         this.graphicsScheduler = graphicsScheduler;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
+
+        createState.set(IS_CREATION_PENDING);
 
         waveformView.setOnWidthChangedListener(this);
         scrubController.addScrubListener(this);
@@ -85,7 +102,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     @Override
     public void displayScrubPosition(float scrubPosition) {
         leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), scrubPosition);
-        rightProgressHelper.setValueFromProportion( waveformView.getRightWaveform(), scrubPosition);
+        rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), scrubPosition);
         if (currentState == IDLE){
             leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), scrubPosition);
             rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), scrubPosition);
@@ -126,17 +143,14 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         dragProgressController.setHelper(dragProgressHelper);
         scrubController.setProgressHelper(dragProgressHelper);
 
-        if (waveformResultObservable != null && isExpanded) {
-            createWaveforms();
-        }
+        createWaveforms(HAS_WIDTH);
     }
 
-    public void displayWaveform(Observable<WaveformResult> waveformResultObservable) {
+    public void setWaveform(Observable<WaveformResult> waveformResultObservable) {
         waveformView.showLoading();
         this.waveformResultObservable = waveformResultObservable;
-        if (adjustedWidth > 0 && isExpanded) {
-            createWaveforms();
-        }
+        createState.set(IS_CREATION_PENDING);
+        createWaveforms(HAS_WAVEFORM_DATA);
     }
 
     public void reset() {
@@ -146,6 +160,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         leftProgressController.reset();
         rightProgressController.reset();
         dragProgressController.reset();
+        createState.clear(HAS_WAVEFORM_DATA);
     }
 
     public void showPlayingState(PlaybackProgress progress) {
@@ -171,26 +186,35 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void onPlayerSlide(float value){
-        isExpanded = value == 1;
         waveformView.setVisibility(value > 0 ? View.VISIBLE : View.GONE);
     }
 
-    public void setExpanded(){
-        isExpanded = true;
+    public void setExpanded() {
+        createWaveforms(IS_EXPANDED);
         waveformView.setVisibility(View.VISIBLE);
-
-        if (waveformResultObservable != null && adjustedWidth > 0){
-            createWaveforms();
-        }
     }
 
-    public void setCollapsed(){
-        isExpanded = false;
+    public void setCollapsed() {
+        createState.clear(IS_EXPANDED);
         waveformView.setVisibility(View.GONE);
     }
 
     public void setDuration(long duration) {
         scrubController.setDuration(duration);
+    }
+
+    public void onBackground() {
+        createState.clear(IS_FOREGROUND);
+        clearWaveform();
+    }
+
+    private void clearWaveform() {
+        waveformView.clearWaveform();
+        createState.set(IS_CREATION_PENDING);
+    }
+
+    public void onForeground() {
+        createWaveforms(IS_FOREGROUND);
     }
 
     private void startProgressAnimations(PlaybackProgress progress) {
@@ -209,14 +233,17 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         scrubController.addScrubListener(listener);
     }
 
-    private void createWaveforms() {
-        waveformSubscription.unsubscribe();
-        waveformSubscription = waveformResultObservable
-                .subscribeOn(graphicsScheduler)
-                .map(createWaveformsFunc())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new WaveformSubscriber());
-        waveformResultObservable = null;
+    private void createWaveforms(int flag) {
+        createState.set(flag);
+        if (createState.equals(SHOULD_CREATE_WAVEFORM)) {
+            waveformSubscription.unsubscribe();
+            waveformSubscription = waveformResultObservable
+                    .subscribeOn(graphicsScheduler)
+                    .map(createWaveformsFunc())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new WaveformSubscriber());
+            createState.clear(IS_CREATION_PENDING);
+        }
     }
 
     private Func1<WaveformResult, Pair<Bitmap, Bitmap>> createWaveformsFunc() {

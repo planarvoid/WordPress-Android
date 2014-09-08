@@ -218,6 +218,10 @@ public class WaveformView extends FrameLayout {
         rightLine.setVisibility(View.VISIBLE);
     }
 
+    void clearWaveform() {
+        showLoading();
+    }
+
     private void clearScaleAnimations() {
         if (springY != null){
             springY.removeAllListeners();

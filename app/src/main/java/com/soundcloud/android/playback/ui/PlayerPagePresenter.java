@@ -19,6 +19,9 @@ public interface PlayerPagePresenter {
     void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent);
     void onPositionSet(View trackPage, int position, int size);
 
+    void onBackground(View trackPage);
+    void onForeground(View trackPage);
+
     void setCollapsed(View trackPage);
     void setExpanded(View trackPage);
     void onPlayerSlide(View trackPage, float position);

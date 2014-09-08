@@ -336,6 +336,43 @@ public class TrackPagerAdapterTest {
         verify(trackPagePresenter).onPositionSet(pageView, 3, 5);
     }
 
+    @Test
+    public void onPauseSetsBackgroundStateOnPresenter() {
+        final View pageView = getPageView();
+        adapter.onPause();
+        verify(trackPagePresenter).onBackground(pageView);
+    }
+
+    @Test
+    public void onResumeSetsForegroundStateOnPresenter() {
+        final View pageView = getPageView();
+        adapter.onResume();
+        verify(trackPagePresenter).onForeground(pageView);
+    }
+
+    @Test
+    public void reusingExistingViewSetsForegroundStateOnPresenter() {
+        final View view = getPageView();
+        when(trackPagePresenter.clearItemView(view)).thenReturn(view);
+        when(trackPagePresenter.accept(view)).thenReturn(true);
+
+        adapter.destroyItem(container, 3, view);
+
+        View currentPageView = (View) adapter.instantiateItem(container, 3);
+
+        verify(trackPagePresenter).onForeground(currentPageView);
+    }
+
+    @Test
+    public void destroyingViewSetsBackgroundStateOnPresenter() {
+        final View view = getPageView();
+        when(trackPagePresenter.accept(view)).thenReturn(true);
+
+        adapter.destroyItem(container, 3, view);
+
+        verify(trackPagePresenter).onBackground(view);
+    }
+
     private View getPageView() {
         setCurrentTrackState(3, TrackPagerAdapterTest.TRACK_URN, true);
         return getPageView(3, TrackPagerAdapterTest.TRACK_URN);

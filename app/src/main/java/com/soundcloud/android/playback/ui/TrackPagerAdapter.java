@@ -97,6 +97,18 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     }
 
+    void onPause() {
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue().positionInPlayQueue).onBackground(entry.getKey());
+        }
+    }
+
+    void onResume() {
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue().positionInPlayQueue).onForeground(entry.getKey());
+        }
+    }
+
     void unsubscribe() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
@@ -139,6 +151,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
         if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
             trackPageRecycler.recyclePage(trackByViews.get(view).trackUrn, view);
+            trackPagePresenter.onBackground(view);
         }
 
         trackByViews.remove(view);
@@ -156,7 +169,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         if (trackPageRecycler.hasExistingPage(urn)){
             view = trackPageRecycler.getPageByUrn(urn);
             trackByViews.put(view, new ViewPageData(position, urn));
-
+            trackPagePresenter.onForeground(view);
         } else {
             view = trackPageRecycler.getRecycledPage();
             bindView(position, view);
@@ -236,10 +249,11 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     void onTrackChange() {
-        for (View view : trackByViews.keySet()) {
-            if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
-                trackPagePresenter.onPageChange(view);
-                updateProgress(trackPagePresenter, view, trackByViews.get(view).trackUrn);
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            if (getItemViewTypeFromObject(entry.getKey()) == TYPE_TRACK_VIEW) {
+                TrackUrn urn = entry.getValue().trackUrn;
+                trackPagePresenter.onPageChange(entry.getKey());
+                updateProgress(trackPagePresenter, entry.getKey(), urn);
             }
         }
     }
