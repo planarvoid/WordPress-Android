@@ -396,6 +396,19 @@ public class TrackPagerAdapterTest {
         verify(adPagePresenter).onPositionSet(pageView, 1, 2);
     }
 
+    public void onPauseSetsBackgroundStateOnPresenter() {
+        final View pageView = getPageView();
+        adapter.onPause();
+        verify(trackPagePresenter).onBackground(pageView);
+    }
+
+    @Test
+    public void onResumeSetsForegroundStateOnPresenter() {
+        final View pageView = getPageView();
+        adapter.onResume();
+        verify(trackPagePresenter).onForeground(pageView);
+    }
+
     private View getPageView() {
         setCurrentTrackState(3, Urn.forTrack(123L), true);
         return getPageView(3, Urn.forTrack(123L));

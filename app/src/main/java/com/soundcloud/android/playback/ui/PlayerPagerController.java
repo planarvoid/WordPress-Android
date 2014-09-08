@@ -97,10 +97,12 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
 
     public void onResume() {
         isResumed = true;
+        adapter.onResume();
     }
 
     public void onPause() {
         isResumed = false;
+        adapter.onPause();
     }
 
     void onViewCreated(View view) {

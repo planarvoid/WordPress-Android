@@ -205,6 +205,16 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
+    public void onBackground(View trackPage) {
+        // no-op
+    }
+
+    @Override
+    public void onForeground(View trackPage) {
+        // no-op
+    }
+
+    @Override
     public void setCollapsed(View trackView) {
         onPlayerSlide(trackView, 0);
     }

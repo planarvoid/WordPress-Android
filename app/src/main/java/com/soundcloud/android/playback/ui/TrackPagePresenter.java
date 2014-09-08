@@ -113,7 +113,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.user.setTag(track.getUserUrn());
 
         holder.artworkController.loadArtwork(track.getUrn(), isCurrentTrack);
-        holder.waveformController.displayWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
+        holder.waveformController.onForeground(); // We must be in the foreground if we're binding the view
+        holder.waveformController.setWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
         holder.waveformController.setDuration(track.getDuration());
         holder.menuController.setTrack(track);
@@ -193,6 +194,16 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         if (holder.hasPreviousButton()) {
             holder.previousButton.setVisibility(position == 0 ? View.INVISIBLE : View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onBackground(View trackPage) {
+        getViewHolder(trackPage).waveformController.onBackground();
+    }
+
+    @Override
+    public void onForeground(View trackPage) {
+        getViewHolder(trackPage).waveformController.onForeground();
     }
 
     private void showRepostToast(final Context context, final boolean isReposted) {

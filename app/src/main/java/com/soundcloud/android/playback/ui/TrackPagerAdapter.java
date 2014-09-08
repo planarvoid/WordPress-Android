@@ -99,6 +99,18 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
         }
     }
 
+    void onPause() {
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue().positionInPlayQueue).onBackground(entry.getKey());
+        }
+    }
+
+    void onResume() {
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue().positionInPlayQueue).onForeground(entry.getKey());
+        }
+    }
+
     void unsubscribe() {
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
@@ -148,6 +160,7 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             subscribedTrackViews.add(contentView);
         }
 
+        trackPagePresenter.onForeground(contentView);
         getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
     }
@@ -219,10 +232,11 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
     }
 
     void onTrackChange() {
-        for (View view : trackByViews.keySet()) {
-            if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
-                trackPagePresenter.onPageChange(view);
-                updateProgress(trackPagePresenter, view, trackByViews.get(view).trackUrn);
+        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+            if (getItemViewTypeFromObject(entry.getKey()) == TYPE_TRACK_VIEW) {
+                TrackUrn urn = entry.getValue().trackUrn;
+                trackPagePresenter.onPageChange(entry.getKey());
+                updateProgress(trackPagePresenter, entry.getKey(), urn);
             }
         }
     }
@@ -251,7 +265,8 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
 
         final ViewPageData viewPageData = getUpdatedViewPageData(view);
         if (viewPageData == null) {
-            trackByViews.remove(object);
+            trackByViews.remove(view);
+            trackPagePresenter.onBackground(view);
             return POSITION_NONE;
         } else {
             updateViewMap(view, viewPageData);
