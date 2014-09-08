@@ -160,7 +160,6 @@ public class TrackPagerAdapter extends RecyclingPagerAdapter {
             subscribedTrackViews.add(contentView);
         }
 
-        trackPagePresenter.onForeground(contentView);
         getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, contentView));
         return contentView;
     }
