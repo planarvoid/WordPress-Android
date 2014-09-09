@@ -13,7 +13,6 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -49,15 +48,6 @@ public class PlaybackNotificationController {
 
     private Observable<Notification> notificationObservable;
     private Subscription imageSubscription = Subscriptions.empty();
-
-    private final Subscriber<Notification> notificationSubscriber = new DefaultSubscriber<Notification>() {
-        @Override
-        public void onNext(Notification notification) {
-            if (lastPlayerLifecycleEvent.isServiceRunning()){
-                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
-            }
-        }
-    };
 
     private final Func1<CurrentPlayQueueTrackEvent, Observable<Notification>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<Notification>>() {
         @Override
@@ -113,7 +103,7 @@ public class PlaybackNotificationController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .mergeMap(onPlayQueueEventFunc).subscribe(notificationSubscriber);
+                .mergeMap(onPlayQueueEventFunc).subscribe(new PlaylistSubscriber());
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
             @Override
@@ -131,7 +121,7 @@ public class PlaybackNotificationController {
     }
 
     boolean notifyIdleState() {
-        return presenter.updateToIdleState(notificationObservable, notificationSubscriber);
+        return presenter.updateToIdleState(notificationObservable, new PlaylistSubscriber());
     }
 
     private ApiImageSize getApiImageSize() {
@@ -157,6 +147,15 @@ public class PlaybackNotificationController {
                     }
                 }
             });
+        }
+    }
+
+    private class PlaylistSubscriber extends DefaultSubscriber<Notification> {
+        @Override
+        public void onNext(Notification notification) {
+            if (lastPlayerLifecycleEvent.isServiceRunning()){
+                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+            }
         }
     }
 }
