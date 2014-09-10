@@ -140,7 +140,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     void displayLeaveBehind(View trackView) {
         final TrackPageHolder holder = getViewHolder(trackView);
-        holder.leaveBehindController.show(trackView);
+        holder.leaveBehindController.set();
     }
 
     public View clearItemView(View view) {
@@ -410,7 +410,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
 
-        holder.leaveBehindController = leaveBehindControllerFactory.create();
+        holder.leaveBehindController = leaveBehindControllerFactory.create(trackView);
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
