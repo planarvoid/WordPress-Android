@@ -48,6 +48,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackMenuController.Factory trackMenuControllerFactory;
+    private final LeaveBehindController.Factory leaveBehindControllerFactory;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
@@ -55,13 +56,15 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
-                              TrackMenuController.Factory trackMenuControllerFactory) {
+                              TrackMenuController.Factory trackMenuControllerFactory,
+                              LeaveBehindController.Factory leaveBehindControllerFactory) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
+        this.leaveBehindControllerFactory = leaveBehindControllerFactory;
     }
 
     @Override
@@ -407,7 +410,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
 
-        holder.leaveBehindController = new LeaveBehindController();
+        holder.leaveBehindController = leaveBehindControllerFactory.create();
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);

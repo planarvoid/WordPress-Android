@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:paddingLeft="@dimen/leave_behind_padding"
@@ -11,14 +11,17 @@
         android:id="@+id/leave_behind_close"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_above="@+id/leave_behind_image"
         android:layout_marginBottom="@dimen/leave_behind_padding"
         android:background="@color/placeholder_image_blue" />
 
-    <View
+    <com.soundcloud.android.view.AspectRatioImageView
+        android:id="@+id/leave_behind_image"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_weight="0"
-        android:background="@color/sc_orange" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:dominantMeasurement="width"
+        app:aspectRatioEnabled="true"
+        app:aspectRatio="0.83" />
 
-</LinearLayout>
+</RelativeLayout>

@@ -49,6 +49,7 @@ public class TrackPagePresenterTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
     @Mock private PlayerOverlayController playerVisualStateController;
+    @Mock private LeaveBehindController.Factory leaveBehindControllerFactory;
     @Mock private SkipListener skipListener;
 
     @Mock private TrackMenuController.Factory trackMenuControllerFactory;
@@ -62,7 +63,7 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory);
+                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);

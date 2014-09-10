@@ -160,6 +160,15 @@ public class ImageOperations {
                 ImageOptionsFactory.playerAd(placeholderDrawable));
     }
 
+    public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener, Drawable placeholderDrawable) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        imageLoader.displayImage(
+                uri.toString(),
+                imageAware,
+                ImageOptionsFactory.playerAd(placeholderDrawable),
+                new ImageListenerUILAdapter(imageListener));
+    }
+
     public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
