@@ -8,6 +8,7 @@
               android:paddingRight="@dimen/leave_behind_padding">
 
     <View
+        android:id="@+id/leave_behind_close"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"

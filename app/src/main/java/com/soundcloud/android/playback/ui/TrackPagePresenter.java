@@ -28,7 +28,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -138,12 +137,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     void displayLeaveBehind(View trackView) {
         final TrackPageHolder holder = getViewHolder(trackView);
-        final View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        if (leaveBehind == null) {
-            holder.leaveBehindStub.inflate();
-        } else {
-            leaveBehind.setVisibility(View.VISIBLE);
-        }
+        holder.leaveBehindController.show(trackView);
     }
 
     public View clearItemView(View view) {
@@ -412,7 +406,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.menuController = trackMenuControllerFactory.create(holder.more);
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
-        holder.leaveBehindStub = (ViewStub) trackView.findViewById(R.id.leave_behind_stub);
+
+        holder.leaveBehindController = new LeaveBehindController();
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
@@ -433,6 +428,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;
         PlayerOverlayController[] playerOverlayControllers;
+        LeaveBehindController leaveBehindController;
         ToggleButton likeToggle;
         View more;
         View close;
@@ -443,7 +439,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         View playControlsHolder;
         View closeIndicator;
         View profileLink;
-        ViewStub leaveBehindStub;
 
         // Footer player
         View footer;

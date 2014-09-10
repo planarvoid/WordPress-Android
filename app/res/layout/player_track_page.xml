@@ -65,15 +65,6 @@
         android:layout_alignParentTop="true"
         android:layout_above="@+id/player_bottom_close"/>
 
-    <ViewStub
-        android:id="@+id/leave_behind_stub"
-        android:inflatedId="@+id/leave_behind"
-        android:layout_below="@id/profile_link"
-        android:layout_above="@+id/player_bottom_close"
-        android:layout="@layout/ad_leave_behind"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <LinearLayout
         android:id="@id/player_bottom_close"
         android:layout_width="match_parent"
@@ -91,5 +82,14 @@
     </LinearLayout>
 
     <include layout="@layout/player_play_controls" />
+
+    <ViewStub
+        android:id="@+id/leave_behind_stub"
+        android:inflatedId="@+id/leave_behind"
+        android:layout_below="@id/profile_link"
+        android:layout_above="@id/player_bottom_close"
+        android:layout="@layout/ad_leave_behind"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>
