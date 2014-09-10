@@ -33,4 +33,7 @@
     <dimen name="ad_learn_more_bottom">96dp</dimen>
     <dimen name="ad_learn_more_height">40dp</dimen>
 
+    <!-- leave behind -->
+    <dimen name="leave_behind_padding">6dp</dimen>
+
 </resources>

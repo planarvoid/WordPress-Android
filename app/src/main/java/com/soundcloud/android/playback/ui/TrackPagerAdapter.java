@@ -10,6 +10,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -50,6 +52,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
     private final TrackPageRecycler trackPageRecycler;
 
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
@@ -80,13 +83,14 @@ public class TrackPagerAdapter extends PagerAdapter {
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
                       TrackOperations trackOperations, TrackPagePresenter trackPagePresenter, AdPagePresenter adPagePresenter,
-                      EventBus eventBus) {
+                      EventBus eventBus, FeatureFlags featureFlags) {
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
         this.adPagePresenter = adPagePresenter;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
         this.trackPageRecycler = new TrackPageRecycler();
     }
 
@@ -316,6 +320,11 @@ public class TrackPagerAdapter extends PagerAdapter {
             if (isTrackRelatedToView(trackPage, trackUrn)) {
                 presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn));
                 updateProgress(presenter, trackPage, trackUrn);
+
+                // TODO: Temporary for developing leave behind
+                if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && trackPagePresenter.accept(trackPage)) {
+                    trackPagePresenter.displayLeaveBehind(trackPage);
+                }
             }
         }
     }

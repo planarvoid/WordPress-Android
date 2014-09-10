@@ -9,7 +9,6 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -29,6 +28,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -134,6 +134,16 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.timestamp.setVisibility(View.VISIBLE);
 
         setClickListener(this, holder.onClickViews);
+    }
+
+    void displayLeaveBehind(View trackView) {
+        final TrackPageHolder holder = getViewHolder(trackView);
+        final View leaveBehind = trackView.findViewById(R.id.leave_behind);
+        if (leaveBehind == null) {
+            holder.leaveBehindStub.inflate();
+        } else {
+            leaveBehind.setVisibility(View.VISIBLE);
+        }
     }
 
     public View clearItemView(View view) {
@@ -402,6 +412,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.menuController = trackMenuControllerFactory.create(holder.more);
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
+        holder.leaveBehindStub = (ViewStub) trackView.findViewById(R.id.leave_behind_stub);
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
@@ -421,7 +432,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;
-        ImageListener artworkListener;
         PlayerOverlayController[] playerOverlayControllers;
         ToggleButton likeToggle;
         View more;
@@ -433,6 +443,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         View playControlsHolder;
         View closeIndicator;
         View profileLink;
+        ViewStub leaveBehindStub;
 
         // Footer player
         View footer;

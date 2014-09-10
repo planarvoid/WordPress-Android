@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.Playa.PlayaState;
 import com.soundcloud.android.playback.service.Playa.Reason;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -55,6 +56,7 @@ public class TrackPagerAdapterTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
     @Mock private SkipListener skipListener;
+    @Mock private FeatureFlags featureFlags;
 
     @Mock private View view1;
     @Mock private View view2;
@@ -75,7 +77,7 @@ public class TrackPagerAdapterTest {
         when(trackPagePresenter.createItemView(container, skipListener)).thenReturn(view1, view2, view3, view4, view5, view6);
 
         eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus, featureFlags);
         adapter.initialize(container, skipListener);
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK_URN));
@@ -84,7 +86,8 @@ public class TrackPagerAdapterTest {
                 PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
-                        PlayableProperty.CREATOR_NAME.bind("artist"))));
+                        PlayableProperty.CREATOR_NAME.bind("artist"))
+        ));
     }
 
     @Test
