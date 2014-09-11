@@ -42,6 +42,7 @@ public class TrackMenuControllerTest {
 
     private TrackMenuController controller;
     private PlayerTrack track;
+    private PlayerTrack privateTrack;
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private SoundAssociationOperations soundAssociationOps;
@@ -52,8 +53,10 @@ public class TrackMenuControllerTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         track = new PlayerTrack(TestPropertySets.expectedTrackForPlayer());
+        privateTrack = new PlayerTrack(TestPropertySets.expectedPrivateTrackForPlayer());
+
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
                 .create(new TextView(new FragmentActivity()));
@@ -96,13 +99,6 @@ public class TrackMenuControllerTest {
     @Test
     public void doesNotSendShareIntentForPrivateTracks() {
         MenuItem share = mockMenuItem(R.id.share);
-        PlayerTrack privateTrack = new PlayerTrack(PropertySet.from(
-                TrackProperty.URN.bind(Urn.forTrack(123L)),
-                PlayableProperty.IS_PRIVATE.bind(true),
-                PlayableProperty.TITLE.bind("dubstep anthem"),
-                PlayableProperty.CREATOR_NAME.bind(""),
-                PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
-                PlayableProperty.IS_REPOSTED.bind(true)));
         controller.setTrack(privateTrack);
 
         controller.onMenuItemClick(share);
@@ -156,6 +152,24 @@ public class TrackMenuControllerTest {
 
         UIEvent expectedEvent = UIEvent.fromToggleRepost(false, "screen", track.getUrn());
         expectUIEvent(expectedEvent);
+    }
+
+    @Test
+    public void setPublicTrackEnablesShareAndRepostMenuItems() {
+        // set track in setup uses public track
+
+        verify(popupMenuWrapper).setItemEnabled(R.id.unpost, true);
+        verify(popupMenuWrapper).setItemEnabled(R.id.repost, true);
+        verify(popupMenuWrapper).setItemEnabled(R.id.share, true);
+    }
+
+    @Test
+    public void setPrivateTrackDisablesShareAndRepostMenuItems() {
+        controller.setTrack(privateTrack);
+
+        verify(popupMenuWrapper).setItemEnabled(R.id.unpost, false);
+        verify(popupMenuWrapper).setItemEnabled(R.id.repost, false);
+        verify(popupMenuWrapper).setItemEnabled(R.id.share, false);
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {
