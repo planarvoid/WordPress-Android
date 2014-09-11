@@ -18,7 +18,7 @@ import android.widget.ImageView;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-public class LeaveBehindController implements View.OnClickListener{
+class LeaveBehindController implements View.OnClickListener{
 
     private final View trackView;
     private final ImageOperations imageOperations;
@@ -75,7 +75,7 @@ public class LeaveBehindController implements View.OnClickListener{
     void setup(LeaveBehind data) {
         if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
             this.data = data;
-            leaveBehind = getLeaveBehind();
+            leaveBehind = getLeaveBehindView();
 
             adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
             imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
@@ -103,7 +103,7 @@ public class LeaveBehindController implements View.OnClickListener{
         adImage.setImageDrawable(null);
     }
 
-    private View getLeaveBehind() {
+    private View getLeaveBehindView() {
         View leaveBehind = trackView.findViewById(R.id.leave_behind);
         if (leaveBehind == null) {
             ViewStub stub = (ViewStub) trackView.findViewById(R.id.leave_behind_stub);
