@@ -36,7 +36,6 @@ public class TrackInfoPresenter {
         setTextAndShow(view, R.id.title, propertySet.get(PlayableProperty.TITLE));
         setTextAndShow(view, R.id.creator, propertySet.get(PlayableProperty.CREATOR_NAME));
 
-        showView(view, R.id.description_divider);
         showView(view, R.id.description_holder);
 
         bindUploadedSinceText(view, propertySet);
