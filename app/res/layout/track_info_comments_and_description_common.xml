@@ -2,6 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical" android:animateLayoutChanges="true">
+    <View style="@style/Divider.Horizontal"
+          android:id="@+id/comments_divider"
+          android:visibility="gone"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/comments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TrackInfo.Text.Main.Comments"/>
+
+    <View android:id="@+id/description_divider"
+          style="@style/Divider.Horizontal"
+          android:visibility="gone"/>
+
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/uploaded_at"
             style="@style/TrackInfo.Text.Main.UploadedAt"
