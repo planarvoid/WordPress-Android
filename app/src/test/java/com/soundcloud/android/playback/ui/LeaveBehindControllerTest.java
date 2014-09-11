@@ -20,7 +20,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,17 +32,15 @@ public class LeaveBehindControllerTest {
     private LeaveBehindController controller;
 
     private View trackView;
-    private Resources resources = Robolectric.application.getResources();
     private LeaveBehind data = new LeaveBehind("http://image.url/image.png", "http://link.url");
 
     @Mock private ImageOperations imageOperations;
-
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
     public void setUp() throws Exception {
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
-        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations, Robolectric.application, resources);
+        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations, Robolectric.application);
         controller = factory.create(trackView);
     }
 
@@ -134,6 +131,5 @@ public class LeaveBehindControllerTest {
         verify(imageOperations).displayLeaveBehind(any(Uri.class), any(ImageView.class), imageListenerCaptor.capture());
         return imageListenerCaptor.getValue();
     }
-
 
 }
