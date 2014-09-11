@@ -79,6 +79,7 @@ public abstract class ScActivity extends ActionBarActivity
     }
 
     @Override
+    @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
     public void addLifeCycleComponents() {
         /* NOP */
     }

@@ -24,6 +24,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
 class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
