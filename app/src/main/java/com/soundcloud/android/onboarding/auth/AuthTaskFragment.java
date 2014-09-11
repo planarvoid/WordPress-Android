@@ -70,6 +70,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace")
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {

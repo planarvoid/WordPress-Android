@@ -79,6 +79,7 @@ public final class OnboardingEvent {
         return new OnboardingEvent(AUTH_COMPLETE);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary")
     public static OnboardingEvent savedUserInfo(String username, File avatarFile) {
         return new OnboardingEvent(USER_INFO)
                 .put(USER_INFO_ADDED_USERNAME, ScTextUtils.isNotBlank(username) ? YES : NO)

@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 
+@SuppressWarnings("PMD.EmptyCatchBlock")
 public class SafeViewPager extends ViewPager {
 
     public SafeViewPager(Context context) {

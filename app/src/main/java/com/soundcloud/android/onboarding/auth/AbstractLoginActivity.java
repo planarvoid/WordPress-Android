@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+@SuppressWarnings("PMD.RedundantFieldInitializer")
 public abstract class AbstractLoginActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     protected static final String LOGIN_DIALOG_TAG = "login_dialog";
     private static final String SIGNUP_WITH_CAPTCHA_URI = "https://soundcloud.com/connect?c=true&highlight=signup&client_id=%s&redirect_uri=soundcloud://auth&response_type=code&scope=non-expiring";
