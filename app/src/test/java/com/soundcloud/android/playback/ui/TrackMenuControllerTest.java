@@ -39,6 +39,7 @@ public class TrackMenuControllerTest {
 
     private TrackMenuController controller;
     private PlayerTrack track;
+    private PlayerTrack privateTrack;
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private SoundAssociationOperations soundAssociationOps;
@@ -48,8 +49,10 @@ public class TrackMenuControllerTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         track = new PlayerTrack(TestPropertySets.expectedTrackForPlayer());
+        privateTrack = new PlayerTrack(TestPropertySets.expectedPrivateTrackForPlayer());
+
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory)
                 .create(new TextView(new FragmentActivity()));
@@ -101,6 +104,7 @@ public class TrackMenuControllerTest {
                 PlayableProperty.CREATOR_NAME.bind(""),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
                 PlayableProperty.IS_REPOSTED.bind(true)));
+
         controller.setTrack(privateTrack);
 
         controller.onMenuItemClick(share);

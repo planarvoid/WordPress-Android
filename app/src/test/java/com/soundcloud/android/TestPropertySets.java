@@ -65,6 +65,16 @@ public abstract class TestPropertySets {
         );
     }
 
+    public static PropertySet expectedPrivateTrackForPlayer() {
+        return PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                PlayableProperty.IS_PRIVATE.bind(true),
+                PlayableProperty.TITLE.bind("dubstep anthem"),
+                PlayableProperty.CREATOR_NAME.bind(""),
+                PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
+                PlayableProperty.IS_REPOSTED.bind(true));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
