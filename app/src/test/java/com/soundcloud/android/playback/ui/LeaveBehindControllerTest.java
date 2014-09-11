@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -43,7 +44,7 @@ public class LeaveBehindControllerTest {
     @Before
     public void setUp() throws Exception {
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
-        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations, resources);
+        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations, Robolectric.application, resources);
         controller = factory.create(trackView);
     }
 
@@ -91,6 +92,32 @@ public class LeaveBehindControllerTest {
     public void loadsLeaveBehindImageFromModel() {
         controller.setup(data);
         verify(imageOperations).displayLeaveBehind(eq(Uri.parse(data.getImageUrl())), any(ImageView.class), any(ImageListener.class), any(Drawable.class));
+    }
+
+    @Test
+    public void onClickLeaveBehindImageOpensUrl() {
+        controller.setup(data);
+        View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        leaveBehindImage.performClick();
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(Intent.ACTION_VIEW);
+        expect(intent.getData()).toEqual(Uri.parse(data.getLinkUrl()));
+    }
+
+    @Test
+    public void onClickLeaveBehindImageDismissesLeaveBehind() {
+        controller.setup(data);
+        View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        leaveBehindImage.performClick();
+
+        View leaveBehind = trackView.findViewById(R.id.leave_behind);
+        expect(leaveBehind).toBeGone();
     }
 
     private ImageListener captureImageListener() {
