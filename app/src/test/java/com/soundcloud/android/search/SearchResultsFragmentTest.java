@@ -62,23 +62,21 @@ public class SearchResultsFragmentTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ListViewController listViewController;
     @Mock private SearchResultsAdapter adapter;
-    @Mock private FragmentActivity context;
+    @Mock private FragmentActivity activity;
     @Captor private ArgumentCaptor<Intent> intentCaptor;
 
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        Robolectric.shadowOf(fragment).setActivity(context);
+        Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
         when(listViewController.getEmptyView()).thenReturn(mock(EmptyView.class));
         when(playbackOperations.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        when(searchOperations.getAllSearchResults(anyString())).thenReturn(Observable.<Page<SearchResultsCollection>>empty());
     }
 
     @Test
     public void shouldGetAllResultsForAllQueryOnCreate() throws Exception {
-        when(searchOperations.getAllSearchResults(anyString()))
-                .thenReturn(Observable.<Page<SearchResultsCollection>>empty()); 
-
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
         createFragmentView();
 
@@ -120,9 +118,6 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldConnectListViewControllerInOnViewCreated() {
-        final Observable<Page<SearchResultsCollection>> observable = Observable.empty();
-        when(searchOperations.getAllSearchResults(anyString())).thenReturn(observable);
-
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
         createFragmentView();
 
@@ -144,8 +139,6 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldStartPlaybackWhenClickingPlayableRow() throws Exception {
-        when(searchOperations.getAllSearchResults(anyString()))
-                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -155,8 +148,6 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
-        when(searchOperations.getAllSearchResults(anyString()))
-                .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_ALL));
@@ -187,7 +178,7 @@ public class SearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        verify(context).startActivity(intentCaptor.capture());
+        verify(activity).startActivity(intentCaptor.capture());
         expect(intentCaptor.getValue().getAction()).toBe(Actions.PLAYLIST);
         expect(intentCaptor.getValue().getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toBe(playlist.getUrn());
     }
@@ -253,6 +244,9 @@ public class SearchResultsFragmentTest {
     private View createFragmentView() {
         View layout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), null, null);
         Robolectric.shadowOf(fragment).setView(layout);
+        final Bundle defaultArguments = buildSearchArgs("", SearchResultsFragment.TYPE_ALL);
+        fragment.setArguments(defaultArguments);
+        fragment.onCreate(null);
         fragment.onViewCreated(layout, null);
         return layout;
     }

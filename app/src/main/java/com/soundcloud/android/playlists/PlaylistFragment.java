@@ -118,6 +118,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     public PlaylistFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
+        addLifeCycleComponents();
     }
 
     @VisibleForTesting
@@ -143,10 +144,10 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         this.playQueueManager = playQueueManager;
         this.playablePresenter = playablePresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        addLifeCycleComponents();
     }
 
-    @Override
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         pullToRefreshController.setRefreshListener(this);
         addLifeCycleComponent(pullToRefreshController);
         addLifeCycleComponent(controller);

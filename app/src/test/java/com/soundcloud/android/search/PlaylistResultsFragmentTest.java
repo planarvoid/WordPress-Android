@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.refEq;
@@ -13,16 +12,16 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;

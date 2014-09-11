@@ -6,7 +6,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -108,6 +107,7 @@ public class SoundStreamFragmentTest {
 
     @Test
     public void shouldUpdateLastSeenOnResume() {
+        fragment.onCreate(null);
         fragment.onResume();
         verify(soundStreamOperations).updateLastSeen();
     }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 
@@ -19,31 +18,16 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class DefaultFragmentTest {
 
-    private DefaultFragment fragment = new DefaultFragment() {
-        @Override
-        public void addLifeCycleComponents() {
-            addLifeCycleComponent(component);
-        }
-    };
-
+    private DefaultFragment fragment;
     @Mock FragmentLifeCycle component;
     @Mock Activity activity;
 
     @Before
     public void setup() {
         // registers all life cycle components, so need to do it before every test
-        fragment.onAttach(activity);
-    }
-
-    @Test
-    public void shouldForwardOnAttach() {
-        verify(component).onAttach(same(activity));
-    }
-
-    @Test
-    public void shouldForwardOnDetach() {
-        fragment.onDetach();
-        verify(component).onDetach();
+        fragment = new DefaultFragment();
+        fragment.addLifeCycleComponent(component);
+        fragment.onCreate(null);
     }
 
     @Test

@@ -66,6 +66,7 @@ public class SoundStreamFragment extends DefaultFragment
     public SoundStreamFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponents();
     }
 
     @VisibleForTesting
@@ -81,10 +82,10 @@ public class SoundStreamFragment extends DefaultFragment
         this.pullToRefreshController = pullToRefreshController;
         this.playbackOperations = playbackOperations;
         this.subscriberProvider = subscriberProvider;
+        addLifeCycleComponents();
     }
 
-    @Override
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
         listViewController.setScrollListener(adapter);
         pullToRefreshController.setAdapter(adapter);

@@ -93,10 +93,10 @@ public class SearchResultsFragment extends DefaultFragment
 
     public SearchResultsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponents();
     }
 
-    @Override
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
         listViewController.setScrollListener(adapter);
         addLifeCycleComponent(listViewController);

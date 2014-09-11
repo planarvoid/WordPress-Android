@@ -47,8 +47,7 @@ import java.lang.ref.WeakReference;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends ActionBarActivity
-        implements ActionBarController.ActionBarOwner, LifeCycleOwner<ActivityLifeCycle<ScActivity>> {
+public abstract class ScActivity extends ActionBarActivity implements ActionBarController.ActionBarOwner {
 
     protected static final int CONNECTIVITY_MSG = 0;
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
@@ -71,21 +70,16 @@ public abstract class ScActivity extends ActionBarActivity
     @Nullable
     protected ActionBarController actionBarController;
     private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
-    private final ActivityLifeCycleDispatcher<ScActivity> lifeCycleDispatcher = new ActivityLifeCycleDispatcher<>();
+    private final ActivityLifeCycleDispatcher.Builder<ScActivity> lifeCycleDispatcherBuilder;
+    private ActivityLifeCycleDispatcher<ScActivity> lifeCycleDispatcher;
 
-    @Override
-    public void addLifeCycleComponent(ActivityLifeCycle<ScActivity> lifeCycleComponent) {
-        lifeCycleDispatcher.add(lifeCycleComponent);
-    }
-
-    @Override
-    @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
-    public void addLifeCycleComponents() {
-        /* NOP */
+    protected void addLifeCycleComponent(ActivityLifeCycle<ScActivity> lifeCycleComponent) {
+        lifeCycleDispatcherBuilder.add(lifeCycleComponent);
     }
 
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        lifeCycleDispatcherBuilder = new ActivityLifeCycleDispatcher.Builder<>();
     }
 
     @Override
@@ -113,7 +107,7 @@ public abstract class ScActivity extends ActionBarActivity
             isConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
         }
 
-        addLifeCycleComponents();
+        lifeCycleDispatcher = lifeCycleDispatcherBuilder.build();
         lifeCycleDispatcher.onBind(this);
         lifeCycleDispatcher.onCreate(savedInstanceState);
     }

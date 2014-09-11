@@ -73,10 +73,6 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
     public PlaylistTagsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-    }
-
-    @Override
-    public void addLifeCycleComponents() {
         addLifeCycleComponent(emptyViewController);
     }
 

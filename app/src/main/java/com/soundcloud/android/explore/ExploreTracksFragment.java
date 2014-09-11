@@ -62,6 +62,7 @@ public class ExploreTracksFragment extends DefaultFragment
 
     public ExploreTracksFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponents();
     }
 
     @VisibleForTesting
@@ -77,10 +78,10 @@ public class ExploreTracksFragment extends DefaultFragment
         this.pullToRefreshController = pullToRefreshController;
         this.listViewController = listViewController;
         this.subscriberProvider = subscriberProvider;
+        addLifeCycleComponents();
     }
 
-    @Override
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         addLifeCycleComponent(this.listViewController);
         addLifeCycleComponent(this.pullToRefreshController);
     }

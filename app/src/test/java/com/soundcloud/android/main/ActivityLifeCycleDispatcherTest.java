@@ -24,9 +24,10 @@ public class ActivityLifeCycleDispatcherTest {
 
     @Before
     public void setUp() throws Exception {
-        dispatcher = new ActivityLifeCycleDispatcher()
+        dispatcher = new ActivityLifeCycleDispatcher.Builder<>()
                 .add(lifeCycleComponent1)
-                .add(lifeCycleComponent2);
+                .add(lifeCycleComponent2)
+                .build();
     }
 
     @Test

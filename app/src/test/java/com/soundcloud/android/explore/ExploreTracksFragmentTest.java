@@ -3,7 +3,6 @@ package com.soundcloud.android.explore;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
@@ -27,17 +26,14 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.view.ViewGroup;
 
 import javax.inject.Provider;
 import java.util.List;

@@ -1,30 +1,26 @@
 package com.soundcloud.android.main;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-public abstract class DefaultFragment extends Fragment implements LifeCycleOwner<FragmentLifeCycle<Fragment>> {
+public class DefaultFragment extends Fragment {
 
-    private final FragmentLifeCycleDispatcher<Fragment> lifeCycleDispatcher = new FragmentLifeCycleDispatcher<>();
+    private final FragmentLifeCycleDispatcher.Builder<Fragment> lifeCycleDispatcherBuilder;
+    private FragmentLifeCycleDispatcher<Fragment> lifeCycleDispatcher;
 
-    @Override
-    public void addLifeCycleComponent(FragmentLifeCycle<Fragment> lifeCycleComponent) {
-        lifeCycleDispatcher.add(lifeCycleComponent);
+    protected DefaultFragment() {
+        lifeCycleDispatcherBuilder = new FragmentLifeCycleDispatcher.Builder();
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        addLifeCycleComponents();
-        lifeCycleDispatcher.onAttach(activity);
+    public void addLifeCycleComponent(FragmentLifeCycle<Fragment> lifeCycleComponent) {
+        lifeCycleDispatcherBuilder.add(lifeCycleComponent);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        lifeCycleDispatcher = lifeCycleDispatcherBuilder.build();
         lifeCycleDispatcher.onBind(this);
         lifeCycleDispatcher.onCreate(savedInstanceState);
     }
@@ -69,11 +65,5 @@ public abstract class DefaultFragment extends Fragment implements LifeCycleOwner
     public void onDestroy() {
         lifeCycleDispatcher.onDestroy();
         super.onDestroy();
-    }
-
-    @Override
-    public void onDetach() {
-        lifeCycleDispatcher.onDetach();
-        super.onDetach();
     }
 }

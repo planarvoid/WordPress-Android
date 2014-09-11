@@ -1,15 +1,15 @@
 package com.soundcloud.android.stream;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.main.FragmentLifeCycle;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.FragmentLifeCycle;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,6 @@ import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -78,11 +77,6 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements Fragm
     }
 
     @Override
-    public void onAttach(Activity activity) {
-
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle bundle) {
 
     }
@@ -121,10 +115,4 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements Fragm
     public void onDestroy() {
 
     }
-
-    @Override
-    public void onDetach() {
-
-    }
-
 }

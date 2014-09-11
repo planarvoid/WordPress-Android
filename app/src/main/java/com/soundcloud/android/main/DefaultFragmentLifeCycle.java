@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -10,11 +9,6 @@ public abstract class DefaultFragmentLifeCycle<FragmentT extends Fragment> imple
 
     @Override
     public void onBind(FragmentT fragment) {
-        /* no-op */
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
         /* no-op */
     }
 
@@ -55,11 +49,6 @@ public abstract class DefaultFragmentLifeCycle<FragmentT extends Fragment> imple
 
     @Override
     public void onDestroy() {
-        /* no-op */
-    }
-
-    @Override
-    public void onDetach() {
         /* no-op */
     }
 

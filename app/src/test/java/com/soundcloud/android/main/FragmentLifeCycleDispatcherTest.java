@@ -25,9 +25,10 @@ public class FragmentLifeCycleDispatcherTest {
 
     @Before
     public void setUp() throws Exception {
-        dispatcher = new FragmentLifeCycleDispatcher()
+        dispatcher = new FragmentLifeCycleDispatcher.Builder<>()
                 .add(lifeCycleComponent1)
-                .add(lifeCycleComponent2);
+                .add(lifeCycleComponent2)
+                .build();
     }
 
     @Test
@@ -37,15 +38,6 @@ public class FragmentLifeCycleDispatcherTest {
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onBind(fragment);
         inOrder.verify(lifeCycleComponent2).onBind(fragment);
-    }
-
-    @Test
-    public void shouldNotifyOnAttach() {
-        dispatcher.onAttach(activity);
-
-        InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
-        inOrder.verify(lifeCycleComponent1).onAttach(activity);
-        inOrder.verify(lifeCycleComponent2).onAttach(activity);
     }
 
     @Test
@@ -124,15 +116,6 @@ public class FragmentLifeCycleDispatcherTest {
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onDestroy();
         inOrder.verify(lifeCycleComponent2).onDestroy();
-    }
-
-    @Test
-    public void shouldNotifyOnDetach() {
-        dispatcher.onDetach();
-
-        InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
-        inOrder.verify(lifeCycleComponent1).onDetach();
-        inOrder.verify(lifeCycleComponent2).onDetach();
     }
 
     @Test

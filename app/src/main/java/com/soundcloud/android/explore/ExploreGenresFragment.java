@@ -51,10 +51,10 @@ public class ExploreGenresFragment extends DefaultFragment
 
     public ExploreGenresFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponents();
     }
 
-    @Override
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
         addLifeCycleComponent(listViewController);
     }

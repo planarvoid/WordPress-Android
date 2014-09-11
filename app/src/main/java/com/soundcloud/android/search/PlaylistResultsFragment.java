@@ -58,10 +58,10 @@ public class PlaylistResultsFragment extends DefaultFragment
     public PlaylistResultsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
+        addLifeCycleComponents();
     }
 
-    @Override
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
         listViewController.setScrollListener(new AbsListViewParallaxer(adapter));
         addLifeCycleComponent(listViewController);

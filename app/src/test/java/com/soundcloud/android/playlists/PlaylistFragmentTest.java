@@ -193,6 +193,7 @@ public class PlaylistFragmentTest {
 
     @Test
      public void engagementsControllerStartsListeningInOnStart() throws Exception {
+        createFragmentView();
         fragment.onStart();
         verify(playlistEngagementsController).startListeningForChanges();
     }
@@ -216,7 +217,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void engagementsControllerStopsListeningInOnStop() throws Exception {
-        fragment.onStart(); // call on stop to avoid unregistered listener error
+        createFragmentView();
         fragment.onStop();
         verify(playlistEngagementsController).stopListeningForChanges();
     }
