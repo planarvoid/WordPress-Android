@@ -57,4 +57,22 @@
         <item name="android:paddingRight">18dip</item>
     </style>
 
+    <style name="LeaveBehindImage">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="aspectRatioEnabled">true</item>
+        <item name="dominantMeasurement">width</item>
+        <item name="aspectRatio">0.83</item>
+    </style>
+
+    <style name="LeaveBehindClose">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="android:clickable">false</item>
+        <item name="android:background">@drawable/btn_close_ad</item>
+    </style>
+
 </resources>

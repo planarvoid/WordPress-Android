@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:paddingLeft="@dimen/leave_behind_padding"
               android:paddingRight="@dimen/leave_behind_padding">
 
-    <View
+    <FrameLayout
         android:id="@+id/leave_behind_close"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/leave_behind_image"
-        android:layout_marginBottom="@dimen/leave_behind_padding"
-        android:background="@color/placeholder_image_blue" />
+        android:layout_above="@+id/leave_behind_image">
+
+        <Button
+            style="@style/LeaveBehindClose"
+            android:layout_marginBottom="@dimen/leave_behind_padding"
+            android:layout_gravity="bottom|right" />
+    </FrameLayout>
 
     <com.soundcloud.android.view.AspectRatioImageView
         android:id="@+id/leave_behind_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:dominantMeasurement="width"
-        app:aspectRatioEnabled="true"
-        app:aspectRatio="0.83" />
+        style="@style/LeaveBehindImage"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
