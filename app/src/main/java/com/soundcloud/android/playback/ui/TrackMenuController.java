@@ -38,8 +38,7 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
 
     @Nullable private PlayerTrack track;
 
-    private TrackMenuController(View anchorView,
-                                PlayQueueManager playQueueManager,
+    private TrackMenuController(PlayQueueManager playQueueManager,
                                 SoundAssociationOperations associationOperations,
                                 FragmentActivity context,
                                 PopupMenuWrapper popupMenuWrapper,
@@ -49,18 +48,12 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
         this.eventBus = eventBus;
-        setupMenu(anchorView);
+        setupMenu();
     }
 
-    private void setupMenu(View anchorView) {
+    private void setupMenu() {
         popupMenuWrapper.inflate(R.menu.player_page_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
-        anchorView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupMenuWrapper.show();
-            }
-        });
     }
 
     @Override
@@ -126,6 +119,10 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         popupMenuWrapper.setItemEnabled(R.id.share, !isPrivate);
     }
 
+    public void show() {
+        popupMenuWrapper.show();
+    }
+
     public void dismiss() {
         popupMenuWrapper.dismiss();
     }
@@ -167,7 +164,7 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
 
         TrackMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
-            return new TrackMenuController(anchorView, playQueueManager, associationOperations,
+            return new TrackMenuController(playQueueManager, associationOperations,
                     activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
         }
     }

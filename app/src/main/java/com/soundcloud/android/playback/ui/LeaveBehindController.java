@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 public class LeaveBehindController implements View.OnClickListener{
@@ -20,6 +21,8 @@ public class LeaveBehindController implements View.OnClickListener{
     private final View trackView;
     private final ImageOperations imageOperations;
     private final Context context;
+
+    private @Nullable LeaveBehind data;
 
     private View leaveBehind;
     private ImageView adImage;
@@ -50,8 +53,7 @@ public class LeaveBehindController implements View.OnClickListener{
                 dismiss();
                 break;
             case R.id.leave_behind_image:
-                String imageLink = (String) view.getTag();
-                startActivity(Uri.parse(imageLink));
+                startActivity(Uri.parse(data.getLinkUrl()));
                 dismiss();
                 break;
             default:
@@ -66,11 +68,11 @@ public class LeaveBehindController implements View.OnClickListener{
         context.startActivity(intent);
     }
 
-    public void setup(LeaveBehind data) {
+    void setup(LeaveBehind data) {
+        this.data = data;
         leaveBehind = getLeaveBehind();
 
         adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
-        adImage.setTag(data.getLinkUrl());
         imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
 
         adImage.setOnClickListener(this);
@@ -78,17 +80,21 @@ public class LeaveBehindController implements View.OnClickListener{
     }
 
     private void show() {
-        leaveBehind.setVisibility(View.VISIBLE);
+        if (data != null) {
+            leaveBehind.setVisibility(View.VISIBLE);
+        }
     }
 
-    public void dismiss() {
-        leaveBehind.setVisibility(View.GONE);
-        clear();
+    void dismiss() {
+        if (data != null) {
+            leaveBehind.setVisibility(View.GONE);
+            clear();
+        }
     }
 
     private void clear() {
+        data = null;
         adImage.setImageDrawable(null);
-        adImage.setTag(null);
     }
 
     private View getLeaveBehind() {

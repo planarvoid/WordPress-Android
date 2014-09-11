@@ -142,6 +142,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     void showLeaveBehind(View trackView, LeaveBehind leaveBehind) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.leaveBehindController.setup(leaveBehind);
+
     }
 
     public View clearItemView(View view) {
@@ -376,7 +377,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void setupHolder(View trackView) {
-        TrackPageHolder holder = new TrackPageHolder();
+        final TrackPageHolder holder = new TrackPageHolder();
         holder.title = (JaggedTextView) trackView.findViewById(R.id.track_page_title);
         holder.user = (JaggedTextView) trackView.findViewById(R.id.track_page_user);
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
@@ -416,6 +417,14 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
         }
+
+        holder.more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                holder.leaveBehindController.dismiss();
+                holder.menuController.show();
+            }
+        });
 
         holder.populateViewSets();
         trackView.setTag(holder);

@@ -50,6 +50,7 @@ public class TrackPagePresenterTest {
     @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
     @Mock private PlayerOverlayController playerVisualStateController;
     @Mock private LeaveBehindController.Factory leaveBehindControllerFactory;
+    @Mock private LeaveBehindController leaveBehindController;
     @Mock private SkipListener skipListener;
 
     @Mock private TrackMenuController.Factory trackMenuControllerFactory;
@@ -69,6 +70,7 @@ public class TrackPagePresenterTest {
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
+        when(leaveBehindControllerFactory.create(any(View.class))).thenReturn(leaveBehindController);
         trackView = presenter.createItemView(container, skipListener);
     }
 
@@ -435,6 +437,20 @@ public class TrackPagePresenterTest {
     @Test(expected = IllegalArgumentException.class)
     public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
         presenter.onClick(new View(Robolectric.application));
+    }
+
+    @Test
+    public void onClickMoreButtonCallsDismissOnLeaveBehindController() {
+        populateTrackPage();
+        getHolder(trackView).more.performClick();
+        verify(leaveBehindController).dismiss();
+    }
+
+    @Test
+    public void onClickMoreButtonCallsShowOnTrackMenuController() {
+        populateTrackPage();
+        getHolder(trackView).more.performClick();
+        verify(trackMenuController).show();
     }
 
     private TrackPageHolder getHolder(View trackView) {
