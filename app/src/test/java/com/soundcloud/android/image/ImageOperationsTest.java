@@ -285,6 +285,19 @@ public class ImageOperationsTest {
     }
 
     @Test
+    public void displayLeaveBehindDoesNotCacheAndHasNoPlaceholder() {
+        imageOperations.displayLeaveBehind(Uri.parse(URL), imageView, imageListener);
+
+        verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+        expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeFalse();
+        expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeTrue();
+        expect(displayOptionsCaptor.getValue().shouldShowImageOnLoading()).toBeFalse();
+        expect(displayOptionsCaptor.getValue().shouldShowImageOnFail()).toBeFalse();
+        expect(displayOptionsCaptor.getValue().shouldShowImageForEmptyUri()).toBeFalse();
+        expect(imageViewAwareCaptor.getValue().getWrappedView()).toBe(imageView);
+    }
+
+    @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
         when(placeholderCache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);

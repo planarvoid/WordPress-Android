@@ -73,6 +73,13 @@ class ImageOptionsFactory {
                 .build();
     }
 
+    public static DisplayImageOptions playerLeaveBehind() {
+        return new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(false)
+                .build();
+    }
+
     public static DisplayImageOptions prefetch() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(false)

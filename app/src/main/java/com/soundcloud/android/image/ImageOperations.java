@@ -160,12 +160,12 @@ public class ImageOperations {
                 ImageOptionsFactory.playerAd(placeholderDrawable));
     }
 
-    public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener, Drawable placeholderDrawable) {
+    public void displayLeaveBehind(Uri uri, ImageView imageView, ImageListener imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
                 uri.toString(),
                 imageAware,
-                ImageOptionsFactory.playerAd(placeholderDrawable),
+                ImageOptionsFactory.playerLeaveBehind(),
                 new ImageListenerUILAdapter(imageListener));
     }
 

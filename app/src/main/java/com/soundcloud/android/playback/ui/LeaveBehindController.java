@@ -73,8 +73,7 @@ public class LeaveBehindController implements View.OnClickListener{
 
         ImageView leaveBehindImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
         leaveBehindImage.setTag(data.getLinkUrl());
-        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), leaveBehindImage,
-                imageListener, resources.getDrawable(R.drawable.placeholder));
+        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), leaveBehindImage, imageListener);
     }
 
     private void show() {

@@ -21,7 +21,6 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,7 +90,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void loadsLeaveBehindImageFromModel() {
         controller.setup(data);
-        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(data.getImageUrl())), any(ImageView.class), any(ImageListener.class), any(Drawable.class));
+        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(data.getImageUrl())), any(ImageView.class), any(ImageListener.class));
     }
 
     @Test
@@ -121,7 +120,7 @@ public class LeaveBehindControllerTest {
     }
 
     private ImageListener captureImageListener() {
-        verify(imageOperations).displayLeaveBehind(any(Uri.class), any(ImageView.class), imageListenerCaptor.capture(), any(Drawable.class));
+        verify(imageOperations).displayLeaveBehind(any(Uri.class), any(ImageView.class), imageListenerCaptor.capture());
         return imageListenerCaptor.getValue();
     }
 
