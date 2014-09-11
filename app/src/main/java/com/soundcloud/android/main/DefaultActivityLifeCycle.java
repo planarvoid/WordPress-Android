@@ -1,16 +1,13 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.actionbar.ActionBarController;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-@SuppressWarnings({"PMD.EmptyMethodInAbstractClassShouldBeAbstract", "PMD.CallSuperFirst"})
-public abstract class DefaultLifeCycleComponent implements LifeCycleComponent {
+@SuppressWarnings({"PMD.EmptyMethodInAbstractClassShouldBeAbstract", "PMD.CallSuperFirst", "PMD.CallSuperLast"})
+public abstract class DefaultActivityLifeCycle<ActivityT extends ScActivity> implements ActivityLifeCycle<ActivityT> {
 
     @Override
-    public void attach(Activity activity, ActionBarController actionBarController) {
+    public void onBind(ActivityT owner) {
         /* no-op */
     }
 

@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -45,7 +46,7 @@ public class SlidingPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ActionBarController actionBarController;
     @Mock private View layout;
-    @Mock private FragmentActivity activity;
+    @Mock private ScActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
     @Mock private Window window;
@@ -65,6 +66,7 @@ public class SlidingPlayerControllerTest {
         when(activity.getWindow()).thenReturn(window);
         when(window.getDecorView()).thenReturn(decorView);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
+        when(activity.getActionBarController()).thenReturn(actionBarController);
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
         attachController();
     }
@@ -367,7 +369,7 @@ public class SlidingPlayerControllerTest {
     private void attachController() {
         ArgumentCaptor<View.OnTouchListener> touchListenerArgumentCaptor = ArgumentCaptor.forClass(View.OnTouchListener.class);
 
-        controller.attach(activity, actionBarController);
+        controller.onBind(activity);
 
         verify(slidingPanel).setOnTouchListener(touchListenerArgumentCaptor.capture());
 

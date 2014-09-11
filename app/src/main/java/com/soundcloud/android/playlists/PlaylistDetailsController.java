@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.DefaultFragmentLifeCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.view.adapters.ItemAdapter;
@@ -8,14 +9,16 @@ import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
-import android.content.res.Resources;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
-abstract class PlaylistDetailsController implements EmptyViewAware {
+abstract class PlaylistDetailsController extends DefaultFragmentLifeCycle<Fragment> implements EmptyViewAware {
 
     private final TrackItemPresenter trackPresenter;
     private final ItemAdapter<PropertySet> adapter;
@@ -37,14 +40,16 @@ abstract class PlaylistDetailsController implements EmptyViewAware {
 
     abstract void setListShown(boolean show);
 
-    void onViewCreated(View layout, Resources resources) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, trackPresenter)),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(adapter))
         );
     }
 
-    void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         eventSubscriptions.unsubscribe();
     }
 }

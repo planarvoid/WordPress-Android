@@ -7,24 +7,24 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistCollection;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +32,7 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class PlaylistResultsFragment extends Fragment
+public class PlaylistResultsFragment extends DefaultFragment
         implements ReactiveListComponent<ConnectableObservable<Page<ApiPlaylistCollection>>> {
 
     public static final String TAG = "playlist_results";
@@ -58,6 +58,13 @@ public class PlaylistResultsFragment extends Fragment
     public PlaylistResultsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        listViewController.setAdapter(adapter);
+        listViewController.setScrollListener(new AbsListViewParallaxer(adapter));
+        addLifeCycleComponent(listViewController);
     }
 
     @Override
@@ -90,14 +97,8 @@ public class PlaylistResultsFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter, new AbsListViewParallaxer(adapter));
+        listViewController.connect(this, observable);
         new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
-    }
-
-    @Override
-    public void onDestroyView() {
-        listViewController.onDestroyView();
-        super.onDestroyView();
     }
 
     @Override

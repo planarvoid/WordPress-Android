@@ -45,9 +45,9 @@ class SearchResultsAdapter extends PagingItemAdapter<PublicApiResource>
                          TrackItemPresenter trackPresenter,
                          PlaylistItemPresenter playlistPresenter,
                          FollowingOperations followingOperations, EventBus eventBus) {
-        super(new CellPresenterEntity<PublicApiResource>(TYPE_USER, new PropertySetSourceProxyPresenter(userPresenter, followingOperations)),
-                new CellPresenterEntity<PublicApiResource>(TYPE_TRACK, new PropertySetSourceProxyPresenter(trackPresenter, followingOperations)),
-                new CellPresenterEntity<PublicApiResource>(TYPE_PLAYLIST, new PropertySetSourceProxyPresenter(playlistPresenter, followingOperations)));
+        super(new CellPresenterEntity<>(TYPE_USER, new PropertySetSourceProxyPresenter(userPresenter, followingOperations)),
+                new CellPresenterEntity<>(TYPE_TRACK, new PropertySetSourceProxyPresenter(trackPresenter, followingOperations)),
+                new CellPresenterEntity<>(TYPE_PLAYLIST, new PropertySetSourceProxyPresenter(playlistPresenter, followingOperations)));
         this.eventBus = eventBus;
         this.followingOperations = followingOperations;
         this.trackPresenter = trackPresenter;

@@ -6,8 +6,9 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
-import android.content.res.Resources;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
@@ -29,10 +30,10 @@ class SplitScreenController extends PlaylistDetailsController {
     }
 
     @Override
-    public void onViewCreated(View layout, Resources resources) {
-        super.onViewCreated(layout, resources);
+    public void onViewCreated(View layout, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(layout, savedInstanceState);
         emptyView = (EmptyView) layout.findViewById(android.R.id.empty);
-        emptyView.setMessageText(resources.getString(R.string.empty_playlist_description));
+        emptyView.setMessageText(layout.getContext().getString(R.string.empty_playlist_description));
 
         listViewContainer = layout.findViewById(R.id.container);
         ListView listView = (ListView) layout.findViewById(android.R.id.list);

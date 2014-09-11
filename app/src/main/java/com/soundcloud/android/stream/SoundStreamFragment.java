@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -28,7 +29,6 @@ import rx.subscriptions.Subscriptions;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +39,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class SoundStreamFragment extends Fragment
+public class SoundStreamFragment extends DefaultFragment
         implements RefreshableListComponent<ConnectableObservable<Page<List<PropertySet>>>> {
 
     @VisibleForTesting
@@ -64,6 +64,7 @@ public class SoundStreamFragment extends Fragment
     }
 
     public SoundStreamFragment() {
+        setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -80,6 +81,17 @@ public class SoundStreamFragment extends Fragment
         this.pullToRefreshController = pullToRefreshController;
         this.playbackOperations = playbackOperations;
         this.subscriberProvider = subscriberProvider;
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        listViewController.setAdapter(adapter);
+        listViewController.setScrollListener(adapter);
+        pullToRefreshController.setAdapter(adapter);
+
+        addLifeCycleComponent(listViewController);
+        addLifeCycleComponent(pullToRefreshController);
+        addLifeCycleComponent(adapter);
     }
 
     @Override
@@ -105,6 +117,7 @@ public class SoundStreamFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         connectObservable(buildObservable());
     }
 
@@ -122,9 +135,6 @@ public class SoundStreamFragment extends Fragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        listViewController.onViewCreated(this, observable, view, adapter, adapter);
-        pullToRefreshController.onViewCreated(this, observable, adapter);
-        adapter.onViewCreated();
 
         final EmptyView emptyView = listViewController.getEmptyView();
         emptyView.setImage(R.drawable.empty_stream);
@@ -135,15 +145,11 @@ public class SoundStreamFragment extends Fragment
         } else {
             emptyView.setMessageText(R.string.error_onboarding_fail);
         }
+
+        listViewController.connect(this, observable);
+        pullToRefreshController.connect(observable, adapter);
     }
 
-    @Override
-    public void onDestroyView() {
-        adapter.onDestroyView();
-        listViewController.onDestroyView();
-        pullToRefreshController.onDestroyView();
-        super.onDestroyView();
-    }
 
     @Override
     public void onDestroy() {

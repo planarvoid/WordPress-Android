@@ -5,7 +5,9 @@ import static com.soundcloud.android.robolectric.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,51 +80,23 @@ public class SoundStreamFragmentTest {
     }
 
     @Test
-    public void shouldAttachListViewControllerInOnViewCreated() {
-        createFragment();
-        fragment.connectObservable(streamItems);
-        createFragmentView();
-        verify(listViewController).onViewCreated(refEq(fragment), refEq(streamItems),
-                refEq(fragment.getView()), refEq(adapter), refEq(adapter));
-    }
-
-    @Test
-    public void shouldAttachPullToRefreshControllerInOnViewCreated() {
-        createFragment();
-        fragment.connectObservable(streamItems);
-        createFragmentView();
-        verify(pullToRefreshController).onViewCreated(fragment, streamItems, adapter);
-    }
-
-    @Test
     public void refreshObservableShouldUpdateStreamItems() {
         fragment.refreshObservable();
         verify(soundStreamOperations).updatedStreamItems();
     }
 
     @Test
-    public void shouldForwardOnViewCreatedEventToAdapter() {
+    public void shouldConnectToListViewControllerInOnViewCreated() {
         createFragment();
         createFragmentView();
-        verify(adapter).onViewCreated();
+        verify(listViewController).connect(same(fragment), isA(ConnectableObservable.class));
     }
 
     @Test
-    public void shouldForwardOnDestroyViewEventToAdapter() {
-        fragment.onDestroyView();
-        verify(adapter).onDestroyView();
-    }
-
-    @Test
-    public void shouldDetachPullToRefreshControllerOnDestroyView() {
-        fragment.onDestroyView();
-        verify(pullToRefreshController).onDestroyView();
-    }
-
-    @Test
-    public void shouldDetachListViewControllerOnDestroyView() {
-        fragment.onDestroyView();
-        verify(listViewController).onDestroyView();
+    public void shouldConnectToPTRControllerInOnViewCreated() {
+        createFragment();
+        createFragmentView();
+        verify(pullToRefreshController).connect(isA(ConnectableObservable.class), same(adapter));
     }
 
     @Test

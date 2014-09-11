@@ -1,16 +1,20 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.main.DefaultFragmentLifeCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.Subscription;
-import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class EmptyViewController {
+public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
 
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;
@@ -21,15 +25,18 @@ public class EmptyViewController {
     public EmptyViewController() {
     }
 
-    public <OT extends ConnectableObservable<?>> void onViewCreated(
-            final ReactiveComponent<OT> reactiveComponent, OT activeObservable, View view) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         emptyView = (EmptyView) view.findViewById(android.R.id.empty);
         emptyView.setStatus(emptyViewStatus);
+    }
+
+    public <O extends Observable<?>> void connect(final ReactiveComponent<O> reactiveComponent, O activeObservable) {
         emptyView.setOnRetryListener(new EmptyView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
                 updateEmptyViewStatus(EmptyView.Status.WAITING);
-                final OT retryObservable = reactiveComponent.buildObservable();
+                final O retryObservable = reactiveComponent.buildObservable();
                 subscription = retryObservable.subscribe(new EmptyViewSubscriber());
                 reactiveComponent.connectObservable(retryObservable);
             }
@@ -38,6 +45,7 @@ public class EmptyViewController {
         subscription = activeObservable.subscribe(new EmptyViewSubscriber());
     }
 
+    @Override
     public void onDestroyView() {
         subscription.unsubscribe();
         emptyView = null;

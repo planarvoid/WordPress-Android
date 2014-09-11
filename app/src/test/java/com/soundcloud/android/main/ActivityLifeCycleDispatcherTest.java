@@ -15,33 +15,34 @@ import android.content.Intent;
 import android.os.Bundle;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LifeCycleDispatcherTest {
-    @Mock private LifeCycleComponent lifeCycleComponent1;
-    @Mock private LifeCycleComponent lifeCycleComponent2;
+public class ActivityLifeCycleDispatcherTest {
+    @Mock private ActivityLifeCycle lifeCycleComponent1;
+    @Mock private ActivityLifeCycle lifeCycleComponent2;
     @Mock private Activity activity;
     @Mock private ActionBarController actionBarController;
-    private LifeCycleDispatcher.Notifier notifier;
+    private ActivityLifeCycleDispatcher dispatcher;
 
     @Before
     public void setUp() throws Exception {
-        notifier = new LifeCycleDispatcher()
+        dispatcher = new ActivityLifeCycleDispatcher()
                 .add(lifeCycleComponent1)
-                .add(lifeCycleComponent2)
-                .attach(activity, actionBarController);
+                .add(lifeCycleComponent2);
     }
 
     @Test
-    public void shouldAttachModulesInOrder() {
+    public void shouldNotifyOnBind() {
+        dispatcher.onBind(activity);
+
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
-        inOrder.verify(lifeCycleComponent1).attach(activity, actionBarController);
-        inOrder.verify(lifeCycleComponent2).attach(activity, actionBarController);
+        inOrder.verify(lifeCycleComponent1).onBind(activity);
+        inOrder.verify(lifeCycleComponent2).onBind(activity);
     }
 
     @Test
     public void shouldNotifyOnCreate() {
         final Bundle bundle = new Bundle();
 
-        notifier.onCreate(bundle);
+        dispatcher.onCreate(bundle);
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onCreate(bundle);
@@ -52,7 +53,7 @@ public class LifeCycleDispatcherTest {
     public void shouldNotifyOnNewIntent() {
         final Intent intent = new Intent();
 
-        notifier.onNewIntent(intent);
+        dispatcher.onNewIntent(intent);
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onNewIntent(intent);
@@ -60,8 +61,8 @@ public class LifeCycleDispatcherTest {
     }
 
     @Test
-    public void shouldNotifyOnStart(){
-        notifier.onStart();
+    public void shouldNotifyOnStart() {
+        dispatcher.onStart();
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onStart();
@@ -69,8 +70,8 @@ public class LifeCycleDispatcherTest {
     }
 
     @Test
-    public void shouldNotifyOnResume(){
-        notifier.onResume();
+    public void shouldNotifyOnResume() {
+        dispatcher.onResume();
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onResume();
@@ -78,8 +79,8 @@ public class LifeCycleDispatcherTest {
     }
 
     @Test
-    public void shouldNotifyOnPause(){
-        notifier.onPause();
+    public void shouldNotifyOnPause() {
+        dispatcher.onPause();
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onPause();
@@ -87,8 +88,8 @@ public class LifeCycleDispatcherTest {
     }
 
     @Test
-    public void shouldNotifyOnStop(){
-        notifier.onStop();
+    public void shouldNotifyOnStop() {
+        dispatcher.onStop();
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onStop();
@@ -96,10 +97,10 @@ public class LifeCycleDispatcherTest {
     }
 
     @Test
-    public void shouldNotifyOnSaveInstanceState(){
+    public void shouldNotifyOnSaveInstanceState() {
         final Bundle bundle = new Bundle();
 
-        notifier.onSaveInstanceState(bundle);
+        dispatcher.onSaveInstanceState(bundle);
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onSaveInstanceState(bundle);
@@ -107,11 +108,23 @@ public class LifeCycleDispatcherTest {
     }
 
     @Test
-    public void shouldNotifyOnDestroy(){
-        notifier.onDestroy();
+    public void shouldNotifyOnRestoreInstanceState() {
+        final Bundle bundle = new Bundle();
+
+        dispatcher.onRestoreInstanceState(bundle);
+
+        InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
+        inOrder.verify(lifeCycleComponent1).onRestoreInstanceState(bundle);
+        inOrder.verify(lifeCycleComponent2).onRestoreInstanceState(bundle);
+    }
+
+    @Test
+    public void shouldNotifyOnDestroy() {
+        dispatcher.onDestroy();
 
         InOrder inOrder = inOrder(lifeCycleComponent1, lifeCycleComponent2);
         inOrder.verify(lifeCycleComponent1).onDestroy();
         inOrder.verify(lifeCycleComponent2).onDestroy();
     }
+
 }

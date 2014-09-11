@@ -19,16 +19,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.view.View;
+
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamAdapterTest {
 
     private SoundStreamAdapter adapter;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private TrackItemPresenter trackItemPresenter;
-    @Mock
-    private PlaylistItemPresenter playlistItemPresenter;
+    @Mock private TrackItemPresenter trackItemPresenter;
+    @Mock private PlaylistItemPresenter playlistItemPresenter;
+    @Mock private View view;
 
     @Before
     public void setup() {
@@ -55,7 +56,7 @@ public class SoundStreamAdapterTest {
     @Test
     public void trackChangedEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final TrackUrn playingTrack = Urn.forTrack(123L);
-        adapter.onViewCreated();
+        adapter.onViewCreated(view, null);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
     }
@@ -63,7 +64,7 @@ public class SoundStreamAdapterTest {
     @Test
     public void newQueueEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
         final TrackUrn playingTrack = Urn.forTrack(123L);
-        adapter.onViewCreated();
+        adapter.onViewCreated(view, null);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
     }
@@ -75,7 +76,7 @@ public class SoundStreamAdapterTest {
 
         adapter.addItem(unlikedPlaylist);
         adapter.addItem(likedPlaylist);
-        adapter.onViewCreated();
+        adapter.onViewCreated(view, null);
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forPlaylist(123L), true, 1));
 
@@ -91,7 +92,7 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void shouldUnsubscribeFromEventBusInOnDestroyView() {
-        adapter.onViewCreated();
+        adapter.onViewCreated(view, null);
         adapter.onDestroyView();
         eventBus.verifyUnsubscribed();
     }

@@ -1,8 +1,9 @@
 package com.soundcloud.android.explore;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
@@ -11,6 +12,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -18,7 +20,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -29,13 +30,16 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.view.ViewGroup;
 
+import javax.inject.Provider;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -44,7 +48,6 @@ public class ExploreTracksFragmentTest {
     private Bundle fragmentArgs = new Bundle();
     private ConnectableObservable<Page<SuggestedTracksCollection>> observable;
 
-    @InjectMocks
     private ExploreTracksFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
 
@@ -55,9 +58,17 @@ public class ExploreTracksFragmentTest {
     @Mock private PullToRefreshController pullToRefreshController;
     @Mock private ListViewController listViewController;
     @Mock private Subscription subscription;
+    @Mock private ExpandPlayerSubscriber subscriber;
 
     @Before
     public void setUp() throws Exception {
+        fragment = new ExploreTracksFragment(adapter, playbackOperations, exploreTracksOperations,
+                pullToRefreshController, listViewController, new Provider<ExpandPlayerSubscriber>() {
+            @Override
+            public ExpandPlayerSubscriber get() {
+                return subscriber;
+            }
+        });
         fragmentArgs.putParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA, ExploreGenre.POPULAR_AUDIO_CATEGORY);
         fragmentArgs.putString(ExploreTracksFragment.SCREEN_TAG_EXTRA, "screen");
         fragment.setArguments(fragmentArgs);
@@ -77,31 +88,17 @@ public class ExploreTracksFragmentTest {
     }
 
     @Test
-    public void shouldAttachListViewControllerInOnViewCreated() {
+    public void shouldConnectListViewControllerInOnViewCreated() {
         fragment.onCreate(null);
         createFragmentView();
-        verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
-                refEq(fragment.getView()), refEq(adapter), isA(AbsListViewParallaxer.class));
+        verify(listViewController).connect(refEq(fragment), any(ConnectableObservable.class));
     }
 
     @Test
-    public void shouldAttachPullToRefreshControllerInOnViewCreated() {
+    public void shouldConnectPullToRefreshControllerInOnViewCreated() {
         fragment.onCreate(null);
-        fragment.connectObservable(observable);
         createFragmentView();
-        verify(pullToRefreshController).onViewCreated(fragment, observable, adapter);
-    }
-
-    @Test
-    public void shouldDetachPullToRefreshControllerOnDestroyView() {
-        fragment.onDestroyView();
-        verify(pullToRefreshController).onDestroyView();
-    }
-
-    @Test
-    public void shouldDetachListViewControllerOnDestroyView() {
-        fragment.onDestroyView();
-        verify(listViewController).onDestroyView();
+        verify(pullToRefreshController).connect(any(ConnectableObservable.class), same(adapter));
     }
 
     @Test

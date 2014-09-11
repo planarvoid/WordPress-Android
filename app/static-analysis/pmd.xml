@@ -13,6 +13,8 @@
     </rule>
     <rule ref="rulesets/java/design.xml">
         <exclude name="TooFewBranchesForASwitchStatement"/>
+        <!-- we frequently do this on purpose when connecting to the Android life-cycle -->
+        <exclude name="UncommentedEmptyMethod"/>
         <exclude name="UncommentedEmptyConstructor"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>

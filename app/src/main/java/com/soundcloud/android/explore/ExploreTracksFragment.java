@@ -3,12 +3,14 @@ package com.soundcloud.android.explore;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -21,8 +23,8 @@ import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +33,8 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class ExploreTracksFragment extends Fragment
+@SuppressLint("ValidFragment")
+public class ExploreTracksFragment extends DefaultFragment
         implements RefreshableListComponent<ConnectableObservable<Page<SuggestedTracksCollection>>> {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";
@@ -61,9 +64,35 @@ public class ExploreTracksFragment extends Fragment
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
+    @VisibleForTesting
+    ExploreTracksFragment(PagingItemAdapter<ApiTrack> adapter,
+                          PlaybackOperations playbackOperations,
+                          ExploreTracksOperations exploreTracksOperations,
+                          PullToRefreshController pullToRefreshController,
+                          ListViewController listViewController,
+                          Provider<ExpandPlayerSubscriber> subscriberProvider) {
+        this.adapter = adapter;
+        this.playbackOperations = playbackOperations;
+        this.exploreTracksOperations = exploreTracksOperations;
+        this.pullToRefreshController = pullToRefreshController;
+        this.listViewController = listViewController;
+        this.subscriberProvider = subscriberProvider;
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        addLifeCycleComponent(this.listViewController);
+        addLifeCycleComponent(this.pullToRefreshController);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        listViewController.setAdapter(adapter);
+        listViewController.setScrollListener(new AbsListViewParallaxer(adapter));
+        pullToRefreshController.setAdapter(adapter);
+
         connectObservable(buildObservable());
     }
 
@@ -106,8 +135,8 @@ public class ExploreTracksFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter, new AbsListViewParallaxer(adapter));
-        pullToRefreshController.onViewCreated(this, observable, adapter);
+        listViewController.connect(this, observable);
+        pullToRefreshController.connect(observable, adapter);
     }
 
     @Override
@@ -119,13 +148,6 @@ public class ExploreTracksFragment extends Fragment
         playbackOperations
                 .playTrackWithRecommendations(track.getUrn(), playSessionSource)
                 .subscribe(subscriberProvider.get());
-    }
-
-    @Override
-    public void onDestroyView() {
-        pullToRefreshController.onDestroyView();
-        listViewController.onDestroyView();
-        super.onDestroyView();
     }
 
     @Override

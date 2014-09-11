@@ -1,14 +1,13 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.RxTestHelper.singlePage;
-import static com.soundcloud.android.rx.TestObservables.MockConnectableObservable;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
@@ -30,9 +29,11 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Subscription;
+import rx.observables.ConnectableObservable;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -49,6 +50,7 @@ public class PullToRefreshControllerTest {
     private RefreshableFragment fragment = new RefreshableFragment();
 
     @Mock private FragmentActivity activity;
+    @Mock private Bundle bundle;
     @Mock private OnRefreshListener listener;
     @Mock private PullToRefreshWrapper wrapper;
     @Mock private PullToRefreshLayout layout;
@@ -57,24 +59,37 @@ public class PullToRefreshControllerTest {
     @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 
     private PullToRefreshController controller;
-    private MockConnectableObservable<Page<List<Parcelable>>> observable;
+    private ConnectableObservable<Page<List<Parcelable>>> observable;
 
     @Before
     public void setUp() throws Exception {
         controller = new PullToRefreshController(eventBus, wrapper);
+        controller.onBind(fragment);
+        controller.setAdapter(adapter);
+
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
         when(wrapper.isAttached()).thenReturn(true);
         observable = TestObservables.emptyConnectableObservable(subscription);
+
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
     @Test
     public void shouldAttachPullToRefreshWrapperWhenViewsAreCreated() {
         when(wrapper.isAttached()).thenReturn(false);
-        controller.onViewCreated(fragment, listener);
+        controller.onViewCreated(layout, bundle);
 
-        verify(wrapper).attach(activity, layout, listener);
+        verify(wrapper).attach(same(activity), same(layout), isA(OnRefreshListener.class));
+    }
+
+    @Test
+    public void shouldAttachWithCustomListenerIfSet() {
+        when(wrapper.isAttached()).thenReturn(false);
+        controller.setRefreshListener(listener);
+        controller.onViewCreated(layout, bundle);
+
+        verify(wrapper).attach(same(activity), same(layout), same(listener));
     }
 
     @Test
@@ -90,6 +105,12 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
+    public void shouldForwardRefreshCompletedToPTRWrapper() {
+        controller.stopRefreshing();
+        verify(wrapper).setRefreshing(false);
+    }
+
+    @Test
     public void shouldNotStartRefreshingIfPlayerIsExpanded() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         controller.startRefreshing();
@@ -97,14 +118,8 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
-    public void shouldForwardRefreshCompletedToPTRWrapper() {
-        controller.stopRefreshing();
-        verify(wrapper).setRefreshing(false);
-    }
-
-    @Test
     public void shouldUnsubscribeFromEventsWhenViewsGetDestroyed() {
-        controller.onViewCreated(fragment, listener);
+        controller.onViewCreated(layout, bundle);
         controller.onDestroyView();
         eventBus.verifyUnsubscribed();
     }
@@ -125,7 +140,7 @@ public class PullToRefreshControllerTest {
 
     @Test
     public void shouldDetachFromPTRWrapperWhenViewsGetDestroyed() {
-        controller.onViewCreated(fragment, listener);
+        controller.onViewCreated(layout, bundle);
         controller.onDestroyView();
 
         verify(wrapper).detach();
@@ -134,10 +149,10 @@ public class PullToRefreshControllerTest {
     @Test
     public void shouldRestoreRefreshingStateWhenGoingThroughViewCreationDestructionCycle() {
         when(wrapper.isRefreshing()).thenReturn(true);
-        controller.onViewCreated(fragment, listener);
+        controller.onViewCreated(layout, bundle);
         controller.startRefreshing();
         controller.onDestroyView();
-        controller.onViewCreated(fragment, listener);
+        controller.onViewCreated(layout, bundle);
 
         InOrder inOrder = inOrder(wrapper);
         inOrder.verify(wrapper).setRefreshing(false); // onViewCreated 1
@@ -147,7 +162,7 @@ public class PullToRefreshControllerTest {
 
     @Test
     public void shouldStopRefreshingWhenPlayerExpandedEventIsReceived() {
-        controller.onViewCreated(fragment, listener);
+        controller.onViewCreated(layout, bundle);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
@@ -155,60 +170,67 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
-    public void shouldRegisterRefreshListenerForPagedListViews() {
-        controller.onViewCreated(fragment, observable, adapter);
+    public void connectShouldResubscribeIfRefreshWasInProgressAndViewsGetRecreated() {
+        when(wrapper.isRefreshing()).thenReturn(true);
 
-        verify(wrapper).attach(refEq(activity), refEq(layout), refreshListenerCaptor.capture());
-        refreshListenerCaptor.getValue().onRefreshStarted(layout);
+        controller.onDestroyView();
+        controller.onViewCreated(layout, bundle);
+        controller.connect(observable, adapter);
 
-        expect(observable.subscribedTo()).toBeTrue();
-        expect(observable.connected()).toBeTrue();
+        verify(adapter).onCompleted();
     }
 
     @Test
-    public void shouldResubscribePageSubscriberIfRefreshWasInProgressAndViewsGetRecreated() {
-        moveToRefreshingState();
-        expect(observable.subscribedTo()).toBeTrue();
+    public void connectShouldNotResubscribeIfNoRefreshWasInProgressAndViewsGetRecreated() {
+        when(wrapper.isRefreshing()).thenReturn(false);
+
+        controller.onDestroyView();
+        controller.onViewCreated(layout, bundle);
+        controller.connect(observable, adapter);
+
+        verify(adapter, never()).onCompleted();
     }
 
     @Test
-    public void pageSubscriberShouldClearAdapterAndAddPageInOnCompleted() {
+    public void refreshingShouldFirstClearAdapterThenAddNewPage() {
         final Page<List<Parcelable>> page = singlePage(Collections.<Parcelable>emptyList());
         observable = TestObservables.connectableObservable(page);
-        moveToRefreshingState();
-        verify(adapter).clear();
-        verify(adapter).onNext(page);
-        verify(adapter).onCompleted();
-        verifyNoMoreInteractions(adapter);
+
+        triggerRefresh();
+
+        InOrder inOrder = inOrder(adapter);
+
+        inOrder.verify(adapter).clear();
+        inOrder.verify(adapter).onNext(page);
+        inOrder.verify(adapter).onCompleted();
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
-    public void pageSubscriberShouldStopRefreshWhenComplete() {
-        moveToRefreshingState();
+    public void refreshingShouldTellPTRToStopRefreshingWhenComplete() {
+        triggerRefresh();
         verify(wrapper, times(2)).setRefreshing(false);
     }
 
     @Test
-    public void pageSubscriberShouldStopRefreshWhenFailed() {
+    public void refreshingShouldTellPTRToStopRefreshingOnError() {
         observable = TestObservables.errorConnectableObservable();
-        moveToRefreshingState();
+        triggerRefresh();
         verifyZeroInteractions(adapter);
         verify(wrapper, times(2)).setRefreshing(false);
     }
 
-    private void moveToRefreshingState() {
-        when(wrapper.isRefreshing()).thenReturn(true);
-        controller.onViewCreated(fragment, observable, adapter);
-        expect(observable.subscribedTo()).toBeFalse();
-        controller.onDestroyView();
-        controller.onViewCreated(fragment, observable, adapter);
+    private void triggerRefresh() {
+        controller.onViewCreated(layout, bundle);
+        verify(wrapper).attach(refEq(activity), refEq(layout), refreshListenerCaptor.capture());
+        refreshListenerCaptor.getValue().onRefreshStarted(layout);
     }
 
     private class RefreshableFragment extends Fragment
-            implements RefreshableListComponent<MockConnectableObservable<Page<List<Parcelable>>>> {
+            implements RefreshableListComponent<ConnectableObservable<Page<List<Parcelable>>>> {
 
         @Override
-        public MockConnectableObservable<Page<List<Parcelable>>> refreshObservable() {
+        public ConnectableObservable<Page<List<Parcelable>>> refreshObservable() {
             return observable;
         }
 
@@ -216,12 +238,12 @@ public class PullToRefreshControllerTest {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {}
 
         @Override
-        public MockConnectableObservable<Page<List<Parcelable>>> buildObservable() {
+        public ConnectableObservable<Page<List<Parcelable>>> buildObservable() {
             return observable;
         }
 
         @Override
-        public Subscription connectObservable(MockConnectableObservable<Page<List<Parcelable>>> observable) {
+        public Subscription connectObservable(ConnectableObservable<Page<List<Parcelable>>> observable) {
             observable.connect();
             return subscription;
         }

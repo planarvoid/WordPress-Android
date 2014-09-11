@@ -9,7 +9,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.DefaultLifeCycleComponent;
+import com.soundcloud.android.main.DefaultActivityLifeCycle;
+import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -28,7 +29,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 @SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
-public class SlidingPlayerController extends DefaultLifeCycleComponent implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity> implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final float EXPAND_THRESHOLD = 0.5f;
@@ -55,16 +56,16 @@ public class SlidingPlayerController extends DefaultLifeCycleComponent implement
     }
 
     @Override
-    public void attach(Activity activity, ActionBarController actionBarController) {
-        this.actionBarController = actionBarController;
+    public void onBind(ScActivity activity) {
         this.activity = activity;
+        this.actionBarController = activity.getActionBarController();
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
         slidingPanel.setOnTouchListener(new TrackingDragListener());
         expandOnResume = false;
 
-        playerFragment = getPlayerFragmentFromActivity((FragmentActivity) activity);
+        playerFragment = getPlayerFragmentFromActivity(activity);
         if (playerFragment == null) {
             throw new IllegalArgumentException("Player fragment not found. Make sure it is present with the expected id.");
         }

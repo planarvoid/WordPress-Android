@@ -2,8 +2,9 @@ package com.soundcloud.android.playlists;
 
 
 import com.soundcloud.android.rx.eventbus.EventBus;
+import org.jetbrains.annotations.Nullable;
 
-import android.content.res.Resources;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
@@ -26,8 +27,8 @@ class DefaultController extends PlaylistDetailsController {
     }
 
     @Override
-    public void onViewCreated(View layout, Resources resources) {
-        super.onViewCreated(layout, resources);
+    public void onViewCreated(View layout, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(layout, savedInstanceState);
         listView = (ListView) layout.findViewById(android.R.id.list);
     }
 

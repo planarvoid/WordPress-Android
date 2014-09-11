@@ -211,8 +211,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
         pullToRefreshLayout.addView(emptyView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-
-        pullToRefreshController.onViewCreated(getActivity(), pullToRefreshLayout, this);
+        pullToRefreshController.onBind(this);
+        pullToRefreshController.setRefreshListener(this);
+        pullToRefreshController.onViewCreated(pullToRefreshLayout, savedInstanceState);
         configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()){

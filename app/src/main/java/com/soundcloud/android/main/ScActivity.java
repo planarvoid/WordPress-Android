@@ -9,11 +9,11 @@ import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -47,7 +47,8 @@ import java.lang.ref.WeakReference;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends ActionBarActivity implements ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends ActionBarActivity
+        implements ActionBarController.ActionBarOwner, LifeCycleOwner<ActivityLifeCycle<ScActivity>> {
 
     protected static final int CONNECTIVITY_MSG = 0;
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
@@ -70,11 +71,16 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Nullable
     protected ActionBarController actionBarController;
     private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
-    private final LifeCycleDispatcher lifeCycleDispatcher = new LifeCycleDispatcher();
-    private LifeCycleDispatcher.Notifier lifeCycleNotifier;
+    private final ActivityLifeCycleDispatcher<ScActivity> lifeCycleDispatcher = new ActivityLifeCycleDispatcher<>();
 
-    protected void addLifeCycleComponent(LifeCycleComponent lifeCycleComponent) {
+    @Override
+    public void addLifeCycleComponent(ActivityLifeCycle<ScActivity> lifeCycleComponent) {
         lifeCycleDispatcher.add(lifeCycleComponent);
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        /* NOP */
     }
 
     public ScActivity() {
@@ -101,18 +107,20 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         }
 
         onCreateCalled = true;
-        lifeCycleNotifier = lifeCycleDispatcher.attach(this, actionBarController);
 
         if (savedInstanceState != null) {
             isConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
         }
-        lifeCycleNotifier.onCreate(savedInstanceState);
+
+        addLifeCycleComponents();
+        lifeCycleDispatcher.onBind(this);
+        lifeCycleDispatcher.onCreate(savedInstanceState);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        lifeCycleNotifier.onNewIntent(intent);
+        lifeCycleDispatcher.onNewIntent(intent);
     }
 
     // Override this in activities with custom content views
@@ -126,13 +134,13 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         // XXX : This is false in some situations where we seem to actually be changing configurations
         // (hit the power off button on a genymotion emulator while in landscape). This is not conclusive yet. Investigating further
         outState.putBoolean(BUNDLE_CONFIGURATION_CHANGE, getChangingConfigurations() != 0);
-        lifeCycleNotifier.onSaveInstanceState(outState);
+        lifeCycleDispatcher.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        lifeCycleNotifier.onRestoreInstanceState(savedInstanceState);
+        lifeCycleDispatcher.onRestoreInstanceState(savedInstanceState);
     }
 
     // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
@@ -150,13 +158,18 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         return actionBarControllerFactory.create(this);
     }
 
+    @Nullable
+    public ActionBarController getActionBarController() {
+        return actionBarController;
+    }
+
     public void restoreActionBar() {
         /** no-op. Used in {@link com.soundcloud.android.main.MainActivity#restoreActionBar()} */
     }
 
     @Override
     protected void onDestroy() {
-        lifeCycleNotifier.onDestroy();
+        lifeCycleDispatcher.onDestroy();
         super.onDestroy();
         userEventSubscription.unsubscribe();
         connectivityListener.unregisterHandler(connHandler);
@@ -169,13 +182,13 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onStart() {
         super.onStart();
-        lifeCycleNotifier.onStart();
+        lifeCycleDispatcher.onStart();
         connectivityListener.startListening(this);
     }
 
     @Override
     protected void onStop() {
-        lifeCycleNotifier.onStop();
+        lifeCycleDispatcher.onStop();
         super.onStop();
         connectivityListener.stopListening();
     }
@@ -183,7 +196,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onResume() {
         super.onResume();
-        lifeCycleNotifier.onResume();
+        lifeCycleDispatcher.onResume();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
 
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
@@ -201,7 +214,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     @Override
     protected void onPause() {
-        lifeCycleNotifier.onPause();
+        lifeCycleDispatcher.onPause();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
 
         safeUnregisterReceiver(unauthoriedRequestReceiver);

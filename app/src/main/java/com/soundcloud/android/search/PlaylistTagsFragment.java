@@ -7,10 +7,11 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.playlists.PlaylistTagsCollection;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyViewController;
@@ -25,7 +26,6 @@ import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +35,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistTagsFragment extends Fragment implements ListenableScrollView.OnScrollListener,
+public class PlaylistTagsFragment extends DefaultFragment implements ListenableScrollView.OnScrollListener,
         ReactiveComponent<ConnectableObservable<PlaylistTagsCollection>> {
 
     public static final String TAG = "playlist_tags";
@@ -73,6 +73,11 @@ public class PlaylistTagsFragment extends Fragment implements ListenableScrollVi
     public PlaylistTagsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        addLifeCycleComponent(emptyViewController);
     }
 
     @Override
@@ -114,7 +119,7 @@ public class PlaylistTagsFragment extends Fragment implements ListenableScrollVi
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        emptyViewController.onViewCreated(this, allTagsObservable, view);
+        emptyViewController.connect(this, allTagsObservable);
 
         ListenableScrollView scrollView = (ListenableScrollView) view.findViewById(R.id.playlist_tags_scroll_container);
         scrollView.setOnScrollListener(this);

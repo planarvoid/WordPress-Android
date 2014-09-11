@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -34,82 +33,100 @@ public class ListViewControllerTest {
     private Bundle fragmentArgs = new Bundle();
     private ConnectableObservable observable = Observable.empty().publish();
 
-    @Mock
-    private EmptyViewController emptyViewController;
-    @Mock
-    private ImageOperations imageOperations;
-    @Mock
-    private ReactiveListComponent reactiveListComponent;
-    @Mock
-    private ListAdapter adapter;
-    @Mock
-    private View layout;
-    @Mock
-    private EmptyView emptyView;
-    @Mock
-    private ListView listView;
-    @Mock
-    private AbsListView.OnScrollListener scrollListener;
+    @Mock private EmptyViewController emptyViewController;
+    @Mock private ImageOperations imageOperations;
+    @Mock private ReactiveListComponent reactiveListComponent;
+    @Mock private ListAdapter adapter;
+    @Mock private View view;
+    @Mock private Bundle bundle;
+    @Mock private EmptyView emptyView;
+    @Mock private ListView listView;
+    @Mock private AbsListView.OnScrollListener scrollListener;
 
     @Before
     public void setup() {
         fragment.setArguments(fragmentArgs);
-        when(layout.findViewById(android.R.id.list)).thenReturn(listView);
-        when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
+        when(view.findViewById(android.R.id.list)).thenReturn(listView);
+        when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(emptyViewController.getEmptyView()).thenReturn(emptyView);
+        controller.setAdapter(adapter);
     }
 
     @Test
-    public void shouldRegisterItemClickListenerWithListViewInOnViewCreated() {
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
-        verify(listView).setOnItemClickListener(reactiveListComponent);
+    public void shouldDelegateOnViewCreatedToEmptyViewController() {
+        controller.onViewCreated(view, bundle);
+        verify(emptyViewController).onViewCreated(view, bundle);
+    }
+
+    @Test
+    public void shouldDelegateOnDestroyViewToEmptyViewController() {
+        controller.onViewCreated(view, bundle);
+        controller.onDestroyView();
+        verify(emptyViewController).onDestroyView();
     }
 
     @Test
     public void shouldSetEmptyViewForListViewInOnViewCreated() {
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
+        controller.onViewCreated(view, bundle);
         verify(listView).setEmptyView(emptyView);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowIfNoAdapterIsSetAtTheTimeOnViewCreatedIsCalled() {
+        controller.setAdapter(null);
+        controller.onViewCreated(view, bundle);
     }
 
     @Test
     public void shouldSetAdapterForListViewInOnViewCreated() {
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
+        controller.onViewCreated(view, bundle);
         verify(listView).setAdapter(adapter);
     }
 
     @Test
     public void shouldSetAdapterForGridViewInOnViewCreated() {
         GridView gridView = mock(GridView.class);
-        when(layout.findViewById(android.R.id.list)).thenReturn(gridView);
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
+        when(view.findViewById(android.R.id.list)).thenReturn(gridView);
+        controller.onViewCreated(view, bundle);
         verify(gridView).setAdapter(adapter);
     }
 
     @Test
-    public void shouldRegisterDefaultImageScrollPauseListenerWithListViewWhenNotSpecified() {
+    public void shouldSetDefaultImageScrollListenerInOnViewCreated() {
         when(imageOperations.createScrollPauseListener(false, true)).thenReturn(scrollListener);
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, null);
+
+        controller.onViewCreated(view, bundle);
+
         verify(listView).setOnScrollListener(scrollListener);
     }
 
     @Test
-    public void shouldRegisterGivenScrollListenerAsImageScrollPauseListenerWithListView() {
-        PagingItemAdapter adapter = mock(PagingItemAdapter.class);
+    public void shouldSetCustomScrollListenerAsImageScrollListenerInOnViewCreated() {
         when(imageOperations.createScrollPauseListener(false, true, scrollListener)).thenReturn(scrollListener);
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
+        controller.setScrollListener(scrollListener);
+
+        controller.onViewCreated(view, bundle);
+
         verify(listView).setOnScrollListener(scrollListener);
+    }
+
+    @Test
+    public void shouldRegisterListComponentAsItemClickListenerWithListViewOnConnect() {
+        controller.onViewCreated(view, bundle);
+        controller.connect(reactiveListComponent, observable);
+        verify(listView).setOnItemClickListener(reactiveListComponent);
     }
 
     @Test
     public void shouldDetachAdapterFromListViewInOnDestroyView() {
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
+        controller.onViewCreated(view, bundle);
         controller.onDestroyView();
         verify(listView).setAdapter(null);
     }
 
     @Test
     public void shouldReleaseListViewInOnDestroyView() {
-        controller.onViewCreated(reactiveListComponent, observable, layout, adapter, scrollListener);
+        controller.onViewCreated(view, bundle);
         controller.onDestroyView();
         expect(controller.getListView()).toBeNull();
     }

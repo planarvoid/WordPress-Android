@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.main.FragmentLifeCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
@@ -11,13 +12,19 @@ import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.View;
+
 import javax.inject.Inject;
 
-class SoundStreamAdapter extends PagingItemAdapter<PropertySet> {
+class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -28,8 +35,8 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> {
 
     @Inject
     SoundStreamAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter, EventBus eventBus) {
-        super(new CellPresenterEntity<PropertySet>(TRACK_ITEM_TYPE, trackPresenter),
-                new CellPresenterEntity<PropertySet>(PLAYLIST_ITEM_TYPE, playlistPresenter));
+        super(new CellPresenterEntity<>(TRACK_ITEM_TYPE, trackPresenter),
+                new CellPresenterEntity<>(PLAYLIST_ITEM_TYPE, playlistPresenter));
         this.eventBus = eventBus;
         this.trackPresenter = trackPresenter;
     }
@@ -51,15 +58,72 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> {
         return 2;
     }
 
-    void onViewCreated() {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
         );
     }
 
-    void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         eventSubscriptions.unsubscribe();
+    }
+
+    @Override
+    public void onBind(Fragment owner) {
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onResume() {
+
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+
+    @Override
+    public void onDetach() {
+
     }
 
 }

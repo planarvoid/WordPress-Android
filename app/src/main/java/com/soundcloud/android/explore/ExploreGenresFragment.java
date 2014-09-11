@@ -6,8 +6,9 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import rx.Observable;
@@ -18,7 +19,6 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,15 +28,16 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import java.util.Arrays;
 
-public class ExploreGenresFragment extends Fragment implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
+public class ExploreGenresFragment extends DefaultFragment
+        implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
 
     private static final Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>> GENRES_TO_SECTIONS =
             new Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>>() {
                 @Override
                 public Observable<GenreSection<ExploreGenre>> call(ExploreGenresSections categories) {
                     return Observable.from(Arrays.asList(
-                            new GenreSection<ExploreGenre>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
-                            new GenreSection<ExploreGenre>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio())));
+                            new GenreSection<>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
+                            new GenreSection<>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio())));
                 }
             };
 
@@ -50,6 +51,12 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
 
     public ExploreGenresFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        listViewController.setAdapter(adapter);
+        addLifeCycleComponent(listViewController);
     }
 
     @Override
@@ -97,18 +104,12 @@ public class ExploreGenresFragment extends Fragment implements ReactiveListCompo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter, null);
+        listViewController.connect(this, observable);
     }
 
     @Override
     public void onDestroy() {
         connectionSubscription.unsubscribe();
         super.onDestroy();
-    }
-
-    @Override
-    public void onDestroyView() {
-        listViewController.onDestroyView();
-        super.onDestroyView();
     }
 }

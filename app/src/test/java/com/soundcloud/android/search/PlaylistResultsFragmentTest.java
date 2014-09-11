@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.MockObservable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,7 +23,6 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -54,31 +52,23 @@ public class PlaylistResultsFragmentTest {
 
     private Context context = Robolectric.application;
     private AbsListView content;
-    private MockObservable<Page<ApiPlaylistCollection>> observable;
     private TestEventBus eventBus = new TestEventBus();
 
     @InjectMocks
     private PlaylistResultsFragment fragment;
 
-    @Mock
-    private SearchOperations searchOperations;
-    @Mock
-    private ListViewController listViewController;
-    @Mock
-    private PagingItemAdapter<ApiPlaylist> adapter;
-    @Mock
-    private ScModelManager modelManager;
-    @Mock
-    private EmptyView emptyView;
-    @Mock
-    private Subscription subscription;
-    @Captor
-    private ArgumentCaptor<Page<ApiPlaylistCollection>> pageCaptor;
+    @Mock private SearchOperations searchOperations;
+    @Mock private ListViewController listViewController;
+    @Mock private PagingItemAdapter<ApiPlaylist> adapter;
+    @Mock private ScModelManager modelManager;
+    @Mock private EmptyView emptyView;
+    @Mock private Subscription subscription;
+    @Captor private ArgumentCaptor<Page<ApiPlaylistCollection>> pageCaptor;
 
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        observable = TestObservables.emptyObservable(subscription);
+        Observable<Page<ApiPlaylistCollection>> observable = TestObservables.emptyObservable(subscription);
         when(searchOperations.getPlaylistResults(anyString())).thenReturn(observable);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         createFragment();
@@ -99,17 +89,10 @@ public class PlaylistResultsFragmentTest {
     }
 
     @Test
-    public void shouldAttachListViewControllerInOnViewCreated() {
+    public void shouldConnectListViewControllerInOnViewCreated() {
         fragment.onCreate(null);
         createFragmentView();
-        verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
-                refEq(fragment.getView()), refEq(adapter), isA(AbsListViewParallaxer.class));
-    }
-
-    @Test
-    public void shouldDetachListViewControllerOnDestroyView() {
-        fragment.onDestroyView();
-        verify(listViewController).onDestroyView();
+        verify(listViewController).connect(refEq(fragment), any(ConnectableObservable.class));
     }
 
     @Test

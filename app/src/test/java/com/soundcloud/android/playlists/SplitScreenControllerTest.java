@@ -13,12 +13,12 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.res.Resources;
 import android.view.View;
 import android.widget.ListView;
 
@@ -34,7 +34,6 @@ public class SplitScreenControllerTest {
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
     @Mock private View container;
-    @Mock private Resources resources;
     @Mock private View layout;
 
     @Before
@@ -43,7 +42,8 @@ public class SplitScreenControllerTest {
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(layout.findViewById(R.id.container)).thenReturn(container);
-        controller.onViewCreated(layout, resources);
+        when(layout.getContext()).thenReturn(Robolectric.application);
+        controller.onViewCreated(layout, null);
     }
 
     @Test

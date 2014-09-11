@@ -119,21 +119,14 @@ public class SearchResultsFragmentTest {
     }
 
     @Test
-    public void shouldAttachListViewControllerInOnViewCreated() {
+    public void shouldConnectListViewControllerInOnViewCreated() {
         final Observable<Page<SearchResultsCollection>> observable = Observable.empty();
         when(searchOperations.getAllSearchResults(anyString())).thenReturn(observable);
 
         createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
         createFragmentView();
 
-        verify(listViewController).onViewCreated(refEq(fragment), any(ConnectableObservable.class),
-                refEq(fragment.getView()), refEq(adapter), refEq(adapter));
-    }
-
-    @Test
-    public void shouldDetachListViewControllerOnDestroyView() {
-        fragment.onDestroyView();
-        verify(listViewController).onDestroyView();
+        verify(listViewController).connect(refEq(fragment), any(ConnectableObservable.class));
     }
 
     @Test
@@ -144,6 +137,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldForwardOnDestroyViewToAdapter() {
+        createFragmentView();
         fragment.onDestroyView();
         verify(adapter).onDestroyView();
     }

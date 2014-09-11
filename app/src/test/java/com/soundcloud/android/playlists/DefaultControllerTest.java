@@ -36,7 +36,7 @@ public class DefaultControllerTest {
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
         controller = new DefaultController(adapter, eventBus);
-        controller.onViewCreated(layout, resources);
+        controller.onViewCreated(layout, null);
     }
 
     @Test

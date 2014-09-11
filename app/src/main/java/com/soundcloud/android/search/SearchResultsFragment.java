@@ -19,6 +19,7 @@ import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -39,7 +40,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +50,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class SearchResultsFragment extends Fragment
+public class SearchResultsFragment extends DefaultFragment
         implements ReactiveListComponent<ConnectableObservable<Page<SearchResultsCollection>>> {
 
     private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
@@ -93,6 +93,13 @@ public class SearchResultsFragment extends Fragment
 
     public SearchResultsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @Override
+    public void addLifeCycleComponents() {
+        listViewController.setAdapter(adapter);
+        listViewController.setScrollListener(adapter);
+        addLifeCycleComponent(listViewController);
     }
 
     @Override
@@ -144,14 +151,13 @@ public class SearchResultsFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.onViewCreated(this, observable, view, adapter, adapter);
+        listViewController.connect(this, observable);
         new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
         adapter.onViewCreated();
     }
 
     @Override
     public void onDestroyView() {
-        listViewController.onDestroyView();
         adapter.onDestroyView();
         super.onDestroyView();
     }

@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.DefaultLifeCycleComponent;
+import com.soundcloud.android.main.DefaultActivityLifeCycle;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AdPlayerController extends DefaultLifeCycleComponent {
+public class AdPlayerController extends DefaultActivityLifeCycle {
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
 

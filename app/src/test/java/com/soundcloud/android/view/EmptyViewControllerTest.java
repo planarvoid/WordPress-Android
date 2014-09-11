@@ -1,7 +1,6 @@
 package com.soundcloud.android.view;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.rx.TestObservables.MockConnectableObservable;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,18 +30,13 @@ public class EmptyViewControllerTest {
 
     private Fragment fragment = new Fragment();
     private Bundle fragmentArgs = new Bundle();
-    private MockConnectableObservable observable;
+    private ConnectableObservable observable;
 
-    @Mock
-    private View layout;
-    @Mock
-    private EmptyView emptyView;
-    @Mock
-    private ReactiveComponent reactiveComponent;
-    @Mock
-    private Subscription subscription;
-    @Captor
-    private ArgumentCaptor<EmptyView.RetryListener> retryListenerCaptor;
+    @Mock private View layout;
+    @Mock private EmptyView emptyView;
+    @Mock private ReactiveComponent reactiveComponent;
+    @Mock private Subscription subscription;
+    @Captor private ArgumentCaptor<EmptyView.RetryListener> retryListenerCaptor;
 
     @Before
     public void setup() {
@@ -53,21 +47,24 @@ public class EmptyViewControllerTest {
     }
 
     @Test
-    public void shouldResetEmptyViewStateToIdleWhenControllerReceivesCompleteEvent() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
-        verify(emptyView).setStatus(EmptyView.Status.OK);
-    }
-
-    @Test
     public void shouldSetupEmptyViewInWaitingStateInFirstCallToOnViewCreated() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
+        controller.onViewCreated(layout, null);
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
-    public void shouldRestoreEmptyViewInWaitingStateInSubsequentCallsToOnViewCreated() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
-        controller.onViewCreated(reactiveComponent, observable, layout);
+    public void shouldResetEmptyViewStateToIdleWhenControllerReceivesCompleteEvent() {
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, Observable.empty());
+        verify(emptyView).setStatus(EmptyView.Status.OK);
+    }
+
+    @Test
+    public void shouldRestoreEmptyViewInWaitingStateWhenGoingThroughViewCreationCycle() {
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
         InOrder inOrder = inOrder(emptyView);
         inOrder.verify(emptyView).setStatus(EmptyView.Status.WAITING);
         inOrder.verify(emptyView, times(2)).setStatus(EmptyView.Status.OK);
@@ -75,7 +72,8 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldSetEmptyViewStateToWaitingWhenFired() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
 
         ArgumentCaptor<EmptyView.RetryListener> listenerCaptor = ArgumentCaptor.forClass(EmptyView.RetryListener.class);
         verify(emptyView).setOnRetryListener(listenerCaptor.capture());
@@ -86,7 +84,8 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldRebuildObservable() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
 
         retryListenerCaptor.getValue().onEmptyViewRetry();
@@ -96,36 +95,39 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldTriggerConnectOnNewObservable() {
-        ConnectableObservable retryObservable = Observable.empty().publish();
-        when(reactiveComponent.buildObservable()).thenReturn(retryObservable);
-        controller.onViewCreated(reactiveComponent, observable, layout);
+        when(reactiveComponent.buildObservable()).thenReturn(observable);
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
 
         retryListenerCaptor.getValue().onEmptyViewRetry();
 
-        verify(reactiveComponent).connectObservable(retryObservable);
+        verify(reactiveComponent).connectObservable(observable);
     }
 
     @Test
-    public void retryListenerShouldSubscribeControllerToNewObservable() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
+    public void retryListenerShouldSubscribeToNewObservableAndUpdateEmptyViewWithNewState() {
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
 
         retryListenerCaptor.getValue().onEmptyViewRetry();
 
-        expect(observable.subscribers()).toNumber(2);
+        verify(emptyView, times(2)).setStatus(EmptyView.Status.OK);
     }
 
     @Test
     public void shouldUnsubscribeFromObservableInOnDestroyView() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
         controller.onDestroyView();
         verify(subscription).unsubscribe();
     }
 
     @Test
     public void shouldReleaseEmptyViewInOnDestroyView() {
-        controller.onViewCreated(reactiveComponent, observable, layout);
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, observable);
         controller.onDestroyView();
         expect(controller.getEmptyView()).toBeNull();
     }
