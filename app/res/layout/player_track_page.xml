@@ -10,27 +10,6 @@
         android:layout_height="match_parent" />
 
     <include layout="@layout/player_gradient" />
-    <include layout="@layout/player_footer_controls" />
-
-    <RelativeLayout
-            android:id="@+id/profile_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="@dimen/player_title_top">
-
-        <com.soundcloud.android.view.JaggedTextView
-                android:id="@+id/track_page_user"
-                style="@style/PlayerUser" />
-
-        <com.soundcloud.android.view.JaggedTextView
-                android:id="@+id/track_page_title"
-                style="@style/PlayerTitle"
-                android:layout_marginTop="4dp"
-                android:layout_below="@id/track_page_user" />
-    </RelativeLayout>
-
     <include layout="@layout/player_expanded_close_control" />
 
     <LinearLayout android:layout_width="match_parent"
@@ -86,10 +65,31 @@
     <ViewStub
         android:id="@+id/leave_behind_stub"
         android:inflatedId="@+id/leave_behind"
-        android:layout_below="@id/profile_link"
+        android:layout_below="@id/player_close"
         android:layout_above="@id/player_bottom_close"
         android:layout="@layout/ad_leave_behind"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <RelativeLayout
+            android:id="@+id/profile_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="@dimen/player_title_top">
+
+        <com.soundcloud.android.view.JaggedTextView
+                android:id="@+id/track_page_user"
+                style="@style/PlayerUser" />
+
+        <com.soundcloud.android.view.JaggedTextView
+                android:id="@+id/track_page_title"
+                style="@style/PlayerTitle"
+                android:layout_marginTop="4dp"
+                android:layout_below="@id/track_page_user" />
+    </RelativeLayout>
+
+    <include layout="@layout/player_footer_controls" />
 
 </RelativeLayout>

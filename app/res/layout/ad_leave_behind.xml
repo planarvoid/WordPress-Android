@@ -5,6 +5,7 @@
               android:layout_height="match_parent"
               android:paddingLeft="@dimen/leave_behind_padding"
               android:paddingRight="@dimen/leave_behind_padding"
+              android:clickable="true"
               android:visibility="gone">
 
     <FrameLayout
