@@ -130,9 +130,9 @@ public class SoundCloudApplication extends Application {
 
         if (isReportingCrashes()) {
             Crashlytics.start(this);
-            ExceptionUtils.setupOOMInterception();
+            ExceptionUtils.setupOOMInterception(memoryReporter);
         }
-        memoryReporter.reportSystemMemoryStats(this);
+        memoryReporter.reportSystemMemoryStats();
 
         IOUtils.checkState(this);
 
@@ -298,9 +298,8 @@ public class SoundCloudApplication extends Application {
         }
     }
 
-    @Override
+    @Override @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public void onLowMemory() {
-        final int TRIM_MEMORY_COMPLETE = 80; // is only available at API 14, we are currently targeting API 9
         onTrimMemory(TRIM_MEMORY_COMPLETE);
     }
 

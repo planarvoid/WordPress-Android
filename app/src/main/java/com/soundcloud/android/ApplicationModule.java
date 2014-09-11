@@ -28,6 +28,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -93,6 +94,11 @@ public class ApplicationModule {
     @Provides
     public NotificationManager provideNotificationManager() {
         return (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    @Provides
+    public ActivityManager provideActivityManager() {
+        return (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
     }
 
     @Provides
@@ -170,11 +176,11 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    public MemoryReporter provideMemoryReporter() {
+    public MemoryReporter provideMemoryReporter(ActivityManager activityManager) {
         if (application.isReportingCrashes()) {
-            return new CrashlyticsMemoryReporter();
+            return new CrashlyticsMemoryReporter(activityManager);
         } else {
-            return new MemoryReporter();
+            return new MemoryReporter(activityManager);
         }
     }
 
