@@ -84,6 +84,13 @@ public class LeaveBehindController implements View.OnClickListener{
     public void dismiss() {
         final View leaveBehind = trackView.findViewById(R.id.leave_behind);
         leaveBehind.setVisibility(View.GONE);
+        clear(leaveBehind);
+    }
+
+    private void clear(View leaveBehind) {
+        final ImageView image = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
+        image.setImageDrawable(null);
+        image.setTag(null);
     }
 
     private View getLeaveBehind() {

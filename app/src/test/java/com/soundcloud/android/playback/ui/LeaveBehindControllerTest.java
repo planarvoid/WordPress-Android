@@ -59,6 +59,17 @@ public class LeaveBehindControllerTest {
     }
 
     @Test
+    public void dismissClearsLeaveBehind() {
+        controller.setup(data);
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        controller.dismiss();
+
+        ImageView image = (ImageView) trackView.findViewById(R.id.leave_behind_image);
+        expect(image.getTag()).toBeNull();
+    }
+
+    @Test
     public void leaveBehindGoneOnLeaveBehindCloseClick() {
         controller.setup(data);
         View close = trackView.findViewById(R.id.leave_behind_close);
