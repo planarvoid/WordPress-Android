@@ -17,40 +17,62 @@ public final class OnboardingEvent {
     public static final int EMAIL_MARKETING = 6;
     public static final int SIGNUP_ERROR = 7;
 
+    private static final String OPT_IN = "opt_in";
+    private static final String ERROR_TYPE = "error_type";
+    private static final String YES = "yes";
+    private static final String NO = "no";
+    private static final String DISMISS = "dismiss";
+    private static final String SERVE_CAPTCHA = "serve_captcha";
+    private static final String DENIED_SIGNUP = "denied_signup";
+    private static final String EXISTING_EMAIL = "existing_email";
+    private static final String INVALID_EMAIL = "invalid_email";
+    private static final String GENERAL_ERROR = "general_error";
+    private static final String TYPE = "type";
+    private static final String ACTION = "action";
+    private static final String SIGN_UP = "sign up";
+    private static final String LOG_IN = "log in";
+    private static final String NATIVE = "native";
+    private static final String GOOGLE_PLUS = "google_plus";
+    private static final String FACEBOOK = "facebook";
+    private static final String ACCEPT = "accept";
+    private static final String CANCEL = "cancel";
+    private static final String USER_INFO_ADDED_USERNAME = "added_username";
+    private static final String USER_INFO_ADDED_PICTURE = "added_picture";
+
     private final int kind;
     private final Map<String, String> attributes;
 
     private OnboardingEvent(int kind) {
         this.kind = kind;
-        attributes = new HashMap<String, String>();
+        attributes = new HashMap<>();
     }
 
     public static OnboardingEvent signUpPrompt() {
-        return new OnboardingEvent(AUTH_PROMPT).put("type", "sign up");
+        return new OnboardingEvent(AUTH_PROMPT).put(TYPE, SIGN_UP);
     }
 
     public static OnboardingEvent logInPrompt() {
-        return new OnboardingEvent(AUTH_PROMPT).put("type", "log in");
+        return new OnboardingEvent(AUTH_PROMPT).put(TYPE, LOG_IN);
     }
 
     public static OnboardingEvent nativeAuthEvent() {
-        return new OnboardingEvent(AUTH_CREDENTIALS).put("type", "native");
+        return new OnboardingEvent(AUTH_CREDENTIALS).put(TYPE, NATIVE);
     }
 
     public static OnboardingEvent googleAuthEvent() {
-        return new OnboardingEvent(AUTH_CREDENTIALS).put("type", "google_plus");
+        return new OnboardingEvent(AUTH_CREDENTIALS).put(TYPE, GOOGLE_PLUS);
     }
 
     public static OnboardingEvent facebookAuthEvent() {
-        return new OnboardingEvent(AUTH_CREDENTIALS).put("type", "facebook");
+        return new OnboardingEvent(AUTH_CREDENTIALS).put(TYPE, FACEBOOK);
     }
 
     public static OnboardingEvent termsAccepted() {
-        return new OnboardingEvent(CONFIRM_TERMS).put("action", "accept");
+        return new OnboardingEvent(CONFIRM_TERMS).put(ACTION, ACCEPT);
     }
 
     public static OnboardingEvent termsRejected() {
-        return new OnboardingEvent(CONFIRM_TERMS).put("action", "cancel");
+        return new OnboardingEvent(CONFIRM_TERMS).put(ACTION, CANCEL);
     }
 
     public static OnboardingEvent authComplete() {
@@ -59,14 +81,14 @@ public final class OnboardingEvent {
 
     public static OnboardingEvent savedUserInfo(String username, File avatarFile) {
         return new OnboardingEvent(USER_INFO)
-                .put("added_username", ScTextUtils.isNotBlank(username) ? "yes" : "no")
-                .put("added_picture", avatarFile != null ? "yes" : "no");
+                .put(USER_INFO_ADDED_USERNAME, ScTextUtils.isNotBlank(username) ? YES : NO)
+                .put(USER_INFO_ADDED_PICTURE, avatarFile != null ? YES : NO);
     }
 
     public static OnboardingEvent skippedUserInfo() {
         return new OnboardingEvent(USER_INFO)
-                .put("added_username", "no")
-                .put("added_picture", "no");
+                .put(USER_INFO_ADDED_USERNAME, NO)
+                .put(USER_INFO_ADDED_PICTURE, NO);
     }
 
     public static OnboardingEvent onboardingComplete() {
@@ -74,35 +96,35 @@ public final class OnboardingEvent {
     }
 
     public static OnboardingEvent acceptEmailOptIn() {
-        return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "yes");
+        return new OnboardingEvent(EMAIL_MARKETING).put(OPT_IN, YES);
     }
 
     public static OnboardingEvent rejectEmailOptIn() {
-        return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "no");
+        return new OnboardingEvent(EMAIL_MARKETING).put(OPT_IN, NO);
     }
 
     public static OnboardingEvent dismissEmailOptIn() {
-        return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "dismiss");
+        return new OnboardingEvent(EMAIL_MARKETING).put(OPT_IN, DISMISS);
     }
 
     public static OnboardingEvent signupServeCaptcha() {
-        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "serve_captcha");
+        return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, SERVE_CAPTCHA);
     }
 
     public static OnboardingEvent signupDenied() {
-        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "denied_signup");
+        return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, DENIED_SIGNUP);
     }
 
     public static OnboardingEvent signupExistingEmail() {
-        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "existing_email");
+        return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, EXISTING_EMAIL);
     }
 
     public static OnboardingEvent signupInvalidEmail() {
-        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "invalid_email");
+        return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, INVALID_EMAIL);
     }
 
     public static OnboardingEvent signupGeneralError() {
-        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "general_error");
+        return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, GENERAL_ERROR);
     }
 
     public int getKind() {

@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class LocalyticsOnboardingEventHandler {
     private static final String TAG = "LocalyticsOnboardingEventHandler";
-    private LocalyticsSession localyticsSession;
+    private final LocalyticsSession localyticsSession;
 
     LocalyticsOnboardingEventHandler(LocalyticsSession localyticsSession) {
         this.localyticsSession = localyticsSession;

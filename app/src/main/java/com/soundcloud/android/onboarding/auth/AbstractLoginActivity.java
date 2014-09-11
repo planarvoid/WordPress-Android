@@ -204,7 +204,8 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
             switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
                     onCaptchaRequested();
-                    // do not break in order to dismiss the dialog.
+                    dialog.dismiss();
+                    break;
                 default:
                     dialog.dismiss();
             }
