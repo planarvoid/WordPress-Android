@@ -4,13 +4,16 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +23,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,13 +39,16 @@ public class LeaveBehindControllerTest {
     private LeaveBehind data = new LeaveBehind("http://image.url/image.png", "http://link.url");
 
     @Mock private ImageOperations imageOperations;
+    @Mock private DeviceHelper deviceHelper;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
     public void setUp() throws Exception {
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
-        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations, Robolectric.application);
+        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations,
+                Robolectric.application, deviceHelper);
         controller = factory.create(trackView);
+        when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
     }
 
     @Test
@@ -99,6 +106,13 @@ public class LeaveBehindControllerTest {
     public void loadsLeaveBehindImageFromModel() {
         controller.setup(data);
         verify(imageOperations).displayLeaveBehind(eq(Uri.parse(data.getImageUrl())), any(ImageView.class), any(ImageListener.class));
+    }
+
+    @Test
+    public void setupOnLandscapeOrientationDoesNotDisplayLeaveBehind() {
+        when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_LANDSCAPE);
+        controller.setup(data);
+        verify(imageOperations, never()).displayLeaveBehind(any(Uri.class), any(ImageView.class), any(ImageListener.class));
     }
 
     @Test

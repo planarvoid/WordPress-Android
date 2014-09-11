@@ -17,7 +17,7 @@ public class DeviceHelper {
     private static final String UNKNOWN_DEVICE = "unknown device";
     private static final int UNKNOWN_VERSION_CODE = 0;
 
-    private Context context;
+    private final Context context;
 
     @Inject
     public DeviceHelper(Context context) {
@@ -86,5 +86,9 @@ public class DeviceHelper {
             }
         }
         return null;
+    }
+
+    public int getCurrentOrientation() {
+        return context.getResources().getConfiguration().orientation;
     }
 }

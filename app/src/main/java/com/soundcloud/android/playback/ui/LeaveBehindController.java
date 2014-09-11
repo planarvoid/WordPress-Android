@@ -4,9 +4,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.View;
@@ -21,6 +23,7 @@ public class LeaveBehindController implements View.OnClickListener{
     private final View trackView;
     private final ImageOperations imageOperations;
     private final Context context;
+    private final DeviceHelper deviceHelper;
 
     private @Nullable LeaveBehind data;
 
@@ -40,10 +43,11 @@ public class LeaveBehindController implements View.OnClickListener{
         }
     };
 
-    private LeaveBehindController(View trackView, ImageOperations imageOperations, Context context) {
+    private LeaveBehindController(View trackView, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
         this.imageOperations = imageOperations;
         this.context = context;
+        this.deviceHelper = deviceHelper;
     }
 
     @Override
@@ -69,14 +73,16 @@ public class LeaveBehindController implements View.OnClickListener{
     }
 
     void setup(LeaveBehind data) {
-        this.data = data;
-        leaveBehind = getLeaveBehind();
+        if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
+            this.data = data;
+            leaveBehind = getLeaveBehind();
 
-        adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
-        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
+            adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
+            imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
 
-        adImage.setOnClickListener(this);
-        leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
+            adImage.setOnClickListener(this);
+            leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
+        }
     }
 
     private void show() {
@@ -109,15 +115,17 @@ public class LeaveBehindController implements View.OnClickListener{
     static class Factory {
         private final ImageOperations imageOperations;
         private final Context context;
+        private final DeviceHelper deviceHelper;
 
         @Inject
-        Factory(ImageOperations imageOperations, Context context) {
+        Factory(ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
             this.imageOperations = imageOperations;
             this.context = context;
+            this.deviceHelper = deviceHelper;
         }
 
         LeaveBehindController create(View trackView) {
-            return new LeaveBehindController(trackView, imageOperations, context);
+            return new LeaveBehindController(trackView, imageOperations, context, deviceHelper);
         }
     }
 

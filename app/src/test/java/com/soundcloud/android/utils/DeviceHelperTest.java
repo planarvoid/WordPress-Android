@@ -25,14 +25,10 @@ public class DeviceHelperTest {
     public static final String PACKAGE_NAME = "package-name";
     private DeviceHelper deviceHelper;
 
-    @Mock
-    Context context;
-    @Mock
-    ContentResolver contentResolver;
-    @Mock
-    TelephonyManager telephonyManager;
-    @Mock
-    PackageManager packageManager;
+    @Mock Context context;
+    @Mock ContentResolver contentResolver;
+    @Mock TelephonyManager telephonyManager;
+    @Mock PackageManager packageManager;
 
     PackageInfo packageInfo;
 
