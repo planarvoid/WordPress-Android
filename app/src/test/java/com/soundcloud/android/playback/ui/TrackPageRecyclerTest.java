@@ -55,6 +55,13 @@ public class TrackPageRecyclerTest {
         trackPageRecycler.recyclePage(TRACK_URN, view);
         trackPageRecycler.recyclePage(TRACK_URN2, view2);
 
-        expect(trackPageRecycler.getPageByUrn(TRACK_URN2)).toBe(view2);
+        expect(trackPageRecycler.removePageByUrn(TRACK_URN2)).toBe(view2);
+    }
+
+    @Test
+    public void isPageForUrnReturnsPageByUrn() throws Exception {
+        trackPageRecycler.recyclePage(TRACK_URN, view);
+
+        expect(trackPageRecycler.isPageForUrn(view, TRACK_URN2)).toBeTrue();
     }
 }

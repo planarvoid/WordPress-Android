@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackUrn;
 
 import android.view.View;
@@ -18,11 +19,15 @@ class TrackPageRecycler {
         scrapViews = new LinkedList<>();
     }
 
+    public boolean isPageForUrn(View trackPage, Urn urn) {
+        return trackPage == viewMap.get(urn);
+    }
+
     boolean hasExistingPage(TrackUrn urn){
         return viewMap.containsKey(urn);
     }
 
-    View getPageByUrn(TrackUrn urn) {
+    View removePageByUrn(TrackUrn urn) {
         final View view = viewMap.get(urn);
         viewMap.remove(urn);
         return view;

@@ -175,7 +175,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         TrackUrn urn = playQueueManager.getUrnAtPosition(position);
 
         if (trackPageRecycler.hasExistingPage(urn)){
-            view = trackPageRecycler.getPageByUrn(urn);
+            view = trackPageRecycler.removePageByUrn(urn);
             trackByViews.put(view, new ViewPageData(position, urn));
             trackPagePresenter.onForeground(view);
         } else {
@@ -299,7 +299,8 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     private Boolean isTrackRelatedToView(View trackPage, Urn urn) {
-        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(urn);
+        return (trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(urn))
+                || trackPageRecycler.isPageForUrn(trackPage, urn);
     }
 
     private void updateProgress(PlayerPagePresenter presenter, View trackView, TrackUrn urn) {
