@@ -17,16 +17,35 @@ public class SafeViewPager extends ViewPager {
         super(context, attrs);
     }
 
+    /**
+     * Includes fix for ViewPager IllegalArgumentException during touch events.
+     * This is currently viewed as safe to swallow
+     * https://code.google.com/p/android/issues/detail?id=64553
+     */
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+    public boolean onTouchEvent(MotionEvent ev) {
         try {
-            return super.onInterceptTouchEvent(ev);
-        } catch (IllegalArgumentException e) {
-            // Swallow framework issue in ScaleGestureDetector
+            return super.onTouchEvent(ev);
+        } catch (IllegalArgumentException ignored) {
         }
         return false;
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        try {
+            return super.onInterceptTouchEvent(ev);
+        } catch (IllegalArgumentException ignored) {
+        }
+        return false;
+    }
+
+
+    /**
+     * Prevent ViewPager from swallowing HorizontalScrollView events
+     * http://stackoverflow.com/questions/6920137/android-viewpager-and-horizontalscrollview
+     */
+    @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
         return super.canScroll(v, checkV, dx, x, y) || (checkV && customCanScroll(v));
     }
