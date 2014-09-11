@@ -141,7 +141,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     void showLeaveBehind(View trackView, LeaveBehind leaveBehind) {
         final TrackPageHolder holder = getViewHolder(trackView);
-        holder.leaveBehindController.setData(leaveBehind);
+        holder.leaveBehindController.setup(leaveBehind);
     }
 
     public View clearItemView(View view) {

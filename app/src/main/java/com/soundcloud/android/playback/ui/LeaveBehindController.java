@@ -25,9 +25,7 @@ public class LeaveBehindController implements View.OnClickListener{
         public void onLoadingStarted(String imageUri, View view) {}
 
         @Override
-        public void onLoadingFailed(String imageUri, View view, String failedReason) {
-            dismiss();
-        }
+        public void onLoadingFailed(String imageUri, View view, String failedReason) {}
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
@@ -35,7 +33,7 @@ public class LeaveBehindController implements View.OnClickListener{
         }
     };
 
-    public LeaveBehindController(View trackView, ImageOperations imageOperations, Resources resources) {
+    private LeaveBehindController(View trackView, ImageOperations imageOperations, Resources resources) {
         this.trackView = trackView;
         this.imageOperations = imageOperations;
         this.resources = resources;
@@ -54,7 +52,7 @@ public class LeaveBehindController implements View.OnClickListener{
         }
     }
 
-    public void setData(LeaveBehind data) {
+    public void setup(LeaveBehind data) {
         final View leaveBehind = getLeaveBehind();
         leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
         leaveBehind.findViewById(R.id.leave_behind_image).setOnClickListener(this);
@@ -63,7 +61,7 @@ public class LeaveBehindController implements View.OnClickListener{
         imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), leaveBehindImage, imageListener, resources.getDrawable(R.drawable.placeholder));
     }
 
-    public void show() {
+    private void show() {
         final View leaveBehind = trackView.findViewById(R.id.leave_behind);
         leaveBehind.setVisibility(View.VISIBLE);
     }
@@ -78,7 +76,6 @@ public class LeaveBehindController implements View.OnClickListener{
         if (leaveBehind == null) {
             ViewStub stub = (ViewStub) trackView.findViewById(R.id.leave_behind_stub);
             leaveBehind = stub.inflate();
-            leaveBehind.setVisibility(View.GONE);
         }
         return leaveBehind;
     }

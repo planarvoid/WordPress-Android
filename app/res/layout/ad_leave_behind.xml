@@ -4,7 +4,8 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:paddingLeft="@dimen/leave_behind_padding"
-              android:paddingRight="@dimen/leave_behind_padding">
+              android:paddingRight="@dimen/leave_behind_padding"
+              android:visibility="gone">
 
     <FrameLayout
         android:id="@+id/leave_behind_close"
