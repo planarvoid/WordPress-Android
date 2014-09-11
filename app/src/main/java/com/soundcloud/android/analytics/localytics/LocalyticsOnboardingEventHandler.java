@@ -1,11 +1,16 @@
 package com.soundcloud.android.analytics.localytics;
 
+import static com.soundcloud.android.analytics.localytics.LocalyticsEvents.Onboarding;
+
+import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.utils.Log;
 
 import java.util.Map;
 
 public class LocalyticsOnboardingEventHandler {
+    private static final String TAG = "LocalyticsOnboardingEventHandler";
     private LocalyticsSession localyticsSession;
 
     LocalyticsOnboardingEventHandler(LocalyticsSession localyticsSession) {
@@ -16,31 +21,49 @@ public class LocalyticsOnboardingEventHandler {
         handleEvent(sourceEvent.getKind(), sourceEvent.getAttributes());
     }
 
-    private void handleEvent(int sourceEventType, Map<String, String> eventAttributes) {
+    private void handleEvent(int sourceEventType, Map<String, String> attributes) {
         switch (sourceEventType) {
             case OnboardingEvent.AUTH_PROMPT:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.AUTH_PROMPT, eventAttributes);
+                sendEvent(Onboarding.AUTH_PROMPT, attributes);
                 break;
             case OnboardingEvent.AUTH_CREDENTIALS:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.AUTH_CREDENTIALS, eventAttributes);
+                sendEvent(Onboarding.AUTH_CREDENTIALS, attributes);
                 break;
             case OnboardingEvent.CONFIRM_TERMS:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.CONFIRM_TERMS, eventAttributes);
+                sendEvent(Onboarding.CONFIRM_TERMS, attributes);
                 break;
             case OnboardingEvent.AUTH_COMPLETE:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.AUTH_COMPLETE, eventAttributes);
+                sendEvent(Onboarding.AUTH_COMPLETE, attributes);
                 break;
             case OnboardingEvent.USER_INFO:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.USER_INFO, eventAttributes);
+                sendEvent(Onboarding.USER_INFO, attributes);
                 break;
             case OnboardingEvent.ONBOARDING_COMPLETE:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.ONBOARDING_COMPLETE, eventAttributes);
+                sendEvent(Onboarding.ONBOARDING_COMPLETE, attributes);
                 break;
             case OnboardingEvent.EMAIL_MARKETING:
-                localyticsSession.tagEvent(LocalyticsEvents.Onboarding.EMAIL_MARKETING, eventAttributes);
+                sendEvent(Onboarding.EMAIL_MARKETING, attributes);
+                break;
+            case OnboardingEvent.SIGNUP_ERROR:
+                sendEvent(Onboarding.SIGNUP_ERROR, attributes);
                 break;
             default:
                 throw new IllegalArgumentException("Onboarding Event type is invalid");
+        }
+    }
+
+    private void sendEvent(String event, Map<String, String> attributes) {
+        logAttributes(event, attributes);
+        localyticsSession.tagEvent(event, attributes);
+    }
+
+    private void logAttributes(String tagName, Map<String, String> eventAttributes) {
+        if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
+            final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(tagName + " with EventAttributes");
+            for (String key : eventAttributes.keySet()) {
+                toStringHelper.add(key, eventAttributes.get(key));
+            }
+            Log.d(TAG, toStringHelper.toString());
         }
     }
 }

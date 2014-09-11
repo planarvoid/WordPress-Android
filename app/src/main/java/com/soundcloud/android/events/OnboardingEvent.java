@@ -15,6 +15,7 @@ public final class OnboardingEvent {
     public static final int USER_INFO = 4;
     public static final int ONBOARDING_COMPLETE = 5;
     public static final int EMAIL_MARKETING = 6;
+    public static final int SIGNUP_ERROR = 7;
 
     private final int kind;
     private final Map<String, String> attributes;
@@ -82,6 +83,26 @@ public final class OnboardingEvent {
 
     public static OnboardingEvent dismissEmailOptIn() {
         return new OnboardingEvent(EMAIL_MARKETING).put("opt_in", "dismiss");
+    }
+
+    public static OnboardingEvent signupServeCaptcha() {
+        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "serve_captcha");
+    }
+
+    public static OnboardingEvent signupDenied() {
+        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "denied_signup");
+    }
+
+    public static OnboardingEvent signupExistingEmail() {
+        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "existing_email");
+    }
+
+    public static OnboardingEvent signupInvalidEmail() {
+        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "invalid_email");
+    }
+
+    public static OnboardingEvent signupGeneralError() {
+        return new OnboardingEvent(SIGNUP_ERROR).put("error_type", "general_error");
     }
 
     public int getKind() {

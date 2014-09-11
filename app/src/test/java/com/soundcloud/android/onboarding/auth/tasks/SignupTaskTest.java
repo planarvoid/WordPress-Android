@@ -16,8 +16,7 @@ import org.mockito.Mock;
 
 import android.os.Bundle;
 
-import java.util.Arrays;
-
+import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class SignupTaskTest {
@@ -34,90 +33,151 @@ public class SignupTaskTest {
 
     @Test
     public void shouldReturnUser() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(201, TestHelper.resourceAsString(getClass(), "me.json"));
+        setupPendingHttpResponse(201, TestHelper.resourceAsString(getClass(), "me.json"));
 
-        AuthTaskResult result = signupTask.doSignup(DefaultTestRunner.application, getParamsBundle());
+        AuthTaskResult result = doSignup();
 
         expect(result.getUser()).not.toBeNull();
         expect(result.getUser().username).toEqual("testing");
     }
 
-    private Bundle getParamsBundle() {
-        Bundle b = new Bundle();
-        b.putString(SignupTask.KEY_USERNAME, "username");
-        b.putString(SignupTask.KEY_PASSWORD,"password");
-        return b;
+    @Test
+    public void shouldProcessLegacyErrorArrayOfNewResponseBodyDuringSignup() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 101, \"errors\": [{ \"error_message\":\"Email has already been taken\"},{\"error_message\":\"Address has already been taken\"}] }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasEmailTaken()).toBeTrue();
     }
 
     @Test
-    public void shouldProcessErrorsDuringSignup() throws Exception {
+    public void shouldProcessLegacyErrorObjectOfNewResponseBodyDuringSignup() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 101, \"errors\": {\"error\": \"Email is taken\"}  }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasEmailTaken()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnEmailTakenAuthTaskResultOnSignupEmailTakenError() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 101 }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasEmailTaken()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnEmailTakenAuthTaskResultOnSignupEmailTakenErrorWithLegacyErrors() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 101, \"errors\": [{ \"error_message\": \"Email has already been taken.\" }] }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasEmailTaken()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedError() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 102 }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasDenied()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedErrorWithLegacyErrors() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 102, \"errors\": [{ \"error_message\": \"Email domain is blacklisted.\" }] }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasDenied()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredError() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": \"103\" }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasSpam()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredErrorWithLegacyErrors() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 103, \"errors\": [{ \"error_message\": \"Spam detected, login on web page with captcha.\" }] }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasSpam()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidError() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 104 }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasEmailInvalid()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidErrorWithLegacyErrors() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 104, \"errors\": [{ \"error_message\": \"Email is invalid.\" }] }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasEmailInvalid()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherError() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 105 }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
+        expect(result.getErrors()[0]).toEqual(Robolectric.application.getString(R.string.authentication_email_other_error_message));
+    }
+
+    @Test
+    public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherErrorWithLegacyErrors() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": 105, \"errors\": [{ \"error_message\": \"Sorry we couldn't sign you up with the details you provided.\" }] }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
+        expect(result.getErrors()[0]).toEqual(Robolectric.application.getString(R.string.authentication_email_other_error_message));
+    }
+
+    @Test
+    public void shouldReturnFailureAuthTaskResultOnUnrecognizedErrorCode() throws Exception {
+        setupPendingHttpResponse(422, "{ \"error\": \"180\" }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFailureAuthTaskResultOnSignupWithUnreconizedError() throws Exception {
+        setupPendingHttpResponse(422, "{ \"unrecognized\": \"error\" }");
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnDeniedAuthTaskResultOnSignupForbidden() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken\"]}}");
-        signUpAndExpectErrorsInResponseBody(new String[]{"Email has already been taken", "Email is already taken"});
-    }
-
-    @Test
-    public void shouldProcessMultipleErrorsOfNewResponseBodyDuringSignup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "{ \"error\": 101, \"email\": \"taken\", \"errors\": [{ \"error_message\":\"Email has already been taken\"},{\"error_message\":\"Address has already been taken\"}] }");
-        signUpAndExpectErrorsInResponseBody(new String[]{"Email has already been taken", "Address has already been taken"});
-    }
-
-    @Test
-    public void shouldProcessErrorsOfNewResponseBodyForExistingEmailDuringSignup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "{ \"error\": 101, \"email\": \"taken\", \"errors\": [{ \"error_message\": \"Email has already been taken.\" }] }");
-        signUpAndExpectErrorsInResponseBody(new String[]{"Email has already been taken."});
-    }
-
-    @Test
-    public void shouldProcessErrorsOfNewResponseBodyForDomainBlacklistedDuringSignup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "{ \"error\": 102, \"email\": \"domain_blacklisted\", \"errors\": [{ \"error_message\": \"Email domain is blacklisted.\" }] }");
-        signUpAndExpectErrorsInResponseBody(new String[]{"Email domain is blacklisted."});
-    }
-
-    @Test
-    public void shouldProcessErrorsOfNewResponseBodyForCaptchaChallengeDuringSignup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "{ \"error\": 103, \"captcha_challenge_response\": \"required\", \"errors\": [{ \"error_message\": \"Spam detected, login on web page with captcha.\" }] }");
-        signUpAndExpectErrorsInResponseBody(new String[]{"Spam detected, login on web page with captcha."});
-    }
-
-    @Test
-    public void shouldProcessErrorsOfNewResponseBodyInvalidEmailDuringSignup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "{ \"error\": 104, \"email\": \"is invalid\", \"errors\": [{ \"error_message\": \"Email is invalid.\" }] }");
-        signUpAndExpectErrorsInResponseBody(new String[]{"Email is invalid."});
-    }
-
-    @Test
-    public void shouldProcessBadErrorResponse() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
-        Robolectric.addPendingHttpResponse(422, "ada");
-        signUpAndExpectErrorsInResponseBody(new String[]{});
-    }
-
-    @Test
-    public void shouldHandleRevokedSignupScope() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "signup_token_blank_scope.json");
-        signUpAndExpectErrorsInResponseBody(new String[]{DefaultTestRunner.application.getString(R.string.signup_scope_revoked)});
-    }
-
-    @Test
-    public void shouldHandleErrorCodeFromTokenController() throws Exception {
-        // we get a token which has signup scope, but still returns forbidden on token request
-        TestHelper.addPendingHttpResponse(getClass(), ("signup_token.json"));
         Robolectric.addPendingHttpResponse(403, "",
-            new BasicHeader("WWW-Authenticate", "OAuth realm=\"SoundCloud\", error=\"insufficient_scope\""));
-        signUpAndExpectErrorsInResponseBody(new String[]{DefaultTestRunner.application.getString(R.string.signup_scope_revoked)});
+                new BasicHeader("WWW-Authenticate", "OAuth realm=\"SoundCloud\", error=\"insufficient_scope\""));
+        AuthTaskResult result = doSignup();
+        expect(result.wasDenied()).toBeTrue();
     }
 
-    private void signUpAndExpectErrorsInResponseBody(String[] expectedErrors) {
-        AuthTaskResult result = signupTask.doSignup(DefaultTestRunner.application, getParamsBundle());
-        expect(result.wasSuccess()).toBeFalse();
-        String[] errors = result.getErrors();
-        expect(Arrays.equals(errors, expectedErrors)).toBeTrue();
+    @Test
+    public void shouldReturnFailureAuthTaskResultOnSignupServerError() throws Exception {
+        setupPendingHttpResponse(500, "");
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
     }
+
+    @Test
+    public void shouldReturnFailureAuthTaskResultOnSignupUnexpectedResponseStatus() throws Exception {
+        setupPendingHttpResponse(102, "");
+        AuthTaskResult result = doSignup();
+        expect(result.wasFailure()).toBeTrue();
+    }
+
+    private AuthTaskResult doSignup() {
+        return signupTask.doSignup(DefaultTestRunner.application, getParamsBundle());
+    }
+
+    private Bundle getParamsBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString(SignupTask.KEY_USERNAME, "username");
+        bundle.putString(SignupTask.KEY_PASSWORD, "password");
+        return bundle;
+    }
+
+    private void setupPendingHttpResponse(int statusCode, String responseBody) throws IOException {
+        TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
+        Robolectric.addPendingHttpResponse(statusCode, responseBody);
+    }
+
 }

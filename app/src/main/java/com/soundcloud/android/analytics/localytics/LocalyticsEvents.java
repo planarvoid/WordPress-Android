@@ -30,6 +30,7 @@ final class LocalyticsEvents {
         static final String USER_INFO = "User info";
         static final String ONBOARDING_COMPLETE = "Onboarding complete";
         static final String EMAIL_MARKETING = "Email marketing";
+        static final String SIGNUP_ERROR = "Signup Error";
     }
 
     static final class Search {

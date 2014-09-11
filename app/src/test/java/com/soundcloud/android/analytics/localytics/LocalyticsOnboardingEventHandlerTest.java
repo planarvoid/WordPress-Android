@@ -15,63 +15,70 @@ import java.io.File;
 @RunWith(SoundCloudTestRunner.class)
 public class LocalyticsOnboardingEventHandlerTest {
 
-    private LocalyticsOnboardingEventHandler LocalyticsOnboardingEventHandler;
+    private LocalyticsOnboardingEventHandler handler;
 
     @Mock
     private LocalyticsSession localyticsSession;
 
     @Before
-    public void setUp() throws Exception {
-        LocalyticsOnboardingEventHandler = new LocalyticsOnboardingEventHandler(localyticsSession);
+    public void setUp() {
+        handler = new LocalyticsOnboardingEventHandler(localyticsSession);
     }
 
     @Test
-    public void shouldHandleLoginPromptEvent() throws Exception {
+    public void shouldHandleLoginPromptEvent() {
         OnboardingEvent event = OnboardingEvent.logInPrompt();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Auth prompt", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleAuthCredentialsEvent() throws Exception {
+    public void shouldHandleAuthCredentialsEvent() {
         OnboardingEvent event = OnboardingEvent.nativeAuthEvent();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Auth credentials", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleConfirmTermsEvent() throws Exception {
+    public void shouldHandleConfirmTermsEvent() {
         OnboardingEvent event = OnboardingEvent.termsAccepted();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Confirm terms", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleAuthCompleteEvent() throws Exception {
+    public void shouldHandleAuthCompleteEvent() {
         OnboardingEvent event = OnboardingEvent.authComplete();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Auth complete", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleUserInfoEvent() throws Exception {
+    public void shouldHandleUserInfoEvent() {
         OnboardingEvent event = OnboardingEvent.savedUserInfo("Skrillex", new File("asdf"));
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("User info", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleOnboardingCompleteEvent() throws Exception {
+    public void shouldHandleOnboardingCompleteEvent() {
         OnboardingEvent event = OnboardingEvent.onboardingComplete();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Onboarding complete", event.getAttributes());
     }
 
     @Test
-    public void shouldHandleEmailMarketingEvent() throws Exception {
+    public void shouldHandleEmailMarketingEvent() {
         OnboardingEvent event = OnboardingEvent.acceptEmailOptIn();
-        LocalyticsOnboardingEventHandler.handleEvent(event);
+        handler.handleEvent(event);
         verify(localyticsSession).tagEvent("Email marketing", event.getAttributes());
+    }
+
+    @Test
+    public void shouldHandleSignupErrorEvent() {
+        OnboardingEvent event = OnboardingEvent.signupServeCaptcha();
+        handler.handleEvent(event);
+        verify(localyticsSession).tagEvent("Signup Error", event.getAttributes());
     }
 
 }

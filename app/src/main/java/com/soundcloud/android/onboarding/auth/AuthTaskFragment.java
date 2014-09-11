@@ -32,14 +32,17 @@ public abstract class AuthTaskFragment extends DialogFragment {
     public interface OnAuthResultListener {
         void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
         void onError(String message);
+        void onEmailTaken();
+        void onSpam();
+        void onBlocked();
+        void onEmailInvalid();
     }
 
     @NotNull
-    abstract AuthTask   createAuthTask();
+    abstract AuthTask createAuthTask();
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setCancelable(false);
@@ -53,10 +56,11 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @TargetApi(11)
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         ProgressDialog dialog;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             dialog = new ProgressDialog(getActivity(), AlertDialog.THEME_HOLO_DARK);
-        else
+        } else {
             dialog = new ProgressDialog(getActivity());
+        }
 
         dialog.setMessage(getString(R.string.authentication_login_progress_message));
         dialog.setIndeterminate(true);
@@ -76,49 +80,54 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     @Override
-    public void onDestroyView()
-    {
+    public void onDestroyView() {
         final Dialog dialog = getDialog();
 
         // Work around bug: http://code.google.com/p/android/issues/detail?id=17423
-        if ((dialog != null) && getRetainInstance()) dialog.setDismissMessage(null);
+        if ((dialog != null) && getRetainInstance()) {
+            dialog.setDismissMessage(null);
+        }
 
         super.onDestroyView();
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog)
-    {
+    public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        if (task != null) task.cancel(false);
+        if (task != null) {
+            task.cancel(false);
+        }
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         // Dismiss if the task finished while we were away
-        if (task == null) deliverResultAndDismiss();
+        if (task == null) {
+            deliverResultAndDismiss();
+        }
     }
 
     public void onTaskResult(AuthTaskResult result) {
         task = null;
         this.result = result;
         // Don't try to dismiss if we aren't in the foreground
-        if (isResumed()) deliverResultAndDismiss();
+        if (isResumed()) {
+            deliverResultAndDismiss();
+        }
     }
 
-    protected String getErrorFromResult(Activity activity, AuthTaskResult result){
+    protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Exception exception = result.getException();
         if (exception instanceof CloudAPI.ApiResponseException) {
             // server error, tell them to try again later
             return activity.getString(R.string.error_server_problems_message);
-        } else if (exception instanceof AuthTaskException){
+        } else if (exception instanceof AuthTaskException) {
             // custom exception, message provided by the individual task
             return ((AuthTaskException) exception).getFirstError();
         } else {
             // as a fallback, just say connection problem
-            if(exception != null){
+            if (exception != null) {
                 Log.d(TAG, "Received unexpected error/exception : " + exception.toString());
                 exception.printStackTrace();
             }
@@ -126,12 +135,20 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
     }
 
-    private void deliverResultAndDismiss(){
+    private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
-        if (listener != null){
-            if (result.wasSuccess()){
+        if (listener != null) {
+            if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
                         this instanceof SignupTaskFragment);
+            } else if (result.wasEmailTaken()) {
+                listener.onEmailTaken();
+            } else if (result.wasSpam()) {
+                listener.onSpam();
+            } else if (result.wasDenied()) {
+                listener.onBlocked();
+            } else if (result.wasEmailInvalid()) {
+                listener.onEmailInvalid();
             } else {
                 listener.onError(getErrorFromResult((Activity) listener, result));
             }

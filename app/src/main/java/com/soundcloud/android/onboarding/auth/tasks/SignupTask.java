@@ -1,9 +1,11 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
@@ -14,7 +16,6 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -27,14 +28,15 @@ public class SignupTask extends AuthTask {
     private static final String TAG = SignupTask.class.getSimpleName();
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
-    private TokenInformationGenerator tokenInformationGenerator;
-    private PublicCloudAPI oldCloudAPI;
 
-    protected SignupTask(SoundCloudApplication app, TokenInformationGenerator tokenInformationGenerator,
-                         UserStorage userStorage, PublicCloudAPI oldCloudAPI) {
-        super(app, userStorage);
+    private TokenInformationGenerator tokenInformationGenerator;
+    private PublicCloudAPI publicApi;
+
+    protected SignupTask(SoundCloudApplication application, TokenInformationGenerator tokenInformationGenerator,
+                         UserStorage userStorage, PublicCloudAPI publicApi) {
+        super(application, userStorage);
         this.tokenInformationGenerator = tokenInformationGenerator;
-        this.oldCloudAPI = oldCloudAPI;
+        this.publicApi = publicApi;
     }
 
     public SignupTask(SoundCloudApplication soundCloudApplication){
@@ -49,7 +51,7 @@ public class SignupTask extends AuthTask {
         AuthTaskResult result = doSignup(app, params[0]);
         if (result.wasSuccess()){
             // do token exchange
-            Token token;
+            final Token token;
             try {
                 token = tokenInformationGenerator.getToken(params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
@@ -62,50 +64,74 @@ public class SignupTask extends AuthTask {
         return result;
     }
 
-    protected AuthTaskResult doSignup(SoundCloudApplication app, Bundle params){
+    @VisibleForTesting
+    AuthTaskResult doSignup(SoundCloudApplication application, Bundle parameters){
         try {
             // explicitly request signup scope
-            final Token signup = oldCloudAPI.clientCredentials(Token.SCOPE_SIGNUP);
+            final Token signupToken = publicApi.clientCredentials(Token.SCOPE_SIGNUP);
+            Log.d(TAG, signupToken.toString());
 
-            Log.d(TAG, signup.toString());
+            final HttpResponse response = postSignupRequest(parameters, signupToken);
 
-            HttpResponse resp = oldCloudAPI.post(Request.to(Endpoints.USERS).with(
-                    Params.User.EMAIL, params.getString(KEY_USERNAME),
-                    Params.User.PASSWORD, params.getString(KEY_PASSWORD),
-                    Params.User.PASSWORD_CONFIRMATION, params.getString(KEY_PASSWORD),
-                    Params.User.TERMS_OF_USE, "1"
-            ).usingToken(signup));
-
-            int statusCode = resp.getStatusLine().getStatusCode();
-
+            int statusCode = response.getStatusLine().getStatusCode();
             switch (statusCode) {
                 case HttpStatus.SC_CREATED: // success case
-                    final PublicApiUser user = oldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), PublicApiUser.class);
-                    return AuthTaskResult.success(user,SignupVia.API);
-
+                    return handleSuccess(response);
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:
-                    return AuthTaskResult.failure(extractErrors(resp));
-
+                    return handleUnprocessableEntity(application, response);
                 case HttpStatus.SC_FORBIDDEN:
-                    // most likely did not have valid signup scope at this point, but make sure before
-                    Header wwwAuth = resp.getFirstHeader("WWW-Authenticate");
-                    if (wwwAuth != null && wwwAuth.getValue().contains("insufficient_scope")) {
-                        return AuthTaskResult.failure(app.getString(R.string.signup_scope_revoked));
-                    } else {
-                        return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
-                    }
-
+                    return AuthTaskResult.denied();
                 default:
-                    if (statusCode >= 500) {
-                        return AuthTaskResult.failure(app.getString(R.string.error_server_problems_message));
-                    } else {
-                        return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
-                    }
+                    return handleServerErrorsAndUnexpectedStatus(application, statusCode);
             }
-        } catch (CloudAPI.InvalidTokenException e){
-            return AuthTaskResult.failure(app.getString(R.string.signup_scope_revoked));
+        } catch (CloudAPI.InvalidTokenException e) {
+            return AuthTaskResult.failure(application.getString(R.string.signup_scope_revoked));
+        } catch (JsonProcessingException e) {
+            // Some types of responses still do not adhere to the new response body structure, like invalid email
+            // responses from mothership. Until then, this generic error will be shown
+            return AuthTaskResult.failure(application.getString(R.string.authentication_signup_error_message));
         } catch (IOException e) {
             return AuthTaskResult.failure(e);
+        }
+    }
+
+    private HttpResponse postSignupRequest(Bundle parameters, Token signupToken) throws IOException {
+        return publicApi.post(Request.to(Endpoints.USERS).with(
+                Params.User.EMAIL, parameters.getString(KEY_USERNAME),
+                Params.User.PASSWORD, parameters.getString(KEY_PASSWORD),
+                Params.User.PASSWORD_CONFIRMATION, parameters.getString(KEY_PASSWORD),
+                Params.User.TERMS_OF_USE, "1"
+        ).usingToken(signupToken));
+    }
+
+    private AuthTaskResult handleSuccess(HttpResponse response) throws IOException {
+        final PublicApiUser user = publicApi.getMapper().readValue(response.getEntity().getContent(), PublicApiUser.class);
+        return AuthTaskResult.success(user, SignupVia.API);
+    }
+
+    private AuthTaskResult handleUnprocessableEntity(SoundCloudApplication application, HttpResponse response) throws IOException {
+        final SignupResponseBody signupResponseBody = publicApi.getMapper().readValue(response.getEntity().getContent(), SignupResponseBody.class);
+        switch (signupResponseBody.getError()) {
+            case SignupResponseBody.ERROR_EMAIL_TAKEN:
+                return AuthTaskResult.emailTaken();
+            case SignupResponseBody.ERROR_DOMAIN_BLACKLISTED:
+                return AuthTaskResult.denied();
+            case SignupResponseBody.ERROR_CAPTCHA_REQUIRED:
+                return AuthTaskResult.spam();
+            case SignupResponseBody.ERROR_EMAIL_INVALID:
+                return AuthTaskResult.emailInvalid();
+            case SignupResponseBody.ERROR_OTHER:
+                return AuthTaskResult.failure(application.getString(R.string.authentication_email_other_error_message));
+            default:
+                return AuthTaskResult.failure(application.getString(R.string.authentication_signup_error_message));
+        }
+    }
+
+    private AuthTaskResult handleServerErrorsAndUnexpectedStatus(SoundCloudApplication application, int statusCode) {
+        if (statusCode >= 500) {
+            return AuthTaskResult.failure(application.getString(R.string.error_server_problems_message));
+        } else {
+            return AuthTaskResult.failure(application.getString(R.string.authentication_signup_error_message));
         }
     }
 }

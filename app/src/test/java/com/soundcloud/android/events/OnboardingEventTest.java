@@ -119,4 +119,39 @@ public class OnboardingEventTest {
         expect(onboardingEvent.getAttributes().get("opt_in")).toEqual("dismiss");
     }
 
+    @Test
+    public void shouldCreateSignupServeCaptchaEvent() {
+        onboardingEvent = OnboardingEvent.signupServeCaptcha();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SIGNUP_ERROR);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("serve_captcha");
+    }
+
+    @Test
+    public void shouldCreateSignupDeniedEvent() {
+        onboardingEvent = OnboardingEvent.signupDenied();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SIGNUP_ERROR);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("denied_signup");
+    }
+
+    @Test
+    public void shouldCreateSignupExistingEmailEvent() {
+        onboardingEvent = OnboardingEvent.signupExistingEmail();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SIGNUP_ERROR);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("existing_email");
+    }
+
+    @Test
+    public void shouldCreateSignupInvalidEmailEvent() {
+        onboardingEvent = OnboardingEvent.signupInvalidEmail();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SIGNUP_ERROR);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("invalid_email");
+    }
+
+    @Test
+    public void shouldCreateSignupGeneralErrorEvent() {
+        onboardingEvent = OnboardingEvent.signupGeneralError();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.SIGNUP_ERROR);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("general_error");
+    }
+
 }
