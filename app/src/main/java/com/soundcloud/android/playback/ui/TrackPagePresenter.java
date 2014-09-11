@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -138,9 +139,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         setClickListener(this, holder.onClickViews);
     }
 
-    void displayLeaveBehind(View trackView) {
+    void showLeaveBehind(View trackView, LeaveBehind leaveBehind) {
         final TrackPageHolder holder = getViewHolder(trackView);
-        holder.leaveBehindController.set();
+        holder.leaveBehindController.setData(leaveBehind);
     }
 
     public View clearItemView(View view) {

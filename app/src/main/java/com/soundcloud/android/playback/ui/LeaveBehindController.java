@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 
@@ -15,20 +16,17 @@ import javax.inject.Inject;
 
 public class LeaveBehindController implements View.OnClickListener{
 
-    private static final Uri TEST_LEAVE_BEHIND = Uri.parse("https://cloud.githubusercontent.com/assets/283794/4220512/91526122-3901-11e4-8092-20db3b1ff853.jpg");
-
     private final View trackView;
     private final ImageOperations imageOperations;
     private final Resources resources;
 
     private final ImageListener imageListener = new ImageListener() {
         @Override
-        public void onLoadingStarted(String imageUri, View view) {
-        }
+        public void onLoadingStarted(String imageUri, View view) {}
 
         @Override
         public void onLoadingFailed(String imageUri, View view, String failedReason) {
-            hide();
+            dismiss();
         }
 
         @Override
@@ -47,7 +45,7 @@ public class LeaveBehindController implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.leave_behind_close:
-                hide();
+                dismiss();
                 break;
             case R.id.leave_behind_image:
                 break;
@@ -56,13 +54,13 @@ public class LeaveBehindController implements View.OnClickListener{
         }
     }
 
-    public void set() {
+    public void setData(LeaveBehind data) {
         final View leaveBehind = getLeaveBehind();
         leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
         leaveBehind.findViewById(R.id.leave_behind_image).setOnClickListener(this);
 
         ImageView leaveBehindImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
-        imageOperations.displayLeaveBehind(TEST_LEAVE_BEHIND, leaveBehindImage, imageListener, resources.getDrawable(R.drawable.placeholder));
+        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), leaveBehindImage, imageListener, resources.getDrawable(R.drawable.placeholder));
     }
 
     public void show() {
@@ -70,7 +68,7 @@ public class LeaveBehindController implements View.OnClickListener{
         leaveBehind.setVisibility(View.VISIBLE);
     }
 
-    public void hide() {
+    public void dismiss() {
         final View leaveBehind = trackView.findViewById(R.id.leave_behind);
         leaveBehind.setVisibility(View.GONE);
     }

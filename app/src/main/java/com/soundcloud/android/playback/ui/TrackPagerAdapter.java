@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -323,7 +324,9 @@ public class TrackPagerAdapter extends PagerAdapter {
 
                 // TODO: Temporary for developing leave behind
                 if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && trackPagePresenter.accept(trackPage)) {
-                    trackPagePresenter.displayLeaveBehind(trackPage);
+                    LeaveBehind data = new LeaveBehind("https://cloud.githubusercontent.com/assets/283794/4230685/ab66ec14-3987-11e4-9f94-d85a84daa8fa.jpg",
+                            "http://www.meridianpeakhypnosis.com/wp-content/uploads/2014/02/money-addiction.jpg");
+                    trackPagePresenter.showLeaveBehind(trackPage, data);
                 }
             }
         }
