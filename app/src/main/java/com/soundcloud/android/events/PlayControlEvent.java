@@ -49,7 +49,7 @@ public final class PlayControlEvent {
 
     public static PlayControlEvent skipAd() {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, "skip_ad")
+                .putAttribute(ATTRIBUTE_ACTION, "skip_ad_button")
                 .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
                 .putAttribute(ATTRIBUTE_LOCATION, SOURCE_FULL_PLAYER);
     }
