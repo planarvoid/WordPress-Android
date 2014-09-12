@@ -4,10 +4,10 @@ import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
-class TrackPageData {
+final class TrackPageData {
     private final int positionInPlayQueue;
     private final TrackUrn trackUrn;
-    private PropertySet audioAd;
+    private final PropertySet audioAd;
 
     static TrackPageData forTrack(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
         return new TrackPageData(positionInPlayQueue, trackUrn, null);
