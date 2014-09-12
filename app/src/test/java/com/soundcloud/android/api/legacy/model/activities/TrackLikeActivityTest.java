@@ -6,7 +6,7 @@ import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -20,8 +20,8 @@ public class TrackLikeActivityTest {
     @Test
     public void shouldConvertToPropertySet() throws CreateModelException {
         TrackLikeActivity activity = new TrackLikeActivity();
-        activity.track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
-        activity.user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        activity.track = ModelFixtures.create(PublicApiTrack.class);
+        activity.user = ModelFixtures.create(PublicApiUser.class);
         activity.createdAt = new Date();
 
         final PropertySet propertySet = activity.toPropertySet();

@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -22,37 +21,17 @@ import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
-import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiTrackBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiUserBlueprint;
-import com.soundcloud.android.testsupport.blueprints.AudioAdBlueprint;
-import com.soundcloud.android.testsupport.blueprints.CategoryBlueprint;
-import com.soundcloud.android.testsupport.blueprints.CommentBlueprint;
-import com.soundcloud.android.testsupport.blueprints.DisplayPropertiesBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PlaybackSessionEventBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiPlaylistBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiTrackBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiUserBlueprint;
-import com.soundcloud.android.testsupport.blueprints.RecordingBlueprint;
-import com.soundcloud.android.testsupport.blueprints.SuggestedUserBlueprint;
-import com.soundcloud.android.testsupport.blueprints.TrackStatsBlueprint;
-import com.soundcloud.android.testsupport.blueprints.UserUrnBlueprint;
-import com.soundcloud.android.testsupport.blueprints.VisualAdBlueprint;
-import com.soundcloud.android.experiments.AssignmentBlueprint;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.suggestions.Category;
 import com.soundcloud.android.onboarding.suggestions.CategoryGroup;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.tobedevoured.modelcitizen.ModelFactory;
-import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
@@ -82,12 +61,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public class TestHelper {
     private TestHelper() {
     }
@@ -98,33 +77,6 @@ public class TestHelper {
 
     public static ObjectMapper getObjectMapper() {
         return PublicApiWrapper.buildObjectMapper();
-    }
-
-    public static ModelFactory getModelFactory() {
-        ModelFactory modelFactory = new ModelFactory();
-        try {
-            modelFactory.registerBlueprint(PublicApiUserBlueprint.class);
-            modelFactory.registerBlueprint(UserUrnBlueprint.class);
-            modelFactory.registerBlueprint(ApiUserBlueprint.class);
-            modelFactory.registerBlueprint(PublicApiTrackBlueprint.class);
-            modelFactory.registerBlueprint(RecordingBlueprint.class);
-            modelFactory.registerBlueprint(CategoryBlueprint.class);
-            modelFactory.registerBlueprint(SuggestedUserBlueprint.class);
-            modelFactory.registerBlueprint(ApiTrackBlueprint.class);
-            modelFactory.registerBlueprint(ApiPlaylistBlueprint.class);
-            modelFactory.registerBlueprint(TrackStatsBlueprint.class);
-            modelFactory.registerBlueprint(PublicApiPlaylistBlueprint.class);
-            modelFactory.registerBlueprint(PlaybackSessionEventBlueprint.class);
-            modelFactory.registerBlueprint(AssignmentBlueprint.class);
-            modelFactory.registerBlueprint(CommentBlueprint.class);
-            modelFactory.registerBlueprint(AffiliationActivityBlueprint.class);
-            modelFactory.registerBlueprint(AudioAdBlueprint.class);
-            modelFactory.registerBlueprint(VisualAdBlueprint.class);
-            modelFactory.registerBlueprint(DisplayPropertiesBlueprint.class);
-        } catch (RegisterBlueprintException e) {
-            throw new RuntimeException(e);
-        }
-        return modelFactory;
     }
 
     public static Activities getActivities(String path) throws IOException {
@@ -141,12 +93,6 @@ public class TestHelper {
     public static <T extends PublicApiResource> List<T> readResourceList(String path) throws IOException {
         return getObjectMapper().readValue(TestHelper.class.getResourceAsStream(path),
                 PublicApiResource.ResourceHolder.class).collection;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends PublicApiResource> T readResource(String path) throws IOException {
-        InputStream is = TestHelper.class.getResourceAsStream(path);
-        return (T) getObjectMapper().readValue(is, PublicApiResource.class);
     }
 
     public static <T> T readJson(Class<T> modelClass, Class<?> lookupClass, String file) throws IOException {
@@ -207,12 +153,6 @@ public class TestHelper {
             _uris.add(u.uri);
         }
         expect(_uris).toContain(uris);
-    }
-
-    public static void simulateOffline() {
-        ConnectivityManager cm = (ConnectivityManager)
-                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
-        shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(false);
     }
 
     public static void connectedViaWifi(boolean enabled) {
@@ -360,7 +300,7 @@ public class TestHelper {
     public static CategoryGroup buildCategoryGroup(String key, int categoryCount) throws CreateModelException {
         CategoryGroup categoryGroup = new CategoryGroup();
         categoryGroup.setKey(key);
-        categoryGroup.setCategories(createCategories(categoryCount));
+        categoryGroup.setCategories(ModelFixtures.create(Category.class, categoryCount));
         return categoryGroup;
     }
 
@@ -445,12 +385,6 @@ public class TestHelper {
         return loadLocalContent(content.uri, UserAssociation.class, where);
     }
 
-    public static PublicApiPlaylist loadPlaylist(long playlistId) throws Exception {
-        PublicApiPlaylist playlist = TestHelper.loadLocalContentItem(Content.PLAYLISTS.uri, PublicApiPlaylist.class, "_id = " + playlistId);
-        playlist.tracks = TestHelper.loadLocalContent(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), PublicApiTrack.class);
-        return playlist;
-    }
-
     @SuppressWarnings("unchecked")
     public static <T extends Persisted> T reload(final T model) {
         try {
@@ -522,16 +456,6 @@ public class TestHelper {
         accountOperations.setAccountData(USER_ID.getKey(), Long.toString(id));
     }
 
-    public static List<PublicApiTrack> createTracks(int count) throws CreateModelException {
-        if (count < 1) return Collections.EMPTY_LIST;
-
-        List<PublicApiTrack> items = new ArrayList<PublicApiTrack>();
-        for (int i = 0; i < count; i++) {
-            items.add(TestHelper.getModelFactory().createModel(PublicApiTrack.class));
-        }
-        return items;
-    }
-
     public static List<TrackUrn> createTracksUrn(Long... ids){
         return Lists.transform(new ArrayList<Long>(Arrays.asList(ids)), new Function<Long, TrackUrn>() {
             @Override
@@ -541,43 +465,4 @@ public class TestHelper {
         });
     }
 
-    public static List<PublicApiUser> createUsers(int count) {
-        if (count < 1) return Collections.EMPTY_LIST;
-
-        List<PublicApiUser> items = new ArrayList<PublicApiUser>();
-        for (long i = 100L; i <= count * 100; i += 100) {
-            PublicApiUser u = new PublicApiUser();
-            u.setId(i);
-            u.permalink = "u" + String.valueOf(i);
-            items.add(u);
-        }
-        return items;
-    }
-
-    public static List<SuggestedUser> createSuggestedUsers(int count) throws CreateModelException {
-        List<SuggestedUser> suggestedUsers = new ArrayList<SuggestedUser>();
-        for (int i = 0; i < count; i++){
-            suggestedUsers.add(TestHelper.getModelFactory().createModel(SuggestedUser.class));
-        }
-        return suggestedUsers;
-    }
-
-    public static List<Category> createCategories(int count) throws CreateModelException {
-        List<Category> categories = new ArrayList<Category>();
-        for (int i = 0; i < count; i++){
-            categories.add(TestHelper.getModelFactory().createModel(Category.class));
-        }
-        return categories;
-    }
-
-    public static List<UserAssociation> createDirtyFollowings(int count) {
-        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>();
-        for (PublicApiUser user : createUsers(count)) {
-            final UserAssociation association = new UserAssociation(Association.Type.FOLLOWING, user);
-            association.markForAddition();
-            userAssociations.add(association);
-        }
-        return userAssociations;
-
-    }
 }

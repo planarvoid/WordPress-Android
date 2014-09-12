@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldCreateSuccessResult() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
         SignupVia signupVia = SignupVia.NONE;
 
         AuthTaskResult result = AuthTaskResult.success(user, signupVia);

@@ -6,7 +6,7 @@ import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -20,8 +20,8 @@ public class PlaylistRepostActivityTest {
     @Test
     public void shouldConvertToPropertySet() throws CreateModelException {
         PlaylistRepostActivity activity = new PlaylistRepostActivity();
-        activity.playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
-        activity.user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        activity.playlist = ModelFixtures.create(PublicApiPlaylist.class);
+        activity.user = ModelFixtures.create(PublicApiUser.class);
         activity.createdAt = new Date();
 
         final PropertySet propertySet = activity.toPropertySet();

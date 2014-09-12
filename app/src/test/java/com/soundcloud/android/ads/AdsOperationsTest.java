@@ -12,7 +12,7 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -42,7 +42,7 @@ public class AdsOperationsTest {
     @Before
     public void setUp() throws Exception {
         adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage, deviceHelper);
-        audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        audioAd = ModelFixtures.create(AudioAd.class);
     }
 
     @Test

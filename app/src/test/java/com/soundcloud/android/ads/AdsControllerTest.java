@@ -17,9 +17,9 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -61,7 +61,7 @@ public class AdsControllerTest {
 
         AdsController adsController = new AdsController(eventBus, adsOperations, playQueueManager, trackOperations, scheduler);
         adsController.subscribe();
-        audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        audioAd = ModelFixtures.create(AudioAd.class);
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -81,7 +82,7 @@ public class FollowStatusTest {
 
     @Test
     public void testToggleMultipleFollowings() throws Exception {
-        List<PublicApiUser> users = TestHelper.createUsers(3);
+        List<PublicApiUser> users = ModelFixtures.createUsers(3);
         expect(status.isFollowing(users.get(0))).toBeFalse();
 
         status.toggleFollowing(users.get(0).getId());

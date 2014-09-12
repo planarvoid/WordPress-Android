@@ -19,9 +19,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.api.Token;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -77,7 +77,7 @@ public class AccountOperationsTest {
             }
         }, Schedulers.immediate());
 
-        user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        user = ModelFixtures.create(PublicApiUser.class);
     }
 
     @Test

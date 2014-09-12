@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.createUsers;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.createUsers;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -15,15 +15,16 @@ import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.collections.tasks.RemoteCollectionLoaderTest;
-import com.soundcloud.android.api.legacy.model.Association;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.collections.tasks.RemoteCollectionLoaderTest;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +67,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldMarkFollowingAndStoreToken() throws Exception {
-        SuggestedUser suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        SuggestedUser suggestedUser = ModelFixtures.create(SuggestedUser.class);
         expect(storage.followSuggestedUser(suggestedUser).toBlockingObservable().last().getUser()).toEqual(new PublicApiUser(suggestedUser));
 
         UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, suggestedUser.getId());
@@ -149,7 +150,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldBulkInsertFollowingsFromSuggestedUsers() throws Exception {
-        final List<SuggestedUser> suggestedUsers = TestHelper.createSuggestedUsers(3);
+        final List<SuggestedUser> suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
         expect(storage.followSuggestedUserList(suggestedUsers).toBlockingObservable().last().getUser()).toEqual(new PublicApiUser(suggestedUsers.get(2)));
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
 

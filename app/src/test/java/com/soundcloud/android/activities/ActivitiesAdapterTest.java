@@ -23,8 +23,8 @@ import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -161,7 +161,7 @@ public class ActivitiesAdapterTest {
     public void shouldCallPresenterToCreateItemViewForCommentActivity() throws Exception {
         final CommentActivity commentActivity = new CommentActivity();
         commentActivity.setCreatedAt(new Date());
-        commentActivity.comment = TestHelper.getModelFactory().createModel(Comment.class);
+        commentActivity.comment = ModelFixtures.create(Comment.class);
         adapter.addItems(Arrays.<Activity>asList(commentActivity));
         adapter.getView(0, null, parent);
 
@@ -188,7 +188,7 @@ public class ActivitiesAdapterTest {
     public void shouldCallPresenterToCreateItemViewForAffiliationActivity() throws Exception {
         final AffiliationActivity activity = new AffiliationActivity();
         activity.setCreatedAt(new Date());
-        activity.setUser(TestHelper.getModelFactory().createModel(PublicApiUser.class));
+        activity.setUser(ModelFixtures.create(PublicApiUser.class));
         adapter.addItems(Arrays.<Activity>asList(activity));
         adapter.getView(0, null, parent);
 
@@ -224,6 +224,6 @@ public class ActivitiesAdapterTest {
     }
 
     private <T> T createModel(Class<T> clazz) throws CreateModelException {
-        return TestHelper.getModelFactory().createModel(clazz);
+        return ModelFixtures.create(clazz);
     }
 }

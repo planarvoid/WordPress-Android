@@ -9,7 +9,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -31,7 +31,7 @@ public class PlayQueueTest {
 
     @Before
     public void setUp() throws Exception {
-        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
@@ -60,7 +60,7 @@ public class PlayQueueTest {
     public void insertsAudioAdAtPosition() throws CreateModelException {
         PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
-        final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        final AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueue.insertAudioAd(audioAd, 1);
 
         expect(playQueue.getUrn(1)).toEqual(audioAd.getApiTrack().getUrn());
@@ -120,7 +120,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
-        final AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        final AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromAudioAd(audioAd)));
 
         expect(playQueue.isAudioAd(0)).toBeTrue();

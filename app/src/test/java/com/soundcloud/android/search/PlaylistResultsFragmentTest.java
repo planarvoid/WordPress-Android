@@ -18,10 +18,10 @@ import com.soundcloud.android.api.model.ApiPlaylistCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -103,7 +103,7 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
-        ApiPlaylist clickedPlaylist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist clickedPlaylist = ModelFixtures.create(ApiPlaylist.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
 
         fragment.onCreate(null);
@@ -120,7 +120,7 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldPublishSearchEventWhenResultOnPlaylistTagResultsIsClicked() throws Exception {
-        ApiPlaylist clickedPlaylist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist clickedPlaylist = ModelFixtures.create(ApiPlaylist.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
 
         fragment.onCreate(null);

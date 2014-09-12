@@ -11,8 +11,8 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class UserOperationsTest {
 
     @Test
     public void shouldRefreshTheUserFromTheApiAndPersistToLocalStorage() throws CreateModelException {
-        PublicApiUser currentUser = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser currentUser = ModelFixtures.create(PublicApiUser.class);
         when(httpClient.<PublicApiUser>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(currentUser));
 
         userOperations.refreshCurrentUser().subscribe(userObserver);

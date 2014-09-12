@@ -30,6 +30,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -268,7 +269,7 @@ public class UserAssociationSyncerTest {
     }
 
     private List<UserAssociation> getDirtyUserAssociations() {
-        List<UserAssociation> usersAssociations = TestHelper.createDirtyFollowings(3);
+        List<UserAssociation> usersAssociations = ModelFixtures.createDirtyFollowings(3);
         for (UserAssociation association : usersAssociations) {
             association.markForAddition();
         }
@@ -280,7 +281,7 @@ public class UserAssociationSyncerTest {
         Robolectric.setDefaultHttpResponse(500, "error");
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
 
-        final List<UserAssociation> usersAssociations = TestHelper.createDirtyFollowings(3);
+        final List<UserAssociation> usersAssociations = ModelFixtures.createDirtyFollowings(3);
         for (UserAssociation association : usersAssociations) association.markForAddition();
 
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);

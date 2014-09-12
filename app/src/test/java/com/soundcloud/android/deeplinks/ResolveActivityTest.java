@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class ResolveActivityTest {
 
     @Test
     public void shouldPlayTrack() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         activity.onSuccess(track);
 
         verify(playbackOperations).startPlaybackWithRecommendations(track, Screen.DEEPLINK);
@@ -47,7 +47,7 @@ public class ResolveActivityTest {
 
     @Test
     public void shouldGotoPlaylistDetails() throws CreateModelException {
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         activity.onSuccess(playlist);
 
         Intent expected = new Intent(Actions.PLAYLIST);
@@ -58,7 +58,7 @@ public class ResolveActivityTest {
 
     @Test
     public void shouldShowTheStreamWithAnExpandedPlayer() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         activity.onSuccess(track);
 
         Intent expected = new Intent(Actions.STREAM);

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class PendingRecordingItemPresenterTest {
         when(file.lastModified()).thenReturn(System.currentTimeMillis() - (15 * 60 * 1000));
         final Context context = Robolectric.application;
         itemView = LayoutInflater.from(context).inflate(R.layout.recording_list_item, new FrameLayout(context), false);
-        recording = TestHelper.getModelFactory().createModel(Recording.class);
+        recording = ModelFixtures.create(Recording.class);
         recording.audio_path = file;
         recordings = Arrays.asList(recording);
         presenter = new PendingRecordingItemPresenter(context.getResources());

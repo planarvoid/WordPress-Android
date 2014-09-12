@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class AudioAdTest {
 
     @Test
     public void shouldResolveToPropertySet() throws CreateModelException {
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
 
         final PropertySet propertySet = audioAd.toPropertySet();
 

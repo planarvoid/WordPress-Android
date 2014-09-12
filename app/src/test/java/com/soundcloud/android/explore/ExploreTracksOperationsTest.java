@@ -11,7 +11,7 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -85,7 +85,7 @@ public class ExploreTracksOperationsTest {
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
         collection.setCollection(Arrays.asList(track));
         when(rxHttpClient.<SuggestedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(

@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldGetAssignmentIfAssigmentIsStored() throws Exception {
-        Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
+        Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
 
@@ -78,7 +78,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldFetchNewAssigmentAndSaveToFileOnInit() throws Exception {
-        Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
+        Assignment assignment = ModelFixtures.create(Assignment.class);
         Observable<Assignment> observable = Observable.from(assignment);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
         when(activeExperiments.getRequestLayers()).thenReturn(new String[]{ "android-ui" });
@@ -91,7 +91,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldGenerateTrackingParametersMapForActiveExperiments() throws Exception {
-        Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
+        Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(anyInt())).thenReturn(true);
@@ -109,7 +109,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() throws Exception {
-        Assignment assignment = TestHelper.getModelFactory().createModel(Assignment.class);
+        Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(5)).thenReturn(true);

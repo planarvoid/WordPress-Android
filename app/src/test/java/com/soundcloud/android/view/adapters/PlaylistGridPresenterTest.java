@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -46,7 +46,7 @@ public class PlaylistGridPresenterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
 
         View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlist));
@@ -60,7 +60,7 @@ public class PlaylistGridPresenterTest {
 
     @Test
     public void shouldShowJustTheTagIfPlaylistHasSingleTag() throws CreateModelException {
-        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setTags(Arrays.asList("tag1"));
 
         View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
@@ -72,7 +72,7 @@ public class PlaylistGridPresenterTest {
 
     @Test
     public void shouldShowBlankTagIfPlaylistHasNoTags() throws CreateModelException {
-        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setTags(Collections.<String>emptyList());
 
         View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));

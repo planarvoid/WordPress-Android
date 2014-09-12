@@ -24,8 +24,8 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
@@ -171,7 +171,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldSendSearchPlaylistsTrackingScreenOnItemClick() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString())).thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        final PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        final PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(adapter.getItem(0)).thenReturn(playlist);
         when(adapter.getItems()).thenReturn(Arrays.asList(((PublicApiResource) playlist)));
 
@@ -201,7 +201,7 @@ public class SearchResultsFragmentTest {
     @Test
     public void shouldPublishSearchEventWhenResultOnPlaylistsTabIsClicked() throws Exception {
         when(searchOperations.getPlaylistSearchResults(anyString())) .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
-        final PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        final PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(adapter.getItem(anyInt())).thenReturn(playlist);
         when(adapter.getItems()).thenReturn(Arrays.asList(((PublicApiResource) playlist)));
 

@@ -5,12 +5,13 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class PublicApiPlaylistTest {
     public void buildContentValuesShouldIncludeLastUpdatedWithUser() throws Exception {
         PublicApiPlaylist playlist = new PublicApiPlaylist();
         playlist.setId(1000L);
-        playlist.setUser(TestHelper.getModelFactory().createModel(PublicApiUser.class));
+        playlist.setUser(ModelFixtures.create(PublicApiUser.class));
         final ContentValues actual = playlist.buildContentValues();
         expect(actual.containsKey(TableColumns.ResourceTable.LAST_UPDATED)).toBeTrue();
     }
@@ -135,7 +136,7 @@ public class PublicApiPlaylistTest {
 
     @Test
     public void shouldConvertPlaylistSummaryToPlaylist() throws CreateModelException {
-        ApiPlaylist source = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist source = ModelFixtures.create(ApiPlaylist.class);
         PublicApiPlaylist playlist = new PublicApiPlaylist(source);
         expect(playlist.getId()).toEqual(source.getId());
         expect(playlist.getUrn()).toEqual(source.getUrn());
@@ -153,7 +154,7 @@ public class PublicApiPlaylistTest {
 
     @Test
     public void shouldConcertToPropertySet() throws CreateModelException {
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         PropertySet propertySet = playlist.toPropertySet();
 
         Expect.expect(propertySet.get(PlayableProperty.DURATION)).toEqual(playlist.duration);

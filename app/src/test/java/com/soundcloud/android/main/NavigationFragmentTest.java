@@ -13,7 +13,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class NavigationFragmentTest {
 
         View navProfileView = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_profile_item, null, false);
         when(layoutInflater.inflate(R.layout.nav_profile_item, container, false)).thenReturn(navProfileView);
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
         when(accountOperations.getLoggedInUser()).thenReturn(user);
     }
 

@@ -3,10 +3,11 @@ package com.soundcloud.android.api.legacy.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -210,7 +211,7 @@ public class PublicApiUserTest {
 
     @Test
     public void shouldCreateUserFromSuggestedUser() throws CreateModelException {
-        SuggestedUser suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        SuggestedUser suggestedUser = ModelFixtures.create(SuggestedUser.class);
         PublicApiUser user = new PublicApiUser(suggestedUser);
         expect(user.getId()).toEqual(suggestedUser.getId());
         expect(user.getUrn()).toEqual(suggestedUser.getUrn());
@@ -221,7 +222,7 @@ public class PublicApiUserTest {
 
     @Test
     public void shouldConvertToPropertySet() throws CreateModelException {
-        PublicApiUser user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
         PropertySet propertySet = user.toPropertySet();
 
         expect(propertySet.get(UserProperty.URN)).toEqual(user.getUrn());

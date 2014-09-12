@@ -12,7 +12,6 @@ import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
@@ -29,7 +28,7 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertTrack() throws CreateModelException {
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
         insertUser(track.getUser());
         insertTrack(track);
         return track;
@@ -66,7 +65,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertPlaylist() throws CreateModelException {
-        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
@@ -98,7 +97,7 @@ public class DatabaseFixtures {
     }
 
     public ApiUser insertUser() throws CreateModelException {
-        final ApiUser user = TestHelper.getModelFactory().createModel(ApiUser.class);
+        final ApiUser user = ModelFixtures.create(ApiUser.class);
         insertUser(user);
         return user;
     }
@@ -190,7 +189,7 @@ public class DatabaseFixtures {
     }
 
     public Comment insertComment() throws CreateModelException {
-        Comment comment = TestHelper.getModelFactory().createModel(Comment.class);
+        Comment comment = ModelFixtures.create(Comment.class);
         insertComment(comment);
         return comment;
     }
@@ -205,7 +204,7 @@ public class DatabaseFixtures {
     }
 
     public AffiliationActivity insertAffiliation() throws CreateModelException {
-        AffiliationActivity affiliation = TestHelper.getModelFactory().createModel(AffiliationActivity.class);
+        AffiliationActivity affiliation = ModelFixtures.create(AffiliationActivity.class);
         insertAffiliation(affiliation);
         return affiliation;
     }

@@ -24,15 +24,15 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
-import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistCollection;
+import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -174,7 +174,7 @@ public class SearchOperationsTest {
 
     @Test
     public void filteredCollectionKeepsNextHref() throws Exception {
-        final ArrayList<PublicApiResource> results = Lists.<PublicApiResource>newArrayList(TestHelper.getModelFactory().createModel(PublicApiTrack.class));
+        final ArrayList<PublicApiResource> results = Lists.<PublicApiResource>newArrayList(ModelFixtures.create(PublicApiTrack.class));
         SearchResultsCollection collection = new SearchResultsCollection(results, "next-href");
 
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
@@ -312,7 +312,7 @@ public class SearchOperationsTest {
     }
 
     private ApiPlaylistCollection buildPlaylistSummariesResponse() throws CreateModelException {
-        ApiPlaylist playlist = TestHelper.getModelFactory().createModel(ApiPlaylist.class);
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         ApiPlaylistCollection collection = new ApiPlaylistCollection();
         collection.setCollection(Arrays.asList(playlist));
         when(rxHttpClient.<ApiPlaylistCollection>fetchModels(any(APIRequest.class))).thenReturn(

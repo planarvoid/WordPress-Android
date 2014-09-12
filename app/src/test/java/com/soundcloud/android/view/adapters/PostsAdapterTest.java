@@ -27,10 +27,10 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
@@ -81,7 +81,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldBindTrackRowViaPresenter() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(track));
 
         adapter.bindRow(0, itemView);
@@ -91,7 +91,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldBindPlaylistRowViaPresenter() throws CreateModelException {
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(playlist));
 
         adapter.bindRow(0, itemView);
@@ -101,7 +101,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldConvertTrackToPropertySet() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(track));
 
         adapter.bindRow(0, itemView);
@@ -119,12 +119,12 @@ public class PostsAdapterTest {
 
     @Test
     public void clearItemsClearsInitialPropertySets() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(track));
         adapter.bindRow(0, itemView);
         adapter.clearData();
 
-        PublicApiTrack track2 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track2 = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(track2));
         adapter.bindRow(0, itemView);
 
@@ -135,7 +135,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldHandleItemClick() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(track));
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
@@ -151,7 +151,7 @@ public class PostsAdapterTest {
 
     @Test
     public void opensPlaylistActivityWhenPlaylistItemIsClicked() throws CreateModelException {
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(playlist));
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
@@ -181,7 +181,7 @@ public class PostsAdapterTest {
 
     @Test
     public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() throws CreateModelException {
-        final PublicApiPlaylist unlikedPlaylist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        final PublicApiPlaylist unlikedPlaylist = ModelFixtures.create(PublicApiPlaylist.class);
         unlikedPlaylist.user_like = false;
 
         adapter.addItems(Arrays.<PublicApiResource>asList(unlikedPlaylist));
@@ -196,7 +196,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldPresentRepostedTrackWithRelatedUsername() throws CreateModelException {
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(getRepostedTrackSoundAssociation(track)));
 
         adapter.bindRow(0, itemView);
@@ -208,7 +208,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldKeepRepostInformationAfterUpdatingTrack() throws CreateModelException {
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(getRepostedTrackSoundAssociation(track)));
         adapter.updateItems(getResourceHashMap(track));
 
@@ -221,7 +221,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldKeepRepostInformationAfterUpdatingPlaylist() throws CreateModelException {
-        final PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        final PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(getRepostedPlaylistSoundAssociation(playlist)));
         adapter.updateItems(getResourceHashMap(playlist));
 
@@ -234,7 +234,7 @@ public class PostsAdapterTest {
 
     @Test
     public void shouldPresentRepostedPlaylistWithRelatedUsername() throws CreateModelException {
-        final PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        final PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(getRepostedPlaylistSoundAssociation(playlist)));
 
         adapter.bindRow(0, itemView);

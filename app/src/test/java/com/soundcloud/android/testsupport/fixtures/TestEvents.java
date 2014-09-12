@@ -3,13 +3,12 @@ package com.soundcloud.android.testsupport.fixtures;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 
 public class TestEvents {
 
     public static PlaybackSessionEvent playbackSessionPlayEvent() throws CreateModelException {
-        return TestHelper.getModelFactory().createModel(PlaybackSessionEvent.class);
+        return ModelFixtures.create(PlaybackSessionEvent.class);
     }
 
     public static PlaybackSessionEvent playbackSessionPlayEventWithProgress(int playbackProgress) {

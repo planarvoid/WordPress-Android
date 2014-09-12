@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.createNewUserPlaylist;
-import static com.soundcloud.android.testsupport.TestHelper.createTracks;
 import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -11,7 +10,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -26,10 +24,11 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -72,8 +71,8 @@ public class PlaybackOperationsTest {
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
                 playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus);
-        track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
-        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        track = ModelFixtures.create(PublicApiTrack.class);
+        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
         observer = new TestObserver<List<TrackUrn>>();
@@ -152,7 +151,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromPlaylistSetsNewPlayqueueOnPlayQueueManagerFromPlaylist() throws CreateModelException {
-        List<PublicApiTrack> tracks = createTracks(3);
+        List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
@@ -170,7 +169,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromPlaylistPlaysCurrentTrackThroughPlaybackService() throws CreateModelException {
-        List<PublicApiTrack> tracks = createTracks(3);
+        List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
@@ -187,7 +186,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startsServiceIfPlayingQueueHasSameContextWithDifferentPlaylistSources() throws CreateModelException {
-        List<PublicApiTrack> tracks = createTracks(3);
+        List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
@@ -613,7 +612,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startPlaybackWithRecommendationsCachesTrack() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe();
 
@@ -622,7 +621,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startPlaybackWithRecommendationsSetsConfiguredPlayQueueOnPlayQueueManager() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe();
 
@@ -631,7 +630,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startPlaybackWithRecommendationsOpensCurrentThroughPlaybackService() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe();
 
@@ -640,7 +639,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startPlaybackWithRecommendationsByTrackCallsFetchRecommendationsOnPlayQueueManager() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe();
 

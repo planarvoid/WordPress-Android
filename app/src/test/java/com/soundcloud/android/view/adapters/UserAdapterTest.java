@@ -19,9 +19,9 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -186,6 +186,6 @@ public class UserAdapterTest {
     }
 
     private PublicApiUser createUser() throws CreateModelException {
-        return TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        return ModelFixtures.create(PublicApiUser.class);
     }
 }

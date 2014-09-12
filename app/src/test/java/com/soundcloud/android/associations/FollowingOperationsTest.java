@@ -16,17 +16,17 @@ import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,10 +80,10 @@ public class FollowingOperationsTest {
 
         ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator);
 
-        user = TestHelper.getModelFactory().createModel(PublicApiUser.class);
+        user = ModelFixtures.create(PublicApiUser.class);
 
-        suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
-        suggestedUsers = TestHelper.createSuggestedUsers(3);
+        suggestedUser = ModelFixtures.create(SuggestedUser.class);
+        suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
 
         userAssociations = Lists.newArrayList(userAssociationOne, userAssociationTwo);
     }
@@ -221,7 +221,7 @@ public class FollowingOperationsTest {
 
     @Test
     public void bulkFollowingShouldCompleteImmediatelyIfTokenSetIsEmpty() {
-        Collection<UserAssociation> noTokenAssociations = TestHelper.createDirtyFollowings(3);
+        Collection<UserAssociation> noTokenAssociations = ModelFixtures.createDirtyFollowings(3);
         ops.bulkFollowAssociations(noTokenAssociations).subscribe(observer);
         verify(observer).onCompleted();
         verify(observer, never()).onNext(any(Collection.class));

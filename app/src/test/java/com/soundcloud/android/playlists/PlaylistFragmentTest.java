@@ -27,8 +27,8 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
@@ -109,7 +109,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonWithNoTracks() throws Exception {
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
         View layout = createFragmentView();
 
@@ -119,7 +119,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() throws Exception {
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
 
         final PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
@@ -132,7 +132,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         Observable<TrackUrn> trackLoadDescriptor = Observable.empty();
         when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
@@ -158,7 +158,7 @@ public class PlaylistFragmentTest {
     @Test
     public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<TrackUrn>empty());
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         View layout = createFragmentView();
@@ -345,7 +345,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
-        final PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
         when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
@@ -396,7 +396,7 @@ public class PlaylistFragmentTest {
     }
 
     private PublicApiTrack createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
-        final PublicApiTrack model = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack model = ModelFixtures.create(PublicApiTrack.class);
         model.setTitle(title);
         return model;
     }
@@ -419,7 +419,7 @@ public class PlaylistFragmentTest {
     }
 
     private PublicApiPlaylist createPlaylist() throws CreateModelException {
-        return TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        return ModelFixtures.create(PublicApiPlaylist.class);
     }
 
     private ToggleButton getToggleButton(View layout) {

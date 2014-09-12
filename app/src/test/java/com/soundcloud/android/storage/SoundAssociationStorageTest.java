@@ -12,9 +12,10 @@ import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncerTest;
+import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -338,9 +339,9 @@ public class SoundAssociationStorageTest {
 
     @Test
     public void shouldReturnTrackLikesIds() throws CreateModelException {
-        PublicApiTrack track1 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
-        PublicApiTrack track2 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
-        PublicApiPlaylist playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        PublicApiTrack track1 = ModelFixtures.create(PublicApiTrack.class);
+        PublicApiTrack track2 = ModelFixtures.create(PublicApiTrack.class);
+        PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
 
         TestHelper.insertAsSoundAssociation(track1, SoundAssociation.Type.TRACK_LIKE);
         TestHelper.insertAsSoundAssociation(track2, SoundAssociation.Type.TRACK_LIKE);

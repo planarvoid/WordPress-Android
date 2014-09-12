@@ -10,10 +10,10 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -39,7 +39,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreTrackMetadataFromApiMobileTrack() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
         storage.storeTrackAsync(track).subscribe(observer);
 
@@ -49,7 +49,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreUserMetadataFromApiMobileTrack() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
         storage.storeTrackAsync(track).subscribe(observer);
 
@@ -59,7 +59,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void storingApiMobileTrackEmitsTransactionResult() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
         storage.storeTrackAsync(track).subscribe(observer);
 
@@ -74,8 +74,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     public void shouldStoreTrackMetadataFromListOfApiMobileTracks() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<ApiTrack> tracks = Arrays.asList(
-                TestHelper.getModelFactory().createModel(ApiTrack.class),
-                TestHelper.getModelFactory().createModel(ApiTrack.class));
+                ModelFixtures.create(ApiTrack.class),
+                ModelFixtures.create(ApiTrack.class));
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
@@ -87,8 +87,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     public void shouldStoreUserMetadataFromListOfApiMobileTracks() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<ApiTrack> tracks = Arrays.asList(
-                TestHelper.getModelFactory().createModel(ApiTrack.class),
-                TestHelper.getModelFactory().createModel(ApiTrack.class));
+                ModelFixtures.create(ApiTrack.class),
+                ModelFixtures.create(ApiTrack.class));
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
@@ -116,8 +116,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     public void storingListOfApiMobileTracksEmitsTransactionResult() throws CreateModelException {
         TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
         final List<ApiTrack> tracks = Arrays.asList(
-                TestHelper.getModelFactory().createModel(ApiTrack.class),
-                TestHelper.getModelFactory().createModel(ApiTrack.class));
+                ModelFixtures.create(ApiTrack.class),
+                ModelFixtures.create(ApiTrack.class));
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 

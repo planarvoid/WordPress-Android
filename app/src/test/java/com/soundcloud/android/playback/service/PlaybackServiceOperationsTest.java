@@ -9,7 +9,7 @@ import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.api.Token;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class PlaybackServiceOperationsTest {
     @Before
     public void setUp() throws Exception {
         playbackServiceOperations = new PlaybackServiceOperations(accountOperations, httpProperties);
-        track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        track = ModelFixtures.create(PublicApiTrack.class);
 
     }
 

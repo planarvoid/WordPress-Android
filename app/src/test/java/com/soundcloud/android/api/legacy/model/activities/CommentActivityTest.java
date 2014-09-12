@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class CommentActivityTest {
     @Test
     public void shouldConvertToPropertySet() throws CreateModelException {
         CommentActivity activity = new CommentActivity();
-        activity.comment = TestHelper.getModelFactory().createModel(Comment.class);
+        activity.comment = ModelFixtures.create(Comment.class);
         activity.createdAt = new Date();
 
         final PropertySet propertySet = activity.toPropertySet();

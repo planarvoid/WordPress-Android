@@ -31,9 +31,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -82,7 +82,7 @@ public class PlayQueueManagerTest {
 
         when(playQueue.getUrn(3)).thenReturn(TrackUrn.forTrack(369L));
 
-        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
         playSessionSource.setExploreVersion("1.0");
@@ -291,7 +291,7 @@ public class PlayQueueManagerTest {
     @Test
     public void saveProgressUpdatesSavePositionIfAdIsRemovedFromQueue() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
-        playQueueManager.insertAudioAd(TestHelper.getModelFactory().createModel(AudioAd.class));
+        playQueueManager.insertAudioAd(ModelFixtures.create(AudioAd.class));
         playQueueManager.setPosition(3);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -305,7 +305,7 @@ public class PlayQueueManagerTest {
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingAd() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
-        playQueueManager.insertAudioAd(TestHelper.getModelFactory().createModel(AudioAd.class));
+        playQueueManager.insertAudioAd(ModelFixtures.create(AudioAd.class));
         playQueueManager.setPosition(2);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -319,7 +319,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReturnAudioAdPosition() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
-        playQueueManager.insertAudioAd(TestHelper.getModelFactory().createModel(AudioAd.class));
+        playQueueManager.insertAudioAd(ModelFixtures.create(AudioAd.class));
 
         expect(playQueueManager.getAudioAdPosition()).toBe(2);
     }
@@ -517,7 +517,7 @@ public class PlayQueueManagerTest {
     public void insertsAudioAdAtPosition() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
 
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         verify(playQueue).insertAudioAd(audioAd, 2);
@@ -531,7 +531,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReturnAudioAdWhenAdAvailable() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         expect(playQueueManager.getAudioAd()).toEqual(audioAd
@@ -543,7 +543,7 @@ public class PlayQueueManagerTest {
     public void publishesQueueChangeEventWhenAudioAdIsInserted() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
 
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
@@ -552,7 +552,7 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAdRemovedTheAd() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         playQueueManager.clearAudioAd();
@@ -564,7 +564,7 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAdDoesNotRemoveAdFromCurrentPosition() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         playQueueManager.setPosition(1);
@@ -586,7 +586,7 @@ public class PlayQueueManagerTest {
     @Test
     public void publishesQueueChangeEventWhenAdIsCleared() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         playQueueManager.clearAudioAd();
@@ -597,7 +597,7 @@ public class PlayQueueManagerTest {
     @Test
     public void doesNotPublishQueueChangeEventWhenAdIsNotCleared() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
 
         final PlayQueueEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE);
@@ -729,7 +729,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldPublishPlayQueueUpdateEventOnRelatedTracksReturned() throws Exception {
-        final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final TrackUrn trackUrn = Urn.forTrack(123L);
         when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
@@ -740,7 +740,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void relatedTrackLoadShouldCauseQueueToBeSaved() throws Exception {
-        final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final TrackUrn trackUrn = Urn.forTrack(123L);
         final RecommendedTracksCollection related = new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123");
         when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(related));
@@ -761,7 +761,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
-        final ApiTrack apiTrack = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
         playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123"));
 
@@ -876,7 +876,7 @@ public class PlayQueueManagerTest {
 
     private void playQueueManagerWithOneTrackAndAd() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L), playSessionSource), playSessionSource);
-        AudioAd audioAd = TestHelper.getModelFactory().createModel(AudioAd.class);
+        AudioAd audioAd = ModelFixtures.create(AudioAd.class);
         playQueueManager.insertAudioAd(audioAd);
     }
 

@@ -15,9 +15,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.TrackStorage;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.Request;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -93,12 +93,12 @@ public class RemoteCollectionLoaderTest {
     @Test
     public void shouldStoreTracksFromCollection() throws CreateModelException {
         List<PublicApiResource> collection = new ArrayList<PublicApiResource>();
-        final PublicApiTrack track1 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
-        final PublicApiTrack track2 = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        final PublicApiTrack track1 = ModelFixtures.create(PublicApiTrack.class);
+        final PublicApiTrack track2 = ModelFixtures.create(PublicApiTrack.class);
 
-        collection.add(TestHelper.getModelFactory().createModel(PublicApiUser.class));
+        collection.add(ModelFixtures.create(PublicApiUser.class));
         collection.add(track1);
-        collection.add(TestHelper.getModelFactory().createModel(PublicApiUser.class));
+        collection.add(ModelFixtures.create(PublicApiUser.class));
         collection.add(track2);
 
         TestObservables.MockObservable observable = TestObservables.emptyObservable();

@@ -10,7 +10,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void trackByUrnDoesNotEmitInsertedTrackWithoutTitle() throws CreateModelException {
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setTitle(null);
         testFixtures().insertTrack(track);
 

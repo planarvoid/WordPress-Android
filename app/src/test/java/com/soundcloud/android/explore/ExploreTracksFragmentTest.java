@@ -16,8 +16,8 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
@@ -105,7 +105,7 @@ public class ExploreTracksFragmentTest {
 
     @Test
     public void shouldPlaySelectedTrackWhenItemClicked() throws CreateModelException {
-        final ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track);
 
         fragment.onItemClick(null, null, 0, 0);
@@ -120,7 +120,7 @@ public class ExploreTracksFragmentTest {
         collection.setTrackingTag("tag");
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class)))
                 .thenReturn(just(collection));
-        final ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track);
 
         fragment.onCreate(null);

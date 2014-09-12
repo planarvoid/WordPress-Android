@@ -5,8 +5,9 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -330,7 +331,7 @@ public class PublicApiTrackTest {
 
     @Test
     public void shouldConvertToPropertySet() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
 
         PropertySet propertySet = track.toPropertySet();
         expect(propertySet.get(PlayableProperty.DURATION)).toEqual(track.duration);
@@ -350,7 +351,7 @@ public class PublicApiTrackTest {
 
     @Test
     public void shouldConvertToPropertySetWithBlankUsernameIfUsernameNull() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         track.setUser(new PublicApiUser());
 
         PropertySet propertySet = track.toPropertySet();
@@ -359,7 +360,7 @@ public class PublicApiTrackTest {
 
     @Test
     public void shouldConvertToPropertySetWithUserUrnCreatedFromUserId() throws CreateModelException {
-        PublicApiTrack track = TestHelper.getModelFactory().createModel(PublicApiTrack.class);
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         track.setUser(null);
 
         PropertySet propertySet = track.toPropertySet();

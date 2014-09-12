@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class TrackGridPresenterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
@@ -60,7 +60,7 @@ public class TrackGridPresenterTest {
 
     @Test
     public void shouldHideGenreIfNoGenreAvailable() throws CreateModelException {
-        ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setGenre(null);
 
         View itemView = mock(View.class);

@@ -12,8 +12,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.GridViewCompat;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -48,7 +48,7 @@ public class SuggestedUsersCategoryFragmentTest {
         when(fragmentView.findViewById(R.id.suggested_users_grid)).thenReturn(gridView);
 
         Category category = new Category();
-        suggestedUsers = TestHelper.createSuggestedUsers(3);
+        suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
         category.setUsers(suggestedUsers);
 
         final Bundle args = new Bundle();

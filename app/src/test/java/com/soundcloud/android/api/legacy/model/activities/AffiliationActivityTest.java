@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class AffiliationActivityTest {
     @Test
     public void shouldConvertToPropertySet() throws CreateModelException {
         AffiliationActivity activity = new AffiliationActivity();
-        activity.setUser(TestHelper.getModelFactory().createModel(PublicApiUser.class));
+        activity.setUser(ModelFixtures.create(PublicApiUser.class));
         activity.createdAt = new Date();
 
 

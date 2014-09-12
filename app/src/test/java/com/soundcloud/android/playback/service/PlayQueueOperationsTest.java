@@ -26,8 +26,8 @@ import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
@@ -81,7 +81,7 @@ public class PlayQueueOperationsTest {
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playlist = TestHelper.getModelFactory().createModel(PublicApiPlaylist.class);
+        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
     }
 
@@ -175,8 +175,8 @@ public class PlayQueueOperationsTest {
     public void getRelatedTracksShouldEmitTracksFromSuggestions() throws CreateModelException {
         Observer<ModelCollection<ApiTrack>> relatedObserver = mock(Observer.class);
 
-        ApiTrack suggestion1 = TestHelper.getModelFactory().createModel(ApiTrack.class);
-        ApiTrack suggestion2 = TestHelper.getModelFactory().createModel(ApiTrack.class);
+        ApiTrack suggestion1 = ModelFixtures.create(ApiTrack.class);
+        ApiTrack suggestion2 = ModelFixtures.create(ApiTrack.class);
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
@@ -196,7 +196,7 @@ public class PlayQueueOperationsTest {
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
         RecommendedTracksCollection collection = createCollection(
-                TestHelper.getModelFactory().createModel(ApiTrack.class));
+                ModelFixtures.create(ApiTrack.class));
         when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
