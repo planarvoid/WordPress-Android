@@ -79,10 +79,10 @@ public class TrackPagerAdapterTest {
     private PropertySet track;
 
     private List<TrackPageData> trackPageData = Lists.newArrayList(
-            new TrackPageData(0, TRACK1_URN),
-            new TrackPageData(1, TRACK2_URN),
-            new TrackPageData(2, AD_URN, getAudioAd()),
-            new TrackPageData(3, MONETIZABLE_TRACK_URN));
+            TrackPageData.forTrack(0, TRACK1_URN),
+            TrackPageData.forTrack(1, TRACK2_URN),
+            TrackPageData.forAd(2, AD_URN, getAudioAd()),
+            TrackPageData.forTrack(3, MONETIZABLE_TRACK_URN));
 
     @Before
     public void setUp() throws Exception {
@@ -451,6 +451,6 @@ public class TrackPagerAdapterTest {
     private void setupAudioAd(PropertySet propertySet) {
         when(playQueueManager.getAudioAd()).thenReturn(propertySet);
         when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
-        adapter.setCurrentData(Arrays.asList(new TrackPageData(2, AD_URN, propertySet)));
+        adapter.setCurrentData(Arrays.asList(TrackPageData.forAd(2, AD_URN, propertySet)));
     }
 }

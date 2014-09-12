@@ -65,8 +65,8 @@ public class PlayerPagerControllerTest {
     private PlayerPagerController controller;
     private PublishSubject<Integer> scrollStateObservable = PublishSubject.create();
     private TestEventBus eventBus = new TestEventBus();
-    private final List<TrackPageData> adQueueData = Lists.newArrayList(new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
-    private final List<TrackPageData> fullQueueData = Lists.newArrayList(new TrackPageData(1, TRACK_URN), new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
+    private final List<TrackPageData> adQueueData = Lists.newArrayList(TrackPageData.forAd(2, AUDIO_AD_URN, AUDIO_AD));
+    private final List<TrackPageData> fullQueueData = Lists.newArrayList(TrackPageData.forTrack(1, TRACK_URN), TrackPageData.forAd(2, AUDIO_AD_URN, AUDIO_AD));
 
     @Before
     public void setUp() {

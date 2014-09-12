@@ -9,13 +9,17 @@ class TrackPageData {
     private final TrackUrn trackUrn;
     private PropertySet audioAd;
 
-    TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
-        this.positionInPlayQueue = positionInPlayQueue;
-        this.trackUrn = trackUrn;
+    static TrackPageData forTrack(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
+        return new TrackPageData(positionInPlayQueue, trackUrn, null);
     }
 
-    TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet audioAd) {
-        this(positionInPlayQueue, trackUrn);
+    static TrackPageData forAd(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet audioAd) {
+        return new TrackPageData(positionInPlayQueue, trackUrn, audioAd);
+    }
+
+    private TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet audioAd) {
+        this.positionInPlayQueue = positionInPlayQueue;
+        this.trackUrn = trackUrn;
         this.audioAd = audioAd;
     }
 

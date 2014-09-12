@@ -22,17 +22,17 @@ class PlayQueueDataSwitcher {
     }
 
     public List<TrackPageData> getAdQueue() {
-        final TrackPageData trackPageData = new TrackPageData(playQueueManager.getCurrentPosition(), playQueueManager.getCurrentTrackUrn(), playQueueManager.getAudioAd());
-        return Lists.newArrayList(trackPageData);
+        final TrackPageData adPageData = TrackPageData.forAd(playQueueManager.getCurrentPosition(), playQueueManager.getCurrentTrackUrn(), playQueueManager.getAudioAd());
+        return Lists.newArrayList(adPageData);
     }
 
     private List<TrackPageData> createFullQueue() {
         List<TrackPageData> trackPageData = Lists.newArrayListWithExpectedSize(playQueueManager.getQueueSize());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++){
             if (playQueueManager.isAudioAdAtPosition(i)){
-                trackPageData.add(new TrackPageData(i, playQueueManager.getUrnAtPosition(i), playQueueManager.getAudioAd()));
+                trackPageData.add(TrackPageData.forAd(i, playQueueManager.getUrnAtPosition(i), playQueueManager.getAudioAd()));
             } else {
-                trackPageData.add(new TrackPageData(i, playQueueManager.getUrnAtPosition(i)));
+                trackPageData.add(TrackPageData.forTrack(i, playQueueManager.getUrnAtPosition(i)));
             }
         }
         return trackPageData;
