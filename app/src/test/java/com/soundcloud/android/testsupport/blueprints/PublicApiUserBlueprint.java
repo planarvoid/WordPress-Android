@@ -6,8 +6,9 @@ import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 import com.tobedevoured.modelcitizen.callback.FieldCallback;
 
+@Deprecated
 @Blueprint(PublicApiUser.class)
-public class UserBlueprint {
+public class PublicApiUserBlueprint {
 
     private static long runningId = 1L;
 

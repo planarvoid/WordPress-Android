@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UserBlueprintTest {
+public class PublicApiUserBlueprintTest {
 
     @Test
     public void shouldGenerateUsersWithRunningIds() throws CreateModelException {

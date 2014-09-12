@@ -9,7 +9,7 @@ import com.tobedevoured.modelcitizen.annotation.Mapped;
 import java.util.Date;
 
 @Blueprint(AffiliationActivity.class)
-public class AffiliationBlueprint {
+public class AffiliationActivityBlueprint {
 
     @Mapped
     PublicApiUser user;

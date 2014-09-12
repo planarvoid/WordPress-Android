@@ -12,7 +12,7 @@ import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 import java.util.Date;
 
 @Blueprint(ApiTrack.class)
-public class TrackSummaryBlueprint {
+public class ApiTrackBlueprint {
 
     private static long runningId = 1L;
 

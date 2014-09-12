@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Blueprint(ApiPlaylist.class)
-public class PlaylistSummaryBlueprint {
+public class ApiPlaylistBlueprint {
 
     private static long runningId = 1L;
 

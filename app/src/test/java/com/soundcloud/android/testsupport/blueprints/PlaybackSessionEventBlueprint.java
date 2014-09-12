@@ -8,7 +8,7 @@ import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 @Blueprint(PlaybackSessionEvent.class)
-public class PlaybackEventBlueprint {
+public class PlaybackSessionEventBlueprint {
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override

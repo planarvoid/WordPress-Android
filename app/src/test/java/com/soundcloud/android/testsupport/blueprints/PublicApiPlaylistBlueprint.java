@@ -1,29 +1,28 @@
 package com.soundcloud.android.testsupport.blueprints;
 
-import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
+import com.tobedevoured.modelcitizen.annotation.Mapped;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
-import com.tobedevoured.modelcitizen.callback.FieldCallback;
 
-@Blueprint(ApiUser.class)
-public class UserSummaryBlueprint {
+@Deprecated
+@Blueprint(PublicApiPlaylist.class)
+public class PublicApiPlaylistBlueprint {
 
     private static long runningId = 1L;
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new ApiUser("soundcloud:users:" + runningId++);
+            return new PublicApiPlaylist(runningId++);
         }
     };
 
     @Default
-    FieldCallback username = new FieldCallback() {
-        @Override
-        public Object get(Object referenceModel) {
-            return "user" + ((ApiUser) referenceModel).getId();
-        }
-    };
+    String title = "new playlist " + System.currentTimeMillis();
 
+    @Mapped
+    PublicApiUser user;
 }
