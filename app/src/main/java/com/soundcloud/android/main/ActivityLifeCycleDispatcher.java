@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
+@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast", "PMD.MissingStaticMethodInNonInstantiatableClass"})
 public class ActivityLifeCycleDispatcher<ActivityT extends Activity> implements ActivityLifeCycle<ActivityT> {
     private final Collection<ActivityLifeCycle<ActivityT>> activityLifeCycles;
 
@@ -89,6 +89,7 @@ public class ActivityLifeCycleDispatcher<ActivityT extends Activity> implements 
         }
     }
 
+    @SuppressWarnings("PMD.AccessorClassGeneration")
     public static class Builder<ActivityT extends Activity> {
         private final List<ActivityLifeCycle<ActivityT>> components;
 
