@@ -6,13 +6,13 @@
     <string name="legal_summary">Informação legal</string>
     <string name="terms_of_use">Termos de uso</string>
     <string name="privacy_policy">Política de Privacidade</string>
-    <string name="visit_support">Visite o Apoio ao Cliente</string>
+    <string name="visit_support">Visite a Central de Suporte</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
     <string name="title_search">Pesquisar</string>
     <string name="started_following_you">começou a seguir você</string>
     <string name="search_for_query">Pesquisar por \'%s\'</string>
-    <string name="authentication_recover_password_msg">Digite seu endereço de e-mail, e nós lhe enviaremos um link que permite mudar sua senha. Problemas? Entre em contato com o apoio ao cliente.</string>
+    <string name="authentication_recover_password_msg">Digite seu endereço de e-mail, e nós lhe enviaremos um link que permite mudar sua senha. Problemas? Entre em contato com a central de suporte.</string>
     <string name="done">Concluído</string>
     <string name="email">E-mail</string>
     <string name="password">Senha</string>
@@ -48,7 +48,7 @@
     <string name="btn_following">Seguindo</string>
     <string name="btn_save">Salvar</string>
     <string name="btn_skip">Pular</string>
-    <string name="cache_clearing">Cache de eliminação</string>
+    <string name="cache_clearing">Limpando cache</string>
     <string name="cache_clearing_message">Excluindo arquivos em cache...</string>
     <string name="cloud_recorder_event_message">Gravação para %s</string>
     <string name="cloud_recorder_event_title">Gravação em andamento</string>
@@ -59,16 +59,16 @@
     <string name="connect_failure">Falha de conexão com %1$s</string>
     <string name="connect_progress">Carregando</string>
     <string name="connect_success">Conexão com %1$s bem-sucedida</string>
-    <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente em breve</string>
-    <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações na SoundCloud e selecione \"Conexões\"</string>
+    <string name="connection_list_error">Ocorreu um problema de conexão. Tente novamente mais tarde.</string>
+    <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, acesse suas configurações na SoundCloud e selecione \"Conexões\"</string>
     <string name="delete">Excluir</string>
     <string name="discogs">Discogs</string>
-    <string name="image_load_error">Houve um problema ao carregar a imagem</string>
+    <string name="image_load_error">Ocorreu um problema ao carregar a imagem</string>
     <string name="image_where">Gostaria de adicionar uma imagem?</string>
     <string name="comments">Comentários</string>
     <string name="location_picker_go_to_settings">Vá em configurações</string>
     <string name="location_picker_no_providers_enabled">Não há provedores de localização habilitados.</string>
-    <string name="menu_clear_user_desc">Você terá que reconectar sua conta dA SoundCloud.</string>
+    <string name="menu_clear_user_desc">Você terá que reconectar sua conta da SoundCloud.</string>
     <string name="menu_clear_user_title">Excluir dados de usuário?</string>
     <string name="menu_load_more">Carregar mais</string>
     <string name="myspace">Myspace</string>
@@ -95,8 +95,8 @@
     <string name="what_hint">O que</string>
     <string name="where_hint">Onde</string>
     <string name="widget_touch_to_open">Toque para abrir a SoundCloud</string>
-    <string name="wifi_settings">Configurações sem fio e rede</string>
-    <string name="wifi_settings_summary">Editar suas configurações. Usar Wi-Fi para um melhor desempenho.</string>
+    <string name="wifi_settings">Configurações de rede</string>
+    <string name="wifi_settings_summary">Editar suas configurações. Use Wi-Fi para um melhor desempenho.</string>
     <string name="btn_revert_to_original">Voltar ao original</string>
     <string name="fade_toggle_on">Aparecer/Desaparecer</string>
     <string name="fade_toggle_off">Não aparecer/desaparecer</string>
@@ -139,16 +139,16 @@
     <string name="authentication_add_info_add_image_msg">Sorria! Esta imagem aparecerá em seu perfil.</string>
     <string name="authentication_add_info_msg">Quase pronto. Agora, escolha um nome de usuário e adicione uma foto para personalizar seu perfil.</string>
     <string name="authentication_add_info_username_hint">Seu nome de usuário</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">Ao assinar, Eu concordo com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
+    <string name="authentication_by_signing_in_I_agree_to_the">Ao assinar, eu concordo com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
     <string name="authentication_choose_a_password">Pelo menos 6 caracteres</string>
     <string name="authentication_error_incomplete_fields">Preencha todos os campos.</string>
     <string name="authentication_error_invalid_email">Insira um e-mail válido.</string>
-    <string name="authentication_error_no_connection_message">Há um problema com a sua conexão de dados. Verifique as configurações de rede.</string>
+    <string name="authentication_error_no_connection_message">Há um problema com a sua conexão. Verifique as configurações de rede.</string>
     <string name="authentication_error_no_connection_title">Tem certeza de que está conectado à internet?</string>
     <string name="authentication_error_password_too_short">Sua senha deve ter 6 ou mais caracteres.</string>
     <string name="authentication_error_title">Erro</string>
-    <string name="authentication_log_in">Conecte-se</string>
-    <string name="authentication_log_in_with_facebook">Faça login no Facebook</string>
+    <string name="authentication_log_in">Entrar</string>
+    <string name="authentication_log_in_with_facebook">Login via Facebook</string>
     <string name="authentication_log_in_with_facebook_ssl_error">Erro ao conectar-se ao Facebook (SSL)</string>
     <string name="authentication_login_error_password_message">Não conseguimos fazer seu login. Tem certeza de que o e-mail e a senha estão corretos?</string>
     <string name="authentication_login_progress_message">Iniciando a sessão</string>
@@ -157,7 +157,7 @@
     <string name="authentication_recover_password_failure_reason">Falha na recuperação de senha: %s</string>
     <string name="authentication_recover_password_success">Verifique o seu e-mail! Você receberá um e-mail com instruções sobre como redefinir sua senha em breve</string>
     <string name="authentication_recover_progress_message">Solicitação de redefinição de senha</string>
-    <string name="authentication_sign_up">Cadastre-se na SoundCloud</string>
+    <string name="authentication_sign_up">Cadastrar-se na SoundCloud</string>
     <string name="authentication_signup_error_message">Parece haver um problema. Tente se inscrever em SoundCloud.com.</string>
     <string name="authentication_support">Suporte</string>
     <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
@@ -169,7 +169,7 @@
     <string name="authentication_login_error_message">Nós não conseguimos fazer seu login. Tente novamente.</string>
     <string name="authentication_add_info_error">Não foi possível atualizar suas informações. Tente novamente.</string>
     <string name="authentication_no_google_accounts">Configure uma conta do Google primeiro.</string>
-    <string name="authentication_log_in_with_google">Faça login no Google</string>
+    <string name="authentication_log_in_with_google">Login via Google</string>
     <string name="error_google_sign_in_failed">Não conseguimos efetuar seu login com o Google+. Visite plus.google.com para ativar sua conta do Google+ e tente novamente</string>
     <string name="auth_disclaimer_title">Mais um passo</string>
     <string name="auth_disclaimer_message">Ao clicar em \"Continuar\", você concorda com os Termos de Uso e a Política de Privacidade da SoundCloud.</string>
@@ -216,7 +216,7 @@
     <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
     <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login na SoundCloud antes que possa continuar a usar o aplicativo.</string>
     <string name="error_unauthorized_title">Erro na conta</string>
-    <string name="error_loading_url">Houve um problema ao carregar esse URL</string>
+    <string name="error_loading_url">Houve um problema ao carregar essa URL</string>
     <string name="error_soundcloud_no_response">A SoundCloud não está respondendo.</string>
     <string name="error_no_internet">Sem Internet.</string>
     <string name="error_connect_and_try_again">Conecte-se e tente novamente.</string>
@@ -224,7 +224,7 @@
     <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
     <string name="error_server_problems_message">Houve um problema no processamento de seu pedido. Tente novamente mais tarde.</string>
     <!-- signup scope was revoked on server side -->
-    <string name="signup_scope_revoked">Ops! Não foi possível inscrevê-lo. Tente atualizar o aplicativo ou inscrever-se em SoundCloud.com.</string>
+    <string name="signup_scope_revoked">Ops! Não foi possível completar seu cadastro. Tente atualizar o aplicativo ou cadastrar-se em SoundCloud.com.</string>
 
     <!-- __EXPLORE -->
     <string name="explore_genres">Gêneros</string>
@@ -236,7 +236,7 @@
     <!-- __NAVIGATION -->
     <string name="side_menu_activity">Atividade</string>
     <string name="side_menu_record">Gravar</string>
-    <string name="side_menu_stream">Transmitir</string>
+    <string name="side_menu_stream">Stream</string>
     <string name="side_menu_you">Você</string>
     <string name="side_menu_settings">Configurações</string>
     <string name="side_menu_likes">Curtidas</string>
@@ -417,13 +417,13 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">Detalhes do aplicativo</string>
     <string name="pref_basic_settings">Configurações básicas</string>
-    <string name="pref_clear_cache">Excluir o cache de imagens</string>
+    <string name="pref_clear_cache">Limpar o cache de imagens</string>
     <string name="pref_clear_cache_desc">Excluir o cache do aplicativo para liberar memória</string>
-    <string name="pref_clear_stream_cache">Excluir cache de transmissão</string>
-    <string name="pref_clear_stream_cache_desc">Excluir o cache de transmissão</string>
+    <string name="pref_clear_stream_cache">Limpar cache de dados</string>
+    <string name="pref_clear_stream_cache_desc">Excluir o cache local de dados (músicas e sons)</string>
     <string name="pref_connection_and_data">Conexão e dados</string>
     <string name="pref_help">Ajuda</string>
-    <string name="pref_help_desc">Acesse o site de suporte dA SoundCloud</string>
+    <string name="pref_help_desc">Acesse o site de suporte da SoundCloud</string>
     <string name="pref_notifications">Notificações</string>
     <string name="pref_notifications_activity">Atividade</string>
     <string name="pref_notifications_comments">Comentários</string>
@@ -457,12 +457,12 @@
     <string name="pref_sync_toggles">Recursos sincronizados</string>
     <string name="pref_sync_wifi_only">Sincronizar apenas WiFi</string>
     <string name="pref_sync_wifi_only_description">Sincronizar os meus dados somente quando conectado via WiFi</string>
-    <string name="pref_analytics">Analítica</string>
+    <string name="pref_analytics">Analítico</string>
     <string name="pref_analytics_desc">A habilitação da analítica nos permite coletar dados sobre o uso deste aplicativo, o que nos ajudará a melhorar o aplicativo. Consulte nossa Política de Privacidade para obter mais detalhes.</string>
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">A habilitação do Crashlogs nos ajuda a melhorar significativamente o aplicativo. Não recolhem quaisquer dados pessoais. Consulte nossa Política de Privacidade para obter mais detalhes.</string>
-    <string name="pref_stream_cache_size">Tamanho do cache de transmissão</string>
-    <string name="pref_stream_cache_size_desc">O tamanho do cache de transmissão em percentagem</string>
+    <string name="pref_stream_cache_size">Tamanho do cache de música</string>
+    <string name="pref_stream_cache_size_desc">O tamanho do cache de música, em percentagem</string>
     <string name="playback_error_logging">Registro de erros de reprodução: %s</string>
     <string name="enabled">Habilitado</string>
     <string name="disabled">Desabilitado</string>
@@ -472,13 +472,13 @@
     <string name="format_abbreviated_minutes">%d min.</string>
 
     <!-- __TOUR -->
-    <string name="tour_title_1">Ouvir os sons do mundo</string>
+    <string name="tour_title_1">Ouça os sons do mundo</string>
     <string name="tour_text_1">Explore a maior comunidade \nde artistas, bandas, criadores de podcasts, \nmúsica e áudio</string>
-    <string name="tour_title_2">Descobrir</string>
+    <string name="tour_title_2">Descubra</string>
     <string name="tour_text_2">Todos os tipos de música e áudio novos e exclusivos</string>
-    <string name="tour_title_3">Conectar e compartilhar</string>
+    <string name="tour_title_3">Conecte e compartilhe</string>
     <string name="tour_text_3">Descubra criadores de áudio e música\npara ouvir e seguir,\ncompartilhe os sons que você gosta</string>
-    <string name="tour_signup_header">Ou cadastre-se com o seu endereço eletrônico</string>
+    <string name="tour_signup_header">Ou cadastre-se com o seu e-mail</string>
     <string name="tour_login_header">Ou cadastre-se com a sua conta</string>
 
     <!-- __UPLOAD -->
@@ -489,19 +489,19 @@
     <string name="uploader_event_cancelling">Cancelando</string>
     <string name="uploader_event_processing_finished">Processamento terminado</string>
     <string name="cloud_uploader_notification_error_message">Houve um erro ao enviar %s</string>
-    <string name="cloud_uploader_notification_error_ticker">Erro no Upload</string>
-    <string name="cloud_uploader_notification_error_title">Erro no Upload</string>
+    <string name="cloud_uploader_notification_error_ticker">Erro no envio</string>
+    <string name="cloud_uploader_notification_error_title">Erro no envio</string>
     <string name="cloud_uploader_notification_finished_message">%s foi carregado</string>
     <string name="cloud_uploader_notification_finished_ticker">Carregamento finalizado</string>
     <string name="cloud_uploader_notification_finished_title">Carregamento finalizado</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Houve um erro de transcodificação %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_message">Ocorreu um erro na transcodificação %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
     <string name="dialog_transcoding_failed_title">Falha na transcodificação</string>
-    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso centro de apoio ao cliente.</string>
-    <string name="dialog_transcoding_processing_title">Processamento de som</string>
+    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com nossa central de suporte.</string>
+    <string name="dialog_transcoding_processing_title">Processando som</string>
     <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em alguns segundos.</string>
-    <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
+    <string name="dialog_cancel_upload_message">Cancelar o envio?</string>
     <string name="sc_upload_add_image">Adicionar Imagem</string>
     <string name="sc_upload_private">Privado</string>
     <string name="sc_upload_public">Público</string>
