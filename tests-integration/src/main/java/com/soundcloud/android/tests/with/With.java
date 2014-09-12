@@ -14,6 +14,10 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithText(text);
     }
 
+    public static With textContaining(String text) {
+        return new WithTextContaining(text);
+    }
+
     public static With className (Class<? extends View> classToSearch) {
         return new WithClass(classToSearch);
     }
@@ -49,6 +53,19 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public boolean apply(ViewElement viewElement) {
             return viewElement.getText().equals(searchedText);
+        }
+    }
+
+    static class WithTextContaining extends With {
+        private final String searchedText;
+
+        WithTextContaining(String text) {
+            searchedText = text;
+        }
+
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            return viewElement.getText().contains(searchedText);
         }
     }
 

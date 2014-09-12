@@ -16,14 +16,14 @@ import android.widget.TextView;
 
 public class CommentRow extends IconLayout implements ListRow {
     private final TextView user;
-    private final TextView title;
+    private final TextView message;
     private final TextView createdAt;
     private Comment comment;
 
     public CommentRow(Context context, ImageOperations imageOperations) {
         super(context, imageOperations);
 
-        title = (TextView) findViewById(R.id.title);
+        message = (TextView) findViewById(R.id.action);
         user = (TextView) findViewById(R.id.user);
         createdAt = (TextView) findViewById(R.id.created_at);
     }
@@ -44,7 +44,7 @@ public class CommentRow extends IconLayout implements ListRow {
 
         loadIcon();
 
-        title.setText(comment.body);
+        message.setText(comment.body);
         if (comment.getUser() != null) user.setText(comment.getUser().username);
         createdAt.setText(ScTextUtils.formatTimeElapsed(getContext().getResources(), comment.getCreatedAt().getTime()));
     }

@@ -28,7 +28,6 @@
     <string name="terms_of_use">Condiciones</string>
     <string name="privacy_policy">Política de privacidad</string>
     <string name="privacy">Privacidad</string>
-    <string name="list_header_track_reposters">Gente que ha vuelto a publicar este sonido</string>
     <string name="started_following_you">te ha empezado a seguir</string>
     <string name="search_for_query">Busca \'%s\'</string>
     <string name="done">Hecho</string>
@@ -76,8 +75,7 @@
     <string name="discogs">Discogs</string>
     <string name="image_load_error">Ocurrió un error al cargar la imagen</string>
     <string name="image_where">¿Cómo le gustaría añadir una imagen?</string>
-    <string name="list_header_track_comments">Comentarios sobre este sonido</string>
-    <string name="list_header_track_likers">Gente a la que le gusta este sonido</string>
+    <string name="comments">Comentarios</string>
     <string name="location_picker_go_to_settings">Ir a ajustes</string>
     <string name="location_picker_no_providers_enabled">No hay habilitados proveedores de lugares.</string>
     <string name="menu_clear_user_desc">Tiene que volver a conectar su cuenta de SoundCloud.</string>

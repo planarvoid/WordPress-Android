@@ -39,7 +39,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
 
         setUserName(itemView, propertySet);
         setTimeElapsed(itemView, propertySet);
-        setTitleText(itemView, propertySet);
+        setMainText(itemView, propertySet);
         setUserAvatar(itemView, propertySet);
     }
 
@@ -50,7 +50,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
                 (ImageView) itemView.findViewById(R.id.image));
     }
 
-    private void setTitleText(View itemView, PropertySet propertySet) {
+    private void setMainText(View itemView, PropertySet propertySet) {
         final String titleText;
         final int iconId;
         switch (propertySet.get(ActivityProperty.TYPE)) {
@@ -73,7 +73,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
             default:
                 throw new IllegalArgumentException("Unexpected activity type");
         }
-        final TextView titleTextView = (TextView) itemView.findViewById(R.id.title);
+        final TextView titleTextView = (TextView) itemView.findViewById(R.id.action);
         titleTextView.setText(titleText);
         titleTextView.setCompoundDrawablesWithIntrinsicBounds(iconId, 0, 0, 0);
     }

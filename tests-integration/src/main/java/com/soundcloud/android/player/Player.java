@@ -11,6 +11,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.screens.TrackInfoScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
@@ -142,7 +143,7 @@ public class Player extends ActivityTestCase<MainActivity> {
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
-    public void testPlayerShowTheTrackDesciptioon() throws Exception {
+    public void testPlayerShowTheTrackDesciption() throws Exception {
         playExploreTrack();
 
         String originalTitle = playerElement.getTrackTitle();
@@ -151,6 +152,19 @@ public class Player extends ActivityTestCase<MainActivity> {
         final TrackInfoScreen trackInfoScreen = new TrackInfoScreen(solo);
         assertTrue(trackInfoScreen.waitForDialog());
         assertThat(trackInfoScreen.getTitle(), is(equalTo(originalTitle)));
+    }
+
+    public void testPlayerTrackInfoLinksToComments() throws Exception {
+        playTrackFromLikes();
+
+        String originalTitle = playerElement.getTrackTitle();
+        playerElement.clickMenu().info().click();
+
+        final TrackInfoScreen trackInfoScreen = new TrackInfoScreen(solo);
+        assertTrue(trackInfoScreen.waitForDialog());
+
+        TrackCommentsScreen trackCommentsScreen = trackInfoScreen.clickComments();
+        assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
     }
 
     private void playExploreTrack() {

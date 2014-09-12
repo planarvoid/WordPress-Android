@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import android.widget.FrameLayout;
 public class TrackInfoPresenterTest extends TestCase {
     private View view;
     private TrackInfoPresenter presenter;
+    @Mock TrackInfoPresenter.CommentClickListener commentClickListener;
 
     @Before
     public void setUp() throws Exception {
@@ -36,7 +38,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 10);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
         expect(view.findViewById(R.id.divider1)).toBeVisible();
@@ -52,7 +54,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 0);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeGone();
         expect(view.findViewById(R.id.divider1)).toBeGone();
@@ -68,7 +70,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 0);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeGone();
         expect(view.findViewById(R.id.divider1)).toBeGone();
@@ -84,7 +86,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 10);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
         expect(view.findViewById(R.id.divider1)).toBeVisible();
@@ -100,7 +102,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 10);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
         expect(view.findViewById(R.id.divider1)).toBeVisible();
@@ -116,7 +118,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 10);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeVisible();
         expect(view.findViewById(R.id.divider1)).toBeGone();
@@ -132,7 +134,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 0)
                 .put(TrackProperty.PLAY_COUNT, 0);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeGone();
         expect(view.findViewById(R.id.divider1)).toBeGone();
@@ -148,7 +150,7 @@ public class TrackInfoPresenterTest extends TestCase {
                 .put(PlayableProperty.REPOSTS_COUNT, 10)
                 .put(TrackProperty.PLAY_COUNT, 0);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.plays)).toBeGone();
         expect(view.findViewById(R.id.divider1)).toBeGone();
@@ -161,7 +163,7 @@ public class TrackInfoPresenterTest extends TestCase {
     public void bindViewsShouldHideCommentsWhenCommentsAreZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.COMMENTS_COUNT, 0);
 
-        presenter.bind(view, trackProperties);
+        presenter.bind(view, trackProperties, commentClickListener);
 
         expect(view.findViewById(R.id.comments)).toBeGone();
     }

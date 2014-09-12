@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import rx.functions.Func1;
+
 public class PlayerUIEvent {
 
     public static final int PLAYER_EXPANDED = 0;
@@ -34,5 +36,12 @@ public class PlayerUIEvent {
     public String toString() {
         return "player UI event: " + kind;
     }
+
+    public static final Func1<PlayerUIEvent, Boolean> PLAYER_IS_COLLAPSED = new Func1<PlayerUIEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayerUIEvent playerUIEvent) {
+            return playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
+        }
+    };
 
 }

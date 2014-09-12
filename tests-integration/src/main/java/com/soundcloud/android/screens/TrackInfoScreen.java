@@ -22,4 +22,10 @@ public class TrackInfoScreen extends Screen {
     public String getTitle() {
         return testDriver.findElement(With.id(com.soundcloud.android.R.id.title)).getText();
     }
+
+    public TrackCommentsScreen clickComments() {
+        testDriver.findElement(With.id(com.soundcloud.android.R.id.comments)).click();
+        return new TrackCommentsScreen(testDriver);
+    }
+
 }

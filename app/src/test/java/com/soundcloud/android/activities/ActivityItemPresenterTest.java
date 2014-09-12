@@ -49,7 +49,7 @@ public class ActivityItemPresenterTest {
         presenter.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "follower");
-        expect(R.id.title, "started following you");
+        expect(R.id.action, "started following you");
         expect(R.id.date, "1 hour ago");
     }
 
@@ -66,7 +66,7 @@ public class ActivityItemPresenterTest {
         presenter.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "User name");
-        expect(R.id.title, "liked Sound title");
+        expect(R.id.action, "liked Sound title");
         expect(R.id.date, "52 minutes ago");
     }
 
@@ -83,7 +83,7 @@ public class ActivityItemPresenterTest {
         presenter.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "User name");
-        expect(R.id.title, "reposted Sound title");
+        expect(R.id.action, "reposted Sound title");
         expect(R.id.date, "52 minutes ago");
 
     }
@@ -101,7 +101,7 @@ public class ActivityItemPresenterTest {
         presenter.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "User name");
-        expect(R.id.title, "commented on Sound title");
+        expect(R.id.action, "commented on Sound title");
         expect(R.id.date, "52 minutes ago");
     }
 

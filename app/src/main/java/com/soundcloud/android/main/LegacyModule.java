@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.AssociationsModule;
-import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.view.adapters.PostsAdapter;
@@ -18,7 +17,6 @@ import dagger.Module;
                 ActivitiesAdapter.class,
                 SoundAdapter.class,
                 PostsAdapter.class,
-                TrackInteractionActivity.class,
                 MyTracksAdapter.class
         }, includes = AssociationsModule.class)
 

@@ -1,15 +1,10 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.associations.PlayableInteractionActivity;
-import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.text.Html;
 import android.text.Spanned;
@@ -23,6 +18,10 @@ import javax.inject.Inject;
 public class TrackInfoPresenter {
     private final Resources resources;
 
+    interface CommentClickListener {
+        void onCommentsClicked();
+    }
+
     @Inject
     public TrackInfoPresenter(Resources resources) {
         this.resources = resources;
@@ -32,14 +31,14 @@ public class TrackInfoPresenter {
         return inflater.inflate(R.layout.track_info, container, false);
     }
 
-    public void bind(View view, final PropertySet propertySet) {
+    public void bind(View view, final PropertySet propertySet, CommentClickListener commentClickListener) {
         setTextAndShow(view, R.id.title, propertySet.get(PlayableProperty.TITLE));
         setTextAndShow(view, R.id.creator, propertySet.get(PlayableProperty.CREATOR_NAME));
 
         showView(view, R.id.description_holder);
 
         bindUploadedSinceText(view, propertySet);
-        bindComments(view, propertySet);
+        bindComments(view, propertySet, commentClickListener);
         bindPrivateOrStats(view, propertySet);
     }
 
@@ -75,7 +74,7 @@ public class TrackInfoPresenter {
         }
     }
 
-    private void bindComments(View view, final PropertySet propertySet) {
+    private void bindComments(View view, final PropertySet propertySet, final CommentClickListener commentClickListener) {
         int commentsCount = propertySet.get(TrackProperty.COMMENTS_COUNT);
         if (commentsCount > 0){
             String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
@@ -89,10 +88,7 @@ public class TrackInfoPresenter {
         view.findViewById(R.id.comments).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Context context = view.getContext();
-                context.startActivity(new Intent(context, TrackInteractionActivity.class)
-                        .putExtra(PlayableInteractionActivity.PROPERTY_SET_EXTRA, propertySet)
-                        .putExtra(PlayableInteractionActivity.EXTRA_INTERACTION_TYPE, Activity.Type.COMMENT));
+                commentClickListener.onCommentsClicked();
             }
         });
     }

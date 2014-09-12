@@ -16,20 +16,12 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 import android.content.Context;
 
 import javax.inject.Inject;
 
 class TrackPageListener extends PageListener {
-    private static final Func1<PlayerUIEvent, Boolean> PLAYER_IS_COLLAPASED = new Func1<PlayerUIEvent, Boolean>() {
-        @Override
-        public Boolean call(PlayerUIEvent playerUIEvent) {
-            return playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
-        }
-    };
-
     private final SoundAssociationOperations associationOperations;
     private final PlayQueueManager playQueueManager;
 
@@ -51,7 +43,7 @@ class TrackPageListener extends PageListener {
 
     public void onGotoUser(final Context activityContext, final UserUrn userUrn) {
         eventBus.queue(EventQueue.PLAYER_UI)
-                .first(PLAYER_IS_COLLAPASED)
+                .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
                 .subscribe(startProfileActivity(activityContext, userUrn));
 
         requestPlayerCollapse();

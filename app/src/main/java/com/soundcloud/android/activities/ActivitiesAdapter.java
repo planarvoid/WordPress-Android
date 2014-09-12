@@ -1,7 +1,6 @@
 package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
-import static com.soundcloud.android.associations.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -10,11 +9,9 @@ import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.associations.PlayableInteractionActivity;
-import com.soundcloud.android.associations.PlaylistInteractionActivity;
-import com.soundcloud.android.associations.TrackInteractionActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
+import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -147,13 +144,15 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
+                    context.startActivity(new Intent(context, TrackCommentsActivity.class)
+                            .putExtra(TrackCommentsActivity.EXTRA_PROPERTY_SET, getItem(position).getPlayable().toPropertySet()));
+                return ItemClickResults.LEAVING;
+
             case TRACK_LIKE:
             case TRACK_REPOST:
                 if (content == Content.ME_ACTIVITIES) {
-                    // todo, scroll to specific repost
-                    context.startActivity(new Intent(context, TrackInteractionActivity.class)
-                            .putExtra(TrackInteractionActivity.PROPERTY_SET_EXTRA, getItem(position).getPlayable().toPropertySet())
-                            .putExtra(EXTRA_INTERACTION_TYPE, type));
+                    context.startActivity(new Intent(context, ProfileActivity.class)
+                            .putExtra(ProfileActivity.EXTRA_USER, getItem(position).getUser()));
                 } else {
                     playTrackOrStartPlaylistFragment(context, position);
                 }
@@ -161,10 +160,8 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case PLAYLIST_LIKE:
             case PLAYLIST_REPOST:
                 if (content == Content.ME_ACTIVITIES) {
-                    // todo, scroll to specific repost
-                    context.startActivity(new Intent(context, PlaylistInteractionActivity.class)
-                            .putExtra(PlayableInteractionActivity.PROPERTY_SET_EXTRA, getItem(position).getPlayable().toPropertySet())
-                            .putExtra(EXTRA_INTERACTION_TYPE, type));
+                    context.startActivity(new Intent(context, ProfileActivity.class)
+                            .putExtra(ProfileActivity.EXTRA_USER, getItem(position).getUser()));
                 } else {
                     playTrackOrStartPlaylistFragment(context, position);
                 }

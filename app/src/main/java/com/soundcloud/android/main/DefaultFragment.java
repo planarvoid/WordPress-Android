@@ -9,7 +9,7 @@ public class DefaultFragment extends Fragment {
     private final FragmentLifeCycleDispatcher.Builder<Fragment> lifeCycleDispatcherBuilder;
     private FragmentLifeCycleDispatcher<Fragment> lifeCycleDispatcher;
 
-    protected DefaultFragment() {
+    public DefaultFragment() {
         lifeCycleDispatcherBuilder = new FragmentLifeCycleDispatcher.Builder();
     }
 

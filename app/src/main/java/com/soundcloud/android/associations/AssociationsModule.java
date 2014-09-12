@@ -12,11 +12,7 @@ import dagger.Provides;
 @Module(
         addsTo = ApplicationModule.class,
         library = true,
-        injects = {
-                WhoToFollowActivity.class,
-                PlaylistInteractionActivity.class,
-                TrackInteractionActivity.class
-        }
+        injects = WhoToFollowActivity.class
 )
 public class AssociationsModule {
 

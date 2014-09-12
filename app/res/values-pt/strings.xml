@@ -10,7 +10,6 @@
     <string name="yes">Sim</string>
     <string name="no">Não</string>
     <string name="title_search">Pesquisar</string>
-    <string name="list_header_track_reposters">Pessoas que publicaram este som</string>
     <string name="started_following_you">começou a seguir você</string>
     <string name="search_for_query">Pesquisar por \'%s\'</string>
     <string name="authentication_recover_password_msg">Digite seu endereço de e-mail, e nós lhe enviaremos um link que permite mudar sua senha. Problemas? Entre em contato com o apoio ao cliente.</string>
@@ -66,8 +65,7 @@
     <string name="discogs">Discogs</string>
     <string name="image_load_error">Houve um problema ao carregar a imagem</string>
     <string name="image_where">Gostaria de adicionar uma imagem?</string>
-    <string name="list_header_track_comments">Comentários sobre este som</string>
-    <string name="list_header_track_likers">Pessoas que curtiram esse som</string>
+    <string name="comments">Comentários</string>
     <string name="location_picker_go_to_settings">Vá em configurações</string>
     <string name="location_picker_no_providers_enabled">Não há provedores de localização habilitados.</string>
     <string name="menu_clear_user_desc">Você terá que reconectar sua conta dA SoundCloud.</string>

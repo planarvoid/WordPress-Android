@@ -276,8 +276,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".associations.TrackInteractionActivity"/>
-
+        <activity android:name=".comments.TrackCommentsActivity" android:label="@string/comments"/>
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYLIST"/>
@@ -289,7 +288,6 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
             </intent-filter>
         </activity>
-        <activity android:name=".associations.PlaylistInteractionActivity"/>
 
         <!-- settings -->
         <activity android:label="@string/title_settings" android:name=".preferences.SettingsActivity" android:theme="@style/Theme.SoundCloud"/>
