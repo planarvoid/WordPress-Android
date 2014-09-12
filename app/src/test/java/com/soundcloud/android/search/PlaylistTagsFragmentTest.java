@@ -176,6 +176,7 @@ public class PlaylistTagsFragmentTest {
         FragmentActivity activity = new SearchActivity(actionBarController);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
+        fragment.onAttach(activity);
         fragment.onCreate(null);
         View layout = fragment.onCreateView(activity.getLayoutInflater(), new FrameLayout(activity), null);
         Robolectric.shadowOf(fragment).setView(layout);

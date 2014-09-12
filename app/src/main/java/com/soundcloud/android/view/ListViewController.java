@@ -1,11 +1,15 @@
 package com.soundcloud.android.view;
 
+import static android.widget.AbsListView.OnScrollListener;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.DefaultFragmentLifeCycle;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.android.Pager;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -26,7 +30,8 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
 
     private AbsListView absListView;
     private ListAdapter adapter;
-    private @Nullable AbsListView.OnScrollListener scrollListener;
+    private @Nullable OnScrollListener scrollListener;
+    private @Nullable Pager<?> pager;
 
     @Inject
     public ListViewController(EmptyViewController emptyViewController, ImageOperations imageOperations) {
@@ -38,7 +43,12 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
         this.adapter = adapter;
     }
 
-    public void setScrollListener(@Nullable AbsListView.OnScrollListener scrollListener) {
+    public <T> void setAdapter(EndlessAdapter<T> adapter, Pager<? extends Iterable<T>> pager) {
+        this.adapter = adapter;
+        this.pager = pager;
+    }
+
+    public void setScrollListener(@Nullable OnScrollListener scrollListener) {
         this.scrollListener = scrollListener;
     }
 
@@ -49,17 +59,22 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Preconditions.checkState(adapter != null, "You must set an adapter before calling onViewCreated");
+        Preconditions.checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
         emptyViewController.onViewCreated(view, savedInstanceState);
 
         absListView = (AbsListView) view.findViewById(android.R.id.list);
         absListView.setEmptyView(emptyViewController.getEmptyView());
 
         if (scrollListener == null) {
-            absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true));
+            scrollListener = imageOperations.createScrollPauseListener(false, true);
         } else {
-            absListView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, scrollListener));
+            scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }
+        if (pager != null) {
+            scrollListener = new PagingScrollListener(pager, (EndlessAdapter) adapter, scrollListener);
+        }
+
+        absListView.setOnScrollListener(scrollListener);
 
         compatSetAdapter(adapter);
     }
@@ -91,5 +106,36 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     @VisibleForTesting
     AbsListView getListView() {
         return absListView;
+    }
+
+    private static class PagingScrollListener implements AbsListView.OnScrollListener {
+
+        private final Pager<?> pager;
+        private final EndlessAdapter<?> adapter;
+        private final OnScrollListener listenerDelegate;
+
+        PagingScrollListener(Pager<?> pager, EndlessAdapter<?> adapter, OnScrollListener listenerDelegate) {
+            this.pager = pager;
+            this.adapter = adapter;
+            this.listenerDelegate = listenerDelegate;
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            listenerDelegate.onScrollStateChanged(view, scrollState);
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            listenerDelegate.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+            int lookAheadSize = visibleItemCount * 2;
+            boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
+
+            if (lastItemReached && adapter.isIdle() && pager.hasNext()) {
+                adapter.setLoading();
+                pager.next();
+            }
+        }
     }
 }

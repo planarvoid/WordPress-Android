@@ -1,9 +1,6 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.android.OperatorPaged.Page;
-import static rx.android.OperatorPaged.Pager;
-import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
@@ -15,7 +12,7 @@ import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import rx.Observable;
-import rx.android.OperatorPaged;
+import rx.android.Pager;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
@@ -32,6 +29,18 @@ class ExploreTracksOperations {
         }
     };
 
+    private final Pager.NextPageFunc<SuggestedTracksCollection> nextPageFunc = new Pager.NextPageFunc<SuggestedTracksCollection>() {
+        @Override
+        public Observable<SuggestedTracksCollection> call(SuggestedTracksCollection trackSummaries) {
+            final Optional<Link> nextLink = trackSummaries.getNextLink();
+            if (nextLink.isPresent()) {
+                return getSuggestedTracks(nextLink.get().getHref());
+            } else {
+                return Pager.finish();
+            }
+        }
+    };
+
     @Inject
     ExploreTracksOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage) {
         this.rxHttpClient = rxHttpClient;
@@ -45,7 +54,7 @@ class ExploreTracksOperations {
         return rxHttpClient.fetchModels(request);
     }
 
-    public Observable<Page<SuggestedTracksCollection>> getSuggestedTracks(ExploreGenre category) {
+    public Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
         if (category == ExploreGenre.POPULAR_MUSIC_CATEGORY) {
             return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
         } else if (category == ExploreGenre.POPULAR_AUDIO_CATEGORY) {
@@ -55,25 +64,16 @@ class ExploreTracksOperations {
         }
     }
 
-    private Observable<Page<SuggestedTracksCollection>> getSuggestedTracks(String endpoint) {
+    Pager<SuggestedTracksCollection> getPager() {
+        return Pager.create(nextPageFunc);
+    }
+
+    private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {
         APIRequest<SuggestedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<SuggestedTracksCollection>get(endpoint)
                 .addQueryParameters("limit", String.valueOf(Consts.CARD_PAGE_SIZE))
                 .forPrivateAPI(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
-        Observable<SuggestedTracksCollection> source = rxHttpClient.fetchModels(request);
-        return source.doOnNext(cacheSuggestedTracks).lift(pagedWith(pager));
+        return rxHttpClient.<SuggestedTracksCollection>fetchModels(request).doOnNext(cacheSuggestedTracks);
     }
-
-    private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {
-        @Override
-        public Observable<Page<SuggestedTracksCollection>> call(SuggestedTracksCollection trackSummaries) {
-            final Optional<Link> nextLink = trackSummaries.getNextLink();
-            if (nextLink.isPresent()) {
-                return getSuggestedTracks(nextLink.get().getHref());
-            } else {
-                return OperatorPaged.emptyObservable();
-            }
-        }
-    };
 }

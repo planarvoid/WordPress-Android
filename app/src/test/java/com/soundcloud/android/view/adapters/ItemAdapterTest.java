@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -16,13 +15,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -122,36 +118,6 @@ public class ItemAdapterTest {
         expect(itemView).toBe(convertView);
         verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class));
         verify(cellPresenter).bindItemView(0, itemView, Arrays.asList(item));
-    }
-
-    @Test
-    public void shouldSaveAllItemsInSaveInstanceState() {
-        Bundle bundle = new Bundle();
-
-        adapter.saveInstanceState(bundle);
-        expect(bundle.containsKey(ItemAdapter.EXTRA_KEY_ITEMS)).toBeTrue();
-
-        ArrayList<Parcelable> savedItems = bundle.getParcelableArrayList(ItemAdapter.EXTRA_KEY_ITEMS);
-        expect(savedItems.size()).toEqual(adapter.getCount());
-        for (int i = 0; i < adapter.getCount(); i++) {
-            expect(savedItems.get(i)).toEqual(adapter.getItem(i));
-        }
-    }
-
-    @Test
-    public void shouldRestoreAllItemsInRestoreInstanceState() {
-        expect(adapter.getCount()).toBe(0);
-
-        Bundle bundle = new Bundle();
-        ArrayList<PublicApiTrack> tracks = Lists.newArrayList(new PublicApiTrack(1), new PublicApiTrack(2));
-        bundle.putParcelableArrayList(ItemAdapter.EXTRA_KEY_ITEMS, tracks);
-
-        adapter.restoreInstanceState(bundle);
-        expect(adapter.getCount()).toBe(2);
-
-        for (int i = 0; i < adapter.getCount(); i++) {
-            expect(adapter.getItem(i)).toEqual(tracks.get(i));
-        }
     }
 
 }

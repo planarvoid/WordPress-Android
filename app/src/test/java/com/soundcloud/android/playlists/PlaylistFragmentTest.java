@@ -96,6 +96,8 @@ public class PlaylistFragmentTest {
         when(controller.getAdapter()).thenReturn(adapter);
         when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
         when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+
+        fragment.onAttach(activity);
     }
 
     @Test

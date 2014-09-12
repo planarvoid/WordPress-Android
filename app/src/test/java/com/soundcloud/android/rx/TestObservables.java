@@ -21,6 +21,35 @@ public class TestObservables {
         });
     }
 
+    public static <T> Observable<T> withSubscription(final Subscription subscription, Observable<T> source) {
+        return source.lift(TestObservables.<T>withSubscription(subscription));
+    }
+
+    public static <T> Observable.Operator<T, T> withSubscription(final Subscription subscription) {
+        return new Observable.Operator<T, T>() {
+            @Override
+            public Subscriber<? super T> call(final Subscriber<? super T> subscriber) {
+                subscriber.add(subscription);
+                return new Subscriber<T>() {
+                    @Override
+                    public void onCompleted() {
+                        subscriber.onCompleted();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        subscriber.onError(e);
+                    }
+
+                    @Override
+                    public void onNext(T t) {
+                        subscriber.onNext(t);
+                    }
+                };
+            }
+        };
+    }
+
     public static <T> Observable<T> endlessObservablefromSubscription(final Subscription subscription) {
         return Observable.create(new Observable.OnSubscribe<T>() {
             @Override

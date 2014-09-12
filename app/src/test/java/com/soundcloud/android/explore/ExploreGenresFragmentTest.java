@@ -54,9 +54,11 @@ public class ExploreGenresFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
+        final FragmentActivity activity = new FragmentActivity();
+        Robolectric.shadowOf(fragment).setActivity(activity);
         observable = TestObservables.emptyObservable(subscription);
         when(operations.getCategories()).thenReturn(observable);
+        fragment.onAttach(activity);
     }
 
     @Test

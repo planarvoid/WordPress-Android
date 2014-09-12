@@ -146,8 +146,10 @@ public class PlaylistResultsFragmentTest {
         Bundle arguments = new Bundle();
         arguments.putString(PlaylistResultsFragment.KEY_PLAYLIST_TAG, "selected tag");
         fragment.setArguments(arguments);
-        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
+        final FragmentActivity activity = new FragmentActivity();
+        Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
+        fragment.onAttach(activity);
     }
 
     private View createFragmentView() {

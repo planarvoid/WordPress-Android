@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -23,6 +22,7 @@ import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
+import rx.android.Pager;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -40,7 +40,7 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class SoundStreamFragment extends DefaultFragment
-        implements RefreshableListComponent<ConnectableObservable<Page<List<PropertySet>>>> {
+        implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
     @VisibleForTesting
     static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
@@ -52,8 +52,9 @@ public class SoundStreamFragment extends DefaultFragment
     @Inject PlaybackOperations playbackOperations;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
-    private ConnectableObservable<Page<List<PropertySet>>> observable;
+    private ConnectableObservable<List<PropertySet>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
+    private Pager<List<PropertySet>> pager;
 
     public static SoundStreamFragment create(boolean onboardingSucceeded) {
         final Bundle args = new Bundle();
@@ -86,9 +87,9 @@ public class SoundStreamFragment extends DefaultFragment
     }
 
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter);
-        listViewController.setScrollListener(adapter);
-        pullToRefreshController.setAdapter(adapter);
+        pager = soundStreamOperations.getStreamItemsPager();
+        listViewController.setAdapter(adapter, pager);
+        pullToRefreshController.setRefreshListener(this, adapter);
 
         addLifeCycleComponent(listViewController);
         addLifeCycleComponent(pullToRefreshController);
@@ -96,22 +97,22 @@ public class SoundStreamFragment extends DefaultFragment
     }
 
     @Override
-    public ConnectableObservable<Page<List<PropertySet>>> buildObservable() {
-        final ConnectableObservable<Page<List<PropertySet>>> observable =
-                soundStreamOperations.existingStreamItems().observeOn(mainThread()).replay();
+    public ConnectableObservable<List<PropertySet>> buildObservable() {
+        final ConnectableObservable<List<PropertySet>> observable =
+                pager.page(soundStreamOperations.existingStreamItems()).observeOn(mainThread()).replay();
         observable.subscribe(adapter);
         return observable;
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Page<List<PropertySet>>> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
         this.observable = observable;
         this.connectionSubscription = observable.connect();
         return connectionSubscription;
     }
 
     @Override
-    public ConnectableObservable<Page<List<PropertySet>>> refreshObservable() {
+    public ConnectableObservable<List<PropertySet>> refreshObservable() {
         return soundStreamOperations.updatedStreamItems().observeOn(mainThread()).replay();
     }
 

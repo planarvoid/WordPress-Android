@@ -1,6 +1,7 @@
 package com.soundcloud.android.main;
 
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

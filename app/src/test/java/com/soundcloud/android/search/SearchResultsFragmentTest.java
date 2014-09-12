@@ -70,9 +70,9 @@ public class SearchResultsFragmentTest {
         fragment.eventBus = eventBus;
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
+        when(searchOperations.getAllSearchResults(anyString())).thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(listViewController.getEmptyView()).thenReturn(mock(EmptyView.class));
         when(playbackOperations.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
-        when(searchOperations.getAllSearchResults(anyString())).thenReturn(Observable.<Page<SearchResultsCollection>>empty());
     }
 
     @Test

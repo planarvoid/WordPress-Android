@@ -3,7 +3,7 @@ package com.soundcloud.android.search;
 import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static rx.android.OperatorPaged.Page;
-import static rx.android.OperatorPaged.Pager;
+import static rx.android.OperatorPaged.LegacyPager;
 import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.base.Optional;
@@ -54,7 +54,7 @@ public class SearchOperations {
                 }
             };
 
-    private final Pager<SearchResultsCollection> searchResultsPager = new Pager<SearchResultsCollection>() {
+    private final LegacyPager<SearchResultsCollection> searchResultsPager = new LegacyPager<SearchResultsCollection>() {
         @Override
         public Observable<Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
             final String nextHref = searchResultsCollection.getNextHref();
@@ -209,8 +209,8 @@ public class SearchOperations {
         return source.lift(pagedWith(discoveryResultsPager(query)));
     }
 
-    private Pager<ApiPlaylistCollection> discoveryResultsPager(final String query) {
-        return new Pager<ApiPlaylistCollection>() {
+    private LegacyPager<ApiPlaylistCollection> discoveryResultsPager(final String query) {
+        return new LegacyPager<ApiPlaylistCollection>() {
             @Override
             public Observable<Page<ApiPlaylistCollection>> call(ApiPlaylistCollection collection) {
                 final Optional<Link> nextLink = collection.getNextLink();

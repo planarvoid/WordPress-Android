@@ -13,9 +13,9 @@ public final class OperatorPaged<CollT extends Iterable<?>> implements Observabl
     private static final Page EMPTY_PAGE = new Page(Collections.emptyList(), EMPTY_OBSERVABLE);
     private static final Observable EMPTY_PAGE_OBSERVABLE = Observable.just(EMPTY_PAGE);
 
-    private final Pager<CollT> pager;
+    private final LegacyPager<CollT> pager;
 
-    public static <CollT extends Iterable<?>> OperatorPaged<CollT> pagedWith(Pager<CollT> pager) {
+    public static <CollT extends Iterable<?>> OperatorPaged<CollT> pagedWith(LegacyPager<CollT> pager) {
         return new OperatorPaged<CollT>(pager);
     }
 
@@ -31,7 +31,7 @@ public final class OperatorPaged<CollT extends Iterable<?>> implements Observabl
         return EMPTY_PAGE_OBSERVABLE;
     }
 
-    OperatorPaged(Pager<CollT> pager) {
+    OperatorPaged(LegacyPager<CollT> pager) {
         this.pager = pager;
     }
 
@@ -80,5 +80,5 @@ public final class OperatorPaged<CollT extends Iterable<?>> implements Observabl
         }
     }
 
-    public interface Pager<CollT extends Iterable<?>> extends Func1<CollT, Observable<Page<CollT>>> {};
+    public interface LegacyPager<CollT extends Iterable<?>> extends Func1<CollT, Observable<Page<CollT>>> {};
 }

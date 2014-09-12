@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.buildProvider;
+import static com.soundcloud.android.rx.TestObservables.withSubscription;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -9,6 +10,7 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rx.Observable.just;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -21,7 +23,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
@@ -33,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.OperatorPaged;
 import rx.observables.ConnectableObservable;
 
 import android.content.Intent;
@@ -42,13 +43,13 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamFragmentTest {
 
     private FragmentActivity activity = new FragmentActivity();
-    private ConnectableObservable<OperatorPaged.Page<List<PropertySet>>> streamItems;
 
     private SoundStreamFragment fragment;
 
@@ -63,12 +64,14 @@ public class SoundStreamFragmentTest {
 
     @Before
     public void setup() {
-        streamItems = TestObservables.emptyConnectableObservable(subscription);
+        Observable<List<PropertySet>> streamItems = withSubscription(subscription, just(Collections.<PropertySet>emptyList()));
+        when(soundStreamOperations.getStreamItemsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
         fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController, playbackOperations, buildProvider(expandPlayerSubscriber));
+        fragment.onAttach(activity);
     }
 
     @Test
@@ -115,7 +118,7 @@ public class SoundStreamFragmentTest {
     @Test
     public void shouldPlayTrackWhenClickingOnTrackItem() {
         Robolectric.shadowOf(fragment).setActivity(activity);
-        final Observable<TrackUrn> streamTracks = Observable.just((Urn.forTrack(123)));
+        final Observable<TrackUrn> streamTracks = just((Urn.forTrack(123)));
         when(soundStreamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
         when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
         fragment.onItemClick(null, null, 0, -1);

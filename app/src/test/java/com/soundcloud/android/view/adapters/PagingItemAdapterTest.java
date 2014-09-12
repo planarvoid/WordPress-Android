@@ -217,7 +217,7 @@ public class PagingItemAdapterTest {
     }
 
     private <T> Observable<Page<List<T>>> pagingObservable(Observable<List<T>> source, final Observable<Page<List<T>>> nextPage) {
-        return source.lift(pagedWith(new OperatorPaged.Pager<List<T>>() {
+        return source.lift(pagedWith(new OperatorPaged.LegacyPager<List<T>>() {
             @Override
             public Observable<Page<List<T>>> call(List<T> objects) {
                 return nextPage;

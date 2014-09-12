@@ -6,8 +6,8 @@ import com.soundcloud.android.main.FragmentLifeCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
@@ -24,7 +24,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 @SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
-class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
+class SoundStreamAdapter extends EndlessAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;

@@ -10,7 +10,7 @@ public class DefaultFragment extends Fragment {
     private FragmentLifeCycleDispatcher<Fragment> lifeCycleDispatcher;
 
     public DefaultFragment() {
-        lifeCycleDispatcherBuilder = new FragmentLifeCycleDispatcher.Builder();
+        lifeCycleDispatcherBuilder = new FragmentLifeCycleDispatcher.Builder<>();
     }
 
     public void addLifeCycleComponent(FragmentLifeCycle<Fragment> lifeCycleComponent) {

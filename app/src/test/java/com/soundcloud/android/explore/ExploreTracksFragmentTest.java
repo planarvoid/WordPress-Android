@@ -1,11 +1,12 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.rx.TestObservables.withSubscription;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.android.OperatorPaged.Page;
+import static rx.Observable.just;
 
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -17,10 +18,9 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.RxTestHelper;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.ListViewController;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -42,12 +42,11 @@ import java.util.List;
 public class ExploreTracksFragmentTest {
 
     private Bundle fragmentArgs = new Bundle();
-    private ConnectableObservable<Page<SuggestedTracksCollection>> observable;
 
     private ExploreTracksFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
 
-    @Mock private PagingItemAdapter adapter;
+    @Mock private EndlessAdapter<ApiTrack> adapter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private ExploreTracksOperations exploreTracksOperations;
@@ -58,6 +57,11 @@ public class ExploreTracksFragmentTest {
 
     @Before
     public void setUp() throws Exception {
+        Observable<SuggestedTracksCollection> observable = withSubscription(subscription, just(new SuggestedTracksCollection()));
+        when(exploreTracksOperations.getPager()).thenReturn(RxTestHelper.<SuggestedTracksCollection>pagerWithSinglePage());
+        when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
+        when(playbackOperations.playTrackWithRecommendations(any(TrackUrn.class), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<List<TrackUrn>>empty());
         fragment = new ExploreTracksFragment(adapter, playbackOperations, exploreTracksOperations,
                 pullToRefreshController, listViewController, new Provider<ExpandPlayerSubscriber>() {
             @Override
@@ -69,11 +73,6 @@ public class ExploreTracksFragmentTest {
         fragmentArgs.putString(ExploreTracksFragment.SCREEN_TAG_EXTRA, "screen");
         fragment.setArguments(fragmentArgs);
         Robolectric.shadowOf(fragment).setActivity(activity);
-
-        observable = TestObservables.emptyConnectableObservable(subscription);
-        when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
-        when(playbackOperations.playTrackWithRecommendations(any(TrackUrn.class), any(PlaySessionSource.class)))
-                .thenReturn(Observable.<List<TrackUrn>>empty());
     }
 
     @Test
@@ -120,7 +119,7 @@ public class ExploreTracksFragmentTest {
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
         collection.setTrackingTag("tag");
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class)))
-                .thenReturn(Observable.just(RxTestHelper.singlePage(collection)));
+                .thenReturn(just(collection));
         final ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track);
 

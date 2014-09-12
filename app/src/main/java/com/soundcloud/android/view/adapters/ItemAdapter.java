@@ -2,8 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
 
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,24 +17,23 @@ import java.util.List;
  *
  * Keep this class lean and clean: it provides basic adapter functionality around a list of parcelables, that's it.
  */
-public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
+public class ItemAdapter<ItemT> extends BaseAdapter {
     protected static final int DEFAULT_VIEW_TYPE = 0;
-    protected static final String EXTRA_KEY_ITEMS = "adapter.items";
 
     protected ArrayList<ItemT> items;
     protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
 
     public ItemAdapter(CellPresenterEntity<ItemT>... cellPresenterEntities) {
-        this.items = new ArrayList<ItemT>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<CellPresenter<ItemT>>(cellPresenterEntities.length);
+        this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+        this.cellPresenters = new SparseArray<>(cellPresenterEntities.length);
         for (CellPresenterEntity<ItemT> entity : cellPresenterEntities) {
             this.cellPresenters.put(entity.itemViewType, entity.cellPresenter);
         }
     }
 
     public ItemAdapter(CellPresenter<ItemT> cellPresenter) {
-        this.items = new ArrayList<ItemT>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<CellPresenter<ItemT>>(1);
+        this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+        this.cellPresenters = new SparseArray<>(1);
         this.cellPresenters.put(DEFAULT_VIEW_TYPE, cellPresenter);
     }
 
@@ -76,22 +73,6 @@ public class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter {
         }
         presenter.bindItemView(position, itemView, items);
         return itemView;
-    }
-
-    /**
-     * Saves this adapter's state to the given bundle. Always pair this with a call to
-     * {@link #restoreInstanceState(android.os.Bundle)}
-     */
-    public void saveInstanceState(Bundle bundle) {
-        bundle.putParcelableArrayList(EXTRA_KEY_ITEMS, items);
-    }
-
-    /**
-     * Restores this adapter's state from the given bundle. Always pair this with a call to
-     * {@link #saveInstanceState(android.os.Bundle)}
-     */
-    public void restoreInstanceState(Bundle bundle) {
-        items = bundle.getParcelableArrayList(EXTRA_KEY_ITEMS);
     }
 
     public static class CellPresenterEntity<ItemT>  {

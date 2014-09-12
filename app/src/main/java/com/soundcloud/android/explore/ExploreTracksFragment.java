@@ -1,6 +1,5 @@
 package com.soundcloud.android.explore;
 
-import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -17,8 +16,9 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import rx.Subscription;
+import rx.android.Pager;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -35,21 +35,23 @@ import javax.inject.Provider;
 
 @SuppressLint("ValidFragment")
 public class ExploreTracksFragment extends DefaultFragment
-        implements RefreshableListComponent<ConnectableObservable<Page<SuggestedTracksCollection>>> {
+        implements RefreshableListComponent<ConnectableObservable<SuggestedTracksCollection>> {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";
 
     private String trackingTag;
 
-    @Inject PagingItemAdapter<ApiTrack> adapter;
+    @Inject EndlessAdapter<ApiTrack> adapter;
     @Inject PlaybackOperations playbackOperations;
     @Inject ExploreTracksOperations exploreTracksOperations;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject ListViewController listViewController;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
-    private ConnectableObservable<Page<SuggestedTracksCollection>> observable;
+    private ConnectableObservable<SuggestedTracksCollection> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
+
+    private Pager<SuggestedTracksCollection> pager;
 
     public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -66,7 +68,7 @@ public class ExploreTracksFragment extends DefaultFragment
     }
 
     @VisibleForTesting
-    ExploreTracksFragment(PagingItemAdapter<ApiTrack> adapter,
+    ExploreTracksFragment(EndlessAdapter<ApiTrack> adapter,
                           PlaybackOperations playbackOperations,
                           ExploreTracksOperations exploreTracksOperations,
                           PullToRefreshController pullToRefreshController,
@@ -81,7 +83,11 @@ public class ExploreTracksFragment extends DefaultFragment
         addLifeCycleComponents();
     }
 
-    private void addLifeCycleComponents() {
+    public void addLifeCycleComponents() {
+        pager = exploreTracksOperations.getPager();
+        listViewController.setAdapter(adapter, pager);
+        listViewController.setScrollListener(new AbsListViewParallaxer(null));
+        pullToRefreshController.setRefreshListener(this, adapter);
         addLifeCycleComponent(this.listViewController);
         addLifeCycleComponent(this.pullToRefreshController);
     }
@@ -90,38 +96,32 @@ public class ExploreTracksFragment extends DefaultFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        listViewController.setAdapter(adapter);
-        listViewController.setScrollListener(new AbsListViewParallaxer(adapter));
-        pullToRefreshController.setAdapter(adapter);
-
         connectObservable(buildObservable());
     }
 
     @Override
-    public ConnectableObservable<Page<SuggestedTracksCollection>> buildObservable() {
+    public ConnectableObservable<SuggestedTracksCollection> buildObservable() {
         // on the initial load or when retrying, we want the adapter subscribed as well
-        final ConnectableObservable<Page<SuggestedTracksCollection>> observable = refreshObservable();
+        final ConnectableObservable<SuggestedTracksCollection> observable = refreshObservable();
         observable.subscribe(adapter);
         return observable;
     }
 
     @Override
-    public ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable() {
+    public ConnectableObservable<SuggestedTracksCollection> refreshObservable() {
         final ExploreGenre category = getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
-        return exploreTracksOperations
-                .getSuggestedTracks(category)
-                .doOnNext(new Action1<Page<SuggestedTracksCollection>>() {
+        return pager.page(exploreTracksOperations.getSuggestedTracks(category)
+                .doOnNext(new Action1<SuggestedTracksCollection>() {
                     @Override
-                    public void call(Page<SuggestedTracksCollection> page) {
-                        trackingTag = page.getPagedCollection().getTrackingTag();
+                    public void call(SuggestedTracksCollection page) {
+                        trackingTag = page.getTrackingTag();
                     }
-                })
-                .observeOn(mainThread())
-                .replay();
+                }))
+                .observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Page<SuggestedTracksCollection>> observable) {
+    public Subscription connectObservable(ConnectableObservable<SuggestedTracksCollection> observable) {
         this.observable = observable;
         connectionSubscription = this.observable.connect();
         return connectionSubscription;

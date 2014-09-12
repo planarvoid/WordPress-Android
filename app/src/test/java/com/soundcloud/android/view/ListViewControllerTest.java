@@ -71,7 +71,7 @@ public class ListViewControllerTest {
         verify(listView).setEmptyView(emptyView);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = NullPointerException.class)
     public void shouldThrowIfNoAdapterIsSetAtTheTimeOnViewCreatedIsCalled() {
         controller.setAdapter(null);
         controller.onViewCreated(view, bundle);
