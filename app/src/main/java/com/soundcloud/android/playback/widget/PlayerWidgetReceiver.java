@@ -19,8 +19,8 @@ public class PlayerWidgetReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (PlayerWidgetController.ACTION_LIKE_CHANGED.equals(intent.getAction())) {
             SoundCloudApplication.getObjectGraph().inject(this);
-            boolean isLiked = intent.getBooleanExtra(PlayerWidgetController.EXTRA_IS_LIKE, false);
-            controller.handleToggleLikeAction(isLiked);
+            boolean isLike = intent.getBooleanExtra(PlayerWidgetController.EXTRA_IS_LIKE, false);
+            controller.handleToggleLikeAction(isLike);
         }
     }
 

@@ -252,7 +252,7 @@ public class PlayerWidgetControllerTest {
 
         controller.handleToggleLikeAction(true);
 
-        verify(soundAssociationOps).toggleLike(WIDGET_TRACK_URN, false);
+        verify(soundAssociationOps).toggleLike(WIDGET_TRACK_URN, true);
     }
 
 }

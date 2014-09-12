@@ -105,17 +105,17 @@ public class PlayerWidgetController {
     }
 
     // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
-    public void handleToggleLikeAction(boolean isLiked) {
+    public void handleToggleLikeAction(boolean isLike) {
         fireAndForget(trackOperations.track(playQueueManager.getCurrentTrackUrn())
-                .flatMap(toggleLike(isLiked))
+                .flatMap(toggleLike(isLike))
                 .observeOn(AndroidSchedulers.mainThread()));
     }
 
-    private Func1<PropertySet, Observable<PropertySet>> toggleLike(final boolean isLiked) {
+    private Func1<PropertySet, Observable<PropertySet>> toggleLike(final boolean isLike) {
         return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
             public Observable<PropertySet> call(PropertySet track) {
-                return soundAssociationOps.toggleLike(track.get(TrackProperty.URN), !isLiked);
+                return soundAssociationOps.toggleLike(track.get(TrackProperty.URN), isLike);
             }
         };
     }
