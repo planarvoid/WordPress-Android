@@ -8,7 +8,7 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.NewInstance;
-import com.tobedevoured.modelcitizen.field.ConstructorCallback;
+import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.Collections;
 

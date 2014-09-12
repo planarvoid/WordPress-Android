@@ -2,14 +2,12 @@ package com.soundcloud.android.experiments;
 
 import com.google.common.collect.Lists;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
-import com.tobedevoured.modelcitizen.annotation.NewInstance;
-import com.tobedevoured.modelcitizen.field.ConstructorCallback;
+import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.List;
 
 @Blueprint(Assignment.class)
 public class AssignmentBlueprint {
-    @NewInstance
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {

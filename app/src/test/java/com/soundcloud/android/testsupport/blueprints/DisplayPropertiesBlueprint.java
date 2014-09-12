@@ -4,13 +4,11 @@ import com.soundcloud.android.ads.DisplayProperties;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
-import com.tobedevoured.modelcitizen.annotation.NewInstance;
-import com.tobedevoured.modelcitizen.field.ConstructorCallback;
+import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 @Blueprint(DisplayProperties.class)
 public class DisplayPropertiesBlueprint {
 
-    @NewInstance
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
