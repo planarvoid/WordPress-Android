@@ -41,6 +41,7 @@ class SoundStreamOperations {
 
     private final NextPageFunc<List<PropertySet>> nextPageFunc = new NextPageFunc<List<PropertySet>>() {
         @Override
+        @SuppressWarnings("PMD.CompareObjectsWithEquals") // No, PMD. I DO want to compare references.
         public Observable<List<PropertySet>> call(final List<PropertySet> result) {
             // We use NO_MORE_PAGES as a finish token to signal that there really are no more items to be retrieved,
             // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
