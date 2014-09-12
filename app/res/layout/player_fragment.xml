@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/player_track_pager"
-        android:layout_marginTop="@dimen/player_strip" />
+        android:layout_marginTop="@dimen/player_strip"
+        android:overScrollMode="always" />
 
 </FrameLayout>

@@ -317,6 +317,14 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldReturnAudioAdPosition() throws CreateModelException {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        playQueueManager.insertAudioAd(TestHelper.getModelFactory().createModel(AudioAd.class));
+
+        expect(playQueueManager.getAudioAdPosition()).toBe(2);
+    }
+
+    @Test
     public void getPlayProgressInfoReturnsLastSavedProgressInfo() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
         playQueueManager.saveCurrentProgress(456L);
@@ -583,7 +591,7 @@ public class PlayQueueManagerTest {
 
         playQueueManager.clearAudioAd();
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.AUDIO_AD_REMOVED);
     }
 
     @Test

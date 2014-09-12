@@ -301,6 +301,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return isAudioAdAtPosition(getCurrentPosition());
     }
 
+    public int getAudioAdPosition() {
+        return adTrackPosition;
+    }
+
     @Override
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
@@ -350,7 +354,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         
         if (adTrackPosition != Consts.NOT_SET && adTrackPosition != currentPosition) {
             removeAd(adTrackPosition);
-            publishQueueUpdate();
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
         }
     }
 

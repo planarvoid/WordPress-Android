@@ -21,4 +21,10 @@ public class PlayQueueEventTest {
         expect(event.getKind()).toEqual(1);
     }
 
+    @Test
+    public void shouldCreateEventForAudioAdRemoved() {
+        PlayQueueEvent event = PlayQueueEvent.fromAudioAdRemoved();
+        expect(event.getKind()).toEqual(2);
+    }
+
 }

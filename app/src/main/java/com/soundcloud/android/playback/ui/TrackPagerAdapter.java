@@ -19,7 +19,6 @@ import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
-import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -36,6 +35,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -56,14 +56,17 @@ public class TrackPagerAdapter extends PagerAdapter {
     private final FeatureFlags featureFlags;
     private final TrackPageRecycler trackPageRecycler;
 
+    private View adView;
+    private SkipListener skipListener;
+    private List<TrackPageData> currentData = Collections.emptyList();
+
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
     private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
 
-    private SkipListener skipListener;
-
     private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
-    private final Map<View, ViewPageData> trackByViews = new HashMap<View, ViewPageData>(TRACKVIEW_POOL_SIZE);
+
+    private final Map<View, TrackPageData> trackByViews = new HashMap<View, TrackPageData>(TRACKVIEW_POOL_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
@@ -95,22 +98,34 @@ public class TrackPagerAdapter extends PagerAdapter {
         this.trackPageRecycler = new TrackPageRecycler();
     }
 
+    public void setCurrentData(List<TrackPageData> data) {
+        currentData = data;
+        notifyDataSetChanged();
+    }
+
     public void onPlayerSlide(float slideOffset) {
-        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
-            int viewPosition = entry.getValue().positionInPlayQueue;
-            getPresenter(viewPosition).onPlayerSlide(entry.getKey(), slideOffset);
+        for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue()).onPlayerSlide(entry.getKey(), slideOffset);
         }
     }
 
+    public int getPlayQueuePosition(int position) {
+        return currentData.get(position).getPositionInPlayQueue();
+    }
+
+    public boolean isAudioAdAtPosition(int position) {
+        return currentData.get(position).isAdPage();
+    }
+
     void onPause() {
-        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
-            getPresenter(entry.getValue().positionInPlayQueue).onBackground(entry.getKey());
+        for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue()).onBackground(entry.getKey());
         }
     }
 
     void onResume() {
-        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
-            getPresenter(entry.getValue().positionInPlayQueue).onForeground(entry.getKey());
+        for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue()).onForeground(entry.getKey());
         }
     }
 
@@ -129,7 +144,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     public int getItemViewType(int position) {
-        return playQueueManager.isAudioAdAtPosition(position) ? TYPE_AD_VIEW : TYPE_TRACK_VIEW;
+        return currentData.get(position).isAdPage() ? TYPE_AD_VIEW : TYPE_TRACK_VIEW;
     }
 
     public int getItemViewTypeFromObject(Object object) {
@@ -155,9 +170,9 @@ public class TrackPagerAdapter extends PagerAdapter {
         container.removeView(view);
 
         if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
-            final TrackUrn trackUrn = trackByViews.get(view).trackUrn;
+            final TrackUrn trackUrn = trackByViews.get(view).getTrackUrn();
             trackPageRecycler.recyclePage(trackUrn, view);
-            if (!playQueueManager.isCurrentTrack(trackUrn)){
+            if (!playQueueManager.isCurrentTrack(trackUrn)) {
                 trackPagePresenter.onBackground(view);
             }
         }
@@ -172,11 +187,12 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     private View instantiateTrackView(int position) {
         View view;
-        TrackUrn urn = playQueueManager.getUrnAtPosition(position);
+        final TrackPageData trackPageData = currentData.get(position);
+        TrackUrn urn = trackPageData.getTrackUrn();
 
         if (trackPageRecycler.hasExistingPage(urn)){
             view = trackPageRecycler.removePageByUrn(urn);
-            trackByViews.put(view, new ViewPageData(position, urn));
+            trackByViews.put(view, trackPageData);
             trackPagePresenter.onForeground(view);
         } else {
             view = trackPageRecycler.getRecycledPage();
@@ -188,40 +204,39 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     private View instantiateAdView(ViewGroup container, int position) {
-        View view = adPagePresenter.createItemView(container, skipListener);
-        bindView(position, view);
-        return view;
+        if (adView == null) {
+            adView = adPagePresenter.createItemView(container, skipListener);
+        }
+        bindView(position, adView);
+        return adView;
     }
 
     private View bindView(int position, View view) {
-        final PlayerPagePresenter presenter = getPresenter(position);
-        presenter.clearItemView(view);
+        final TrackPageData trackPageData = currentData.get(position);
+        trackByViews.put(view, trackPageData);
 
-        final ViewPageData viewData = new ViewPageData(position, playQueueManager.getUrnAtPosition(position));
-        trackByViews.put(view, viewData);
+        final PlayerPagePresenter presenter = getPresenter(trackPageData);
+        presenter.clearItemView(view);
 
         if (!subscribedTrackViews.contains(view)) {
             subscribeToPlayEvents(presenter, view);
             subscribedTrackViews.add(view);
         }
 
-        getSoundObservable(viewData).subscribe(new TrackSubscriber(presenter, view));
+        getSoundObservable(trackPageData).subscribe(new TrackSubscriber(presenter, view));
         return view;
     }
 
-    private PlayerPagePresenter getPresenter(int position) {
-        if (getItemViewType(position) == TYPE_TRACK_VIEW) {
-            return trackPagePresenter;
-        }
-        return adPagePresenter;
+    private PlayerPagePresenter getPresenter(TrackPageData trackPageData) {
+        return trackPageData.isAdPage() ? adPagePresenter : trackPagePresenter;
     }
 
-    private Observable<PropertySet> getSoundObservable(ViewPageData viewData) {
+    private Observable<PropertySet> getSoundObservable(TrackPageData viewData) {
         final Observable<PropertySet> trackObservable;
-        if (playQueueManager.isAudioAdAtPosition(viewData.positionInPlayQueue)) {
-            trackObservable = getAdObservable(viewData.trackUrn, playQueueManager.getAudioAd());
+        if (viewData.isAdPage()) {
+            trackObservable = getAdObservable(viewData.getTrackUrn(), viewData.getAudioAd());
         } else {
-            trackObservable = getTrackObservable(viewData.trackUrn);
+            trackObservable = getTrackObservable(viewData.getTrackUrn());
         }
         return trackObservable;
     }
@@ -230,13 +245,13 @@ public class TrackPagerAdapter extends PagerAdapter {
         // merge together audio ad track data and track data from the upcoming monetizable track
         return Observable.zip(getTrackObservable(urn), getTrackObservable(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN)),
                 new Func2<PropertySet, PropertySet, PropertySet>() {
-            @Override
-            public PropertySet call(PropertySet audioAdTrack, PropertySet monetizableTrack) {
-                return audioAdTrack.merge(audioAd)
-                        .put(AdProperty.MONETIZABLE_TRACK_TITLE, monetizableTrack.get(PlayableProperty.TITLE))
-                        .put(AdProperty.MONETIZABLE_TRACK_CREATOR, monetizableTrack.get(PlayableProperty.CREATOR_NAME));
-            }
-        });
+                    @Override
+                    public PropertySet call(PropertySet audioAdTrack, PropertySet monetizableTrack) {
+                        return audioAdTrack.merge(audioAd)
+                                .put(AdProperty.MONETIZABLE_TRACK_TITLE, monetizableTrack.get(PlayableProperty.TITLE))
+                                .put(AdProperty.MONETIZABLE_TRACK_CREATOR, monetizableTrack.get(PlayableProperty.CREATOR_NAME));
+                    }
+                });
     }
 
     private View subscribeToPlayEvents(PlayerPagePresenter presenter, View trackPage) {
@@ -257,9 +272,9 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     void onTrackChange() {
-        for (Map.Entry<View, ViewPageData> entry : trackByViews.entrySet()) {
+        for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
             if (getItemViewTypeFromObject(entry.getKey()) == TYPE_TRACK_VIEW) {
-                TrackUrn urn = entry.getValue().trackUrn;
+                TrackUrn urn = entry.getValue().getTrackUrn();
                 trackPagePresenter.onPageChange(entry.getKey());
                 updateProgress(trackPagePresenter, entry.getKey(), urn);
             }
@@ -267,7 +282,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     private void onPagePositionSet(View view, int position) {
-        getPresenter(position).onPositionSet(view, position, playQueueManager.getQueueSize());
+        getPresenter(currentData.get(position)).onPositionSet(view, position, currentData.size());
     }
 
     // Getter with side effects. We are forced to adjust our internal datasets based on position changes here.
@@ -278,7 +293,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return playQueueManager.getQueueSize();
+        return currentData.size();
     }
 
     private Observable<PropertySet> getTrackObservable(TrackUrn urn) {
@@ -295,11 +310,11 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     private boolean isViewPresentingCurrentTrack(View trackPage) {
-        return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).trackUrn);
+        return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).getTrackUrn());
     }
 
     private Boolean isTrackRelatedToView(View trackPage, Urn urn) {
-        return (trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).trackUrn.equals(urn))
+        return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).getTrackUrn().equals(urn)
                 || trackPageRecycler.isPageForUrn(trackPage, urn);
     }
 
@@ -348,7 +363,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     }
 
-    private  final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+    private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         private final PlayerPagePresenter presenter;
         private final View trackPage;
 
@@ -399,27 +414,6 @@ public class TrackPagerAdapter extends PagerAdapter {
             if (isTrackRelatedToView(trackPage, event.getUrn())) {
                 presenter.onPlayableUpdated(trackPage, event);
             }
-        }
-    }
-
-    private class ViewPageData {
-        private final int positionInPlayQueue;
-        private final TrackUrn trackUrn;
-        private final boolean isAdPage;
-
-        ViewPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
-            this.positionInPlayQueue = positionInPlayQueue;
-            this.trackUrn = trackUrn;
-            this.isAdPage = playQueueManager.isAudioAdAtPosition(positionInPlayQueue);
-        }
-
-        @Override
-        public String toString() {
-            return "ViewPageData{" +
-                    "positionInPlayQueue=" + positionInPlayQueue +
-                    ", trackUrn=" + trackUrn +
-                    ", isAdPage=" + isAdPage +
-                    '}';
         }
     }
 }

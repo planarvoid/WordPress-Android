@@ -8,7 +8,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -18,6 +17,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
@@ -25,12 +25,12 @@ import rx.subscriptions.Subscriptions;
 
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
-class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTrackPager.OnBlockedSwipeListener {
+class PlayerPagerController {
 
     private static final int CHANGE_TRACKS_MESSAGE = 0;
     private static final int CHANGE_TRACKS_DELAY = 350;
@@ -41,25 +41,23 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private final PlaybackOperations playbackOperations;
     private final PlaybackToastViewController playbackToastViewController;
     private final PlayerPresenter presenter;
+
     private final Observable<PlaybackProgressEvent> checkAdProgress;
+    private final PlayerPagerScrollListener playerPagerScrollListener;
+    private final Provider<PlayQueueDataSwitcher> playQueueDataSwitcherProvider;
+
+    private PlayQueueDataSwitcher playQueueDataSwitcher;
     private CompositeSubscription subscription;
     private Subscription unblockPagerSubscription = Subscriptions.empty();
+
     private PlayerTrackPager trackPager;
     private boolean isResumed;
-    private boolean wasPageChanged;
-    private boolean wasDragging;
+    private boolean setPlayQueueAfterScroll;
 
     private final Handler changeTracksHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            playbackOperations.setPlayQueuePosition(trackPager.getCurrentItem());
-        }
-    };
-
-    private final Action1<PlaybackProgressEvent> unlockPager = new Action1<PlaybackProgressEvent>() {
-        @Override
-        public void call(PlaybackProgressEvent ignored) {
-            trackPager.setPagingEnabled(true);
+            playbackOperations.setPlayQueuePosition(getDisplayedPositionInPlayQueue());
         }
     };
 
@@ -70,26 +68,69 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         }
     };
 
-    private final Action1<PlayerUIEvent> trackPlayerSwipeAction = new Action1<PlayerUIEvent>() {
+    private final Func1<CurrentPlayQueueTrackEvent, Boolean> isCurrentTrackAudioAd = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
         @Override
-        public void call(PlayerUIEvent event) {
-            final boolean isExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
-            final PlayControlEvent trackEvent = isSwipeNext() ?
-                    PlayControlEvent.swipeSkip(isExpanded) : PlayControlEvent.swipePrevious(isExpanded);
-            eventBus.publish(EventQueue.PLAY_CONTROL, trackEvent);
+        public Boolean call(CurrentPlayQueueTrackEvent ignored) {
+            return playQueueManager.isCurrentTrackAudioAd();
+        }
+    };
+
+    private final Action1<Integer> updateAdapter = new Action1<Integer>() {
+        @Override
+        public void call(Integer integer) {
+            adapter.onTrackChange();
+        }
+    };
+
+    private final Func1<? super Integer, Boolean> isInForeground = new Func1<Integer, Boolean>() {
+        @Override
+        public Boolean call(Integer integer) {
+            return isResumed;
+        }
+    };
+
+    private final Action1<CurrentPlayQueueTrackEvent> allowScrollAfterTimeout = new Action1<CurrentPlayQueueTrackEvent>() {
+        @Override
+        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+            unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread()).subscribe(getRestoreQueueSubscriber());
+        }
+    };
+
+    private final Action1<CurrentPlayQueueTrackEvent> unsubscribeFromUnblockPager = new Action1<CurrentPlayQueueTrackEvent>() {
+        @Override
+        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+            unblockPagerSubscription.unsubscribe();
+        }
+    };
+
+    private final Func1<CurrentPlayQueueTrackEvent, Boolean> notWaitingForScroll = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
+        @Override
+        public Boolean call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+            return !setPlayQueueAfterScroll;
+        }
+    };
+
+    private final DefaultSubscriber<CurrentPlayQueueTrackEvent> setPagerPositionFromPlayQueueManager = new DefaultSubscriber<CurrentPlayQueueTrackEvent>() {
+        @Override
+        public void onNext(CurrentPlayQueueTrackEvent args) {
+            setQueuePosition(playQueueManager.getCurrentPosition());
         }
     };
 
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
-                                 PlaybackToastViewController playbackToastViewController) {
+                                 PlaybackToastViewController playbackToastViewController,
+                                 Provider<PlayQueueDataSwitcher> playQueueDataSwitcherProvider,
+                                 PlayerPagerScrollListener playerPagerScrollListener) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
         this.playbackToastViewController = playbackToastViewController;
+        this.playQueueDataSwitcherProvider = playQueueDataSwitcherProvider;
+        this.playerPagerScrollListener = playerPagerScrollListener;
 
         checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(new Func1<PlaybackProgressEvent, Boolean>() {
             @Override
@@ -97,11 +138,6 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
                 return playbackProgressEvent.getPlaybackProgress().getPosition() >= AdConstants.UNSKIPPABLE_TIME_MS;
             }
         });
-    }
-
-    @Override
-    public void onBlockedSwipe() {
-        playbackToastViewController.showUnkippableAdToast();
     }
 
     public void onPlayerSlide(float slideOffset) {
@@ -122,15 +158,50 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         setPager((PlayerTrackPager) view.findViewById(R.id.player_track_pager));
 
         subscription = new CompositeSubscription();
-        subscription.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(wasError).subscribe(new ErrorSubscriber()));
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
-        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_TRACK, new PlayQueueTrackSubscriber()));
+        setupTrackChangeSubscribers();
+        setupErrorSubscribers();
+        setupScrollingSubscribers();
+    }
+
+    private void setupErrorSubscribers() {
+        subscription.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .filter(wasError)
+                .subscribe(new ErrorSubscriber()));
+    }
+
+    private void setupTrackChangeSubscribers() {
+        // setup audio ad
+        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+                .doOnNext(unsubscribeFromUnblockPager)
+                .filter(isCurrentTrackAudioAd)
+                .doOnNext(allowScrollAfterTimeout)
+                .subscribe(new ShowAudioAdSubscriber()));
+
+        // set position from track change
+        subscription.add(eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
+                .filter(notWaitingForScroll)
+                .subscribe(setPagerPositionFromPlayQueueManager));
+    }
+
+    private void setupScrollingSubscribers() {
+        final Observable<Integer> pageChangedObservable = playerPagerScrollListener
+                .getPageChangedObservable();
+
+        subscription.add(pageChangedObservable
+                .subscribe(new SetQueueOnScrollSubscriber()));
+
+        subscription.add(pageChangedObservable
+                .doOnNext(updateAdapter)
+                .filter(isInForeground)
+                .subscribe(new ChangeTracksSubscriber()));
     }
 
     void onDestroyView() {
         subscription.unsubscribe();
         unblockPagerSubscription.unsubscribe();
         adapter.unsubscribe();
+        playerPagerScrollListener.unsubscribe();
         changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
         ObjectAnimator.clearAllAnimations();
     }
@@ -138,10 +209,10 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
     private void setPager(final PlayerTrackPager trackPager) {
         this.presenter.initialize(trackPager);
         this.trackPager = trackPager;
-        this.trackPager.setOnBlockedSwipeListener(this);
-        this.trackPager.setOnPageChangeListener(this);
-        trackPager.setAdapter(adapter);
-        setQueuePosition(playQueueManager.getCurrentPosition());
+        this.trackPager.setAdapter(adapter);
+        refreshPlayQueue();
+
+        playerPagerScrollListener.initialize(trackPager);
         adapter.initialize(trackPager, getSkipListener(trackPager));
     }
 
@@ -166,77 +237,69 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         trackPager.setCurrentItem(position, isAdjacentTrack);
     }
 
-    private void onPlayQueueChanged() {
-        adapter.notifyDataSetChanged();
+    private void setFullQueue() {
+        adapter.setCurrentData(playQueueDataSwitcher.getFullQueue());
         trackPager.setCurrentItem(playQueueManager.getCurrentPosition(), false);
+        setPlayQueueAfterScroll = false;
+    }
+
+    private void setAdPlayQueue() {
+        adapter.setCurrentData(playQueueDataSwitcher.getAdQueue());
+        trackPager.setCurrentItem(0, false);
+    }
+
+    private void showAudioAd() {
+        if (isShowingCurrentAudioAd()){
+            setAdPlayQueue();
+        } else {
+            setPlayQueueAfterScroll = true;
+            setQueuePosition(playQueueManager.getAudioAdPosition());
+        }
+    }
+
+    private boolean isShowingCurrentAudioAd() {
+        return playQueueManager.isCurrentTrackAudioAd()
+                && playQueueManager.isCurrentPosition(getDisplayedPositionInPlayQueue());
+    }
+
+    private int getDisplayedPositionInPlayQueue() {
+        return adapter.getPlayQueuePosition(trackPager.getCurrentItem());
+    }
+
+    private void refreshPlayQueue() {
+        playQueueDataSwitcher = playQueueDataSwitcherProvider.get();
+        setFullQueue();
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
-            onPlayQueueChanged();
-        }
-    }
-
-    private final class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
-        @Override
-        public void onNext(CurrentPlayQueueTrackEvent event) {
-            unblockPagerSubscription.unsubscribe();
-            setQueuePosition(playQueueManager.getCurrentPosition());
-
-            if (playQueueManager.isCurrentTrackAudioAd()) {
-                trackPager.setPagingEnabled(false);
-                unblockPagerSubscription = checkAdProgress.subscribe(unlockPager);
+            if (event.audioAdRemoved() && adapter.isAudioAdAtPosition(trackPager.getCurrentItem())) {
+                setPlayQueueAfterScroll = true;
+                trackPager.setCurrentItem(trackPager.getCurrentItem() + 1, true);
             } else {
-                trackPager.setPagingEnabled(true);
+                refreshPlayQueue();
+                setPlayQueueAfterScroll = false;
             }
         }
     }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        // no-op
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        trackPager.setPagingEnabled(!playQueueManager.isAudioAdAtPosition(position)
-                || playQueueManager.isCurrentPosition(position));
-        wasPageChanged = true;
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-        if (wasPageChanged && state == ViewPager.SCROLL_STATE_IDLE) {
-            trackPageChangedOnSwipe();
-            changeTracksIfInForeground();
-            adapter.onTrackChange();
-            wasPageChanged = false;
-        }
-
-        updateDraggingState(state);
-    }
-
-    private void updateDraggingState(int state) {
-        if (state == ViewPager.SCROLL_STATE_DRAGGING) {
-            wasDragging = true;
-        } else if (state == ViewPager.SCROLL_STATE_IDLE) {
-            wasDragging = false;
+    private final class SetQueueOnScrollSubscriber extends DefaultSubscriber<Integer> {
+        @Override
+        public void onNext(Integer args) {
+            if(setPlayQueueAfterScroll){
+                if (playQueueManager.isCurrentTrackAudioAd()){
+                    setAdPlayQueue();
+                } else {
+                    refreshPlayQueue();
+                }
+            }
         }
     }
 
-    private void trackPageChangedOnSwipe() {
-        if (wasDragging) {
-            eventBus.queue(EventQueue.PLAYER_UI).first().subscribe(trackPlayerSwipeAction);
-        }
-    }
-
-    private boolean isSwipeNext() {
-        return trackPager.getCurrentItem() > playQueueManager.getCurrentPosition();
-    }
-
-    private void changeTracksIfInForeground() {
-        if (isResumed) {
+    private final class ChangeTracksSubscriber extends DefaultSubscriber<Integer>  {
+        @Override
+        public void onNext(Integer args) {
             changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
             changeTracksHandler.sendEmptyMessageDelayed(CHANGE_TRACKS_MESSAGE, CHANGE_TRACKS_DELAY);
         }
@@ -247,5 +310,21 @@ class PlayerPagerController implements ViewPager.OnPageChangeListener, PlayerTra
         public void onNext(Playa.StateTransition newState) {
             playbackToastViewController.showError(newState.getReason());
         }
+    }
+
+    private final class ShowAudioAdSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent>  {
+        @Override
+        public void onNext(CurrentPlayQueueTrackEvent args) {
+            showAudioAd();
+        }
+    }
+
+    private DefaultSubscriber<PlaybackProgressEvent> getRestoreQueueSubscriber() {
+        return new DefaultSubscriber<PlaybackProgressEvent>(){
+            @Override
+            public void onNext(PlaybackProgressEvent args) {
+                setFullQueue();
+            }
+        };
     }
 }
