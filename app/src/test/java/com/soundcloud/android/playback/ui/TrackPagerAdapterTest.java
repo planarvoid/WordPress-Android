@@ -105,6 +105,7 @@ public class TrackPagerAdapterTest {
                         PlayableProperty.TITLE.bind("title"),
                         PlayableProperty.CREATOR_NAME.bind("artist"))
         ));
+        when(playQueueManager.getAudioAd()).thenReturn(PropertySet.create());
     }
 
     @Test

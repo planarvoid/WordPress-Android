@@ -25,4 +25,6 @@ public class AdProperty {
     public static final Property<List<String>> AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS = Property.of(AdProperty.class, (Class<List<String>>)(Class<?>) List.class);
     public static final Property<List<String>> AUDIO_AD_CLICKTHROUGH_URLS = Property.of(AdProperty.class, (Class<List<String>>) (Class<?>) List.class);
     public static final Property<List<String>> AUDIO_AD_SKIP_URLS = Property.of(AdProperty.class, (Class<List<String>>) (Class<?>) List.class);
+    public static final Property<String> LEAVE_BEHIND_IMAGE_URL = Property.of(AdProperty.class, String.class);
+    public static final Property<String> LEAVE_BEHIND_LINK_URL = Property.of(AdProperty.class, String.class);
 }

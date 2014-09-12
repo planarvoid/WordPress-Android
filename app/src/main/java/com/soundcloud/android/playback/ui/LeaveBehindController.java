@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -25,7 +24,7 @@ class LeaveBehindController implements View.OnClickListener{
     private final Context context;
     private final DeviceHelper deviceHelper;
 
-    private @Nullable LeaveBehind data;
+    private @Nullable PlayerTrack data;
 
     private View leaveBehind;
     private ImageView adImage;
@@ -39,7 +38,7 @@ class LeaveBehindController implements View.OnClickListener{
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            show();
+            setVisible();
         }
     };
 
@@ -72,20 +71,21 @@ class LeaveBehindController implements View.OnClickListener{
         context.startActivity(intent);
     }
 
-    void setup(LeaveBehind data) {
+    void initialize(PlayerTrack data) {
         if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
             this.data = data;
             leaveBehind = getLeaveBehindView();
-
             adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
-            imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
-
             adImage.setOnClickListener(this);
             leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
         }
     }
 
-    private void show() {
+    public void show() {
+        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
+    }
+
+    private void setVisible() {
         if (data != null) {
             leaveBehind.setVisibility(View.VISIBLE);
         }

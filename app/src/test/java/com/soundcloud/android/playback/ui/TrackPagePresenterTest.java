@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -65,7 +66,7 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory);
+                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, new FeatureFlags(Robolectric.application.getResources()));
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);

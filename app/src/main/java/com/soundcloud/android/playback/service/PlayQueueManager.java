@@ -47,6 +47,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private final ScModelManager modelManager;
     private final PlayQueueOperations playQueueOperations;
     private final EventBus eventBus;
+    private final PropertySet AUDIO_ADD_NOT_SET = PropertySet.create();
 
     private int currentPosition;
     private int adTrackPosition = Consts.NOT_SET;
@@ -77,6 +78,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
         this.modelManager = modelManager;
+        this.adMetaData = AUDIO_ADD_NOT_SET;
     }
 
 
@@ -364,13 +366,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             currentPosition--;
         }
         adTrackPosition = Consts.NOT_SET;
-        this.adMetaData = null;
+        this.adMetaData = AUDIO_ADD_NOT_SET;
     }
 
     public PropertySet getAudioAd() {
-        if (adMetaData == null) {
-            throw new IllegalStateException("No audio ad available.");
-        }
         return adMetaData;
     }
 
