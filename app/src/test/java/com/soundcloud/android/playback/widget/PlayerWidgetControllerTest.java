@@ -21,6 +21,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -73,6 +74,7 @@ public class PlayerWidgetControllerTest {
         when(context.getResources()).thenReturn(Robolectric.application.getResources());
         widgetTrack = expectedTrackForWidget();
         widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
     }
 
     @Test
@@ -147,7 +149,6 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingTrackAd() {
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
         PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
@@ -214,7 +215,6 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterTrackWithAdInformationWhenCurrentTrackIsAudioAd() {
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
 
         controller.update();
@@ -255,4 +255,18 @@ public class PlayerWidgetControllerTest {
         verify(soundAssociationOps).toggleLike(WIDGET_TRACK_URN, true);
     }
 
+    @Test
+    public void toggleLikeActionShouldEmitLikeUIEvent() {
+        when(playQueueManager.getScreenTag()).thenReturn("origin_screen");
+        when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(soundAssociationOps.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
+
+        controller.handleToggleLikeAction(true);
+
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "origin_screen", WIDGET_TRACK_URN);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        expect(event.getKind()).toEqual(expectedEvent.getKind());
+        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+    }
 }

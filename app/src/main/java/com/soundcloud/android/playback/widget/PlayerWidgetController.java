@@ -8,6 +8,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -106,9 +107,12 @@ public class PlayerWidgetController {
 
     // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
     public void handleToggleLikeAction(boolean isLike) {
-        fireAndForget(trackOperations.track(playQueueManager.getCurrentTrackUrn())
+        final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        fireAndForget(trackOperations.track(currentTrackUrn)
                 .flatMap(toggleLike(isLike))
                 .observeOn(AndroidSchedulers.mainThread()));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(),
+                currentTrackUrn));
     }
 
     private Func1<PropertySet, Observable<PropertySet>> toggleLike(final boolean isLike) {
