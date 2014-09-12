@@ -181,7 +181,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         active = true;
         configureInitialState(getIntent());
 
-        if (Consts.SdkSwitches.canDetermineActivityBackground) {
+        if (Consts.SdkSwitches.CAN_DETERMINE_ACTIVITY_BACKGROUND) {
             recorder.shouldUseNotifications(false);
         }
         if (shouldTrackScreen()) {
@@ -206,7 +206,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         /*  if we are either backing out or getting killed (finishing), or we are pausing cause we are leaving
             and not because of a configuration change, then we know we are going to the background, so tell the recorder
             to provide notifications. isChangingConfigurations availability dependent on SDK */
-        if (Consts.SdkSwitches.canDetermineActivityBackground && (isFinishing() || !isChangingConfigurations())){
+        if (Consts.SdkSwitches.CAN_DETERMINE_ACTIVITY_BACKGROUND && (isFinishing() || !isChangingConfigurations())){
             recorder.shouldUseNotifications(true);
         }
     }

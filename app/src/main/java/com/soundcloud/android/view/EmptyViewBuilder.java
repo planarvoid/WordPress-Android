@@ -1,7 +1,6 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.provider.Content;
@@ -35,16 +34,6 @@ public class EmptyViewBuilder {
     public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final PublicApiUser user) {
 
         switch (Content.match(contentUri)) {
-            case ME_SOUND_STREAM:
-                image = R.drawable.empty_stream;
-                if (Consts.StringValues.ERROR.equals(contentUri.getQueryParameter(Consts.Keys.ONBOARDING))) {
-                    messageText = context.getString(R.string.error_onboarding_fail);
-                } else {
-                    messageText = context.getString(R.string.list_empty_stream_message);
-                    actionText = context.getString(R.string.list_empty_stream_action);
-                    action = new Intent(Actions.WHO_TO_FOLLOW);
-                }
-                break;
 
             case ME_ACTIVITIES:
                 image = R.drawable.empty_activity;

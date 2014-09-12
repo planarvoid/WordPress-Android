@@ -388,7 +388,7 @@ public class UploadService extends Service {
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 r.getMonitorIntentWithProgress(UPLOAD_STAGE_PROCESSING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+        if (Consts.SdkSwitches.USE_CUSTOM_NOTIFICATION_LAYOUTS) {
             n.contentIntent = pendingIntent;
             n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
             n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
@@ -404,7 +404,7 @@ public class UploadService extends Service {
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 r.getMonitorIntentWithProgress(UPLOAD_STAGE_TRANSFERRING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (Consts.SdkSwitches.useCustomNotificationLayouts) {
+        if (Consts.SdkSwitches.USE_CUSTOM_NOTIFICATION_LAYOUTS) {
             n.contentIntent = pendingIntent;
             n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
             n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
@@ -476,11 +476,11 @@ public class UploadService extends Service {
     private void showUploadingNotification(Recording recording, String action) {
         Notification n = getOngoingNotification(recording);
 
-        if (Consts.SdkSwitches.useCustomNotificationLayouts){
+        if (Consts.SdkSwitches.USE_CUSTOM_NOTIFICATION_LAYOUTS){
             n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
             n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-            if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
+            if (Consts.SdkSwitches.USE_RICH_NOTIFICATIONS && recording.hasArtwork()){
                 Bitmap b = ImageUtils.getConfiguredBitmap(recording.getArtwork(),
                         (int) getResources().getDimension(R.dimen.notification_image_width),
                         (int) getResources().getDimension(R.dimen.notification_image_height));

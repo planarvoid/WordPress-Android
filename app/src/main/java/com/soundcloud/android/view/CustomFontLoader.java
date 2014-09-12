@@ -50,7 +50,7 @@ public final class CustomFontLoader {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
         String path = array.getString(R.styleable.CustomFontTextView_custom_font);
 
-        if (path != null && Consts.SdkSwitches.useCustomFonts) {
+        if (path != null && Consts.SdkSwitches.USE_CUSTOM_FONTS) {
             Typeface typeface = CustomFontLoader.getFont(context, path);
             textView.setTypeface(typeface);
             textView.setPaintFlags(textView.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);

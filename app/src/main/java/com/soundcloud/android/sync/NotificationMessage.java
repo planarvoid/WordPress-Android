@@ -146,7 +146,7 @@ class NotificationMessage {
                                                   final int id,
                                                   final String artworkUri) {
         final String largeIconUri = ApiImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
-        if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(largeIconUri)) {
+        if (!Consts.SdkSwitches.USE_RICH_NOTIFICATIONS || !ImageUtils.checkIconShouldLoad(largeIconUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
             // cannot use imageloader here as the weak reference to the fake image will get dropped and the image won't load (sometimes)

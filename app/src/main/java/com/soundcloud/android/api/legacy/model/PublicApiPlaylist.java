@@ -234,7 +234,7 @@ public class PublicApiPlaylist extends Playable {
 
     @Override
     public boolean isStale() {
-        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.playlist;
+        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.PLAYLIST;
     }
 
     public boolean isStreamable() {

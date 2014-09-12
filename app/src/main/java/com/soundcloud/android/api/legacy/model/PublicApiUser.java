@@ -385,7 +385,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
 
     @Override
     public boolean isStale(){
-        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
+        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.USER;
     }
 
     @Override

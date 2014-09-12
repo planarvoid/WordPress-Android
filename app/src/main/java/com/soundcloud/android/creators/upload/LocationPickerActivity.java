@@ -2,12 +2,11 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.utils.Capitalizer;
 
 import android.app.AlertDialog;
@@ -59,6 +58,7 @@ public class LocationPickerActivity extends ListActivity {
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
 
     private static final int LOADING = 0;
+    private static final int REFRESH = 202;
 
     private ImageOperations imageOperations;
 
@@ -332,14 +332,14 @@ public class LocationPickerActivity extends ListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, Consts.OptionsMenu.REFRESH, 0, R.string.menu_load_more).setIcon(R.drawable.ic_menu_refresh);
+        menu.add(0, REFRESH, 0, R.string.menu_load_more).setIcon(R.drawable.ic_menu_refresh);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case Consts.OptionsMenu.REFRESH:
+            case REFRESH:
                 getListAdapter().loadVenues(location, FoursquareVenueTask.VENUE_LIMIT_MAX);
                 return true;
 

@@ -538,7 +538,7 @@ public class PublicApiTrack extends Playable {
 
     @Override
     public boolean isStale() {
-        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
+        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.TRACK;
     }
 
     public PublicApiTrack updateFrom(PublicApiTrack updatedItem, CacheUpdateMode cacheUpdateMode) {

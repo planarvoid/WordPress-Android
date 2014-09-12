@@ -2,7 +2,6 @@ package com.soundcloud.android.onboarding.auth;
 
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.HttpProperties;
@@ -34,6 +33,7 @@ import java.util.Locale;
 public abstract class AbstractLoginActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     protected static final String LOGIN_DIALOG_TAG = "login_dialog";
     private static final String SIGNUP_WITH_CAPTCHA_URI = "https://soundcloud.com/connect?c=true&highlight=signup&client_id=%s&redirect_uri=soundcloud://auth&response_type=code&scope=non-expiring";
+    private static final String EXTRA_WAS_SIGNUP = "wasSignup";
 
     /**
      * Extracted account authenticator functions. Extracted because of Fragment usage, we have to extend FragmentActivity.
@@ -111,14 +111,14 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
         final Bundle result = new Bundle();
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-        result.putBoolean(Consts.Keys.WAS_SIGNUP, via != SignupVia.NONE);
+        result.putBoolean(EXTRA_WAS_SIGNUP, via != SignupVia.NONE);
         resultBundle = result;
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                 .putExtra(PublicApiUser.EXTRA_ID, user.getId())
                 .putExtra(SignupVia.EXTRA, via.name));
 
-        if (result.getBoolean(Consts.Keys.WAS_SIGNUP) || wasAuthorizedViaSignupScreen()) {
+        if (result.getBoolean(EXTRA_WAS_SIGNUP) || wasAuthorizedViaSignupScreen()) {
             startActivity(new Intent(this, SuggestedUsersActivity.class)
                     .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, this instanceof FacebookBaseActivity)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
