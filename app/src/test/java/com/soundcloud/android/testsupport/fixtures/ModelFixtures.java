@@ -26,7 +26,6 @@ import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ModelFixtures {
@@ -74,22 +73,9 @@ public class ModelFixtures {
         return models;
     }
 
-    public static List<PublicApiUser> createUsers(int count) {
-        if (count < 1) return Collections.EMPTY_LIST;
-
-        List<PublicApiUser> items = new ArrayList<>();
-        for (long i = 100L; i <= count * 100; i += 100) {
-            PublicApiUser u = new PublicApiUser();
-            u.setId(i);
-            u.permalink = "u" + String.valueOf(i);
-            items.add(u);
-        }
-        return items;
-    }
-
     public static List<UserAssociation> createDirtyFollowings(int count) {
         List<UserAssociation> userAssociations = new ArrayList<>();
-        for (PublicApiUser user : createUsers(count)) {
+        for (PublicApiUser user : create(PublicApiUser.class, count)) {
             final UserAssociation association = new UserAssociation(Association.Type.FOLLOWING, user);
             association.markForAddition();
             userAssociations.add(association);

@@ -82,7 +82,7 @@ public class FollowStatusTest {
 
     @Test
     public void testToggleMultipleFollowings() throws Exception {
-        List<PublicApiUser> users = ModelFixtures.createUsers(3);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
         expect(status.isFollowing(users.get(0))).toBeFalse();
 
         status.toggleFollowing(users.get(0).getId());

@@ -1,7 +1,6 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.createUsers;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -124,14 +123,14 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldBulkInsertAssociations() throws Exception {
-        List<PublicApiUser> items = createUsers(2);
+        List<PublicApiUser> items = ModelFixtures.create(PublicApiUser.class, 2);
         expect(storage.insertAssociations(items, Content.ME_FOLLOWERS.uri, USER_ID)).toEqual(4); // 2 users, associations
         expect(Content.ME_FOLLOWERS).toHaveCount(2);
     }
 
     @Test
     public void shouldBulkInsertFollowings() throws Exception {
-        final List<PublicApiUser> users = createUsers(3);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
         final Iterable<UserAssociation> newAssociations = storage.followList(users).toBlockingObservable().toIterable();
 
         expect(Iterables.transform(newAssociations, new Function<UserAssociation, Object>() {
@@ -163,7 +162,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldBulkMarkFollowingsForRemoval() throws Exception {
-        final List<PublicApiUser> users = createUsers(3);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
         storage.unfollowList(users).toBlockingObservable().last();
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
         for (PublicApiUser user : users) {
@@ -267,14 +266,14 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryFollowings() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(Iterables.size(storage.getFollowings().toBlockingObservable().toIterable())).toEqual(2);
     }
 
     @Test
     public void shouldQueryFollowingsAndExemptFollowingsMarkedForDeletion() {
-        final List<PublicApiUser> users = createUsers(2);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
@@ -283,14 +282,14 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldNotHaveUnsyncedFollowings() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(storage.hasFollowingsNeedingSync()).toBeFalse();
     }
 
     @Test
     public void shouldHaveAnUnsyncedRemoval() {
-        final List<PublicApiUser> users = createUsers(2);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
@@ -299,7 +298,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldHaveAnUnsyncedAddition() {
-        final List<PublicApiUser> users = createUsers(2);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
@@ -308,7 +307,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingRemoval() {
-        final List<PublicApiUser> users = createUsers(2);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
@@ -316,7 +315,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingAddition() {
-        final List<PublicApiUser> users = createUsers(2);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
@@ -325,7 +324,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingAdditionWithToken() {
-        final List<PublicApiUser> users = createUsers(3);
+        List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditionsWithToken(users.subList(2, 3), Content.ME_FOLLOWINGS.uri, TOKEN);
@@ -339,7 +338,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingAdditionAndRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         List<UserAssociation> userAssociations = Lists.newArrayList(storage.getFollowings().toBlockingObservable().getIterator());
@@ -357,7 +356,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldNotClearAnySyncFlag() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         UserAssociation association = storage.getFollowings().toBlockingObservable().last();
@@ -366,7 +365,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldClearSyncFlagForAddition() throws Exception {
-        final List<PublicApiUser> users = createUsers(2);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         final Long userId = users.get(0).getId();
 
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users, Content.ME_FOLLOWINGS.uri);
@@ -382,7 +381,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldClearSyncFlagAndTokenForAddition() throws Exception {
-        final List<PublicApiUser> users = createUsers(2);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         final Long userId = users.get(0).getId();
 
         TestHelper.bulkInsertToUserAssociationsAsAdditionsWithToken(users, Content.ME_FOLLOWINGS.uri, TOKEN);
@@ -401,7 +400,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldClearSyncFlagForRemoval() throws Exception {
-        final List<PublicApiUser> users = createUsers(2);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
         final Long userId = users.get(0).getId();
 
         TestHelper.bulkInsertToUserAssociationsAsRemovals(users, Content.ME_FOLLOWINGS.uri);
@@ -417,7 +416,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldDeleteFollowingsList() throws Exception {
-        TestHelper.bulkInsertToUserAssociationsAsRemovals(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsRemovals(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(storage.deleteFollowings(TestHelper.loadUserAssociations(Content.ME_FOLLOWINGS))).toBeTrue();
         expect(Content.ME_FOLLOWINGS).toHaveCount(0);
@@ -425,7 +424,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldSetListOfFollowingsAsSynced() throws Exception {
-        final List<PublicApiUser> users = createUsers(2);
+        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
 
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users, Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
@@ -445,7 +444,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldDeleteFollowings() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         List<Long> storedIds = storage.getStoredIds(Content.ME_FOLLOWINGS.uri);
@@ -455,7 +454,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldDeleteFollowers() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWERS.uri);
+        TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWERS.uri);
         expect(Content.ME_FOLLOWERS).toHaveCount(2);
 
         List<Long> storedIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);
