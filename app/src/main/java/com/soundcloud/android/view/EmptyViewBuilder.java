@@ -30,7 +30,9 @@ public class EmptyViewBuilder {
         return view;
     }
 
+    // we can remove this method once we lose ScListFragment
     @Deprecated
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final PublicApiUser user) {
 
         switch (Content.match(contentUri)) {
@@ -93,6 +95,9 @@ public class EmptyViewBuilder {
             case USER_FOLLOWINGS:
                 image = R.drawable.empty_following;
                 messageText = getTextForUser(context, R.string.empty_user_followings_text, user);
+                break;
+
+            default:
                 break;
         }
 

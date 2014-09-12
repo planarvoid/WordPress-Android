@@ -37,7 +37,6 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
@@ -130,7 +129,7 @@ public class SoundCloudApplication extends Application {
 
         if (isReportingCrashes()) {
             Crashlytics.start(this);
-            ExceptionUtils.setupOOMInterception(memoryReporter);
+            ErrorUtils.setupOOMInterception(memoryReporter);
         }
         memoryReporter.reportSystemMemoryStats();
 

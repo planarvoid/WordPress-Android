@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -15,6 +16,7 @@ import java.io.StringWriter;
 public class ErrorUtils {
 
     public static final String ERROR_CONTEXT_TAG = "error-context";
+    private static final String OOM_TREND_LABEL = "OOM Trend";
 
     private ErrorUtils() {
         // not to be instantiated.
@@ -62,6 +64,24 @@ public class ErrorUtils {
         t.printStackTrace();
     }
 
+    /*
+         * Call this AFTER initialising crash logger (e.g. Crashlytics) to aggregate OOM errors
+         */
+    public static void setupOOMInterception(final MemoryReporter memoryReporter) {
+        final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable e) {
+                if (isCausedByOutOfMemory(e)) {
+                    memoryReporter.reportOomStats();
+                    crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError(OOM_TREND_LABEL));
+                } else {
+                    crashlyticsHandler.uncaughtException(thread, e);
+                }
+            }
+        });
+    }
+
     private static boolean excludeFromReports(Throwable t) {
         return t instanceof IOException || t instanceof APIRequestException || t instanceof SyncFailedException;
     }
@@ -83,6 +103,18 @@ public class ErrorUtils {
             }
             Crashlytics.logException(e);
         }
+    }
+
+    @VisibleForTesting
+    static boolean isCausedByOutOfMemory(Throwable uncaught) {
+        Throwable crash = uncaught;
+        while (crash != null) {
+            if (crash instanceof OutOfMemoryError) {
+                return true;
+            }
+            crash = crash.getCause();
+        }
+        return false;
     }
 
     // we use this exception to signal fatal conditions that should crash the app
