@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Scheduler;
@@ -22,6 +24,8 @@ import rx.schedulers.Schedulers;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -63,7 +67,9 @@ public class BlurringPlayerArtworkLoaderTest {
 
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
 
-        verify(imageOverlayView).setImageBitmap(blurredBitmap);
+        ArgumentCaptor<TransitionDrawable> captor = ArgumentCaptor.forClass(TransitionDrawable.class);
+        verify(imageOverlayView).setImageDrawable(captor.capture());
+        expect(((BitmapDrawable)captor.getValue().getDrawable(1)).getBitmap()).toBe(blurredBitmap);
 
     }
 

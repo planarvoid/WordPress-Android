@@ -4,6 +4,7 @@ import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.utils.images.ImageUtils;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -11,6 +12,8 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
@@ -55,7 +58,9 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
         public void onNext(Bitmap bitmap) {
             ImageView imageView = imageOverlayRef.get();
             if (imageView != null) {
-                imageView.setImageBitmap(bitmap);
+                final TransitionDrawable transitionDrawable = ImageUtils.createTransitionDrawable(null, new BitmapDrawable(bitmap));
+                imageView.setImageDrawable(transitionDrawable);
+                transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
             }
         }
     }
