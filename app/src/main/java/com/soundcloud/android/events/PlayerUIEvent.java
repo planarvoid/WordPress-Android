@@ -9,6 +9,13 @@ public class PlayerUIEvent {
 
     private final int kind;
 
+    public static final Func1<PlayerUIEvent, Boolean> PLAYER_IS_COLLAPSED = new Func1<PlayerUIEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayerUIEvent playerUIEvent) {
+            return playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
+        }
+    };
+    
     /**
      * Panel is completely expanded.
      */
@@ -36,12 +43,4 @@ public class PlayerUIEvent {
     public String toString() {
         return "player UI event: " + kind;
     }
-
-    public static final Func1<PlayerUIEvent, Boolean> PLAYER_IS_COLLAPSED = new Func1<PlayerUIEvent, Boolean>() {
-        @Override
-        public Boolean call(PlayerUIEvent playerUIEvent) {
-            return playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
-        }
-    };
-
 }
