@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;

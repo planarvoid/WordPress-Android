@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

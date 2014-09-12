@@ -4,7 +4,7 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;

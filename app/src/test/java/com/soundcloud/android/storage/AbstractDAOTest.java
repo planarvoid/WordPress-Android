@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.runner.RunWith;

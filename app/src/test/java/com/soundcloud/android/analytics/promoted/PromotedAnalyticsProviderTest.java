@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.soundcloud.android.TestEvents;
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;

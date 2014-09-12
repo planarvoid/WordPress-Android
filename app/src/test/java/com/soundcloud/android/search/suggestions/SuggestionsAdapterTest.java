@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -28,7 +28,6 @@ import org.mockito.Mock;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;

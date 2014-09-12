@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTaskTest;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;

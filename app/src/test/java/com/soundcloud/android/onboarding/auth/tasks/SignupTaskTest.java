@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.message.BasicHeader;

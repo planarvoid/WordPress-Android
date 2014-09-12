@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.nineoldandroids.animation.Animator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

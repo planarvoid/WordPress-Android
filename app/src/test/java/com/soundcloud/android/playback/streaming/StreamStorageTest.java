@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.shadows.ShadowStatFs;

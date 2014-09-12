@@ -8,7 +8,7 @@ import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;

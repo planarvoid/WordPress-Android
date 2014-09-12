@@ -2,9 +2,8 @@ package com.soundcloud.android.creators.record;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.creators.record.RemainingTimeCalculator;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.shadows.ShadowStatFs;
 import org.junit.Test;
 import org.junit.runner.RunWith;

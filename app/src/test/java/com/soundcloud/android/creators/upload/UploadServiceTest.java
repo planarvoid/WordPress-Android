@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
+import static com.soundcloud.android.testsupport.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.service.LocalBinder;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.res.RobolectricPackageManager;

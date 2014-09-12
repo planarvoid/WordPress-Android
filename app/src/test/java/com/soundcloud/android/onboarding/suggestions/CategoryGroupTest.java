@@ -3,7 +3,7 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;

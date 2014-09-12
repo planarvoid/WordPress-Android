@@ -7,7 +7,7 @@ import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

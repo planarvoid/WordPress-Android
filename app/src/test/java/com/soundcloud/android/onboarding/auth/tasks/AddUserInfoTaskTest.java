@@ -3,7 +3,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;

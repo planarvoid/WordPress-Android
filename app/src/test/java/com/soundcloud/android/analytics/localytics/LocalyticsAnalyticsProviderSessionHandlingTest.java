@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.localytics.android.LocalyticsSession;
-import com.soundcloud.android.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;

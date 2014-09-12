@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;

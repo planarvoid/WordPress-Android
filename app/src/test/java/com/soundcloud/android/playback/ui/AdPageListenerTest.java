@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;

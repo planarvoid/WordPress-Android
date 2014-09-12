@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
-import static com.soundcloud.android.TestPropertySets.audioAdProperties;
-import static com.soundcloud.android.TestPropertySets.expectedTrackForWidget;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;

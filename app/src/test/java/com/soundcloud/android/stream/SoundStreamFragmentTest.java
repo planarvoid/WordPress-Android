@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.buildProvider;
+import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static com.soundcloud.android.rx.TestObservables.withSubscription;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

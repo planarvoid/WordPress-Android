@@ -18,7 +18,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformData;

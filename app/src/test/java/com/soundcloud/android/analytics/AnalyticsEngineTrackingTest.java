@@ -11,7 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;

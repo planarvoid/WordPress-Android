@@ -2,10 +2,9 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.ApiSyncerTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;

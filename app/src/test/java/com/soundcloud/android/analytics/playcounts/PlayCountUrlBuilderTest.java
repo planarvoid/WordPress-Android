@@ -4,9 +4,8 @@ import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.PlayableProperty;

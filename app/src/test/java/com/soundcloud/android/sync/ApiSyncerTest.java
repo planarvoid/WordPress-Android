@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
-import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
+import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
+import static com.soundcloud.android.testsupport.TestHelper.assertResolverNotified;
 
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -14,7 +14,7 @@ import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.PlaylistStorage;

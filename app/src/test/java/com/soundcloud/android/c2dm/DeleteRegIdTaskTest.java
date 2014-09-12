@@ -1,11 +1,10 @@
 package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
+import static com.soundcloud.android.testsupport.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;

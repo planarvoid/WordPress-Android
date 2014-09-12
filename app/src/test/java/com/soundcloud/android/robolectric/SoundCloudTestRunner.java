@@ -10,6 +10,7 @@ import com.soundcloud.android.robolectric.shadows.ShadowV4CursorAdapter;
 import com.soundcloud.android.robolectric.shadows.ShadowV4Fragment;
 import com.soundcloud.android.robolectric.shadows.ShadowV4ListFragment;
 import com.soundcloud.android.robolectric.shadows.ShadowV7PopupMenu;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;

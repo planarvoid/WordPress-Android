@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;

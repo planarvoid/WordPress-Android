@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;

@@ -9,10 +9,9 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
@@ -96,6 +95,6 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         cv.put(TableColumns.PlayQueue.TRACK_ID, playQueueItem.getTrackUrn().numericId);
         cv.put(TableColumns.PlayQueue.SOURCE, playQueueItem.getSource());
         cv.put(TableColumns.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
-        return testHelper().insertInto(Table.PLAY_QUEUE, cv);
+        return testFixtures().insertInto(Table.PLAY_QUEUE, cv);
     }
 }

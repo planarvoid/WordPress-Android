@@ -11,7 +11,7 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;

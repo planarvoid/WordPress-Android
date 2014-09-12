@@ -2,7 +2,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.api.legacy.PublicApiWrapper.CloudDateFormat.fromString;
-import static com.soundcloud.android.robolectric.TestHelper.getActivities;
+import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.jetbrains.annotations.Nullable;

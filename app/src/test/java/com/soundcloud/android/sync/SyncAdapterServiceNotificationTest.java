@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.getActivities;
+import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;

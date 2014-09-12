@@ -3,13 +3,12 @@ package com.soundcloud.android.api.legacy.model;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.api.legacy.model.SearchSuggestions.Query;
 
-import com.soundcloud.android.api.legacy.model.SearchSuggestions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

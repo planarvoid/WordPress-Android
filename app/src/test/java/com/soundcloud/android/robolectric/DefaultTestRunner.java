@@ -11,6 +11,7 @@ import com.soundcloud.android.robolectric.shadows.ShadowMediaPlayer;
 import com.soundcloud.android.robolectric.shadows.ShadowNativeAmplitudeAnalyzer;
 import com.soundcloud.android.robolectric.shadows.ShadowSCAccountManager;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;

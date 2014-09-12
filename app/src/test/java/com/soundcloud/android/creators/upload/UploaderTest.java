@@ -6,7 +6,7 @@ import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.HttpStatus;

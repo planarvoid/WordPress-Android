@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;

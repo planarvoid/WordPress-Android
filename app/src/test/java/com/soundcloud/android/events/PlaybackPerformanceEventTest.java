@@ -6,7 +6,7 @@ import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 

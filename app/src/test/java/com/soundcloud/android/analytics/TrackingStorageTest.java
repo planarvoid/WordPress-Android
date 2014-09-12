@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;

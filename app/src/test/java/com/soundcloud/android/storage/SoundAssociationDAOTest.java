@@ -2,7 +2,7 @@ package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes;
-import static com.soundcloud.android.robolectric.TestHelper.readJson;
+import static com.soundcloud.android.testsupport.TestHelper.readJson;
 
 import com.soundcloud.android.api.legacy.model.Like;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;

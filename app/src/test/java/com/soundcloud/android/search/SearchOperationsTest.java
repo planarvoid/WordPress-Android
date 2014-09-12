@@ -31,7 +31,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.BulkStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;

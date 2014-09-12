@@ -13,7 +13,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;

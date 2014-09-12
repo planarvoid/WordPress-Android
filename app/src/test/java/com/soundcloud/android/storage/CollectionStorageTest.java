@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
+import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -19,7 +19,7 @@ import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,14 +1,14 @@
 package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
+import static com.soundcloud.android.testsupport.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf_;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.robolectric.shadows.ShadowSCAccountManager;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncAdapterService;

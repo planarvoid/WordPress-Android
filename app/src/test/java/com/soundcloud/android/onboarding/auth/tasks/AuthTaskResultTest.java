@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

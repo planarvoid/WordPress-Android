@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserUrn;

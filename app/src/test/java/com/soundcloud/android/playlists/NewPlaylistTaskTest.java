@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNull;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;

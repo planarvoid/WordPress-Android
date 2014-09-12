@@ -1,7 +1,7 @@
 package com.soundcloud.android.tasks;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
+import static com.soundcloud.android.testsupport.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 

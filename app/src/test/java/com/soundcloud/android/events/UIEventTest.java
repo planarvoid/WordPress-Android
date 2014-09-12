@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

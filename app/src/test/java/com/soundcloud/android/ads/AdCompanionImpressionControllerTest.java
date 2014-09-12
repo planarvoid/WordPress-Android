@@ -3,7 +3,7 @@ package com.soundcloud.android.ads;
 import static com.pivotallabs.greatexpectations.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;

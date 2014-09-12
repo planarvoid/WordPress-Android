@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.api.Env;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.client.methods.HttpGet;

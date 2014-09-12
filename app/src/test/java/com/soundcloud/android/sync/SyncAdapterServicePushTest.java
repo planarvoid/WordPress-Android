@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
+import static com.soundcloud.android.testsupport.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.soundcloud.android.sync.CollectionSyncRequestTest.NON_INTERACTIVE;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
@@ -9,7 +9,7 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;

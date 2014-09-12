@@ -9,8 +9,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.StorageIntegrationTest;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     @Test
     public void trackByUrnEmitsInsertedTrack() throws CreateModelException {
 
-        final ApiTrack track = testHelper().insertTrack();
+        final ApiTrack track = testFixtures().insertTrack();
         storage.track(track.getUrn(), Urn.forUser(123)).subscribe(observer);
         final PropertySet trackPropertySet = createTrackPropertySet(track);
 
@@ -47,7 +47,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     public void trackByUrnDoesNotEmitInsertedTrackWithoutTitle() throws CreateModelException {
         ApiTrack track = TestHelper.getModelFactory().createModel(ApiTrack.class);
         track.setTitle(null);
-        testHelper().insertTrack(track);
+        testFixtures().insertTrack(track);
 
         storage.track(track.getUrn(), Urn.forUser(123)).subscribe(observer);
 
@@ -58,7 +58,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     @Test
     public void descriptionByUrnEmitsInsertedDescription() throws CreateModelException {
         final TrackUrn trackUrn = Urn.forTrack(123);
-        testHelper().insertDescription(trackUrn, "description123");
+        testFixtures().insertDescription(trackUrn, "description123");
         storage.trackDetails(trackUrn).subscribe(observer);
         verify(observer).onNext(eq(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123"))));
         verify(observer).onCompleted();

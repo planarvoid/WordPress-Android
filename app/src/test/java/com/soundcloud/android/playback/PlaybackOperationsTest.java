@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createNewUserPlaylist;
-import static com.soundcloud.android.robolectric.TestHelper.createTracks;
-import static com.soundcloud.android.robolectric.TestHelper.createTracksUrn;
+import static com.soundcloud.android.testsupport.TestHelper.createNewUserPlaylist;
+import static com.soundcloud.android.testsupport.TestHelper.createTracks;
+import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
@@ -11,7 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -26,7 +26,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;

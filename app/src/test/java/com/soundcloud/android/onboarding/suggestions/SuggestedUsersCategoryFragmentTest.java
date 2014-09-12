@@ -12,7 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.GridViewCompat;
 import com.tobedevoured.modelcitizen.CreateModelException;

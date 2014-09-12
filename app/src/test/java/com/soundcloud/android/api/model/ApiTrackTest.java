@@ -4,7 +4,7 @@ import com.soundcloud.android.Expect;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

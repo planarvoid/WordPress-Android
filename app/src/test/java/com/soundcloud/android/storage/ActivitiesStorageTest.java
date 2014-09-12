@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.soundcloud.android.sync.SyncAdapterServiceTest;
 import org.junit.Before;

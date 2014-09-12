@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.robolectric.DatabaseHelper;
+import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -29,7 +29,7 @@ public class PlaylistStorageTest {
     private PlaylistStorage storage;
     private SQLiteDatabase sqliteDatabase = new DatabaseManager(Robolectric.application).getWritableDatabase();
     private PropellerDatabase database = new PropellerDatabase(sqliteDatabase);
-    private DatabaseHelper helper = new DatabaseHelper(sqliteDatabase);
+    private DatabaseFixtures helper = new DatabaseFixtures(sqliteDatabase);
 
     @Mock
     private Observer<PropertySet> observer;

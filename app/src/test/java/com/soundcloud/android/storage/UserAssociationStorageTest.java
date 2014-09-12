@@ -1,7 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createUsers;
+import static com.soundcloud.android.testsupport.TestHelper.createUsers;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -22,7 +22,7 @@ import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.TestPropertySets.audioAdProperties;
-import static com.soundcloud.android.TestPropertySets.expectedTrackForPlayer;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;

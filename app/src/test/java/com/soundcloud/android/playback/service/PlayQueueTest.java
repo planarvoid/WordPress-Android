@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.createTracksUrn;
+import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
@@ -9,7 +9,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;

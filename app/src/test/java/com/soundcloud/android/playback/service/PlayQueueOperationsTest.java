@@ -26,7 +26,7 @@ import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.ChangeResult;
@@ -44,7 +44,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 

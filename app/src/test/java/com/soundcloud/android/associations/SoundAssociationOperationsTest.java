@@ -2,7 +2,7 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
-import static com.soundcloud.android.robolectric.TestHelper.createTracksUrn;
+import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -27,7 +27,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
 import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;

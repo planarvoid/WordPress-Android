@@ -8,7 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
