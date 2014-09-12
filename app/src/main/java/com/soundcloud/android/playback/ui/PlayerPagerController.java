@@ -213,7 +213,7 @@ class PlayerPagerController {
         refreshPlayQueue();
 
         playerPagerScrollListener.initialize(trackPager);
-        adapter.initialize(trackPager, getSkipListener(trackPager));
+        adapter.initialize(trackPager, getSkipListener(trackPager), new PlayerViewVisibilityProvider(trackPager));
     }
 
     private SkipListener getSkipListener(final PlayerTrackPager trackPager) {

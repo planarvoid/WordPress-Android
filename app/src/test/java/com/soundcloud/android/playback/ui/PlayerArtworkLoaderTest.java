@@ -26,6 +26,7 @@ public class PlayerArtworkLoaderTest {
     @Mock ImageView wrappedImageView;
     @Mock ImageView imageOverlayView;
     @Mock ImageListener listener;
+    @Mock ViewVisibilityProvider viewVisibilityProvider;
 
     private PlayerArtworkLoader playerArtworkLoader;
     private Resources resources = Robolectric.application.getResources();
@@ -42,7 +43,7 @@ public class PlayerArtworkLoaderTest {
         final Bitmap cachedBitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
 
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
 
         verify(imageOperations).displayInPlayer(urn, ApiImageSize.getFullImageSize(Robolectric.application.getResources()),
                 wrappedImageView, listener, cachedBitmap, true);

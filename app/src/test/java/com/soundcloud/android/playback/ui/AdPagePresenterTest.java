@@ -43,13 +43,14 @@ public class AdPagePresenterTest {
     @Mock private AdPageListener pageListener;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private SkipListener skipListener;
+    @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
         adView = presenter.createItemView(new FrameLayout(new FragmentActivity()), skipListener);
-        presenter.bindItemView(adView, buildAd(), true);
+        presenter.bindItemView(adView, buildAd(), true, viewVisibilityProvider);
     }
 
     @Test

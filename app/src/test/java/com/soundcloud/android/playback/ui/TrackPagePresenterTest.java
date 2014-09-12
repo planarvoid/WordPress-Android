@@ -52,6 +52,7 @@ public class TrackPagePresenterTest {
     @Mock private LeaveBehindController.Factory leaveBehindControllerFactory;
     @Mock private LeaveBehindController leaveBehindController;
     @Mock private SkipListener skipListener;
+    @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     @Mock private TrackMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackMenuController trackMenuController;
@@ -458,6 +459,6 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() {
-        presenter.bindItemView(trackView, TestPropertySets.expectedTrackForPlayer(), true);
+        presenter.bindItemView(trackView, TestPropertySets.expectedTrackForPlayer(), true, viewVisibilityProvider);
     }
 }

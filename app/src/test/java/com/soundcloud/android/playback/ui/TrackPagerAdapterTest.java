@@ -4,6 +4,7 @@ import static android.support.v4.view.PagerAdapter.POSITION_NONE;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +63,7 @@ public class TrackPagerAdapterTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ViewGroup container;
     @Mock private SkipListener skipListener;
+    @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private FeatureFlags featureFlags;
 
     @Mock private View view1;
@@ -92,7 +94,7 @@ public class TrackPagerAdapterTest {
 
         eventBus = new TestEventBus();
         adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus, featureFlags);
-        adapter.initialize(container, skipListener);
+        adapter.initialize(container, skipListener, viewVisibilityProvider);
         adapter.setCurrentData(trackPageData);
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN));
@@ -260,12 +262,12 @@ public class TrackPagerAdapterTest {
         when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(pageView, track, true);
+        verify(trackPagePresenter).bindItemView(pageView, track, true, viewVisibilityProvider);
     }
 
     @Test
     public void shouldCreateAdViewForAudioAds() {
-        adapter.initialize(container, skipListener);
+        adapter.initialize(container, skipListener, viewVisibilityProvider);
         setupAudioAd();
         getAdPageView();
 
@@ -277,7 +279,7 @@ public class TrackPagerAdapterTest {
         setupAudioAd();
         View pageView = getAdPageView();
 
-        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true));
+        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true), same(viewVisibilityProvider));
 
         expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeTrue();
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);

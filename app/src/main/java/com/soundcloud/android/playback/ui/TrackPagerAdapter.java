@@ -83,6 +83,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     };
 
     private CompositeSubscription subscription = new CompositeSubscription();
+    private ViewVisibilityProvider viewVisibilityProvider;
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
@@ -135,8 +136,9 @@ public class TrackPagerAdapter extends PagerAdapter {
         subscribedTrackViews.clear();
     }
 
-    void initialize(ViewGroup container, SkipListener skipListener) {
+    void initialize(ViewGroup container, SkipListener skipListener, ViewVisibilityProvider viewVisibilityProvider) {
         this.skipListener = skipListener;
+        this.viewVisibilityProvider = viewVisibilityProvider;
         for (int i = 0; i < TRACKVIEW_POOL_SIZE; i++) {
             final View itemView = trackPagePresenter.createItemView(container, skipListener);
             trackPageRecycler.addScrapView(itemView);
@@ -335,7 +337,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         public void onNext(PropertySet track) {
             TrackUrn trackUrn = track.get(TrackProperty.URN);
             if (isTrackRelatedToView(trackPage, trackUrn)) {
-                presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn));
+                presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn), viewVisibilityProvider);
                 updateProgress(presenter, trackPage, trackUrn);
 
                 // TODO: Temporary for developing leave behind

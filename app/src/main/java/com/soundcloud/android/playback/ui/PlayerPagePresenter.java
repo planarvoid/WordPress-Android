@@ -12,7 +12,7 @@ public interface PlayerPagePresenter {
 
     View createItemView(ViewGroup container, SkipListener skipListener);
     View clearItemView(View convertView);
-    void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack);
+    void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider);
 
     void setProgress(View trackPage, PlaybackProgress progress);
     void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean isCurrentTrack);

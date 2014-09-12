@@ -109,18 +109,18 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet track, boolean isCurrentTrack) {
-        bindItemView(view, new PlayerTrack(track), isCurrentTrack);
+    public void bindItemView(View view, PropertySet track, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider) {
+        bindItemView(view, new PlayerTrack(track), isCurrentTrack, viewVisibilityProvider);
     }
 
-    private void bindItemView(View trackView, PlayerTrack track, boolean isCurrentTrack) {
+    private void bindItemView(View trackView, PlayerTrack track, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.title.setText(track.getTitle());
 
         holder.user.setText(track.getUserName());
         holder.profileLink.setTag(track.getUserUrn());
 
-        holder.artworkController.loadArtwork(track.getUrn(), isCurrentTrack);
+        holder.artworkController.loadArtwork(track.getUrn(), isCurrentTrack, viewVisibilityProvider);
         holder.waveformController.onForeground(); // We must be in the foreground if we're binding the view
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());

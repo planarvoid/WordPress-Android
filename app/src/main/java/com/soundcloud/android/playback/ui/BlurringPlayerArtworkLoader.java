@@ -39,28 +39,37 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     }
 
     @Override
-    public void loadArtwork(TrackUrn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener, boolean isHighPriority) {
-        super.loadArtwork(urn, wrappedImageView, imageOverlay, listener, isHighPriority);
+    public void loadArtwork(TrackUrn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener,
+                            boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
+
+        super.loadArtwork(urn, wrappedImageView, imageOverlay, listener, isHighPriority, viewVisibilityProvider);
 
         blurSubscription.unsubscribe();
         blurSubscription = imageOperations.blurredPlayerArtwork(resources, urn, graphicsScheduler, observeOnScheduler)
-                .subscribe(new BlurredOverlaySubscriber(imageOverlay));
+                .subscribe(new BlurredOverlaySubscriber(imageOverlay, viewVisibilityProvider));
     }
 
     private class BlurredOverlaySubscriber extends DefaultSubscriber<Bitmap> {
         private final WeakReference<ImageView> imageOverlayRef;
+        private final ViewVisibilityProvider viewVisibilityProvider;
 
-        public BlurredOverlaySubscriber(ImageView imageOverlay) {
+        public BlurredOverlaySubscriber(ImageView imageOverlay, ViewVisibilityProvider viewVisibilityProvider) {
             this.imageOverlayRef = new WeakReference<>(imageOverlay);
+            this.viewVisibilityProvider = viewVisibilityProvider;
         }
 
         @Override
         public void onNext(Bitmap bitmap) {
-            ImageView imageView = imageOverlayRef.get();
+            final ImageView imageView = imageOverlayRef.get();
+
             if (imageView != null) {
-                final TransitionDrawable transitionDrawable = ImageUtils.createTransitionDrawable(null, new BitmapDrawable(bitmap));
-                imageView.setImageDrawable(transitionDrawable);
-                transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
+                if (viewVisibilityProvider.isCurrentlyVisible(imageView)) {
+                    final TransitionDrawable transitionDrawable = ImageUtils.createTransitionDrawable(null, new BitmapDrawable(bitmap));
+                    imageView.setImageDrawable(transitionDrawable);
+                    transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
+                } else {
+                    imageView.setImageBitmap(bitmap);
+                }
             }
         }
     }

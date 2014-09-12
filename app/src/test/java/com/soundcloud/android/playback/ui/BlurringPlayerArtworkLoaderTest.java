@@ -36,6 +36,7 @@ public class BlurringPlayerArtworkLoaderTest {
     @Mock ImageView imageOverlayView;
     @Mock ImageListener listener;
     @Mock Subscription subscription;
+    @Mock ViewVisibilityProvider viewVisibilityProvider;
 
     private PlayerArtworkLoader playerArtworkLoader;
     private Resources resources = Robolectric.application.getResources();
@@ -53,7 +54,7 @@ public class BlurringPlayerArtworkLoaderTest {
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
         when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler)).thenReturn(Observable.<Bitmap>empty());
 
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
 
         verify(imageOperations).displayInPlayer(urn, ApiImageSize.getFullImageSize(Robolectric.application.getResources()),
                 wrappedImageView, listener, cachedBitmap, true);
@@ -65,12 +66,23 @@ public class BlurringPlayerArtworkLoaderTest {
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
         when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler)).thenReturn(Observable.just(blurredBitmap));
 
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
+
+        verify(imageOverlayView).setImageBitmap(blurredBitmap);
+    }
+
+    @Test
+    public void loadArtworkSetsBlurredArtworkOnImageOverlayWithTransitionDrawableWhenOnScreen() throws Exception {
+        final Bitmap blurredBitmap = Bitmap.createBitmap(0, 0, Bitmap.Config.RGB_565);
+        when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
+        when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler)).thenReturn(Observable.just(blurredBitmap));
+        when(viewVisibilityProvider.isCurrentlyVisible(imageOverlayView)).thenReturn(true);
+
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
 
         ArgumentCaptor<TransitionDrawable> captor = ArgumentCaptor.forClass(TransitionDrawable.class);
         verify(imageOverlayView).setImageDrawable(captor.capture());
         expect(((BitmapDrawable)captor.getValue().getDrawable(1)).getBitmap()).toBe(blurredBitmap);
-
     }
 
     @Test
@@ -79,8 +91,8 @@ public class BlurringPlayerArtworkLoaderTest {
         when(imageOperations.blurredPlayerArtwork(resources, urn, immediateScheduler, immediateScheduler))
                 .thenReturn(TestObservables.<Bitmap>endlessObservablefromSubscription(subscription));
 
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
 
         verify(subscription).unsubscribe();
 

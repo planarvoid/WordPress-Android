@@ -43,6 +43,7 @@ public class PlayerArtworkControllerTest {
     @Mock private View artworkIdleOverlay;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlayerArtworkLoader playerArtworkLoader;
+    @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     private Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
 
@@ -146,7 +147,7 @@ public class PlayerArtworkControllerTest {
         when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
         when(wrappedImageView.getContext()).thenReturn(Robolectric.application);
 
-        playerArtworkController.loadArtwork(urn, true);
-        verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), any(ImageListener.class), eq(true));
+        playerArtworkController.loadArtwork(urn, true, viewVisibilityProvider);
+        verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), any(ImageListener.class), eq(true), same(viewVisibilityProvider));
     }
 }

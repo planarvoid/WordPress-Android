@@ -22,7 +22,8 @@ public class PlayerArtworkLoader {
         this.resources = resources;
     }
 
-    public void loadArtwork(TrackUrn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener, boolean isHighPriority){
+    public void loadArtwork(TrackUrn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener, boolean isHighPriority,
+                            ViewVisibilityProvider viewVisibilityProvider){
         final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
         final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);
         imageOperations.displayInPlayer(urn, size, wrappedImageView, listener, cachedListBitmap, isHighPriority);
