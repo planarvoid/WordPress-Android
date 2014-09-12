@@ -83,7 +83,7 @@ public class ExploreTracksFragment extends DefaultFragment
         addLifeCycleComponents();
     }
 
-    public void addLifeCycleComponents() {
+    private void addLifeCycleComponents() {
         pager = exploreTracksOperations.getPager();
         listViewController.setAdapter(adapter, pager);
         listViewController.setScrollListener(new AbsListViewParallaxer(null));

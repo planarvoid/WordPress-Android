@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast", "PMD.MissingStaticMethodInNonInstantiatableClass"})
-public class ActivityLifeCycleDispatcher<ActivityT extends Activity> implements ActivityLifeCycle<ActivityT> {
+@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
+public final class ActivityLifeCycleDispatcher<ActivityT extends Activity> implements ActivityLifeCycle<ActivityT> {
     private final Collection<ActivityLifeCycle<ActivityT>> activityLifeCycles;
 
-    private ActivityLifeCycleDispatcher(Collection<ActivityLifeCycle<ActivityT>> activityLifeCycles) {
+    protected ActivityLifeCycleDispatcher(Collection<ActivityLifeCycle<ActivityT>> activityLifeCycles) {
         this.activityLifeCycles = activityLifeCycles;
     }
 
@@ -89,7 +89,6 @@ public class ActivityLifeCycleDispatcher<ActivityT extends Activity> implements 
         }
     }
 
-    @SuppressWarnings("PMD.AccessorClassGeneration")
     public static class Builder<ActivityT extends Activity> {
         private final List<ActivityLifeCycle<ActivityT>> components;
 
@@ -104,7 +103,7 @@ public class ActivityLifeCycleDispatcher<ActivityT extends Activity> implements 
         }
 
         public ActivityLifeCycleDispatcher<ActivityT> build() {
-            return new ActivityLifeCycleDispatcher(Collections.unmodifiableCollection(components));
+            return new ActivityLifeCycleDispatcher<>(Collections.unmodifiableCollection(components));
         }
     }
 }

@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast", "PMD.MissingStaticMethodInNonInstantiatableClass"})
-public class FragmentLifeCycleDispatcher<FragmentT extends Fragment> implements FragmentLifeCycle<FragmentT> {
+@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
+public final class FragmentLifeCycleDispatcher<FragmentT extends Fragment> implements FragmentLifeCycle<FragmentT> {
     private final Collection<FragmentLifeCycle<FragmentT>> fragmentLifeCycles;
 
-    private FragmentLifeCycleDispatcher(Collection<FragmentLifeCycle<FragmentT>> fragmentLifeCycles) {
+    protected FragmentLifeCycleDispatcher(Collection<FragmentLifeCycle<FragmentT>> fragmentLifeCycles) {
         this.fragmentLifeCycles = fragmentLifeCycles;
     }
 
@@ -96,7 +96,6 @@ public class FragmentLifeCycleDispatcher<FragmentT extends Fragment> implements 
         }
     }
 
-    @SuppressWarnings("PMD.AccessorClassGeneration")
     public static class Builder<FragmentT extends Fragment> {
         private final List<FragmentLifeCycle<FragmentT>> components;
 
@@ -111,7 +110,7 @@ public class FragmentLifeCycleDispatcher<FragmentT extends Fragment> implements 
         }
 
         public FragmentLifeCycleDispatcher<FragmentT> build() {
-            return new FragmentLifeCycleDispatcher(Collections.unmodifiableCollection(components));
+            return new FragmentLifeCycleDispatcher<>(Collections.unmodifiableCollection(components));
         }
     }
 }

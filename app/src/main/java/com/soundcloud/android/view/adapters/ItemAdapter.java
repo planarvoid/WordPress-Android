@@ -20,7 +20,7 @@ import java.util.List;
 public class ItemAdapter<ItemT> extends BaseAdapter {
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
-    protected ArrayList<ItemT> items;
+    protected List<ItemT> items;
     protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
 
     public ItemAdapter(CellPresenterEntity<ItemT>... cellPresenterEntities) {
