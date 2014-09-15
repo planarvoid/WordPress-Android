@@ -105,7 +105,6 @@ public class TrackPagerAdapterTest {
                         PlayableProperty.TITLE.bind("title"),
                         PlayableProperty.CREATOR_NAME.bind("artist"))
         ));
-        when(playQueueManager.getAudioAd()).thenReturn(PropertySet.create());
     }
 
     @Test
@@ -254,13 +253,11 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldCreateTrackViewForTracks() {
-        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         expect(getPageView()).toBe(view6);
     }
 
     @Test
     public void shouldBindTrackViewForTracks() {
-        when(playQueueManager.isAudioAdAtPosition(3)).thenReturn(false);
         final View pageView = getPageView();
 
         verify(trackPagePresenter).bindItemView(pageView, track, true, viewVisibilityProvider);
@@ -452,8 +449,6 @@ public class TrackPagerAdapterTest {
     }
 
     private void setupAudioAd(PropertySet propertySet) {
-        when(playQueueManager.getAudioAd()).thenReturn(propertySet);
-        when(playQueueManager.isAudioAdAtPosition(2)).thenReturn(true);
         adapter.setCurrentData(Arrays.asList(TrackPageData.forAd(2, AD_URN, propertySet)));
     }
 }

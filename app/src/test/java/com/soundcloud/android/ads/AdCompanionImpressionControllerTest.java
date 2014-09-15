@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +35,7 @@ public class AdCompanionImpressionControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
     @Mock private Activity activity;
+    @Mock private AdsOperations adsOperations;
     private TestEventBus eventBus;
 
     private AdCompanionImpressionController controller;
@@ -46,14 +48,14 @@ public class AdCompanionImpressionControllerTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        controller = new AdCompanionImpressionController(eventBus, playQueueManager, accountOperations);
+        controller = new AdCompanionImpressionController(eventBus, playQueueManager, accountOperations, adsOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
-        observer = new TestObserver<AudioAdCompanionImpressionEvent>();
+        observer = new TestObserver<>();
 
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
 
         controller.companionImpressionEvent().subscribe(observer);
     }
@@ -81,8 +83,8 @@ public class AdCompanionImpressionControllerTest {
 
     @Test
     public void shouldNotLogWhenTheCurrentTrackIsNotAnAd() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
-        when(playQueueManager.getAudioAd()).thenReturn(null);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
 
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUME_EVENT);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);

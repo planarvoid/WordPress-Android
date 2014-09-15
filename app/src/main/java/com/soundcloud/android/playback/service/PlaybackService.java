@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -55,6 +56,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
     @Inject PlaybackNotificationController playbackNotificationController;
     @Inject PlaybackSessionAnalyticsController analyticsController;
+    @Inject AdsOperations adsOperations;
 
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;
@@ -131,7 +133,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     PlaybackNotificationController playbackNotificationController,
-                    PlaybackSessionAnalyticsController analyticsController) {
+                    PlaybackSessionAnalyticsController analyticsController, AdsOperations adsOperations) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
@@ -142,6 +144,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;
         this.playbackNotificationController = playbackNotificationController;
         this.analyticsController = analyticsController;
+        this.adsOperations = adsOperations;
     }
 
     @Override
@@ -343,7 +346,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
             loadTrackSubscription.unsubscribe();
             loadTrackSubscription = trackOperations.track(playQueueManager.getCurrentTrackUrn())
-                    .subscribe(new TrackInformationSubscriber(playQueueManager.isCurrentTrackAudioAd()));
+                    .subscribe(new TrackInformationSubscriber(adsOperations.isCurrentTrackAudioAd()));
         }
     }
 

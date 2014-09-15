@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -22,6 +23,7 @@ public class PlaybackSessionAnalyticsController {
     private final TrackOperations trackOperations;
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
+    private final AdsOperations adsOperations;
     private PlaybackSessionEvent lastPlayEventData;
     private PropertySet lastPlayAudioAd;
 
@@ -31,11 +33,13 @@ public class PlaybackSessionAnalyticsController {
 
     @Inject
     public PlaybackSessionAnalyticsController(EventBus eventBus, TrackOperations trackOperations,
-                                              AccountOperations accountOperations, PlayQueueManager playQueueManager) {
+                                              AccountOperations accountOperations, PlayQueueManager playQueueManager,
+                                              AdsOperations adsOperations) {
         this.eventBus = eventBus;
         this.trackOperations = trackOperations;
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
+        this.adsOperations = adsOperations;
     }
 
     public void onStateTransition(Playa.StateTransition stateTransition) {
@@ -90,8 +94,8 @@ public class PlaybackSessionAnalyticsController {
                 final long progress = stateTransition.getProgress().position;
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                 lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
-                if (playQueueManager.isCurrentTrackAudioAd()) {
-                    lastPlayAudioAd = playQueueManager.getAudioAd();
+                if (adsOperations.isCurrentTrackAudioAd()) {
+                    lastPlayAudioAd = playQueueManager.getCurrentMetaData();
                     lastPlayEventData = lastPlayEventData.withAudioAd(lastPlayAudioAd);
                 } else {
                     lastPlayAudioAd = null;

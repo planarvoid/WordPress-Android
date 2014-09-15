@@ -5,18 +5,17 @@ import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -57,14 +56,19 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void insertsAudioAdAtPosition() throws CreateModelException {
+    public void insertsTrackAtPosition() throws CreateModelException {
         PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
-        final AudioAd audioAd = ModelFixtures.create(AudioAd.class);
-        playQueue.insertAudioAd(audioAd, 1);
+        TrackUrn trackUrn = Urn.forTrack(123L);
+        PropertySet metaData = PropertySet.create();
+        playQueue.insertTrack(1, trackUrn, metaData, true);
 
-        expect(playQueue.getUrn(1)).toEqual(audioAd.getApiTrack().getUrn());
+        expect(playQueue.getUrn(1)).toEqual(trackUrn);
+        expect(playQueue.getMetaData(1)).toEqual(metaData);
+
         expect(playQueue.size()).toBe(4);
+        expect(playQueue.getUrn(0)).toEqual(Urn.forTrack(1L));
+        expect(playQueue.getUrn(2)).toEqual(Urn.forTrack(2L));
     }
 
     @Test
@@ -116,29 +120,6 @@ public class PlayQueueTest {
     @Test
     public void getUrnReturnsNotSetUrnWithEmptyQueue() throws Exception {
         expect(PlayQueue.empty().getUrn(0)).toEqual(Urn.forTrack(Consts.NOT_SET));
-    }
-
-    @Test
-    public void shouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
-        final AudioAd audioAd = ModelFixtures.create(AudioAd.class);
-        final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromAudioAd(audioAd)));
-
-        expect(playQueue.isAudioAd(0)).toBeTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseIfCurrentItemIsNotAudioAd() {
-        final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromTrack(Urn.forTrack(2L), "", "")));
-
-        expect(playQueue.isAudioAd(0)).toBeFalse();
-    }
-
-    @Test
-    public void isAudioAdReturnsFalseAtInvalidPopsition() {
-        final PlayQueue playQueue = new PlayQueue(Arrays.asList(PlayQueueItem.fromTrack(Urn.forTrack(2L), "", "")));
-
-        expect(playQueue.isAudioAd(1)).toBeFalse();
-        expect(playQueue.isAudioAd(-1)).toBeFalse();
     }
 
     @Test

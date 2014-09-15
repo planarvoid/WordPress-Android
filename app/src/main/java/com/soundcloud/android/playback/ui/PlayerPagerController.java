@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -41,6 +42,7 @@ class PlayerPagerController {
     private final PlaybackOperations playbackOperations;
     private final PlaybackToastViewController playbackToastViewController;
     private final PlayerPresenter presenter;
+    private final AdsOperations adsOperations;
 
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
@@ -71,7 +73,7 @@ class PlayerPagerController {
     private final Func1<CurrentPlayQueueTrackEvent, Boolean> isCurrentTrackAudioAd = new Func1<CurrentPlayQueueTrackEvent, Boolean>() {
         @Override
         public Boolean call(CurrentPlayQueueTrackEvent ignored) {
-            return playQueueManager.isCurrentTrackAudioAd();
+            return adsOperations.isCurrentTrackAudioAd();
         }
     };
 
@@ -122,7 +124,7 @@ class PlayerPagerController {
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
                                  PlaybackToastViewController playbackToastViewController,
                                  Provider<PlayQueueDataSwitcher> playQueueDataSwitcherProvider,
-                                 PlayerPagerScrollListener playerPagerScrollListener) {
+                                 PlayerPagerScrollListener playerPagerScrollListener, AdsOperations adsOperations) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
         this.eventBus = eventBus;
@@ -131,6 +133,7 @@ class PlayerPagerController {
         this.playbackToastViewController = playbackToastViewController;
         this.playQueueDataSwitcherProvider = playQueueDataSwitcherProvider;
         this.playerPagerScrollListener = playerPagerScrollListener;
+        this.adsOperations = adsOperations;
 
         checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(new Func1<PlaybackProgressEvent, Boolean>() {
             @Override
@@ -253,12 +256,12 @@ class PlayerPagerController {
             setAdPlayQueue();
         } else {
             setPlayQueueAfterScroll = true;
-            setQueuePosition(playQueueManager.getAudioAdPosition());
+            setQueuePosition(playQueueManager.getCurrentPosition());
         }
     }
 
     private boolean isShowingCurrentAudioAd() {
-        return playQueueManager.isCurrentTrackAudioAd()
+        return adsOperations.isCurrentTrackAudioAd()
                 && playQueueManager.isCurrentPosition(getDisplayedPositionInPlayQueue());
     }
 
@@ -288,7 +291,7 @@ class PlayerPagerController {
         @Override
         public void onNext(Integer args) {
             if(setPlayQueueAfterScroll){
-                if (playQueueManager.isCurrentTrackAudioAd()){
+                if (adsOperations.isCurrentTrackAudioAd()){
                     setAdPlayQueue();
                 } else {
                     refreshPlayQueue();

@@ -72,17 +72,17 @@ class LeaveBehindController implements View.OnClickListener{
     }
 
     void initialize(PlayerTrack data) {
-        if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
-            this.data = data;
-            leaveBehind = getLeaveBehindView();
-            adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
-            adImage.setOnClickListener(this);
-            leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
-        }
+        this.data = data;
+        leaveBehind = getLeaveBehindView();
+        adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
+        adImage.setOnClickListener(this);
+        leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
     }
 
     public void show() {
-        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
+        if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
+            imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
+        }
     }
 
     private void setVisible() {

@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 
 public final class CurrentPlayQueueTrackEvent {
     private static final int NEW_QUEUE = 0;
@@ -10,17 +11,28 @@ public final class CurrentPlayQueueTrackEvent {
     private final int kind;
     private final TrackUrn currentTrackUrn;
 
-    private CurrentPlayQueueTrackEvent(TrackUrn currentTrackUrn, int kind) {
+    private final PropertySet currentMetaData;
+
+    private CurrentPlayQueueTrackEvent(int kind, TrackUrn currentTrackUrn, PropertySet currentMetaData) {
         this.kind = kind;
         this.currentTrackUrn = currentTrackUrn;
+        this.currentMetaData = currentMetaData;
     }
 
     public static CurrentPlayQueueTrackEvent fromNewQueue(TrackUrn trackUrn) {
-        return new CurrentPlayQueueTrackEvent(trackUrn, NEW_QUEUE);
+        return fromNewQueue(trackUrn, PropertySet.create());
+    }
+
+    public static CurrentPlayQueueTrackEvent fromNewQueue(TrackUrn trackUrn, PropertySet metaData) {
+        return new CurrentPlayQueueTrackEvent(NEW_QUEUE, trackUrn, metaData);
     }
 
     public static CurrentPlayQueueTrackEvent fromPositionChanged(TrackUrn trackUrn) {
-        return new CurrentPlayQueueTrackEvent(trackUrn, POSITION_CHANGED);
+            return fromPositionChanged(trackUrn, PropertySet.create());
+    }
+
+    public static CurrentPlayQueueTrackEvent fromPositionChanged(TrackUrn trackUrn, PropertySet metaData) {
+        return new CurrentPlayQueueTrackEvent(POSITION_CHANGED, trackUrn, metaData);
     }
 
     public int getKind() {
@@ -33,6 +45,10 @@ public final class CurrentPlayQueueTrackEvent {
 
     public TrackUrn getCurrentTrackUrn() {
         return currentTrackUrn;
+    }
+
+    public PropertySet getCurrentMetaData() {
+        return currentMetaData;
     }
 
     @Override

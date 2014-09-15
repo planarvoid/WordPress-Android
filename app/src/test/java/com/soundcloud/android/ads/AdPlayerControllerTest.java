@@ -19,13 +19,14 @@ import org.mockito.Mock;
 @RunWith(SoundCloudTestRunner.class)
 public class AdPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private AdsOperations adsOperations;
 
     private TestEventBus eventBus = new TestEventBus();
     private AdPlayerController controller;
 
     @Before
     public void setUp() throws Exception {
-        controller = new AdPlayerController(playQueueManager, eventBus);
+        controller = new AdPlayerController(eventBus, adsOperations);
     }
 
     @Test
@@ -97,7 +98,7 @@ public class AdPlayerControllerTest {
     }
 
     private void setAudioAdIsPlaying(boolean isPlaying) {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(isPlaying);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(isPlaying);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
     }
 

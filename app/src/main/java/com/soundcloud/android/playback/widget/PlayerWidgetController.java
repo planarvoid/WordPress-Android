@@ -43,7 +43,7 @@ public class PlayerWidgetController {
     private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
         @Override
         public Observable<PropertySet> call(CurrentPlayQueueTrackEvent event) {
-            return loadTrackWithAdMeta(event.getCurrentTrackUrn());
+            return loadTrackWithAdMeta(event.getCurrentTrackUrn(), event.getCurrentMetaData());
         }
     };
 
@@ -84,23 +84,22 @@ public class PlayerWidgetController {
         if (TrackUrn.NOT_SET.equals(currentTrackUrn)) {
             presenter.reset(context);
         } else {
-            loadTrackWithAdMeta(currentTrackUrn)
+            loadTrackWithAdMeta(currentTrackUrn, playQueueManager.getCurrentMetaData())
                     .map(updateFunc)
                     .subscribe(new CurrentTrackSubscriber());
         }
     }
 
-    private Observable<PropertySet> loadTrackWithAdMeta(TrackUrn urn) {
+    private Observable<PropertySet> loadTrackWithAdMeta(TrackUrn urn, PropertySet metaData) {
         return trackOperations.track(urn)
-                .map(mergeAudioAdMeta());
+                .map(mergeMetaData(metaData));
     }
 
-    private Func1<PropertySet, PropertySet> mergeAudioAdMeta() {
-        final boolean isAudioAd = playQueueManager.isCurrentTrackAudioAd();
+    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
         return new Func1<PropertySet, PropertySet>() {
             @Override
             public PropertySet call(PropertySet propertySet) {
-                return isAudioAd ? propertySet.merge(playQueueManager.getAudioAd()) : propertySet;
+                return propertySet.merge(metaData);
             }
         };
     }

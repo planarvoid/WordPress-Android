@@ -1,35 +1,32 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 
 final class PlayQueueItem {
 
     private final TrackUrn trackUrn;
     private final String source;
     private final String sourceVersion;
-    private final boolean isAudioAd;
+
+    private final PropertySet metaData;
+    private final boolean shouldPersist;
 
     public static PlayQueueItem fromTrack(TrackUrn trackUrn, String source, String sourceVersion) {
-        return new PlayQueueItem(trackUrn, source, sourceVersion, false);
+        return new PlayQueueItem(trackUrn, source, sourceVersion, PropertySet.create(), true);
     }
 
-    public static PlayQueueItem fromTrack(TrackUrn trackUrn, PlaySessionSource playSessionSource) {
-        return new PlayQueueItem(trackUrn, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion(), false);
+    public static PlayQueueItem fromTrack(TrackUrn trackUrn, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
+        return new PlayQueueItem(trackUrn, source, sourceVersion, metaData, shouldPersist);
     }
 
-    public static PlayQueueItem fromAudioAd(AudioAd audioAd) {
-        // TODO : Proper source + version?
-        return new PlayQueueItem(audioAd.getApiTrack().getUrn(), ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, true);
-    }
-
-    private PlayQueueItem(TrackUrn trackUrn, String source, String sourceVersion, boolean isAudioAd) {
+    private PlayQueueItem(TrackUrn trackUrn, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
         this.trackUrn = trackUrn;
         this.source = source;
         this.sourceVersion = sourceVersion;
-        this.isAudioAd = isAudioAd;
+        this.metaData = metaData;
+        this.shouldPersist = shouldPersist;
     }
 
     public TrackUrn getTrackUrn() {
@@ -44,8 +41,8 @@ final class PlayQueueItem {
         return sourceVersion;
     }
 
-    public boolean isAudioAd() {
-        return isAudioAd;
+    public PropertySet getMetaData() {
+        return metaData;
     }
 
     @Override
@@ -65,5 +62,9 @@ final class PlayQueueItem {
     @Override
     public int hashCode() {
         return Objects.hashCode(trackUrn, source, sourceVersion);
+    }
+
+    public boolean shouldPersist() {
+        return shouldPersist;
     }
 }

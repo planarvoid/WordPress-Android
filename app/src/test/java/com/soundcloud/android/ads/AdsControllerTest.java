@@ -71,9 +71,9 @@ public class AdsControllerTest {
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZABLE_PROPERTY_SET));
         when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
 
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN, audioAd.toPropertySet()));
 
-        verify(playQueueManager).insertAudioAd(audioAd);
+        verify(adsOperations).insertAudioAd(NEXT_TRACK_URN, audioAd);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
 
-        verify(playQueueManager).insertAudioAd(audioAd);
+        verify(adsOperations).insertAudioAd(NEXT_TRACK_URN, audioAd);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
-        verify(playQueueManager, never()).insertAudioAd(audioAd);
+        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
     }
 
     @Test
@@ -127,11 +127,11 @@ public class AdsControllerTest {
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZABLE_PROPERTY_SET));
         when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
         when(playQueueManager.hasNextTrack()).thenReturn(true);
-        when(playQueueManager.isNextTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isNextTrackAudioAd()).thenReturn(true);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
     }
 
     @Test
@@ -140,11 +140,11 @@ public class AdsControllerTest {
         when(trackOperations.track(NEXT_TRACK_URN)).thenReturn(Observable.just(MONETIZABLE_PROPERTY_SET));
         when(adsOperations.audioAd(NEXT_TRACK_URN)).thenReturn(Observable.just(audioAd));
         when(playQueueManager.hasNextTrack()).thenReturn(true);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
     }
 
     @Test
@@ -167,21 +167,30 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(playQueueManager, never()).insertAudioAd(any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
     }
 
     @Test
     public void trackChangeEventClearsAudioAd() {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(playQueueManager).clearAudioAd();
+        verify(adsOperations).clearAllAds();
+    }
+
+    @Test
+    public void trackChangeEventDoesNotClearAudioAdIfCurrentlyPlayingAd() {
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
+
+        verify(adsOperations, never()).clearAllAds();
     }
 
     @Test
     public void queueUpdateEventDoesNotClearAudioAd() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
 
-        verify(playQueueManager, never()).clearAudioAd();
+        verify(adsOperations, never()).clearAllAds();
     }
 
     @Test
@@ -193,9 +202,9 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        InOrder inOrder = inOrder(playQueueManager);
-        inOrder.verify(playQueueManager).clearAudioAd();
-        inOrder.verify(playQueueManager).insertAudioAd(any(AudioAd.class));
+        InOrder inOrder = inOrder(adsOperations);
+        inOrder.verify(adsOperations).clearAllAds();
+        inOrder.verify(adsOperations).insertAudioAd(NEXT_TRACK_URN, audioAd);
     }
 
     @Test
@@ -215,7 +224,7 @@ public class AdsControllerTest {
 
     @Test
     public void playStateChangedEventWhenBufferingAndAdAutoAdvancesTrackAfterTimeout() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         verify(playQueueManager, never()).autoNextTrack();
@@ -225,7 +234,7 @@ public class AdsControllerTest {
 
     @Test
     public void playStateChangedEventForBufferingNormalTrackDoesNotAdvanceAfterTimeout() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
@@ -234,7 +243,7 @@ public class AdsControllerTest {
 
     @Test
     public void playEventUnsubscribesFromSkipAd() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
@@ -245,7 +254,7 @@ public class AdsControllerTest {
 
     @Test
     public void pauseEventUnsubscribesFromSkipAd() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.NONE));
@@ -256,7 +265,7 @@ public class AdsControllerTest {
 
     @Test
     public void trackChangeEventUnsubscribesFromSkipAd() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
@@ -267,7 +276,7 @@ public class AdsControllerTest {
 
     @Test
     public void playbackErrorEventCausesAdToBeSkipped() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
 
@@ -276,7 +285,7 @@ public class AdsControllerTest {
 
     @Test
     public void playbackErrorDoesNotSkipNormalTrack() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
 

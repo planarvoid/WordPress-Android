@@ -9,10 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.TestPropertySets;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -54,6 +54,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void dismissSetsLeaveBehindVisibilityToGone() {
         controller.initialize(playerTrack);
+        controller.show();
         captureImageListener().onLoadingComplete(null, null, null);
 
         controller.dismiss();
@@ -65,6 +66,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void leaveBehindGoneOnLeaveBehindCloseClick() {
         controller.initialize(playerTrack);
+        controller.show();
         View close = trackView.findViewById(R.id.leave_behind_close);
         captureImageListener().onLoadingComplete(null, null, null);
 
@@ -77,6 +79,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void leaveBehindIsVisibleAfterSetupWithSuccessfulImageLoad() {
         controller.initialize(playerTrack);
+        controller.show();
 
         captureImageListener().onLoadingComplete(null, null, null);
 
@@ -87,6 +90,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void leaveBehindNeverBecomesVisibleIfDismissedBeforeImageLoads() {
         controller.initialize(playerTrack);
+        controller.show();
 
         controller.dismiss();
         captureImageListener().onLoadingComplete(null, null, null);
@@ -105,6 +109,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void loadsLeaveBehindImageFromModel() {
         controller.initialize(playerTrack);
+        controller.show();
         verify(imageOperations).displayLeaveBehind(eq(Uri.parse(playerTrack.getImageUrl())), any(ImageView.class), any(ImageListener.class));
     }
 
@@ -118,6 +123,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void onClickLeaveBehindImageOpensUrl() {
         controller.initialize(playerTrack);
+        controller.show();
         View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
         captureImageListener().onLoadingComplete(null, null, null);
 
@@ -132,6 +138,7 @@ public class LeaveBehindControllerTest {
     @Test
     public void onClickLeaveBehindImageDismissesLeaveBehind() {
         controller.initialize(playerTrack);
+        controller.show();
         View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
         captureImageListener().onLoadingComplete(null, null, null);
 

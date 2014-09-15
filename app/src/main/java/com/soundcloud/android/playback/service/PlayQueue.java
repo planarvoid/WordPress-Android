@@ -1,11 +1,14 @@
 package com.soundcloud.android.playback.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +39,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         playQueueItems.add(PlayQueueItem.fromTrack(trackUrn, source, sourceVersion));
     }
 
-    public void insertAudioAd(AudioAd audioAd, int position) {
-        playQueueItems.add(position, PlayQueueItem.fromAudioAd(audioAd));
+    public void insertTrack(int position, TrackUrn trackUrn, PropertySet metaData, boolean shouldPersist) {
+        checkArgument(position >= 0 && position <= size(), String.format("Cannot insert track at position:%d, size:%d", position, playQueueItems.size()));
+        // TODO : Proper source + version?
+        playQueueItems.add(position, PlayQueueItem.fromTrack(trackUrn, ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, metaData, shouldPersist));
     }
 
     public void remove(int position) {
@@ -78,16 +83,28 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().numericId : Consts.NOT_SET;
     }
 
+    public PropertySet getMetaData(int position) {
+        checkPosition(position);
+
+        return playQueueItems.get(position).getMetaData();
+    }
+
+    public boolean shouldPersistTrackAt(int position) {
+        checkPosition(position);
+
+        return playQueueItems.get(position).shouldPersist();
+    }
+
+    private void checkPosition(int position) {
+        checkArgument(position >= 0 && position < size(), String.format("PlayQueueItem index out of bound size:%d, position asked:%d", playQueueItems.size(), position));
+    }
+
     String getTrackSource(int position) {
         return playQueueItems.get(position).getSource();
     }
 
     String getSourceVersion(int position) {
         return playQueueItems.get(position).getSourceVersion();
-    }
-
-    boolean isAudioAd(int position) {
-        return position >= 0 && position < size() && playQueueItems.get(position).isAudioAd();
     }
 
     List<Long> getTrackIds() {
@@ -114,7 +131,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return Lists.newArrayList(Lists.transform(trackIds, new Function<TrackUrn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(TrackUrn track) {
-                return PlayQueueItem.fromTrack(track, playSessionSource);
+                return PlayQueueItem.fromTrack(track, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion(), PropertySet.create(), true);
             }
         }));
     }

@@ -65,19 +65,18 @@ public class PlaybackNotificationController {
             imageSubscription.unsubscribe();
             notificationObservable = trackOperations
                     .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
-                    .map(mergeAudioAdMeta())
+                    .map(mergeMetaData(playQueueEvent.getCurrentMetaData()))
                     .mergeMap(toNotification).cache();
 
             return notificationObservable;
         }
     };
 
-    private Func1<PropertySet, PropertySet> mergeAudioAdMeta() {
-        final boolean isAudioAd = playQueueManager.isCurrentTrackAudioAd();
+    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
         return new Func1<PropertySet, PropertySet>() {
             @Override
             public PropertySet call(PropertySet propertySet) {
-                return isAudioAd ? propertySet.merge(playQueueManager.getAudioAd()) : propertySet;
+                return propertySet.merge(metaData);
             }
         };
     }

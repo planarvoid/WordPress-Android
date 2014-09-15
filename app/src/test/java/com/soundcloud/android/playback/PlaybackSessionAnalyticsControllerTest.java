@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
@@ -41,6 +42,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackSourceInfo trackSourceInfo;
+    @Mock private AdsOperations adsOperations;
 
     @Before
     public void setUp() throws Exception {
@@ -51,7 +53,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackOperations, accountOperations, playQueueManager);
+                eventBus, trackOperations, accountOperations, playQueueManager, adsOperations);
     }
 
     @Test
@@ -81,8 +83,8 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Test
     public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() throws Exception {
         PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
         Playa.StateTransition playEvent = publishPlayingEvent();
 
@@ -98,8 +100,8 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Test
     public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() throws Exception {
         PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
         when(playQueueManager.hasNextTrack()).thenReturn(true);
 
         publishPlayingEvent();
@@ -178,12 +180,12 @@ public class PlaybackSessionAnalyticsControllerTest {
         final TrackUrn nextTrack = Urn.forTrack(456L);
         when(trackOperations.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
 
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
         publishPlayingEventForTrack(TRACK_URN);
 
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         publishPlayingEventForTrack(nextTrack);
 
         List<PlaybackSessionEvent> events = eventBus.eventsOn(EventQueue.PLAYBACK_SESSION);

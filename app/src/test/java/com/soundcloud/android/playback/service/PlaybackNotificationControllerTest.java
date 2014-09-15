@@ -131,12 +131,9 @@ public class PlaybackNotificationControllerTest {
         final PropertySet audioAdMetaDAta = audioAdProperties(Urn.forTrack(123L));
         final PropertySet expectedProperties = audioAdMetaDAta.merge(trackProperties);
 
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAdMetaDAta);
-
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN, audioAdMetaDAta));
 
         verify(playbackNotificationPresenter).createNotification(eq(expectedProperties));
     }
