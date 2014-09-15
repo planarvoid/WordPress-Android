@@ -9,6 +9,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -55,15 +56,15 @@ public class AdsController {
         public Boolean call(Object event) {
             return currentObservable == null
                     && playQueueManager.hasNextTrack()
-                    && !playQueueManager.isNextTrackAudioAd()
-                    && !playQueueManager.isCurrentTrackAudioAd();
+                    && !adsOperations.isNextTrackAudioAd()
+                    && !adsOperations.isCurrentTrackAudioAd();
         }
     };
 
     private final Func1<Playa.StateTransition, Boolean> isBufferingAudioAd = new Func1<Playa.StateTransition, Boolean>() {
         @Override
         public Boolean call(Playa.StateTransition state) {
-            return state.isBuffering() && playQueueManager.isCurrentTrackAudioAd();
+            return state.isBuffering() && adsOperations.isCurrentTrackAudioAd();
         }
     };
 
@@ -80,7 +81,9 @@ public class AdsController {
             currentObservable = null;
             audioAdSubscription.unsubscribe();
             skipAdSubscription.unsubscribe();
-            playQueueManager.clearAudioAd();
+            if (!adsOperations.isCurrentTrackAudioAd()) {
+                adsOperations.clearAllAds();
+            }
         }
     };
 
@@ -89,7 +92,7 @@ public class AdsController {
         public void call(Playa.StateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
                 skipAdSubscription.unsubscribe();
-            } else if (stateTransition.wasError() && playQueueManager.isCurrentTrackAudioAd()) {
+            } else if (stateTransition.wasError() && adsOperations.isCurrentTrackAudioAd()) {
                 skipAdSubscription.unsubscribe();
                 playQueueManager.autoNextTrack();
             }
@@ -131,19 +134,22 @@ public class AdsController {
     private final class PlayQueueSubscriber extends DefaultSubscriber<Object> {
         @Override
         public void onNext(Object event) {
-            currentObservable = trackOperations.track(playQueueManager.getNextTrackUrn())
+            final TrackUrn nextTrackUrn = playQueueManager.getNextTrackUrn();
+            currentObservable = trackOperations.track(nextTrackUrn)
                     .filter(IS_MONETIZABLE)
                     .mergeMap(fetchAudioAd)
                     .observeOn(AndroidSchedulers.mainThread());
-            audioAdSubscription = currentObservable.subscribe(new AudioAdSubscriber(playQueueManager.getCurrentPosition()));
+            audioAdSubscription = currentObservable.subscribe(new AudioAdSubscriber(playQueueManager.getCurrentPosition(), nextTrackUrn));
         }
     }
 
     private final class AudioAdSubscriber extends DefaultSubscriber<AudioAd> {
         private final int intendedPosition;
+        private final TrackUrn monetizableTrack;
 
-        private AudioAdSubscriber(int intendedPosition) {
+        private AudioAdSubscriber(int intendedPosition, TrackUrn monetizableTrack) {
             this.intendedPosition = intendedPosition;
+            this.monetizableTrack = monetizableTrack;
         }
 
         @Override
@@ -154,7 +160,7 @@ public class AdsController {
              * we attempt to put an ad in the queue twice. Matthias, please help!
              */
             if (playQueueManager.getCurrentPosition() == intendedPosition) {
-                playQueueManager.insertAudioAd(audioAd);
+                adsOperations.insertAudioAd(monetizableTrack, audioAd);
             }
         }
     }

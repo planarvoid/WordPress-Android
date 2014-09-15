@@ -13,6 +13,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +62,17 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .whereEq(TableColumns.PlayQueue.TRACK_ID, 456L)
                 .whereEq(TableColumns.PlayQueue.SOURCE, "source2")
                 .whereEq(TableColumns.PlayQueue.SOURCE_VERSION, "version2")), counts(1));
+    }
+
+    @Test
+    public void shouldSavePersistantItems() {
+        final PlayQueueItem playQueueItem1 = PlayQueueItem.fromTrack(Urn.forTrack(1), "persistant", "existing_version", PropertySet.create(), true);
+        final PlayQueueItem playQueueItem2 = PlayQueueItem.fromTrack(Urn.forTrack(2), "non-persistant", "existing_version", PropertySet.create(), false);
+        PlayQueue playQueue = new PlayQueue(Arrays.asList(playQueueItem1, playQueueItem2));
+
+        storage.storeAsync(playQueue).subscribe(new TestObserver<TxnResult>());
+
+        assertThat(select(from(PLAY_QUEUE_TABLE)), counts(1));
     }
 
     @Test

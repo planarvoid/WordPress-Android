@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -11,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -62,10 +60,9 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
     private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
-
-    private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
+        private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
-
+    
     private final Map<View, TrackPageData> trackByViews = new HashMap<View, TrackPageData>(TRACKVIEW_POOL_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
@@ -339,13 +336,6 @@ public class TrackPagerAdapter extends PagerAdapter {
             if (isTrackRelatedToView(trackPage, trackUrn)) {
                 presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn), viewVisibilityProvider);
                 updateProgress(presenter, trackPage, trackUrn);
-
-                // TODO: Temporary for developing leave behind
-                if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && trackPagePresenter.accept(trackPage)) {
-                    LeaveBehind data = new LeaveBehind("https://cloud.githubusercontent.com/assets/283794/4230685/ab66ec14-3987-11e4-9f94-d85a84daa8fa.jpg",
-                            "http://www.meridianpeakhypnosis.com/wp-content/uploads/2014/02/money-addiction.jpg");
-                    trackPagePresenter.showLeaveBehind(trackPage, data);
-                }
             }
         }
     }

@@ -18,6 +18,7 @@ public class AudioAd implements PropertySetSource {
 
     private final VisualAd visualAd;
 
+    private final LeaveBehind leaveBehind;
     private final List<String> trackingImpressionUrls;
 
     private final List<String> trackingFinishUrls;
@@ -29,15 +30,16 @@ public class AudioAd implements PropertySetSource {
                    @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
                    @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
                    @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls) {
-        this(urn, apiTrack, relatedResources.visualAd, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
+        this(urn, apiTrack, relatedResources.visualAd, relatedResources.leaveBehind, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
     }
 
     @VisibleForTesting
-    public AudioAd(String urn, ApiTrack apiTrack, VisualAd visualAd, List<String> trackingImpressionUrls,
+    public AudioAd(String urn, ApiTrack apiTrack, VisualAd visualAd, LeaveBehind leaveBehind, List<String> trackingImpressionUrls,
                    List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
         this.urn = urn;
         this.apiTrack = apiTrack;
         this.visualAd = visualAd;
+        this.leaveBehind = leaveBehind;
         this.trackingImpressionUrls = trackingImpressionUrls;
         this.trackingFinishUrls = trackingFinishUrls;
         this.trackingSkipUrls = trackingSkipUrls;
@@ -53,6 +55,10 @@ public class AudioAd implements PropertySetSource {
 
     public VisualAd getVisualAd() {
         return visualAd;
+    }
+
+    public LeaveBehind getLeaveBehind() {
+        return leaveBehind;
     }
 
     @VisibleForTesting
@@ -74,9 +80,12 @@ public class AudioAd implements PropertySetSource {
 
         private final VisualAd visualAd;
 
+        private final LeaveBehind leaveBehind;
+
         @JsonCreator
-        private RelatedResources(@JsonProperty("visual_ad") VisualAd visualAd) {
+        private RelatedResources(@JsonProperty("visual_ad") VisualAd visualAd, @JsonProperty("leave_behind") LeaveBehind leaveBehind) {
             this.visualAd = visualAd;
+            this.leaveBehind = leaveBehind;
         }
 
     }
@@ -98,5 +107,18 @@ public class AudioAd implements PropertySetSource {
                 AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(visualAd.getTrackingClickUrls()),
                 AdProperty.AUDIO_AD_SKIP_URLS.bind(trackingSkipUrls),
                 AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.getTrackingImpressionUrls()));
+    }
+
+    @Override
+    public String toString() {
+        return "AudioAd{" +
+                "urn='" + urn + '\'' +
+                ", apiTrack=" + apiTrack +
+                ", visualAd=" + visualAd +
+                ", leaveBehind=" + leaveBehind +
+                ", trackingImpressionUrls=" + trackingImpressionUrls +
+                ", trackingFinishUrls=" + trackingFinishUrls +
+                ", trackingSkipUrls=" + trackingSkipUrls +
+                '}';
     }
 }

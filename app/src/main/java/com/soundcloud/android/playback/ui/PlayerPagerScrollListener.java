@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -24,6 +25,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final PlaybackToastViewController playbackToastViewController;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
+    private final AdsOperations adsOperations;
 
     private CompositeSubscription subscription = new CompositeSubscription();
     private PlayerTrackPager trackPager;
@@ -66,15 +68,17 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final Func1<? super Integer, Boolean> noPageChangedScrollOnAd = new Func1<Integer, Boolean>() {
         @Override
         public Boolean call(Integer state) {
-            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && playQueueManager.isCurrentTrackAudioAd();
+            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentTrackAudioAd();
         }
     };
 
     @Inject
-    PlayerPagerScrollListener(PlayQueueManager playQueueManager, PlaybackToastViewController playbackToastViewController, EventBus eventBus) {
+    PlayerPagerScrollListener(PlayQueueManager playQueueManager, PlaybackToastViewController playbackToastViewController,
+                              EventBus eventBus, AdsOperations adsOperations) {
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.playbackToastViewController = playbackToastViewController;
+        this.adsOperations = adsOperations;
     }
 
     public void initialize(PlayerTrackPager trackPager) {
@@ -90,7 +94,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
 
     @Override
     public void onPageSelected(int position) {
-        trackPager.setPagingEnabled(!playQueueManager.isAudioAdAtPosition(position) || playQueueManager.isCurrentPosition(position));
+        trackPager.setPagingEnabled(!adsOperations.isAudioAdAtPosition(position) || playQueueManager.isCurrentPosition(position));
         wasPageChange = true;
     }
 

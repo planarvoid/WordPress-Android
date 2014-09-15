@@ -65,6 +65,12 @@ public abstract class TestPropertySets {
         );
     }
 
+    public static PropertySet expectedTrackWithLeaveBehindForPlayer() {
+        return expectedTrackForPlayer()
+                .put(AdProperty.LEAVE_BEHIND_IMAGE_URL, "http://image.url/image.png")
+                .put(AdProperty.LEAVE_BEHIND_LINK_URL, "http://link.url");
+    }
+
     public static PropertySet expectedPrivateTrackForPlayer() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),

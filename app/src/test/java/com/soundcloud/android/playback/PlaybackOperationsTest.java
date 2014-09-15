@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -64,13 +65,14 @@ public class PlaybackOperationsTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlaybackToastViewController playbackToastViewController;
+    @Mock private AdsOperations adsOperations;
     private TestObserver<List<TrackUrn>> observer;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus);
+                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus, adsOperations);
         track = ModelFixtures.create(PublicApiTrack.class);
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
@@ -281,8 +283,8 @@ public class PlaybackOperationsTest {
         playbackOperations.setPlayQueuePosition(5);
 
         // make sure we test for the current track being an ad *before* we skip
-        InOrder inOrder = inOrder(playQueueManager);
-        inOrder.verify(playQueueManager, atLeastOnce()).isCurrentTrackAudioAd();
+        InOrder inOrder = inOrder(adsOperations, playQueueManager);
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
         inOrder.verify(playQueueManager).setPosition(5);
 
         final UIEvent event = eventBus.lastEventOn(EventQueue.UI);
@@ -378,8 +380,8 @@ public class PlaybackOperationsTest {
         playbackOperations.previousTrack();
 
         // make sure we test for the current track being an ad *before* we skip
-        InOrder inOrder = inOrder(playQueueManager);
-        inOrder.verify(playQueueManager, atLeastOnce()).isCurrentTrackAudioAd();
+        InOrder inOrder = inOrder(adsOperations, playQueueManager);
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
         inOrder.verify(playQueueManager).moveToPreviousTrack();
 
         final UIEvent event = eventBus.lastEventOn(EventQueue.UI);
@@ -446,8 +448,8 @@ public class PlaybackOperationsTest {
         playbackOperations.nextTrack();
 
         // make sure we test for the current track being an ad *before* we skip
-        InOrder inOrder = inOrder(playQueueManager);
-        inOrder.verify(playQueueManager, atLeastOnce()).isCurrentTrackAudioAd();
+        InOrder inOrder = inOrder(adsOperations, playQueueManager);
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
         inOrder.verify(playQueueManager).nextTrack();
 
         final UIEvent event = eventBus.lastEventOn(EventQueue.UI);
@@ -740,8 +742,8 @@ public class PlaybackOperationsTest {
     private void setupAdInProgress(long currentProgress) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
         when(playSessionStateProvider.getCurrentPlayQueueTrackProgress()).thenReturn(progress);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(456L)));
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(456L)));
     }
 
     private void checkSetNewPlayQueueArgs(int startPosition, PlaySessionSource playSessionSource, Long... ids){

@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.LeaveBehind;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -18,6 +17,8 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -51,6 +52,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final TrackMenuController.Factory trackMenuControllerFactory;
     private final LeaveBehindController.Factory leaveBehindControllerFactory;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
+    private final FeatureFlags featureFlags;
 
     @Inject
     public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
@@ -58,7 +60,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackMenuController.Factory trackMenuControllerFactory,
-                              LeaveBehindController.Factory leaveBehindControllerFactory) {
+                              LeaveBehindController.Factory leaveBehindControllerFactory,
+                              FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.waveformControllerFactory = waveformControllerFactory;
@@ -66,6 +69,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
         this.leaveBehindControllerFactory = leaveBehindControllerFactory;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -139,10 +143,13 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         setClickListener(this, holder.onClickViews);
     }
 
-    void showLeaveBehind(View trackView, LeaveBehind leaveBehind) {
-        final TrackPageHolder holder = getViewHolder(trackView);
-        holder.leaveBehindController.setup(leaveBehind);
-
+    public void setLeaveBehind(PropertySet track, TrackPageHolder holder) {
+        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
+            PlayerTrack playerTrack = new PlayerTrack(track);
+            if (playerTrack.hasLeaveBehind()) {
+                holder.leaveBehindController.initialize(playerTrack);
+            }
+        }
     }
 
     public View clearItemView(View view) {
@@ -175,6 +182,12 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
             setProgress(trackPage, PlaybackProgress.empty());
+        }
+
+        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
+            if (stateTransition.isPlayerPlaying() && isCurrentTrack) {
+                holder.leaveBehindController.show();
+            }
         }
     }
 
@@ -283,6 +296,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
         holder.menuController.dismiss();
+
     }
 
     @Override

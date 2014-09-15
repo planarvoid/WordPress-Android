@@ -11,12 +11,17 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,12 +42,16 @@ public class AdsOperationsTest {
     @Mock private RxHttpClient rxHttpClient;
     @Mock private TrackWriteStorage trackWriteStorage;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private PlayQueueManager playQueueManager;
+    private PlaySessionSource playSessionSource;
 
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage, deviceHelper);
+        adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage, deviceHelper, playQueueManager);
         audioAd = ModelFixtures.create(AudioAd.class);
+        playSessionSource = new PlaySessionSource("origin");
+        playSessionSource.setExploreVersion("1.0");
     }
 
     @Test
@@ -78,4 +87,19 @@ public class AdsOperationsTest {
         expect(headers.containsKey("SC-UDID")).toBeTrue();
         expect(headers.get("SC-UDID")).toEqual("is google watching?");
     }
+
+
+    @Test
+    public void shouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+        when(playQueueManager.getMetaDataAt(0)).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+
+        expect(adsOperations.isAudioAdAtPosition(0)).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfCurrentItemIsNotAudioAd() {
+        when(playQueueManager.getMetaDataAt(1)).thenReturn(PropertySet.create());
+        expect(adsOperations.isAudioAdAtPosition(1)).toBeFalse();
+    }
+
 }

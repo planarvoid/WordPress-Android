@@ -20,6 +20,7 @@ import javax.inject.Inject;
 public class AdCompanionImpressionController {
     private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
+    private final AdsOperations adsOperations;
     private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleEventQueue;
     private final Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentPlayQueueTrackEventQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
@@ -27,7 +28,7 @@ public class AdCompanionImpressionController {
     private final Func1<State, AudioAdCompanionImpressionEvent> toCompanionImpressionEvent = new Func1<State, AudioAdCompanionImpressionEvent>() {
         @Override
         public AudioAdCompanionImpressionEvent call(State state) {
-            return new AudioAdCompanionImpressionEvent(playQueueManager.getAudioAd(), state.currentTrackUrn, accountOperations.getLoggedInUserUrn());
+            return new AudioAdCompanionImpressionEvent(playQueueManager.getCurrentMetaData(), state.currentTrackUrn, accountOperations.getLoggedInUserUrn());
         }
     };
 
@@ -58,7 +59,7 @@ public class AdCompanionImpressionController {
             return new State(
                     currentPlayQueueTrackEvent.getCurrentTrackUrn(),
                     event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                    playQueueManager.isCurrentTrackAudioAd(),
+                    adsOperations.isCurrentTrackAudioAd(),
                     playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
         }
     };
@@ -66,9 +67,10 @@ public class AdCompanionImpressionController {
     private boolean currentCompanionImpressionEventEmitted = false;
 
     @Inject
-    public AdCompanionImpressionController(final EventBus eventBus, final PlayQueueManager playQueueManager, final AccountOperations accountOperations) {
+    public AdCompanionImpressionController(final EventBus eventBus, final PlayQueueManager playQueueManager, final AccountOperations accountOperations, AdsOperations adsOperations) {
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
+        this.adsOperations = adsOperations;
         this.activityLifeCycleEventQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         this.currentPlayQueueTrackEventQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);

@@ -37,11 +37,13 @@ public class PlayQueueStorage {
     public Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
         final List<ContentValues> newItems = new ArrayList<ContentValues>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
-            newItems.add(ContentValuesBuilder.values(3)
-                    .put(TableColumns.PlayQueue.TRACK_ID, item.getTrackUrn().numericId)
-                    .put(TableColumns.PlayQueue.SOURCE, item.getSource())
-                    .put(TableColumns.PlayQueue.SOURCE_VERSION, item.getSourceVersion())
-                    .get());
+            if (item.shouldPersist()) {
+                newItems.add(ContentValuesBuilder.values(3)
+                        .put(TableColumns.PlayQueue.TRACK_ID, item.getTrackUrn().numericId)
+                        .put(TableColumns.PlayQueue.SOURCE, item.getSource())
+                        .put(TableColumns.PlayQueue.SOURCE_VERSION, item.getSourceVersion())
+                        .get());
+            }
         }
 
         return clearAsync().mergeMap(new Func1<ChangeResult, Observable<TxnResult>>() {

@@ -2,31 +2,42 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
 
-class AdsOperations {
+public class AdsOperations {
 
     public static final String UNIQUE_ID_HEADER = "SC-UDID";
     private final RxHttpClient rxHttpClient;
     private final TrackWriteStorage trackWriteStorage;
     private final DeviceHelper deviceHelper;
+    private final PlayQueueManager playQueueManager;
+    private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
+        @Override
+        public boolean apply(PropertySet input) {
+            return input.contains(AdProperty.AD_URN);
+        }
+    };
 
     @Inject
-    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper) {
+    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper, PlayQueueManager playQueueManager) {
         this.rxHttpClient = rxHttpClient;
         this.trackWriteStorage = trackWriteStorage;
         this.deviceHelper = deviceHelper;
+        this.playQueueManager = playQueueManager;
     }
 
     private final Action1<AudioAd> cacheAudioAdTrack = new Action1<AudioAd>() {
@@ -45,5 +56,31 @@ class AdsOperations {
                 .build();
 
         return rxHttpClient.<AudioAd>fetchModels(request).doOnNext(cacheAudioAdTrack);
+    }
+
+    public void insertAudioAd(TrackUrn monetizableTrack, AudioAd audioAd){
+        PropertySet adMetaData = audioAd
+                .toPropertySet()
+                .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
+        playQueueManager.insertTrackBefore(audioAd.getApiTrack().getUrn(), adMetaData, false);
+    }
+
+    public boolean isNextTrackAudioAd() {
+        if (playQueueManager.hasNextTrack()) {
+            return playQueueManager.getMetaDataAt(playQueueManager.getCurrentPosition() + 1).contains(AdProperty.AD_URN);
+        }
+        return false;
+    }
+
+    public boolean isCurrentTrackAudioAd() {
+        return isAudioAdAtPosition(playQueueManager.getCurrentPosition());
+    }
+
+    public boolean isAudioAdAtPosition(int position) {
+        return !playQueueManager.isQueueEmpty() && playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_URN);
+    }
+
+    public void clearAllAds() {
+        playQueueManager.removeTracksWithMetaData(hasAdUrn);
     }
 }

@@ -45,4 +45,15 @@ public class VisualAd {
     public DisplayProperties getDisplayProperties() {
         return displayProperties;
     }
+
+    @Override
+    public String toString() {
+        return "VisualAd{" +
+                "imageUrl='" + imageUrl + '\'' +
+                ", clickthroughUrl='" + clickthroughUrl + '\'' +
+                ", trackingImpressionUrls=" + trackingImpressionUrls +
+                ", trackingClickUrls=" + trackingClickUrls +
+                ", displayProperties=" + displayProperties +
+                '}';
+    }
 }

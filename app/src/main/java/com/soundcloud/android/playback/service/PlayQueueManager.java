@@ -4,11 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -34,6 +33,7 @@ import android.content.Intent;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Iterator;
 
 @Singleton
 public class PlayQueueManager implements Observer<RecommendedTracksCollection>, OriginProvider {
@@ -47,10 +47,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private final ScModelManager modelManager;
     private final PlayQueueOperations playQueueOperations;
     private final EventBus eventBus;
-
     private int currentPosition;
-    private int adTrackPosition = Consts.NOT_SET;
-    private PropertySet adMetaData;
     private boolean currentTrackIsUserTriggered;
 
     private PlayQueue playQueue = PlayQueue.empty();
@@ -90,7 +87,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
         if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
             this.currentPosition = position;
-            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn()));
+            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(getCurrentTrackUrn(), getCurrentMetaData()));
         } else {
             currentPosition = position;
             setNewPlayQueueInternal(playQueue, playSessionSource);
@@ -199,11 +196,18 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
     }
 
+    public PropertySet getCurrentMetaData() {
+        return playQueue.getMetaData(getCurrentPosition());
+    }
+
+    public PropertySet getMetaDataAt(int position) {
+        return playQueue.getMetaData(position);
+    }
+
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         stopLoadingOperations();
 
-        this.adTrackPosition = Consts.NOT_SET;
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentTrackIsUserTriggered = true;
         this.playSessionSource = playSessionSource;
@@ -221,15 +225,18 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     private int getPositionToBeSaved() {
-        if (adTrackPosition != Consts.NOT_SET && adTrackPosition < currentPosition) {
-            return currentPosition - 1;
+        int adjustedPosition = currentPosition;
+        for (int i = 0; i < currentPosition; i++){
+            if (!playQueue.shouldPersistTrackAt(i)){
+                adjustedPosition--;
+            }
         }
-        return currentPosition;
+        return adjustedPosition;
     }
 
     private long getProgressToBeSaved(long currentTrackProgress) {
         // we will always have a next track when playing an ad. Start at the beginning of that.
-        return adTrackPosition == currentPosition ? 0 : currentTrackProgress;
+        return playQueue.shouldPersistTrackAt(currentPosition) ? currentTrackProgress : 0;
     }
 
     public void loadPlayQueue() {
@@ -250,7 +257,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     private void publishPositionUpdate() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(getCurrentTrackUrn(), getCurrentMetaData()));
     }
 
     @Nullable
@@ -289,22 +296,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return getPlaylistId() == playlistId;
     }
 
-    public boolean isAudioAdAtPosition(int position) {
-        return playQueue.isAudioAd(position);
-    }
-
-    public boolean isNextTrackAudioAd() {
-        return playQueue.isAudioAd(getNextPosition());
-    }
-
-    public boolean isCurrentTrackAudioAd() {
-        return isAudioAdAtPosition(getCurrentPosition());
-    }
-
-    public int getAudioAdPosition() {
-        return adTrackPosition;
-    }
-
     @Override
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
@@ -335,45 +326,39 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return getViewWithAppendState(fetchState);
     }
 
-    public void insertAudioAd(AudioAd audioAd) {
+    public void insertTrackBefore(TrackUrn trackUrn, PropertySet metaData, boolean shouldPersist){
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        
-        if (adTrackPosition != Consts.NOT_SET) {
-            throw new IllegalStateException("Existing AudioAd must be cleared before inserting a new one");
-        }
-        adTrackPosition = getNextPosition();
-        playQueue.insertAudioAd(audioAd, adTrackPosition);
-        this.adMetaData = audioAd
-                .toPropertySet()
-                .put(AdProperty.MONETIZABLE_TRACK_URN, playQueue.getUrn(adTrackPosition + 1));
+
+        int insertPosition = getNextPosition();
+        playQueue.insertTrack(insertPosition, trackUrn, metaData, shouldPersist);
         publishQueueUpdate();
     }
 
-    public void clearAudioAd() {
-        assertOnUiThread(UI_ASSERTION_MESSAGE);
-        
-        if (adTrackPosition != Consts.NOT_SET && adTrackPosition != currentPosition) {
-            removeAd(adTrackPosition);
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+    public void removeTracksWithMetaData(Predicate<PropertySet> predicate){
+        boolean queueUpdated = false;
+        for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext();) {
+            final PlayQueueItem item = iterator.next();
+            if (predicate.apply(item.getMetaData())) {
+                iterator.remove();
+                queueUpdated = true;
+            }
+        }
+        if (queueUpdated) {
+            publishQueueUpdate();
         }
     }
 
-    private void removeAd(int position) {
+    public void removeTrackAt(int position) {
+        assertOnUiThread(UI_ASSERTION_MESSAGE);
+        Preconditions.checkArgument(position != currentPosition, "Can't remove current track");
+
         playQueue.remove(position);
         if (position < currentPosition) {
             currentPosition--;
         }
-        adTrackPosition = Consts.NOT_SET;
-        this.adMetaData = null;
+        publishQueueUpdate();
     }
-
-    public PropertySet getAudioAd() {
-        if (adMetaData == null) {
-            throw new IllegalStateException("No audio ad available.");
-        }
-        return adMetaData;
-    }
-
+    
     private void loadRecommendedTracks() {
         setNewRelatedLoadingState(FetchRecommendedState.LOADING);
         gotRecommendedTracks = false;
@@ -409,11 +394,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private void saveQueue() {
         if (playQueue.hasItems()) {
-            PlayQueue saveQueue = playQueue.copy();
-            if (adTrackPosition != Consts.NOT_SET) {
-                saveQueue.remove(adTrackPosition);
-            }
-            playQueueOperations.saveQueue(saveQueue);
+            playQueueOperations.saveQueue(playQueue.copy());
         }
     }
 
@@ -440,7 +421,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         final TrackUrn currentTrackUrn = getCurrentTrackUrn();
         if (!TrackUrn.NOT_SET.equals(currentTrackUrn)){
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
-            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn));
+            eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCurrentMetaData()));
         }
     }
 

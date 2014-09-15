@@ -245,4 +245,25 @@ public class ApiTrack extends ScModel {
             this.stats = stats;
         }
     }
+
+    @Override
+    public String toString() {
+        return "ApiTrack{" +
+                "title='" + title + '\'' +
+                ", genre='" + genre + '\'' +
+                ", user=" + user +
+                ", commentable=" + commentable +
+                ", duration=" + duration +
+                ", streamUrl='" + streamUrl + '\'' +
+                ", waveformUrl='" + waveformUrl + '\'' +
+                ", userTags=" + userTags +
+                ", createdAt=" + createdAt +
+                ", artworkUrl='" + artworkUrl + '\'' +
+                ", permalinkUrl='" + permalinkUrl + '\'' +
+                ", monetizable=" + monetizable +
+                ", policy='" + policy + '\'' +
+                ", sharing=" + sharing +
+                ", stats=" + stats +
+                '}';
+    }
 }

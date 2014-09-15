@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -64,12 +65,13 @@ public class PlaybackServiceTest {
     @Mock private Playa.StateTransition stateTransition;
     @Mock private PlaybackNotificationController playbackNotificationController;
     @Mock private PlaybackSessionAnalyticsController analyticsController;
+    @Mock private AdsOperations adsOperations;
 
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations,
                 accountOperations, playbackServiceOperations, streamPlayer,
-                playbackReceiverFactory, audioManagerProvider, playbackNotificationController, analyticsController);
+                playbackReceiverFactory, audioManagerProvider, playbackNotificationController, analyticsController, adsOperations);
 
         track = TestPropertySets.expectedTrackForPlayer();
 
@@ -234,7 +236,7 @@ public class PlaybackServiceTest {
     public void openCurrentWithAudioAdCallsPlayUninterruptedOnStreamPlayer() throws Exception {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
 

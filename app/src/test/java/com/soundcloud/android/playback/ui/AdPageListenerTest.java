@@ -47,7 +47,7 @@ public class AdPageListenerTest {
     public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
-        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
         listener.onClickThrough();
 
@@ -61,7 +61,7 @@ public class AdPageListenerTest {
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(456));
-        when(playQueueManager.getAudioAd()).thenReturn(audioAd);
+        when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
 
         listener.onClickThrough();
 

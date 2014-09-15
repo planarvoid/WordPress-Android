@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -57,6 +58,7 @@ public class PlayerPagerControllerTest {
     @Mock private PlayerPresenter presenter;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private AdsOperations adsOperations;
     @Mock private View container;
     @Mock private PlayerTrackPager viewPager;
     @Mock private PlayQueueDataSwitcher playQueueDataSwitcher;
@@ -79,7 +81,7 @@ public class PlayerPagerControllerTest {
         };
 
         controller = new PlayerPagerController(adapter, presenter, eventBus,
-                playQueueManager, playbackOperations, null, playQueueDataControllerProvider, playerPagerScrollListener);
+                playQueueManager, playbackOperations, null, playQueueDataControllerProvider, playerPagerScrollListener, adsOperations);
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(container.findViewById(anyInt())).thenReturn(viewPager);
         when(viewPager.getContext()).thenReturn(Robolectric.application);
@@ -266,9 +268,9 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void trackChangeEventPreventsPagerUnlockFromPreviousAudioAd() throws Exception {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.NOT_SET));
         Mockito.reset(viewPager);
 
@@ -280,7 +282,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void trackChangeToAdSetsQueueOfSingleAdIfLookingAtAd() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(2, 2, 2);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
@@ -290,7 +292,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void trackChangeToAdAdvancesToAdIfNotLookingAtIt() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(1, 1, 2);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
@@ -300,7 +302,7 @@ public class PlayerPagerControllerTest {
 
     @Test
     public void pageChangedAfterTrackChangeToAdSetsAdPlayQueue() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(1, 1, 2);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
         setupPositionsForAd(2, 2, 2);
@@ -313,7 +315,8 @@ public class PlayerPagerControllerTest {
     private void setupPositionsForAd(int pagerPosition, int playQueuePosition, int adPosition){
         when(viewPager.getCurrentItem()).thenReturn(pagerPosition);
         when(adapter.getPlayQueuePosition(pagerPosition)).thenReturn(playQueuePosition);
-        when(playQueueManager.getAudioAdPosition()).thenReturn(adPosition);
+        when(adsOperations.isAudioAdAtPosition(adPosition)).thenReturn(true);
+        when(playQueueManager.getCurrentPosition()).thenReturn(adPosition);
         when(playQueueManager.isCurrentPosition(playQueuePosition)).thenReturn(adPosition == playQueuePosition); // ??
 
     }

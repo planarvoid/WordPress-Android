@@ -6,7 +6,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.DefaultActivityLifeCycle;
-import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -23,7 +22,7 @@ import javax.inject.Singleton;
 @Singleton
 public class AdPlayerController extends DefaultActivityLifeCycle {
     private final EventBus eventBus;
-    private final PlayQueueManager playQueueManager;
+    private final AdsOperations adsOperations;
 
     private Subscription subscription = Subscriptions.empty();
     private TrackUrn adHasBeenSeen = TrackUrn.NOT_SET;
@@ -58,16 +57,16 @@ public class AdPlayerController extends DefaultActivityLifeCycle {
     private final Func2<CurrentPlayQueueTrackEvent, PlayerUIEvent, State> combine = new Func2<CurrentPlayQueueTrackEvent, PlayerUIEvent, State>() {
         @Override
         public State call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent, PlayerUIEvent playerUIEvent) {
-            return new State(playQueueManager.isCurrentTrackAudioAd(),
+            return new State(adsOperations.isCurrentTrackAudioAd(),
                     currentPlayQueueTrackEvent.getCurrentTrackUrn(),
                     playerUIEvent.getKind());
         }
     };
 
     @Inject
-    public AdPlayerController(final PlayQueueManager playQueueManager, final EventBus eventBus) {
+    public AdPlayerController(final EventBus eventBus, AdsOperations adsOperations) {
         this.eventBus = eventBus;
-        this.playQueueManager = playQueueManager;
+        this.adsOperations = adsOperations;
     }
 
     @Override

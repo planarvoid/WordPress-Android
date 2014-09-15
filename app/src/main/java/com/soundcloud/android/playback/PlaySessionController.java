@@ -85,12 +85,11 @@ public class PlaySessionController {
         }
     }
 
-    private Func1<PropertySet, PropertySet> mergeAudioAdMeta() {
-        final boolean isAudioAd = playQueueManager.isCurrentTrackAudioAd();
+    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
         return new Func1<PropertySet, PropertySet>() {
             @Override
             public PropertySet call(PropertySet propertySet) {
-                return isAudioAd ? propertySet.merge(playQueueManager.getAudioAd()) : propertySet;
+                return propertySet.merge(metaData);
             }
         };
     }
@@ -101,7 +100,7 @@ public class PlaySessionController {
             currentTrackSubscription.unsubscribe();
             currentTrackSubscription = trackOperations
                     .track(event.getCurrentTrackUrn())
-                    .map(mergeAudioAdMeta())
+                    .map(mergeMetaData(event.getCurrentMetaData()))
                     .subscribe(new CurrentTrackSubscriber());
 
             if (playSessionStateProvider.isPlaying()) {

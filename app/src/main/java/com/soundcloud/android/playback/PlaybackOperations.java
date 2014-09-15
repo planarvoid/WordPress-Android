@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -55,12 +56,14 @@ public class PlaybackOperations {
     private final PlaySessionStateProvider playSessionStateProvider;
     private final PlaybackToastViewController playbackToastViewController;
     private final EventBus eventBus;
+    private final AdsOperations adsOperations;
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
-                              PlaybackToastViewController playbackToastViewController, EventBus eventBus) {
+                              PlaybackToastViewController playbackToastViewController, EventBus eventBus,
+                              AdsOperations adsOperations) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
@@ -68,6 +71,7 @@ public class PlaybackOperations {
         this.playSessionStateProvider = playSessionStateProvider;
         this.playbackToastViewController = playbackToastViewController;
         this.eventBus = eventBus;
+        this.adsOperations = adsOperations;
     }
 
     public Observable<List<TrackUrn>> playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource) {
@@ -135,7 +139,7 @@ public class PlaybackOperations {
             playbackToastViewController.showUnkippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
-                    && !playQueueManager.isCurrentTrackAudioAd()) {
+                    && !adsOperations.isCurrentTrackAudioAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
@@ -154,8 +158,8 @@ public class PlaybackOperations {
     }
 
     private void publishSkipEventIfAudioAd() {
-        if (playQueueManager.isCurrentTrackAudioAd()) {
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getAudioAd(), playQueueManager.getCurrentTrackUrn());
+        if (adsOperations.isCurrentTrackAudioAd()) {
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getCurrentMetaData(), playQueueManager.getCurrentTrackUrn());
             eventBus.publish(EventQueue.UI, event);
         }
     }
@@ -178,7 +182,7 @@ public class PlaybackOperations {
     }
 
     public boolean shouldDisableSkipping() {
-        return playQueueManager.isCurrentTrackAudioAd() &&
+        return adsOperations.isCurrentTrackAudioAd() &&
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 

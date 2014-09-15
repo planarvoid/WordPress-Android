@@ -52,7 +52,7 @@ class AdPageListener extends PageListener {
     }
 
     public void onClickThrough() {
-        final PropertySet audioAd = playQueueManager.getAudioAd();
+        final PropertySet audioAd = playQueueManager.getCurrentMetaData();
         Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
         startActivity(uri);
 

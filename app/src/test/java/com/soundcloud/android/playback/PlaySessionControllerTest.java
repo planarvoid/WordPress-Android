@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -54,6 +55,7 @@ public class PlaySessionControllerTest {
     @Mock private ImageOperations imageOperations;
     private Bitmap bitmap;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private AdsOperations adsOperations;
 
     private PlaySessionController controller;
     private TestEventBus eventBus = new TestEventBus();
@@ -101,7 +103,6 @@ public class PlaySessionControllerTest {
 
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentTrack() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(false);
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
 
@@ -113,13 +114,11 @@ public class PlaySessionControllerTest {
 
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentAudioAdTrack() {
-        when(playQueueManager.isCurrentTrackAudioAd()).thenReturn(true);
-        when(playQueueManager.getAudioAd()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn, audioAdProperties(Urn.forTrack(123L))));
         inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), eq(((Bitmap) null)));
         inOrder.verify(audioManager).onTrackChanged(trackWithAdMeta, bitmap);
     }
