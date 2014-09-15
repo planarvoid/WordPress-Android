@@ -91,6 +91,7 @@ public class AdsOperationsTest {
 
     @Test
     public void shouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+        when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getMetaDataAt(0)).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
 
         expect(adsOperations.isAudioAdAtPosition(0)).toBeTrue();
