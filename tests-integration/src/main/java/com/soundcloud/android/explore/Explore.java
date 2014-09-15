@@ -1,10 +1,10 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.tests.TestUser.testUser;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.main.MainActivity;
@@ -35,20 +35,20 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTrendingMusicIsDisplayed() {
         assertThat(exploreScreen.currentTabTitle(), is(equalTo("MUSIC")));
-        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(equalTo(20)));
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThan(0)));
     }
 
     public void testTrendingMusicPullToRefresh() {
-        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(equalTo(20)));
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThan(0)));
 
         exploreScreen.pullToRefresh();
-        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(equalTo(20)));
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThan(0)));
     }
 
     public void testTendingMusicLoadsNextPage(){
         exploreScreen.touchTrendingMusicTab();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThanOrEqualTo(20)));
+        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThan(0)));
     }
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
@@ -56,23 +56,22 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
         waiter.waitForContentAndRetryIfLoadingFailed();
         assertThat(exploreScreen.currentTabTitle(), is(equalTo("AUDIO")));
-        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(equalTo(20)));
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(greaterThan(0)));
     }
 
     public void testTrendingAudioIsDisplayedWhenTouchingTab() {
         exploreScreen.touchTrendingAudioTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(equalTo(20)));
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(greaterThan(0)));
     }
 
     public void testTrendingAudioPullToRefresh() {
         exploreScreen.touchTrendingAudioTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(equalTo(20)));
-        assertEquals("Invalid number of trending audio items", 20, exploreScreen.getItemsOnTrendingAudioList());
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(greaterThan(0)));
 
         exploreScreen.pullToRefresh();
-        assertEquals("Invalid number of trending audio items", 20, exploreScreen.getItemsOnTrendingAudioList());
+        assertThat(exploreScreen.getItemsOnTrendingAudioList(), is(greaterThan(0)));
     }
 
     public void testTendingAudioLoadsNextPage(){
