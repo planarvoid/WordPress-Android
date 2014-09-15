@@ -64,7 +64,7 @@ public class AdCompanionImpressionController {
         }
     };
 
-    private boolean currentCompanionImpressionEventEmitted = false;
+    private boolean currentCompanionImpressionEventEmitted;
 
     @Inject
     public AdCompanionImpressionController(final EventBus eventBus, final PlayQueueManager playQueueManager, final AccountOperations accountOperations, AdsOperations adsOperations) {

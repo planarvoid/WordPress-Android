@@ -51,7 +51,6 @@ public class TrackPagerAdapter extends PagerAdapter {
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
     private final TrackPageRecycler trackPageRecycler;
 
     private View adView;
@@ -92,7 +91,6 @@ public class TrackPagerAdapter extends PagerAdapter {
         this.playSessionStateProvider = playSessionStateProvider;
         this.adPagePresenter = adPagePresenter;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         this.trackPageRecycler = new TrackPageRecycler();
     }
 

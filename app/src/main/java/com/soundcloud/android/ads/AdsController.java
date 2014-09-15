@@ -147,7 +147,7 @@ public class AdsController {
         private final int intendedPosition;
         private final TrackUrn monetizableTrack;
 
-        private AudioAdSubscriber(int intendedPosition, TrackUrn monetizableTrack) {
+        AudioAdSubscriber(int intendedPosition, TrackUrn monetizableTrack) {
             this.intendedPosition = intendedPosition;
             this.monetizableTrack = monetizableTrack;
         }
