@@ -323,8 +323,6 @@
     <string name="unpost">Eliminar publicación</string>
     <string name="reposted_to_followers">Republicado para tus seguidores</string>
     <string name="unposted_to_followers">Publicación eliminada</string>
-    <string name="share_by">por %s</string>
-    <string name="share_on_soundcloud">en SoundCloud</string>
     <string name="info">Info</string>
     <string name="uploaded_at">Subido %s</string>
     <string name="track_info_no_description">No hay descripción disponible</string>

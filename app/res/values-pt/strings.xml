@@ -320,8 +320,6 @@
     <string name="unpost">Excluir publicação</string>
     <string name="reposted_to_followers">Republicado para seus seguidores</string>
     <string name="unposted_to_followers">Publicação excluída</string>
-    <string name="share_by">por %s</string>
-    <string name="share_on_soundcloud">na SoundCloud</string>
     <string name="info">Informações</string>
     <string name="uploaded_at">Carregado %s</string>
     <string name="track_info_no_description">Sem descrição disponível</string>
