@@ -74,7 +74,7 @@ public class TrackMenuControllerTest {
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.getPermalinkUrl());
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem by squirlex on SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("Listen to dubstep anthem by squirlex #np on #SoundCloud");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TrackMenuControllerTest {
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.getPermalinkUrl());
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem on SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("Listen to dubstep anthem #np on #SoundCloud");
     }
 
     @Test

@@ -137,12 +137,10 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
     }
 
     private String buildSubject(PlayerTrack track) {
-        final StringBuilder sb = new StringBuilder(track.getTitle()).append(" ");
         if (ScTextUtils.isNotBlank(track.getUserName())) {
-            sb.append(activity.getString(R.string.share_by, track.getUserName())).append(" ");
+            return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(), track.getUserName());
         }
-        sb.append(activity.getString(R.string.share_on_soundcloud));
-        return sb.toString();
+        return activity.getString(R.string.share_track_on_soundcloud, track.getTitle());
     }
 
     static class Factory {
