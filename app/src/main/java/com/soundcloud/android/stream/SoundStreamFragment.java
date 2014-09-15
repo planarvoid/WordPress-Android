@@ -113,7 +113,10 @@ public class SoundStreamFragment extends DefaultFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        return soundStreamOperations.updatedStreamItems().observeOn(mainThread()).replay();
+        final ConnectableObservable<List<PropertySet>> observable =
+                soundStreamOperations.updatedStreamItems().observeOn(mainThread()).replay();
+        observable.subscribe(adapter);
+        return observable;
     }
 
     @Override

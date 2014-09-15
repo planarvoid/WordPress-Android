@@ -83,8 +83,9 @@ public class SoundStreamFragmentTest {
 
     @Test
     public void refreshObservableShouldUpdateStreamItems() {
-        fragment.refreshObservable();
+        fragment.refreshObservable().connect();
         verify(soundStreamOperations).updatedStreamItems();
+        verify(adapter).onCompleted();
     }
 
     @Test

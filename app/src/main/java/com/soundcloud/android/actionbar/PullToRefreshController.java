@@ -161,6 +161,7 @@ public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> 
             adapter.clear();
             adapter.onNext(collection);
             stopRefreshing();
+            unsubscribe();
         }
 
         @Override

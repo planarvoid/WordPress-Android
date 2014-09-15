@@ -83,6 +83,13 @@ public class ExploreTracksFragmentTest {
     }
 
     @Test
+    public void shouldRefreshTracksByRecreatingObservableThatLoadsFirstPage() {
+        fragment.refreshObservable().connect();
+        verify(exploreTracksOperations).getSuggestedTracks(ExploreGenre.POPULAR_AUDIO_CATEGORY);
+        verify(adapter).onCompleted();
+    }
+
+    @Test
     public void shouldConnectListViewControllerInOnViewCreated() {
         fragment.onCreate(null);
         createFragmentView();

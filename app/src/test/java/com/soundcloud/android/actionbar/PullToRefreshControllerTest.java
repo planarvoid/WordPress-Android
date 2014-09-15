@@ -1,5 +1,6 @@
 package com.soundcloud.android.actionbar;
 
+import static com.soundcloud.android.rx.RxTestHelper.withNextPage;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
@@ -30,6 +31,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.Pager;
 import rx.observables.ConnectableObservable;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -216,6 +218,20 @@ public class PullToRefreshControllerTest {
         inOrder.verify(adapter).onNext(Arrays.asList("item"));
         inOrder.verify(wrapper).setRefreshing(false);
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void shouldUnsubscribeItselfAfterRefreshingSoThatSubsequentPagesDoNotTriggerRefreshLogic() {
+        controller.setRefreshListener(fragment, adapter);
+
+        Pager<List<String>> pager = Pager.create(withNextPage(Observable.just(Arrays.asList("page2"))));
+        observable = pager.page(Observable.just(Arrays.asList("page1"))).publish();
+        triggerRefresh();
+
+        // emit a subsequent page
+        pager.next();
+        // for any subsequent pages, refresh behavior should not fire
+        verify(adapter, never()).onNext(Arrays.asList("page2"));
     }
 
     @Test

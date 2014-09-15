@@ -101,16 +101,8 @@ public class ExploreTracksFragment extends DefaultFragment
 
     @Override
     public ConnectableObservable<SuggestedTracksCollection> buildObservable() {
-        // on the initial load or when retrying, we want the adapter subscribed as well
-        final ConnectableObservable<SuggestedTracksCollection> observable = refreshObservable();
-        observable.subscribe(adapter);
-        return observable;
-    }
-
-    @Override
-    public ConnectableObservable<SuggestedTracksCollection> refreshObservable() {
         final ExploreGenre category = getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
-        return pager.page(exploreTracksOperations.getSuggestedTracks(category)
+        final ConnectableObservable<SuggestedTracksCollection> observable = pager.page(exploreTracksOperations.getSuggestedTracks(category)
                 .doOnNext(new Action1<SuggestedTracksCollection>() {
                     @Override
                     public void call(SuggestedTracksCollection page) {
@@ -118,6 +110,13 @@ public class ExploreTracksFragment extends DefaultFragment
                     }
                 }))
                 .observeOn(mainThread()).replay();
+        observable.subscribe(adapter);
+        return observable;
+    }
+
+    @Override
+    public ConnectableObservable<SuggestedTracksCollection> refreshObservable() {
+        return buildObservable();
     }
 
     @Override
