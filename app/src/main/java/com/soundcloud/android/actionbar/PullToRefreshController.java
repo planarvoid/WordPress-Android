@@ -49,7 +49,7 @@ public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> 
         this.wrapper = wrapper;
     }
 
-    public <T, OT extends Observable<? extends T>>
+    public <T extends Iterable<?>, OT extends Observable<? extends T>>
     void setRefreshListener(final RefreshableListComponent<OT> component, final ReactiveAdapter<T> adapter) {
         refreshListener = new OnRefreshListener() {
             @Override
@@ -89,7 +89,7 @@ public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> 
     /**
      * Use this overload for paged list fragments, as it will take care of managing all PTR state.
      */
-    public <T> void connect(Observable<? extends T> activeObservable, ReactiveAdapter<T> adapter) {
+    public <T extends Iterable<?>> void connect(Observable<? extends T> activeObservable, ReactiveAdapter<T> adapter) {
         if (wasRefreshing) {
             refreshSubscription = activeObservable.subscribe(new RefreshSubscriber<>(adapter));
         }
@@ -148,23 +148,18 @@ public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> 
         }
     }
 
-    private final class RefreshSubscriber<T> extends DefaultSubscriber<T> {
+    private final class RefreshSubscriber<CollT extends Iterable<?>> extends DefaultSubscriber<CollT> {
 
-        private final ReactiveAdapter<T> adapter;
+        private final ReactiveAdapter<CollT> adapter;
 
-        public RefreshSubscriber(ReactiveAdapter<T> adapter) {
+        public RefreshSubscriber(ReactiveAdapter<CollT> adapter) {
             this.adapter = adapter;
         }
 
         @Override
-        public void onNext(T item) {
+        public void onNext(CollT collection) {
             adapter.clear();
-            adapter.onNext(item);
-        }
-
-        @Override
-        public void onCompleted() {
-            adapter.onCompleted();
+            adapter.onNext(collection);
             stopRefreshing();
         }
 

@@ -28,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
@@ -68,7 +69,7 @@ public class PullToRefreshControllerTest {
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
         when(wrapper.isAttached()).thenReturn(true);
-        observable = TestObservables.emptyConnectableObservable(subscription);
+        observable = TestObservables.withSubscription(subscription, Observable.just(Arrays.asList("item"))).replay();
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
@@ -182,12 +183,13 @@ public class PullToRefreshControllerTest {
     public void connectingReactiveFragmentShouldResubscribeIfRefreshWasInProgressAndViewsGetRecreated() {
         when(wrapper.isRefreshing()).thenReturn(true);
         controller.setRefreshListener(fragment, adapter);
+        observable.connect();
 
         controller.onDestroyView();
         controller.onViewCreated(layout, bundle);
         controller.connect(observable, adapter);
 
-        verify(adapter).onCompleted();
+        verify(adapter).onNext(Arrays.asList("item"));
     }
 
     @Test
@@ -203,25 +205,17 @@ public class PullToRefreshControllerTest {
     }
 
     @Test
-    public void refreshingReactiveFragmentShouldFirstClearAdapterThenAddNewItem() {
+    public void refreshingReactiveFragmentShouldFirstClearAdapterThenAddNewItemsAndStopRefreshing() {
         controller.setRefreshListener(fragment, adapter);
-        observable = TestObservables.connectableObservable(Arrays.asList("item"));
 
         triggerRefresh();
 
-        InOrder inOrder = inOrder(adapter);
+        InOrder inOrder = inOrder(adapter, wrapper);
 
         inOrder.verify(adapter).clear();
         inOrder.verify(adapter).onNext(Arrays.asList("item"));
-        inOrder.verify(adapter).onCompleted();
+        inOrder.verify(wrapper).setRefreshing(false);
         inOrder.verifyNoMoreInteractions();
-    }
-
-    @Test
-    public void refreshingReactiveFragmentShouldTellPTRToStopRefreshingWhenComplete() {
-        controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
-        triggerRefresh();
-        verify(wrapper, times(2)).setRefreshing(false);
     }
 
     @Test
