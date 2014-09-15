@@ -90,9 +90,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public boolean shouldPersistTrackAt(int position) {
-        checkPosition(position);
-
-        return playQueueItems.get(position).shouldPersist();
+        return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 
     private void checkPosition(int position) {

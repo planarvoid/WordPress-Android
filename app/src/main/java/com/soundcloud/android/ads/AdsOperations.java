@@ -77,7 +77,8 @@ public class AdsOperations {
     }
 
     public boolean isAudioAdAtPosition(int position) {
-        return !playQueueManager.isQueueEmpty() && playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_URN);
+        return !playQueueManager.isQueueEmpty() && position < playQueueManager.getQueueSize() &&
+                playQueueManager.getMetaDataAt(position).contains(AdProperty.AD_URN);
     }
 
     public void clearAllAds() {
