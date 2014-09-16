@@ -47,6 +47,5 @@ public class ActivitiesScreen extends Screen {
 
     private void waitForListItems() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        waiter.waitForElements(com.soundcloud.android.R.id.title);
     }
 }
