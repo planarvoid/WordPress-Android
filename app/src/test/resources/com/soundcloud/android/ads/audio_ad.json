@@ -47,13 +47,28 @@
          }
       }
    },
-   "_embedded":{
-       "visual_ad":{
-          "urn":"adswizz:ads:82",
-          "image_url":"https://va.sndcdn.com/da/ad_user-likes_v3.jpg",
-          "clickthrough_url":"https://www.soundcloud.com/you/likes",
-          "tracking_impression_urls":["https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A263%3Bview_key%3A1401441272790582%3Bzone_id%3A19&loc=&listenerId=38cfbf01fa3450d214e1cc37548d18&sessionId=3e89b0ad42cff51ed4de13fd8ec97497&ip=%3A%3Affff%3A62.72.64.50&user_agent=http.async.client%2F0.5.2&cbs=5346259"],
-          "tracking_click_urls":["https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=263&zoneId=19&cb=7a76b73c420c4cb8b171f083b1f59a05"]
+   "_embedded": {
+       "visual_ad": {
+           "display_properties": {
+               "color.learn_more.default.text": "#000000",
+               "color.learn_more.default.background": "#FFFFFF",
+               "color.learn_more.pressed.text": "#FFB225",
+               "color.learn_more.pressed.background": "#575057",
+               "color.learn_more.focused.text": "#00CFEE",
+               "color.learn_more.focused.background": "#FFFFB7"
+           },
+           "urn": "adswizz:ads:954",
+           "image_url": "https://va.sndcdn.com/mda/Example_Ad_for_iPhone_Alpha.jpg",
+           "clickthrough_url": "http://squarespace.com/",
+           "tracking_impression_urls": ["https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A954%3Bview_key%3A1410853892296895%3Bzone_id%3A54&loc=&listenerId=5284047f4ffb4e04824a2fd1d1f0cd62&sessionId=d8ec4edd1137c86221c5de2e3a3cae19&ip=%3A%3Affff%3A80.82.202.196&OAGEO=ZGUlN0MxNiU3Q2JlcmxpbiU3QzEwMTE1JTdDNTIuNTMxOTk3NjgwNjY0MDYlN0MxMy4zOTIxOTY2NTUyNzM0MzglN0MlN0MlN0MlN0MlM0ElM0FmZmZmJTNBODAuODIuMjAyLjE5NiU3Q3RoZSt1bmJlbGlldmFibGUrbWFjaGluZStjb21wYW55K2dtYmg=&user_agent=SoundCloud-Android%2F14.09.02+%28Android+4.3%3B+Genymotion+Sony+Xperia+Z+-+4.3+-+API+18+-+1080x1920%29&cbs=9129418"],
+           "tracking_click_urls": ["https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=954&zoneId=54&cb=db8532ba23e347c9b28687f783bf833f"]
+       },
+       "leave_behind": {
+           "urn": "adswizz:ads:1105",
+           "image_url": "https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg",
+           "clickthrough_url": "http://squarespace.com",
+           "tracking_impression_urls": ["https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A1105%3Bview_key%3A1410853892331806%3Bzone_id%3A56&loc=&listenerId=5284047f4ffb4e04824a2fd1d1f0cd62&sessionId=67fa476869b956676b5bae2866c377a9&ip=%3A%3Affff%3A80.82.202.196&OAGEO=ZGUlN0MxNiU3Q2JlcmxpbiU3QzEwMTE1JTdDNTIuNTMxOTk3NjgwNjY0MDYlN0MxMy4zOTIxOTY2NTUyNzM0MzglN0MlN0MlN0MlN0MlM0ElM0FmZmZmJTNBODAuODIuMjAyLjE5NiU3Q3RoZSt1bmJlbGlldmFibGUrbWFjaGluZStjb21wYW55K2dtYmg=&user_agent=SoundCloud-Android%2F14.09.02+%28Android+4.3%3B+Genymotion+Sony+Xperia+Z+-+4.3+-+API+18+-+1080x1920%29&cbs=681405"],
+           "tracking_click_urls": ["https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=1105&zoneId=56&cb=dfd1b6e0c90745e9934f9d35b174ff30"]
        }
    },
    "tracking_impression_urls":["https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A82%3Bview_key%3A1401441272728730%3Bzone_id%3A6&loc=&listenerId=38cfbf01fa3450d214e1cc37548d18&sessionId=7a9cb38dc0b93f35a2c1ee36de75c54b&ip=%3A%3Affff%3A62.72.64.50&user_agent=http.async.client%2F0.5.2&cbs=4354567"],

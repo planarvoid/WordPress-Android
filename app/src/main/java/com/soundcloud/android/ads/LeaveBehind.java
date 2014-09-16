@@ -2,10 +2,14 @@ package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.propeller.PropertySet;
+
+import android.net.Uri;
 
 import java.util.List;
 
-public class LeaveBehind {
+public class LeaveBehind implements PropertySetSource {
 
     private final String urn;
     private final String imageUrl;
@@ -56,5 +60,15 @@ public class LeaveBehind {
                 ", trackingImpressionUrls=" + trackingImpressionUrls +
                 ", trackingClickUrls=" + trackingClickUrls +
                 '}';
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return PropertySet.from(
+                LeaveBehindProperty.LEAVE_BEHIND_URN.bind(urn),
+                LeaveBehindProperty.IMAGE_URL.bind(Uri.parse(getImageUrl())),
+                LeaveBehindProperty.CLICK_THROUGH_URL.bind(Uri.parse(getClickthroughUrl())),
+                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(trackingImpressionUrls),
+                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(trackingClickUrls));
     }
 }
