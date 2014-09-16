@@ -61,8 +61,14 @@ public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     private final class EmptyViewSubscriber extends DefaultSubscriber {
+
         @Override
         public void onCompleted() {
+            updateEmptyViewStatus(EmptyView.Status.OK);
+        }
+
+        @Override
+        public void onNext(Object args) {
             updateEmptyViewStatus(EmptyView.Status.OK);
         }
 

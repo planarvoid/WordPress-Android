@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import static android.widget.AbsListView.OnScrollListener;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -43,9 +44,16 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
         this.adapter = adapter;
     }
 
-    public <T> void setAdapter(EndlessAdapter<T> adapter, Pager<? extends Iterable<T>> pager) {
+    public <T> void setAdapter(final EndlessAdapter<T> adapter, final Pager<? extends Iterable<T>> pager) {
         this.adapter = adapter;
         this.pager = pager;
+        adapter.setOnErrorRetryListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapter.setLoading();
+                pager.currentPage().observeOn(mainThread()).subscribe(adapter);
+            }
+        });
     }
 
     public void setScrollListener(@Nullable OnScrollListener scrollListener) {

@@ -1,18 +1,22 @@
 package com.soundcloud.android.view;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.android.Pager;
 import rx.observables.ConnectableObservable;
 
 import android.os.Bundle;
@@ -22,6 +26,8 @@ import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ListViewControllerTest {
@@ -42,6 +48,8 @@ public class ListViewControllerTest {
     @Mock private EmptyView emptyView;
     @Mock private ListView listView;
     @Mock private AbsListView.OnScrollListener scrollListener;
+    @Mock private Pager pager;
+    @Mock private EndlessAdapter pagedAdapter;
 
     @Before
     public void setup() {
@@ -115,6 +123,27 @@ public class ListViewControllerTest {
         controller.onViewCreated(view, bundle);
         controller.connect(reactiveListComponent, observable);
         verify(listView).setOnItemClickListener(reactiveListComponent);
+    }
+
+    @Test
+    public void shouldRegisterOnScrollListenerForPagedEndlessListsInOnViewCreated() {
+        controller.setAdapter(pagedAdapter, pager);
+        controller.onViewCreated(view, bundle);
+
+        verify(listView).setOnScrollListener(isA(AbsListView.OnScrollListener.class));
+    }
+
+    @Test
+    public void shouldRegisterOnErrorRetryListenerForPagedEndlessLists() {
+        when(pager.currentPage()).thenReturn(Observable.just(Arrays.asList("1", "2")));
+        controller.setAdapter(pagedAdapter, pager);
+
+        ArgumentCaptor<View.OnClickListener> listener = ArgumentCaptor.forClass(View.OnClickListener.class);
+        verify(pagedAdapter).setOnErrorRetryListener(listener.capture());
+
+        listener.getValue().onClick(view);
+        verify(pagedAdapter).setLoading();
+        verify(pagedAdapter).onNext(Arrays.asList("1", "2"));
     }
 
     @Test

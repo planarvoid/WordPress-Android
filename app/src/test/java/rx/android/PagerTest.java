@@ -16,11 +16,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PagerTest {
 
@@ -135,6 +137,39 @@ public class PagerTest {
 
         verify(observer, times(2)).onNext(firstPage);
         verifyNoMoreInteractions(observer);
+    }
+
+    @Test
+    public void shouldAllowToRetryTheCurrentPageInCaseItFailed() {
+        remainingPages.clear();
+        remainingPages.push(Observable.just(lastPage));
+        remainingPages.push(failingSecondPage());
+        remainingPages.push(Observable.just(firstPage));
+        pager.page(remainingPages.pop()).subscribe(observer);
+        pager.next(); // emits page 2
+
+        pager.currentPage().subscribe(observer); // emits page 2 again (retry it)
+
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onNext(firstPage);
+        inOrder.verify(observer).onError(isA(RuntimeException.class));
+        inOrder.verify(observer).onNext(secondPage);
+    }
+
+    private Observable<List<String>> failingSecondPage() {
+        return Observable.create(new Observable.OnSubscribe<List<String>>() {
+
+            private AtomicBoolean failedAttempt = new AtomicBoolean();
+
+            @Override
+            public void call(Subscriber<? super List<String>> subscriber) {
+                if (!failedAttempt.getAndSet(true)) {
+                    subscriber.onError(new RuntimeException("failed page 2"));
+                } else {
+                    subscriber.onNext(secondPage);
+                }
+            }
+        });
     }
 
     private void jumpToLastPage() {

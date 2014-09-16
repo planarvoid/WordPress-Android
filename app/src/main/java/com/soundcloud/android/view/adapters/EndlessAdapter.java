@@ -10,6 +10,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
     private final int progressItemLayoutResId;
 
     private AppendState appendState = AppendState.IDLE;
+    private View.OnClickListener onErrorRetryListener;
 
     protected enum AppendState {
         IDLE, LOADING, ERROR;
@@ -27,6 +28,10 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
     public EndlessAdapter(int progressItemLayoutResId, CellPresenterEntity<T>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressItemLayoutResId = progressItemLayoutResId;
+    }
+
+    public void setOnErrorRetryListener(View.OnClickListener onErrorRetryListener) {
+        this.onErrorRetryListener = onErrorRetryListener;
     }
 
     @Override
@@ -77,12 +82,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
                 appendingLayout.setBackgroundResource(R.drawable.list_selector_gray);
                 appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.GONE);
                 appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.VISIBLE);
-                appendingLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        setLoading();
-                    }
-                });
+                appendingLayout.setOnClickListener(onErrorRetryListener);
                 break;
             default:
                 throw new IllegalStateException("Unexpected idle state with progress row");
@@ -128,7 +128,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
         for (T item : items) {
             addItem(item);
         }
-        notifyDataSetChanged();
         setNewAppendState(AppendState.IDLE);
+        notifyDataSetChanged();
     }
 }
