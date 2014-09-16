@@ -438,7 +438,7 @@ public class TrackPagerAdapterTest {
 
     private PropertySet getAudioAd() {
         return PropertySet.from(
-                AdProperty.AD_URN.bind("adwizz:666"),
+                AdProperty.AD_URN.bind(AD_URN.toString()),
                 AdProperty.ARTWORK.bind(Uri.parse("http://artwork.com")),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(MONETIZABLE_TRACK_URN),
                 AdProperty.DEFAULT_TEXT_COLOR.bind("#111111"),
