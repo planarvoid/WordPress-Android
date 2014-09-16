@@ -5,7 +5,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -161,7 +161,7 @@ public class ActivitiesAdapterTest {
     public void shouldCallPresenterToCreateItemViewForCommentActivity() throws Exception {
         final CommentActivity commentActivity = new CommentActivity();
         commentActivity.setCreatedAt(new Date());
-        commentActivity.comment = ModelFixtures.create(Comment.class);
+        commentActivity.comment = ModelFixtures.create(PublicApiComment.class);
         adapter.addItems(Arrays.<Activity>asList(commentActivity));
         adapter.getView(0, null, parent);
 

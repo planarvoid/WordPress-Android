@@ -6,7 +6,7 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.api.legacy.TempEndpoints;
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -37,7 +37,7 @@ import java.util.Map;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.USERS),
-    ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
+    ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.USER_ASSOCIATIONS),
     ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, UserAssociation.class, FOLLOWER, Table.USER_ASSOCIATIONS),
@@ -76,7 +76,7 @@ public enum Content  {
     TRACKS("tracks", Endpoints.TRACKS, 201, PublicApiTrack.class, CollectionStorage.CollectionItemTypes.TRACK, Table.SOUNDS),
     TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, PublicApiTrack.class, -1, Table.SOUNDS),
     TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.SOUNDS),
-    TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, Comment.class, -1, Table.COMMENTS),
+    TRACK_COMMENTS("tracks/#/comments", Endpoints.TRACK_COMMENTS, 204, PublicApiComment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, PublicApiUser.class, -1, Table.USERS),
@@ -90,14 +90,14 @@ public enum Content  {
     USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, PublicApiTrack.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, PublicApiUser.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, PublicApiUser.class, FOLLOWING, null),
-    USER_COMMENTS("users/#/comments", null, 307, Comment.class, -1, null),
+    USER_COMMENTS("users/#/comments", null, 307, PublicApiComment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
     USER_LOOKUP("users/q/*", Endpoints.USERS, 350, PublicApiUser.class, -1, Table.USERS),
 
-    COMMENTS("comments", null, 400, Comment.class, -1, Table.COMMENTS),
-    COMMENT("comments/#", null, 401, Comment.class, -1, Table.COMMENTS),
+    COMMENTS("comments", null, 400, PublicApiComment.class, -1, Table.COMMENTS),
+    COMMENT("comments/#", null, 401, PublicApiComment.class, -1, Table.COMMENTS),
 
     /* Use string wildcards here since we use negative numbers for local playlists, which breaks with number wildcards */
     PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.SOUNDS),

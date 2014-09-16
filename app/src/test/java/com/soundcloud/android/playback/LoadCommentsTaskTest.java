@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -21,11 +21,11 @@ public class LoadCommentsTaskTest {
         TestHelper.addCannedResponse(getClass(), "/tracks/100/comments?limit=50", "comments.json");
         LoadCommentsTask task = new LoadCommentsTask(DefaultTestRunner.application.getCloudAPI());
 
-        List<Comment> comments = task.execute(100l).get();
+        List<PublicApiComment> comments = task.execute(100l).get();
         expect(comments).not.toBeNull();
         expect(comments.size()).toEqual(3);
 
-        Comment comment = comments.get(0);
+        PublicApiComment comment = comments.get(0);
         expect(comment.user_id).toEqual(476254l);
         expect(comment.getId()).toEqual(24100348l);
         expect(comment.track_id).toEqual(21607568l);
@@ -47,10 +47,10 @@ public class LoadCommentsTaskTest {
         TestHelper.addCannedResponse(getClass(), "/tracks/100/comments?limit=50", "comments.json");
         LoadCommentsTask task = new LoadCommentsTask(DefaultTestRunner.application.getCloudAPI());
 
-        List<Comment> comments = task.execute(t.getId()).get();
+        List<PublicApiComment> comments = task.execute(t.getId()).get();
         expect(comments).not.toBeNull();
 
-        for (Comment c : comments) {
+        for (PublicApiComment c : comments) {
             expect(c.track).toBe(t);
         }
         expect(t.comments).toBe(comments);

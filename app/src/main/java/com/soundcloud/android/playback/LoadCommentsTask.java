@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
+public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiComment>> {
 
     private List<WeakReference<LoadCommentsListener>> mListenerRefs;
     private long mTrackId;
@@ -36,20 +36,20 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
     }
 
     @Override
-    protected List<Comment> doInBackground(Long... params) {
+    protected List<PublicApiComment> doInBackground(Long... params) {
         mTrackId = params[0];
         return list(Request.to(Endpoints.TRACK_COMMENTS, mTrackId)
                            .add("limit", Consts.MAX_COMMENTS_TO_LOAD));
     }
 
     @Override
-    protected void onPostExecute(List<Comment> comments) {
+    protected void onPostExecute(List<PublicApiComment> comments) {
         if (comments != null) {
             PublicApiTrack cached =  SoundCloudApplication.sModelManager.getTrack(mTrackId);
 
             if (cached != null) {
                 cached.comments = comments;
-                for (Comment c : comments) {
+                for (PublicApiComment c : comments) {
                     c.track = cached;
                 }
             }
@@ -64,10 +64,10 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
 
      // Define our custom Listener interface
     public interface LoadCommentsListener {
-        void onCommentsLoaded(long track_id, List<Comment> comments);
+        void onCommentsLoaded(long track_id, List<PublicApiComment> comments);
     }
 
-    private List<Comment> list(Request path) {
+    private List<PublicApiComment> list(Request path) {
         try {
             return api.readList(path);
         } catch (IOException e) {

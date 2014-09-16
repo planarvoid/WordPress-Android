@@ -3,7 +3,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activities.ActivityProperty;
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -17,7 +17,7 @@ import android.database.Cursor;
 import java.util.List;
 
 public class CommentActivity extends Activity {
-    @JsonProperty public Comment comment;
+    @JsonProperty public PublicApiComment comment;
 
     // for deserialization
     public CommentActivity() {
@@ -26,7 +26,7 @@ public class CommentActivity extends Activity {
 
     public CommentActivity(Cursor cursor) {
         super(cursor);
-        comment = new Comment(cursor, true);
+        comment = new PublicApiComment(cursor, true);
         comment.track = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
         comment.user = SoundCloudApplication.sModelManager.getUser(comment.user_id);
     }

@@ -1,11 +1,11 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.views.CommentRow;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.api.legacy.model.Comment;
 import com.soundcloud.android.collections.views.IconLayout;
 
 import android.content.Context;
@@ -13,7 +13,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.ViewGroup;
 
-public class CommentAdapter extends ScBaseAdapter<Comment> {
+public class CommentAdapter extends ScBaseAdapter<PublicApiComment> {
 
     private final ImageOperations imageOperations;
 

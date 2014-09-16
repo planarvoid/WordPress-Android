@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.blueprints;
 
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
@@ -10,15 +10,15 @@ import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.Date;
 
-@Blueprint(Comment.class)
-public class CommentBlueprint {
+@Blueprint(PublicApiComment.class)
+public class PublicApiCommentBlueprint {
 
     private static long runningId = 1L;
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            final Comment comment = new Comment();
+            final PublicApiComment comment = new PublicApiComment();
             comment.setId(runningId++);
             return comment;
         }

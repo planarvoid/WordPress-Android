@@ -2,7 +2,7 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -176,7 +176,7 @@ public class DatabaseFixtures {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public long insertComment(Comment comment) {
+    public long insertComment(PublicApiComment comment) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
@@ -188,8 +188,8 @@ public class DatabaseFixtures {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public Comment insertComment() throws CreateModelException {
-        Comment comment = ModelFixtures.create(Comment.class);
+    public PublicApiComment insertComment() throws CreateModelException {
+        PublicApiComment comment = ModelFixtures.create(PublicApiComment.class);
         insertComment(comment);
         return comment;
     }

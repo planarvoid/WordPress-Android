@@ -55,7 +55,8 @@ import java.util.Date;
  */
 
 
-public class Comment extends PublicApiResource implements RelatesToUser, RelatesToPlayable {
+@Deprecated
+public class PublicApiComment extends PublicApiResource implements RelatesToUser, RelatesToPlayable {
 
     public static final String ACTION_CREATE_COMMENT  = "com.soundcloud.android.comment.create";
     public static final String EXTRA = "comment";
@@ -77,11 +78,11 @@ public class Comment extends PublicApiResource implements RelatesToUser, Relates
     // keep the ignore or jackson will try to write this value on Samsung S4 (or perhaps more devices)
     @JsonIgnore @Nullable public Bitmap avatar;
 
-    public Comment nextComment; //pointer to the next comment at this timestamp
+    public PublicApiComment nextComment; //pointer to the next comment at this timestamp
 
     private Date createdAt;
 
-    public Comment() {
+    public PublicApiComment() {
     }
 
     @Override
@@ -105,7 +106,7 @@ public class Comment extends PublicApiResource implements RelatesToUser, Relates
         return Content.COMMENTS.uri;
     }
 
-    public Comment(Cursor c, boolean view) {
+    public PublicApiComment(Cursor c, boolean view) {
         if (view) {
             setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_ID)));
             track_id = c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID));
@@ -193,12 +194,12 @@ public class Comment extends PublicApiResource implements RelatesToUser, Relates
         this.body = body;
     }
 
-    public static class CompareTimestamp implements Comparator<Comment> {
-        public static final Comparator<Comment> INSTANCE = new CompareTimestamp();
+    public static class CompareTimestamp implements Comparator<PublicApiComment> {
+        public static final Comparator<PublicApiComment> INSTANCE = new CompareTimestamp();
         private CompareTimestamp() {}
 
         @Override
-        public int compare(Comment c1, Comment c2) {
+        public int compare(PublicApiComment c1, PublicApiComment c2) {
             if (c1.timestamp > c2.timestamp)
                 return -1;
             else if (c1.timestamp < c2.timestamp)
@@ -208,13 +209,13 @@ public class Comment extends PublicApiResource implements RelatesToUser, Relates
         }
     }
 
-    public static Comment build(PublicApiTrack track,
+    public static PublicApiComment build(PublicApiTrack track,
                                 PublicApiUser user,
                                 long timestamp,
                                 String body,
                                 long replyToId,
                                 String replyToUsername){
-        Comment comment = new Comment();
+        PublicApiComment comment = new PublicApiComment();
         comment.track_id = track.getId();
         comment.track = track;
         comment.user = user;
@@ -244,9 +245,9 @@ public class Comment extends PublicApiResource implements RelatesToUser, Relates
         out.writeParcelable(user, 0);
     }
 
-    public static final Parcelable.Creator<Comment> CREATOR = new Parcelable.Creator<Comment>() {
-        public Comment createFromParcel(Parcel in) {
-            Comment t = new Comment();
+    public static final Parcelable.Creator<PublicApiComment> CREATOR = new Parcelable.Creator<PublicApiComment>() {
+        public PublicApiComment createFromParcel(Parcel in) {
+            PublicApiComment t = new PublicApiComment();
             t.createdAt = new Date(in.readLong());
             t.user_id = in.readLong();
             t.track_id = in.readLong();
@@ -258,8 +259,8 @@ public class Comment extends PublicApiResource implements RelatesToUser, Relates
             return t;
         }
 
-        public Comment[] newArray(int size) {
-            return new Comment[size];
+        public PublicApiComment[] newArray(int size) {
+            return new PublicApiComment[size];
         }
     };
 }

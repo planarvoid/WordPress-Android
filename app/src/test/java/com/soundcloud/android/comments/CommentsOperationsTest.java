@@ -7,7 +7,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -28,8 +28,8 @@ public class CommentsOperationsTest {
     @Mock RxHttpClient httpClient;
 
     private CommentsOperations operations;
-    private TestObserver<List<Comment>> observer = new TestObserver<>();
-    private Comment comment = ModelFixtures.create(Comment.class);
+    private TestObserver<List<PublicApiComment>> observer = new TestObserver<>();
+    private PublicApiComment comment = ModelFixtures.create(PublicApiComment.class);
 
     @Before
     public void setup() {

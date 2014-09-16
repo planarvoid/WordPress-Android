@@ -12,10 +12,10 @@ import android.os.Parcel;
 import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
-public class CommentTest {
+public class PublicApiCommentTest {
     @Test
     public void shouldBeParcelable() throws Exception {
-        Comment c1 = new Comment();
+        PublicApiComment c1 = new PublicApiComment();
         c1.setCreatedAt(new Date());
         c1.user_id = 100L;
         c1.timestamp = 200L;
@@ -30,7 +30,7 @@ public class CommentTest {
         Parcel p = Parcel.obtain();
         c1.writeToParcel(p, 0);
 
-        Comment c2 = Comment.CREATOR.createFromParcel(p);
+        PublicApiComment c2 = PublicApiComment.CREATOR.createFromParcel(p);
 
         expect(c1.user_id).toEqual(c2.user_id);
         expect(c1.getCreatedAt()).toEqual(c2.getCreatedAt());
@@ -42,7 +42,7 @@ public class CommentTest {
 
     @Test
     public void shouldBuildContentValues() throws Exception {
-        Comment c1 = new Comment();
+        PublicApiComment c1 = new PublicApiComment();
         c1.setId(100L);
         c1.setCreatedAt(new Date());
         c1.user_id = 100L;
@@ -63,6 +63,6 @@ public class CommentTest {
 
     @Test
     public void shouldNotCrashWithDivideByZero() throws Exception {
-        new Comment().calculateXPos(40, 0);
+        new PublicApiComment().calculateXPos(40, 0);
     }
 }

@@ -20,7 +20,7 @@ import java.util.List;
         property = "kind")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PublicApiTrack.class, name = "track"),
-        @JsonSubTypes.Type(value = Comment.class, name = "comment"),
+        @JsonSubTypes.Type(value = PublicApiComment.class, name = "comment"),
         @JsonSubTypes.Type(value = PublicApiUser.class, name = "user"),
         @JsonSubTypes.Type(value = PublicApiPlaylist.class, name = "playlist"),
         @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item"),

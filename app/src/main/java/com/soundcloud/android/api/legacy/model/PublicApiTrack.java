@@ -96,7 +96,7 @@ public class PublicApiTrack extends Playable {
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
 
     // Fields used by app
-    @JsonIgnore public List<Comment> comments;
+    @JsonIgnore public List<PublicApiComment> comments;
     @JsonIgnore public int local_user_playback_count;
     @JsonIgnore public boolean local_cached;
     @JsonIgnore public LoadCommentsTask load_comments_task;

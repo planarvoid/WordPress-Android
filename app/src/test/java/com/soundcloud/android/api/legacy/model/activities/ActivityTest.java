@@ -3,7 +3,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.model.Comment;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.SharingNote;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -74,7 +74,7 @@ public class ActivityTest {
         final Date date = new Date();
         a.setCreatedAt(date);
         a.tags = "foo";
-        a.comment = new Comment() { { setId(10L); } };
+        a.comment = new PublicApiComment() { { setId(10L); } };
 
         ContentValues cv = a.buildContentValues();
         expect(cv.getAsString(TableColumns.Activities.TAGS)).toEqual("foo");
