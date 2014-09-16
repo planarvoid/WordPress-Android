@@ -3,6 +3,8 @@ package com.soundcloud.android.playback.ui;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -30,15 +32,19 @@ class PlayQueueDataSwitcher {
     }
 
     private List<TrackPageData> createFullQueue() {
-        List<TrackPageData> trackPageData = Lists.newArrayListWithExpectedSize(playQueueManager.getQueueSize());
+        List<TrackPageData> trackPageDataCollection = Lists.newArrayListWithExpectedSize(playQueueManager.getQueueSize());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++){
+            final TrackPageData trackPageData;
+            final TrackUrn trackUrn = playQueueManager.getUrnAtPosition(i);
+            final PropertySet metaData = playQueueManager.getMetaDataAt(i);
             if (adsOperations.isAudioAdAtPosition(i)){
-                trackPageData.add(TrackPageData.forAd(i, playQueueManager.getUrnAtPosition(i), playQueueManager.getMetaDataAt(i)));
+                trackPageData = TrackPageData.forAd(i, trackUrn, metaData);
             } else {
-                trackPageData.add(TrackPageData.forTrack(i, playQueueManager.getUrnAtPosition(i)));
+                trackPageData = TrackPageData.forTrack(i, trackUrn, metaData);
             }
+            trackPageDataCollection.add(trackPageData);
         }
-        return trackPageData;
+        return trackPageDataCollection;
     }
 
 }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -7,24 +9,24 @@ import org.jetbrains.annotations.NotNull;
 final class TrackPageData {
     private final int positionInPlayQueue;
     private final TrackUrn trackUrn;
-    private final PropertySet audioAd;
+    private final PropertySet properties;
 
-    static TrackPageData forTrack(int positionInPlayQueue, @NotNull TrackUrn trackUrn) {
-        return new TrackPageData(positionInPlayQueue, trackUrn, null);
+    static TrackPageData forTrack(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
+        return new TrackPageData(positionInPlayQueue, trackUrn, properties);
     }
 
-    static TrackPageData forAd(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet audioAd) {
-        return new TrackPageData(positionInPlayQueue, trackUrn, audioAd);
+    static TrackPageData forAd(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
+        return new TrackPageData(positionInPlayQueue, trackUrn, properties);
     }
 
-    private TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet audioAd) {
+    private TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
         this.positionInPlayQueue = positionInPlayQueue;
         this.trackUrn = trackUrn;
-        this.audioAd = audioAd;
+        this.properties = properties;
     }
 
-    public PropertySet getAudioAd() {
-        return audioAd;
+    public PropertySet getProperties() {
+        return properties;
     }
 
     public TrackUrn getTrackUrn() {
@@ -36,7 +38,11 @@ final class TrackPageData {
     }
 
     boolean isAdPage(){
-        return audioAd != null;
+        return properties.contains(AdProperty.AD_URN);
+    }
+
+    boolean hasLeaveBehind() {
+        return properties.contains(LeaveBehindProperty.LEAVE_BEHIND_URN);
     }
 
     @Override
@@ -44,7 +50,7 @@ final class TrackPageData {
         return "ViewPageData{" +
                 "positionInPlayQueue=" + positionInPlayQueue +
                 ", trackUrn=" + trackUrn +
-                ", audioAd=" + audioAd +
+                ", properties=" + properties +
                 '}';
     }
 }

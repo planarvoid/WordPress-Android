@@ -9,11 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,14 +38,14 @@ public class LeaveBehindControllerTest {
     private LeaveBehindController controller;
 
     private View trackView;
-    private PlayerTrack playerTrack;
+    private PropertySet leaveBehindProperties;
     @Mock private ImageOperations imageOperations;
     @Mock private DeviceHelper deviceHelper;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
     public void setUp() throws Exception {
-        playerTrack = new PlayerTrack(TestPropertySets.expectedTrackWithLeaveBehindForPlayer());
+        leaveBehindProperties = TestPropertySets.leaveBehindForPlayer();
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
         LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations,
                 Robolectric.application, deviceHelper);
@@ -53,11 +55,11 @@ public class LeaveBehindControllerTest {
 
     @Test
     public void dismissSetsLeaveBehindVisibilityToGone() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
         captureImageListener().onLoadingComplete(null, null, null);
 
-        controller.dismiss();
+        controller.clear();
 
         View leaveBehind = trackView.findViewById(R.id.leave_behind);
         expect(leaveBehind).toBeGone();
@@ -65,7 +67,7 @@ public class LeaveBehindControllerTest {
 
     @Test
     public void leaveBehindGoneOnLeaveBehindCloseClick() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
         View close = trackView.findViewById(R.id.leave_behind_close);
         captureImageListener().onLoadingComplete(null, null, null);
@@ -78,7 +80,7 @@ public class LeaveBehindControllerTest {
 
     @Test
     public void leaveBehindIsVisibleAfterSetupWithSuccessfulImageLoad() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
 
         captureImageListener().onLoadingComplete(null, null, null);
@@ -89,10 +91,10 @@ public class LeaveBehindControllerTest {
 
     @Test
     public void leaveBehindNeverBecomesVisibleIfDismissedBeforeImageLoads() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
 
-        controller.dismiss();
+        controller.clear();
         captureImageListener().onLoadingComplete(null, null, null);
 
         View leaveBehind = trackView.findViewById(R.id.leave_behind);
@@ -101,28 +103,28 @@ public class LeaveBehindControllerTest {
 
     @Test
     public void leaveBehindIsGoneAfterSetupIfImageNotLoaded() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         View leaveBehind = trackView.findViewById(R.id.leave_behind);
         expect(leaveBehind).toBeGone();
     }
 
     @Test
     public void loadsLeaveBehindImageFromModel() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
-        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(playerTrack.getImageUrl())), any(ImageView.class), any(ImageListener.class));
+        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(leaveBehindProperties.get(LeaveBehindProperty.IMAGE_URL))), any(ImageView.class), any(ImageListener.class));
     }
 
     @Test
     public void setupOnLandscapeOrientationDoesNotDisplayLeaveBehind() {
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_LANDSCAPE);
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         verify(imageOperations, never()).displayLeaveBehind(any(Uri.class), any(ImageView.class), any(ImageListener.class));
     }
 
     @Test
     public void onClickLeaveBehindImageOpensUrl() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
         View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
         captureImageListener().onLoadingComplete(null, null, null);
@@ -132,12 +134,12 @@ public class LeaveBehindControllerTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Intent.ACTION_VIEW);
-        expect(intent.getData()).toEqual(Uri.parse(playerTrack.getLinkUrl()));
+        expect(intent.getData()).toEqual(leaveBehindProperties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
     }
 
     @Test
     public void onClickLeaveBehindImageDismissesLeaveBehind() {
-        controller.initialize(playerTrack);
+        controller.initialize(leaveBehindProperties);
         controller.show();
         View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
         captureImageListener().onLoadingComplete(null, null, null);

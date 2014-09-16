@@ -66,7 +66,7 @@ public class LeaveBehind implements PropertySetSource {
     public PropertySet toPropertySet() {
         return PropertySet.from(
                 LeaveBehindProperty.LEAVE_BEHIND_URN.bind(urn),
-                LeaveBehindProperty.IMAGE_URL.bind(Uri.parse(getImageUrl())),
+                LeaveBehindProperty.IMAGE_URL.bind(getImageUrl()),
                 LeaveBehindProperty.CLICK_THROUGH_URL.bind(Uri.parse(getClickthroughUrl())),
                 LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(trackingImpressionUrls),
                 LeaveBehindProperty.TRACKING_CLICK_URLS.bind(trackingClickUrls));

@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -58,19 +57,6 @@ class PlayerTrack implements PropertySetSource {
 
     public boolean isPrivate() {
         return source.get(PlayableProperty.IS_PRIVATE);
-    }
-
-    public boolean hasLeaveBehind() {
-        return source.contains(AdProperty.LEAVE_BEHIND_IMAGE_URL) && source.contains(AdProperty.LEAVE_BEHIND_LINK_URL);
-    }
-
-    public String getImageUrl() {
-        return source.get(AdProperty.LEAVE_BEHIND_IMAGE_URL);
-    }
-
-
-    public String getLinkUrl() {
-        return source.get(AdProperty.LEAVE_BEHIND_LINK_URL);
     }
 
     @Override

@@ -81,10 +81,10 @@ public class TrackPagerAdapterTest {
     private PropertySet track;
 
     private List<TrackPageData> trackPageData = Lists.newArrayList(
-            TrackPageData.forTrack(0, TRACK1_URN),
-            TrackPageData.forTrack(1, TRACK2_URN),
+            TrackPageData.forTrack(0, TRACK1_URN, PropertySet.create()),
+            TrackPageData.forTrack(1, TRACK2_URN, PropertySet.create()),
             TrackPageData.forAd(2, AD_URN, getAudioAd()),
-            TrackPageData.forTrack(3, MONETIZABLE_TRACK_URN));
+            TrackPageData.forTrack(3, MONETIZABLE_TRACK_URN, PropertySet.create()));
 
     @Before
     public void setUp() throws Exception {

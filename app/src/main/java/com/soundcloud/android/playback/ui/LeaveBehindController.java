@@ -1,9 +1,11 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +26,7 @@ class LeaveBehindController implements View.OnClickListener{
     private final Context context;
     private final DeviceHelper deviceHelper;
 
-    private @Nullable PlayerTrack data;
+    private @Nullable PropertySet data;
 
     private View leaveBehind;
     private ImageView adImage;
@@ -53,11 +55,11 @@ class LeaveBehindController implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.leave_behind_close:
-                dismiss();
+                clear();
                 break;
             case R.id.leave_behind_image:
-                startActivity(Uri.parse(data.getLinkUrl()));
-                dismiss();
+                startActivity(data.get(LeaveBehindProperty.CLICK_THROUGH_URL));
+                clear();
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
@@ -71,7 +73,7 @@ class LeaveBehindController implements View.OnClickListener{
         context.startActivity(intent);
     }
 
-    void initialize(PlayerTrack data) {
+    void initialize(PropertySet data) {
         this.data = data;
         leaveBehind = getLeaveBehindView();
         adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
@@ -80,8 +82,8 @@ class LeaveBehindController implements View.OnClickListener{
     }
 
     public void show() {
-        if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT) {
-            imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), adImage, imageListener);
+        if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT && data != null) {
+            imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), adImage, imageListener);
         }
     }
 
@@ -91,16 +93,12 @@ class LeaveBehindController implements View.OnClickListener{
         }
     }
 
-    void dismiss() {
+    void clear() {
         if (data != null) {
+            data = null;
+            adImage.setImageDrawable(null);
             leaveBehind.setVisibility(View.GONE);
-            clear();
         }
-    }
-
-    private void clear() {
-        data = null;
-        adImage.setImageDrawable(null);
     }
 
     private View getLeaveBehindView() {

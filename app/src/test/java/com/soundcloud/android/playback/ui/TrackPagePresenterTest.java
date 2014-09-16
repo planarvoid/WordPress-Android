@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
@@ -22,6 +23,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
@@ -54,6 +56,7 @@ public class TrackPagePresenterTest {
     @Mock private LeaveBehindController leaveBehindController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
+    @Mock private FeatureFlags featureFlags;
 
     @Mock private TrackMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackMenuController trackMenuController;
@@ -66,7 +69,7 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, new FeatureFlags(Robolectric.application.getResources()));
+                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, featureFlags);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
@@ -436,6 +439,28 @@ public class TrackPagePresenterTest {
         expect(getHolder(trackView).previousButton).toBeInvisible();
     }
 
+    @Test
+    public void setLeaveBehindInitializesLeaveBehindController() throws Exception {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
+        final PropertySet track = TestPropertySets.leaveBehindForPlayer();
+        populateTrackPage();
+
+        presenter.setLeaveBehind(trackView, track);
+
+        verify(leaveBehindController).initialize(track);
+    }
+
+    @Test
+    public void clearLeaveBehindClearsLeaveBehindUsingController() throws Exception {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
+        populateTrackPage();
+
+        presenter.clearLeaveBehind(trackView);
+
+        verify(leaveBehindController).clear();
+
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void throwIllegalArgumentExceptionOnClickingUnexpectedView() {
         presenter.onClick(new View(Robolectric.application));
@@ -445,7 +470,7 @@ public class TrackPagePresenterTest {
     public void onClickMoreButtonCallsDismissOnLeaveBehindController() {
         populateTrackPage();
         getHolder(trackView).more.performClick();
-        verify(leaveBehindController).dismiss();
+        verify(leaveBehindController).clear();
     }
 
     @Test

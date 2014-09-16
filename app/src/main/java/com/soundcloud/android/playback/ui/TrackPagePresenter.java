@@ -143,13 +143,14 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         setClickListener(this, holder.onClickViews);
     }
 
-    public void setLeaveBehind(PropertySet track, TrackPageHolder holder) {
+    public void setLeaveBehind(View view, PropertySet track) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
-            PlayerTrack playerTrack = new PlayerTrack(track);
-            if (playerTrack.hasLeaveBehind()) {
-                holder.leaveBehindController.initialize(playerTrack);
-            }
+            getViewHolder(view).leaveBehindController.initialize(track);
         }
+    }
+
+    public void clearLeaveBehind(View view) {
+        getViewHolder(view).leaveBehindController.clear();
     }
 
     public View clearItemView(View view) {
@@ -433,7 +434,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                holder.leaveBehindController.dismiss();
+                holder.leaveBehindController.clear();
                 holder.menuController.show();
             }
         });

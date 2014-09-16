@@ -196,7 +196,7 @@ public class TrackPagerAdapter extends PagerAdapter {
             bindView(position, view);
         }
 
-        onPagePositionSet(view, position);
+        onTrackPageSet(view, position);
         return view;
     }
 
@@ -231,7 +231,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     private Observable<PropertySet> getSoundObservable(TrackPageData viewData) {
         final Observable<PropertySet> trackObservable;
         if (viewData.isAdPage()) {
-            trackObservable = getAdObservable(viewData.getTrackUrn(), viewData.getAudioAd());
+            trackObservable = getAdObservable(viewData.getTrackUrn(), viewData.getProperties());
         } else {
             trackObservable = getTrackObservable(viewData.getTrackUrn());
         }
@@ -278,8 +278,15 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     }
 
-    private void onPagePositionSet(View view, int position) {
-        getPresenter(currentData.get(position)).onPositionSet(view, position, currentData.size());
+    private void onTrackPageSet(View view, int position) {
+        final TrackPageData trackPageData = currentData.get(position);
+        trackPagePresenter.onPositionSet(view, position, currentData.size());
+        if (trackPageData.hasLeaveBehind()){
+            trackPagePresenter.setLeaveBehind(view, trackPageData.getProperties());
+        } else {
+            trackPagePresenter.clearLeaveBehind(view);
+        }
+
     }
 
     // Getter with side effects. We are forced to adjust our internal datasets based on position changes here.
