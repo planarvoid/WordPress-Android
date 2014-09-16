@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -251,7 +252,7 @@ public class TrackPagerAdapter extends PagerAdapter {
                 });
     }
 
-    private View subscribeToPlayEvents(PlayerPagePresenter presenter, View trackPage) {
+    private View subscribeToPlayEvents(PlayerPagePresenter presenter, final View trackPage) {
         subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus
@@ -265,15 +266,22 @@ public class TrackPagerAdapter extends PagerAdapter {
                 .filter(currentTrackFilter)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaybackProgressSubscriber(presenter, trackPage)));
+
+        subscription.add(eventBus
+                        .queue(EventQueue.PLAY_QUEUE_TRACK)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new LeaveBehindSubscriber(presenter, trackPage))
+        );
         return trackPage;
     }
 
     void onTrackChange() {
         for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
-            if (getItemViewTypeFromObject(entry.getKey()) == TYPE_TRACK_VIEW) {
+            final View trackView = entry.getKey();
+            if (getItemViewTypeFromObject(trackView) == TYPE_TRACK_VIEW) {
                 TrackUrn urn = entry.getValue().getTrackUrn();
-                trackPagePresenter.onPageChange(entry.getKey());
-                updateProgress(trackPagePresenter, entry.getKey(), urn);
+                trackPagePresenter.onPageChange(trackView);
+                updateProgress(trackPagePresenter, trackView, urn);
             }
         }
     }
@@ -410,6 +418,24 @@ public class TrackPagerAdapter extends PagerAdapter {
         public void onNext(PlayableUpdatedEvent event) {
             if (isTrackRelatedToView(trackPage, event.getUrn())) {
                 presenter.onPlayableUpdated(trackPage, event);
+            }
+        }
+    }
+
+    private final class LeaveBehindSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent>{
+
+        private final PlayerPagePresenter presenter;
+        private final View trackPage;
+
+        public LeaveBehindSubscriber(PlayerPagePresenter presenter, View trackPage) {
+            this.presenter = presenter;
+            this.trackPage = trackPage;
+        }
+
+        @Override
+        public void onNext(CurrentPlayQueueTrackEvent args) {
+            if (trackByViews.containsKey(trackPage) && !playQueueManager.isCurrentTrack(trackByViews.get(trackPage).getTrackUrn())) {
+                presenter.clearLeaveBehind(trackPage);
             }
         }
     }

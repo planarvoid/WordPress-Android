@@ -200,11 +200,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void onPositionSet(View trackPage, int position, int size) {
-        // no-op
-    }
-
-    @Override
     public void onBackground(View trackPage) {
         // no-op
     }
@@ -234,6 +229,11 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     public void onPlayerSlide(View trackView, float slideOffset) {
         final Holder holder = getViewHolder(trackView);
         helper.configureViewsFromSlide(slideOffset, holder.footer, holder.close, holder.playerOverlayController);
+    }
+
+    @Override
+    public void clearLeaveBehind(View trackPage) {
+
     }
 
     private void setEnabled(boolean enabled, Iterable<View> views) {

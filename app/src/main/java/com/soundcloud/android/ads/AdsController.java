@@ -129,6 +129,9 @@ public class AdsController {
                 .doOnNext(unsubscribeSkipAd)
                 .filter(isBufferingAudioAd)
                 .subscribe(new PlaybackStateSubscriber());
+
+        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .subscribe(new LeaveBehindSubscriber());
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<Object> {
@@ -180,4 +183,14 @@ public class AdsController {
         }
     }
 
+    private class LeaveBehindSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+        @Override
+        public void onNext(Playa.StateTransition state) {
+            if (adsOperations.isCurrentTrackAudioAd()) {
+                if (state.trackEnded()) {
+                    adsOperations.setUpLeaveBehindForNextTrack();
+                }
+            }
+        }
+    }
 }

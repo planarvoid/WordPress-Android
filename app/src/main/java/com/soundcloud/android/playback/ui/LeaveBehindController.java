@@ -82,11 +82,13 @@ class LeaveBehindController implements View.OnClickListener{
     }
 
     public void show() {
-        if (deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT && data != null) {
+        final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        final boolean isEnabled = data != null && data.getOrElse(LeaveBehindProperty.ENABLED, false);
+        if (isEnabled && isPortrait) {
+            data.put(LeaveBehindProperty.ENABLED, false);
             imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), adImage, imageListener);
         }
     }
-
     private void setVisible() {
         if (data != null) {
             leaveBehind.setVisibility(View.VISIBLE);

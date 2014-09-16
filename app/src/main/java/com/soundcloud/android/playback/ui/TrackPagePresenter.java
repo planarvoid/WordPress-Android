@@ -185,8 +185,12 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             setProgress(trackPage, PlaybackProgress.empty());
         }
 
-        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && stateTransition.isPlayerPlaying() && isCurrentTrack) {
-            holder.leaveBehindController.show();
+        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
+            if (stateTransition.isPlayerPlaying()) {
+                holder.leaveBehindController.show();
+            } else if (stateTransition.isPaused()) {
+                holder.leaveBehindController.clear();
+            }
         }
     }
 
@@ -212,7 +216,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         }
     }
 
-    @Override
     public void onPositionSet(View trackPage, int position, int size) {
         final TrackPageHolder holder = getViewHolder(trackPage);
         if (holder.hasNextButton()) {

@@ -17,7 +17,6 @@ public interface PlayerPagePresenter {
     void setProgress(View trackPage, PlaybackProgress progress);
     void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean isCurrentTrack);
     void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent);
-    void onPositionSet(View trackPage, int position, int size);
 
     void onBackground(View trackPage);
     void onForeground(View trackPage);
@@ -25,4 +24,6 @@ public interface PlayerPagePresenter {
     void setCollapsed(View trackPage);
     void setExpanded(View trackPage);
     void onPlayerSlide(View trackPage, float position);
+
+    void clearLeaveBehind(View trackPage);
 }

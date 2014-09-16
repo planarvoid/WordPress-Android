@@ -93,4 +93,11 @@ public class AdsOperations {
     public void clearAllAds() {
         playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved());
     }
+
+    public void setUpLeaveBehindForNextTrack() {
+        final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
+        playQueueManager
+                .getMetaDataAt(monetizableTrackPosition)
+                .put(LeaveBehindProperty.ENABLED, true);
+    }
 }
