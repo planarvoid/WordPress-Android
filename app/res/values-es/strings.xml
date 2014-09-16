@@ -326,7 +326,7 @@
     <string name="info">Info</string>
     <string name="uploaded_at">Subido %s</string>
     <string name="track_info_no_description">No hay descripción disponible</string>
-
+    <string name="share_track_by_artist_on_soundcloud">Escucha %1$s de %2$s #np en #SoundCloud</string>
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Información</string>
     <string name="tab_title_user_sounds">Sonidos</string>
