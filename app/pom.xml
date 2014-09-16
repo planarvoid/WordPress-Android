@@ -264,7 +264,7 @@
             <artifactId>comscore</artifactId>
             <!-- be careful when upgrading comscore. version 2.1403.17 blocks the calling thread in some functions
             see https://github.com/soundcloud/SoundCloud-Android/issues/2018 for more -->
-            <version>2.1309.19</version>
+            <version>2.1407.28</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.dagger</groupId>

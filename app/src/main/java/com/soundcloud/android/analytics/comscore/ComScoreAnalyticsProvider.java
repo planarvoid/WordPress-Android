@@ -18,8 +18,12 @@ import android.content.Context;
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class ComScoreAnalyticsProvider implements AnalyticsProvider {
 
+    public static final int ONE_MINUTE = 60;
+    public static final boolean AUTO_UPDATE_IN_BACKGROUND = false;
+
     public ComScoreAnalyticsProvider(Context context) {
         comScore.setAppContext(context.getApplicationContext());
+        comScore.enableAutoUpdate(ONE_MINUTE, AUTO_UPDATE_IN_BACKGROUND);
     }
 
     @Override
@@ -44,7 +48,13 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     public void handleScreenEvent(String screenTag) {}
 
     @Override
-    public void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {}
+    public void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
+        if (event.isPlayEvent()) {
+            comScore.onUxActive();
+        } else if (event.isStopEvent()) {
+            comScore.onUxInactive();
+        }
+    }
 
     @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {}
