@@ -35,15 +35,6 @@ public class PlayablePresenter {
         this.resources = resources;
     }
 
-    public PlayablePresenter setPlayableRowView(View view){
-        setTitleView((TextView) view.findViewById(R.id.playable_title));
-        setUsernameView((TextView) view.findViewById(R.id.playable_user));
-        setStatsView((StatsView) view.findViewById(R.id.stats));
-        setPrivacyIndicatorView((TextView) view.findViewById(R.id.playable_private_indicator));
-        setCreatedAtView((TextView) view.findViewById(R.id.playable_created_at));
-        return this;
-    }
-
     public PlayablePresenter setTitleView(TextView titleView) {
         this.titleView = titleView;
         return this;

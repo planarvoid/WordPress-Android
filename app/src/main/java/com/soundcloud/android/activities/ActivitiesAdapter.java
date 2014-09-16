@@ -145,7 +145,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
             case COMMENT:
                     context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                            .putExtra(TrackCommentsActivity.EXTRA_PROPERTY_SET, getItem(position).getPlayable().toPropertySet()));
+                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, getItem(position).getPlayable().toPropertySet()));
                 return ItemClickResults.LEAVING;
 
             case TRACK_LIKE:

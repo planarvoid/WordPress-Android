@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlayablePresenter;
+import com.soundcloud.android.playback.views.StatsView;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.screen.ScreenPresenter;
@@ -16,15 +17,15 @@ import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
 public class TrackCommentsActivity extends ScActivity {
 
-    public static final String EXTRA_PROPERTY_SET = "extra";
-
-    protected PropertySet propertySet;
+    public static final String EXTRA_COMMENTED_TRACK = "extra";
 
     @Inject AdPlayerController adPlayerController;
     @Inject SlidingPlayerController playerController;
@@ -41,16 +42,25 @@ public class TrackCommentsActivity extends ScActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        propertySet =  getIntent().getParcelableExtra(EXTRA_PROPERTY_SET);
-        playablePresenter.setPlayableRowView(findViewById(R.id.playable_bar))
-                .setArtwork((ImageView) findViewById(R.id.icon), ApiImageSize.getListItemImageSize(this))
-                .setPlayable(propertySet);
+        final PropertySet commentedTrack = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK);
+        bindTrackHeaderView(commentedTrack);
 
         if (bundle == null) {
-            final Uri contentUri = Content.TRACK_COMMENTS.forId(propertySet.get(TrackProperty.URN).numericId);
+            final Uri contentUri = Content.TRACK_COMMENTS.forId(commentedTrack.get(TrackProperty.URN).numericId);
             final ScListFragment fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
             getSupportFragmentManager().beginTransaction().add(R.id.listHolder, fragment).commit();
         }
+    }
+
+    private void bindTrackHeaderView(PropertySet commentedTrack) {
+        View view = findViewById(R.id.playable_bar);
+        playablePresenter.setTitleView((TextView) view.findViewById(R.id.playable_title));
+        playablePresenter.setUsernameView((TextView) view.findViewById(R.id.playable_user));
+        playablePresenter.setStatsView((StatsView) view.findViewById(R.id.stats));
+        playablePresenter.setPrivacyIndicatorView((TextView) view.findViewById(R.id.playable_private_indicator));
+        playablePresenter.setCreatedAtView((TextView) view.findViewById(R.id.playable_created_at));
+        playablePresenter.setArtwork((ImageView) findViewById(R.id.icon), ApiImageSize.getListItemImageSize(getResources()));
+        playablePresenter.setPlayable(commentedTrack);
     }
 
     @Override

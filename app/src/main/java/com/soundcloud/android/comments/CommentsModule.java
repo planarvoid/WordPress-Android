@@ -5,6 +5,5 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class, injects = TrackCommentsActivity.class)
 
-@Deprecated
 public class CommentsModule {
 }

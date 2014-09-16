@@ -171,7 +171,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
                 @Override
                 public void onNext(PlayerUIEvent args) {
                     context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                            .putExtra(TrackCommentsActivity.EXTRA_PROPERTY_SET, track));
+                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
                 }
             };
         }
