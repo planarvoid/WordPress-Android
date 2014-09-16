@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Comparator;
 import java.util.Date;
 
 /*
@@ -58,7 +57,25 @@ import java.util.Date;
 @Deprecated
 public class PublicApiComment extends PublicApiResource implements RelatesToUser, RelatesToPlayable {
 
-    public static final String ACTION_CREATE_COMMENT  = "com.soundcloud.android.comment.create";
+    public static final Parcelable.Creator<PublicApiComment> CREATOR = new Parcelable.Creator<PublicApiComment>() {
+        public PublicApiComment createFromParcel(Parcel in) {
+            PublicApiComment t = new PublicApiComment();
+            t.createdAt = new Date(in.readLong());
+            t.user_id = in.readLong();
+            t.track_id = in.readLong();
+            t.timestamp = in.readLong();
+            t.track = in.readParcelable(PublicApiTrack.class.getClassLoader());
+            t.body = in.readString();
+            t.uri = in.readString();
+            t.user = in.readParcelable(PublicApiUser.class.getClassLoader());
+            return t;
+        }
+
+        public PublicApiComment[] newArray(int size) {
+            return new PublicApiComment[size];
+        }
+    };
+
     public static final String EXTRA = "comment";
 
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
@@ -73,12 +90,9 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     public long reply_to_id;
     public String reply_to_username;
     public int xPos = -1;
-    public boolean topLevelComment = false;
 
     // keep the ignore or jackson will try to write this value on Samsung S4 (or perhaps more devices)
     @JsonIgnore @Nullable public Bitmap avatar;
-
-    public PublicApiComment nextComment; //pointer to the next comment at this timestamp
 
     private Date createdAt;
 
@@ -194,21 +208,6 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
         this.body = body;
     }
 
-    public static class CompareTimestamp implements Comparator<PublicApiComment> {
-        public static final Comparator<PublicApiComment> INSTANCE = new CompareTimestamp();
-        private CompareTimestamp() {}
-
-        @Override
-        public int compare(PublicApiComment c1, PublicApiComment c2) {
-            if (c1.timestamp > c2.timestamp)
-                return -1;
-            else if (c1.timestamp < c2.timestamp)
-                return 1;
-            else
-                return c2.createdAt.compareTo(c1.createdAt);
-        }
-    }
-
     public static PublicApiComment build(PublicApiTrack track,
                                 PublicApiUser user,
                                 long timestamp,
@@ -245,22 +244,4 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
         out.writeParcelable(user, 0);
     }
 
-    public static final Parcelable.Creator<PublicApiComment> CREATOR = new Parcelable.Creator<PublicApiComment>() {
-        public PublicApiComment createFromParcel(Parcel in) {
-            PublicApiComment t = new PublicApiComment();
-            t.createdAt = new Date(in.readLong());
-            t.user_id = in.readLong();
-            t.track_id = in.readLong();
-            t.timestamp = in.readLong();
-            t.track = in.readParcelable(PublicApiTrack.class.getClassLoader());
-            t.body = in.readString();
-            t.uri = in.readString();
-            t.user = in.readParcelable(PublicApiUser.class.getClassLoader());
-            return t;
-        }
-
-        public PublicApiComment[] newArray(int size) {
-            return new PublicApiComment[size];
-        }
-    };
 }
