@@ -8,6 +8,8 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -279,7 +281,7 @@ public class PlayQueueManagerTest {
     @Test
     public void saveProgressUpdatesSavePositionWithoutNonPersistantTracks() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
-        playQueueManager.insertTrackBefore(Urn.forTrack(2L), PropertySet.create(), false);
+        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
         playQueueManager.setPosition(3);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -293,7 +295,7 @@ public class PlayQueueManagerTest {
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPeristantTrack() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
-        playQueueManager.insertTrackBefore(Urn.forTrack(1L), PropertySet.create(), false);
+        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
         playQueueManager.setPosition(2);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -494,26 +496,26 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void insertsTrackAdAtPosition() throws CreateModelException {
+    public void performPlayQueueUpdateOperationsExecutesOperationsInOrder() throws CreateModelException {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
 
-        final TrackUrn track = TrackUrn.forTrack(123L);
-        final PropertySet metaData = PropertySet.create();
-        final boolean shouldPersist = false;
-        playQueueManager.insertTrackBefore(track, metaData, shouldPersist);
+        final PlayQueueManager.QueueUpdateOperation queueUpdateOperation1 = mock(PlayQueueManager.QueueUpdateOperation.class);
+        final PlayQueueManager.QueueUpdateOperation queueUpdateOperation2 = mock(PlayQueueManager.QueueUpdateOperation.class);
+        playQueueManager.performPlayQueueUpdateOperations(queueUpdateOperation1, queueUpdateOperation2);
 
-        verify(playQueue).insertTrack(2, track, metaData, shouldPersist);
+        final InOrder inOrder = inOrder(queueUpdateOperation1, queueUpdateOperation2);
+        inOrder.verify(queueUpdateOperation1).execute(playQueue);
+        inOrder.verify(queueUpdateOperation2).execute(playQueue);
+
     }
 
     @Test
-    public void publishesQueueChangeEventWhenATrackIsInserted() throws CreateModelException {
+    public void performPlayQueueUpdateOperationsPublishesQueueChangeEvent() throws Exception {
         playQueueManager.setNewPlayQueue(playQueue, 1, playSessionSource);
-
-        playQueueManager.insertTrackBefore(Urn.forTrack(123L), PropertySet.create(), true);
+        playQueueManager.performPlayQueueUpdateOperations();
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
     }
-
 
     @Test
     public void clearElementsThatMatchesThePredicate() throws CreateModelException {

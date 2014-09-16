@@ -326,11 +326,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return getViewWithAppendState(fetchState);
     }
 
-    public void insertTrackBefore(TrackUrn trackUrn, PropertySet metaData, boolean shouldPersist){
+    public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations){
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-
-        int insertPosition = getNextPosition();
-        playQueue.insertTrack(insertPosition, trackUrn, metaData, shouldPersist);
+        for (QueueUpdateOperation operation : operations){
+            operation.execute(playQueue);
+        }
         publishQueueUpdate();
     }
 
@@ -432,4 +432,43 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         playQueueSubscription.unsubscribe();
     }
 
+    public interface QueueUpdateOperation {
+        void execute(PlayQueue playQueue);
+    }
+
+    public static class InsertOperation implements QueueUpdateOperation {
+
+        private final int position;
+        private final TrackUrn trackUrn;
+        private final PropertySet metaData;
+        private final boolean shouldPersist;
+
+        public InsertOperation(int position, TrackUrn trackUrn, PropertySet metaData, boolean shouldPersist) {
+            this.position = position;
+            this.trackUrn = trackUrn;
+            this.metaData = metaData;
+            this.shouldPersist = shouldPersist;
+        }
+
+        @Override
+        public void execute(PlayQueue playQueue) {
+            playQueue.insertTrack(position, trackUrn, metaData, shouldPersist);
+        }
+    }
+
+    public static class MergeMetatdataOperation implements QueueUpdateOperation {
+
+        private final int position;
+        private final PropertySet metadata;
+
+        public MergeMetatdataOperation(int position, PropertySet metadata) {
+            this.position = position;
+            this.metadata = metadata;
+        }
+
+        @Override
+        public void execute(PlayQueue playQueue) {
+            playQueue.mergeMetaData(position, metadata);
+        }
+    }
 }

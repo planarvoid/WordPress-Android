@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.base.Predicate;
@@ -62,7 +63,14 @@ public class AdsOperations {
         PropertySet adMetaData = audioAd
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
-        playQueueManager.insertTrackBefore(audioAd.getApiTrack().getUrn(), adMetaData, false);
+
+        final int insertPosition = playQueueManager.getPositionForUrn(monetizableTrack);
+        checkState(insertPosition != -1, "Failed to find the monetizable track");
+        final int monetizablePosition = insertPosition + 1;
+        playQueueManager.performPlayQueueUpdateOperations(
+                new PlayQueueManager.InsertOperation(insertPosition, audioAd.getApiTrack().getUrn(), adMetaData, false),
+                new PlayQueueManager.MergeMetatdataOperation(monetizablePosition, audioAd.getLeaveBehind().toPropertySet())
+        );
     }
 
     public boolean isNextTrackAudioAd() {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -84,7 +85,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public PropertySet getMetaData(int position) {
-        checkPosition(position);
+        checkElementIndex(position, size());
 
         return playQueueItems.get(position).getMetaData();
     }
@@ -93,8 +94,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 
-    private void checkPosition(int position) {
-        checkArgument(position >= 0 && position < size(), String.format("PlayQueueItem index out of bound size:%d, position asked:%d", playQueueItems.size(), position));
+    public void mergeMetaData(int position, PropertySet metadata) {
+        checkElementIndex(position, size());
+
+        playQueueItems.get(position).getMetaData().merge(metadata);
     }
 
     String getTrackSource(int position) {

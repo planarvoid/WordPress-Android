@@ -7,10 +7,12 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -103,4 +105,23 @@ public class AdsOperationsTest {
         expect(adsOperations.isAudioAdAtPosition(1)).toBeFalse();
     }
 
+    @Test
+    public void insertAudioAdShould() throws Exception {
+        adsOperations.insertAudioAd(TRACK_URN, audioAd);
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+        value2.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(audioAd.getApiTrack().getUrn());
+        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+        expect(playQueue.getMetaData(1)).toEqual(audioAd.getLeaveBehind().toPropertySet());
+
+    }
 }
