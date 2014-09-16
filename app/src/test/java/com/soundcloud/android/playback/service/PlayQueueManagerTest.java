@@ -518,11 +518,11 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void clearElementsThatMatchesThePredicate() throws CreateModelException {
+      public void clearElementsThatMatchesThePredicate() throws CreateModelException {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
         final PropertySet metaDataToRemove = PropertySet.create();
-        playQueue.insertTrack(0, Urn.forTrack(123L), metaDataToRemove, true);
-        playQueueManager.setNewPlayQueue(playQueue, 0, playSessionSource);
+        playQueue.insertTrack(1, Urn.forTrack(123L), metaDataToRemove, true);
+        playQueueManager.setNewPlayQueue(playQueue, 3, playSessionSource);
 
         playQueueManager.removeTracksWithMetaData(new Predicate<PropertySet>() {
             @Override
@@ -533,6 +533,7 @@ public class PlayQueueManagerTest {
 
         expect(playQueueManager.getQueueSize()).toEqual(3);
         expect(playQueueManager.getUrnAtPosition(0)).toEqual(TrackUrn.forTrack(1L));
+        expect(playQueueManager.getCurrentPosition()).toEqual(2);
     }
 
     @Test
@@ -544,9 +545,9 @@ public class PlayQueueManagerTest {
             public boolean apply(@Nullable PropertySet input) {
                 return true;
             }
-        });
+        }, PlayQueueEvent.fromAudioAdRemoved());
 
-        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.QUEUE_UPDATE);
+        expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).toEqual(PlayQueueEvent.AUDIO_AD_REMOVED);
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
@@ -90,6 +91,6 @@ public class AdsOperations {
     }
 
     public void clearAllAds() {
-        playQueueManager.removeTracksWithMetaData(hasAdUrn);
+        playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved());
     }
 }

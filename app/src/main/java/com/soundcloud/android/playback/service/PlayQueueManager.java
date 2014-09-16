@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.Consts;
@@ -335,30 +334,30 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void removeTracksWithMetaData(Predicate<PropertySet> predicate){
+        removeTracksWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate());
+    }
+
+    public void removeTracksWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent){
         boolean queueUpdated = false;
+        int i = 0;
         for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext();) {
             final PlayQueueItem item = iterator.next();
             if (predicate.apply(item.getMetaData())) {
                 iterator.remove();
                 queueUpdated = true;
+                if (i <= currentPosition){
+                    currentPosition--;
+                }
+            } else {
+                i++;
             }
         }
+
         if (queueUpdated) {
-            publishQueueUpdate();
+            eventBus.publish(EventQueue.PLAY_QUEUE, updateEvent);
         }
     }
 
-    public void removeTrackAt(int position) {
-        assertOnUiThread(UI_ASSERTION_MESSAGE);
-        Preconditions.checkArgument(position != currentPosition, "Can't remove current track");
-
-        playQueue.remove(position);
-        if (position < currentPosition) {
-            currentPosition--;
-        }
-        publishQueueUpdate();
-    }
-    
     private void loadRecommendedTracks() {
         setNewRelatedLoadingState(FetchRecommendedState.LOADING);
         gotRecommendedTracks = false;
