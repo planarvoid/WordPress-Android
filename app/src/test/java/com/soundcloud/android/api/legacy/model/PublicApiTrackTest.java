@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -212,30 +211,6 @@ public class PublicApiTrackTest {
         t2.user = new PublicApiUser();
         t2.user.avatar_url = "http://avatar.com";
         expect(t2.getArtwork()).toEqual("http://avatar.com");
-    }
-
-    @Test
-    public void shouldGenerateShareIntentForPublicTrack() {
-        PublicApiTrack t = new PublicApiTrack();
-        t.sharing = Sharing.PUBLIC;
-        t.title = "A track";
-        t.permalink_url = "http://soundcloud.com/foo/bar";
-
-        Intent intent = t.getShareIntent();
-
-        expect(intent).not.toBeNull();
-        expect(intent.getType()).toEqual("text/plain");
-        expect(intent.getAction()).toEqual(Intent.ACTION_SEND);
-        expect(intent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("A track on SoundCloud");
-        expect(intent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(t.permalink_url);
-    }
-
-    @Test
-    public void shouldNotGenerateShareIntentForPrivateTrack() {
-        PublicApiTrack t = new PublicApiTrack();
-
-        Intent intent = t.getShareIntent();
-        expect(intent).toBeNull();
     }
 
     @Test

@@ -33,6 +33,7 @@ import javax.inject.Inject;
 
 public class PlaylistEngagementsController {
 
+    private static final String SHARE_TYPE = "text/plain";
     private Context context;
 
     @Nullable
@@ -115,10 +116,30 @@ public class PlaylistEngagementsController {
     }
 
     private void sendShareIntent() {
-        Intent shareIntent = playable.getShareIntent();
+        if (playable.isPrivate()) {
+            return;
+        }
+
+        Intent shareIntent = buildShareIntent();
         if (shareIntent != null) {
             context.startActivity(shareIntent);
         }
+    }
+
+    private Intent buildShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType(SHARE_TYPE);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, buildSubject());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, playable.permalink_url);
+        return shareIntent;
+    }
+
+    private String buildSubject() {
+        if (ScTextUtils.isNotBlank(playable.getUsername())) {
+            return context.getString(R.string.share_track_by_artist_on_soundcloud, playable.getTitle(), playable.getUsername());
+        }
+        return context.getString(R.string.share_track_on_soundcloud, playable.getTitle());
     }
 
     void startListeningForChanges() {

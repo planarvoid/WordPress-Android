@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -385,20 +384,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     public boolean hasAvatar() {
         return user != null && user.hasAvatarUrl();
-    }
-
-    public @Nullable Intent getShareIntent() {
-        if (!sharing.isPublic()) return null;
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_SUBJECT,
-                title +
-                        (user != null ? " by " + user.username : "") + " on SoundCloud");
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
-
-        return intent;
     }
 
     public String getUsername() {
