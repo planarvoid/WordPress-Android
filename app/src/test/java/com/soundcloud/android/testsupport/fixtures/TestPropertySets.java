@@ -68,6 +68,7 @@ public abstract class TestPropertySets {
 
     public static PropertySet leaveBehindForPlayer() {
         return PropertySet.from(
+                LeaveBehindProperty.ENABLED.bind(true),
                 LeaveBehindProperty.LEAVE_BEHIND_URN.bind("adswizz:ads:1105"),
                 LeaveBehindProperty.IMAGE_URL.bind("https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg"),
                 LeaveBehindProperty.CLICK_THROUGH_URL.bind(Uri.parse("http://squarespace.com")),
