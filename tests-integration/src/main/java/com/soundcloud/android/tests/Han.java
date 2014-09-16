@@ -110,12 +110,14 @@ public class Han  {
         return solo.getCurrentActivity().getString(resId, args);
     }
 
+    @Deprecated
     public GridView getCurrentGridView(){
         solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }
 
+    @Deprecated
     public ListView getCurrentListView(){
         solo.waitForView(ListView.class);
         final ArrayList<ListView> currentListViews = solo.getCurrentViews(ListView.class);
