@@ -58,3 +58,4 @@ app/res/values/app_properties*.xml
 
 # RVM, in case you use RVM + Replicant
 .rvmrc
+.ruby-*
