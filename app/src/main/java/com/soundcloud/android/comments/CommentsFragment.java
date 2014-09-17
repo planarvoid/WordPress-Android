@@ -1,9 +1,11 @@
 package com.soundcloud.android.comments;
 
+import static com.soundcloud.android.comments.CommentsOperations.CommentsCollection;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -12,6 +14,8 @@ import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.Pager;
+import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -22,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommentsFragment extends DefaultFragment implements ReactiveListComponent<Observable<List<Comment>>> {
@@ -34,6 +39,18 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
 
     private ConnectableObservable<List<Comment>> comments;
     private Subscription subscription = Subscriptions.empty();
+    private Pager<CommentsCollection> pager;
+
+    private final Func1<CommentsCollection, List<Comment>> toCommentModel = new Func1<CommentsCollection, List<Comment>>() {
+        @Override
+        public List<Comment> call(CommentsCollection apiComments) {
+            List<Comment> comments = new ArrayList<>(CommentsOperations.COMMENTS_PAGE_SIZE);
+            for (PublicApiComment apiComment : apiComments) {
+                comments.add(new Comment(apiComment));
+            }
+            return comments;
+        }
+    };
 
     public static CommentsFragment create(TrackUrn trackUrn) {
         final Bundle bundle = new Bundle();
@@ -46,7 +63,13 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
     public CommentsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
+        pager = operations.getCommentsPager();
         addLifeCycleComponents();
+    }
+
+    private void addLifeCycleComponents() {
+        listViewController.setAdapter(adapter);
+        addLifeCycleComponent(listViewController);
     }
 
     @Override
@@ -57,7 +80,7 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
     @Override
     public Observable<List<Comment>> buildObservable() {
         final TrackUrn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
-        comments = operations.comments(trackUrn).observeOn(mainThread()).replay(1);
+        comments = pager.page(operations.comments(trackUrn)).map(toCommentModel).observeOn(mainThread()).replay(1);
         comments.subscribe(adapter);
         return comments;
     }
@@ -66,11 +89,6 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
     public Subscription connectObservable(Observable<List<Comment>> observable) {
         subscription = comments.connect();
         return subscription;
-    }
-
-    private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter);
-        addLifeCycleComponent(listViewController);
     }
 
     @Override

@@ -1,22 +1,25 @@
 package com.soundcloud.android.comments;
 
+import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
-import rx.functions.Func1;
+import rx.android.Pager;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class CommentsOperations {
+
+    @VisibleForTesting
+    static final int COMMENTS_PAGE_SIZE = 50;
 
     private final RxHttpClient httpClient;
 
@@ -25,23 +28,31 @@ class CommentsOperations {
         this.httpClient = httpClient;
     }
 
-    Observable<List<Comment>> comments(TrackUrn trackUrn) {
-        APIRequest<CommentsCollection> request = SoundCloudAPIRequest.RequestBuilder
-                .<CommentsCollection>get(APIEndpoints.TRACK_COMMENTS.path(trackUrn.numericId))
-                .forPublicAPI()
-                .addQueryParameters("linked_partitioning", "1")
-                .forResource(TypeToken.of(CommentsCollection.class))
-                .build();
-        return httpClient.<CommentsCollection>fetchModels(request).map(new Func1<CommentsCollection, List<Comment>>() {
+    Pager<CommentsCollection> getCommentsPager() {
+        return Pager.create(new Pager.NextPageFunc<CommentsCollection>() {
             @Override
-            public List<Comment> call(CommentsCollection collection) {
-                List<Comment> comments = new ArrayList<>(collection.size());
-                for (PublicApiComment apiComment : collection) {
-                    comments.add(new Comment(apiComment));
+            public Observable<CommentsCollection> call(CommentsCollection comments) {
+                if (comments.getNextHref() != null) {
+                    return httpClient.fetchModels(apiRequest(comments.getNextHref()).build());
+                } else {
+                    return Pager.finish();
                 }
-                return comments;
             }
         });
+    }
+
+    Observable<CommentsCollection> comments(TrackUrn trackUrn) {
+        final APIRequest request = apiRequest(APIEndpoints.TRACK_COMMENTS.path(trackUrn.numericId))
+                .addQueryParameters("linked_partitioning", "1")
+                .addQueryParameters("limit", COMMENTS_PAGE_SIZE)
+                .build();
+        return httpClient.fetchModels(request);
+    }
+
+    private RequestBuilder apiRequest(String url) {
+        return RequestBuilder.<CommentsCollection>get(url)
+                .forPublicAPI()
+                .forResource(TypeToken.of(CommentsCollection.class));
     }
 
     @VisibleForTesting
@@ -50,8 +61,8 @@ class CommentsOperations {
         CommentsCollection() {
         }
 
-        CommentsCollection(List<PublicApiComment> comments) {
-            super(comments);
+        CommentsCollection(List<PublicApiComment> comments, String nextHref) {
+            super(comments, nextHref);
         }
     }
 }

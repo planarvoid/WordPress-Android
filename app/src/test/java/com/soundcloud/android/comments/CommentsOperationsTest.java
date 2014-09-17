@@ -1,9 +1,12 @@
 package com.soundcloud.android.comments;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.comments.CommentsOperations.COMMENTS_PAGE_SIZE;
 import static com.soundcloud.android.comments.CommentsOperations.CommentsCollection;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.RxHttpClient;
@@ -17,10 +20,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.android.Pager;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CommentsOperationsTest {
@@ -28,20 +31,49 @@ public class CommentsOperationsTest {
     @Mock RxHttpClient httpClient;
 
     private CommentsOperations operations;
-    private TestObserver<List<Comment>> observer = new TestObserver<>();
+    private TestObserver<CommentsCollection> observer = new TestObserver<>();
     private PublicApiComment comment = ModelFixtures.create(PublicApiComment.class);
+    private Observable<CommentsCollection> apiComments;
+    private String nextPageUrl = "http://next-page";
 
     @Before
     public void setup() {
         operations = new CommentsOperations(httpClient);
-        Observable<CommentsCollection> apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment)));
-        when(httpClient.<CommentsCollection>fetchModels(argThat(isPublicApiRequestTo("GET", "/tracks/123/comments")))).thenReturn(apiComments);
+        apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), nextPageUrl));
+        when(httpClient.<CommentsCollection>fetchModels(argThat(
+                isPublicApiRequestTo("GET", "/tracks/123/comments")
+                        .withQueryParam("linked_partitioning", "1")
+                        .withQueryParam("limit", String.valueOf(COMMENTS_PAGE_SIZE))
+        ))).thenReturn(apiComments);
     }
 
     @Test
     public void shouldRetrieveCommentsForGivenTrack() {
         TrackUrn track = Urn.forTrack(123L);
         operations.comments(track).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+    }
+
+    @Test
+    public void shouldPageCommentsIfMorePagesAvailable() {
+        when(httpClient.<CommentsCollection>fetchModels(argThat(isApiRequestTo(nextPageUrl)))).thenReturn(apiComments);
+        final Pager<CommentsCollection> commentsPager = operations.getCommentsPager();
+        commentsPager.page(apiComments).subscribe(observer);
+
+        commentsPager.next();
+
+        expect(observer.getOnNextEvents()).toNumber(2);
+    }
+
+    @Test
+    public void shouldStopPagingIfNoMorePagesAvailable() {
+        apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), null));
+
+        final Pager<CommentsCollection> commentsPager = operations.getCommentsPager();
+        commentsPager.page(apiComments).subscribe(observer);
+
+        commentsPager.next();
 
         expect(observer.getOnNextEvents()).toNumber(1);
     }
