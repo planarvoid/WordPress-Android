@@ -82,24 +82,40 @@ class LeaveBehindController implements View.OnClickListener{
     }
 
     public void show() {
-        final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        final boolean isEnabled = data != null && data.getOrElse(LeaveBehindProperty.ENABLED, false);
-        if (isEnabled && isPortrait) {
-            data.put(LeaveBehindProperty.ENABLED, false);
+        if (shouldDisplayLeaveBehind()) {
             imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), adImage, imageListener);
+            resetMetaData();
         }
     }
-    private void setVisible() {
+
+    private void resetMetaData() {
         if (data != null) {
+            data.put(LeaveBehindProperty.META_AD_COMPLETED, false);
+            data.put(LeaveBehindProperty.META_AD_CLICKED, false);
+        }
+    }
+
+    private boolean shouldDisplayLeaveBehind() {
+        final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        return isPortrait
+                && data != null
+                && data.getOrElse(LeaveBehindProperty.META_AD_COMPLETED, false)
+                && !data.getOrElse(LeaveBehindProperty.META_AD_CLICKED, false);
+    }
+
+    private void setVisible() {
+        if (leaveBehind != null) {
             leaveBehind.setVisibility(View.VISIBLE);
         }
     }
 
     void clear() {
-        if (data != null) {
-            data = null;
+        resetMetaData();
+        if (leaveBehind != null) {
             adImage.setImageDrawable(null);
             leaveBehind.setVisibility(View.GONE);
+            leaveBehind = null;
+            data = null;
         }
     }
 

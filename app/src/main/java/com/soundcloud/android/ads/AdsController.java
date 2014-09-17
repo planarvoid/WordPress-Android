@@ -188,7 +188,7 @@ public class AdsController {
         public void onNext(Playa.StateTransition state) {
             if (adsOperations.isCurrentTrackAudioAd()) {
                 if (state.trackEnded()) {
-                    adsOperations.setUpLeaveBehindForNextTrack();
+                    adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, true);
                 }
             }
         }

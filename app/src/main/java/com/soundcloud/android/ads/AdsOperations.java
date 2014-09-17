@@ -76,7 +76,7 @@ public class AdsOperations {
 
     public boolean isNextTrackAudioAd() {
         if (playQueueManager.hasNextTrack()) {
-            return playQueueManager.getMetaDataAt(playQueueManager.getCurrentPosition() + 1).contains(AdProperty.AD_URN);
+            return getMonetizableTrackMetaData().contains(AdProperty.AD_URN);
         }
         return false;
     }
@@ -94,10 +94,8 @@ public class AdsOperations {
         playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved());
     }
 
-    public void setUpLeaveBehindForNextTrack() {
+    public PropertySet getMonetizableTrackMetaData() {
         final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
-        playQueueManager
-                .getMetaDataAt(monetizableTrackPosition)
-                .put(LeaveBehindProperty.ENABLED, true);
+        return playQueueManager.getMetaDataAt(monetizableTrackPosition);
     }
 }

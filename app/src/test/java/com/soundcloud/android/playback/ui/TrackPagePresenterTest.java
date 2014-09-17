@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -18,9 +16,11 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
@@ -470,6 +470,22 @@ public class TrackPagePresenterTest {
     public void onClickMoreButtonCallsDismissOnLeaveBehindController() {
         populateTrackPage();
         getHolder(trackView).more.performClick();
+        verify(leaveBehindController).clear();
+    }
+
+    @Test
+    public void onPauseDismissOnLeaveBehindController() {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+
+        verify(leaveBehindController).clear();
+    }
+
+    @Test
+    public void onPlaybackErrorDismissOnLeaveBehindController() {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED), true);
+
         verify(leaveBehindController).clear();
     }
 

@@ -4,6 +4,8 @@ import static eu.inmite.android.lib.dialogs.SimpleDialogFragment.createBuilder;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -24,16 +26,18 @@ class AdPageListener extends PageListener {
 
     private final Context context;
     private final PlayQueueManager playQueueManager;
+    private final AdsOperations adsOperations;
 
     @Inject
     public AdPageListener(Context context,
                           PlaySessionStateProvider playSessionStateProvider,
                           PlaybackOperations playbackOperations,
                           PlayQueueManager playQueueManager,
-                          EventBus eventBus) {
+                          EventBus eventBus, AdsOperations adsOperations) {
         super(playbackOperations, playSessionStateProvider, eventBus);
         this.context = context;
         this.playQueueManager = playQueueManager;
+        this.adsOperations = adsOperations;
     }
 
     public void onNext() {
@@ -56,6 +60,7 @@ class AdPageListener extends PageListener {
         Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
         startActivity(uri);
 
+        adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_CLICKED, true);
         // track this click
         eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
     }

@@ -1,11 +1,15 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayer;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -13,7 +17,6 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -38,14 +41,12 @@ public class LeaveBehindControllerTest {
     private LeaveBehindController controller;
 
     private View trackView;
-    private PropertySet leaveBehindProperties;
     @Mock private ImageOperations imageOperations;
     @Mock private DeviceHelper deviceHelper;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
     public void setUp() throws Exception {
-        leaveBehindProperties = TestPropertySets.leaveBehindForPlayer();
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
         LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations,
                 Robolectric.application, deviceHelper);
@@ -55,99 +56,132 @@ public class LeaveBehindControllerTest {
 
     @Test
     public void dismissSetsLeaveBehindVisibilityToGone() {
-        controller.initialize(leaveBehindProperties);
-        controller.show();
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
         captureImageListener().onLoadingComplete(null, null, null);
 
         controller.clear();
 
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        expect(leaveBehind).toBeGone();
+        expect(getLeaveBehind()).toBeGone();
     }
 
     @Test
     public void leaveBehindGoneOnLeaveBehindCloseClick() {
-        controller.initialize(leaveBehindProperties);
-        controller.show();
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
         View close = trackView.findViewById(R.id.leave_behind_close);
         captureImageListener().onLoadingComplete(null, null, null);
 
         close.performClick();
 
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        expect(leaveBehind).toBeGone();
+        expect(getLeaveBehind()).toBeGone();
     }
 
     @Test
     public void leaveBehindIsVisibleAfterSetupWithSuccessfulImageLoad() {
-        controller.initialize(leaveBehindProperties);
-        controller.show();
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        expect(leaveBehind).toBeVisible();
+        expect(getLeaveBehind()).toBeVisible();
     }
 
     @Test
     public void leaveBehindNeverBecomesVisibleIfDismissedBeforeImageLoads() {
-        controller.initialize(leaveBehindProperties);
-        controller.show();
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
 
         controller.clear();
         captureImageListener().onLoadingComplete(null, null, null);
 
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        expect(leaveBehind).toBeGone();
+        expect(getLeaveBehind()).toBeGone();
     }
 
     @Test
     public void leaveBehindIsGoneAfterSetupIfImageNotLoaded() {
-        controller.initialize(leaveBehindProperties);
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        expect(leaveBehind).toBeGone();
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+
+        expect(getLeaveBehind()).toBeGone();
+    }
+
+    @Test
+    public void leaveBehindIsGoneIfImageLoadingFails() {
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+
+        captureImageListener().onLoadingFailed(null, null, null);
+
+        expect(getLeaveBehind()).toBeGone();
     }
 
     @Test
     public void loadsLeaveBehindImageFromModel() {
-        controller.initialize(leaveBehindProperties);
+        final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
+        controller.initialize(properties);
         controller.show();
-        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(leaveBehindProperties.get(LeaveBehindProperty.IMAGE_URL))), any(ImageView.class), any(ImageListener.class));
+        verify(imageOperations).displayLeaveBehind(eq(Uri.parse(properties.get(LeaveBehindProperty.IMAGE_URL))), any(ImageView.class), any(ImageListener.class));
     }
 
     @Test
     public void setupOnLandscapeOrientationDoesNotDisplayLeaveBehind() {
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_LANDSCAPE);
-        controller.initialize(leaveBehindProperties);
+        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
         verify(imageOperations, never()).displayLeaveBehind(any(Uri.class), any(ImageView.class), any(ImageListener.class));
     }
 
     @Test
     public void onClickLeaveBehindImageOpensUrl() {
-        controller.initialize(leaveBehindProperties);
+        final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
+        controller.initialize(properties);
         controller.show();
-        View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
         captureImageListener().onLoadingComplete(null, null, null);
 
-        leaveBehindImage.performClick();
+        getLeaveBehindImage().performClick();
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Intent.ACTION_VIEW);
-        expect(intent.getData()).toEqual(leaveBehindProperties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
+        expect(intent.getData()).toEqual(properties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
     }
 
     @Test
     public void onClickLeaveBehindImageDismissesLeaveBehind() {
-        controller.initialize(leaveBehindProperties);
-        controller.show();
-        View leaveBehindImage = trackView.findViewById(R.id.leave_behind_image);
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
         captureImageListener().onLoadingComplete(null, null, null);
 
-        leaveBehindImage.performClick();
+        getLeaveBehindImage().performClick();
 
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        expect(leaveBehind).toBeGone();
+        expect(getLeaveBehind()).toBeGone();
+    }
+
+    @Test
+    public void doesNotShowLeaveBehindWhenAdWasClicked() {
+        final PropertySet properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_CLICKED, true);
+        initializeAndShow(properties);
+
+        verifyZeroInteractions(imageOperations);
+        expect(getLeaveBehind()).toBeGone();
+    }
+
+    @Test
+    public void doesNotShowLeaveBehindWhenAdWasNotCompleted() {
+        final PropertySet properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_COMPLETED, false);
+        initializeAndShow(properties);
+
+        verifyZeroInteractions(imageOperations);
+        expect(getLeaveBehind()).toBeGone();
+    }
+
+    @Test
+    public void showsLeaveBehindWhenAdWasCompletedAndNotClicked() {
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        expect(getLeaveBehind()).toBeVisible();
+    }
+
+    @Test
+    public void doesNotShowTheLeaveIfAlreadyShown() {
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        controller.show();
+
+        verify(imageOperations, times(1)).displayLeaveBehind(any(Uri.class), any(ImageView.class), any(ImageListener.class));
     }
 
     private ImageListener captureImageListener() {
@@ -155,4 +189,16 @@ public class LeaveBehindControllerTest {
         return imageListenerCaptor.getValue();
     }
 
+    private View getLeaveBehind() {
+        return trackView.findViewById(R.id.leave_behind);
+    }
+
+    private View getLeaveBehindImage() {
+        return trackView.findViewById(R.id.leave_behind_image);
+    }
+
+    private void initializeAndShow(PropertySet properties) {
+        controller.initialize(properties);
+        controller.show();
+    }
 }

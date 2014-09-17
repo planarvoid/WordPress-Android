@@ -188,7 +188,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
             if (stateTransition.isPlayerPlaying()) {
                 holder.leaveBehindController.show();
-            } else if (stateTransition.isPaused()) {
+            } else if (stateTransition.isPaused() || stateTransition.wasError()) {
                 holder.leaveBehindController.clear();
             }
         }

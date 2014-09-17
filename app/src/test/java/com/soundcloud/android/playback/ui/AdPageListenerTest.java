@@ -3,6 +3,8 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
@@ -33,18 +35,19 @@ public class AdPageListenerTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-
+    @Mock private AdsOperations adsOperations;
     @Before
     public void setUp() throws Exception {
         listener = new AdPageListener(Robolectric.application,
                  playSessionStateProvider,
                  playbackOperations,
                  playQueueManager,
-                 eventBus);
+                 eventBus, adsOperations);
     }
 
     @Test
     public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
+        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(PropertySet.create());
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
@@ -59,6 +62,7 @@ public class AdPageListenerTest {
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
+        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(PropertySet.create());
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(456));
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);
@@ -68,6 +72,18 @@ public class AdPageListenerTest {
         final UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
+    }
+
+    @Test
+    public void onClickThroughShouldSetMenetizableTrackMetaAdClicked() {
+        final PropertySet monetizableProperties = PropertySet.create();
+        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(monetizableProperties);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123));
+        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(456)));
+
+        listener.onClickThrough();
+
+        expect(monetizableProperties.get(LeaveBehindProperty.META_AD_CLICKED)).toBeTrue();
     }
 
     @Test

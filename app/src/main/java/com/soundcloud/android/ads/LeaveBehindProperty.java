@@ -12,5 +12,6 @@ public class LeaveBehindProperty {
     public static final Property<Uri> CLICK_THROUGH_URL = Property.of(LeaveBehind.class, Uri.class);
     public static final Property<List<String>> TRACKING_IMPRESSION_URLS = Property.of(LeaveBehind.class, (Class<List<String>>)(Class<?>) List.class);
     public static final Property<List<String>> TRACKING_CLICK_URLS = Property.of(LeaveBehind.class, (Class<List<String>>)(Class<?>) List.class);
-    public static final Property<Boolean> ENABLED = Property.of(LeaveBehind.class, Boolean.class);
+    public static final Property<Boolean> META_AD_COMPLETED = Property.of(LeaveBehind.class, Boolean.class);
+    public static final Property<Boolean> META_AD_CLICKED = Property.of(LeaveBehind.class, Boolean.class);
 }

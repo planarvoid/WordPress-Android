@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.pivotallabs.greatexpectations.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
@@ -295,9 +296,11 @@ public class AdsControllerTest {
     @Test
     public void playStateChangeEventForAudioAdEndingSetsUpLeaveBehind() throws Exception {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        final PropertySet monetizableProperties = PropertySet.create();
+        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(monetizableProperties);
+
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.TRACK_COMPLETE));
 
-        verify(adsOperations).setUpLeaveBehindForNextTrack();
-
+        expect(monetizableProperties.get(LeaveBehindProperty.META_AD_COMPLETED)).toBeTrue();
     }
 }
