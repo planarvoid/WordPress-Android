@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 public class VisualPlayerElement extends Element {
 
     public static final int MILISECONDS_UNTIL_AD_SKIPPABLE = (int) TimeUnit.SECONDS.toMillis(15L);
+    private static final int MILISECONDS_UNTIL_LEAVE_BEHIND =  (int) TimeUnit.SECONDS.toMillis(40L);
+
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
 
     public VisualPlayerElement(Han solo) {
@@ -79,6 +81,10 @@ public class VisualPlayerElement extends Element {
 
     private ViewElement adPage() {
         return solo.findElement(With.id(R.id.player_ad_page));
+    }
+
+    public ViewElement leaveBehind() {
+        return solo.findElement(With.id(R.id.leave_behind));
     }
 
     public boolean isExpanded() {
@@ -178,6 +184,10 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.skip_ad);
     }
 
+    public void waitForLeaveBehind() {
+        waiter.waitForElementToBeVisible(With.id(R.id.leave_behind_image), MILISECONDS_UNTIL_LEAVE_BEHIND);
+    }
+
     public void waitForPlayButton() {
         waiter.waitForElement(R.id.player_play);
     }
@@ -210,6 +220,7 @@ public class VisualPlayerElement extends Element {
     public boolean isPlayControlsVisible() {
         return playButton().isVisible();
     }
+
 
     @Override
     public boolean isVisible() {

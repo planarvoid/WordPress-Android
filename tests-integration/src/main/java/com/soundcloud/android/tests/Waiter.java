@@ -44,7 +44,11 @@ public class Waiter {
     }
 
     public boolean waitForElementToBeVisible(With matcher) {
-        return solo.waitForCondition(new VisibleElementCondition(matcher), ELEMENT_TIMEOUT);
+        return waitForElementToBeVisible(matcher, ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForElementToBeVisible(With matcher, int timeoutMs) {
+        return solo.waitForCondition(new VisibleElementCondition(matcher), timeoutMs);
     }
 
     public ExpectedConditions expect(ElementWithText view) {
