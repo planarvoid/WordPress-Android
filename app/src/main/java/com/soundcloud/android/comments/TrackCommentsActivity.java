@@ -10,13 +10,17 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.playback.views.StatsView;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +35,7 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject SlidingPlayerController playerController;
     @Inject PlayablePresenter playablePresenter;
     @Inject ScreenPresenter presenter;
+    @Inject FeatureFlags featureFlags;
 
     public TrackCommentsActivity() {
         addLifeCycleComponent(playerController);
@@ -46,10 +51,20 @@ public class TrackCommentsActivity extends ScActivity {
         bindTrackHeaderView(commentedTrack);
 
         if (bundle == null) {
-            final Uri contentUri = Content.TRACK_COMMENTS.forId(commentedTrack.get(TrackProperty.URN).numericId);
-            final ScListFragment fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
-            getSupportFragmentManager().beginTransaction().add(R.id.listHolder, fragment).commit();
+            attachCommentsFragment(commentedTrack);
         }
+    }
+
+    private void attachCommentsFragment(PropertySet commentedTrack) {
+        final TrackUrn trackUrn = commentedTrack.get(TrackProperty.URN);
+        Fragment fragment;
+        if (featureFlags.isEnabled(Feature.COMMENTS_REDESIGN)) {
+            fragment = CommentsFragment.create(trackUrn);
+        } else {
+            final Uri contentUri = Content.TRACK_COMMENTS.forId(trackUrn.numericId);
+            fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
+        }
+        getSupportFragmentManager().beginTransaction().add(R.id.listHolder, fragment).commit();
     }
 
     private void bindTrackHeaderView(PropertySet commentedTrack) {

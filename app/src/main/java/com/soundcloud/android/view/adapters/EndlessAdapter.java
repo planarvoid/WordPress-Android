@@ -16,18 +16,18 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
         IDLE, LOADING, ERROR;
     }
 
+    public EndlessAdapter(CellPresenter<T> cellPresenter) {
+        this(R.layout.list_loading_item, cellPresenter);
+    }
+
     public EndlessAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
         super(cellPresenter);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
     public EndlessAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
-        this(R.layout.list_loading_item, cellPresenterEntities);
-    }
-
-    public EndlessAdapter(int progressItemLayoutResId, CellPresenterEntity<T>... cellPresenterEntities) {
         super(cellPresenterEntities);
-        this.progressItemLayoutResId = progressItemLayoutResId;
+        this.progressItemLayoutResId = R.layout.list_loading_item;
     }
 
     public void setOnErrorRetryListener(View.OnClickListener onErrorRetryListener) {

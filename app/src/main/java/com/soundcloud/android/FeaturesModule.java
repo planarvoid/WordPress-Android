@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.AccountsModule;
 import com.soundcloud.android.activities.ActivitiesModule;
 import com.soundcloud.android.associations.LikesModule;
+import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.main.MainModule;
 import com.soundcloud.android.playback.PlayerModule;
@@ -24,6 +25,7 @@ import dagger.Module;
         PlaylistsModule.class,
         ProfileModule.class,
         SoundStreamModule.class,
-        TrackModule.class
+        TrackModule.class,
+        CommentsModule.class
 })
 public class FeaturesModule { }
