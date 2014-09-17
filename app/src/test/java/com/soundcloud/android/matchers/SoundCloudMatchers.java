@@ -11,6 +11,10 @@ public class SoundCloudMatchers {
         return new ApiRequestTo(method, path, false);
     }
 
+    public static ApiRequestToUrl isApiRequestTo(String url) {
+        return new ApiRequestToUrl(url);
+    }
+
     public static ApiRequestTo isPublicApiRequestTo(String method, String path) {
         return new ApiRequestTo(method, path, false);
     }

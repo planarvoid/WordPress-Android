@@ -4,6 +4,8 @@ package com.soundcloud.android.api;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 
+import android.net.Uri;
+
 import java.util.Map;
 
 /**
@@ -14,6 +16,11 @@ import java.util.Map;
  * @param <ResourceType>
  */
 public interface APIRequest<ResourceType> {
+    /**
+     * @return the full URL to the requested resource
+     */
+    Uri getUri();
+
     /**
      * Should return the path (minus host) that the request should be made to. Query parameters not currently supported
      * @return The path the request will be made to
