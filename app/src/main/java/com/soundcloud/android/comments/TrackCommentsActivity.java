@@ -6,22 +6,22 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.playback.views.PlayablePresenter;
-import com.soundcloud.android.playback.views.StatsView;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,9 +33,9 @@ public class TrackCommentsActivity extends ScActivity {
 
     @Inject AdPlayerController adPlayerController;
     @Inject SlidingPlayerController playerController;
-    @Inject PlayablePresenter playablePresenter;
     @Inject ScreenPresenter presenter;
     @Inject FeatureFlags featureFlags;
+    @Inject ImageOperations imageOperations;
 
     public TrackCommentsActivity() {
         addLifeCycleComponent(playerController);
@@ -64,18 +64,27 @@ public class TrackCommentsActivity extends ScActivity {
             final Uri contentUri = Content.TRACK_COMMENTS.forId(trackUrn.numericId);
             fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
         }
-        getSupportFragmentManager().beginTransaction().add(R.id.listHolder, fragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.list_container, fragment).commit();
     }
 
     private void bindTrackHeaderView(PropertySet commentedTrack) {
-        View view = findViewById(R.id.playable_bar);
-        playablePresenter.setTitleView((TextView) view.findViewById(R.id.playable_title));
-        playablePresenter.setUsernameView((TextView) view.findViewById(R.id.playable_user));
-        playablePresenter.setStatsView((StatsView) view.findViewById(R.id.stats));
-        playablePresenter.setPrivacyIndicatorView((TextView) view.findViewById(R.id.playable_private_indicator));
-        playablePresenter.setCreatedAtView((TextView) view.findViewById(R.id.playable_created_at));
-        playablePresenter.setArtwork((ImageView) findViewById(R.id.icon), ApiImageSize.getListItemImageSize(getResources()));
-        playablePresenter.setPlayable(commentedTrack);
+        ((TextView) findViewById(R.id.title)).setText(commentedTrack.get(PlayableProperty.TITLE));
+        ((TextView) findViewById(R.id.username)).setText(commentedTrack.get(PlayableProperty.CREATOR_NAME));
+        ((TextView) findViewById(R.id.comments_count)).setText(String.valueOf(commentedTrack.get(TrackProperty.COMMENTS_COUNT)));
+        setDate(commentedTrack);
+        setIcon(commentedTrack);
+    }
+
+    private void setIcon(PropertySet commentedTrack) {
+        imageOperations.displayWithPlaceholder(
+                commentedTrack.get(TrackProperty.URN),
+                ApiImageSize.getListItemImageSize(getResources()),
+                (ImageView) findViewById(R.id.icon));
+    }
+
+    private void setDate(PropertySet commentedTrack) {
+        final long timestamp = commentedTrack.get(PlayableProperty.CREATED_AT).getTime();
+        ((TextView) findViewById(R.id.date)).setText(ScTextUtils.formatTimeElapsedSince(getResources(), timestamp, true));
     }
 
     @Override

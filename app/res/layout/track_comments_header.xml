@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
+        android:background="@color/player_control_background"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:padding="16dp">
+
+    <ImageView android:id="@+id/icon"
+               android:layout_width="@dimen/user_page_icon_size"
+               android:layout_height="@dimen/user_page_icon_size"
+               android:layout_marginRight="12dp"
+               android:scaleType="fitCenter" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/username"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignParentTop="true"
+              android:layout_toRightOf="@id/icon"
+              style="@style/Comments.Header.Text" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/title"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/username"
+              android:layout_toRightOf="@id/icon"
+              android:layout_marginTop="4dp"
+              style="@style/Comments.Header.Text.Primary" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+              android:id="@+id/comments_count"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/title"
+              android:layout_toRightOf="@id/icon"
+              android:layout_marginTop="6dp"
+              style="@style/Comments.Header.CommentsCount" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/date"
+            style="@style/ListItemText.Numeric"
+            app:custom_font="fonts/Roboto-Regular.ttf"
+            android:layout_alignBaseline="@id/username"
+            android:layout_alignParentRight="true"/>
+
+</RelativeLayout>
