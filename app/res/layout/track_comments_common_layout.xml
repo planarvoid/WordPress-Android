@@ -5,7 +5,7 @@
                  android:background="@color/player_control_background"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content">
-        <include layout="@layout/playable_bar"
+        <include layout="@layout/track_list_item"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
                  android:id="@+id/playable_bar"/>

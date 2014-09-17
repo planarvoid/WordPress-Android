@@ -80,7 +80,7 @@ public class TrackCommentsActivity extends ScActivity {
 
     @Override
     protected void setContentView() {
-        presenter.setBaseLayoutWithContent(R.layout.playable_interaction_activity);
+        presenter.setBaseLayoutWithContent(R.layout.track_comments_activity);
     }
 
     @Override

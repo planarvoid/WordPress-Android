@@ -9,7 +9,7 @@
     <RelativeLayout
             style="@style/MarginedContent">
 
-        <include layout="@layout/playable_interaction_common_layout"
+        <include layout="@layout/track_comments_common_layout"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
     </RelativeLayout>
