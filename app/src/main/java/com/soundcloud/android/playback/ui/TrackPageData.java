@@ -11,15 +11,7 @@ final class TrackPageData {
     private final TrackUrn trackUrn;
     private final PropertySet properties;
 
-    static TrackPageData forTrack(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
-        return new TrackPageData(positionInPlayQueue, trackUrn, properties);
-    }
-
-    static TrackPageData forAd(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
-        return new TrackPageData(positionInPlayQueue, trackUrn, properties);
-    }
-
-    private TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
+    TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
         this.positionInPlayQueue = positionInPlayQueue;
         this.trackUrn = trackUrn;
         this.properties = properties;

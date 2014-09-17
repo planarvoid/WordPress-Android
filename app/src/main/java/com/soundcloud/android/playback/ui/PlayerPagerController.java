@@ -46,9 +46,9 @@ class PlayerPagerController {
 
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
-    private final Provider<PlayQueueDataSwitcher> playQueueDataSwitcherProvider;
+    private final Provider<PlayQueueDataSource> playQueueDataSwitcherProvider;
 
-    private PlayQueueDataSwitcher playQueueDataSwitcher;
+    private PlayQueueDataSource playQueueDataSource;
     private CompositeSubscription subscription;
     private Subscription unblockPagerSubscription = Subscriptions.empty();
 
@@ -123,7 +123,7 @@ class PlayerPagerController {
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
                                  PlaybackToastViewController playbackToastViewController,
-                                 Provider<PlayQueueDataSwitcher> playQueueDataSwitcherProvider,
+                                 Provider<PlayQueueDataSource> playQueueDataSwitcherProvider,
                                  PlayerPagerScrollListener playerPagerScrollListener, AdsOperations adsOperations) {
         this.adapter = adapter;
         this.presenter = playerPresenter;
@@ -241,13 +241,13 @@ class PlayerPagerController {
     }
 
     private void setFullQueue() {
-        adapter.setCurrentData(playQueueDataSwitcher.getFullQueue());
+        adapter.setCurrentData(playQueueDataSource.getFullQueue());
         trackPager.setCurrentItem(playQueueManager.getCurrentPosition(), false);
         setPlayQueueAfterScroll = false;
     }
 
     private void setAdPlayQueue() {
-        adapter.setCurrentData(playQueueDataSwitcher.getAdQueue());
+        adapter.setCurrentData(playQueueDataSource.getCurrentTrackAsQueue());
         trackPager.setCurrentItem(0, false);
     }
 
@@ -270,7 +270,7 @@ class PlayerPagerController {
     }
 
     private void refreshPlayQueue() {
-        playQueueDataSwitcher = playQueueDataSwitcherProvider.get();
+        playQueueDataSource = playQueueDataSwitcherProvider.get();
         setFullQueue();
     }
 

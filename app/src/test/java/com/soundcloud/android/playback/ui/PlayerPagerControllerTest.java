@@ -61,22 +61,23 @@ public class PlayerPagerControllerTest {
     @Mock private AdsOperations adsOperations;
     @Mock private View container;
     @Mock private PlayerTrackPager viewPager;
-    @Mock private PlayQueueDataSwitcher playQueueDataSwitcher;
+    @Mock private PlayQueueDataSource playQueueDataSource;
     @Mock private PlayerPagerScrollListener playerPagerScrollListener;
     @Captor private ArgumentCaptor<SkipListener> skipListenerArgumentCaptor;
 
     private PlayerPagerController controller;
     private PublishSubject<Integer> scrollStateObservable = PublishSubject.create();
     private TestEventBus eventBus = new TestEventBus();
-    private final List<TrackPageData> adQueueData = Lists.newArrayList(TrackPageData.forAd(2, AUDIO_AD_URN, AUDIO_AD));
-    private final List<TrackPageData> fullQueueData = Lists.newArrayList(TrackPageData.forTrack(1, TRACK_URN, PropertySet.create()), TrackPageData.forAd(2, AUDIO_AD_URN, AUDIO_AD));
+    private final List<TrackPageData> adQueueData = Lists.newArrayList(new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
+    private final List<TrackPageData> fullQueueData = Lists.newArrayList(new TrackPageData(1, TRACK_URN, PropertySet.create()),
+            new TrackPageData(2, AUDIO_AD_URN, AUDIO_AD));
 
     @Before
     public void setUp() {
-        final Provider<PlayQueueDataSwitcher> playQueueDataControllerProvider = new Provider<PlayQueueDataSwitcher>() {
+        final Provider<PlayQueueDataSource> playQueueDataControllerProvider = new Provider<PlayQueueDataSource>() {
             @Override
-            public PlayQueueDataSwitcher get() {
-                return playQueueDataSwitcher;
+            public PlayQueueDataSource get() {
+                return playQueueDataSource;
             }
         };
 
@@ -86,7 +87,7 @@ public class PlayerPagerControllerTest {
         when(container.findViewById(anyInt())).thenReturn(viewPager);
         when(viewPager.getContext()).thenReturn(Robolectric.application);
         when(playerPagerScrollListener.getPageChangedObservable()).thenReturn(scrollStateObservable);
-        when(playQueueDataSwitcher.getAdQueue()).thenReturn(adQueueData);
+        when(playQueueDataSource.getCurrentTrackAsQueue()).thenReturn(adQueueData);
         controller.onViewCreated(container);
     }
 
@@ -334,7 +335,7 @@ public class PlayerPagerControllerTest {
     @Test
     public void refreshesPlayQueueAfterNewPlayQueueEvent() {
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
-        when(playQueueDataSwitcher.getFullQueue()).thenReturn(fullQueueData);
+        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
 
@@ -347,7 +348,7 @@ public class PlayerPagerControllerTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
         when(viewPager.getCurrentItem()).thenReturn(1);
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
-        when(playQueueDataSwitcher.getFullQueue()).thenReturn(fullQueueData);
+        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
