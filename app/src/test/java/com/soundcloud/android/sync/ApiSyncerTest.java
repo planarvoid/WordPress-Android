@@ -99,6 +99,11 @@ public class ApiSyncerTest {
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
+    @Test(expected = IOException.class)
+    public void shouldThrowIOExceptionOnInvalidStreamResponse() throws Exception {
+        sync(Content.ME_SOUND_STREAM.uri,"e1_stream_invalid.json");
+    }
+
     @Test
     public void syncStreamWithHardRefreshReplacesExistingActivities() throws Exception {
         // initial sync

@@ -23,6 +23,7 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
@@ -100,8 +101,7 @@ public class ApiSyncer extends SyncStrategy {
                 case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
                 case ME_SOUND_STREAM:
-                    result = syncActivities(uri, action);
-                    result.success = true;
+                    result = safeSyncActivities(uri, action);
                     break;
 
                 case ME_LIKES:
@@ -151,7 +151,23 @@ public class ApiSyncer extends SyncStrategy {
         return result;
     }
 
-
+    /**
+     * Safely sync activities, catching NPE caused by bad PublicApi responses, specifically :
+     * https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/540f085ae3de5099bace67b3
+     *
+     * Rethrows as IOException which will be caught in {@link CollectionSyncRequest#execute()}
+     */
+    private ApiSyncResult safeSyncActivities(Uri uri, String action) throws IOException {
+        ApiSyncResult result;
+        try {
+            result = syncActivities(uri, action);
+            result.success = true;
+        } catch (RuntimeException ex) {
+            ErrorUtils.handleSilentException(ex);
+            throw new IOException("Problem parsing activities : " + ex);
+        }
+        return result;
+    }
 
 
     private ApiSyncResult syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
