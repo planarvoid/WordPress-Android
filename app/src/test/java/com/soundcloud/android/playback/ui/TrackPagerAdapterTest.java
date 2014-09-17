@@ -6,11 +6,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -27,6 +29,7 @@ import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackUrn;
@@ -84,7 +87,7 @@ public class TrackPagerAdapterTest {
             TrackPageData.forTrack(0, TRACK1_URN, PropertySet.create()),
             TrackPageData.forTrack(1, TRACK2_URN, PropertySet.create()),
             TrackPageData.forAd(2, AD_URN, getAudioAd()),
-            TrackPageData.forTrack(3, MONETIZABLE_TRACK_URN, PropertySet.create()));
+            TrackPageData.forTrack(3, MONETIZABLE_TRACK_URN, TestPropertySets.leaveBehindForPlayer()));
 
     @Before
     public void setUp() throws Exception {
@@ -400,6 +403,31 @@ public class TrackPagerAdapterTest {
         adapter.destroyItem(container, 0, view);
 
         verify(trackPagePresenter).onBackground(view);
+    }
+
+    @Test
+    public void instantiateItemForMonetizableSetsLeaveBehind() throws Exception {
+        final View viewForTrack = getPageView(3, MONETIZABLE_TRACK_URN);
+        verify(trackPagePresenter).setLeaveBehind(same(viewForTrack), eq(TestPropertySets.leaveBehindForPlayer()));
+    }
+
+    @Test
+    public void instantiateItemWithoutLeaveBehindClearsLeaveBehind() throws Exception {
+        final View view = getPageView();
+        verify(trackPagePresenter).clearLeaveBehind(view);
+    }
+
+    @Test
+    public void trackChangeEventDismissesLeaveBehindsOnNonPlayingTracks() throws Exception {
+        final View viewForCurrentTrack = getPageView(1, TRACK2_URN);
+        final View viewForOtherTrack = getPageView(3, MONETIZABLE_TRACK_URN);
+        setCurrentTrackState(3, MONETIZABLE_TRACK_URN, true);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(MONETIZABLE_TRACK_URN));
+
+        verify(trackPagePresenter, times(2)).clearLeaveBehind(viewForCurrentTrack);
+        verify(trackPagePresenter, never()).clearLeaveBehind(viewForOtherTrack);
+
     }
 
     private View getPageView() {

@@ -291,4 +291,13 @@ public class AdsControllerTest {
 
         verify(playQueueManager, never()).autoNextTrack();
     }
+
+    @Test
+    public void playStateChangeEventForAudioAdEndingSetsUpLeaveBehind() throws Exception {
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.TRACK_COMPLETE));
+
+        verify(adsOperations).setUpLeaveBehindForNextTrack();
+
+    }
 }
