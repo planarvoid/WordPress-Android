@@ -292,12 +292,25 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
-    public void trackChangeToAdAdvancesToAdIfNotLookingAtIt() {
+    public void trackChangeToAdSetsAdPlayQueueIfNotLookingAtItAndNotResumed() {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         setupPositionsForAd(1, 1, 2);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
 
+        verify(adapter).setCurrentData(eq(adQueueData));
+        verify(viewPager).setCurrentItem(2, true);
+    }
+
+    @Test
+    public void trackChangeToAdAdvancesToAdIfNotLookingAtItAndResumed() {
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        setupPositionsForAd(1, 1, 2);
+        controller.onResume();
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(AUDIO_AD_URN));
+
+        verify(adapter, never()).setCurrentData(eq(adQueueData));
         verify(viewPager).setCurrentItem(2, true);
     }
 
@@ -323,9 +336,24 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
-    public void trackPagerAdvancesAfterAdRemovedAndStillVisible() {
+    public void trackPagerRefreshesPlayQueueWhenAdRemovedAndStillVisibleAndPaused() {
         when(viewPager.getCurrentItem()).thenReturn(1);
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
+        when(playQueueManager.getCurrentPosition()).thenReturn(2);
+        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+
+        verify(adapter).setCurrentData(fullQueueData);
+        verify(viewPager).setCurrentItem(2, false);
+    }
+
+    @Test
+    public void trackPagerAdvancesAfterAdRemovedAndStillVisibleAndResumed() {
+        when(viewPager.getCurrentItem()).thenReturn(1);
+        when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
+
+        controller.onResume();
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
