@@ -11,6 +11,8 @@ import com.soundcloud.android.view.adapters.EndlessAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.Pager;
+import rx.functions.Func1;
+import rx.functions.Functions;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -40,20 +42,36 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
         this.imageOperations = imageOperations;
     }
 
+    /**
+     * Use this method to connect an adapter on the managed ListView if the content is not paged but a static list.
+     */
     public void setAdapter(ListAdapter adapter) {
         this.adapter = adapter;
     }
 
-    public <T> void setAdapter(final EndlessAdapter<T> adapter, final Pager<? extends Iterable<T>> pager) {
+    /**
+     * Use this method to connect an adapter and pager object to get paged list views. The given item mapper can
+     * apply an optional transformation of items before adding them to the adapter, e.g. when mapping to a view model.
+     */
+    public <T, R, CollT extends Iterable<T>>
+    void setAdapter(final EndlessAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 adapter.setLoading();
-                pager.currentPage().observeOn(mainThread()).subscribe(adapter);
+                pager.currentPage().map(itemMapper).observeOn(mainThread()).subscribe(adapter);
             }
         });
+    }
+
+    /**
+     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.EndlessAdapter, rx.android.Pager)}, but does
+     * not perform any item mapping.
+     */
+    public <T, CollT extends Iterable<T>> void setAdapter(final EndlessAdapter<T> adapter, final Pager<CollT> pager) {
+        setAdapter(adapter, pager, Functions.<CollT>identity());
     }
 
     public void setScrollListener(@Nullable OnScrollListener scrollListener) {
