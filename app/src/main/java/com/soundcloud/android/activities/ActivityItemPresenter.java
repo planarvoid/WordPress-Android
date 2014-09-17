@@ -73,7 +73,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
             default:
                 throw new IllegalArgumentException("Unexpected activity type");
         }
-        final TextView titleTextView = (TextView) itemView.findViewById(R.id.action);
+        final TextView titleTextView = (TextView) itemView.findViewById(R.id.body);
         titleTextView.setText(titleText);
         titleTextView.setCompoundDrawablesWithIntrinsicBounds(iconId, 0, 0, 0);
     }
@@ -84,7 +84,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
 
     private void setTimeElapsed(View itemView, PropertySet propertySet) {
         final Date date = propertySet.get(ActivityProperty.DATE);
-        final String formattedTime = ScTextUtils.formatTimeElapsed(resources, date.getTime(), true);
+        final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, date.getTime(), true);
         ((TextView) itemView.findViewById(R.id.date)).setText(formattedTime);
     }
 }
