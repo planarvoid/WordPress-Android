@@ -101,7 +101,7 @@ public class ApiSyncerTest {
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionOnInvalidStreamResponse() throws Exception {
-        sync(Content.ME_SOUND_STREAM.uri,"e1_stream_invalid.json");
+        sync(Content.ME_SOUND_STREAM.uri,"e1_stream_missing_track.json");
     }
 
     @Test
