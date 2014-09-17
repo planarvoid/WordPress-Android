@@ -298,6 +298,9 @@
     <string name="playback_error_connection">Please check your connection</string>
     <string name="playback_error_unable_to_play">Unable to playback track</string>
 
+    <!-- __COMMENTS -->
+    <string name="user_commented_at">%1$s at %2$s</string>
+
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>

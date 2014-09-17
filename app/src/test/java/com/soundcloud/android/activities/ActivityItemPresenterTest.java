@@ -33,7 +33,7 @@ public class ActivityItemPresenterTest {
     @Before
     public void setUp() throws Exception {
         final Context context = Robolectric.application;
-        itemView = LayoutInflater.from(context).inflate(R.layout.activity_list_item, new FrameLayout(context), false);
+        itemView = LayoutInflater.from(context).inflate(R.layout.engagement_list_item, new FrameLayout(context), false);
         presenter = new ActivityItemPresenter(context.getResources(), imageOperations);
     }
 

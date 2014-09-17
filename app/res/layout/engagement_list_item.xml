@@ -17,7 +17,7 @@
             android:layout_marginLeft="12dp"/>
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/action"
+            android:id="@+id/body"
             style="@style/ListItemText.PrimaryText"
             android:drawablePadding="6dp"
             android:singleLine="true"

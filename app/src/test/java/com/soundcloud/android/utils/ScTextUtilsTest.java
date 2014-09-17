@@ -84,6 +84,13 @@ public class ScTextUtilsTest {
                 System.currentTimeMillis() - 1000 * 60)).toEqual("1 minute");
     }
 
+    @Test
+    public void shouldGetElapsedTimeSinceTimestamp() throws Exception {
+        final long timestamp = System.currentTimeMillis() - 1000 * 60;
+        final Resources res = Robolectric.application.getResources();
+        expect(ScTextUtils.formatTimeElapsedSince(res, timestamp, false)).toEqual("1 minute");
+    }
+
     private void expectTime(double seconds, String text) {
         expect(ScTextUtils.formatTimeElapsed(Robolectric.application.getResources(), seconds, false)).toEqual(text);
         expect(ScTextUtils.formatTimeElapsed(Robolectric.application.getResources(), seconds, true)).toEqual(text + " ago");

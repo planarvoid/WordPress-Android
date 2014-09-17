@@ -12,8 +12,8 @@ import dagger.Provides;
 public class CommentsModule {
 
     @Provides
-    EndlessAdapter<Comment> provideCommentsAdapter() {
-        return new EndlessAdapter<>(new CommentPresenter());
+    EndlessAdapter<Comment> provideCommentsAdapter(CommentPresenter presenter) {
+        return new EndlessAdapter<>(presenter);
     }
 
 }

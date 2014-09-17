@@ -21,7 +21,7 @@ public class Comment {
         return apiComment.getUser().getUsername();
     }
 
-    long getTimestamp() {
+    long getTimeStamp() {
         return apiComment.timestamp;
     }
 
