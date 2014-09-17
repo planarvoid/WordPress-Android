@@ -137,7 +137,7 @@ public class AnalyticsEngineEventFlushingTest {
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
-        eventBus.publish(EventQueue.UI, UIEvent.fromComment("screen", 1L));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromComment("screen", 1L));
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

@@ -8,7 +8,7 @@ public final class EventQueue {
     public static final Queue<StateTransition> PLAYBACK_STATE_CHANGED = Queue.of(StateTransition.class).replay(StateTransition.DEFAULT).get();
     public static final Queue<PlaybackProgressEvent> PLAYBACK_PROGRESS = Queue.of(PlaybackProgressEvent.class).get();
     public static final Queue<PlayableUpdatedEvent> PLAYABLE_CHANGED = Queue.of(PlayableUpdatedEvent.class).get();
-    public static final Queue<UIEvent> UI = Queue.of(UIEvent.class).get();
+    public static final Queue<UIEvent> UI_TRACKING = Queue.of(UIEvent.class).get();
     public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).get();
     public static final Queue<PlayerLifeCycleEvent> PLAYER_LIFE_CYCLE = Queue.of(PlayerLifeCycleEvent.class).get();
     public static final Queue<String> SCREEN_ENTERED = Queue.of(String.class).name("ScreenEventQueue").get();

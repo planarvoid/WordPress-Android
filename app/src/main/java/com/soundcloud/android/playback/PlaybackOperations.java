@@ -160,7 +160,7 @@ public class PlaybackOperations {
     private void publishSkipEventIfAudioAd() {
         if (adsOperations.isCurrentTrackAudioAd()) {
             final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getCurrentMetaData(), playQueueManager.getCurrentTrackUrn());
-            eventBus.publish(EventQueue.UI, event);
+            eventBus.publish(EventQueue.UI_TRACKING, event);
         }
     }
 

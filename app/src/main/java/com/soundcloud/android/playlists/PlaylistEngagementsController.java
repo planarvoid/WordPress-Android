@@ -78,7 +78,7 @@ public class PlaylistEngagementsController {
                 @Override
                 public void onClick(View view) {
                     if (playable != null) {
-                        eventBus.publish(EventQueue.UI, UIEvent.fromToggleLike(toggleLike.isChecked(),
+                        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleLike(toggleLike.isChecked(),
                                 PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
                         fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), toggleLike.isChecked()));
                     }
@@ -92,7 +92,7 @@ public class PlaylistEngagementsController {
                 @Override
                 public void onClick(View view) {
                     if (playable != null) {
-                        eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
+                        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
                                 PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
                         fireAndForget(soundAssociationOps.toggleRepost(playable.getUrn(), toggleRepost.isChecked()));
                     }
@@ -106,7 +106,7 @@ public class PlaylistEngagementsController {
                 @Override
                 public void onClick(View v) {
                     if (playable != null) {
-                        eventBus.publish(EventQueue.UI,
+                        eventBus.publish(EventQueue.UI_TRACKING,
                                 UIEvent.fromShare(PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
                         sendShareIntent();
                     }

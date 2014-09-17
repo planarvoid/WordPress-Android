@@ -170,16 +170,16 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         final int position = navigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                eventBus.publish(EventQueue.UI, UIEvent.fromStreamNav());
+                eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromStreamNav());
                 break;
             case EXPLORE:
-                eventBus.publish(EventQueue.UI, UIEvent.fromExploreNav());
+                eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromExploreNav());
                 break;
             case LIKES:
-                eventBus.publish(EventQueue.UI, UIEvent.fromLikesNav());
+                eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromLikesNav());
                 break;
             case PLAYLISTS:
-                eventBus.publish(EventQueue.UI, UIEvent.fromPlaylistsNav());
+                eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlaylistsNav());
             default:
                 break;
         }
@@ -240,7 +240,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             case PROFILE:
                 displayProfile();
                 // This click is tracked separately since profile item is never selected
-                eventBus.publish(EventQueue.UI, UIEvent.fromProfileNav());
+                eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromProfileNav());
                 return;
             case STREAM:
                 displayStream();

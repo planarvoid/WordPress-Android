@@ -25,7 +25,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
         @Override
         public void handleMessage(Message msg) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            eventBus.publish(EventQueue.UI, UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY));
+            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY));
         }
     };
 

@@ -76,7 +76,7 @@ public class PlaylistEngagementsControllerTest {
                 .thenReturn(Observable.just(PropertySet.create()));
         rootView.findViewById(R.id.toggle_like).performClick();
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.Kind.LIKE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -91,7 +91,7 @@ public class PlaylistEngagementsControllerTest {
         likeToggle.setChecked(true);
         likeToggle.performClick();
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.Kind.UNLIKE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -104,7 +104,7 @@ public class PlaylistEngagementsControllerTest {
 
         rootView.findViewById(R.id.toggle_repost).performClick();
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.Kind.REPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -119,7 +119,7 @@ public class PlaylistEngagementsControllerTest {
         repostToggle.setChecked(true);
         repostToggle.performClick();
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.Kind.UNREPOST);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -130,7 +130,7 @@ public class PlaylistEngagementsControllerTest {
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.Kind.SHARE);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.UNKNOWN.get());
     }
@@ -138,7 +138,7 @@ public class PlaylistEngagementsControllerTest {
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         rootView.findViewById(R.id.btn_share).performClick();
-        expect(eventBus.eventsOn(EventQueue.UI)).toBeEmpty();
+        expect(eventBus.eventsOn(EventQueue.UI_TRACKING)).toBeEmpty();
     }
 
     @Test
@@ -293,7 +293,7 @@ public class PlaylistEngagementsControllerTest {
 
         rootView.findViewById(R.id.btn_share).performClick();
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
     }
 

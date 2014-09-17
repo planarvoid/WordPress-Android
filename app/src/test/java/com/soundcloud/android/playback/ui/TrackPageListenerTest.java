@@ -98,7 +98,7 @@ public class TrackPageListenerTest {
     public void onGotoUserEmitsUIEventClosePlayer() {
         listener.onGotoUser(Robolectric.application, Urn.forUser(42L));
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
@@ -132,7 +132,7 @@ public class TrackPageListenerTest {
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {
-        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toEqual(expectedEvent.getKind());
         expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
     }

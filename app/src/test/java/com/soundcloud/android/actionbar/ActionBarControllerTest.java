@@ -42,7 +42,7 @@ public class ActionBarControllerTest {
 
         actionBarController.onOptionsItemSelected(item);
 
-        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI);
+        UIEvent uiEvent = eventBus.firstEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.Kind.NAVIGATION);
         expect(uiEvent.getAttributes().get("page")).toEqual("search");
     }

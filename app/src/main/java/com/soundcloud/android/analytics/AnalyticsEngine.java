@@ -92,7 +92,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_SESSION, new PlaybackEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
-        eventsSubscription.add(eventBus.subscribe(EventQueue.UI, new UIEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.UI_TRACKING, new UIEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));

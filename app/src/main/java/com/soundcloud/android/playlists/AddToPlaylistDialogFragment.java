@@ -133,7 +133,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         ).subscribe(new TrackAddedSubscriber());
 
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-        eventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
     }
 
     @Override

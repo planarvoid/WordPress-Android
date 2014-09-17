@@ -57,7 +57,7 @@ class AdPageListener extends PageListener {
         startActivity(uri);
 
         // track this click
-        eventBus.publish(EventQueue.UI, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
     }
 
     public void onAboutAds(FragmentActivity activity) {

@@ -84,6 +84,6 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
         final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
         fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
-        eventBus.publish(EventQueue.UI, UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
     }
 }

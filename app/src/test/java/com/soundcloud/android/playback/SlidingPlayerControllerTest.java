@@ -223,7 +223,7 @@ public class SlidingPlayerControllerTest {
 
         controller.onPanelCollapsed(slidingPanel);
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expected = UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE);
         expect(event.getKind()).toEqual(expected.getKind());
         expect(event.getAttributes()).toEqual(expected.getAttributes());
@@ -236,7 +236,7 @@ public class SlidingPlayerControllerTest {
 
         controller.onPanelExpanded(slidingPanel);
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expected = UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER);
         expect(event.getKind()).toEqual(expected.getKind());
         expect(event.getAttributes()).toEqual(expected.getAttributes());
@@ -359,7 +359,7 @@ public class SlidingPlayerControllerTest {
 
         controller.handleBackPressed();
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());

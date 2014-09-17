@@ -98,7 +98,7 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     public boolean handleBackPressed() {
         if (slidingPanel.isPanelExpanded()) {
             collapse();
-            eventBus.publish(EventQueue.UI, UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON));
+            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON));
             return true;
         }
         return false;
@@ -255,7 +255,7 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     private void trackPlayerSlide(UIEvent event) {
         if (wasDragged) {
             wasDragged = false;
-            eventBus.publish(EventQueue.UI, event);
+            eventBus.publish(EventQueue.UI_TRACKING, event);
         }
     }
 

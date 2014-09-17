@@ -83,18 +83,18 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
     private void handleShare(PlayerTrack track) {
         if (!track.isPrivate()) {
             activity.startActivity(buildShareIntent(track));
-            eventBus.publish(EventQueue.UI, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn()));
+            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromShare(playQueueManager.getScreenTag(), track.getUrn()));
         }
     }
 
     private void handleUnpost(TrackUrn urn) {
         fireAndForget(associationOperations.toggleRepost(urn, false));
-        eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(false, playQueueManager.getScreenTag(), urn));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleRepost(false, playQueueManager.getScreenTag(), urn));
     }
 
     private void handleRepost(TrackUrn urn) {
         fireAndForget(associationOperations.toggleRepost(urn, true));
-        eventBus.publish(EventQueue.UI, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
     }
 
     private void showAddToPlaylistDialog(PlayerTrack track) {

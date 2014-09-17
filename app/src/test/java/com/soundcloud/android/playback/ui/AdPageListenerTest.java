@@ -65,7 +65,7 @@ public class AdPageListenerTest {
 
         listener.onClickThrough();
 
-        final UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI);
+        final UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         expect(uiEvent.getKind()).toEqual(UIEvent.Kind.AUDIO_AD_CLICK);
         expect(uiEvent.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }

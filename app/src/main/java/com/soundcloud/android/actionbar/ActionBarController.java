@@ -58,7 +58,7 @@ public class ActionBarController {
         switch (item.getItemId()) {
             case R.id.action_search:
                 startActivity(SearchActivity.class);
-                eventBus.publish(EventQueue.UI, UIEvent.fromSearchAction());
+                eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromSearchAction());
                 return true;
             case R.id.action_settings:
                 startActivity(SettingsActivity.class);

@@ -47,7 +47,7 @@ public class ExpandPlayerSubscriberTest {
         subscriber.onCompleted();
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
-        UIEvent event = eventbus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventbus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY);
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }

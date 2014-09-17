@@ -56,7 +56,7 @@ public class AdPlayerControllerTest {
 
         resumeFromBackground();
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY);
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
@@ -80,7 +80,7 @@ public class AdPlayerControllerTest {
         resumeFromBackground();
         resumeFromBackground();
 
-        eventBus.verifyNoEventsOn(EventQueue.UI);
+        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
     }
 
     @Test

@@ -287,7 +287,7 @@ public class PlaybackOperationsTest {
         inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
         inOrder.verify(playQueueManager).setPosition(5);
 
-        final UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        final UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         expect(event.getKind()).toEqual(UIEvent.Kind.SKIP_AUDIO_AD_CLICK);
         expect(event.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }
@@ -296,7 +296,7 @@ public class PlaybackOperationsTest {
     public void settingPlayQueuePositionDoesNotPublishAdSkippedTrackingEventWhenTrackNotAnAd() {
         playbackOperations.setPlayQueuePosition(5);
 
-        eventBus.verifyNoEventsOn(EventQueue.UI);
+        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
     }
 
     @Test
@@ -384,7 +384,7 @@ public class PlaybackOperationsTest {
         inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
         inOrder.verify(playQueueManager).moveToPreviousTrack();
 
-        final UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        final UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         expect(event.getKind()).toEqual(UIEvent.Kind.SKIP_AUDIO_AD_CLICK);
         expect(event.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }
@@ -395,7 +395,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        eventBus.verifyNoEventsOn(EventQueue.UI);
+        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
     }
 
     @Test
@@ -404,7 +404,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        eventBus.verifyNoEventsOn(EventQueue.UI);
+        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
     }
 
     @Test
@@ -452,7 +452,7 @@ public class PlaybackOperationsTest {
         inOrder.verify(adsOperations, atLeastOnce()).isCurrentTrackAudioAd();
         inOrder.verify(playQueueManager).nextTrack();
 
-        final UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        final UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         expect(event.getKind()).toEqual(UIEvent.Kind.SKIP_AUDIO_AD_CLICK);
         expect(event.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
     }
@@ -463,14 +463,14 @@ public class PlaybackOperationsTest {
 
         playbackOperations.nextTrack();
 
-        eventBus.verifyNoEventsOn(EventQueue.UI);
+        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
     }
 
     @Test
     public void nextTrackDoesNotPublishAdSkippedTrackingEventWhenTrackNotAnAd() {
         playbackOperations.nextTrack();
 
-        eventBus.verifyNoEventsOn(EventQueue.UI);
+        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
     }
 
     @Test

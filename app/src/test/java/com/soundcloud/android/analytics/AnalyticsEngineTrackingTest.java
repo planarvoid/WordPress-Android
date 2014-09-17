@@ -106,7 +106,7 @@ public class AnalyticsEngineTrackingTest {
     @Test
     public void shouldTrackUIEvent() {
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 0);
-        eventBus.publish(EventQueue.UI, uiEvent);
+        eventBus.publish(EventQueue.UI_TRACKING, uiEvent);
 
         verify(analyticsProviderOne, times(1)).handleUIEvent(uiEvent);
         verify(analyticsProviderTwo, times(1)).handleUIEvent(uiEvent);
@@ -177,7 +177,7 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
         eventBus.publish(EventQueue.PLAYBACK_SESSION, TestEvents.playbackSessionPlayEvent());
-        eventBus.publish(EventQueue.UI, UIEvent.fromToggleFollow(true, "screen", 0));
+        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleFollow(true, "screen", 0));
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());

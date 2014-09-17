@@ -90,7 +90,7 @@ public class PageListenerTest extends TestCase {
     public void onFooterTapEmitsUIEventOpenPlayer() {
         listener.onFooterTap();
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
@@ -116,7 +116,7 @@ public class PageListenerTest extends TestCase {
     public void onPlayerCloseEmitsUIEventClosePlayer() {
         listener.onPlayerClose();
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI);
+        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_HIDE_BUTTON);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
