@@ -27,6 +27,10 @@ public class ViewMatcher<T extends View, M extends ViewMatcher<T, M>> extends Ob
         return actual.getVisibility() == View.GONE;
     }
 
+    public boolean toBeClickable() {
+        return actual.isClickable();
+    }
+
     public boolean toBeInvisible() {
         return actual.getVisibility() == View.INVISIBLE;
     }

@@ -61,7 +61,7 @@ public class LeaveBehindControllerTest {
 
         controller.clear();
 
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -72,7 +72,7 @@ public class LeaveBehindControllerTest {
 
         close.performClick();
 
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -81,7 +81,7 @@ public class LeaveBehindControllerTest {
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(getLeaveBehind()).toBeVisible();
+        expectLeaveBehindToVisible();
     }
 
     @Test
@@ -91,14 +91,14 @@ public class LeaveBehindControllerTest {
         controller.clear();
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
     public void leaveBehindIsGoneAfterSetupIfImageNotLoaded() {
         initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
 
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -107,7 +107,7 @@ public class LeaveBehindControllerTest {
 
         captureImageListener().onLoadingFailed(null, null, null);
 
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -147,7 +147,7 @@ public class LeaveBehindControllerTest {
 
         getLeaveBehindImage().performClick();
 
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -156,7 +156,7 @@ public class LeaveBehindControllerTest {
         initializeAndShow(properties);
 
         verifyZeroInteractions(imageOperations);
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -165,7 +165,7 @@ public class LeaveBehindControllerTest {
         initializeAndShow(properties);
 
         verifyZeroInteractions(imageOperations);
-        expect(getLeaveBehind()).toBeGone();
+        expectLeaveBehindToBeGone();
     }
 
     @Test
@@ -197,8 +197,24 @@ public class LeaveBehindControllerTest {
         return trackView.findViewById(R.id.leave_behind_image);
     }
 
+    private View getLeaveBehindClose() {
+        return trackView.findViewById(R.id.leave_behind_close);
+    }
+
     private void initializeAndShow(PropertySet properties) {
         controller.initialize(properties);
         controller.show();
+    }
+
+    private void expectLeaveBehindToBeGone() {
+        expect(getLeaveBehind()).not.toBeClickable();
+        expect(getLeaveBehindImage()).toBeGone();
+        expect(getLeaveBehindClose()).toBeGone();
+    }
+
+    private void expectLeaveBehindToVisible() {
+        expect(getLeaveBehind()).toBeClickable();
+        expect(getLeaveBehindImage()).toBeVisible();
+        expect(getLeaveBehindClose()).toBeVisible();
     }
 }
