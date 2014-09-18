@@ -264,11 +264,11 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void setViewPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
-        if (state.playSessionIsActive()) {
-            if (isCurrentTrack && state.isPlayerPlaying()) {
+        if (state.playSessionIsActive() && isCurrentTrack) {
+            if (state.isPlayerPlaying()) {
                 holder.artworkController.showPlayingState(state.getProgress());
             } else {
-                holder.artworkController.showIdleState();
+                holder.artworkController.showIdleState(state.getProgress());
             }
         } else {
             holder.artworkController.showIdleState();

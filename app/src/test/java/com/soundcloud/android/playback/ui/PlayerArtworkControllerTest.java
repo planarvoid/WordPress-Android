@@ -101,6 +101,15 @@ public class PlayerArtworkControllerTest {
     }
 
     @Test
+    public void showIdleStateWithProgressSetsProgress() {
+        final PlaybackProgress progress = new PlaybackProgress(5, 10);
+
+        playerArtworkController.showIdleState(progress);
+
+        verify(progressController).setPlaybackProgress(progress);
+    }
+
+    @Test
      public void setProgressSetsProgressOnController() {
         playerArtworkController.setProgress(playbackProgress);
         verify(progressController).setPlaybackProgress(playbackProgress);

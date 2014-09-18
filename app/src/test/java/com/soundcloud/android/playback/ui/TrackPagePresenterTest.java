@@ -185,9 +185,9 @@ public class TrackPagePresenterTest {
     }
 
     @Test
-    public void bufferingStateWithCurrentTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true);
-        verify(artworkController).showIdleState();
+    public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, Urn.forTrack(123L), 10, 20), true);
+        verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test

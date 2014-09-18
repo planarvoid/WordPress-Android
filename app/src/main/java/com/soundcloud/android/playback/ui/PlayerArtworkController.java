@@ -61,13 +61,20 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
+    public void showIdleState(PlaybackProgress progress) {
+        showIdleState();
+        setProgress(progress);
+        adjustOverlayToImagePosition();
+    }
+
+    private void adjustOverlayToImagePosition() {
+        ViewHelper.setTranslationX(imageOverlay, ViewHelper.getTranslationX(wrappedImageView));
+    }
+
     public void showIdleState() {
         isPlaying = false;
         progressController.cancelProgressAnimation();
-        if (helper != null){
-            ViewHelper.setTranslationX(imageOverlay, ViewHelper.getTranslationX(wrappedImageView));
-        }
-
+        adjustOverlayToImagePosition();
     }
 
     @Override
