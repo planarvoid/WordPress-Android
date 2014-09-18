@@ -1,7 +1,6 @@
 package com.soundcloud.android.stream;
 
 import static com.google.common.collect.Iterables.getLast;
-import static rx.android.Pager.NextPageFunc;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
@@ -39,10 +38,10 @@ class SoundStreamOperations {
     private final Context appContext;
     private final Urn currentUserUrn;
 
-    private final NextPageFunc<List<PropertySet>> nextPageFunc = new NextPageFunc<List<PropertySet>>() {
+    private final Pager<List<PropertySet>> pager = new Pager<List<PropertySet>>() {
         @Override
         @SuppressWarnings("PMD.CompareObjectsWithEquals") // No, PMD. I DO want to compare references.
-        public Observable<List<PropertySet>> call(final List<PropertySet> result) {
+        public Observable<List<PropertySet>> call(List<PropertySet> result) {
             // We use NO_MORE_PAGES as a finish token to signal that there really are no more items to be retrieved,
             // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
             // a local result set, but there are more items on the server.
@@ -66,8 +65,8 @@ class SoundStreamOperations {
         this.currentUserUrn = accountOperations.getLoggedInUserUrn();
     }
 
-    public Pager<List<PropertySet>> getStreamItemsPager() {
-        return Pager.create(nextPageFunc);
+    Pager<List<PropertySet>> pager() {
+        return pager;
     }
 
     public Observable<List<PropertySet>> updatedStreamItems() {

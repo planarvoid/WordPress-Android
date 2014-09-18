@@ -23,8 +23,8 @@ public class RxTestHelper {
         };
     }
 
-    public static <T> Pager.NextPageFunc<T> withNextPage(final Observable<T> nextPage) {
-        return new Pager.NextPageFunc<T>() {
+    public static <T> Pager<T> pagerWithNextPage(final Observable<T> nextPage) {
+        return new Pager<T>() {
             @Override
             public Observable<T> call(T t) {
                 return nextPage;
@@ -33,6 +33,6 @@ public class RxTestHelper {
     }
 
     public static <T> Pager<T> pagerWithSinglePage() {
-        return Pager.create(withNextPage(Pager.<T>finish()));
+        return pagerWithNextPage(Pager.<T>finish());
     }
 }

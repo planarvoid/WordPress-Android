@@ -21,7 +21,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.android.Pager;
 
 import android.content.Context;
 
@@ -113,9 +112,8 @@ public class SoundStreamOperationsTest {
         when(soundStreamStorage.streamItemsBefore(123L, userUrn, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
 
-        Pager<List<PropertySet>> pager = operations.getStreamItemsPager();
-        pager.page(operations.existingStreamItems()).subscribe(observer);
-        pager.next();
+        operations.pager().page(operations.existingStreamItems()).subscribe(observer);
+        operations.pager().next();
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);
@@ -142,9 +140,8 @@ public class SoundStreamOperationsTest {
         // returning true means new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
-        Pager<List<PropertySet>> pager = operations.getStreamItemsPager();
-        pager.page(operations.existingStreamItems()).subscribe(observer);
-        pager.next();
+        operations.pager().page(operations.existingStreamItems()).subscribe(observer);
+        operations.pager().next();
 
         InOrder inOrder = inOrder(observer, syncInitiator, soundStreamStorage);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, userUrn, PAGE_SIZE);
@@ -168,9 +165,8 @@ public class SoundStreamOperationsTest {
         // returning false means no new items have been added to local storage
         when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
 
-        Pager<List<PropertySet>> pager = operations.getStreamItemsPager();
-        pager.page(operations.existingStreamItems()).subscribe(observer);
-        pager.next();
+        operations.pager().page(operations.existingStreamItems()).subscribe(observer);
+        operations.pager().next();
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
         inOrder.verify(soundStreamStorage).streamItemsBefore(INITIAL_TIMESTAMP, userUrn, PAGE_SIZE);

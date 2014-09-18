@@ -1,6 +1,6 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.rx.RxTestHelper.withNextPage;
+import static com.soundcloud.android.rx.RxTestHelper.pagerWithNextPage;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
@@ -224,7 +224,7 @@ public class PullToRefreshControllerTest {
     public void shouldUnsubscribeItselfAfterRefreshingSoThatSubsequentPagesDoNotTriggerRefreshLogic() {
         controller.setRefreshListener(fragment, adapter);
 
-        Pager<List<String>> pager = Pager.create(withNextPage(Observable.just(Arrays.asList("page2"))));
+        Pager<List<String>> pager = pagerWithNextPage(Observable.just(Arrays.asList("page2")));
         observable = pager.page(Observable.just(Arrays.asList("page1"))).publish();
         triggerRefresh();
 

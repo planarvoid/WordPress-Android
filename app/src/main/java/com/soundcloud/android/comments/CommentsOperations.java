@@ -35,23 +35,15 @@ class CommentsOperations {
     };
 
     private final RxHttpClient httpClient;
+    private final CommentsPager pager = new CommentsPager();
 
     @Inject
     public CommentsOperations(RxHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    Pager<CommentsCollection> getCommentsPager() {
-        return Pager.create(new Pager.NextPageFunc<CommentsCollection>() {
-            @Override
-            public Observable<CommentsCollection> call(CommentsCollection comments) {
-                if (comments.getNextHref() != null) {
-                    return httpClient.fetchModels(apiRequest(comments.getNextHref()).build());
-                } else {
-                    return Pager.finish();
-                }
-            }
-        });
+    CommentsPager pager() {
+        return pager;
     }
 
     Observable<CommentsCollection> comments(TrackUrn trackUrn) {
@@ -76,6 +68,18 @@ class CommentsOperations {
 
         CommentsCollection(List<PublicApiComment> comments, String nextHref) {
             super(comments, nextHref);
+        }
+    }
+
+    final class CommentsPager extends Pager<CommentsCollection> {
+
+        @Override
+        public Observable<CommentsCollection> call(CommentsCollection apiComments) {
+            if (apiComments.getNextHref() != null) {
+                return httpClient.fetchModels(apiRequest(apiComments.getNextHref()).build());
+            } else {
+                return Pager.finish();
+            }
         }
     }
 }

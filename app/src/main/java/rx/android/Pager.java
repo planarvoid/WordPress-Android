@@ -7,38 +7,22 @@ import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 
-public class Pager<T> {
+public abstract class Pager<T> implements Func1<T, Observable<T>> {
 
     private static final Observable FINISH_SEQUENCE = Observable.never();
 
-    private final NextPageFunc<T> nextPageFunc;
     private PublishSubject<Observable<T>> pages;
     private Observable<T> nextPage = FINISH_SEQUENCE;
     private Subscription subscription = Subscriptions.empty();
 
     /**
-     * Used in a {@link rx.android.Pager.NextPageFunc} to signal the caller that no more pages are available, i.e.
+     * Used in the paging function to signal the caller that no more pages are available, i.e.
      * to finish paging by completing the paged sequence.
      *
      * @return the finish token
      */
     public static <T> Observable<T> finish() {
         return FINISH_SEQUENCE;
-    }
-
-    /**
-     * Creates a new pager using the given paging function.
-     *
-     * @param nextPageFunc describes how from the previous item of the paged observable, the next page i.e. observable
-     *                     is obtained. The given function must signal to the pager that no more pages are available
-     *                     by returning the finish sequence {@link #finish()}
-     */
-    public static <T> Pager<T> create(NextPageFunc<T> nextPageFunc) {
-        return new Pager<>(nextPageFunc);
-    }
-
-    private Pager(NextPageFunc<T> nextPageFunc) {
-        this.nextPageFunc = nextPageFunc;
     }
 
     /**
@@ -67,7 +51,7 @@ public class Pager<T> {
 
                     @Override
                     public void onNext(T result) {
-                        nextPage = nextPageFunc.call(result);
+                        nextPage = Pager.this.call(result);
                         subscriber.onNext(result);
                         if (nextPage == FINISH_SEQUENCE) {
                             pages.onCompleted();
@@ -81,7 +65,7 @@ public class Pager<T> {
     }
 
     /**
-     * Returns the last page received from the given {@link rx.android.Pager.NextPageFunc}. You may use this to
+     * Returns the last page received from the pager. You may use this to
      * retry that observable in case it failed the first time around.
      */
     public Observable<T> currentPage() {
@@ -103,11 +87,5 @@ public class Pager<T> {
         if (!subscription.isUnsubscribed() && hasNext()) {
             pages.onNext(nextPage);
         }
-    }
-
-    /**
-     * Describes how from a previously emitted page, construct the following page as an Observable.
-     */
-    public interface NextPageFunc<T> extends Func1<T, Observable<T>> {
     }
 }

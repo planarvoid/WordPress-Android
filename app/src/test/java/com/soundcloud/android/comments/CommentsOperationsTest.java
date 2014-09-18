@@ -6,7 +6,6 @@ import static com.soundcloud.android.comments.CommentsOperations.CommentsCollect
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.RxHttpClient;
@@ -20,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.Pager;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
@@ -58,10 +56,9 @@ public class CommentsOperationsTest {
     @Test
     public void shouldPageCommentsIfMorePagesAvailable() {
         when(httpClient.<CommentsCollection>fetchModels(argThat(isApiRequestTo(nextPageUrl)))).thenReturn(apiComments);
-        final Pager<CommentsCollection> commentsPager = operations.getCommentsPager();
-        commentsPager.page(apiComments).subscribe(observer);
+        operations.pager().page(apiComments).subscribe(observer);
 
-        commentsPager.next();
+        operations.pager().next();
 
         expect(observer.getOnNextEvents()).toNumber(2);
     }
@@ -70,10 +67,9 @@ public class CommentsOperationsTest {
     public void shouldStopPagingIfNoMorePagesAvailable() {
         apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), null));
 
-        final Pager<CommentsCollection> commentsPager = operations.getCommentsPager();
-        commentsPager.page(apiComments).subscribe(observer);
+        operations.pager().page(apiComments).subscribe(observer);
 
-        commentsPager.next();
+        operations.pager().next();
 
         expect(observer.getOnNextEvents()).toNumber(1);
     }

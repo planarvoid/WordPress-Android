@@ -58,7 +58,7 @@ public class ExploreTracksFragmentTest {
     @Before
     public void setUp() throws Exception {
         Observable<SuggestedTracksCollection> observable = withSubscription(subscription, just(new SuggestedTracksCollection()));
-        when(exploreTracksOperations.getPager()).thenReturn(RxTestHelper.<SuggestedTracksCollection>pagerWithSinglePage());
+        when(exploreTracksOperations.pager()).thenReturn(RxTestHelper.<SuggestedTracksCollection>pagerWithSinglePage());
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
         when(playbackOperations.playTrackWithRecommendations(any(TrackUrn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<List<TrackUrn>>empty());

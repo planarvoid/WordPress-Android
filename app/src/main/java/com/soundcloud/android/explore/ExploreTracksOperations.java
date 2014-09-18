@@ -29,10 +29,10 @@ class ExploreTracksOperations {
         }
     };
 
-    private final Pager.NextPageFunc<SuggestedTracksCollection> nextPageFunc = new Pager.NextPageFunc<SuggestedTracksCollection>() {
+    private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {
         @Override
-        public Observable<SuggestedTracksCollection> call(SuggestedTracksCollection trackSummaries) {
-            final Optional<Link> nextLink = trackSummaries.getNextLink();
+        public Observable<SuggestedTracksCollection> call(SuggestedTracksCollection apiTracks) {
+            final Optional<Link> nextLink = apiTracks.getNextLink();
             if (nextLink.isPresent()) {
                 return getSuggestedTracks(nextLink.get().getHref());
             } else {
@@ -64,8 +64,8 @@ class ExploreTracksOperations {
         }
     }
 
-    Pager<SuggestedTracksCollection> getPager() {
-        return Pager.create(nextPageFunc);
+    Pager<SuggestedTracksCollection> pager() {
+        return pager;
     }
 
     private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {

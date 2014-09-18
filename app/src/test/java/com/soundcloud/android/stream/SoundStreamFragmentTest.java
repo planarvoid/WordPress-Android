@@ -65,7 +65,7 @@ public class SoundStreamFragmentTest {
     @Before
     public void setup() {
         Observable<List<PropertySet>> streamItems = withSubscription(subscription, just(Collections.<PropertySet>emptyList()));
-        when(soundStreamOperations.getStreamItemsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(soundStreamOperations.pager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);

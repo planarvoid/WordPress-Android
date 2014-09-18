@@ -22,7 +22,6 @@ import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
-import rx.android.Pager;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -45,7 +44,7 @@ public class SoundStreamFragment extends DefaultFragment
     @VisibleForTesting
     static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
 
-    @Inject SoundStreamOperations soundStreamOperations;
+    @Inject SoundStreamOperations operations;
     @Inject SoundStreamAdapter adapter;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
@@ -54,7 +53,6 @@ public class SoundStreamFragment extends DefaultFragment
 
     private ConnectableObservable<List<PropertySet>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
-    private Pager<List<PropertySet>> pager;
 
     public static SoundStreamFragment create(boolean onboardingSucceeded) {
         final Bundle args = new Bundle();
@@ -71,13 +69,13 @@ public class SoundStreamFragment extends DefaultFragment
     }
 
     @VisibleForTesting
-    SoundStreamFragment(SoundStreamOperations soundStreamOperations,
+    SoundStreamFragment(SoundStreamOperations operations,
                         SoundStreamAdapter adapter,
                         ListViewController listViewController,
                         PullToRefreshController pullToRefreshController,
                         PlaybackOperations playbackOperations,
                         Provider<ExpandPlayerSubscriber> subscriberProvider) {
-        this.soundStreamOperations = soundStreamOperations;
+        this.operations = operations;
         this.adapter = adapter;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
@@ -87,8 +85,7 @@ public class SoundStreamFragment extends DefaultFragment
     }
 
     private void addLifeCycleComponents() {
-        pager = soundStreamOperations.getStreamItemsPager();
-        listViewController.setAdapter(adapter, pager);
+        listViewController.setAdapter(adapter, operations.pager());
         pullToRefreshController.setRefreshListener(this, adapter);
 
         addLifeCycleComponent(listViewController);
@@ -99,7 +96,7 @@ public class SoundStreamFragment extends DefaultFragment
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
         final ConnectableObservable<List<PropertySet>> observable =
-                pager.page(soundStreamOperations.existingStreamItems()).observeOn(mainThread()).replay();
+                operations.pager().page(operations.existingStreamItems()).observeOn(mainThread()).replay();
         observable.subscribe(adapter);
         return observable;
     }
@@ -114,7 +111,7 @@ public class SoundStreamFragment extends DefaultFragment
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
         final ConnectableObservable<List<PropertySet>> observable =
-                soundStreamOperations.updatedStreamItems().observeOn(mainThread()).replay();
+                operations.updatedStreamItems().observeOn(mainThread()).replay();
         observable.subscribe(adapter);
         return observable;
     }
@@ -129,7 +126,7 @@ public class SoundStreamFragment extends DefaultFragment
     @Override
     public void onResume() {
         super.onResume();
-        soundStreamOperations.updateLastSeen();
+        operations.updateLastSeen();
     }
 
     @Override
@@ -168,7 +165,7 @@ public class SoundStreamFragment extends DefaultFragment
         final Urn playableUrn = item.get(PlayableProperty.URN);
         if (playableUrn instanceof TrackUrn) {
             playbackOperations
-                    .playTracks(soundStreamOperations.trackUrnsForPlayback(), (TrackUrn) playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .playTracks(operations.trackUrnsForPlayback(), (TrackUrn) playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playableUrn instanceof PlaylistUrn) {
             PlaylistDetailActivity.start(getActivity(), playableUrn, Screen.SIDE_MENU_STREAM);

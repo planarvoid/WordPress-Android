@@ -43,15 +43,13 @@ public class ExploreTracksFragment extends DefaultFragment
 
     @Inject EndlessAdapter<ApiTrack> adapter;
     @Inject PlaybackOperations playbackOperations;
-    @Inject ExploreTracksOperations exploreTracksOperations;
+    @Inject ExploreTracksOperations operations;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject ListViewController listViewController;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ConnectableObservable<SuggestedTracksCollection> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
-
-    private Pager<SuggestedTracksCollection> pager;
 
     public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -70,13 +68,13 @@ public class ExploreTracksFragment extends DefaultFragment
     @VisibleForTesting
     ExploreTracksFragment(EndlessAdapter<ApiTrack> adapter,
                           PlaybackOperations playbackOperations,
-                          ExploreTracksOperations exploreTracksOperations,
+                          ExploreTracksOperations operations,
                           PullToRefreshController pullToRefreshController,
                           ListViewController listViewController,
                           Provider<ExpandPlayerSubscriber> subscriberProvider) {
         this.adapter = adapter;
         this.playbackOperations = playbackOperations;
-        this.exploreTracksOperations = exploreTracksOperations;
+        this.operations = operations;
         this.pullToRefreshController = pullToRefreshController;
         this.listViewController = listViewController;
         this.subscriberProvider = subscriberProvider;
@@ -84,8 +82,7 @@ public class ExploreTracksFragment extends DefaultFragment
     }
 
     private void addLifeCycleComponents() {
-        pager = exploreTracksOperations.getPager();
-        listViewController.setAdapter(adapter, pager);
+        listViewController.setAdapter(adapter, operations.pager());
         listViewController.setScrollListener(new AbsListViewParallaxer(null));
         pullToRefreshController.setRefreshListener(this, adapter);
         addLifeCycleComponent(this.listViewController);
@@ -102,7 +99,8 @@ public class ExploreTracksFragment extends DefaultFragment
     @Override
     public ConnectableObservable<SuggestedTracksCollection> buildObservable() {
         final ExploreGenre category = getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
-        final ConnectableObservable<SuggestedTracksCollection> observable = pager.page(exploreTracksOperations.getSuggestedTracks(category)
+        final ConnectableObservable<SuggestedTracksCollection> observable =
+                operations.pager().page(operations.getSuggestedTracks(category)
                 .doOnNext(new Action1<SuggestedTracksCollection>() {
                     @Override
                     public void call(SuggestedTracksCollection page) {

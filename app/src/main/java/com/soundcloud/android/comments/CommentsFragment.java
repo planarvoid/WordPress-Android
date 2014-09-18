@@ -1,6 +1,5 @@
 package com.soundcloud.android.comments;
 
-import static com.soundcloud.android.comments.CommentsOperations.CommentsCollection;
 import static com.soundcloud.android.comments.CommentsOperations.TO_COMMENT_VIEW_MODEL;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -14,7 +13,6 @@ import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.Pager;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -37,7 +35,6 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
 
     private ConnectableObservable<List<Comment>> comments;
     private Subscription subscription = Subscriptions.empty();
-    private Pager<CommentsCollection> pager;
 
     public static CommentsFragment create(TrackUrn trackUrn) {
         final Bundle bundle = new Bundle();
@@ -50,12 +47,11 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
     public CommentsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
-        pager = operations.getCommentsPager();
         addLifeCycleComponents();
     }
 
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter, pager, TO_COMMENT_VIEW_MODEL);
+        listViewController.setAdapter(adapter, operations.pager(), TO_COMMENT_VIEW_MODEL);
         addLifeCycleComponent(listViewController);
     }
 
@@ -67,7 +63,10 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
     @Override
     public Observable<List<Comment>> buildObservable() {
         final TrackUrn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
-        comments = pager.page(operations.comments(trackUrn)).map(TO_COMMENT_VIEW_MODEL).observeOn(mainThread()).replay(1);
+        comments = operations.pager().page(operations.comments(trackUrn))
+                .map(TO_COMMENT_VIEW_MODEL)
+                .observeOn(mainThread())
+                .replay(1);
         comments.subscribe(adapter);
         return comments;
     }
