@@ -349,9 +349,24 @@ public class PlayerPagerControllerTest {
     }
 
     @Test
+    public void trackPagerRefreshesPlayQueueWhenAdRemovedAndStillVisibleAndResumedAndHasAdQueue() {
+        when(viewPager.getCurrentItem()).thenReturn(0);
+        when(adapter.isAudioAdAtPosition(0)).thenReturn(true);
+        when(adapter.getCount()).thenReturn(1);
+        when(playQueueManager.getCurrentPosition()).thenReturn(2);
+        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
+
+        verify(adapter).setCurrentData(fullQueueData);
+        verify(viewPager).setCurrentItem(2, false);
+    }
+
+    @Test
     public void trackPagerAdvancesAfterAdRemovedAndStillVisibleAndResumed() {
         when(viewPager.getCurrentItem()).thenReturn(1);
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
+        when(adapter.getCount()).thenReturn(3);
 
         controller.onResume();
 

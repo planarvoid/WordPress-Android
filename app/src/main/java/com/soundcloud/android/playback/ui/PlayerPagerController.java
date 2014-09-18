@@ -277,7 +277,7 @@ class PlayerPagerController {
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
-            if (event.audioAdRemoved() && adapter.isAudioAdAtPosition(trackPager.getCurrentItem()) && isResumed) {
+            if (event.audioAdRemoved() && isLookingAtAdWithFullQueue()) {
                 setPlayQueueAfterScroll = true;
                 trackPager.setCurrentItem(trackPager.getCurrentItem() + 1, true);
             } else {
@@ -285,6 +285,11 @@ class PlayerPagerController {
                 setPlayQueueAfterScroll = false;
             }
         }
+    }
+
+    private boolean isLookingAtAdWithFullQueue() {
+        return adapter.isAudioAdAtPosition(trackPager.getCurrentItem()) &&
+                isResumed && adapter.getCount() > 0;
     }
 
     private final class SetQueueOnScrollSubscriber extends DefaultSubscriber<Integer> {
