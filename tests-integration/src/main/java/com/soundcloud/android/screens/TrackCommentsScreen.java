@@ -30,7 +30,7 @@ public class TrackCommentsScreen extends Screen {
     }
 
     private ViewElement title() {
-        return testDriver.findElement(With.id(R.id.playable_title));
+        return testDriver.findElement(With.id(R.id.title));
     }
 
     @Override
