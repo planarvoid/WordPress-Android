@@ -100,7 +100,7 @@
     <dimen name="list_playlist_track_count_bg_corner_radius">3dp</dimen>
     <dimen name="list_playlist_track_count_dimension">25dp</dimen>
 
-    <dimen name="user_page_icon_size">70dp</dimen>
+    <dimen name="header_icon_size">70dp</dimen>
     <dimen name="playlist_page_icon_size">80dp</dimen>
 
     <dimen name="signup_label_height">32dp</dimen><!-- ic_done_dark_sm drawable + padding -->

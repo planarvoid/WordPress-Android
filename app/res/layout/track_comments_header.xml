@@ -2,14 +2,14 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
-        android:background="@color/player_control_background"
+        android:background="@color/gray_background"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:padding="16dp">
 
     <ImageView android:id="@+id/icon"
-               android:layout_width="@dimen/user_page_icon_size"
-               android:layout_height="@dimen/user_page_icon_size"
+               android:layout_width="@dimen/header_icon_size"
+               android:layout_height="@dimen/header_icon_size"
                android:layout_marginRight="12dp"
                android:scaleType="fitCenter" />
 

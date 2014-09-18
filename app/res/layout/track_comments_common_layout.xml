@@ -6,12 +6,11 @@
 
     <include layout="@layout/track_comments_header"
              android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:id="@+id/header"/>
+             android:layout_height="wrap_content"/>
 
     <View style="@style/TabBarDivider"/>
 
-    <FrameLayout android:id="@+id/list_container"
+    <FrameLayout android:id="@+id/comments_fragment"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
 

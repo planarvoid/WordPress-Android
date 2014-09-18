@@ -12,7 +12,7 @@
 
     <dimen name="list_icon_width">80dp</dimen>
     <dimen name="list_icon_height">80dp</dimen>
-    <dimen name="user_page_icon_size">@dimen/list_icon_width</dimen>
+    <dimen name="header_icon_size">@dimen/list_icon_width</dimen>
 
     <dimen name="navigation_drawer_width">350dp</dimen>
 

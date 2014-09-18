@@ -31,7 +31,6 @@
     <color name="comment_gray">#9c9c9c</color>
 
     <!-- Player -->
-    <color name="player_control_background">#f3f3f3</color>
     <color name="player_control_alpha_background">#aaf3f3f3</color>
     <color name="player_gradient_start">#4C000000</color>
     <color name="player_user_text">#c5c5c5</color>
@@ -131,6 +130,7 @@
     <color name="dark_gray_background">#333333</color>
     <color name="tab_bar_divider">#dddddd</color>
     <color name="darker_gray">#aaaaaa</color>
+    <color name="gray_background">#f3f3f3</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>

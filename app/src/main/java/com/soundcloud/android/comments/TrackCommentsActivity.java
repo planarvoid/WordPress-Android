@@ -64,7 +64,7 @@ public class TrackCommentsActivity extends ScActivity {
             final Uri contentUri = Content.TRACK_COMMENTS.forId(trackUrn.numericId);
             fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
         }
-        getSupportFragmentManager().beginTransaction().add(R.id.list_container, fragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();
     }
 
     private void bindTrackHeaderView(PropertySet commentedTrack) {
