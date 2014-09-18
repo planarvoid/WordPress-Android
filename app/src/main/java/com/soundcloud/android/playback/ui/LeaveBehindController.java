@@ -43,6 +43,7 @@ class LeaveBehindController implements View.OnClickListener{
             setVisible();
         }
     };
+    private View leaveBehindClose;
 
     private LeaveBehindController(View trackView, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
@@ -78,7 +79,8 @@ class LeaveBehindController implements View.OnClickListener{
         leaveBehind = getLeaveBehindView();
         adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
         adImage.setOnClickListener(this);
-        leaveBehind.findViewById(R.id.leave_behind_close).setOnClickListener(this);
+        leaveBehindClose = leaveBehind.findViewById(R.id.leave_behind_close);
+        leaveBehindClose.setOnClickListener(this);
     }
 
     public void show() {
@@ -105,15 +107,24 @@ class LeaveBehindController implements View.OnClickListener{
 
     private void setVisible() {
         if (leaveBehind != null) {
-            leaveBehind.setVisibility(View.VISIBLE);
+            leaveBehind.setClickable(true);
+            adImage.setVisibility(View.VISIBLE);
+            leaveBehindClose.setVisibility(View.VISIBLE);
         }
+    }
+
+
+    private void setInvisible() {
+        leaveBehind.setClickable(false);
+        adImage.setVisibility(View.GONE);
+        leaveBehindClose.setVisibility(View.GONE);
     }
 
     void clear() {
         resetMetaData();
         if (leaveBehind != null) {
             adImage.setImageDrawable(null);
-            leaveBehind.setVisibility(View.GONE);
+            setInvisible();
             leaveBehind = null;
             data = null;
         }

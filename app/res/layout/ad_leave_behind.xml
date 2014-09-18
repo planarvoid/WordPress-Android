@@ -6,13 +6,14 @@
               android:paddingLeft="@dimen/leave_behind_padding"
               android:paddingRight="@dimen/leave_behind_padding"
               android:clickable="true"
-              android:visibility="gone">
+              android:animateLayoutChanges="true">
 
     <FrameLayout
         android:id="@+id/leave_behind_close"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/leave_behind_image">
+        android:layout_above="@+id/leave_behind_image"
+        android:visibility="gone">
 
         <Button
             style="@style/LeaveBehindClose"
@@ -22,6 +23,7 @@
 
     <com.soundcloud.android.view.AspectRatioImageView
         android:id="@+id/leave_behind_image"
+        android:visibility="gone"
         style="@style/LeaveBehindImage"
         android:layout_alignParentBottom="true" />
 
