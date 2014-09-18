@@ -32,8 +32,7 @@
                 android:layout_marginBottom="5dp"
                 android:visibility="gone">
 
-            <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-                      style="@style/TagCloudTitle"
+            <TextView style="@style/TagCloudTitle"
                       android:text="@string/search_recent_tags"/>
 
             <com.soundcloud.android.view.FlowLayout
@@ -45,8 +44,7 @@
 
         </LinearLayout>
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-                  style="@style/TagCloudTitle"
+        <TextView style="@style/TagCloudTitle"
                   android:text="@string/search_popular_tags"/>
 
         <FrameLayout
