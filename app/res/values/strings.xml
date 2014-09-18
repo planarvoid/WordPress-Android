@@ -290,8 +290,9 @@
     <string name="unpost">Unpost</string>
     <string name="reposted_to_followers">Reposted to your followers</string>
     <string name="unposted_to_followers">Unposted</string>
-    <string name="share_track_by_artist_on_soundcloud">Listen to %1$s by %2$s #np on #SoundCloud</string>
-    <string name="share_track_on_soundcloud">Listen to %1$s #np on #SoundCloud</string>
+    <string name="share_track_by_artist_on_soundcloud">Listen to %1$s by %2$s #np on #SoundCloud\n%3$s</string>
+    <string name="share_track_on_soundcloud">Listen to %1$s #np on #SoundCloud\n%2$s</string>
+    <string name="share_subject">%s - SoundCloud</string>
     <string name="info">Info</string>
     <string name="uploaded_at">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>

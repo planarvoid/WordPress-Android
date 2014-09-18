@@ -325,7 +325,8 @@
     <string name="track_info_no_description">Sem descrição disponível</string>
     <string name="playback_error_connection">Por favor verique sua conexão</string>
     <string name="playback_error_unable_to_play">Não foi possível reproduzir a faixa</string>
-    <string name="share_track_by_artist_on_soundcloud">Escute %1$s por %2$s #np na #SoundCloud</string>
+    <string name="share_track_by_artist_on_soundcloud">Escute %1$s por %2$s #np na #SoundCloud\n%3$s</string>
+    <string name="share_track_on_soundcloud">Escute %1$s #np na #SoundCloud\n%2$s</string>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Informações</string>

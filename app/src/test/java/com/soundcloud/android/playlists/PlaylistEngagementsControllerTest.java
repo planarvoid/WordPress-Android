@@ -151,8 +151,9 @@ public class PlaylistEngagementsControllerTest {
         expect(shareIntent).not.toBeNull();
         expect(shareIntent.getType()).toEqual("text/plain");
         expect(shareIntent.getAction()).toEqual(Intent.ACTION_SEND);
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("Listen to dubstep anthem #np on #SoundCloud");
-        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.permalink_url);
+        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem - SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to dubstep anthem #np on #SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain(track.permalink_url);
     }
 
     @Test
@@ -164,8 +165,9 @@ public class PlaylistEngagementsControllerTest {
         rootView.findViewById(R.id.btn_share).performClick();
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("Listen to dubstep anthem by user #np on #SoundCloud");
-        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.permalink_url);
+        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem - SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to dubstep anthem by user #np on #SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain(track.permalink_url);
     }
 
     @Test

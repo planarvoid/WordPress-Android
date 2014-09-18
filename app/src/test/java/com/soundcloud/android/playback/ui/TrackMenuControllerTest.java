@@ -73,8 +73,9 @@ public class TrackMenuControllerTest {
         controller.onMenuItemClick(share);
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
-        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.getPermalinkUrl());
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("Listen to dubstep anthem by squirlex #np on #SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem - SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to dubstep anthem by squirlex #np on #SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain(track.getPermalinkUrl());
     }
 
     @Test
@@ -92,8 +93,9 @@ public class TrackMenuControllerTest {
         controller.onMenuItemClick(share);
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
-        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(track.getPermalinkUrl());
-        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("Listen to dubstep anthem #np on #SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem - SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to dubstep anthem #np on #SoundCloud");
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain(track.getPermalinkUrl());
     }
 
     @Test

@@ -130,16 +130,16 @@ public class PlaylistEngagementsController {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, buildSubject());
-        shareIntent.putExtra(Intent.EXTRA_TEXT, playable.permalink_url);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playable.getTitle()));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, buildText());
         return shareIntent;
     }
 
-    private String buildSubject() {
+    private String buildText() {
         if (ScTextUtils.isNotBlank(playable.getUsername())) {
-            return context.getString(R.string.share_track_by_artist_on_soundcloud, playable.getTitle(), playable.getUsername());
+            return context.getString(R.string.share_track_by_artist_on_soundcloud, playable.getTitle(), playable.getUsername(), playable.permalink_url);
         }
-        return context.getString(R.string.share_track_on_soundcloud, playable.getTitle());
+        return context.getString(R.string.share_track_on_soundcloud, playable.getTitle(), playable.permalink_url);
     }
 
     void startListeningForChanges() {

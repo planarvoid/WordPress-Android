@@ -131,16 +131,16 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, buildSubject(track));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, track.getPermalinkUrl());
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, activity.getString(R.string.share_subject, track.getTitle()));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, buildText(track));
         return shareIntent;
     }
 
-    private String buildSubject(PlayerTrack track) {
+    private String buildText(PlayerTrack track) {
         if (ScTextUtils.isNotBlank(track.getUserName())) {
-            return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(), track.getUserName());
+            return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(), track.getUserName(), track.getPermalinkUrl());
         }
-        return activity.getString(R.string.share_track_on_soundcloud, track.getTitle());
+        return activity.getString(R.string.share_track_on_soundcloud, track.getTitle(), track.getPermalinkUrl());
     }
 
     static class Factory {
