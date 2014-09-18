@@ -7,8 +7,8 @@ import static com.soundcloud.android.creators.record.RecordActivity.CreateState.
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
@@ -42,7 +42,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         assertTrue(raw.exists());
         assertTrue(raw.length() > 0);
 
-        if (recorder.shouldEncodeWhileRecording())  {
+        if (recorder.shouldEncodeWhileRecording()) {
             File encoded = r.getEncodedFile();
             assertTrue(encoded.exists());
             assertTrue("encoded length " + encoded.length(), encoded.length() > 0);
@@ -100,13 +100,13 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testRecordAndUploadWithLocation() throws Exception {
         record(recordingTime);
 
-        final String location = "Model "+Build.MODEL;
+        final String location = "Model " + Build.MODEL;
         uploadSound("A test upload", location, true);
 
         assertSoundUploaded();
         PublicApiTrack track = assertSoundTranscoded();
         if (track != null) {
-            assertEquals("A test upload at "+location, track.title);
+            assertEquals("A test upload at " + location, track.title);
         }
     }
 
@@ -141,7 +141,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         solo.goBack();
 
         // softkeyboard gets shown on some versions of android
-        if (solo.getCurrentActivity() instanceof UploadActivity) solo.goBack();
+        if (solo.getCurrentActivity() instanceof UploadActivity) {
+            solo.goBack();
+        }
 
 
         assertState(IDLE_PLAYBACK); // should be old recording
@@ -149,14 +151,16 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     @SlowTest
     public void testRecordAndRunningOutOfStorageSpace() throws Exception {
-        if (!applicationProperties.isRunningOnEmulator()) return;
+        if (!applicationProperties.isRunningOnEmulator()) {
+            return;
+        }
 
-        File filler = fillUpSpace(1024*1024);
+        File filler = fillUpSpace(1024 * 1024);
         try {
             assertState(IDLE_RECORD, IDLE_PLAYBACK);
             long remaining = getActivity().getRecorder().timeRemaining();
             // countdown starts for last 5 minutes of recording time
-            assertTrue("remaining time over 5 mins: "+remaining, remaining < 300);
+            assertTrue("remaining time over 5 mins: " + remaining, remaining < 300);
 
             solo.findElement(With.id(R.id.btn_action)).click();
             solo.sleep(1000);
@@ -248,7 +252,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void ignore_testDeleteWavFileAndUpload() throws Exception {
         // test only makes sense if we have an ogg file + wav file
-        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) return;
+        if (!getActivity().getRecorder().shouldEncodeWhileRecording()) {
+            return;
+        }
 
         record(recordingTime);
         solo.sleep(1000);
@@ -265,7 +271,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         long tstamp = System.currentTimeMillis();
 
-        final String title ="testDeleteWavFileAndUpload-"+tstamp;
+        final String title = "testDeleteWavFileAndUpload-" + tstamp;
         // give it a title
         solo.findElement(With.id(R.id.what)).typeText(title);
         solo.goBack();

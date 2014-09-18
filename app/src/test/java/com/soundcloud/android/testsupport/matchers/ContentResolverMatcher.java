@@ -16,7 +16,9 @@ public class ContentResolverMatcher<T extends ContentResolver, M extends Content
         List<ShadowContentResolver.NotifiedUri> notifiedUris = shadowResolver.getNotifiedUris();
 
         for (ShadowContentResolver.NotifiedUri notifiedUri : notifiedUris) {
-            if (notifiedUri.uri.equals(expected)) return true;
+            if (notifiedUri.uri.equals(expected)) {
+                return true;
+            }
         }
         return false;
     }

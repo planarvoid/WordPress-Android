@@ -15,7 +15,6 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
@@ -35,6 +34,7 @@ import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -76,13 +76,14 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
     }
-    private static final String BUNDLE_STATE           = "BUNDLE_STATE";
-    private static final String BUNDLE_USER            = "BUNDLE_USER";
-    private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
-    private static final String BUNDLE_SIGN_UP         = "BUNDLE_SIGN_UP";
+
+    private static final String BUNDLE_STATE = "BUNDLE_STATE";
+    private static final String BUNDLE_USER = "BUNDLE_USER";
+    private static final String BUNDLE_LOGIN = "BUNDLE_LOGIN";
+    private static final String BUNDLE_SIGN_UP = "BUNDLE_SIGN_UP";
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
-    private static final String BUNDLE_ACCEPT_TERMS    = "BUNDLE_ACCEPT_TERMS";
-    private static final String LAST_GOOGLE_ACCT_USED  = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
+    private static final String BUNDLE_ACCEPT_TERMS = "BUNDLE_ACCEPT_TERMS";
+    private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
     private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
@@ -247,10 +248,18 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         outState.putSerializable(BUNDLE_STATE, getState());
         outState.putParcelable(BUNDLE_USER, user);
 
-        if (login != null) outState.putBundle(BUNDLE_LOGIN, login.getStateBundle());
-        if (signUp != null) outState.putBundle(BUNDLE_SIGN_UP, signUp.getStateBundle());
-        if (userDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, userDetails.getStateBundle());
-        if (acceptTerms != null) outState.putBundle(BUNDLE_ACCEPT_TERMS, acceptTerms.getStateBundle());
+        if (login != null) {
+            outState.putBundle(BUNDLE_LOGIN, login.getStateBundle());
+        }
+        if (signUp != null) {
+            outState.putBundle(BUNDLE_SIGN_UP, signUp.getStateBundle());
+        }
+        if (userDetails != null) {
+            outState.putBundle(BUNDLE_SIGN_UP_DETAILS, userDetails.getStateBundle());
+        }
+        if (acceptTerms != null) {
+            outState.putBundle(BUNDLE_ACCEPT_TERMS, acceptTerms.getStateBundle());
+        }
     }
 
     @Override
@@ -312,7 +321,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         return userDetails;
     }
 
-    private AcceptTermsLayout getAcceptTerms(){
+    private AcceptTermsLayout getAcceptTerms() {
         if (acceptTerms == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
 
@@ -361,7 +370,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onSkipDetails() {
-        new AuthTask(getApp(), new UserStorage()){
+        new AuthTask(getApp(), new UserStorage()) {
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
                 addAccount(user, oldCloudAPI.getToken(), SignupVia.API);
@@ -420,47 +429,73 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
             case LOGIN:
                 lastAuthState = StartState.LOGIN;
-                if (signUp != null)        hideView(this, getSignUp(), animated);
-                if (userDetails != null)   hideView(this, getUserDetails(), animated);
-                if (acceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                if (signUp != null) {
+                    hideView(this, getSignUp(), animated);
+                }
+                if (userDetails != null) {
+                    hideView(this, getUserDetails(), animated);
+                }
+                if (acceptTerms != null) {
+                    hideView(this, getAcceptTerms(), animated);
+                }
                 showOverlay(getLogin(), animated);
                 break;
 
             case SIGN_UP:
                 lastAuthState = StartState.SIGN_UP;
-                if (login != null)         hideView(this, getLogin(), animated);
-                if (userDetails != null)   hideView(this, getUserDetails(), animated);
-                if (acceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                if (login != null) {
+                    hideView(this, getLogin(), animated);
+                }
+                if (userDetails != null) {
+                    hideView(this, getUserDetails(), animated);
+                }
+                if (acceptTerms != null) {
+                    hideView(this, getAcceptTerms(), animated);
+                }
                 showOverlay(getSignUp(), animated);
                 break;
 
             case SIGN_UP_DETAILS:
-                if (login != null)         hideView(this, getLogin(), animated);
-                if (signUp != null)        hideView(this, getSignUp(), animated);
-                if (acceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                if (login != null) {
+                    hideView(this, getLogin(), animated);
+                }
+                if (signUp != null) {
+                    hideView(this, getSignUp(), animated);
+                }
+                if (acceptTerms != null) {
+                    hideView(this, getAcceptTerms(), animated);
+                }
                 showOverlay(getUserDetails(), animated);
                 break;
 
             case ACCEPT_TERMS:
-                if (login != null)         hideView(this, getLogin(), false);
-                if (signUp != null)        hideView(this, getSignUp(), false);
-                if (userDetails != null)   hideView(this, getUserDetails(), false);
+                if (login != null) {
+                    hideView(this, getLogin(), false);
+                }
+                if (signUp != null) {
+                    hideView(this, getSignUp(), false);
+                }
+                if (userDetails != null) {
+                    hideView(this, getUserDetails(), false);
+                }
                 showOverlay(getAcceptTerms(), animated);
                 break;
         }
     }
 
-    private void onHideOverlay(boolean animated){
+    private void onHideOverlay(boolean animated) {
         showView(this, tourBottomBar, animated);
         showView(this, tourLogo, animated);
         hideView(this, overlayBg, animated);
 
         // show foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) showView(this, view, false);
+            if (isForegroundView(view)) {
+                showView(this, view, false);
+            }
         }
 
-        if (animated && overlayHolder.getVisibility() == View.VISIBLE){
+        if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
             hideView(this, overlayHolder, mHideScrollViewListener);
         } else {
             mHideScrollViewListener.onAnimationEnd(null);
@@ -475,10 +510,18 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         @Override
         public void onAnimationEnd(Animation animation) {
             overlayHolder.setVisibility(View.GONE);
-            if (login != null) hideView(OnboardActivity.this, getLogin(), false);
-            if (signUp != null) hideView(OnboardActivity.this, getSignUp(), false);
-            if (userDetails != null) hideView(OnboardActivity.this, getUserDetails(), false);
-            if (acceptTerms != null) hideView(OnboardActivity.this, getAcceptTerms(), false);
+            if (login != null) {
+                hideView(OnboardActivity.this, getLogin(), false);
+            }
+            if (signUp != null) {
+                hideView(OnboardActivity.this, getSignUp(), false);
+            }
+            if (userDetails != null) {
+                hideView(OnboardActivity.this, getUserDetails(), false);
+            }
+            if (acceptTerms != null) {
+                hideView(OnboardActivity.this, getAcceptTerms(), false);
+            }
         }
 
         @Override
@@ -486,13 +529,15 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
     };
 
-    private void showOverlay(View overlay, boolean animated){
+    private void showOverlay(View overlay, boolean animated) {
         hideView(this, tourBottomBar, animated);
         hideView(this, tourLogo, animated);
 
         // hide foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) hideView(this, view, animated);
+            if (isForegroundView(view)) {
+                hideView(this, view, animated);
+            }
         }
         showView(this, overlayHolder, animated);
         showView(this, overlayBg, animated);
@@ -511,12 +556,12 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onGooglePlusAuth() {
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-        if (names.length == 0){
+        if (names.length == 0) {
             onError(getString(R.string.authentication_no_google_accounts));
-        } else if (names.length == 1){
+        } else if (names.length == 1) {
             onGoogleAccountSelected(names[0]);
         } else {
-            ContextThemeWrapper cw = new ContextThemeWrapper( this, R.style.Theme_ScDialog );
+            ContextThemeWrapper cw = new ContextThemeWrapper(this, R.style.Theme_ScDialog);
             final AlertDialog.Builder builder = new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account);
             builder.setItems(names, new DialogInterface.OnClickListener() {
                 @Override
@@ -562,13 +607,13 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     public void onAcceptTerms(SignupVia signupVia, Bundle signupParams) {
         setState(StartState.TOUR);
-        switch (signupVia){
+        switch (signupVia) {
             case GOOGLE_PLUS:
                 GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
                 break;
             case FACEBOOK_SSO:
                 startActivityForResult(new Intent(this, FacebookSwitcherActivity.class)
-                        .putExtra(FacebookSSOActivity.VIA_SIGNUP_SCREEN, lastAuthState == StartState.SIGN_UP),
+                                .putExtra(FacebookSSOActivity.VIA_SIGNUP_SCREEN, lastAuthState == StartState.SIGN_UP),
                         RequestCodes.SIGNUP_VIA_FACEBOOK);
                 break;
             case API:
@@ -590,7 +635,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask) {
-        if (wasApiSignupTask){
+        if (wasApiSignupTask) {
             SignupLog.writeNewSignupAsync();
             this.user = user;
             setState(StartState.SIGN_UP_DETAILS);
@@ -614,10 +659,11 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     /**
      * Set signup params on accept terms view and change state
+     *
      * @param signupVia
      * @param params
      */
-    private void proposeTermsOfUse(SignupVia signupVia, Bundle params){
+    private void proposeTermsOfUse(SignupVia signupVia, Bundle params) {
         getAcceptTerms().setSignupParams(signupVia, params);
         setState(StartState.ACCEPT_TERMS);
         eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_TERMS.get());
@@ -661,7 +707,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 break;
             }
             case RequestCodes.RECOVER_CODE: {
-                if (resultCode != RESULT_OK || intent == null) break;
+                if (resultCode != RESULT_OK || intent == null) {
+                    break;
+                }
                 final boolean success = intent.getBooleanExtra("success", false);
 
                 if (success) {
@@ -691,8 +739,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onPositiveButtonClicked(int requestCode) {
-        switch (requestCode){
-            case DIALOG_PICK_IMAGE :
+        switch (requestCode) {
+            case DIALOG_PICK_IMAGE:
                 ImageUtils.startTakeNewPictureIntent(this, getUserDetails().generateTempAvatarFile(),
                         Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                 break;
@@ -701,8 +749,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onNegativeButtonClicked(int requestCode) {
-        switch (requestCode){
-            case DIALOG_PICK_IMAGE :
+        switch (requestCode) {
+            case DIALOG_PICK_IMAGE:
                 ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
         }
     }

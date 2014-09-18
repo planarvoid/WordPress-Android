@@ -46,36 +46,38 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
     }
 
     private boolean hasInstances(Context context) {
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(THIS_APPWIDGET);
-            return (appWidgetIds.length > 0);
-        }
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(THIS_APPWIDGET);
+        return (appWidgetIds.length > 0);
+    }
 
 
     public void notifyChange(Context context, Intent intent) {
         String action = intent.getAction();
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
-            if (hasInstances(context)) {
-                if (action.equals(SoundRecorder.RECORD_STARTED)) {
-                    linkButtons(context, null, true);
-                } else if (action.equals(SoundRecorder.RECORD_FINISHED)) {
-                    linkButtons(context, null, false);
-                }
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "notify change " + intent);
+        }
+        if (hasInstances(context)) {
+            if (action.equals(SoundRecorder.RECORD_STARTED)) {
+                linkButtons(context, null, true);
+            } else if (action.equals(SoundRecorder.RECORD_FINISHED)) {
+                linkButtons(context, null, false);
             }
         }
+    }
 
 
-    private void linkButtons(Context context,  int[] appWidgetIds, boolean isRecording) {
+    private void linkButtons(Context context, int[] appWidgetIds, boolean isRecording) {
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_record);
         // Connect up various buttons and touch events
-        if (isRecording){
+        if (isRecording) {
             views.setImageViewResource(R.id.btn_action, R.drawable.btn_rec_pause_states);
             views.setOnClickPendingIntent(R.id.btn_action,
-                            PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
+                    PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
         } else {
             views.setImageViewResource(R.id.btn_action, R.drawable.btn_rec_states);
             views.setOnClickPendingIntent(R.id.btn_action,
-                            PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_START), PendingIntent.FLAG_CANCEL_CURRENT));
+                    PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_START), PendingIntent.FLAG_CANCEL_CURRENT));
         }
 
         pushUpdate(context, appWidgetIds, views);

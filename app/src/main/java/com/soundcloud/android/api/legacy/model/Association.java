@@ -42,15 +42,16 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
 
     public @Nullable PublicApiUser owner;
-    public int              associationType;
-    public Date             created_at;
+    public int associationType;
+    public Date created_at;
 
     protected CharSequence mElapsedTime;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public Association() {}
+    public Association() {
+    }
 
-    public Association(Cursor cursor){
+    public Association(Cursor cursor) {
         owner = SoundCloudApplication.sModelManager.getUser(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_OWNER_ID)));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TIMESTAMP)));
         associationType = cursor.getInt(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TYPE));
@@ -84,7 +85,9 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
-        if (owner != null) owner.putFullContentValues(destination);
+        if (owner != null) {
+            owner.putFullContentValues(destination);
+        }
     }
 
     @Override
@@ -111,7 +114,7 @@ public abstract class Association extends PublicApiResource implements PlayableH
         }
     }
 
-    public void setType(Type type){
+    public void setType(Type type) {
         associationType = type.collectionType;
     }
 

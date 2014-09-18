@@ -32,13 +32,16 @@ import java.io.File;
 
 public class UserDetailsLayout extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
-    private static final String BUNDLE_FILE     = "BUNDLE_FILE";
+    private static final String BUNDLE_FILE = "BUNDLE_FILE";
 
     public interface UserDetailsHandler {
         void onSubmitDetails(String username, File avatarFile);
+
         void onSkipDetails();
+
         FragmentActivity getFragmentActivity();
     }
+
     public UserDetailsLayout(Context context) {
         super(context);
     }
@@ -54,15 +57,16 @@ public class UserDetailsLayout extends RelativeLayout {
     @Nullable private UserDetailsHandler userDetailsHandler;
 
     @Nullable private File avatarFile;
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        final EditText  username   = (EditText)  findViewById(R.id.txt_username);
-        final TextView  avatarText = (TextView)  findViewById(R.id.txt_artwork_bg);
+        final EditText username = (EditText) findViewById(R.id.txt_username);
+        final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
         final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
-        final Button    skipButton = (Button)    findViewById(R.id.btn_skip);
-        final Button    saveButton = (Button)    findViewById(R.id.btn_save);
+        final Button skipButton = (Button) findViewById(R.id.btn_skip);
+        final Button saveButton = (Button) findViewById(R.id.btn_save);
 
         username.setHint(R.string.authentication_add_info_username_hint);
 
@@ -129,17 +133,19 @@ public class UserDetailsLayout extends RelativeLayout {
 
     public void setImage(final File file) {
         if (file != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setImage("+file+")");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "setImage(" + file + ")");
+            }
 
-            final TextView  avatarText = (TextView)  findViewById(R.id.txt_artwork_bg);
+            final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
             final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
 
             avatarFile = file;
             ImageUtils.setImage(
-                file,
-                avatarView,
-                (int) (getResources().getDisplayMetrics().density * 100f),
-                (int) (getResources().getDisplayMetrics().density * 100f)
+                    file,
+                    avatarView,
+                    (int) (getResources().getDisplayMetrics().density * 100f),
+                    (int) (getResources().getDisplayMetrics().density * 100f)
             );
 
             avatarText.setVisibility(View.GONE);
@@ -200,7 +206,9 @@ public class UserDetailsLayout extends RelativeLayout {
     }
 
     public void setState(@Nullable Bundle bundle) {
-        if (bundle == null) return;
+        if (bundle == null) {
+            return;
+        }
 
         EditText username = (EditText) findViewById(R.id.txt_username);
 

@@ -1,10 +1,10 @@
-
 package com.soundcloud.android.api.legacy.model.activities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -14,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
-import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
@@ -39,9 +38,9 @@ import java.util.List;
 import java.util.UUID;
 
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "type")
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AffiliationActivity.class, name = "affiliation"),
@@ -73,7 +72,9 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     protected Date createdAt;
 
-    /** needed for Deserialization */
+    /**
+     * needed for Deserialization
+     */
     public Activity() {
     }
 
@@ -114,7 +115,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public CharSequence getTimeSinceCreated(Context context) {
-        if (_elapsedTime == null){
+        if (_elapsedTime == null) {
             refreshTimeSinceCreated(context);
         }
         return _elapsedTime;
@@ -130,16 +131,16 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public UUID toUUID() {
-        if (!TextUtils.isEmpty(uuid)){
+        if (!TextUtils.isEmpty(uuid)) {
             return UUID.fromString(uuid);
         } else if (createdAt != null) {
             // snippet from http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
             final long origTime = createdAt.getTime();
             final long time = origTime * 10000 + NUM_100NS_INTERVALS_SINCE_UUID_EPOCH;
-            final long timeLow = time &       0xffffffffL;
-            final long timeMid = time &   0xffff00000000L;
-            final long timeHi  = time & 0xfff000000000000L;
-            final long upperLong = (timeLow << 32) | (timeMid >> 16) | (1 << 12) | (timeHi >> 48) ;
+            final long timeLow = time & 0xffffffffL;
+            final long timeMid = time & 0xffff00000000L;
+            final long timeHi = time & 0xfff000000000000L;
+            final long upperLong = (timeLow << 32) | (timeMid >> 16) | (1 << 12) | (timeHi >> 48);
             return new UUID(upperLong, 0xC000000000000000L);
         } else {
             return null;
@@ -147,11 +148,11 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public String toGUID() {
-        if (!TextUtils.isEmpty(uuid)){
+        if (!TextUtils.isEmpty(uuid)) {
             return uuid;
         } else {
             UUID gen = toUUID();
-            return gen == null ? null :gen.toString();
+            return gen == null ? null : gen.toString();
         }
     }
 
@@ -161,7 +162,7 @@ public abstract class Activity extends ScModel implements Parcelable,
         cv.put(TableColumns.Activities.UUID, uuid);
         cv.put(TableColumns.Activities.TAGS, tags);
         cv.put(TableColumns.Activities.TYPE, getType().type);
-        if (sharing_note != null){
+        if (sharing_note != null) {
             cv.put(TableColumns.Activities.SHARING_NOTE_TEXT, sharing_note.text);
             cv.put(TableColumns.Activities.SHARING_NOTE_CREATED_AT, sharing_note.created_at.getTime());
         }
@@ -170,9 +171,11 @@ public abstract class Activity extends ScModel implements Parcelable,
             cv.put(TableColumns.Activities.CREATED_AT, createdAt.getTime());
         }
 
-        if (getUser() != null) cv.put(TableColumns.Activities.USER_ID, getUser().getId());
+        if (getUser() != null) {
+            cv.put(TableColumns.Activities.USER_ID, getUser().getId());
+        }
 
-        if (getPlayable() != null){
+        if (getPlayable() != null) {
             cv.put(TableColumns.Activities.SOUND_ID, getPlayable().getId());
             cv.put(TableColumns.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
         }
@@ -189,14 +192,24 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Activity)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Activity)) {
+            return false;
+        }
 
         Activity activity = (Activity) o;
 
-        if (createdAt != null ? !createdAt.equals(activity.createdAt) : activity.createdAt != null) return false;
-        if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
-        if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) return false;
+        if (createdAt != null ? !createdAt.equals(activity.createdAt) : activity.createdAt != null) {
+            return false;
+        }
+        if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) {
+            return false;
+        }
+        if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) {
+            return false;
+        }
 
         return true;
     }
@@ -233,20 +246,24 @@ public abstract class Activity extends ScModel implements Parcelable,
         out.writeLong(sharing_note == null ? -1l : sharing_note.created_at.getTime());
     }
 
-    public abstract Type        getType();
+    public abstract Type getType();
+
     public abstract PublicApiUser getUser();
+
     @Deprecated
-    public abstract void        cacheDependencies();
+    public abstract void cacheDependencies();
 
     public List<PublicApiResource> getDependentModels() {
         List<PublicApiResource> models = new ArrayList<PublicApiResource>();
         final PublicApiUser user = getUser();
-        if (user != null)  models.add(user);
+        if (user != null) {
+            models.add(user);
+        }
 
         final Playable playable = getPlayable();
-        if (playable != null)  {
+        if (playable != null) {
             models.add(playable);
-            if (playable.user != null){
+            if (playable.user != null) {
                 models.add(playable.user);
             }
         }
@@ -276,7 +293,7 @@ public abstract class Activity extends ScModel implements Parcelable,
         public final String type;
         public final Class<? extends Activity> activityClass;
 
-        public Activity fromCursor(Cursor cursor){
+        public Activity fromCursor(Cursor cursor) {
             try {
                 return activityClass.getConstructor(Cursor.class).newInstance(cursor);
             } catch (Exception e) {

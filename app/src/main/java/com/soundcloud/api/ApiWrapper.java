@@ -207,7 +207,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     @Override
     public Token refreshToken() throws IOException {
-        if (token == null || token.refresh == null) throw new IllegalStateException("no refresh token available");
+        if (token == null || token.refresh == null) {
+            throw new IllegalStateException("no refresh token available");
+        }
         token = requestToken(Request.to(Endpoints.TOKEN).with(
                 GRANT_TYPE, REFRESH_TOKEN,
                 CLIENT_ID, clientId,
@@ -238,9 +240,15 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 REDIRECT_URI, redirectUri,
                 CLIENT_ID, clientId,
                 RESPONSE_TYPE, CODE);
-        if (options.length > 1) req.add(SCOPE, options[1]);
-        if (options.length > 2) req.add(DISPLAY, options[2]);
-        if (options.length > 3) req.add(STATE, options[3]);
+        if (options.length > 1) {
+            req.add(SCOPE, options[1]);
+        }
+        if (options.length > 2) {
+            req.add(DISPLAY, options[2]);
+        }
+        if (options.length > 3) {
+            req.add(STATE, options[3]);
+        }
         return getURI(req);
     }
 
@@ -281,7 +289,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
         try {
             if (status == HttpStatus.SC_OK) {
                 final Token token = new Token(Http.getJSON(response));
-                if (listener != null) listener.onTokenRefreshed(token);
+                if (listener != null) {
+                    listener.onTokenRefreshed(token);
+                }
                 return token;
             } else {
                 error = Http.getJSON(response).getString("error");
@@ -420,7 +430,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
                         @Override
                         public void process(HttpResponse response, HttpContext context)
                                 throws HttpException, IOException {
-                            if (response == null || response.getEntity() == null) return;
+                            if (response == null || response.getEntity() == null) {
+                                return;
+                            }
 
                             HttpEntity entity = response.getEntity();
                             Header header = entity.getContentEncoding();
@@ -642,7 +654,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     protected void logRequest(Class<? extends HttpRequestBase> reqType, Request request) {
-        if (debugRequests) System.err.println(reqType.getSimpleName() + " " + request);
+        if (debugRequests) {
+            System.err.println(reqType.getSimpleName() + " " + request);
+        }
     }
 
     protected HttpHost determineTarget(HttpUriRequest request) {
@@ -695,7 +709,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
             StringBuilder scope = new StringBuilder();
             for (int i = 0; i < scopes.length; i++) {
                 scope.append(scopes[i]);
-                if (i < scopes.length - 1) scope.append(" ");
+                if (i < scopes.length - 1) {
+                    scope.append(" ");
+                }
             }
             request.add(SCOPE, scope.toString());
         }

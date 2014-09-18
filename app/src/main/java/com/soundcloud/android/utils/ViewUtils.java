@@ -68,7 +68,9 @@ public class ViewUtils {
                     public View next() {
                         View child = views.pop();
 
-                        if (child instanceof ViewGroup) pushViews((ViewGroup)child);
+                        if (child instanceof ViewGroup) {
+                            pushViews((ViewGroup) child);
+                        }
 
                         return child;
                     }

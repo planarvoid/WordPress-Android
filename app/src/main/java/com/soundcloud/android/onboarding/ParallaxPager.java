@@ -39,14 +39,15 @@ public class ParallaxPager extends SafeViewPager {
         super(context, attrs);
     }
 
-    @Override @TargetApi(11)
+    @Override
+    @TargetApi(11)
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
         super.onPageScrolled(position, offset, offsetPixels);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             for (ParallaxInfo info : parallaxViews) {
                 float targetX = info.page * getWidth();
-                float actualX = position  * getWidth() + offsetPixels;
+                float actualX = position * getWidth() + offsetPixels;
 
                 info.view.setTranslationX(targetX - actualX);
             }
@@ -88,7 +89,9 @@ public class ParallaxPager extends SafeViewPager {
                 Set<ParallaxInfo> toRemove = new HashSet<ParallaxInfo>();
 
                 for (ParallaxInfo info : parallaxViews) {
-                    if (info.page == position) toRemove.add(info);
+                    if (info.page == position) {
+                        toRemove.add(info);
+                    }
                 }
 
                 parallaxViews.removeAll(toRemove);

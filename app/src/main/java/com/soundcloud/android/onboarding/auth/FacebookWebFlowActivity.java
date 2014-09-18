@@ -1,8 +1,8 @@
 package com.soundcloud.android.onboarding.auth;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
@@ -126,7 +126,7 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
 
         if (IOUtils.isConnected(this)) {
             removeAllCookies();
-            String[] options = new String[TokenInformationGenerator.DEFAULT_SCOPES.length+1];
+            String[] options = new String[TokenInformationGenerator.DEFAULT_SCOPES.length + 1];
             options[0] = Endpoints.FACEBOOK_CONNECT;
             System.arraycopy(TokenInformationGenerator.DEFAULT_SCOPES, 0, options, 1, TokenInformationGenerator.DEFAULT_SCOPES.length);
 
@@ -137,24 +137,26 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
     }
 
     private void showConnectionError(@Nullable final String message) {
-        if (isFinishing()) return;
+        if (isFinishing()) {
+            return;
+        }
 
         String error = getString(R.string.facebook_authentication_error_no_connection_message);
         if (!TextUtils.isEmpty(message)) {
-            error += " ("+message+")";
+            error += " (" + message + ")";
         }
         new AlertDialog.Builder(this).
-            setMessage(error).
-            setTitle(R.string.authentication_error_no_connection_title).
-            setIcon(android.R.drawable.ic_dialog_alert).
-            setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                }
-            }).
-            create().
-            show();
+                setMessage(error).
+                setTitle(R.string.authentication_error_no_connection_title).
+                setIcon(android.R.drawable.ic_dialog_alert).
+                setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                }).
+                create().
+                show();
     }
 
     private void removeAllCookies() {

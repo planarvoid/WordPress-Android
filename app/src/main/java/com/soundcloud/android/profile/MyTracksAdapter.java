@@ -156,11 +156,11 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     @Override
-    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems) {
         for (int i = 0; i < propertySets.size(); i++) {
             final PropertySet originalPropertySet = propertySets.get(i);
             final Urn key = originalPropertySet.get(PlayableProperty.URN);
-            if (updatedItems.containsKey(key)){
+            if (updatedItems.containsKey(key)) {
                 propertySets.set(i, toPropertySetKeepingReposterInfo(updatedItems.get(key), originalPropertySet));
             }
         }
@@ -348,7 +348,9 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         @Override
         public void onChange(boolean selfChange) {
             ScActivity activity = contextRef.get();
-            if (activity != null) onContentChanged(activity);
+            if (activity != null) {
+                onContentChanged(activity);
+            }
         }
     }
 

@@ -43,12 +43,14 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private final TrimHandleView rightHandle, leftHandle;
     private Listener listener;
-    private int waveformWidth,leftDragOffsetX, rightDragOffsetX;
+    private int waveformWidth, leftDragOffsetX, rightDragOffsetX;
     private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
 
     public static interface Listener {
         void onSeek(float pos);
+
         void onAdjustTrimLeft(float newPos, long moveTimeMs);
+
         void onAdjustTrimRight(float newPos, long moveTimeMs);
     }
 
@@ -68,7 +70,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
 
         waveformView = new CreateWaveView(getContext());
-        LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         viewParams.bottomMargin = (int) getResources().getDimension(R.dimen.create_wave_view_bottom_margin);
         addView(waveformView, viewParams);
         return waveformView;
@@ -112,20 +114,20 @@ public class CreateWaveDisplay extends TouchLayout {
 
     @Override
     protected void processMoveInput(InputObject input) {
-        if (seekMode){
-               seekTouch(input.x);
+        if (seekMode) {
+            seekTouch(input.x);
         } else {
-            if (leftHandleTouchIndex > -1){
+            if (leftHandleTouchIndex > -1) {
                 newTrimActionLeft = new TrimAction(System.currentTimeMillis(),
-                        Math.max(0,Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
-                        (leftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX)));
+                        Math.max(0, Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
+                                (leftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX)));
 
             }
 
-            if (rightHandleTouchIndex > -1){
+            if (rightHandleTouchIndex > -1) {
                 newTrimActionRight = new TrimAction(System.currentTimeMillis(),
                         Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
-                        (rightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX)));
+                                (rightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX)));
             }
 
             queueTrim(UI_UPDATE_TRIM);
@@ -152,18 +154,22 @@ public class CreateWaveDisplay extends TouchLayout {
         processHandleUpFromPointer(input.actionIndex);
     }
 
-    private void processHandleUpFromPointer(int pointerIndex){
+    private void processHandleUpFromPointer(int pointerIndex) {
         if (leftHandleTouchIndex == pointerIndex) {
             newTrimActionLeft = null;
             leftHandleTouchIndex = -1;
             leftDragOffsetX = 0;
-            if (rightHandleTouchIndex > pointerIndex) rightHandleTouchIndex--;
+            if (rightHandleTouchIndex > pointerIndex) {
+                rightHandleTouchIndex--;
+            }
         }
         if (rightHandleTouchIndex == pointerIndex) {
             newTrimActionRight = null;
             rightHandleTouchIndex = -1;
             rightDragOffsetX = 0;
-            if (leftHandleTouchIndex > pointerIndex) leftHandleTouchIndex--;
+            if (leftHandleTouchIndex > pointerIndex) {
+                leftHandleTouchIndex--;
+            }
         }
         queueTrim(UI_UPDATE_TRIM);
     }
@@ -176,7 +182,9 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     protected void queueUnique(int what) {
-        if (!touchHandler.hasMessages(what)) touchHandler.sendEmptyMessage(what);
+        if (!touchHandler.hasMessages(what)) {
+            touchHandler.sendEmptyMessage(what);
+        }
     }
 
     protected void queueTrim(int what) {
@@ -193,7 +201,9 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     private void setTouchMode(InputObject input) {
-        if (mode == MODE_REC || input.actionIndex > 1) return;
+        if (mode == MODE_REC || input.actionIndex > 1) {
+            return;
+        }
 
         Rect leftHandleRect = null, rightHandleRect = null;
         if (leftHandle.getParent() == this) {
@@ -201,36 +211,35 @@ public class CreateWaveDisplay extends TouchLayout {
             leftHandle.getHitRect(leftHandleRect);
 
             leftHandleRect.set(leftHandleRect.left - touchSlop,
-                                leftHandleRect.top - touchSlop,
-                                leftHandleRect.right, // prevent overlapping
-                                leftHandleRect.bottom + touchSlop);
+                    leftHandleRect.top - touchSlop,
+                    leftHandleRect.right, // prevent overlapping
+                    leftHandleRect.bottom + touchSlop);
         }
         if (rightHandle.getParent() == this) {
             rightHandleRect = new Rect();
             rightHandle.getHitRect(rightHandleRect);
             rightHandleRect.set(rightHandleRect.left, // prevent overlapping
-                                rightHandleRect.top - touchSlop,
-                                rightHandleRect.right + touchSlop,
-                                rightHandleRect.bottom + touchSlop);
+                    rightHandleRect.top - touchSlop,
+                    rightHandleRect.right + touchSlop,
+                    rightHandleRect.bottom + touchSlop);
         }
-
 
 
         final int x = input.actionIndex == 0 ? input.x : input.pointerX;
         final int y = input.actionIndex == 0 ? input.y : input.pointerY;
-        if (leftHandleRect != null && leftHandleRect.contains(x,y)) {
+        if (leftHandleRect != null && leftHandleRect.contains(x, y)) {
             leftHandleTouchIndex = input.actionIndex;
-        } else if (rightHandleRect != null && rightHandleRect.contains(x,y)) {
+        } else if (rightHandleRect != null && rightHandleRect.contains(x, y)) {
             rightHandleTouchIndex = input.actionIndex;
-        } else if (input.action == InputObject.ACTION_TOUCH_DOWN){
-            if (waveformRect != null && waveformRect.contains(x,y)){
+        } else if (input.action == InputObject.ACTION_TOUCH_DOWN) {
+            if (waveformRect != null && waveformRect.contains(x, y)) {
                 seekMode = true;
             }
         }
     }
 
-    private void calcualteWaveformRect(){
-        if (waveformView != null){
+    private void calcualteWaveformRect() {
+        if (waveformView != null) {
             waveformRect = new Rect();
             waveformView.getHitRect(waveformRect);
         }
@@ -255,7 +264,7 @@ public class CreateWaveDisplay extends TouchLayout {
                     final int minX = view.isEditing ? (int) (trimWindow[0] * view.waveformWidth) : 0;
                     final int maxX = view.isEditing ? (int) (trimWindow[1] * view.waveformWidth) : view.waveformWidth;
 
-                    final float adjustedSeekPosition = Math.min(Math.max(minX, view.lastSeekX),maxX) - minX;
+                    final float adjustedSeekPosition = Math.min(Math.max(minX, view.lastSeekX), maxX) - minX;
                     final float seekPercent = adjustedSeekPosition / (maxX - minX);
 
                     if (view.listener != null) {
@@ -323,8 +332,8 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    public void gotoPlaybackMode(boolean animate){
-        if (mode != MODE_PLAYBACK){
+    public void gotoPlaybackMode(boolean animate) {
+        if (mode != MODE_PLAYBACK) {
             mode = MODE_PLAYBACK;
             waveformView.setMode(mode, animate);
         }
@@ -351,8 +360,12 @@ public class CreateWaveDisplay extends TouchLayout {
                 setTrimHandles();
                 waveformView.setBackgroundColor(Color.BLACK);
             } else {
-                if (leftHandle.getParent() == this) removeView(leftHandle);
-                if (rightHandle.getParent() == this) removeView(rightHandle);
+                if (leftHandle.getParent() == this) {
+                    removeView(leftHandle);
+                }
+                if (rightHandle.getParent() == this) {
+                    removeView(rightHandle);
+                }
                 //noinspection deprecation
                 waveformView.setBackgroundDrawable(null);
             }

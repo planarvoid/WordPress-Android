@@ -3,8 +3,8 @@ package com.soundcloud.android.collections.tasks;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
@@ -27,11 +27,13 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
     private final PublicCloudAPI api;
     private final String endpoint;
     private final Set<Long> resourceIds;
-    private final Map<Urn,PublicApiResource> updatedResources;
+    private final Map<Urn, PublicApiResource> updatedResources;
     private WeakReference<ScBaseAdapter> adapterReference;
 
     public UpdateCollectionTask(PublicCloudAPI api, String endpoint, Set<Long> resourceIds) {
-        if (TextUtils.isEmpty(endpoint)) throw new IllegalArgumentException("endpoint is empty");
+        if (TextUtils.isEmpty(endpoint)) {
+            throw new IllegalArgumentException("endpoint is empty");
+        }
 
         this.api = api;
         this.endpoint = endpoint;
@@ -53,23 +55,24 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
 
     @Override
     protected Boolean doInBackground(String... params) {
-        Log.i(TAG,"Updating " + resourceIds.size() + " items");
+        Log.i(TAG, "Updating " + resourceIds.size() + " items");
         try {
             Request request = Request.to(endpoint)
-                .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
-                .add("ids", TextUtils.join(",", resourceIds));
+                    .add(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                    .add("ids", TextUtils.join(",", resourceIds));
 
 
             /* in memory objects will only receive these lookups if you go through the cache,
             of course this can change eventually */
             final Request request1 = HttpUtils.addQueryParams(request, params);
-            for (PublicApiResource r : api.readList(request1)){
+            for (PublicApiResource r : api.readList(request1)) {
                 r.setUpdated();
                 updatedResources.put(r.getUrn(), SoundCloudApplication.sModelManager.cache(r, PublicApiResource.CacheUpdateMode.FULL));
             }
 
             new BaseDAO<PublicApiResource>(SoundCloudApplication.instance.getContentResolver()) {
-                @Override public Content getContent() {
+                @Override
+                public Content getContent() {
                     return Content.COLLECTIONS;
                 }
             }.createCollection(updatedResources.values());

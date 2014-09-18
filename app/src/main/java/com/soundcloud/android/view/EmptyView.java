@@ -99,8 +99,12 @@ public class EmptyView extends RelativeLayout {
 
                 // don't show empty screen, show progress
                 progressView.setVisibility(View.VISIBLE);
-                if (emptyLayout != null) emptyLayout.setVisibility(View.GONE);
-                if (errorView != null) errorView.setVisibility(View.GONE);
+                if (emptyLayout != null) {
+                    emptyLayout.setVisibility(View.GONE);
+                }
+                if (errorView != null) {
+                    errorView.setVisibility(View.GONE);
+                }
                 return true;
 
             } else {

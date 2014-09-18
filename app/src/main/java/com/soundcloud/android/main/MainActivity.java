@@ -108,8 +108,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private NavigationFragment findNavigationFragment() {
         boolean isLayoutWithFixedNav = findViewById(R.id.navigation_fragment_id) == null;
         return (NavigationFragment) getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
-            R.id.fixed_navigation_fragment_id :
-            R.id.navigation_fragment_id);
+                R.id.fixed_navigation_fragment_id :
+                R.id.navigation_fragment_id);
     }
 
     private void handleLoggedInUser() {
@@ -203,7 +203,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public void onSmoothSelectItem(final int position, final boolean setTitle) {
-        if (position == lastSelection) return;
+        if (position == lastSelection) {
+            return;
+        }
 
         if (!isProfile(position) && lastSelection != NO_SELECTION) {
             Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
@@ -341,7 +343,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent userChangedEvent) {
-            if(userChangedEvent.getKind() == CurrentUserChangedEvent.USER_UPDATED) {
+            if (userChangedEvent.getKind() == CurrentUserChangedEvent.USER_UPDATED) {
                 updateUser(userChangedEvent.getCurrentUser());
             }
         }

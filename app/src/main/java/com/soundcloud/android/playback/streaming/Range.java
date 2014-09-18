@@ -12,8 +12,12 @@ public class Range implements Iterable<Integer>, Parcelable {
     public final int length;
 
     /* private */ Range(int start, int length) {
-        if (start < 0) throw new IllegalArgumentException("start must be >=0");
-        if (length <= 0) throw new IllegalArgumentException("length must be >0");
+        if (start < 0) {
+            throw new IllegalArgumentException("start must be >=0");
+        }
+        if (length <= 0) {
+            throw new IllegalArgumentException("length must be >0");
+        }
 
         this.start = start;
         this.length = length;
@@ -24,19 +28,19 @@ public class Range implements Iterable<Integer>, Parcelable {
     }
 
     public static Range from(long start, long length) {
-        return new Range((int)start, (int)length);
+        return new Range((int) start, (int) length);
     }
 
     public Index toIndex() {
         Index index = new Index();
-        for (int i = start; i < length+start; i++) {
+        for (int i = start; i < length + start; i++) {
             index.set(i);
         }
         return index;
     }
 
     public Range moveStart(int n) {
-        return new Range(start +n, length);
+        return new Range(start + n, length);
     }
 
     public int end() {
@@ -57,8 +61,8 @@ public class Range implements Iterable<Integer>, Parcelable {
     }
 
     public Range chunkRange(int chunkSize) {
-       return Range.from(start / chunkSize,
-            (int) Math.ceil((double) ((start % chunkSize) + length) / (double) chunkSize));
+        return Range.from(start / chunkSize,
+                (int) Math.ceil((double) ((start % chunkSize) + length) / (double) chunkSize));
     }
 
     public Range byteRange(int chunkSize) {
@@ -67,8 +71,12 @@ public class Range implements Iterable<Integer>, Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Range range = (Range) o;
         return length == range.length && start == range.start;
     }
@@ -114,16 +122,21 @@ public class Range implements Iterable<Integer>, Parcelable {
         return new Iterator<Integer>() {
             int i = Range.this.start;
 
-            @Override public boolean hasNext() {
+            @Override
+            public boolean hasNext() {
                 return i < end();
             }
 
-            @Override public Integer next() {
-                if (!hasNext()) throw new NoSuchElementException();
+            @Override
+            public Integer next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 return i++;
             }
 
-            @Override public void remove() {
+            @Override
+            public void remove() {
                 throw new UnsupportedOperationException();
             }
         };

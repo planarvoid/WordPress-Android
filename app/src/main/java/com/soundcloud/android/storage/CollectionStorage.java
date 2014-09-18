@@ -38,7 +38,7 @@ public class CollectionStorage {
     public Set<Long> getStoredIds(final Content content, List<Long> ids) {
         BaseDAO<PublicApiResource> dao = getDaoForContent(content);
         Set<Long> storedIds = new HashSet<Long>();
-        for (int i=0; i < ids.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
+        for (int i = 0; i < ids.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
             List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
             List<Long> newIds = dao.buildQuery()
                     .select(BaseColumns._ID)
@@ -55,10 +55,10 @@ public class CollectionStorage {
     }
 
     /**
-     * @param api           the api
-     * @param modelIds      a list of model ids
-     * @param content       the content to fetch for
-     * @param ignoreStored  if it should ignore stored ids
+     * @param api          the api
+     * @param modelIds     a list of model ids
+     * @param content      the content to fetch for
+     * @param ignoreStored if it should ignore stored ids
      * @return how many entries where stored in the db
      * @throws java.io.IOException
      */
@@ -68,21 +68,25 @@ public class CollectionStorage {
                                                    @NotNull List<Long> modelIds,
                                                    final Content content,
                                                    boolean ignoreStored) throws IOException {
-        if (modelIds.isEmpty()) return 0;
+        if (modelIds.isEmpty()) {
+            return 0;
+        }
 
         return getDaoForContent(content).createCollection(
-            fetchMissingCollectionItems(api, modelIds, content, ignoreStored)
+                fetchMissingCollectionItems(api, modelIds, content, ignoreStored)
         );
     }
 
     // TODO really pass in api as parameter?
     @Deprecated
     private List<PublicApiResource> fetchMissingCollectionItems(PublicCloudAPI api,
-                                                        @NotNull List<Long> modelIds,
-                                                        final Content content,
-                                                        boolean ignoreStored) throws IOException {
+                                                                @NotNull List<Long> modelIds,
+                                                                final Content content,
+                                                                boolean ignoreStored) throws IOException {
 
-        if (modelIds.isEmpty()) return Collections.emptyList();
+        if (modelIds.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         // copy so we don't modify the original
         List<Long> ids = new ArrayList<Long>(modelIds);
@@ -91,7 +95,7 @@ public class CollectionStorage {
         }
         // TODO this has to be abstracted more. Hesitant to do so until the api is more final
         Request request = PublicApiTrack.class.equals(content.modelType) ||
-               SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
+                SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
 
         return api.readListFromIds(request, ids);
     }
@@ -109,14 +113,14 @@ public class CollectionStorage {
      * Roughly corresponds to locally synced collections.
      */
     public interface CollectionItemTypes {
-        int TRACK           = 0;
-        int LIKE            = 1;
-        int FOLLOWING       = 2;
-        int FOLLOWER        = 3;
-        int FRIEND          = 4;
+        int TRACK = 0;
+        int LIKE = 1;
+        int FOLLOWING = 2;
+        int FOLLOWER = 3;
+        int FRIEND = 4;
         //int SUGGESTED_USER  = 5; //unused
         //int SEARCH          = 6; //unused
-        int REPOST          = 7;
-        int PLAYLIST        = 8;
+        int REPOST = 7;
+        int PLAYLIST = 8;
     }
 }

@@ -85,17 +85,19 @@ public class UserInfoFragment extends Fragment {
 
     private void configureEmptyView(ViewGroup fragmentLayout) {
         EmptyView emptyView = (EmptyView) fragmentLayout.findViewById(android.R.id.empty);
-        if (emptyView != null) fragmentLayout.removeView(emptyView);
+        if (emptyView != null) {
+            fragmentLayout.removeView(emptyView);
+        }
 
         if (!displayedInfo) {
             if (emptyViewStatus == EmptyView.Status.OK) {
                 if (userId == SoundCloudApplication.fromContext(getActivity()).getAccountOperations().getLoggedInUserId()) {
                     emptyViewFactory.withMessageText(getString(R.string.info_empty_you_message))
-                                     .withSecondaryText(getString(R.string.info_empty_you_secondary))
-                                     .withImage(R.drawable.empty_profile);
+                            .withSecondaryText(getString(R.string.info_empty_you_secondary))
+                            .withImage(R.drawable.empty_profile);
                 } else {
                     emptyViewFactory.withMessageText(getString(R.string.info_empty_other_message))
-                                     .withImage(R.drawable.empty_info);
+                            .withImage(R.drawable.empty_info);
                 }
             }
             emptyView = emptyViewFactory.build(getActivity());

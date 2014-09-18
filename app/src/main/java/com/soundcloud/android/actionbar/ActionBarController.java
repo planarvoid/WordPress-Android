@@ -4,10 +4,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.SearchActivity;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,9 @@ public class ActionBarController {
     public interface ActionBarOwner {
         @NotNull
         ActionBarActivity getActivity();
+
         int getMenuResourceId();
+
         void restoreActionBar();
     }
 
@@ -51,7 +53,9 @@ public class ActionBarController {
     public void onCreateOptionsMenu(Menu menu) {
         owner.restoreActionBar();
         final int menuResourceId = owner.getMenuResourceId();
-        if (menuResourceId > 0) owner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
+        if (menuResourceId > 0) {
+            owner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
+        }
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -103,7 +107,7 @@ public class ActionBarController {
             this.eventBus = eventBus;
         }
 
-        public ActionBarController create(ActionBarOwner owner){
+        public ActionBarController create(ActionBarOwner owner) {
             return new ActionBarController(owner, eventBus);
         }
     }

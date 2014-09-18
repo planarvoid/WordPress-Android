@@ -5,13 +5,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -77,7 +77,7 @@ public class SyncAdapterService extends Service {
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
-                if (performSync((SoundCloudApplication) getApplication(), extras, syncResult,accountOperations.getSoundCloudToken(), new Runnable() {
+                if (performSync((SoundCloudApplication) getApplication(), extras, syncResult, accountOperations.getSoundCloudToken(), new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG, "sync finished");
@@ -104,7 +104,9 @@ public class SyncAdapterService extends Service {
                     }.start();
                 }
 
-                if (looper != null) looper.quit(); // make sure  sync thread exits
+                if (looper != null) {
+                    looper.quit();
+                } // make sure sync thread exits
                 super.onSyncCanceled();
             }
         };
@@ -154,7 +156,9 @@ public class SyncAdapterService extends Service {
                         super.onReceiveResult(resultCode, resultData);
                     } finally {
                         // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
-                        if (onResult != null) onResult.run();
+                        if (onResult != null) {
+                            onResult.run();
+                        }
                     }
                 }
             });
@@ -211,7 +215,7 @@ public class SyncAdapterService extends Service {
                         urisToSync.add(Content.ME_SOUND_STREAM.uri);
                     }
                     if (SyncConfig.isActivitySyncEnabled(app, extras) &&
-                            (manual || syncStateManager.isContentDueForSync(SyncContent.MyActivities))){
+                            (manual || syncStateManager.isContentDueForSync(SyncContent.MyActivities))) {
                         urisToSync.add(Content.ME_ACTIVITIES.uri);
                     }
                 }
@@ -236,7 +240,9 @@ public class SyncAdapterService extends Service {
 
                 // see if there are any playlists with un-pushed track changes
                 final Set<Uri> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
-                if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
+                if (playlistsDueForSync != null) {
+                    urisToSync.addAll(playlistsDueForSync);
+                }
 
                 final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(manual);
                 Log.d(TAG, "cleanups due for sync:" + dueForSync);

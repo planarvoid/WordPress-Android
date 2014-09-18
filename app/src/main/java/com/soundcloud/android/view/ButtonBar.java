@@ -80,12 +80,16 @@ public class ButtonBar extends LinearLayout {
     public void toggleVisibility(int id, boolean visible, boolean updateAll) {
         if (menuItemMap.get(id) != null) {
             menuItemMap.get(id).visible = visible;
-            if (updateAll) setVisibilities();
+            if (updateAll) {
+                setVisibilities();
+            }
         }
     }
 
     public void setTextById(int id, int cs) {
-        if (menuItemMap.get(id) != null) menuItemMap.get(id).button.setText(cs);
+        if (menuItemMap.get(id) != null) {
+            menuItemMap.get(id).button.setText(cs);
+        }
     }
 
     private void setVisibilities() {

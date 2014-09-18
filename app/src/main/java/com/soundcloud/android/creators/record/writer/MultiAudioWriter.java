@@ -50,7 +50,9 @@ public class MultiAudioWriter implements AudioWriter {
     public boolean setNewPosition(long pos) throws IOException {
         for (AudioWriter w : writers) {
             boolean success = w.setNewPosition(pos);
-            if (!success) return false;
+            if (!success) {
+                return false;
+            }
         }
         return true;
     }
@@ -68,16 +70,22 @@ public class MultiAudioWriter implements AudioWriter {
     public long getDuration() {
         for (AudioWriter w : writers) {
             long d = w.getDuration();
-            if (d != -1) return d;
+            if (d != -1) {
+                return d;
+            }
         }
         return -1;
     }
 
     @Override
-    public @Nullable AudioReader getAudioReader() throws IOException {
+    public
+    @Nullable
+    AudioReader getAudioReader() throws IOException {
         for (AudioWriter w : writers) {
             final AudioReader audioFile = w.getAudioReader();
-            if (audioFile != null) return audioFile;
+            if (audioFile != null) {
+                return audioFile;
+            }
         }
         return null;
     }

@@ -249,7 +249,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void focusGained() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "focusGained");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "focusGained");
+        }
         if (focusLossState == FocusLossState.TRANSIENT) {
             fadeHandler.sendEmptyMessage(FadeHandler.FADE_IN);
         } else {

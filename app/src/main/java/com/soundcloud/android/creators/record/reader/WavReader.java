@@ -73,7 +73,9 @@ public class WavReader extends AudioReader {
     }
 
     private void doReopen() throws IOException {
-        if (file != null) file.close();
+        if (file != null) {
+            file.close();
+        }
         file = new RandomAccessFile(backing, "r");
         header = new WavHeader(new FileInputStream(backing));
     }

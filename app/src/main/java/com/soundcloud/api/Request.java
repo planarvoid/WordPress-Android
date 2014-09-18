@@ -75,7 +75,9 @@ public class Request implements Iterable<NameValuePair> {
     // of inputs.
     @SuppressWarnings("PMD.AvoidReassigningParameters")
     public Request(String resource) {
-        if (resource == null) throw new IllegalArgumentException("resource is null");
+        if (resource == null) {
+            throw new IllegalArgumentException("resource is null");
+        }
 
         // make sure paths start with a slash
         if (!(resource.startsWith("http:") || resource.startsWith("https:"))
@@ -125,10 +127,14 @@ public class Request implements Iterable<NameValuePair> {
         token = request.token;
         listener = request.listener;
         params = new ArrayList<NameValuePair>(request.params);
-        if (request.headers != null) headers = new HashMap<String, String>(request.headers);
+        if (request.headers != null) {
+            headers = new HashMap<String, String>(request.headers);
+        }
         ifNoneMatch = request.ifNoneMatch;
         entity = request.entity;
-        if (request.files != null) files = new HashMap<String, Attachment>(request.files);
+        if (request.files != null) {
+            files = new HashMap<String, Attachment>(request.files);
+        }
     }
 
     /**
@@ -217,7 +223,9 @@ public class Request implements Iterable<NameValuePair> {
      */
     public Request with(Object... args) {
         if (args != null) {
-            if (args.length % 2 != 0) throw new IllegalArgumentException("need even number of arguments");
+            if (args.length % 2 != 0) {
+                throw new IllegalArgumentException("need even number of arguments");
+            }
             for (int i = 0; i < args.length; i += 2) {
                 add(args[i].toString(), args[i + 1]);
             }
@@ -293,8 +301,12 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      */
     public Request withFile(String name, File file, String fileName) {
-        if (files == null) files = new HashMap<String, Attachment>();
-        if (file != null) files.put(name, new Attachment(file, fileName));
+        if (files == null) {
+            files = new HashMap<String, Attachment>();
+        }
+        if (file != null) {
+            files.put(name, new Attachment(file, fileName));
+        }
         return this;
     }
 
@@ -345,8 +357,12 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      */
     public Request withFile(String name, ByteBuffer data, String fileName) {
-        if (files == null) files = new HashMap<String, Attachment>();
-        if (data != null) files.put(name, new Attachment(data, fileName));
+        if (files == null) {
+            files = new HashMap<String, Attachment>();
+        }
+        if (data != null) {
+            files.put(name, new Attachment(data, fileName));
+        }
         return this;
     }
 
@@ -505,11 +521,17 @@ public class Request implements Iterable<NameValuePair> {
             case 0:
                 return "bytes=0-";
             case 1:
-                if (range[0] < 0) throw new IllegalArgumentException("negative range");
+                if (range[0] < 0) {
+                    throw new IllegalArgumentException("negative range");
+                }
                 return "bytes=" + range[0] + "-";
             case 2:
-                if (range[0] < 0) throw new IllegalArgumentException("negative range");
-                if (range[0] > range[1]) throw new IllegalArgumentException(range[0] + ">" + range[1]);
+                if (range[0] < 0) {
+                    throw new IllegalArgumentException("negative range");
+                }
+                if (range[0] > range[1]) {
+                    throw new IllegalArgumentException(range[0] + ">" + range[1]);
+                }
                 return "bytes=" + range[0] + "-" + range[1];
             default:
                 throw new IllegalArgumentException("invalid range specified");
@@ -607,7 +629,9 @@ public class Request implements Iterable<NameValuePair> {
         }
 
         Attachment(File file, String fileName) {
-            if (file == null) throw new IllegalArgumentException("file cannot be null");
+            if (file == null) {
+                throw new IllegalArgumentException("file cannot be null");
+            }
             this.fileName = fileName;
             this.file = file;
             this.data = null;
@@ -621,7 +645,9 @@ public class Request implements Iterable<NameValuePair> {
         }
 
         Attachment(ByteBuffer data, String fileName) {
-            if (data == null) throw new IllegalArgumentException("data cannot be null");
+            if (data == null) {
+                throw new IllegalArgumentException("data cannot be null");
+            }
 
             this.data = data;
             this.fileName = fileName;
@@ -665,8 +691,9 @@ public class Request implements Iterable<NameValuePair> {
             final String encodedName = encode(parameter.getName(), encoding);
             final String value = parameter.getValue();
             final String encodedValue = value != null ? encode(value, encoding) : "";
-            if (result.length() > 0)
+            if (result.length() > 0) {
                 result.append("&");
+            }
             result.append(encodedName);
             if (value != null) {
                 result.append("=");

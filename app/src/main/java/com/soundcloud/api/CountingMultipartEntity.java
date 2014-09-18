@@ -68,14 +68,18 @@ class CountingMultipartEntity implements HttpEntity {
         public void write(byte[] b, int off, int len) throws IOException {
             out.write(b, off, len);
             transferred += len;
-            if (listener != null) listener.transferred(transferred);
+            if (listener != null) {
+                listener.transferred(transferred);
+            }
         }
 
         @Override
         public void write(int b) throws IOException {
             out.write(b);
             transferred++;
-            if (listener != null) listener.transferred(transferred);
+            if (listener != null) {
+                listener.transferred(transferred);
+            }
         }
     }
 }

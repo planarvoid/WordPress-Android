@@ -27,7 +27,7 @@ public class ImageResizer implements Runnable {
 
     @Override
     public void run() {
-        Log.d(UploadService.TAG, "ImageResizer.run("+ recording +")");
+        Log.d(UploadService.TAG, "ImageResizer.run(" + recording + ")");
 
         if (!recording.hasArtwork()) {
             broadcast(UploadService.RESIZE_ERROR);
@@ -37,10 +37,12 @@ public class ImageResizer implements Runnable {
     }
 
     private void resize() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resizing "+ recording.artwork_path);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "resizing " + recording.artwork_path);
+        }
         try {
             broadcast(UploadService.RESIZE_STARTED);
-            File resized = IOUtils.getCacheFile(context, "upload_tmp_"+ recording.getId() +".jpg");
+            File resized = IOUtils.getCacheFile(context, "upload_tmp_" + recording.getId() + ".jpg");
             final long start = System.currentTimeMillis();
             if (ImageUtils.resizeImageFile(recording.artwork_path, resized, ImageUtils.RECOMMENDED_IMAGE_SIZE, ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
                 recording.resized_artwork_path = resized;
@@ -50,7 +52,7 @@ public class ImageResizer implements Runnable {
                 }
                 broadcast(UploadService.RESIZE_SUCCESS);
             } else {
-                Log.w(TAG, "did not resize image "+ recording.artwork_path);
+                Log.w(TAG, "did not resize image " + recording.artwork_path);
                 recording.resized_artwork_path = recording.artwork_path;
                 broadcast(UploadService.RESIZE_SUCCESS);
             }

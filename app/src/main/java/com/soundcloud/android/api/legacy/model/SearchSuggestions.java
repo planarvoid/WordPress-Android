@@ -19,26 +19,26 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- Suggestions from the /search/suggest endpoint.
-
- <pre>
-   {
-     "tx_id" : "92dbb484c0d144afa6c193ece99514f3",
-     "query_time_in_millis" : 0,
-     "query" : "f",
-     "limit" : 5,
-     "suggestions" : [
-        {
-         "query" : "Foo Fighters",
-         "kind" : "user",
-         "id" : 2097360,
-         "score" : 889523
-        }, ...
-     ]
-   }
- </pre>
-
- @see <a href="https://github.com/soundcloud/search-suggest#setting-up-the-suggest-engine">search-suggest</a>
+ * Suggestions from the /search/suggest endpoint.
+ * <p/>
+ * <pre>
+ * {
+ * "tx_id" : "92dbb484c0d144afa6c193ece99514f3",
+ * "query_time_in_millis" : 0,
+ * "query" : "f",
+ * "limit" : 5,
+ * "suggestions" : [
+ * {
+ * "query" : "Foo Fighters",
+ * "kind" : "user",
+ * "id" : 2097360,
+ * "score" : 889523
+ * }, ...
+ * ]
+ * }
+ * </pre>
+ *
+ * @see <a href="https://github.com/soundcloud/search-suggest#setting-up-the-suggest-engine">search-suggest</a>
  */
 public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public String tx_id;
@@ -57,9 +57,10 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     /**
      * Search suggestions from a local cursor, expect data to be in standard android suggest
      * format
+     *
      * @param cursor cursor with data scheme compatible with
-     *   <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
-     *  SuggestionTable</a>
+     *               <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
+     *               SuggestionTable</a>
      */
     public SearchSuggestions(Cursor cursor) {
         suggestions = new ArrayList<Query>(cursor.getCount());
@@ -83,9 +84,11 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public Cursor asCursor() {
         final MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
         for (SearchSuggestions.Query q : this) {
-            if (!Query.SUPPORTED_KINDS.contains(q.kind)) continue;
+            if (!Query.SUPPORTED_KINDS.contains(q.kind)) {
+                continue;
+            }
 
-            cursor.addRow(new Object[] {
+            cursor.addRow(new Object[]{
                     -1,                // suggestion id
                     q.id,              // id
                     q.query,           // SUGGEST_COLUMN_TEXT_1
@@ -111,7 +114,9 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         while (iterator.hasNext()) {
             Map<String, Integer> highlight = iterator.next();
             highlightData.append(highlight.get("pre") + "," + highlight.get("post"));
-            if (iterator.hasNext()) highlightData.append(";");
+            if (iterator.hasNext()) {
+                highlightData.append(";");
+            }
         }
         return highlightData.toString();
     }
@@ -182,8 +187,8 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         // Search suggest API fields
         public String query;
         public String kind;
-        public long   id;
-        public long   score;
+        public long id;
+        public long score;
         public List<Map<String, Integer>> highlights;
 
         // internal fields
@@ -192,16 +197,24 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
         public static String kindFromContentUri(Uri uri) {
             switch (Content.match(uri)) {
-                case TRACK: case TRACKS: return KIND_TRACK;
-                case USER:  case USERS: return KIND_USER;
-                case PLAYLIST: case PLAYLISTS: return KIND_PLAYLIST;
+                case TRACK:
+                case TRACKS:
+                    return KIND_TRACK;
+                case USER:
+                case USERS:
+                    return KIND_USER;
+                case PLAYLIST:
+                case PLAYLISTS:
+                    return KIND_PLAYLIST;
                 default:
                     throw new IllegalStateException("Unsupported content URI: " + uri);
             }
         }
 
         public String getIntentData() {
-            if (intentData != null) return intentData;
+            if (intentData != null) {
+                return intentData;
+            }
             return getClientUri().contentProviderUri().toString();
         }
 
@@ -222,8 +235,12 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Query query = (Query) o;
             return id == query.id && !(kind != null ? !kind.equals(query.kind) : query.kind != null);
         }

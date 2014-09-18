@@ -26,7 +26,9 @@ public enum Sharing {
     public static Sharing from(String str) {
         if (!TextUtils.isEmpty(str)) {
             for (Sharing s : values()) {
-                if (s.value.equalsIgnoreCase(str)) return s;
+                if (s.value.equalsIgnoreCase(str)) {
+                    return s;
+                }
             }
         }
         return UNDEFINED;
@@ -36,7 +38,11 @@ public enum Sharing {
         return isPublic ? Sharing.PUBLIC : Sharing.PRIVATE;
     }
 
-    public boolean isPublic() { return PUBLIC == this; }
+    public boolean isPublic() {
+        return PUBLIC == this;
+    }
 
-    public boolean isPrivate() { return PRIVATE == this; }
+    public boolean isPrivate() {
+        return PRIVATE == this;
+    }
 }

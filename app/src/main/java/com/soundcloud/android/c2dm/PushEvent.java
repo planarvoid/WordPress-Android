@@ -22,15 +22,23 @@ public enum PushEvent {
         this.type = type;
     }
 
-    public static @NotNull PushEvent fromIntent(Intent intent) {
+    public static
+    @NotNull
+    PushEvent fromIntent(Intent intent) {
         return intent == null ? NONE : fromExtras(intent.getExtras());
     }
 
-    public static @NotNull PushEvent fromExtras(Bundle extras) {
-        if (extras == null) return NONE;
+    public static
+    @NotNull
+    PushEvent fromExtras(Bundle extras) {
+        if (extras == null) {
+            return NONE;
+        }
 
         String type = extras.getString(C2DMReceiver.SC_EXTRA_EVENT_TYPE);
-        if (type == null) type = extras.getString(SyncAdapterService.EXTRA_C2DM_EVENT);
+        if (type == null) {
+            type = extras.getString(SyncAdapterService.EXTRA_C2DM_EVENT);
+        }
         if (!TextUtils.isEmpty(type)) {
             for (PushEvent e : PushEvent.values()) {
                 if (type.equals(e.type)) {
@@ -57,7 +65,8 @@ public enum PushEvent {
                 if (type != null && id != null) {
                     try {
                         return Long.parseLong(id);
-                    } catch (NumberFormatException ignored) { }
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
             }
         }

@@ -6,19 +6,29 @@ import org.jetbrains.annotations.Nullable;
 
 public class EncoderOptions {
 
-    /** start of the encoding stream in msecs */
+    /**
+     * start of the encoding stream in msecs
+     */
     public final long start;
 
-    /** end of the encoding stream in msecs, or -1 for end of stream */
+    /**
+     * end of the encoding stream in msecs, or -1 for end of stream
+     */
     public final long end;
 
-    /** encoding quality: 0 - 1.0 */
+    /**
+     * encoding quality: 0 - 1.0
+     */
     public final float quality;
 
-    /** if not null, apply this filter to the source stream */
+    /**
+     * if not null, apply this filter to the source stream
+     */
     public final @Nullable PlaybackFilter filter;
 
-    /** for reporting encoding progress */
+    /**
+     * for reporting encoding progress
+     */
     public final @Nullable ProgressListener listener;
 
     public static final EncoderOptions HI_Q = new EncoderOptions(1f, 0, -1, null, null);
@@ -29,18 +39,24 @@ public class EncoderOptions {
 
     /**
      * @param quality
-     * @param start start in millisecs
-     * @param end   end in millisecs, or -1 for whole file
+     * @param start    start in millisecs
+     * @param end      end in millisecs, or -1 for whole file
      * @param listener optional progress listener
-     * @param filter optional audio filter
+     * @param filter   optional audio filter
      */
     public EncoderOptions(float quality, long start, long end,
                           @Nullable ProgressListener listener,
                           @Nullable PlaybackFilter filter) {
 
-        if (quality < 0 || quality > 1f) throw  new IllegalArgumentException("invalid quality: "+quality);
-        if (start < 0) throw new IllegalArgumentException("invalid start: "+start);
-        if (end < -1 ) throw new IllegalArgumentException("invalid end: "+end);
+        if (quality < 0 || quality > 1f) {
+            throw new IllegalArgumentException("invalid quality: " + quality);
+        }
+        if (start < 0) {
+            throw new IllegalArgumentException("invalid start: " + start);
+        }
+        if (end < -1) {
+            throw new IllegalArgumentException("invalid end: " + end);
+        }
 
         this.start = start;
         this.end = end;

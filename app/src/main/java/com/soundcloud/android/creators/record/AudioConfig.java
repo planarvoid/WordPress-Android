@@ -11,13 +11,12 @@ import android.util.Log;
 import java.util.EnumSet;
 
 public enum AudioConfig {
-    PCM16_44100_2 (16, 44100, 2),
-    PCM16_44100_1 (16, 44100, 1),
-    PCM16_16000_1 (16, 16000, 1),
-    PCM16_22050_1 (16, 22050, 1),
-    PCM16_8000_1  (16, 8000,  1),
-    PCM8_8000_1   (8,  8000,  1),
-    ;
+    PCM16_44100_2(16, 44100, 2),
+    PCM16_44100_1(16, 44100, 1),
+    PCM16_16000_1(16, 16000, 1),
+    PCM16_22050_1(16, 22050, 1),
+    PCM16_8000_1(16, 8000, 1),
+    PCM8_8000_1(8, 8000, 1),;
 
     public final int sampleRate;
     public final int channels;
@@ -31,8 +30,12 @@ public enum AudioConfig {
     private static AudioConfig detected;
 
     private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
-        if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
-        if (channels < 1 || channels > 2) throw new IllegalArgumentException("invalid channels:"+channels);
+        if (bitsPerSample != 8 && bitsPerSample != 16) {
+            throw new IllegalArgumentException("invalid bitsPerSample:" + bitsPerSample);
+        }
+        if (channels < 1 || channels > 2) {
+            throw new IllegalArgumentException("invalid channels:" + channels);
+        }
 
         this.bitsPerSample = bitsPerSample;
         this.sampleRate = sampleRate;
@@ -48,9 +51,12 @@ public enum AudioConfig {
      */
     public int getChannelConfig(boolean in) {
         switch (channels) {
-            case 1:  return in ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_OUT_MONO;
-            case 2:  return in ? AudioFormat.CHANNEL_IN_STEREO : AudioFormat.CHANNEL_OUT_STEREO;
-            default: return in ? AudioFormat.CHANNEL_IN_DEFAULT : AudioFormat.CHANNEL_OUT_DEFAULT;
+            case 1:
+                return in ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_OUT_MONO;
+            case 2:
+                return in ? AudioFormat.CHANNEL_IN_STEREO : AudioFormat.CHANNEL_OUT_STEREO;
+            default:
+                return in ? AudioFormat.CHANNEL_IN_DEFAULT : AudioFormat.CHANNEL_OUT_DEFAULT;
         }
     }
 
@@ -74,15 +80,17 @@ public enum AudioConfig {
         return new AudioRecord(source, sampleRate, getChannelConfig(true), getFormat(), bufferSize);
     }
 
-    public @NotNull AudioRecord createAudioRecord() {
+    public
+    @NotNull
+    AudioRecord createAudioRecord() {
         AudioRecord record = null;
-        for (final int factor : new int[] { 64, 32, 16, 8, 4, 1 }) {
+        for (final int factor : new int[]{64, 32, 16, 8, 4, 1}) {
             try {
                 record = createAudioRecord(getRecordMinBufferSize() * factor);
                 if (record.getState() == AudioRecord.STATE_INITIALIZED) {
                     return record;
                 } else {
-                    Log.w(AudioConfig.class.getSimpleName(), "audiorecord "+record+" in state "+record.getState());
+                    Log.w(AudioConfig.class.getSimpleName(), "audiorecord " + record + " in state " + record.getState());
                 }
             } catch (Exception e) {
                 Log.w(AudioConfig.class.getSimpleName(), e);
@@ -96,7 +104,7 @@ public enum AudioConfig {
     }
 
     public WavHeader createHeader() {
-        return new WavHeader(WavHeader.FORMAT_PCM, (short)channels, sampleRate, (short)bitsPerSample, 0);
+        return new WavHeader(WavHeader.FORMAT_PCM, (short) channels, sampleRate, (short) bitsPerSample, 0);
     }
 
     public RemainingTimeCalculator createCalculator() {
@@ -107,15 +115,15 @@ public enum AudioConfig {
         return msToByte(ms, sampleRate, sampleSize);
     }
 
-    public long bytesToMs(long bytePos){
-        return (1000*bytePos) / bytesPerSecond;
+    public long bytesToMs(long bytePos) {
+        return (1000 * bytePos) / bytesPerSecond;
     }
 
     public long validBytePosition(long offset) {
-       return offset - (offset % ((bitsPerSample / 8) * channels));
+        return offset - (offset % ((bitsPerSample / 8) * channels));
     }
 
-    public int getvalidBufferSizeForValueRate(int valuesPerSecond){
+    public int getvalidBufferSizeForValueRate(int valuesPerSecond) {
         return (int) validBytePosition((long) (bytesPerSecond / valuesPerSecond));
     }
 
@@ -126,7 +134,9 @@ public enum AudioConfig {
         boolean valid;
         try {
             valid = getPlaybackMinBufferSize() > 0;
-            if (!valid) return false;
+            if (!valid) {
+                return false;
+            }
         } catch (Exception e) {
             return false;
         }
@@ -147,13 +157,14 @@ public enum AudioConfig {
         return null;
     }
 
-    public static long msToByte(long ms, int sampleRate, int sampleSize){
+    public static long msToByte(long ms, int sampleRate, int sampleSize) {
         return (long) (ms * (sampleRate / 1000d) * sampleSize);
     }
 
 
     /**
      * Tries to detect a working audio configuration.
+     *
      * @return a working audio config, or {@link #DEFAULT} if not found
      */
     public static synchronized AudioConfig detect() {

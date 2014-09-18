@@ -6,19 +6,19 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.api.legacy.TempEndpoints;
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncConfig;
@@ -35,7 +35,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Content  {
+public enum Content {
     ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.USERS),
     ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.USER_ASSOCIATIONS),
@@ -60,8 +60,8 @@ public enum Content  {
     ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 122, PublicApiPlaylist.class, -1, null),
     ME_PLAYLIST_LIKE("me/likes/playlists/#", TempEndpoints.e1.MY_PLAYLIST_LIKE, 123, PublicApiPlaylist.class, -1, null),
 
-    ME_CONNECTION("me/connections/#",Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
-    ME_CONNECTIONS("me/connections",Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
+    ME_CONNECTION("me/connections/#", Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
+    ME_CONNECTIONS("me/connections", Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
     ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
 
     // the ids of the following entries should not be changed, they are referenced in th db
@@ -153,7 +153,9 @@ public enum Content  {
         this.table = table;
     }
 
-    /** one of {@link com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes} */
+    /**
+     * one of {@link com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes}
+     */
     public final int collectionType;
     public final int id;
     public final
@@ -224,7 +226,9 @@ public enum Content  {
     }
 
     public Uri withQuery(String... args) {
-        if (args.length % 2 != 0) throw new IllegalArgumentException("need even params");
+        if (args.length % 2 != 0) {
+            throw new IllegalArgumentException("need even params");
+        }
 
         Uri.Builder builder = buildUpon();
         for (int i = 0; i < args.length; i += 2) {
@@ -259,7 +263,7 @@ public enum Content  {
     public Request request(Uri contentUri) {
         if (remoteUri != null) {
             String query = null;
-            if (contentUri != null){
+            if (contentUri != null) {
                 query = contentUri.getQuery();
             }
 
@@ -299,7 +303,9 @@ public enum Content  {
     }
 
     public static Content match(Uri uri) {
-        if (uri == null) return null;
+        if (uri == null) {
+            return null;
+        }
         final int match = sMatcher.match(uri);
 
         return match != -1 ? sMap.get(match) : UNKNOWN;
@@ -317,17 +323,21 @@ public enum Content  {
         }
     }
 
-    public static @Nullable Content byUri(Uri uri) {
+    public static
+    @Nullable
+    Content byUri(Uri uri) {
         return sUris.get(uri);
     }
 
-    public boolean isUserBased(){
+    public boolean isUserBased() {
         return PublicApiUser.class.equals(modelType) || UserAssociation.class.equals(modelType);
     }
 
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (isUserBased()) return lastSync <= 0;
+        if (isUserBased()) {
+            return lastSync <= 0;
+        }
         final long staleTime = (modelType == PublicApiTrack.class) ? SyncConfig.TRACK_STALE_TIME :
                 (modelType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
                         SyncConfig.DEFAULT_STALE_TIME;

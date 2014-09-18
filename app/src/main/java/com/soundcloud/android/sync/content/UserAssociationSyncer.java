@@ -11,9 +11,9 @@ import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -91,7 +91,9 @@ public class UserAssociationSyncer extends SyncStrategy {
 
     private ApiSyncResult syncLocalToRemote(Content content, final long userId) throws IOException {
         ApiSyncResult result = new ApiSyncResult(content.uri);
-        if (!Content.ID_BASED.contains(content)) return result;
+        if (!Content.ID_BASED.contains(content)) {
+            return result;
+        }
 
         List<Long> local = userAssociationStorage.getStoredIds(content.uri);
         List<Long> remote = api.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
@@ -164,7 +166,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                     // no flags, no op.
                     return true;
             }
-            if (success){
+            if (success) {
                 userAssociationStorage.setFollowingAsSynced(userAssociation);
             }
             return success;
@@ -206,8 +208,8 @@ public class UserAssociationSyncer extends SyncStrategy {
         result.success = true;
         if (content == Content.ME_FOLLOWINGS && userAssociationStorage.hasFollowingsNeedingSync()) {
             List<UserAssociation> associationsNeedingSync = userAssociationStorage.getFollowingsNeedingSync();
-            for(UserAssociation userAssociation : associationsNeedingSync){
-                if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)){
+            for (UserAssociation userAssociation : associationsNeedingSync) {
+                if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)) {
                     result.success = false;
                 }
             }

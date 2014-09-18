@@ -25,12 +25,13 @@ public class SoundAssociation extends Association implements PlayableHolder {
     public @NotNull Playable playable;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public SoundAssociation() { }
+    public SoundAssociation() {
+    }
 
     public SoundAssociation(Cursor cursor) {
         super(cursor);
         // single instance considerations
-        if (Playable.isTrackCursor(cursor)){
+        if (Playable.isTrackCursor(cursor)) {
             playable = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor, TableColumns.SoundAssociationView._ID);
         } else {
             playable = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(cursor, TableColumns.SoundAssociationView._ID);
@@ -39,6 +40,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
 
     /**
      * Use this ctor to create sound associations for likes and reposts of playlists and tracks.
+     *
      * @param playable the track or playlist that was reposted or liked
      * @param typeEnum the kind of association
      */
@@ -79,13 +81,17 @@ public class SoundAssociation extends Association implements PlayableHolder {
     @JsonProperty("playlist")
     public void setPlaylist(PublicApiPlaylist playlist) {
         // check for null as it will try to set a null value on deserialization
-        if (playlist != null) playable = playlist;
+        if (playlist != null) {
+            playable = playlist;
+        }
     }
 
     @JsonProperty("track")
     public void setTrack(PublicApiTrack track) {
         // check for null as it will try to set a null value on deserialization
-        if (track != null) playable = track;
+        if (track != null) {
+            playable = track;
+        }
     }
 
     @Override
@@ -105,7 +111,8 @@ public class SoundAssociation extends Association implements PlayableHolder {
     }
 
     @Override
-    @NotNull public Playable getPlayable() {
+    @NotNull
+    public Playable getPlayable() {
         return playable;
     }
 

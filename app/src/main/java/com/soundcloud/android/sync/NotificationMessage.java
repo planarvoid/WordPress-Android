@@ -4,10 +4,10 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.service.sync.NotificationImageDownloader;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -104,12 +104,12 @@ class NotificationMessage {
                         comments.size() > 1 ? comments.get(1).getUser().username : null);
             } else {
                 message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_comment,
-                                users.size(),
-                                users.get(0).username,
-                                (users.size() > 1 ? users.get(1).username : null));
+                        users.size(),
+                        users.get(0).username,
+                        (users.size() > 1 ? users.get(1).username : null));
             }
         } else {
-           // mix of likes, comments, reposts
+            // mix of likes, comments, reposts
             List<Playable> playables = activities.getUniquePlayables();
             List<PublicApiUser> users = activities.getUniqueUsers();
             ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
@@ -133,24 +133,25 @@ class NotificationMessage {
                 app.getString(R.string.dashboard_notifications_ticker_follower),
                 app.getString(R.string.dashboard_notifications_title_follower),
                 app.getString(R.string.dashboard_notifications_message_follower, u.username),
-                createNotificationIntent(Actions.USER_BROWSER).putExtra("user",u),
+                createNotificationIntent(Actions.USER_BROWSER).putExtra("user", u),
                 Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID,
                 u.avatar_url);
     }
 
-    /* package */  static void showDashboardNotification(final Context context,
-                                                  final CharSequence ticker,
-                                                  final CharSequence title,
-                                                  final CharSequence message,
-                                                  final Intent intent,
-                                                  final int id,
-                                                  final String artworkUri) {
+    /* package */
+    static void showDashboardNotification(final Context context,
+                                          final CharSequence ticker,
+                                          final CharSequence title,
+                                          final CharSequence message,
+                                          final Intent intent,
+                                          final int id,
+                                          final String artworkUri) {
         final String largeIconUri = ApiImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
         if (!Consts.SdkSwitches.USE_RICH_NOTIFICATIONS || !ImageUtils.checkIconShouldLoad(largeIconUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
             // cannot use imageloader here as the weak reference to the fake image will get dropped and the image won't load (sometimes)
-            new NotificationImageDownloader(){
+            new NotificationImageDownloader() {
                 @Override
                 protected void onPostExecute(Bitmap bitmap) {
                     showDashboardNotification(context, ticker, intent, title, message, id, bitmap);
@@ -159,35 +160,40 @@ class NotificationMessage {
         }
     }
 
-     /* package */ static void showDashboardNotification(Context context,
-                                                  CharSequence ticker,
-                                                  Intent intent,
-                                                  CharSequence title,
-                                                  CharSequence message,
-                                                  int id,
-                                                  @Nullable Bitmap bmp) {
+    /* package */
+    static void showDashboardNotification(Context context,
+                                          CharSequence ticker,
+                                          Intent intent,
+                                          CharSequence title,
+                                          CharSequence message,
+                                          int id,
+                                          @Nullable Bitmap bmp) {
 
         final PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-         builder.setSmallIcon(R.drawable.ic_notification_cloud);
-         builder.setContentIntent(pendingIntent);
-         builder.setAutoCancel(true);
-         builder.setTicker(ticker);
-         builder.setContentTitle(title);
-         builder.setContentText(message);
-         if (bmp != null) builder.setLargeIcon(bmp);
-         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id, builder.build());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setContentIntent(pendingIntent);
+        builder.setAutoCancel(true);
+        builder.setTicker(ticker);
+        builder.setContentTitle(title);
+        builder.setContentText(message);
+        if (bmp != null) {
+            builder.setLargeIcon(bmp);
+        }
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id, builder.build());
     }
 
-    /* package */ static Intent createNotificationIntent(String action){
+    /* package */
+    static Intent createNotificationIntent(String action) {
         return new Intent(action)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
 
-    /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
+    /* package */
+    static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
         List<PublicApiUser> users = activites.getUniqueUsers();
         switch (users.size()) {
             case 0:

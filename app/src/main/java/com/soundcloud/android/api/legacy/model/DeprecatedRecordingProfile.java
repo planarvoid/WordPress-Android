@@ -22,7 +22,7 @@ public enum DeprecatedRecordingProfile {
     final int id;
     final String updatedExtension;
 
-    DeprecatedRecordingProfile(int id, String updatedExtension){
+    DeprecatedRecordingProfile(int id, String updatedExtension) {
         this.id = id;
         this.updatedExtension = updatedExtension;
     }
@@ -32,7 +32,9 @@ public enum DeprecatedRecordingProfile {
             try {
                 final int profile = Integer.parseInt(IOUtils.extension(f));
                 for (DeprecatedRecordingProfile p : DeprecatedRecordingProfile.values()) {
-                    if (p.id == profile) return p;
+                    if (p.id == profile) {
+                        return p;
+                    }
                 }
             } catch (NumberFormatException ignore) {
             }
@@ -47,7 +49,9 @@ public enum DeprecatedRecordingProfile {
     public static boolean migrateRecordings(List<Recording> recordings, final ContentResolver resolver) {
         final List<Recording> migrate = new ArrayList<Recording>();
         for (Recording r : recordings) {
-            if (needsMigration(r)) migrate.add(r);
+            if (needsMigration(r)) {
+                migrate.add(r);
+            }
         }
 
         if (!migrate.isEmpty()) {
@@ -65,7 +69,7 @@ public enum DeprecatedRecordingProfile {
                         }
                     }
                     int updated = resolver.bulkInsert(Content.RECORDINGS.uri, cv);
-                    Log.i(SoundCloudApplication.TAG,"Finished migrating " + updated + " recordings");
+                    Log.i(SoundCloudApplication.TAG, "Finished migrating " + updated + " recordings");
                 }
             }.start();
             return true;
@@ -83,7 +87,7 @@ public enum DeprecatedRecordingProfile {
         if (profile != DeprecatedRecordingProfile.UNKNOWN) {
             final File newPath = IOUtils.changeExtension(r.audio_path, profile.updatedExtension);
             final long lastMod = r.audio_path.lastModified();
-            if (r.audio_path.renameTo(newPath)){
+            if (r.audio_path.renameTo(newPath)) {
                 newPath.setLastModified(lastMod);
                 r.audio_path = newPath;
                 r.external_upload = true;

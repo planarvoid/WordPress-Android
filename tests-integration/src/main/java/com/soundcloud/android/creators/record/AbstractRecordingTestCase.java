@@ -10,9 +10,9 @@ import static com.soundcloud.android.creators.record.RecordActivity.CreateState.
 import com.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.upload.UploadService;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.preferences.DeveloperPreferences;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -52,7 +52,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     protected Env env;
 
 
-    final private  BroadcastReceiver receiver = new BroadcastReceiver() {
+    final private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             intents.put(intent.getAction(), intent);
@@ -60,7 +60,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     };
 
     private static final long TRANSCODING_WAIT_TIME = 60 * 1000 * 3; // 3 minutes
-    private static final long UPLOAD_WAIT_TIME      = 20 * 1000;
+    private static final long UPLOAD_WAIT_TIME = 20 * 1000;
     private static final boolean FAIL_ON_TRANSCODE_TIMEOUT = false;
 
     // somehow the api sometimes reports 0 as length, after successful transcoding */
@@ -182,7 +182,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
             }
         }
         assertNotNull(
-                "state "+ Arrays.toString(state) + " not reached, current = "+ getActivity().getState(),
+                "state " + Arrays.toString(state) + " not reached, current = " + getActivity().getState(),
                 reached);
     }
 
@@ -199,7 +199,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         return false;
     }
 
-    protected @Nullable Intent waitForIntent(String action, long timeout) {
+    protected
+    @Nullable
+    Intent waitForIntent(String action, long timeout) {
         final long startTime = SystemClock.uptimeMillis();
         final long endTime = startTime + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
@@ -211,18 +213,22 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         return null;
     }
 
-    protected @NotNull Intent assertIntentAction(String action, long timeout) {
+    protected
+    @NotNull
+    Intent assertIntentAction(String action, long timeout) {
         Intent intent = waitForIntent(action, timeout);
         assertNotNull("did not get intent action " + action, intent);
         return intent;
     }
 
     protected void assertSoundEncoded(long timeout) {
-        assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+        assertIntentAction(UploadService.PROCESSING_STARTED, 2000);
         assertIntentAction(UploadService.PROCESSING_SUCCESS, timeout);
     }
 
-    protected @NotNull Recording assertSoundUploaded() {
+    protected
+    @NotNull
+    Recording assertSoundUploaded() {
         if (!getActivity().getRecorder().shouldEncodeWhileRecording()) {
             assertSoundEncoded(UPLOAD_WAIT_TIME * 4);
         }
@@ -244,7 +250,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
     }
 
-    protected @Nullable
+    protected
+    @Nullable
     PublicApiTrack assertSoundTranscoded() {
         // sandbox fails sometimes, only check live system
         if (env == Env.LIVE) {
@@ -254,10 +261,12 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
                 if (intents.containsKey(UploadService.TRANSCODING_FAILED)) {
                     fail("transcoding failed");
                 } else {
-                    if (FAIL_ON_TRANSCODE_TIMEOUT) fail("transcoding timeout");
+                    if (FAIL_ON_TRANSCODE_TIMEOUT) {
+                        fail("transcoding timeout");
+                    }
                 }
                 return null;
-            }  else {
+            } else {
                 PublicApiTrack track = intent.getParcelableExtra(PublicApiTrack.EXTRA);
                 assertNotNull("track is null", track);
                 return track;
@@ -267,7 +276,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
     }
 
-    protected @Nullable File fillUpSpace(long whatsLeft) throws IOException {
+    protected
+    @Nullable
+    File fillUpSpace(long whatsLeft) throws IOException {
         File dir = Environment.getExternalStorageDirectory();
         long currentLeft = IOUtils.getSpaceLeft(dir);
         if (currentLeft > whatsLeft) {
@@ -275,11 +286,13 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
             final File filler = new File(dir, "filler");
             RandomAccessFile file = new RandomAccessFile(filler, "rw");
             file.setLength(fSize);
-            file.seek(fSize -1);
+            file.seek(fSize - 1);
             file.write(42);
             file.close();
             return filler;
-        } else return null;
+        } else {
+            return null;
+        }
     }
 
     protected void setRecordingType(@Nullable String type) throws Exception {
@@ -294,18 +307,18 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
     }
 
     protected void assertTrackDuration(PublicApiTrack track, long durationInMs) {
-        Log.d(getClass().getSimpleName(), "assertTrack("+track+")");
+        Log.d(getClass().getSimpleName(), "assertTrack(" + track + ")");
         if (track != null) {
-            assertTrue("track is not finished: "+track, track.isFinished());
-            assertEquals("track is not in ogg format: "+track, VorbisReader.EXTENSION, track.original_format);
+            assertTrue("track is not finished: " + track, track.isFinished());
+            assertEquals("track is not in ogg format: " + track, VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
             if (!applicationProperties.isRunningOnEmulator()) {
-                assertEquals("track duration: "+track, durationInMs, track.duration, 2000);
+                assertEquals("track duration: " + track, durationInMs, track.duration, 2000);
             }
 
             if (FAIL_ON_ZERO_DURATION) {
-                assertTrue("track has length 0: "+track, track.duration > 0);
+                assertTrue("track has length 0: " + track, track.duration > 0);
             }
         }
     }
@@ -323,7 +336,11 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         rightTrim = solo.findElements(With.className(TrimHandleView.class)).get(1);
         int width = solo.getScreenWidth();
 
-        if (left > 0)  leftTrim.dragHorizontally((int) (width * left), 5);
-        if (right > 0) rightTrim.dragHorizontally(-(int) (width * right),5);
+        if (left > 0) {
+            leftTrim.dragHorizontally((int) (width * left), 5);
+        }
+        if (right > 0) {
+            rightTrim.dragHorizontally(-(int) (width * right), 5);
+        }
     }
 }

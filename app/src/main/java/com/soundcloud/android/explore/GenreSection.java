@@ -29,13 +29,21 @@ class GenreSection<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         GenreSection section = (GenreSection) o;
 
-        if (sectionId != section.sectionId) return false;
-        if (!items.equals(section.items)) return false;
+        if (sectionId != section.sectionId) {
+            return false;
+        }
+        if (!items.equals(section.items)) {
+            return false;
+        }
 
         return true;
     }

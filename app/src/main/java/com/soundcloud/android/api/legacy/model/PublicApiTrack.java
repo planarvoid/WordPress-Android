@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -42,7 +41,7 @@ import java.util.regex.Pattern;
 
 @Deprecated
 @SuppressWarnings({"UnusedDeclaration"})
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PublicApiTrack extends Playable {
     public static final String EXTRA = "track";
     public static final String EXTRA_ID = "track_id";
@@ -62,7 +61,7 @@ public class PublicApiTrack extends Playable {
 
     @JsonView(Views.Full.class) public int playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
-    @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
+    @JsonView(Views.Full.class) public int comment_count = NOT_SET;
 
     @JsonView(Views.Full.class) public String original_format;
 
@@ -118,7 +117,7 @@ public class PublicApiTrack extends Playable {
         permalink_url = suggestion.getPermalinkUrl();
 
         final TrackStats stats = suggestion.getStats();
-        if (stats != null){
+        if (stats != null) {
             playback_count = stats.getPlaybackCount();
             likes_count = stats.getLikesCount();
             comment_count = stats.getCommentsCount();
@@ -139,7 +138,9 @@ public class PublicApiTrack extends Playable {
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
-        if (tag_list == null) return tags;
+        if (tag_list == null) {
+            return tags;
+        }
         Matcher m = TAG_PATTERN.matcher(tag_list);
         while (m.find()) {
             tags.add(tag_list.substring(m.start(2), m.end(2)).trim());
@@ -170,7 +171,7 @@ public class PublicApiTrack extends Playable {
     /**
      * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
      */
-    public void setWaveformUrl(String waveformUrl){
+    public void setWaveformUrl(String waveformUrl) {
         waveform_url = fixWaveform(waveformUrl);
     }
 
@@ -261,7 +262,7 @@ public class PublicApiTrack extends Playable {
                 .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
     }
 
-    @JsonIgnoreProperties(ignoreUnknown=true)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class CreatedWith implements Parcelable {
 
         @JsonView(Views.Full.class) public long id;
@@ -269,6 +270,7 @@ public class PublicApiTrack extends Playable {
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
         @JsonView(Views.Full.class) public String external_url;
+
         public CreatedWith() {
             super();
         }
@@ -304,12 +306,14 @@ public class PublicApiTrack extends Playable {
             public CreatedWith createFromParcel(Parcel in) {
                 return new CreatedWith(in);
             }
+
             public CreatedWith[] newArray(int size) {
                 return new CreatedWith[size];
             }
         };
 
     }
+
     public PublicApiTrack() {
         super();
     }
@@ -385,17 +389,39 @@ public class PublicApiTrack extends Playable {
         ContentValues cv = super.buildContentValues();
 
 
-        if (stream_url != null) cv.put(TableColumns.Sounds.STREAM_URL, stream_url);
-        if (state != null) cv.put(TableColumns.Sounds.STATE, state.name);
-        if (track_type != null) cv.put(TableColumns.Sounds.TRACK_TYPE, track_type);
-        if (waveform_url != null) cv.put(TableColumns.Sounds.WAVEFORM_URL, waveform_url);
-        if (download_url != null) cv.put(TableColumns.Sounds.DOWNLOAD_URL, download_url);
-        if (playback_count != NOT_SET) cv.put(TableColumns.Sounds.PLAYBACK_COUNT, playback_count);
-        if (download_count != NOT_SET) cv.put(TableColumns.Sounds.DOWNLOAD_COUNT, download_count);
-        if (comment_count  != NOT_SET) cv.put(TableColumns.Sounds.COMMENT_COUNT, comment_count);
-        if (commentable) cv.put(TableColumns.Sounds.COMMENTABLE, commentable);
-        if (shared_to_count != NOT_SET) cv.put(TableColumns.Sounds.SHARED_TO_COUNT, shared_to_count);
-        if (description != null) cv.put(TableColumns.Sounds.DESCRIPTION, description);
+        if (stream_url != null) {
+            cv.put(TableColumns.Sounds.STREAM_URL, stream_url);
+        }
+        if (state != null) {
+            cv.put(TableColumns.Sounds.STATE, state.name);
+        }
+        if (track_type != null) {
+            cv.put(TableColumns.Sounds.TRACK_TYPE, track_type);
+        }
+        if (waveform_url != null) {
+            cv.put(TableColumns.Sounds.WAVEFORM_URL, waveform_url);
+        }
+        if (download_url != null) {
+            cv.put(TableColumns.Sounds.DOWNLOAD_URL, download_url);
+        }
+        if (playback_count != NOT_SET) {
+            cv.put(TableColumns.Sounds.PLAYBACK_COUNT, playback_count);
+        }
+        if (download_count != NOT_SET) {
+            cv.put(TableColumns.Sounds.DOWNLOAD_COUNT, download_count);
+        }
+        if (comment_count != NOT_SET) {
+            cv.put(TableColumns.Sounds.COMMENT_COUNT, comment_count);
+        }
+        if (commentable) {
+            cv.put(TableColumns.Sounds.COMMENTABLE, commentable);
+        }
+        if (shared_to_count != NOT_SET) {
+            cv.put(TableColumns.Sounds.SHARED_TO_COUNT, shared_to_count);
+        }
+        if (description != null) {
+            cv.put(TableColumns.Sounds.DESCRIPTION, description);
+        }
         if (isCompleteTrack()) {
             cv.put(TableColumns.Sounds.LAST_UPDATED, System.currentTimeMillis());
         }
@@ -411,7 +437,7 @@ public class PublicApiTrack extends Playable {
         comments = t.comments;
     }
 
-    public boolean isCompleteTrack(){
+    public boolean isCompleteTrack() {
         return state != null && created_at != null && duration > 0;
     }
 
@@ -445,7 +471,7 @@ public class PublicApiTrack extends Playable {
 
         if (!TextUtils.isEmpty(label_name)) {
             str.append("<b>Released By</b><br/>")
-               .append(label_name).append("<br/>");
+                    .append(label_name).append("<br/>");
 
             if (release_day > 0) {
                 str.append(release_year).append("<br/>");
@@ -455,11 +481,11 @@ public class PublicApiTrack extends Playable {
 
         if (created_with != null && !created_with.isEmpty()) {
             str.append("Created with <a href=\"")
-               .append(created_with.permalink_url)
-               .append("\">")
-               .append(created_with.name)
-               .append("</a>")
-               .append("<br/>");
+                    .append(created_with.permalink_url)
+                    .append("\">")
+                    .append(created_with.name)
+                    .append("</a>")
+                    .append("<br/>");
         }
 
         return str.toString();
@@ -473,9 +499,9 @@ public class PublicApiTrack extends Playable {
 
             sb.append("Licensed under a Creative Commons License ");
             sb.append('(').append("<a href='").append(getCCLink(cc)).append("'>")
-               .append(cc.toUpperCase(Locale.US))
-               .append("</a>")
-               .append(')');
+                    .append(cc.toUpperCase(Locale.US))
+                    .append("</a>")
+                    .append(')');
         } else if ("no-rights-reserved".equals(license)) {
             sb.append("No Rights Reserved");
         }
@@ -483,7 +509,7 @@ public class PublicApiTrack extends Playable {
     }
 
     private String getCCLink(String license) {
-        return "http://creativecommons.org/licenses/"+license+"/3.0";
+        return "http://creativecommons.org/licenses/" + license + "/3.0";
     }
 
     public int getEstimatedFileSize() {
@@ -514,13 +540,15 @@ public class PublicApiTrack extends Playable {
                 .toString();
     }
 
-    public @Nullable URL getWaveformDataURL() {
+    public
+    @Nullable
+    URL getWaveformDataURL() {
         if (TextUtils.isEmpty(waveform_url)) {
             return null;
         } else {
             try {
                 Uri waveform = Uri.parse(waveform_url);
-                return new URL("http://wis.sndcdn.com/"+waveform.getLastPathSegment());
+                return new URL("http://wis.sndcdn.com/" + waveform.getLastPathSegment());
             } catch (MalformedURLException e) {
                 return null;
             }
@@ -542,9 +570,9 @@ public class PublicApiTrack extends Playable {
     }
 
     public PublicApiTrack updateFrom(PublicApiTrack updatedItem, CacheUpdateMode cacheUpdateMode) {
-        super.updateFrom(updatedItem,cacheUpdateMode);
+        super.updateFrom(updatedItem, cacheUpdateMode);
         stream_url = updatedItem.stream_url;
-        if (cacheUpdateMode == CacheUpdateMode.FULL){
+        if (cacheUpdateMode == CacheUpdateMode.FULL) {
             user_like = updatedItem.user_like;
             commentable = updatedItem.commentable;
             state = updatedItem.state;
@@ -557,8 +585,10 @@ public class PublicApiTrack extends Playable {
     }
 
     public String userTrackPermalink() {
-        if (permalink == null) return null;
-        return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
+        if (permalink == null) {
+            return null;
+        }
+        return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink + "/" : "") + permalink;
     }
 
     public enum State {
@@ -570,9 +600,10 @@ public class PublicApiTrack extends Playable {
 
         private final String name;
 
-        private State(String name){
+        private State(String name) {
             this.name = name;
         }
+
         @JsonValue
         public String value() {
             return name;
@@ -582,32 +613,42 @@ public class PublicApiTrack extends Playable {
         @JsonCreator
         public static State fromString(String str) {
             for (State s : values()) {
-                if (s.name.equalsIgnoreCase(str)) return s;
+                if (s.name.equalsIgnoreCase(str)) {
+                    return s;
+                }
             }
             return UNDEFINED;
         }
 
-        public boolean isStreamable(){
+        public boolean isStreamable() {
             // TODO: we can probably get away without including UNDEFINED in a subsequent release,
             // as it will get updated lazily on first load
             return FINISHED == this || UNDEFINED == this;
         }
 
-        public boolean isFailed()     { return FAILED == this; }
+        public boolean isFailed() {
+            return FAILED == this;
+        }
 
-        public boolean isProcessing() { return PROCESSING == this; }
-        public boolean isFinished()   { return FINISHED == this; }
+        public boolean isProcessing() {
+            return PROCESSING == this;
+        }
+
+        public boolean isFinished() {
+            return FINISHED == this;
+        }
     }
+
     @Override
     public int getTypeId() {
         return DB_TYPE_TRACK;
     }
 
-    public String getStreamUrl(){
+    public String getStreamUrl() {
         return stream_url;
     }
 
-    protected static String fixWaveform(String input){
+    protected static String fixWaveform(String input) {
         if (input != null && !input.endsWith("_m.png")) {
             return input.replace(".png", "_m.png");
         } else {

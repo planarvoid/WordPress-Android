@@ -19,14 +19,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class LoginLayout extends AuthLayout {
-    private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
+    private static final String BUNDLE_EMAIL = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
 
     public interface LoginHandler extends AuthHandler {
         void onLogin(String email, String password);
+
         void onCancelLogin();
+
         void onRecover(String email);
     }
+
     @Nullable private LoginHandler loginHandler;
 
     public LoginLayout(Context context) {
@@ -52,10 +55,10 @@ public class LoginLayout extends AuthLayout {
 
         final Context context = getContext();
 
-        final AutoCompleteTextView emailField     = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
-        final EditText             passwordField  = (EditText)              findViewById(R.id.txt_password);
-        final Button               loginButton    = (Button)                findViewById(R.id.btn_login);
-        final Button               cancelButton   = (Button)                findViewById(R.id.btn_cancel);
+        final AutoCompleteTextView emailField = (AutoCompleteTextView) findViewById(R.id.auto_txt_email_address);
+        final EditText passwordField = (EditText) findViewById(R.id.txt_password);
+        final Button loginButton = (Button) findViewById(R.id.btn_login);
+        final Button cancelButton = (Button) findViewById(R.id.btn_cancel);
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -128,19 +131,21 @@ public class LoginLayout extends AuthLayout {
     }
 
     public Bundle getStateBundle() {
-        EditText emailField    = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText passwordField = (EditText) findViewById(R.id.txt_password);
 
         Bundle bundle = new Bundle();
-        bundle.putCharSequence(BUNDLE_EMAIL,    emailField.getText());
+        bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
         bundle.putCharSequence(BUNDLE_PASSWORD, passwordField.getText());
         return bundle;
     }
 
     public void setState(@Nullable Bundle bundle) {
-        if (bundle == null) return;
+        if (bundle == null) {
+            return;
+        }
 
-        EditText emailField    = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText passwordField = (EditText) findViewById(R.id.txt_password);
 
         emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));

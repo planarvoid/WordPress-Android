@@ -27,7 +27,9 @@ public final class Http {
      */
     public static String getString(HttpResponse response) throws IOException {
         InputStream is = response.getEntity().getContent();
-        if (is == null) return null;
+        if (is == null) {
+            return null;
+        }
 
         int length = ApiWrapper.BUFFER_SIZE;
         Header contentLength = null;
@@ -52,7 +54,9 @@ public final class Http {
 
     public static JSONObject getJSON(HttpResponse response) throws IOException {
         final String json = getString(response);
-        if (json == null || json.length() == 0) throw new IOException("JSON response is empty");
+        if (json == null || json.length() == 0) {
+            throw new IOException("JSON response is empty");
+        }
         try {
             return new JSONObject(json);
         } catch (JSONException e) {

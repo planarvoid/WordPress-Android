@@ -136,7 +136,9 @@ class OAuth2Scheme implements AuthScheme {
     }
 
     static String extractToken(Header h) {
-        if (h == null || h.getValue() == null) return null;
+        if (h == null || h.getValue() == null) {
+            return null;
+        }
         if (AUTH.WWW_AUTH_RESP.equalsIgnoreCase(h.getName())) {
             Matcher m = AUTHORIZATION_HEADER_PATTERN.matcher(h.getValue());
             return m.matches() ? m.group(1) : null;

@@ -40,14 +40,18 @@ public class SingleLineCollectionTextView extends TextView {
 
     public void setDisplayItems(List<String> displayItems) {
         this.displayItems = displayItems;
-        if (getMeasuredWidth() > 0) setCollectionText();
+        if (getMeasuredWidth() > 0) {
+            setCollectionText();
+        }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        if (changed) setCollectionText();
+        if (changed) {
+            setCollectionText();
+        }
     }
 
 

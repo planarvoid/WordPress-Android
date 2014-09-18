@@ -51,10 +51,10 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
 
         getInstrumentation().getContext()
-            .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean("hasShot1", true)
-            .commit();
+                .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("hasShot1", true)
+                .commit();
         applicationProperties = new ApplicationProperties(getActivity().getResources());
     }
 
@@ -78,7 +78,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
         for (ActivityManager.RunningAppProcessInfo pi : activityManager.getRunningAppProcesses()) {
             if ("com.soundcloud.android".equals(pi.processName)) {
-                Log.d(getClass().getSimpleName(), "killSelf:"+pi.processName+","+pi.pid);
+                Log.d(getClass().getSimpleName(), "killSelf:" + pi.processName + "," + pi.pid);
                 android.os.Process.killProcess(pi.pid);
             }
         }
@@ -87,7 +87,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected void assertPackageNotInstalled(String pkg) {
         try {
             PackageInfo i = getInstrumentation().getTargetContext().getPackageManager().getPackageInfo(pkg, 0);
-            fail("package "+i+ " should not be installed");
+            fail("package " + i + " should not be installed");
         } catch (PackageManager.NameNotFoundException e) {
             // good
         }
@@ -95,14 +95,15 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void runTest() throws Throwable {
-        if (shouldSkip()) return;
+        if (shouldSkip()) {
+            return;
+        }
         try {
             super.runTest();
             LogCollector.markFileForDeletion();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             solo.takeScreenshot(testCaseName);
-            Log.w("Boom! Screenshot!",String.format("Captured screenshot for failed test: %s", testCaseName));
+            Log.w("Boom! Screenshot!", String.format("Captured screenshot for failed test: %s", testCaseName));
             throw t;
         }
     }

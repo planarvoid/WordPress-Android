@@ -64,10 +64,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     private final static int TYPE_SEARCH_ITEM = 0;
-    private final static int TYPE_TRACK  = 1;
-    private final static int TYPE_USER  = 2;
+    private final static int TYPE_TRACK = 1;
+    private final static int TYPE_USER = 2;
 
-    private static final int MAX_LOCAL  = 5;
+    private static final int MAX_LOCAL = 5;
     private static final int MAX_REMOTE = 5;
 
     private ImageOperations mImageOperations;
@@ -92,7 +92,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private String mCurrentConstraint;
     private Pattern mCurrentPattern;
 
-    private @NotNull SearchSuggestions mLocalSuggestions  = SearchSuggestions.EMPTY;
+    private @NotNull SearchSuggestions mLocalSuggestions = SearchSuggestions.EMPTY;
     private @NotNull SearchSuggestions mRemoteSuggestions = SearchSuggestions.EMPTY;
 
     public SuggestionsAdapter(Context context, PublicCloudAPI api, ContentResolver contentResolver) {
@@ -154,10 +154,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private int getUriType(Uri uri) {
         switch (Content.match(uri)) {
-            case SEARCH_ITEM: return TYPE_SEARCH_ITEM;
-            case TRACK: return TYPE_TRACK;
-            case USER:  return TYPE_USER;
-            default: return TYPE_TRACK;
+            case SEARCH_ITEM:
+                return TYPE_SEARCH_ITEM;
+            case TRACK:
+                return TYPE_TRACK;
+            case USER:
+                return TYPE_USER;
+            default:
+                return TYPE_TRACK;
         }
     }
 
@@ -230,7 +234,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private void prefetchResults(SearchSuggestions suggestions) {
-        if (suggestions.isEmpty() || !shouldPrefetch()) return;
+        if (suggestions.isEmpty() || !shouldPrefetch()) {
+            return;
+        }
 
         final List<Long> trackIds = new ArrayList<Long>();
         final List<Long> userIds = new ArrayList<Long>();
@@ -238,9 +244,15 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         suggestions.putRemoteIds(trackIds, userIds, playlistIds);
 
         ArrayList<Uri> toSync = new ArrayList<Uri>();
-        if (!trackIds.isEmpty()) toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));
-        if (!userIds.isEmpty()) toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userIds)));
-        if (!playlistIds.isEmpty()) toSync.add(Content.PLAYLIST_LOOKUP.forQuery(TextUtils.join(",", playlistIds)));
+        if (!trackIds.isEmpty()) {
+            toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));
+        }
+        if (!userIds.isEmpty()) {
+            toSync.add(Content.USER_LOOKUP.forQuery(TextUtils.join(",", userIds)));
+        }
+        if (!playlistIds.isEmpty()) {
+            toSync.add(Content.PLAYLIST_LOOKUP.forQuery(TextUtils.join(",", playlistIds)));
+        }
 
         if (!toSync.isEmpty()) {
             Intent intent = new Intent(context, ApiSyncService.class)
@@ -300,7 +312,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                         .build(),
                 null,
                 null,
-                new String[] { constraint},
+                new String[]{constraint},
                 null);
 
         SearchSuggestions suggestions = new SearchSuggestions(cursor);
@@ -309,7 +321,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private Cursor withHeader(Cursor c1) {
-        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 }) {
+        return new MergeCursor(new Cursor[]{createHeader(mCurrentConstraint), c1}) {
             // for full screen IMEs (e.g. in landscape mode), not the view will be used but the toString method to
             // show results on the keyboard word completion list
             @Override
@@ -397,7 +409,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     protected Spanned highlightRemote(final String query, final String highlightData) {
         SpannableString spanned = new SpannableString(query);
-        if (!TextUtils.isEmpty(highlightData)){
+        if (!TextUtils.isEmpty(highlightData)) {
             String[] regions = highlightData.split(";");
             for (String regionData : regions) {
                 String[] bounds = regionData.split(",");
@@ -473,11 +485,11 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     /**
      * @param query the search query
      * @return a highlight pattern
-     *
      * @see <a href="https://github.com/soundcloud/v2/blob/016de18498c410c4c9ff1875bc48286741df69e3/app/collections/shortcuts.js#L30">
-     *     Definition in next/v2</a>
+     * Definition in next/v2</a>
      */
-    /* package */ static Pattern getHighlightPattern(String query) {
-        return Pattern.compile("(^|[\\s.\\(\\)\\[\\]_-])(" +Pattern.quote(query)+")", Pattern.CASE_INSENSITIVE);
+    /* package */
+    static Pattern getHighlightPattern(String query) {
+        return Pattern.compile("(^|[\\s.\\(\\)\\[\\]_-])(" + Pattern.quote(query) + ")", Pattern.CASE_INSENSITIVE);
     }
 }

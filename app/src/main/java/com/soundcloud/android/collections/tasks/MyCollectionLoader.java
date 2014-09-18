@@ -2,17 +2,17 @@ package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.Friend;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.storage.CollectionStorage;
-import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.api.legacy.model.Friend;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.storage.CollectionStorage;
+import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
@@ -44,7 +44,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         boolean keepGoing = true;
         int responseCode = EmptyView.Status.OK;
 
-        switch (params.getContent()){
+        switch (params.getContent()) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
@@ -68,17 +68,17 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                 params.getPagedUri());
 
 
-        if (keepGoing) keepGoing = newItems.size() > 0;
+        if (keepGoing) {
+            keepGoing = newItems.size() > 0;
+        }
 
         return new ReturnData<T>(newItems, params, null, responseCode, keepGoing, true);
     }
 
     // TODO: this is horrible, leftover from ScModelManager
-    private static
-    <T extends ScModel> List<T> loadLocalContent(ContentResolver resolver,
-                                                 Class<T> resourceType,
-                                                 Uri localUri)
-    {
+    private static <T extends ScModel> List<T> loadLocalContent(ContentResolver resolver,
+                                                                Class<T> resourceType,
+                                                                Uri localUri) {
         Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
         List<ScModel> items = new ArrayList<ScModel>();
         if (itemsCursor != null) {
@@ -99,7 +99,9 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }
         }
-        if (itemsCursor != null) itemsCursor.close();
+        if (itemsCursor != null) {
+            itemsCursor.close();
+        }
         //noinspection unchecked
         return (List<T>) items;
     }

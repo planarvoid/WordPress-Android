@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
 public class StreamProxy {
     private static final String LOG_TAG = StreamProxy.class.getSimpleName();
 
-    private static final int INITIAL_TIMEOUT  = 15;   // before receiving the first chunk
+    private static final int INITIAL_TIMEOUT = 15;   // before receiving the first chunk
     private static final int TRANSFER_TIMEOUT = 60;   // subsequent chunks
     private static final String CRLF = "\r\n";
 
@@ -85,7 +85,8 @@ public class StreamProxy {
 
     public StreamProxy start() {
         mThread = new Thread(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 initAndRun();
             }
         }, "StreamProxy-accept");
@@ -94,9 +95,11 @@ public class StreamProxy {
     }
 
     public void join() {
-        if (mThread != null) try {
-            mThread.join();
-        } catch (InterruptedException ignored) {
+        if (mThread != null) {
+            try {
+                mThread.join();
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
@@ -148,14 +151,16 @@ public class StreamProxy {
     }
 
     private void acceptLoop(ServerSocket socket) {
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "running");
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+            Log.d(LOG_TAG, "running");
+        }
         while (isRunning()) {
             try {
                 final Socket client = socket.accept();
                 client.setKeepAlive(true);
                 client.setSendBufferSize(storage.chunkSize);
 
-                Log.d(LOG_TAG, "client connected: "+client.getRemoteSocketAddress());
+                Log.d(LOG_TAG, "client connected: " + client.getRemoteSocketAddress());
                 try {
                     final HttpUriRequest request = readRequest(client.getInputStream());
                     new Thread("handle-proxy-request") {
@@ -182,9 +187,9 @@ public class StreamProxy {
 
     private static Uri createUri(int port, String streamUrl, @Nullable String nextStreamUrl) {
         final Uri.Builder builder = Uri.parse("http://127.0.0.1:" + port)
-            .buildUpon()
-            .appendPath("/")
-            .appendQueryParameter(PARAM_STREAM_URL, streamUrl);
+                .buildUpon()
+                .appendPath("/")
+                .appendQueryParameter(PARAM_STREAM_URL, streamUrl);
         if (nextStreamUrl != null) {
             builder.appendQueryParameter(PARAM_NEXT_STREAM_URL, nextStreamUrl);
         }
@@ -201,9 +206,13 @@ public class StreamProxy {
         }
 
         StringTokenizer st = new StringTokenizer(line);
-        if (!st.hasMoreTokens()) throw new IOException("Invalid request: "+line);
+        if (!st.hasMoreTokens()) {
+            throw new IOException("Invalid request: " + line);
+        }
         String method = st.nextToken();
-        if (!st.hasMoreTokens()) throw new IOException("Invalid request: "+line);
+        if (!st.hasMoreTokens()) {
+            throw new IOException("Invalid request: " + line);
+        }
         String uri = st.nextToken();
         String realUri = uri.substring(1);
 
@@ -216,7 +225,9 @@ public class StreamProxy {
             throw new IOException("only GET/HEAD is supported, got: " + method);
         }
         while ((line = reader.readLine()) != null) {
-            if ("".equals(line)) break;
+            if ("".equals(line)) {
+                break;
+            }
             // copy original headers in new request
             try {
                 Header h = BasicLineParser.parseHeader(line, BasicLineParser.DEFAULT);
@@ -234,8 +245,9 @@ public class StreamProxy {
         ServerSocketChannel socket = ServerSocketChannel.open();
         socket.socket().bind(new InetSocketAddress(0));
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             Log.d(LOG_TAG, "port " + socket.socket().getLocalPort() + " obtained");
+        }
 
         return socket.socket();
     }
@@ -270,13 +282,18 @@ public class StreamProxy {
         final String streamUrl = uri.getQueryParameter(PARAM_STREAM_URL);
         final String nextUrl = uri.getQueryParameter(PARAM_NEXT_STREAM_URL);
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG,
-                String.format("processRequest: url=%s, port=%d, firstByte=%d", streamUrl, client.getPort(), firstRequestedByte(request)));
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+            Log.d(LOG_TAG,
+                    String.format("processRequest: url=%s, port=%d, firstByte=%d",
+                            streamUrl, client.getPort(), firstRequestedByte(request)));
+        }
 
         setUserAgent(request);
 
         try {
-            if (streamUrl == null) throw new IOException("missing stream url parameter");
+            if (streamUrl == null) {
+                throw new IOException("missing stream url parameter");
+            }
 
             final long startByte = firstRequestedByte(request);
             final SocketChannel channel = client.getChannel();
@@ -291,10 +308,11 @@ public class StreamProxy {
         } catch (SocketException e) {
             final String msg = e.getMessage();
             if (msg != null &&
-               (msg.contains("Connection reset by peer") ||
-                       "Broken pipe".equals(msg))) {
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    (msg.contains("Connection reset by peer") ||
+                            "Broken pipe".equals(msg))) {
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                     Log.d(LOG_TAG, String.format("client %d closed connection [expected]", client.getPort()));
+                }
             } else {
                 Log.w(LOG_TAG, e.getMessage(), e);
             }
@@ -320,8 +338,8 @@ public class StreamProxy {
 
     private void logRequest(HttpUriRequest request) {
         for (Header h : request.getAllHeaders()) {
-            Log.d(LOG_TAG, h.getName()+": "+h.getValue());
-            }
+            Log.d(LOG_TAG, h.getName() + ": " + h.getValue());
+        }
     }
 
     private void queueNextUrl(String nextUrl, long delay) {
@@ -341,8 +359,9 @@ public class StreamProxy {
         }
         sb.append(CRLF);
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             Log.d(LOG_TAG, "header:" + sb);
+        }
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
@@ -355,8 +374,9 @@ public class StreamProxy {
                 .append("Date: ").append(DateUtils.formatDate(new Date())).append(CRLF)
                 .append(CRLF);
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             Log.d(LOG_TAG, "header:" + sb);
+        }
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
@@ -366,7 +386,7 @@ public class StreamProxy {
             throws IOException, InterruptedException, TimeoutException, ExecutionException {
 
         ByteBuffer buffer;
-        for (long offset = startByte; isRunning();) {
+        for (long offset = startByte; isRunning(); ) {
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
             try {
                 if (offset == startByte) {
@@ -387,7 +407,9 @@ public class StreamProxy {
                     // since we already got some data for this track, ready to queue next one
                     queueNextUrl(nextUrl, 10000);
 
-                    if (request.getMethod().equalsIgnoreCase("HEAD")) break;
+                    if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                        break;
+                    }
                 } else {
                     // subsequent chunks
                     buffer = stream.get(TRANSFER_TIMEOUT, TimeUnit.SECONDS);
@@ -395,7 +417,7 @@ public class StreamProxy {
 
                 if (stream.item == null || stream.item.getContentLength() == 0) {
                     // should not happen
-                    IOException e = new IOException("BUG: "+(stream.item == null ? "item is null" : "content-length is 0"));
+                    IOException e = new IOException("BUG: " + (stream.item == null ? "item is null" : "content-length is 0"));
                     ErrorUtils.handleSilentException(e);
                     throw e;
                 }
@@ -404,8 +426,10 @@ public class StreamProxy {
 
                 offset += written;
                 if (written == 0 || offset >= stream.item.getContentLength()) {
-                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG,
-                            String.format("reached end of stream (%d > %d)", offset, stream.item.getContentLength()));
+                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+                        Log.d(LOG_TAG,
+                                String.format("reached end of stream (%d > %d)", offset, stream.item.getContentLength()));
+                    }
                     break;
                 }
             } catch (TimeoutException e) {
@@ -444,7 +468,9 @@ public class StreamProxy {
         headers.put("Content-Length", String.valueOf(file.length() - offset));
         channel.write(getHeader(offset, headers));
 
-        if (request.getMethod().equalsIgnoreCase("HEAD")) return;
+        if (request.getMethod().equalsIgnoreCase("HEAD")) {
+            return;
+        }
 
         queueNextUrl(nextUrl, 0);
 
@@ -480,7 +506,9 @@ public class StreamProxy {
     private static void setUserAgent(HttpRequest r) {
         if (r.containsHeader("User-Agent")) {
             String agent = r.getFirstHeader("User-Agent").getValue();
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "userAgent:" + agent);
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+                Log.d(LOG_TAG, "userAgent:" + agent);
+            }
             userAgent = agent;
         }
     }

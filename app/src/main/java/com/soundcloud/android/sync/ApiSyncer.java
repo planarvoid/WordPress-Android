@@ -3,11 +3,16 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -15,11 +20,6 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.api.legacy.model.Connection;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.tasks.FetchUserTask;
@@ -152,8 +152,6 @@ public class ApiSyncer extends SyncStrategy {
     }
 
 
-
-
     private ApiSyncResult syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         log("syncSoundAssociations(" + uri + ")");
 
@@ -171,7 +169,6 @@ public class ApiSyncer extends SyncStrategy {
     }
 
 
-
     private ApiSyncResult syncActivities(Uri uri, String action) throws IOException {
         ApiSyncResult result = new ApiSyncResult(uri);
         log("syncActivities(" + uri + "); action=" + action);
@@ -182,7 +179,9 @@ public class ApiSyncer extends SyncStrategy {
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity oldestActivity = activitiesStorage.getOldestActivity(c);
             Request request = new Request(c.request()).add("limit", Consts.LIST_PAGE_SIZE);
-            if (oldestActivity != null) request.add("cursor", oldestActivity.toGUID());
+            if (oldestActivity != null) {
+                request.add("cursor", oldestActivity.toGUID());
+            }
             activities = Activities.fetch(api, request);
             if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
                 // this can happen at the end of the list
@@ -201,7 +200,9 @@ public class ApiSyncer extends SyncStrategy {
 
             final Activity newestActivity = activitiesStorage.getLatestActivity(c);
             Request request = new Request(c.request());
-            if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
+            if (newestActivity != null) {
+                request.add("uuid[to]", newestActivity.toGUID());
+            }
 
             log("activities: performing activity fetch request " + request);
             activities = Activities.fetchRecent(api, request, MAX_LOOKUP_COUNT);
@@ -258,7 +259,9 @@ public class ApiSyncer extends SyncStrategy {
             List<ContentValues> cvs = new ArrayList<ContentValues>(models.size());
             for (ScModel model : models) {
                 ContentValues cv = model.buildContentValues();
-                if (cv != null) cvs.add(cv);
+                if (cv != null) {
+                    cvs.add(cv);
+                }
             }
 
             int inserted = 0;

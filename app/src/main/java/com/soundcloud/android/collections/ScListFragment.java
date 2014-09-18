@@ -75,11 +75,11 @@ import java.lang.ref.WeakReference;
 
 @Deprecated
 public class ScListFragment extends ListFragment implements OnRefreshListener,
-                                                            DetachableResultReceiver.Receiver,
-                                                            LocalCollection.OnChangeListener,
-                                                            CollectionTask.Callback,
-                                                            AbsListView.OnScrollListener,
-                                                            EmptyView.RetryListener {
+        DetachableResultReceiver.Receiver,
+        LocalCollection.OnChangeListener,
+        CollectionTask.Callback,
+        AbsListView.OnScrollListener,
+        EmptyView.RetryListener {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -125,7 +125,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return newInstance(content.uri, screen);
     }
 
-    public static ScListFragment newInstance(Uri contentUri, Screen screen){
+    public static ScListFragment newInstance(Uri contentUri, Screen screen) {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
@@ -134,7 +134,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return fragment;
     }
 
-    public static ScListFragment newInstance(Uri contentUri, String username, Screen screen){
+    public static ScListFragment newInstance(Uri contentUri, String username, Screen screen) {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
@@ -216,11 +216,11 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         pullToRefreshController.onViewCreated(pullToRefreshLayout, savedInstanceState);
         configurePullToRefreshState();
 
-        if (isRefreshing() || waitingOnInitialSync()){
+        if (isRefreshing() || waitingOnInitialSync()) {
             final ScBaseAdapter listAdapter = getListAdapter();
-            if (listAdapter == null || listAdapter.isEmpty()){
+            if (listAdapter == null || listAdapter.isEmpty()) {
                 configureEmptyView();
-            } else if (isRefreshing()){
+            } else if (isRefreshing()) {
                 pullToRefreshController.startRefreshing();
             }
         }
@@ -246,7 +246,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onStart() {
         super.onStart();
 
-        if (syncStateManager != null){
+        if (syncStateManager != null) {
             localCollection = syncStateManager.fromContentAsync(contentUri, this);
         }
 
@@ -293,9 +293,11 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             }
         }
         final ScBaseAdapter adapter = getListAdapter();
-        if (adapter != null) adapter.onResume(getScActivity());
+        if (adapter != null) {
+            adapter.onResume(getScActivity());
+        }
 
-        if (pendingSync){
+        if (pendingSync) {
             pendingSync = false;
             requestSync();
         }
@@ -329,7 +331,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
     }
 
-    private void stopObservingChanges(){
+    private void stopObservingChanges() {
         if (changeObserver != null) {
             getActivity().getContentResolver().unregisterContentObserver(changeObserver);
             changeObserver = null;
@@ -352,7 +354,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return ScTextUtils.safeToString(getArguments().getString(EXTRA_USERNAME));
     }
 
-    protected Screen getScreen(){
+    protected Screen getScreen() {
         return (Screen) getArguments().getSerializable(EXTRA_SCREEN);
     }
 
@@ -423,7 +425,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return (ScActivity) getActivity();
     }
 
-    @Override @Nullable
+    @Override
+    @Nullable
     public ScBaseAdapter getListAdapter() {
         return (ScBaseAdapter) super.getListAdapter();
     }
@@ -463,7 +466,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
      * {@link this#waitingOnInitialSync())} was true earlier, suppressing it.
      */
     private void checkAllowInitalAppend() {
-        log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",keepGoing:" + keepGoing + "]"  );
+        log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",keepGoing:" + keepGoing + "]");
         final ScBaseAdapter adapter = getListAdapter();
         if (!keepGoing && !waitingOnInitialSync() && adapter != null && adapter.needsItems()) {
             keepGoing = true;
@@ -501,14 +504,16 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onPostTaskExecute(ReturnData data) {
         final ScBaseAdapter adapter = getListAdapter();
-        if (adapter == null) return;
+        if (adapter == null) {
+            return;
+        }
 
         if (data.success) {
             nextHref = data.nextHref;
         }
 
         // this will represent the end append state of the list on an append, or on a successful refresh
-        if (!data.wasRefresh || data.success){
+        if (!data.wasRefresh || data.success) {
             keepGoing = data.keepGoing;
         }
 
@@ -524,7 +529,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             doneRefreshing();
         }
 
-        if (adapter.isEmpty() && keepGoing){
+        if (adapter.isEmpty() && keepGoing) {
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
             append(true);
         }
@@ -539,8 +544,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter != null
-            && adapter.shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount)
-            && canAppend()) {
+                && adapter.shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount)
+                && canAppend()) {
             append(false);
         }
     }
@@ -602,7 +607,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             adp.notifyDataSetChanged();
         }
 
-        if (canAppend()) append(false);
+        if (canAppend()) {
+            append(false);
+        }
     }
 
     protected void configureEmptyView() {
@@ -735,7 +742,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
-                    if (pullToRefreshController.isAttached()) pullToRefreshController.startRefreshing();
+                    if (pullToRefreshController.isAttached()) {
+                        pullToRefreshController.startRefreshing();
+                    }
                 }
             } else {
                 log("Skipping auto refresh");
@@ -745,21 +754,27 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     private void clearRefreshTask() {
-        if (refreshTask != null && !AndroidUtils.isTaskFinished(refreshTask)) refreshTask.cancel(true);
+        if (refreshTask != null && !AndroidUtils.isTaskFinished(refreshTask)) {
+            refreshTask.cancel(true);
+        }
         refreshTask = null;
     }
 
     private void clearAppendTask() {
-        if (appendTask != null && !AndroidUtils.isTaskFinished(appendTask)) appendTask.cancel(true);
+        if (appendTask != null && !AndroidUtils.isTaskFinished(appendTask)) {
+            appendTask.cancel(true);
+        }
         appendTask = null;
     }
 
     private void append(boolean force) {
         final Context context = getActivity();
         final ScBaseAdapter adapter = getListAdapter();
-        if (context == null || adapter == null) return; // has been detached
+        if (context == null || adapter == null) {
+            return;
+        } // has been detached
 
-        if (force || isTaskFinished(appendTask)){
+        if (force || isTaskFinished(appendTask)) {
             appendTask = buildTask(context);
             appendTask.executeOnThreadPool(getTaskParams(adapter, false));
         }
@@ -805,7 +820,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         @Override
         public void onChange(boolean selfChange) {
             // even after unregistering, we will still get asynchronous change notifications, so make sure we want them
-            if (changeObserver != null) onContentChanged();
+            if (changeObserver != null) {
+                onContentChanged();
+            }
         }
     }
 
@@ -816,7 +833,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
             final String action = intent.getAction();
             if (Broadcasts.META_CHANGED.equals(action)
-                || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
+                    || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
 
                 adapter.notifyDataSetChanged();
             }
@@ -833,8 +850,10 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
     };
 
-    private static void log(String msg){
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, msg);
+    private static void log(String msg) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, msg);
+        }
     }
 
 }

@@ -28,7 +28,9 @@ public class DatabaseManagerTest {
         SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
         for (Table t : Table.values()) {
             // skip unused tables
-            if (t.createString == null) continue;
+            if (t.createString == null) {
+                continue;
+            }
 
             expect(t.exists(db)).toBeTrue();
             t.drop(db);

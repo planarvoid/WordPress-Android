@@ -22,11 +22,13 @@ class ItemQueue implements Iterable<StreamItem> {
         if (item.isAvailable()) {
             item.missingChunks.or(chunksToDownload);
             if (!item.missingChunks.isEmpty() /* only add to q if there's something to download */
-                && !mItems.contains(item)) {
+                    && !mItems.contains(item)) {
                 mItems.add(0, item);
                 return true;
 
-            } else return false;
+            } else {
+                return false;
+            }
         } else {
             Log.e(StreamLoader.LOG_TAG, String.format("Can't add chunks for %s: Item is not available.", item));
             return false;
@@ -37,7 +39,9 @@ class ItemQueue implements Iterable<StreamItem> {
         if (mItems.contains(item)) {
             item.missingChunks.andNot(newChunks);
             return item.missingChunks.isEmpty() && mItems.remove(item);
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     public boolean contains(StreamItem item) {
@@ -68,7 +72,7 @@ class ItemQueue implements Iterable<StreamItem> {
         return mItems.size();
     }
 
-    public void clear(){
+    public void clear() {
         mItems.clear();
     }
 

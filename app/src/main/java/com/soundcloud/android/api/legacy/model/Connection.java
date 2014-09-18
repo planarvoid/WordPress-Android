@@ -35,7 +35,8 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
     public String service;
     public Uri uri;
 
-    public Connection() {}
+    public Connection() {
+    }
 
     public Connection(Service s) {
         this._service = s;
@@ -43,7 +44,7 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         this.active = false;
     }
 
-    public Connection(Cursor c){
+    public Connection(Cursor c) {
         setId(c.getLong(c.getColumnIndex(TableColumns.Connections._ID)));
         service = c.getString(c.getColumnIndex(TableColumns.Connections.SERVICE));
         _service = Service.fromString(service);
@@ -57,14 +58,18 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
     }
 
     @JsonProperty("uri")
-    public void setUri(String uriString){
+    public void setUri(String uriString) {
         uri = Uri.parse(uriString);
     }
 
-    public boolean isActive() { return active; }
+    public boolean isActive() {
+        return active;
+    }
 
     public Service service() {
-        if (_service == null) _service = Service.fromString(service);
+        if (_service == null) {
+            _service = Service.fromString(service);
+        }
         return _service;
     }
 
@@ -112,7 +117,7 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         dest.writeString(uri == null ? null : uri.toString());
     }
 
-    public static Creator<Connection> CREATOR =  new Creator<Connection>() {
+    public static Creator<Connection> CREATOR = new Creator<Connection>() {
         @Override
         public Connection createFromParcel(Parcel source) {
             Connection connection = new Connection();
@@ -164,21 +169,26 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
 
 
         /**
-         * @param resId        icon resource
-         * @param enabled      service is enabled
-         * @param deprecated   service is deprecated (no new connections possible)
-         * @param names        names used for this service
+         * @param resId      icon resource
+         * @param enabled    service is enabled
+         * @param deprecated service is deprecated (no new connections possible)
+         * @param names      names used for this service
          */
         Service(int resId, boolean enabled, boolean deprecated, String... names) {
             this.resId = resId;
             this.names = names;
-            this.name  = names[0];
+            this.name = names[0];
             this.enabled = enabled;
             this.deprecated = deprecated;
         }
+
         static Service fromString(String s) {
             for (Service svc : EnumSet.allOf(Service.class)) {
-                for (String n : svc.names) if (s.equalsIgnoreCase(n)) return svc;
+                for (String n : svc.names) {
+                    if (s.equalsIgnoreCase(n)) {
+                        return svc;
+                    }
+                }
             }
             return Unknown;
         }
@@ -188,9 +198,11 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         List<Connection> all = new ArrayList<Connection>(connections);
 
         EnumSet<Service> networks = EnumSet.allOf(Service.class);
-        for (Iterator<Service> it = networks.iterator(); it.hasNext();) {
-          Service svc = it.next();
-          if (!svc.enabled || svc.deprecated) it.remove();
+        for (Iterator<Service> it = networks.iterator(); it.hasNext(); ) {
+            Service svc = it.next();
+            if (!svc.enabled || svc.deprecated) {
+                it.remove();
+            }
         }
 
         for (Connection c : all) networks.remove(c.service());
@@ -201,8 +213,8 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
 
     public static boolean checkConnectionListForService(Set<Connection> haystack, Service needle) {
         if (haystack != null) {
-            for (Connection c : haystack){
-                if (c.service() == needle){
+            for (Connection c : haystack) {
+                if (c.service() == needle) {
                     return true;
                 }
             }
@@ -212,16 +224,30 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Connection)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Connection)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         Connection that = (Connection) o;
 
-        if (getId() != that.getId()) return false;
-        if (display_name != null ? !display_name.equals(that.display_name) : that.display_name != null) return false;
-        if (service != null ? !service.equals(that.service) : that.service != null) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (getId() != that.getId()) {
+            return false;
+        }
+        if (display_name != null ? !display_name.equals(that.display_name) : that.display_name != null) {
+            return false;
+        }
+        if (service != null ? !service.equals(that.service) : that.service != null) {
+            return false;
+        }
+        if (type != null ? !type.equals(that.type) : that.type != null) {
+            return false;
+        }
 
         return true;
     }

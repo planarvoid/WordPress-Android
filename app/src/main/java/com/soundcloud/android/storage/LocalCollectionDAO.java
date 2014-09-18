@@ -18,18 +18,22 @@ public class LocalCollectionDAO extends BaseDAO<LocalCollection> {
         super(contentResolver);
     }
 
-    @Override public Content getContent() {
+    @Override
+    public Content getContent() {
         return Content.COLLECTIONS;
     }
 
-    @Nullable public LocalCollection fromContentUri(Uri contentUri, boolean createIfNecessary) {
+    @Nullable
+    public LocalCollection fromContentUri(Uri contentUri, boolean createIfNecessary) {
         LocalCollection lc = null;
         final Uri cleanUri = UriUtils.clearQueryParams(contentUri);
         Cursor c = resolver.query(getContent().uri, null, "uri = ?", new String[]{cleanUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
             lc = new LocalCollection(c);
         }
-        if (c != null) c.close();
+        if (c != null) {
+            c.close();
+        }
 
         if (lc == null && createIfNecessary) {
             lc = new LocalCollection(cleanUri);

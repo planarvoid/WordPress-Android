@@ -37,13 +37,13 @@ public class FacebookSwitcherActivity extends TrackedActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK
-            && requestCode == SSO
-            && (data == null || (data.hasExtra("error") && !data.getBooleanExtra("canceled", false)))) {
-                Log.d(TAG, "error using SSO: '" +
-                        (data == null ? "<none>" : data.getStringExtra("error"))
-                        + "', falling back to webview-based login");
+                && requestCode == SSO
+                && (data == null || (data.hasExtra("error") && !data.getBooleanExtra("canceled", false)))) {
+            Log.d(TAG, "error using SSO: '" +
+                    (data == null ? "<none>" : data.getStringExtra("error"))
+                    + "', falling back to webview-based login");
 
-                startWebFlow();
+            startWebFlow();
         } else {
             setResult(resultCode, data);
             finish();
@@ -51,7 +51,9 @@ public class FacebookSwitcherActivity extends TrackedActivity {
     }
 
     private void startSSOFlow() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "starting FB proxy auth");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "starting FB proxy auth");
+        }
         startActivityForResult(passExtras(new Intent(this, FacebookSSOActivity.class)), SSO);
     }
 

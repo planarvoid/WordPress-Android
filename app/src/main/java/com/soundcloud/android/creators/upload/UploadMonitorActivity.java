@@ -5,8 +5,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
@@ -97,8 +97,8 @@ public class UploadMonitorActivity extends TrackedActivity {
 
             // check for initial progress to display
             if (intent.hasExtra(UploadService.EXTRA_STAGE)) {
-                if (intent.getIntExtra(UploadService.EXTRA_STAGE,0) == UploadService.UPLOAD_STAGE_PROCESSING){
-                    setProcessProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS,-1));
+                if (intent.getIntExtra(UploadService.EXTRA_STAGE, 0) == UploadService.UPLOAD_STAGE_PROCESSING) {
+                    setProcessProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS, -1));
                 } else {
                     setTransferProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS, -1));
                 }
@@ -131,7 +131,7 @@ public class UploadMonitorActivity extends TrackedActivity {
     @Override
     public void onRestoreInstanceState(Bundle state) {
         if (!state.isEmpty()) {
-            if (!state.getBoolean(EXTRA_IN_TRANSFER_STATE)){
+            if (!state.getBoolean(EXTRA_IN_TRANSFER_STATE)) {
                 setProcessProgress(state.getInt(EXTRA_PROGRESS));
             } else {
                 setTransferProgress(state.getInt(EXTRA_PROGRESS));
@@ -173,7 +173,9 @@ public class UploadMonitorActivity extends TrackedActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-            if (!UploadMonitorActivity.this.recording.equals(recording)) return;
+            if (!UploadMonitorActivity.this.recording.equals(recording)) {
+                return;
+            }
 
             // update with latest broadcasted attributes
             UploadMonitorActivity.this.recording = recording;

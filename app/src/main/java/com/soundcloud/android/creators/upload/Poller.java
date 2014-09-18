@@ -3,8 +3,8 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.api.Endpoints;
@@ -54,14 +54,16 @@ public class Poller extends Handler {
     public void handleMessage(Message msg) {
         PublicApiTrack track = null;
         final int attempt = msg.what;
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "poll attempt " + (attempt + 1));
+        }
         try {
             track = api.read(request);
         } catch (IOException e) {
             Log.e(TAG, "error", e);
         }
 
-        if ((track == null || track.isProcessing()) && attempt < DEFAULT_MAX_TRIES-1) {
+        if ((track == null || track.isProcessing()) && attempt < DEFAULT_MAX_TRIES - 1) {
             final long backoff = attempt * attempt * 1000;
             sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, minDelayBetweenRequests));
         } else {
@@ -95,7 +97,9 @@ public class Poller extends Handler {
         persistTrack(track);
 
         // this will tell any observers to update their UIs to the up to date track
-        if (notifyUri != null) resolver.notifyChange(notifyUri, null, false);
+        if (notifyUri != null) {
+            resolver.notifyChange(notifyUri, null, false);
+        }
 
         LocalBroadcastManager
                 .getInstance(SoundCloudApplication.instance)

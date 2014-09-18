@@ -70,7 +70,9 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Override
     public int getItemViewType(int position) {
         int type = super.getItemViewType(position);
-        if (type == IGNORE_ITEM_VIEW_TYPE) return type;
+        if (type == IGNORE_ITEM_VIEW_TYPE) {
+            return type;
+        }
 
         return getItem(position).getType().ordinal();
     }
@@ -97,7 +99,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     protected void bindRow(int index, View rowView) {
         activityItemPresenter.bindItemView(index, rowView, toPropertySets(getItems()));
     }
-    
+
     private List<PropertySet> toPropertySets(List<Activity> activities) {
         List<PropertySet> propertySets = new ArrayList<PropertySet>(activities.size());
         for (Activity activity : activities) {
@@ -121,7 +123,9 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     @Override
     public void addItems(List<Activity> newItems) {
         for (Activity newItem : newItems) {
-            if (!data.contains(newItem)) data.add(newItem);
+            if (!data.contains(newItem)) {
+                data.add(newItem);
+            }
         }
         Collections.sort(data);
     }
@@ -144,8 +148,8 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
-                    context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, getItem(position).getPlayable().toPropertySet()));
+                context.startActivity(new Intent(context, TrackCommentsActivity.class)
+                        .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, getItem(position).getPlayable().toPropertySet()));
                 return ItemClickResults.LEAVING;
 
             case TRACK_LIKE:

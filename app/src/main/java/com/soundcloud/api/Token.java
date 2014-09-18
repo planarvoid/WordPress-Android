@@ -114,7 +114,9 @@ public class Token implements Serializable {
     public boolean scoped(String scope) {
         if (this.scope != null) {
             for (String s : this.scope.split(" "))
-                if (scope.equals(s)) return true;
+                if (scope.equals(s)) {
+                    return true;
+                }
         }
         return false;
     }
@@ -145,14 +147,24 @@ public class Token implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
 
         if (o instanceof Token) {
             Token token = (Token) o;
-            if (access != null ? !access.equals(token.access) : token.access != null) return false;
-            if (refresh != null ? !refresh.equals(token.refresh) : token.refresh != null) return false;
-            if (scope != null ? !scope.equals(token.scope) : token.scope != null) return false;
+            if (access != null ? !access.equals(token.access) : token.access != null) {
+                return false;
+            }
+            if (refresh != null ? !refresh.equals(token.refresh) : token.refresh != null) {
+                return false;
+            }
+            if (scope != null ? !scope.equals(token.scope) : token.scope != null) {
+                return false;
+            }
             return true;
         } else {
             return super.equals(o);

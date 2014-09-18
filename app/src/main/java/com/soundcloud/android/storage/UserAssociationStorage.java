@@ -8,8 +8,8 @@ import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -226,7 +226,9 @@ public class UserAssociationStorage extends ScheduledOperations {
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
             PublicApiResource r = resources.get(i);
-            if (r == null) continue;
+            if (r == null) {
+                continue;
+            }
 
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
@@ -265,7 +267,7 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     public List<UserAssociation> getFollowingsNeedingSync() {
         return followingsDAO.buildQuery().where(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
-                TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
+                        TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
         ).queryAll();
     }
 
@@ -291,9 +293,11 @@ public class UserAssociationStorage extends ScheduledOperations {
         return false;
     }
 
-    public boolean deleteFollowings(Collection<UserAssociation> followings){
-        for (UserAssociation following : followings){
-            if (!followingsDAO.delete(following)) return false;
+    public boolean deleteFollowings(Collection<UserAssociation> followings) {
+        for (UserAssociation following : followings) {
+            if (!followingsDAO.delete(following)) {
+                return false;
+            }
         }
         return true;
     }

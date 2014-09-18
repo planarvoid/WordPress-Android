@@ -52,7 +52,9 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
 
 
     public boolean onTouch(View v, MotionEvent event) {
-        if (touchThread == null) return false;
+        if (touchThread == null) {
+            return false;
+        }
         try {
             // Fix scrolling inside workspace view
             if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
@@ -144,11 +146,15 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
                     input = inputQueue.take();
                     if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
                         final TouchLayout touchLayout = mLayoutRef.get();
-                        if (touchLayout != null) touchLayout.processInputObject(input);
+                        if (touchLayout != null) {
+                            touchLayout.processInputObject(input);
+                        }
                     }
                 } catch (InterruptedException ignored) {
                 } finally {
-                    if (input != null) input.returnToPool();
+                    if (input != null) {
+                        input.returnToPool();
+                    }
                 }
             }
         }

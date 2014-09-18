@@ -22,7 +22,7 @@ public final class FakeGallery extends Activity {
             File image = generateImage();
             setResult(RESULT_OK, new Intent().setData(Uri.fromFile(image)));
         } catch (IOException e) {
-            Toast.makeText(this, "Error generating image: "+e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error generating image: " + e.getMessage(), Toast.LENGTH_LONG).show();
             setResult(RESULT_OK);
         }
         finish();
@@ -36,14 +36,18 @@ public final class FakeGallery extends Activity {
         if (checkSdCard()) {
             File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             if (!dir.exists()) {
-                if (!dir.mkdirs()) throw new IOException("Can not create dir "+dir);
+                if (!dir.mkdirs()) {
+                    throw new IOException("Can not create dir " + dir);
+                }
             }
-            File out = new File(dir, System.currentTimeMillis()+".jpg");
+            File out = new File(dir, System.currentTimeMillis() + ".jpg");
             if (FakeCamera.generatePicture(out)) {
                 return out;
             } else {
                 throw new RuntimeException("Could not create image");
             }
-        } else throw new IOException("SD card not available");
+        } else {
+            throw new IOException("SD card not available");
+        }
     }
 }

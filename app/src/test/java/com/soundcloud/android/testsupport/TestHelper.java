@@ -186,14 +186,16 @@ public class TestHelper {
         sb.append("{ \"collection\": [");
         for (int i = 0; i < ids.length; i++) {
             sb.append(ids[i]);
-            if (i < ids.length - 1) sb.append(", ");
+            if (i < ids.length - 1) {
+                sb.append(", ");
+            }
         }
         sb.append("] }");
         Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, url), new TestHttpResponse(200, sb.toString()));
     }
 
     public static FakeHttpLayer.UriRegexMatcher createRegexRequestMatcherForUriWithClientId(String method, String url) {
-        return new FakeHttpLayer.UriRegexMatcher(method, url.replace("?","\\?")  + "(?:[&\\?]client_id=.+)?$");
+        return new FakeHttpLayer.UriRegexMatcher(method, url.replace("?", "\\?") + "(?:[&\\?]client_id=.+)?$");
     }
 
     public static void setSdkVersion(int version) {
@@ -244,7 +246,7 @@ public class TestHelper {
         return ua;
     }
 
-    public static UserAssociation getUserAssociationByTargetId(Uri contentUri, long targetUserId){
+    public static UserAssociation getUserAssociationByTargetId(Uri contentUri, long targetUserId) {
         String where = TableColumns.UserAssociationView._ID + " = ? AND " +
                 TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
 
@@ -321,7 +323,9 @@ public class TestHelper {
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
             PublicApiResource r = resources.get(i);
-            if (r == null) continue;
+            if (r == null) {
+                continue;
+            }
 
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
@@ -364,7 +368,9 @@ public class TestHelper {
                 items.add(constructor.newInstance(itemsCursor));
             }
         }
-        if (itemsCursor != null) itemsCursor.close();
+        if (itemsCursor != null) {
+            itemsCursor.close();
+        }
         //noinspection unchecked
         return items;
 
@@ -456,7 +462,7 @@ public class TestHelper {
         accountOperations.setAccountData(USER_ID.getKey(), Long.toString(id));
     }
 
-    public static List<TrackUrn> createTracksUrn(Long... ids){
+    public static List<TrackUrn> createTracksUrn(Long... ids) {
         return Lists.transform(new ArrayList<Long>(Arrays.asList(ids)), new Function<Long, TrackUrn>() {
             @Override
             public TrackUrn apply(Long id) {

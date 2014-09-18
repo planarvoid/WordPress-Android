@@ -58,7 +58,9 @@ public class ConnectActivity extends TrackedActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
-                if (url.equals(u) && !isFinishing()) progress.show();
+                if (url.equals(u) && !isFinishing()) {
+                    progress.show();
+                }
             }
 
             @Override
@@ -112,7 +114,7 @@ public class ConnectActivity extends TrackedActivity {
         CookieManager.getInstance().removeAllCookie();
     }
 
-     private void showConnectionError(final String message) {
+    private void showConnectionError(final String message) {
         if (!isFinishing()) {
             new AlertDialog.Builder(this).
                     setMessage(message).

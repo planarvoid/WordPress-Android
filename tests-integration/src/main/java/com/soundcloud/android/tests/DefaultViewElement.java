@@ -24,7 +24,9 @@ public class DefaultViewElement implements ViewElement {
     private ViewFetcher viewFetcher;
 
     public DefaultViewElement(View view, Solo driver) {
-        if (view == null) throw new IllegalArgumentException("viewElement cannot be null");
+        if (view == null) {
+            throw new IllegalArgumentException("viewElement cannot be null");
+        }
         testDriver = driver;
         viewFetcher = new ViewFetcher(view, driver);
         this.view = view;
@@ -57,7 +59,7 @@ public class DefaultViewElement implements ViewElement {
 
     @Override
     public void click() {
-        if( !isVisible() ) {
+        if (!isVisible()) {
             throw new ViewNotVisibleException();
         }
         testDriver.clickOnView(view);
@@ -79,16 +81,16 @@ public class DefaultViewElement implements ViewElement {
     }
 
     @Override
-    public boolean isVisible(){
+    public boolean isVisible() {
         return isShown() && hasVisibility() && hasDimensions() && isOnScreen();
     }
 
     @Override
     public String getText() {
         if (view instanceof TextView) {
-          return ((TextView) view).getText().toString();
-        }  else {
-          return "";
+            return ((TextView) view).getText().toString();
+        } else {
+            return "";
         }
     }
 
@@ -110,7 +112,7 @@ public class DefaultViewElement implements ViewElement {
 
     @Override
     public boolean isChecked() {
-        return ((ToggleButton)view).isChecked();
+        return ((ToggleButton) view).isChecked();
     }
 
     @Override
@@ -130,7 +132,7 @@ public class DefaultViewElement implements ViewElement {
 
     @Override
     public ViewPager toViewPager() {
-        return (ViewPager)view;
+        return (ViewPager) view;
     }
 
     @Override
@@ -139,7 +141,7 @@ public class DefaultViewElement implements ViewElement {
     }
 
     private boolean hasDimensions() {
-        return getHeight() > 0 && getWidth() > 0 ;
+        return getHeight() > 0 && getWidth() > 0;
     }
 
     private int getHeight() {
@@ -162,7 +164,7 @@ public class DefaultViewElement implements ViewElement {
     }
 
     private int[] getLocation() {
-        int[] locationOnScreen = new int [2];
+        int[] locationOnScreen = new int[2];
         view.getLocationOnScreen(locationOnScreen);
         return locationOnScreen;
     }

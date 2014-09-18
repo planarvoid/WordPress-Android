@@ -17,15 +17,14 @@ import java.util.List;
 /**
  * Local disk caching helper class, installs backported HttpResponseCache library.
  *
- * @see
- * <a href="https://github.com/candrews/HttpResponseCache">https://github.com/candrews/HttpResponseCache</a>
+ * @see <a href="https://github.com/candrews/HttpResponseCache">https://github.com/candrews/HttpResponseCache</a>
  * @see <a href="http://developer.android.com/reference/android/net/http/HttpResponseCache.html">Android HttpResponseCache</a>
  */
-public final class FileCache  {
+public final class FileCache {
     public static final String TAG = FileCache.class.getSimpleName();
-    public static final long   MAX_IMAGE_CACHE  = 60 * 1024  * 1024; // 60  MB
+    public static final long MAX_IMAGE_CACHE = 60 * 1024 * 1024; // 60  MB
 
-    public static ResponseCache installFileCache(final File cacheDir)  {
+    public static ResponseCache installFileCache(final File cacheDir) {
         ResponseCache responseCache = ResponseCache.getDefault();
         if (responseCache instanceof HttpResponseCache) {
             Log.d(TAG, "Cache has already been installed.");
@@ -35,7 +34,7 @@ public final class FileCache  {
             final long size = determineAvailableSpace(cacheDir);
 
             if (size > 0) {
-                Log.d(TAG, "using "+IOUtils.inMbFormatted(size)+ " MB for image cache");
+                Log.d(TAG, "using " + IOUtils.inMbFormatted(size) + " MB for image cache");
 
                 new Thread() {
                     @Override
@@ -81,7 +80,8 @@ public final class FileCache  {
             this.recurse = recurse;
         }
 
-        @Override protected Boolean doInBackground(File... params) {
+        @Override
+        protected Boolean doInBackground(File... params) {
             final File dir = params[0];
             if (recurse) {
                 deleteRecursively(dir);
@@ -92,16 +92,24 @@ public final class FileCache  {
         }
 
         private void deleteRecursively(File... dirs) {
-            for (File d : dirs) if (d.isDirectory()) IOUtils.deleteDir(d);
+            for (File d : dirs)
+                if (d.isDirectory()) {
+                    IOUtils.deleteDir(d);
+                }
         }
 
         private void deletePlain(File... dirs) {
             List<File> allFiles = new ArrayList<File>();
-            for (File dir : dirs) if (dir.isDirectory()) allFiles.addAll(Arrays.asList(IOUtils.nullSafeListFiles(dir, null)));
+            for (File dir : dirs)
+                if (dir.isDirectory()) {
+                    allFiles.addAll(Arrays.asList(IOUtils.nullSafeListFiles(dir, null)));
+                }
 
-            for (int i=0; i < allFiles.size(); i++) {
+            for (int i = 0; i < allFiles.size(); i++) {
                 File f = allFiles.get(i);
-                if (!f.delete()) Log.w(TAG, "could not delete file "+f);
+                if (!f.delete()) {
+                    Log.w(TAG, "could not delete file " + f);
+                }
                 publishProgress(i, allFiles.size());
             }
         }

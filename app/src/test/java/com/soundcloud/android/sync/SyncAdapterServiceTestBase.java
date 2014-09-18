@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
@@ -60,7 +60,7 @@ public abstract class SyncAdapterServiceTestBase {
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
-                .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0+"")
+                .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0 + "")
                 .apply();
 
     }
@@ -99,6 +99,7 @@ public abstract class SyncAdapterServiceTestBase {
             return notifications.get(0).info;
 
         }
+
         String getTicker() {
             expect(notifications.size()).toEqual(1);
             return notifications.get(0).n.tickerText.toString();
@@ -114,8 +115,12 @@ public abstract class SyncAdapterServiceTestBase {
     protected static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras,
                                                Token token)
             throws Exception {
-        if (!firstTime) ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, 1);
-        if (extras == null) extras = new Bundle();
+        if (!firstTime) {
+            ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, 1);
+        }
+        if (extras == null) {
+            extras = new Bundle();
+        }
 
         ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));

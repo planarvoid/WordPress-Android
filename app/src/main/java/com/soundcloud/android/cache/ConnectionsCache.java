@@ -34,7 +34,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     public ConnectionsCache(final Context context) {
         this.context = context;
-        context.getContentResolver().registerContentObserver(Content.ME_CONNECTIONS.uri,true,new ChangeObserver());
+        context.getContentResolver().registerContentObserver(Content.ME_CONNECTIONS.uri, true, new ChangeObserver());
     }
 
     public synchronized static ConnectionsCache get(Context context) {
@@ -54,8 +54,10 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     public boolean isConnected(Connection.Service service) {
         if (connections != null) {
-            for (Connection connection : connections){
-                if (connection.service() == service) return true;
+            for (Connection connection : connections) {
+                if (connection.service() == service) {
+                    return true;
+                }
             }
         }
         return false;
@@ -69,8 +71,10 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
         }
     }
 
-    private void doQuery(@Nullable final Listener listener){
-        if (listener != null) addListener(listener);
+    private void doQuery(@Nullable final Listener listener) {
+        if (listener != null) {
+            addListener(listener);
+        }
         localCollection = new SyncStateManager(context).fromContent(Content.ME_CONNECTIONS);
         asyncQueryHandler = new ConnectionsQueryHandler(context, this);
         asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, null, null, null, null);
@@ -143,11 +147,11 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     public void onConnectionsChanged(boolean changed) {
         for (Listener l : listeners.keySet()) {
-            l.onConnectionsRefreshed(connections,changed);
+            l.onConnectionsRefreshed(connections, changed);
         }
     }
 
-    public Set<Connection> getConnections(){
+    public Set<Connection> getConnections() {
         return connections;
     }
 

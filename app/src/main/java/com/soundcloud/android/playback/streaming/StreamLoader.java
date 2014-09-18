@@ -99,9 +99,9 @@ public class StreamLoader {
 
     public void preloadDataForUrl(final String url, final long delay) {
         // preload data if we have wifi and battery
-         if (connectivityHelper.isWifiConnected() &&
-                 mBatteryListener.isOK() &&
-                 IOUtils.isSDCardAvailable()) {
+        if (connectivityHelper.isWifiConnected() &&
+                mBatteryListener.isOK() &&
+                IOUtils.isSDCardAvailable()) {
             // cancel previous pending preload requests
             mResultHandler.removeCallbacksAndMessages(PRELOAD_TOKEN);
             mResultHandler.postAtTime(new Runnable() {
@@ -111,32 +111,39 @@ public class StreamLoader {
                     // request first 3 chunks for next item
                     Index missing = mStorage.getMissingChunksForItem(url, Range.from(0, 3));
                     if (!missing.isEmpty()) {
-                        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                             Log.d(LOG_TAG, "Connected to wifi, preloading data for url " + url);
+                        }
 
                         mLowPriorityQueue.addItem(item, missing);
                     }
                 }
-            }, PRELOAD_TOKEN, SystemClock.uptimeMillis()+delay);
+            }, PRELOAD_TOKEN, SystemClock.uptimeMillis() + delay);
         }
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             Log.d(LOG_TAG, "Get data for url " + url + " " + range);
+        }
 
         final StreamItem item = mStorage.getMetadata(url);
 
         // no point trying if item is no longer available
-        if (!item.isAvailable()) throw new IOException("Item is not available");
+        if (!item.isAvailable()) {
+            throw new IOException("Item is not available");
+        }
 
         final Index missing = mStorage.getMissingChunksForItem(url, range.chunkRange(mStorage.chunkSize));
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missing.isEmpty()) {
             mResultHandler.post(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     mPlayerCallbacks.add(pc);
-                    if (mLowPriorityQueue.contains(item)) mLowPriorityQueue.remove(item);
+                    if (mLowPriorityQueue.contains(item)) {
+                        mLowPriorityQueue.remove(item);
+                    }
 
                     if (!item.equals(mCurrentItem)) {
                         mCurrentItem = item;
@@ -148,8 +155,9 @@ public class StreamLoader {
                 }
             });
         } else {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "Serving item from storage");
+            }
             pc.setByteBuffer(mStorage.fetchStoredDataForUrl(url, range));
         }
         return pc;
@@ -170,15 +178,17 @@ public class StreamLoader {
             processHighPriorityQueue();
 
             if (mHeadHandler.hasMessages(HI_PRIO) ||
-                mDataHandler.hasMessages(HI_PRIO)) {
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    mDataHandler.hasMessages(HI_PRIO)) {
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                     Log.d(LOG_TAG, "still hi-prio tasks, skip processing of lo-prio queue");
+                }
             } else {
                 processLowPriorityQueue();
             }
         } else {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "not connected, skip processing of queues");
+            }
         }
     }
 
@@ -198,7 +208,9 @@ public class StreamLoader {
 
     private void processItemQueue(ItemQueue q, int prio) {
         for (StreamItem item : q) {
-            if (!item.isAvailable()) q.remove(item);
+            if (!item.isAvailable()) {
+                q.remove(item);
+            }
             //If there is a valid redirect for the item, download first chunk
             else if (item.isRedirectValid()) {
 
@@ -226,8 +238,9 @@ public class StreamLoader {
             if (missingIndexes.isEmpty()) {
                 fulfilledCallbacks.add(future);
             } else {
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                     Log.d(LOG_TAG, "still missing indexes, not fullfilling callback");
+                }
             }
         }
 
@@ -249,9 +262,10 @@ public class StreamLoader {
         final Range byteRange = chunkRange.byteRange(mStorage.chunkSize);
         if (item.getContentLength() > 0 && byteRange.start > item.getContentLength()) {
             // this can happen during prefetching
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, String.format("requested byterange %d > contentlength %d, not queuing task",
                         byteRange.start, item.getContentLength()));
+            }
 
             return null;
         } else {
@@ -322,7 +336,7 @@ public class StreamLoader {
                 } else {
                     // item not available, cancel futures
                     if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                        Log.d(LOG_TAG, "canceling load of item "+t.item);
+                        Log.d(LOG_TAG, "canceling load of item " + t.item);
                     }
 
                     for (StreamFuture f : new ArrayList<StreamFuture>(loader.mPlayerCallbacks)) {

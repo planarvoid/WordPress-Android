@@ -26,9 +26,9 @@ import android.widget.TextView;
 
 public class TourLayout extends FrameLayout {
     public static final int IMAGE_LOADED = 1;
-    public static final int IMAGE_ERROR  = 2 ;
+    public static final int IMAGE_ERROR = 2;
 
-    private final int[] bitmapSize = new int[] { -1, -1 };
+    private final int[] bitmapSize = new int[]{-1, -1};
 
     private ImageView bgImageView;
     private final int bgResId;
@@ -42,31 +42,33 @@ public class TourLayout extends FrameLayout {
         bgImageView = (ImageView) findViewById(R.id.tour_background_image);
         bgImageView.setVisibility(View.GONE);
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            private int lastHeight = -1, lastWidth = -1;
+            private int lastHeight = -1
+                    ,
+                    lastWidth = -1;
 
             @Override
             public void onGlobalLayout() {
                 if ((bitmapSize[0] < 0 || bitmapSize[1] < 0) ||
-                    (lastWidth == getWidth() && lastHeight == getHeight())) {
+                        (lastWidth == getWidth() && lastHeight == getHeight())) {
                     return;
                 }
-                final int width  = bitmapSize[0];
+                final int width = bitmapSize[0];
                 final int height = bitmapSize[1];
 
                 lastHeight = getHeight();
-                lastWidth  = getWidth();
+                lastWidth = getWidth();
 
                 Point size = getDisplaySize();
 
-                float heightRatio = (float)size.y / (float)height;
-                float widthRatio  = (float)size.x / (float)width;
+                float heightRatio = (float) size.y / (float) height;
+                float widthRatio = (float) size.x / (float) width;
                 float ratio = max(heightRatio, widthRatio);
 
                 Matrix matrix = new Matrix();
                 matrix.setScale(ratio, ratio);
                 matrix.postTranslate(
-                    (size.x - ratio * width  ) / 2,
-                    (size.y - ratio * height ) / 2
+                        (size.x - ratio * width) / 2,
+                        (size.y - ratio * height) / 2
                 );
 
                 bgImageView.setImageMatrix(matrix);
@@ -102,7 +104,9 @@ public class TourLayout extends FrameLayout {
     }
 
     public static void load(final Context context, TourLayout... layouts) {
-        if (layouts == null || layouts.length == 0) throw new IllegalArgumentException();
+        if (layouts == null || layouts.length == 0) {
+            throw new IllegalArgumentException();
+        }
         loadAsync(context, layouts);
     }
 
@@ -130,6 +134,7 @@ public class TourLayout extends FrameLayout {
                 }
                 return null;
             }
+
             @Override
             protected void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
                 result[0].first.onBitmapLoaded(result[0].second);

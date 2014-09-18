@@ -158,7 +158,7 @@ public class ProfileActivity extends ScActivity implements
         if (user != null) {
             userInfoFragment = UserInfoFragment.newInstance(user.getId());
 
-            if (isLoggedInUser()){
+            if (isLoggedInUser()) {
                 toggleFollow.setVisibility(View.GONE);
             } else {
                 toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
@@ -192,11 +192,13 @@ public class ProfileActivity extends ScActivity implements
         } else if (intent.hasExtra(EXTRA_USER_URN)) {
             UserUrn urn = intent.getParcelableExtra(EXTRA_USER_URN);
             loadUserById(urn.numericId);
-        } else if (intent.getData() == null || !loadUserByUri(intent.getData())){
+        } else if (intent.getData() == null || !loadUserByUri(intent.getData())) {
             loadYou();
         }
 
-        if (!isLoggedInUser()) followingOperations.requestUserFollowings(this);
+        if (!isLoggedInUser()) {
+            followingOperations.requestUserFollowings(this);
+        }
 
         if (intent.hasExtra(Tab.EXTRA)) {
             pager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
@@ -241,7 +243,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     @Override
-     protected void onDataConnectionChanged(boolean isConnected) {
+    protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         // TODO : reload avatar
     }
@@ -287,7 +289,9 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void loadUserByObject(PublicApiUser user) {
-        if (user == null || user.getId() == -1) return;
+        if (user == null || user.getId() == -1) {
+            return;
+        }
 
         // show a user out of db if possible because he will be a complete user unlike
         // a parceled user that came from a track, list or comment
@@ -310,7 +314,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     protected boolean isLoggedInUser() {
-       return user != null && user.getId() == getCurrentUserId();
+        return user != null && user.getId() == getCurrentUserId();
     }
 
     private void toggleFollowing(PublicApiUser user) {
@@ -339,7 +343,9 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private void setUser(final PublicApiUser user) {
-        if (user == null || user.getId() < 0) return;
+        if (user == null || user.getId() < 0) {
+            return;
+        }
         this.user = user;
 
         // Initial count prevents fluctuations from being reflected in followers message
@@ -348,9 +354,11 @@ public class ProfileActivity extends ScActivity implements
             initialOtherFollowers--;
         }
 
-        if (!isEmpty(user.username)) username.setText(user.username);
+        if (!isEmpty(user.username)) {
+            username.setText(user.username);
+        }
 
-        if (followerCount != null){
+        if (followerCount != null) {
             if (user.followers_count <= 0) {
                 followerCount.setVisibility(View.GONE);
             } else {
@@ -361,7 +369,7 @@ public class ProfileActivity extends ScActivity implements
 
         setFollowersMessage();
 
-        if (location != null){
+        if (location != null) {
             if (ScTextUtils.isBlank(user.getLocation())) {
                 location.setVisibility(View.GONE);
             } else {
@@ -408,7 +416,7 @@ public class ProfileActivity extends ScActivity implements
         return c;
     }
 
-    private void fromConfiguration(Configuration c){
+    private void fromConfiguration(Configuration c) {
         setUser(c.user);
 
         if (c.loadUserTask != null) {
@@ -424,10 +432,10 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private final BroadcastReceiver recordListener = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                supportInvalidateOptionsMenu();
-            }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            supportInvalidateOptionsMenu();
+        }
     };
 
 
@@ -466,13 +474,15 @@ public class ProfileActivity extends ScActivity implements
         }
 
         public static Tab fromAction(String needle) {
-            for (Tab t : values()){
-                if (t.action.equals(needle)) return t;
+            for (Tab t : values()) {
+                if (t.action.equals(needle)) {
+                    return t;
+                }
             }
             return null;
         }
 
-        public static String getTitle(Resources resources, int position, boolean isYou){
+        public static String getTitle(Resources resources, int position, boolean isYou) {
             return resources.getString(Tab.values()[position].userTitle);
         }
     }
@@ -485,7 +495,7 @@ public class ProfileActivity extends ScActivity implements
         @Override
         public Fragment getItem(int position) {
             Tab currentTab = Tab.values()[position];
-            if (currentTab == Tab.details){
+            if (currentTab == Tab.details) {
                 return userInfoFragment;
             } else {
                 Content content;
@@ -513,7 +523,7 @@ public class ProfileActivity extends ScActivity implements
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position, isLoggedInUser());
+            return Tab.getTitle(getResources(), position, isLoggedInUser());
         }
     }
 }

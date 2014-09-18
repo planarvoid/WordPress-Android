@@ -120,8 +120,12 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     public boolean onSyncComplete(ApiSyncResult result, LocalCollection collection) {
-        if (result == null) return false;
-        if (result.synced_at > 0) collection.last_sync_success = result.synced_at;
+        if (result == null) {
+            return false;
+        }
+        if (result.synced_at > 0) {
+            collection.last_sync_success = result.synced_at;
+        }
         collection.size = result.new_size;
         collection.extra = result.extra;
         collection.sync_state = LocalCollection.SyncState.IDLE;
@@ -165,13 +169,13 @@ public class SyncStateManager extends ScheduledOperations {
      * very often don't get synced as frequently as collections which do.
      *
      * @param syncContentEnumSet
-     * @param force force sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
+     * @param force              force sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
     public List<Uri> getCollectionsDueForSync(Context c, EnumSet<SyncContent> syncContentEnumSet, boolean force) {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
         for (SyncContent sc : syncContentEnumSet) {
-            if (sc.isEnabled(prefs) && (force || isContentDueForSync(sc))){
+            if (sc.isEnabled(prefs) && (force || isContentDueForSync(sc))) {
                 urisToSync.add(sc.content.uri);
             }
         }
@@ -200,7 +204,9 @@ public class SyncStateManager extends ScheduledOperations {
 
     public void removeChangeListener(@NotNull LocalCollection lc) {
         ContentObserver observer = contentObservers.remove(lc.getId());
-        if (observer != null) resolver.unregisterContentObserver(observer);
+        if (observer != null) {
+            resolver.unregisterContentObserver(observer);
+        }
     }
 
     /* package */ void onCollectionAsyncQueryReturn(Cursor cursor, LocalCollection localCollection, LocalCollection.OnChangeListener listener) {

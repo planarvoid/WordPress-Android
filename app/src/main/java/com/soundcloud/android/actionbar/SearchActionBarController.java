@@ -75,7 +75,7 @@ public class SearchActionBarController extends ActionBarController {
         final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
 
         final boolean localResult = suggestionsAdapter.isLocalResult(position);
-        if (!localResult){
+        if (!localResult) {
             // cache dummy model in ScModelManager, as it will avert NotFoundException in Service class
             // this is very hacky, and should not exist in master... ever. Issue to fix:
             // https://soundcloud.atlassian.net/browse/DROID-358?jql=project%20%3D%20DROID
@@ -141,7 +141,9 @@ public class SearchActionBarController extends ActionBarController {
 
     public void onDestroy() {
         // Suggestions adapter has to stop handler thread
-        if (suggestionsAdapter != null) suggestionsAdapter.onDestroy();
+        if (suggestionsAdapter != null) {
+            suggestionsAdapter.onDestroy();
+        }
     }
 
     @Override
@@ -294,7 +296,7 @@ public class SearchActionBarController extends ActionBarController {
             this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         }
 
-        public SearchActionBarController create(ActionBarOwner owner, SearchCallback searchCallback ){
+        public SearchActionBarController create(ActionBarOwner owner, SearchCallback searchCallback) {
             return new SearchActionBarController(owner, publicCloudAPI, searchCallback, playbackOperations,
                     eventBus, expandPlayerSubscriberProvider);
 

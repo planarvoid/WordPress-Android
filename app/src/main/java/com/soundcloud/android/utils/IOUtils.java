@@ -49,10 +49,15 @@ import java.util.Locale;
 public final class IOUtils {
     private static final int BUFFER_SIZE = 8192;
 
-    private IOUtils() {}
+    private IOUtils() {
+    }
 
-    public static @NotNull File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
-        if (f == null) return new File[0];
+    public static
+    @NotNull
+    File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
+        if (f == null) {
+            return new File[0];
+        }
         File[] files;
         if (filter != null) {
             files = f.listFiles(filter);
@@ -67,9 +72,12 @@ public final class IOUtils {
         File[] fileList = nullSafeListFiles(dir, null);
         for (File file : fileList) {
             if (file.isDirectory() &&
-                !dir.equals(file) /* check should not be necessary, but SO on some version of android */
-            ) result += getDirSize(file);
-            else result += file.length();
+                    !dir.equals(file) /* check should not be necessary, but SO on some version of android */
+                    ) {
+                result += getDirSize(file);
+            } else {
+                result += file.length();
+            }
         }
         return result;
     }
@@ -80,7 +88,7 @@ public final class IOUtils {
             return (long) fs.getBlockSize() * (long) fs.getAvailableBlocks();
         } catch (IllegalArgumentException e) {
             // gets thrown when call to statfs fails
-            Log.e(TAG, "getSpaceLeft("+dir+")", e);
+            Log.e(TAG, "getSpaceLeft(" + dir + ")", e);
             return 0;
         }
     }
@@ -91,18 +99,20 @@ public final class IOUtils {
             return (long) fs.getBlockSize() * (long) fs.getBlockCount();
         } catch (IllegalArgumentException e) {
             // gets thrown when call to statfs fails
-            Log.e(TAG, "getTotalSpace("+dir+")", e);
+            Log.e(TAG, "getTotalSpace(" + dir + ")", e);
             return 0;
         }
     }
 
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
-        if (uri == null) return null;
+        if (uri == null) {
+            return null;
+        }
 
         if ("file".equals(uri.getScheme())) {
             return new File(uri.getPath());
         } else if ("content".equals(uri.getScheme())) {
-            final String[] filePathColumn = { MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME };
+            final String[] filePathColumn = {MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DISPLAY_NAME};
             Cursor cursor = null;
             try {
                 cursor = resolver.query(uri, filePathColumn, null, null, null);
@@ -117,7 +127,9 @@ public final class IOUtils {
             } catch (SecurityException ignored) {
                 // nothing to be done
             } finally {
-                if (cursor != null) cursor.close();
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         }
         return null;
@@ -175,7 +187,9 @@ public final class IOUtils {
     public static boolean mkdirs(File d) {
         if (!d.exists()) {
             final boolean success = d.mkdirs();
-            if (!success) Log.w(TAG, "mkdir " + d.getAbsolutePath() + " returned false");
+            if (!success) {
+                Log.w(TAG, "mkdir " + d.getAbsolutePath() + " returned false");
+            }
             return success;
         } else {
             return false;
@@ -185,10 +199,14 @@ public final class IOUtils {
     public static boolean deleteFile(File f) {
         if (f != null && f.exists()) {
             if (!f.delete()) {
-                Log.w(TAG, "could not delete "+f);
-                return  false;
-            } else return true;
-        } else return false;
+                Log.w(TAG, "could not delete " + f);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     public static boolean deleteDir(File dir) {
@@ -196,7 +214,7 @@ public final class IOUtils {
             for (File f : nullSafeListFiles(dir, null)) {
                 boolean success;
                 if (f.isDirectory()) {
-                     success = deleteDir(f);
+                    success = deleteDir(f);
                 } else {
                     success = deleteFile(f);
                 }
@@ -215,7 +233,7 @@ public final class IOUtils {
         if (deprecatedDir.exists()) {
             for (File f : nullSafeListFiles(deprecatedDir, null)) {
                 if (!f.renameTo(new File(newDir, f.getName()))) {
-                    Log.w(TAG, "could not rename "+f);
+                    Log.w(TAG, "could not rename " + f);
                 }
             }
             deleteDir(deprecatedDir);
@@ -223,13 +241,13 @@ public final class IOUtils {
         return newDir;
     }
 
-    public static boolean renameCaseSensitive(File oldFile, File newFile){
-        if (oldFile.equals(newFile)){
+    public static boolean renameCaseSensitive(File oldFile, File newFile) {
+        if (oldFile.equals(newFile)) {
             return oldFile.renameTo(newFile);
         } else if (oldFile.getParentFile() == null) {
             return false;
         } else {
-            File tmp = new File(oldFile.getParentFile(),"."+System.currentTimeMillis());
+            File tmp = new File(oldFile.getParentFile(), "." + System.currentTimeMillis());
             return oldFile.renameTo(tmp) && tmp.renameTo(newFile);
         }
     }
@@ -243,11 +261,15 @@ public final class IOUtils {
                 }
             });
             return files.length > 0;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     public static boolean nomedia(File dir) {
-        if (!dir.isDirectory()) return false;
+        if (!dir.isDirectory()) {
+            return false;
+        }
 
         File nomedia = new File(dir, ".nomedia");
         if (nomedia.exists() && nomedia.isFile()) {
@@ -296,7 +318,7 @@ public final class IOUtils {
     }
 
     public static File getCacheFile(Context c, String name) {
-          return new File(getCacheDir(c), name);
+        return new File(getCacheDir(c), name);
     }
 
     public static boolean isSDCardAvailable() {
@@ -309,10 +331,10 @@ public final class IOUtils {
     }
 
     /**
-     * @param usedSpace  the currently used space by the cache
-     * @param spaceLeft  space left on the filesystem
-     * @param maxSpace   the max space to use
-     * @param maxPct     percentage of free space to use
+     * @param usedSpace the currently used space by the cache
+     * @param spaceLeft space left on the filesystem
+     * @param maxSpace  the max space to use
+     * @param maxPct    percentage of free space to use
      * @return total usable space
      */
     public static long getUsableSpace(long usedSpace, long spaceLeft, long maxSpace, double maxPct) {
@@ -339,7 +361,12 @@ public final class IOUtils {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
-            if (is != null) try { is.close(); } catch (IOException ignored) { }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 
@@ -362,7 +389,7 @@ public final class IOUtils {
 
     /**
      * @param context context
-     * @param info current network info
+     * @param info    current network info
      * @return the proxy to be used for the given network, or null
      */
     public static String getProxy(Context context, NetworkInfo info) {
@@ -390,7 +417,7 @@ public final class IOUtils {
 
     public static boolean isConnected(Context context) {
         ConnectivityManager mgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info =  mgr == null ? null : mgr.getActiveNetworkInfo();
+        NetworkInfo info = mgr == null ? null : mgr.getActiveNetworkInfo();
         return info != null && info.isConnectedOrConnecting();
     }
 
@@ -422,6 +449,7 @@ public final class IOUtils {
     /**
      * Closes a cursor. These cannot use the {@link this#close(java.io.Closeable)}
      * function as cursors do not implement Closeable pre-honecomb
+     *
      * @param cursor
      */
     public static void close(Cursor cursor) {
@@ -439,39 +467,49 @@ public final class IOUtils {
         }
     }
 
-    public static @NotNull File appendToFilename(File file, String text) {
+    public static
+    @NotNull
+    File appendToFilename(File file, String text) {
         String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
             String ext = name.substring(lastDot, name.length());
-            return new File(file.getParentFile(), name.substring(0, lastDot)+text+ext);
+            return new File(file.getParentFile(), name.substring(0, lastDot) + text + ext);
         } else {
-            return new File(file.getParentFile(), file.getName()+text);
+            return new File(file.getParentFile(), file.getName() + text);
         }
     }
 
-    public static @Nullable String extension(File file) {
+    public static
+    @Nullable
+    String extension(File file) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
-        if (lastDot != -1 && lastDot != name.length() -1) {
-            return name.substring(lastDot+1, name.length()).toLowerCase(Locale.US);
+        if (lastDot != -1 && lastDot != name.length() - 1) {
+            return name.substring(lastDot + 1, name.length()).toLowerCase(Locale.US);
         } else {
             return null;
         }
     }
 
-    public static @NotNull File changeExtension(File file, String ext) {
+    public static
+    @NotNull
+    File changeExtension(File file, String ext) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
-            return new File(file.getParentFile(), name.substring(0, lastDot)+"."+ext);
+            return new File(file.getParentFile(), name.substring(0, lastDot) + "." + ext);
         } else {
-            return new File(file.getParentFile(), file.getName()+"."+ext);
+            return new File(file.getParentFile(), file.getName() + "." + ext);
         }
     }
 
-    public static @NotNull File removeExtension(@NotNull File file) {
-        if (file.isDirectory()) return file;
+    public static
+    @NotNull
+    File removeExtension(@NotNull File file) {
+        if (file.isDirectory()) {
+            return file;
+        }
         String name = file.getName();
         final int lastPeriodPos = name.lastIndexOf('.');
         return lastPeriodPos <= 0 ? file : new File(file.getParent(), name.substring(0, lastPeriodPos));
@@ -503,8 +541,8 @@ public final class IOUtils {
     public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
         return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 ?
-                        WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 ?
+                                WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
                         tag
                 );
     }
@@ -514,14 +552,18 @@ public final class IOUtils {
         try {
             final JsonNode node = reader.readTree(is);
             final JsonNode errors = node.path("errors").path("error");
-            final JsonNode error  = node.path("error");
-            if (error.isTextual()) errorList.add(error.asText());
-            else if (errors.isTextual()) errorList.add(errors.asText());
-            else if (node.path("errors").isArray())
+            final JsonNode error = node.path("error");
+            if (error.isTextual()) {
+                errorList.add(error.asText());
+            } else if (errors.isTextual()) {
+                errorList.add(errors.asText());
+            } else if (node.path("errors").isArray()) {
                 for (JsonNode n : node.path("errors")) errorList.add(n.path("error_message").asText());
-            else for (JsonNode s : errors) errorList.add(s.asText());
+            } else {
+                for (JsonNode s : errors) errorList.add(s.asText());
+            }
         } catch (JsonParseException e) {
-            Log.e(TAG,"Error parsing json response: ", e);
+            Log.e(TAG, "Error parsing json response: ", e);
         }
         return errorList;
     }

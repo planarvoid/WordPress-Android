@@ -34,7 +34,7 @@ import java.util.Date;
 
 @Deprecated
 public abstract class Playable extends PublicApiResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable, PropertySetSource {
-    public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
+    public static final int DB_TYPE_TRACK = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
     @JsonView(Views.Mini.class) public String title;
@@ -82,7 +82,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @JsonIgnore protected CharSequence mElapsedTime;
     @JsonIgnore protected String mArtworkUri;
 
-    public Playable() { }
+    public Playable() {
+    }
 
     public Playable(long id) {
         super(id);
@@ -158,7 +159,9 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return user == null || user.isIncomplete();
     }
 
-    @Override @Nullable @JsonIgnore
+    @Override
+    @Nullable
+    @JsonIgnore
     public PublicApiUser getUser() {
         return user;
     }
@@ -167,15 +170,16 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         this.user = user;
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public Playable getPlayable() {
         return this;
     }
 
     public String getArtwork() {
-        if (shouldLoadArtwork()){
+        if (shouldLoadArtwork()) {
             return artwork_url;
-        } else if (user != null && user.shouldLoadIcon()){
+        } else if (user != null && user.shouldLoadIcon()) {
             return user.avatar_url;
         } else {
             return null;
@@ -187,7 +191,9 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     }
 
     public CharSequence getTimeSinceCreated(Context context) {
-        if (mElapsedTime == null) refreshTimeSinceCreated(context);
+        if (mElapsedTime == null) {
+            refreshTimeSinceCreated(context);
+        }
         return mElapsedTime;
     }
 
@@ -217,7 +223,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putInt("duration", duration);
-        b.putLong("created_at",  created_at != null ? created_at.getTime() : -1l);
+        b.putLong("created_at", created_at != null ? created_at.getTime() : -1l);
         b.putBoolean("streamable", streamable);
         b.putBoolean("downloadable", downloadable);
         b.putString("license", license);
@@ -294,23 +300,47 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
             // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/53ebe1b3e3de5099baa83a9a
             ErrorUtils.handleSilentException(new IllegalStateException("Attempting to insert a playable with a null title; id=" + getId()));
         }
-        if (duration > 0) cv.put(TableColumns.Sounds.DURATION, duration);
+        if (duration > 0) {
+            cv.put(TableColumns.Sounds.DURATION, duration);
+        }
         if (user_id != 0) {
             cv.put(TableColumns.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {
             cv.put(TableColumns.Sounds.USER_ID, user.getId());
         }
-        if (created_at != null) cv.put(TableColumns.Sounds.CREATED_AT, created_at.getTime());
-        if (tag_list != null) cv.put(TableColumns.Sounds.TAG_LIST, tag_list);
-        if (permalink_url != null) cv.put(TableColumns.Sounds.PERMALINK_URL, permalink_url);
-        if (artwork_url != null) cv.put(TableColumns.Sounds.ARTWORK_URL, artwork_url);
-        if (downloadable) cv.put(TableColumns.Sounds.DOWNLOADABLE, downloadable);
-        if (streamable) cv.put(TableColumns.Sounds.STREAMABLE, streamable);
-        if (sharing != Sharing.UNDEFINED) cv.put(TableColumns.Sounds.SHARING, sharing.value);
-        if (license != null) cv.put(TableColumns.Sounds.LICENSE, license);
-        if (genre != null) cv.put(TableColumns.Sounds.GENRE, genre);
-        if (likes_count != -1) cv.put(TableColumns.Sounds.LIKES_COUNT, likes_count);
-        if (reposts_count != -1) cv.put(TableColumns.Sounds.REPOSTS_COUNT, reposts_count);
+        if (created_at != null) {
+            cv.put(TableColumns.Sounds.CREATED_AT, created_at.getTime());
+        }
+        if (tag_list != null) {
+            cv.put(TableColumns.Sounds.TAG_LIST, tag_list);
+        }
+        if (permalink_url != null) {
+            cv.put(TableColumns.Sounds.PERMALINK_URL, permalink_url);
+        }
+        if (artwork_url != null) {
+            cv.put(TableColumns.Sounds.ARTWORK_URL, artwork_url);
+        }
+        if (downloadable) {
+            cv.put(TableColumns.Sounds.DOWNLOADABLE, downloadable);
+        }
+        if (streamable) {
+            cv.put(TableColumns.Sounds.STREAMABLE, streamable);
+        }
+        if (sharing != Sharing.UNDEFINED) {
+            cv.put(TableColumns.Sounds.SHARING, sharing.value);
+        }
+        if (license != null) {
+            cv.put(TableColumns.Sounds.LICENSE, license);
+        }
+        if (genre != null) {
+            cv.put(TableColumns.Sounds.GENRE, genre);
+        }
+        if (likes_count != -1) {
+            cv.put(TableColumns.Sounds.LIKES_COUNT, likes_count);
+        }
+        if (reposts_count != -1) {
+            cv.put(TableColumns.Sounds.REPOSTS_COUNT, reposts_count);
+        }
         return cv;
     }
 
@@ -395,7 +425,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return sharing;
     }
 
-    protected static boolean isTrackCursor(Cursor cursor){
+    protected static boolean isTrackCursor(Cursor cursor) {
         return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 

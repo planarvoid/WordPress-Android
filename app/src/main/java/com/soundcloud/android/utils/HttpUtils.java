@@ -28,7 +28,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public final class HttpUtils {
-    private HttpUtils() {}
+    private HttpUtils() {
+    }
 
     public static void fetchUriToFile(String url, File file, boolean useCache) throws FileNotFoundException {
         OutputStream os = null;
@@ -47,7 +48,7 @@ public final class HttpUtils {
                     os.write(buffer, 0, n);
                 }
             } else {
-                throw new FileNotFoundException("HttpStatus: "+status);
+                throw new FileNotFoundException("HttpStatus: " + status);
             }
         } catch (MalformedURLException e) {
             throw new FileNotFoundException(e.getMessage());
@@ -55,10 +56,14 @@ public final class HttpUtils {
             IOUtils.deleteFile(file);
             throw new FileNotFoundException(e.getMessage());
         } finally {
-            if (conn != null) conn.disconnect();
-            if (os != null) try {
-                os.close();
-            } catch (IOException ignored) {
+            if (conn != null) {
+                conn.disconnect();
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException ignored) {
+                }
             }
         }
     }
@@ -76,7 +81,9 @@ public final class HttpUtils {
         }
     }
 
-    public static @Nullable Uri getRedirectUri(@NotNull HttpClient client, @NotNull Uri target) {
+    public static
+    @Nullable
+    Uri getRedirectUri(@NotNull HttpClient client, @NotNull Uri target) {
         try {
             HttpGet get = new HttpGet(target.toString());
             HttpResponse resp = client.execute(get);
@@ -86,7 +93,7 @@ public final class HttpUtils {
                     return Uri.parse(location.getValue());
                 }
             } else {
-                Log.w(TAG, "invalid status "+resp.getStatusLine());
+                Log.w(TAG, "invalid status " + resp.getStatusLine());
             }
         } catch (IOException e) {
             Log.w(TAG, e);
@@ -96,8 +103,9 @@ public final class HttpUtils {
 
     /**
      * Adds an optional list of query params to the given request object.
+     *
      * @param request the SoundCloud API request
-     * @param params null, empty array, or key-value pairs
+     * @param params  null, empty array, or key-value pairs
      */
     public static Request addQueryParams(Request request, String... params) {
         if (params != null) {

@@ -43,8 +43,12 @@ public final class AndroidUtils {
     @SuppressWarnings("JavaDoc")
     public static ProgressDialog showProgress(Context context, int message, int titleId) {
         ProgressDialog dialog = new ProgressDialog(context);
-        if (titleId > 0) dialog.setTitle(titleId);
-        if (message > 0) dialog.setMessage(context.getString(message));
+        if (titleId > 0) {
+            dialog.setTitle(titleId);
+        }
+        if (message > 0) {
+            dialog.setMessage(context.getString(message));
+        }
         dialog.setIndeterminate(false);
         dialog.setCancelable(false);
         dialog.setOnCancelListener(null);

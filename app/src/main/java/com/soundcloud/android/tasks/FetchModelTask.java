@@ -1,10 +1,10 @@
 package com.soundcloud.android.tasks;
 
-import static com.soundcloud.android.api.legacy.PublicCloudAPI.NotFoundException;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.api.legacy.PublicCloudAPI.NotFoundException;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -34,8 +34,8 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
         modelId = id;
     }
 
-    public void addListener(Listener<Model> listener){
-        if (listenerWeakReferences == null){
+    public void addListener(Listener<Model> listener) {
+        if (listenerWeakReferences == null) {
             listenerWeakReferences = new HashSet<WeakReference<Listener<Model>>>();
         }
 
@@ -45,7 +45,9 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
 
     @Override
     protected Model doInBackground(Request... request) {
-        if (request == null || request.length == 0) throw new IllegalArgumentException("need request");
+        if (request == null || request.length == 0) {
+            throw new IllegalArgumentException("need request");
+        }
         return resolve(request[0]);
     }
 
@@ -70,7 +72,9 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
     @Nullable
     public Model resolve(Request request) {
         try {
-            if (isCancelled()) return null;
+            if (isCancelled()) {
+                return null;
+            }
             Model model = api.read(request);
             model.setUpdated();
             persist(model);
@@ -89,6 +93,7 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
 
     public interface Listener<Model extends Parcelable> {
         void onSuccess(Model m);
+
         void onError(Object context);
     }
 }

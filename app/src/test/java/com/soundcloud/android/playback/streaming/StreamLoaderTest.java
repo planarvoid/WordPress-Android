@@ -208,14 +208,14 @@ public class StreamLoaderTest {
         HttpResponse stream = new TestHttpResponse(202, "");
         addHttpResponseRule(new FakeHttpLayer.RequestMatcherBuilder()
                 .method("POST")
-                .path("tracks/"+item.trackId+"/plays"), stream);
+                .path("tracks/" + item.trackId + "/plays"), stream);
     }
 
     static void pendingHeadRequests(File f) {
         long expires = (System.currentTimeMillis() / 1000L) + 60L;
         // first HEAD request
         addPendingHttpResponse(302, "", headers(
-                "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires=" + expires)
+                        "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires=" + expires)
         );
 
         // second HEAD request (to S3/akamai)
@@ -229,7 +229,7 @@ public class StreamLoaderTest {
 
         // first GET request - soundcloud
         addPendingHttpResponse(302, "", headers(
-                "Location", "http://ak-media.soundcloud.com/foo_get.mp3?Expires=" + expires + 1000)
+                        "Location", "http://ak-media.soundcloud.com/foo_get.mp3?Expires=" + expires + 1000)
         );
     }
 
@@ -277,7 +277,9 @@ public class StreamLoaderTest {
         @Override
         public ByteBuffer getChunkData(String url, int chunkIndex) throws IOException {
             Map<Integer, ByteBuffer> chunks = _storage.get(url);
-            if (chunks == null || !chunks.containsKey(chunkIndex)) throw new IOException("item not found");
+            if (chunks == null || !chunks.containsKey(chunkIndex)) {
+                throw new IOException("item not found");
+            }
             return chunks.get(chunkIndex);
         }
 
@@ -289,7 +291,9 @@ public class StreamLoaderTest {
             } else {
                 Index i = Index.empty();
                 for (int p : chunkRange) {
-                    if (!chunks.containsKey(p)) i.set(p, true);
+                    if (!chunks.containsKey(p)) {
+                        i.set(p, true);
+                    }
                 }
                 return i;
             }

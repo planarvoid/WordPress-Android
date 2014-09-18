@@ -2,11 +2,11 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
+import com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer;
 import com.soundcloud.android.creators.record.writer.EmptyWriter;
 import com.soundcloud.android.creators.record.writer.MultiAudioWriter;
 import com.soundcloud.android.creators.record.writer.VorbisWriter;
 import com.soundcloud.android.creators.record.writer.WavWriter;
-import com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer;
 import com.soundcloud.android.utils.BufferUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
-public class RecordStream  {
+public class RecordStream {
     private @NotNull final AudioConfig config;
     private @NotNull AudioWriter writer;
     private @NotNull AmplitudeData amplitudeData;
@@ -35,7 +35,9 @@ public class RecordStream  {
      * @param cfg the audio config to use
      */
     public RecordStream(AudioConfig cfg) {
-        if (cfg == null) throw new IllegalArgumentException("config is null");
+        if (cfg == null) {
+            throw new IllegalArgumentException("config is null");
+        }
         config = cfg;
         amplitudeAnalyzer = new NativeAmplitudeAnalyzer(cfg);
 
@@ -45,9 +47,9 @@ public class RecordStream  {
     }
 
     /**
-     * @param cfg the audio config to use
-     * @param raw     the file to hold raw data
-     * @param encoded the file to be encoded (pass in null to skip encoding)
+     * @param cfg           the audio config to use
+     * @param raw           the file to hold raw data
+     * @param encoded       the file to be encoded (pass in null to skip encoding)
      * @param amplitudeFile previous amplitude data
      */
     public RecordStream(AudioConfig cfg, File raw, File encoded, File amplitudeFile) {
@@ -55,7 +57,7 @@ public class RecordStream  {
 
         setWriters(raw, encoded);
         try {
-            if (amplitudeFile != null && amplitudeFile.exists()){
+            if (amplitudeFile != null && amplitudeFile.exists()) {
                 amplitudeData = AmplitudeData.fromFile(amplitudeFile);
             } else {
                 Log.d(SoundRecorder.TAG, "Amplitude file not found at " + (amplitudeFile == null ? "<null>" : amplitudeFile.getPath()));
@@ -74,10 +76,10 @@ public class RecordStream  {
         } catch (IOException ignored) {
         }
         final long requiredSize = (long) (((int) (SoundRecorder.PIXELS_PER_SECOND *
-                        SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration)
+                SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration)
                 * .95); // 5 percent tolerance
 
-        int delta = (int) ((requiredSize / 1000d) -  amplitudeData.size());
+        int delta = (int) ((requiredSize / 1000d) - amplitudeData.size());
 
         return Math.abs(delta) <= 5;
     }
@@ -93,7 +95,7 @@ public class RecordStream  {
 
     /*package*/ void regenerateAmplitudeData(File outFile, onAmplitudeGenerationListener onAmplitudeListener) {
 
-        Log.d(SoundRecorder.TAG,"Regenerating amplitude file to " + (outFile == null ? "<null>" : outFile.getPath()));
+        Log.d(SoundRecorder.TAG, "Regenerating amplitude file to " + (outFile == null ? "<null>" : outFile.getPath()));
         final WeakReference<onAmplitudeGenerationListener> listenerWeakReference = new WeakReference<onAmplitudeGenerationListener>(onAmplitudeListener);
 
         try {
@@ -111,16 +113,22 @@ public class RecordStream  {
             }
             playbackStream.close();
 
-            if (outFile != null) amplitudeData.store(outFile);
+            if (outFile != null) {
+                amplitudeData.store(outFile);
+            }
             Log.d(SoundRecorder.TAG, "Amplitude file regenerated in " + (System.currentTimeMillis() - start) + " milliseconds");
             onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
-            if (listener2 != null) listener2.onGenerationFinished(true);
+            if (listener2 != null) {
+                listener2.onGenerationFinished(true);
+            }
 
         } catch (IOException e) {
             amplitudeData = new AmplitudeData();
             Log.w(SoundRecorder.TAG, "error regenerating amplitude data", e);
             onAmplitudeGenerationListener listener2 = listenerWeakReference.get();
-            if (listener2 != null) listener2.onGenerationFinished(false);
+            if (listener2 != null) {
+                listener2.onGenerationFinished(false);
+            }
         }
     }
 
@@ -131,10 +139,16 @@ public class RecordStream  {
     public final void setWriters(@Nullable File raw, @Nullable File encoded) {
         AudioWriter w;
 
-        if (raw == null && encoded == null)      w = new EmptyWriter(config);
-        else if (encoded != null && raw == null) w = new VorbisWriter(encoded, config);
-        else if (encoded == null) w = new WavWriter(raw, config);
-        else w = new MultiAudioWriter(new VorbisWriter(encoded, config), new WavWriter(raw, config));
+        if (raw == null && encoded == null) {
+            w = new EmptyWriter(config);
+        } else if (encoded != null && raw == null) {
+            w = new VorbisWriter(encoded, config);
+        } else if (encoded == null) {
+            w = new WavWriter(raw, config);
+        } else {
+            w = new MultiAudioWriter(new VorbisWriter(encoded, config), new WavWriter(raw, config));
+        }
+
         setWriter(w);
     }
 
@@ -191,7 +205,7 @@ public class RecordStream  {
             int bytesToWrite = (int) config.msToByte(msecs);
             ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bytesToWrite + 2);
             final double slope = last / (bytesToWrite / 2);
-            for (int i = 0; i< bytesToWrite; i+= 2) {
+            for (int i = 0; i < bytesToWrite; i += 2) {
                 last -= slope;
                 buffer.putShort((short) last);
             }

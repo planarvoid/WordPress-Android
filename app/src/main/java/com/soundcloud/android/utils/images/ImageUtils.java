@@ -53,14 +53,15 @@ public final class ImageUtils {
     public static final int DEFAULT_TRANSITION_DURATION = 200;
     public static final int RECOMMENDED_IMAGE_SIZE = 2048;
 
-    private ImageUtils() {}
-
+    private ImageUtils() {
+    }
 
     public static BitmapFactory.Options decode(File imageFile) throws IOException {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;  /* don't allocate bitmap */
         InputStream is = new FileInputStream(imageFile);
-        /* output ignored */ BitmapFactory.decodeStream(is, null, options);
+        /* output ignored */
+        BitmapFactory.decodeStream(is, null, options);
         is.close();
         return options;
     }
@@ -70,7 +71,10 @@ public final class ImageUtils {
                                                                int targetHeight,
                                                                boolean crop) throws IOException {
 
-        if (targetWidth == 0 || targetHeight == 0) return new BitmapFactory.Options(); // some devices report 0
+        if (targetWidth == 0 || targetHeight == 0) {
+            // some devices report 0
+            return new BitmapFactory.Options();
+        }
         BitmapFactory.Options options = decode(imageFile);
 
         final int height = options.outHeight;
@@ -79,30 +83,36 @@ public final class ImageUtils {
         if (crop) {
             if (height > targetHeight || width > targetWidth) {
                 if (targetHeight / height < targetWidth / width) {
-                    options.inSampleSize = Math.round((float)height / (float)targetHeight);
+                    options.inSampleSize = Math.round((float) height / (float) targetHeight);
                 } else {
-                    options.inSampleSize = Math.round((float)width / (float)targetWidth);
+                    options.inSampleSize = Math.round((float) width / (float) targetWidth);
                 }
 
             }
         } else if (targetHeight / height > targetWidth / width) {
-            options.inSampleSize = Math.round((float)height / (float)targetHeight);
+            options.inSampleSize = Math.round((float) height / (float) targetHeight);
         } else {
-            options.inSampleSize = Math.round((float)width / (float)targetWidth);
+            options.inSampleSize = Math.round((float) width / (float) targetWidth);
         }
         return options;
     }
 
     public static int getExifRotation(File imageFile) {
-        if (imageFile == null) return -1;
+        if (imageFile == null) {
+            return -1;
+        }
         try {
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             // We only recognize a subset of orientation tag values.
             switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
-                case ExifInterface.ORIENTATION_ROTATE_90:  return 90;
-                case ExifInterface.ORIENTATION_ROTATE_180: return 180;
-                case ExifInterface.ORIENTATION_ROTATE_270: return 270;
-                default: return ExifInterface.ORIENTATION_UNDEFINED;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return 90;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    return 180;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    return 270;
+                default:
+                    return ExifInterface.ORIENTATION_UNDEFINED;
             }
         } catch (IOException e) {
             Log.e(TAG, "error", e);
@@ -174,11 +184,11 @@ public final class ImageUtils {
 
             bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
             if (bitmap == null) {
-                Log.w(TAG, "error decoding "+imageFile);
+                Log.w(TAG, "error decoding " + imageFile);
                 return false;
             }
 
-            setImage(bitmap,imageView,viewWidth,viewHeight,getExifRotation(imageFile));
+            setImage(bitmap, imageView, viewWidth, viewHeight, getExifRotation(imageFile));
             return true;
 
         } catch (IOException e) {
@@ -189,10 +199,11 @@ public final class ImageUtils {
 
     /**
      * Set ImageView from Bitmap with a custom matrix that takes into account scaling and exif rotation
-     * @param bitmap source bitmap
-     * @param imageView imageview to set
-     * @param viewWidth imageview width, passed in as this call often occurs before measurement
-     * @param viewHeight imageview height
+     *
+     * @param bitmap       source bitmap
+     * @param imageView    imageview to set
+     * @param viewWidth    imageview width, passed in as this call often occurs before measurement
+     * @param viewHeight   imageview height
      * @param exifRotation exif rotation to account for in the matrix
      */
     public static void setImage(Bitmap bitmap, ImageView imageView, int viewWidth, int viewHeight, int exifRotation) {
@@ -245,7 +256,9 @@ public final class ImageUtils {
                 preRotate.recycle();
             }
 
-            if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
+            if (bitmap == null) {
+                throw new IOException("error decoding bitmap (bitmap == null)");
+            }
 
             FileOutputStream out = new FileOutputStream(outputFile);
             final boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -281,7 +294,7 @@ public final class ImageUtils {
 
          */
 
-        final boolean arrowLeft = arrowOffset <= width/2;
+        final boolean arrowLeft = arrowOffset <= width / 2;
 
         final int Ax = arc;
         final int Ay = 0;
@@ -309,7 +322,7 @@ public final class ImageUtils {
 
         ctx.lineTo(Dx, Dy);
 
-        if (arrowWidth > 0){
+        if (arrowWidth > 0) {
             ctx.lineTo(Ex, Ey);
             ctx.lineTo(Fx, Fy);
             ctx.lineTo(Gx, Gy);
@@ -322,13 +335,13 @@ public final class ImageUtils {
         ctx.arcTo(new RectF(Ax - arc, Ay, Ix + arc, Iy), 180, 90); //F-A arc
         c.drawPath(ctx, bgPaint);
 
-        if (linePaint != null){
-            c.drawLine(arrowOffset,height,arrowOffset,height+arrowOffset,linePaint);
+        if (linePaint != null) {
+            c.drawLine(arrowOffset, height, arrowOffset, height + arrowOffset, linePaint);
         }
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public static void drawSquareBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arrowWidth, int arrowHeight, int arrowOffset){
+    public static void drawSquareBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arrowWidth, int arrowHeight, int arrowOffset) {
 
         /*
              A ---- B
@@ -373,8 +386,10 @@ public final class ImageUtils {
         }
     }
 
-    public static float getCurrentTransformY(View v){
-        if (v.getAnimation() == null) return 0f;
+    public static float getCurrentTransformY(View v) {
+        if (v.getAnimation() == null) {
+            return 0f;
+        }
         Transformation t = new Transformation();
         float[] values = new float[9];
         v.getAnimation().getTransformation(v.getDrawingTime(), t);
@@ -383,7 +398,7 @@ public final class ImageUtils {
     }
 
     @TargetApi(9)
-    public static boolean isScreenXL(Resources resources){
+    public static boolean isScreenXL(Resources resources) {
         return ((resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
     }
 
@@ -402,7 +417,7 @@ public final class ImageUtils {
         }
     }
 
-    public static void showImagePickerDialog(Context context, FragmentManager fragmentManager, int requestCode){
+    public static void showImagePickerDialog(Context context, FragmentManager fragmentManager, int requestCode) {
         SimpleDialogFragment.createBuilder(context, fragmentManager)
                 .setRequestCode(requestCode)
                 .setMessage(R.string.image_where)
@@ -411,7 +426,7 @@ public final class ImageUtils {
                 .show();
     }
 
-    public static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode){
+    public static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {
         if (destinationFile != null) {
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                     .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destinationFile));
@@ -423,7 +438,7 @@ public final class ImageUtils {
         }
     }
 
-    public static void startPickImageIntent(Activity activity, int requestCode){
+    public static void startPickImageIntent(Activity activity, int requestCode) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
         try {
             activity.startActivityForResult(intent, requestCode);
@@ -431,7 +446,6 @@ public final class ImageUtils {
             AndroidUtils.showToast(activity, R.string.use_existing_image_error);
         }
     }
-
 
 
     public static void sendCropIntent(Activity activity, Uri imageUri) {
@@ -478,7 +492,7 @@ public final class ImageUtils {
     }
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-            int reqWidth, int reqHeight) {
+                                                         int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -504,7 +518,7 @@ public final class ImageUtils {
 
     public static Bitmap toBitmap(Drawable drawable, int width, int height) {
         if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable)drawable).getBitmap();
+            return ((BitmapDrawable) drawable).getBitmap();
         }
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -522,6 +536,7 @@ public final class ImageUtils {
      */
     public abstract static class ViewlessLoadingListener implements ImageListener {
         View hardViewRef;
+
         @Override
         public void onLoadingStarted(String imageUri, View view) {
             hardViewRef = view;

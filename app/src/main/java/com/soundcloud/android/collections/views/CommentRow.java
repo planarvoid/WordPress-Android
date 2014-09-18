@@ -40,12 +40,16 @@ public class CommentRow extends IconLayout implements ListRow {
     @Override
     public void display(int position, Parcelable p) {
         comment = (PublicApiComment) p;
-        if (comment == null) return;
+        if (comment == null) {
+            return;
+        }
 
         loadIcon();
 
         message.setText(comment.body);
-        if (comment.getUser() != null) user.setText(comment.getUser().username);
+        if (comment.getUser() != null) {
+            user.setText(comment.getUser().username);
+        }
         createdAt.setText(ScTextUtils.formatTimeElapsed(getContext().getResources(), comment.getCreatedAt().getTime()));
     }
 

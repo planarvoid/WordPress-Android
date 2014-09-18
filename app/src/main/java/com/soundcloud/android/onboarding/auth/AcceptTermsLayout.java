@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 public class AcceptTermsLayout extends RelativeLayout {
 
-    private static final String BUNDLE_SIGNUP_VIA    = "BUNDLE_TERMS_SIGNUP_VIA";
+    private static final String BUNDLE_SIGNUP_VIA = "BUNDLE_TERMS_SIGNUP_VIA";
     private static final String BUNDLE_SIGNUP_PARAMS = "BUNDLE_TERMS_SIGNUP_PARAMS";
 
     private AcceptTermsHandler acceptTermsHandler;
@@ -22,9 +22,13 @@ public class AcceptTermsLayout extends RelativeLayout {
 
     public interface AcceptTermsHandler {
         void onAcceptTerms(SignupVia signupVia, Bundle signupParams);
+
         void onShowTermsOfUse();
+
         void onShowPrivacyPolicy();
+
         void onShowCookiePolicy();
+
         void onRejectTerms();
     }
 
@@ -48,7 +52,7 @@ public class AcceptTermsLayout extends RelativeLayout {
         this.acceptTermsHandler = acceptTermsHandler;
     }
 
-    public void setSignupParams(SignupVia signupVia, Bundle signupParams){
+    public void setSignupParams(SignupVia signupVia, Bundle signupParams) {
         this.signupVia = signupVia;
         this.signupParams = signupParams;
     }
@@ -99,7 +103,9 @@ public class AcceptTermsLayout extends RelativeLayout {
     }
 
     public void setState(@Nullable Bundle bundle) {
-        if (bundle == null) return;
+        if (bundle == null) {
+            return;
+        }
         signupVia = SignupVia.fromString(bundle.getString(BUNDLE_SIGNUP_VIA));
         signupParams = bundle.getBundle(BUNDLE_SIGNUP_PARAMS);
     }

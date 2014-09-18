@@ -23,7 +23,7 @@ import android.os.ResultReceiver;
  */
 class SyncServiceResultReceiver extends ResultReceiver {
     public static final int NOTIFICATION_MAX = 100;
-    private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
+    private static final String NOT_PLUS = (NOTIFICATION_MAX - 1) + "+";
 
     private SyncResult result;
     private SoundCloudApplication app;
@@ -125,20 +125,28 @@ class SyncServiceResultReceiver extends ResultReceiver {
         if (!activities.isEmpty()) {
             ContentStats.updateCount(app, Content.ME_ACTIVITIES, activities.size());
 
-            final boolean likeEnabled     = SyncConfig.isLikeEnabled(app, extras);
+            final boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
             final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
-            final boolean repostsEnabled  = SyncConfig.isRepostEnabled(app, extras);
+            final boolean repostsEnabled = SyncConfig.isRepostEnabled(app, extras);
 
-            final Activities likes    = likeEnabled     ? activities.trackLikes()   : Activities.EMPTY;
-            final Activities comments = commentsEnabled ? activities.comments()     : Activities.EMPTY;
-            final Activities reposts  = repostsEnabled  ? activities.trackReposts() : Activities.EMPTY;
+            final Activities likes = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
+            final Activities comments = commentsEnabled ? activities.comments() : Activities.EMPTY;
+            final Activities reposts = repostsEnabled ? activities.trackReposts() : Activities.EMPTY;
 
             Activities notifyable = new Activities();
-            if (likeEnabled)     notifyable = notifyable.merge(likes);
-            if (commentsEnabled) notifyable = notifyable.merge(comments);
-            if (repostsEnabled)  notifyable = notifyable.merge(reposts);
+            if (likeEnabled) {
+                notifyable = notifyable.merge(likes);
+            }
+            if (commentsEnabled) {
+                notifyable = notifyable.merge(comments);
+            }
+            if (repostsEnabled) {
+                notifyable = notifyable.merge(reposts);
+            }
 
-            if (notifyable.isEmpty()) return false;
+            if (notifyable.isEmpty()) {
+                return false;
+            }
             notifyable.sort();
 
             if (notifyable.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
@@ -150,7 +158,11 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
                 ContentStats.setLastNotifiedItem(app, Content.ME_ACTIVITIES, notifyable.getTimestamp());
                 return true;
-            } else return false;
-        } else return false;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

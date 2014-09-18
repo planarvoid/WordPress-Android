@@ -20,19 +20,27 @@ public class PlaybackProgressInfo {
         return time;
     }
 
-    public boolean shouldResumeTrack(TrackUrn trackUrn){
+    public boolean shouldResumeTrack(TrackUrn trackUrn) {
         return getTrackId() == trackUrn.numericId && time > 0;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PlaybackProgressInfo that = (PlaybackProgressInfo) o;
 
-        if (time != that.time) return false;
-        if (trackId != that.trackId) return false;
+        if (time != that.time) {
+            return false;
+        }
+        if (trackId != that.trackId) {
+            return false;
+        }
 
         return true;
     }

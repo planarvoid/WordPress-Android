@@ -12,8 +12,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -287,7 +287,9 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<PublicApiTrack>> {
 
         @Override
         public boolean moveToNext() {
-            if (itemsLeft == 0) return false;
+            if (itemsLeft == 0) {
+                return false;
+            }
             itemsLeft -= 1;
             return true;
         }

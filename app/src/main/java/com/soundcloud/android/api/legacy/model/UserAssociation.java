@@ -24,14 +24,14 @@ import java.util.Date;
  */
 public class UserAssociation extends Association implements UserHolder {
 
-    public static final Function<UserAssociation, String> TO_TOKEN_FUNCTION = new Function<UserAssociation, String>(){
+    public static final Function<UserAssociation, String> TO_TOKEN_FUNCTION = new Function<UserAssociation, String>() {
         @Override
         public String apply(UserAssociation input) {
             return input.getToken();
         }
     };
 
-    public static final Predicate<UserAssociation> HAS_TOKEN_PREDICATE = new Predicate<UserAssociation>(){
+    public static final Predicate<UserAssociation> HAS_TOKEN_PREDICATE = new Predicate<UserAssociation>() {
         @Override
         public boolean apply(UserAssociation input) {
             return input.hasToken();
@@ -39,14 +39,15 @@ public class UserAssociation extends Association implements UserHolder {
     };
 
     private @NotNull PublicApiUser mUser;
-    private @Nullable Date      mAddedAt;
-    private @Nullable Date      mRemovedAt;
+    private @Nullable Date mAddedAt;
+    private @Nullable Date mRemovedAt;
 
-    private @Nullable String    mToken;
+    private @Nullable String mToken;
 
     public enum LocalState {
         NONE, PENDING_ADDITION, PENDING_REMOVAL
     }
+
     public UserAssociation(Cursor cursor) {
         super(cursor);
         mUser = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, TableColumns.UserAssociationView._ID);
@@ -138,11 +139,11 @@ public class UserAssociation extends Association implements UserHolder {
         mUser.putFullContentValues(destination);
     }
 
-    public UserAssociation markForAddition(){
+    public UserAssociation markForAddition() {
         return markForAddition(null);
     }
 
-    public UserAssociation markForAddition(@Nullable String token){
+    public UserAssociation markForAddition(@Nullable String token) {
         setLocalSyncState(LocalState.PENDING_ADDITION);
         mUser.addAFollower();
         mToken = token;
@@ -180,10 +181,10 @@ public class UserAssociation extends Association implements UserHolder {
         }
     }
 
-    public LocalState getLocalSyncState(){
-        if (mAddedAt != null){
+    public LocalState getLocalSyncState() {
+        if (mAddedAt != null) {
             return LocalState.PENDING_ADDITION;
-        } else if (mRemovedAt != null){
+        } else if (mRemovedAt != null) {
             return LocalState.PENDING_REMOVAL;
         } else {
             return LocalState.NONE;
@@ -197,15 +198,27 @@ public class UserAssociation extends Association implements UserHolder {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserAssociation)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UserAssociation)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         UserAssociation that = (UserAssociation) o;
 
-        if (mAddedAt != null ? !mAddedAt.equals(that.mAddedAt) : that.mAddedAt != null) return false;
-        if (mRemovedAt != null ? !mRemovedAt.equals(that.mRemovedAt) : that.mRemovedAt != null) return false;
-        if (!mUser.equals(that.mUser)) return false;
+        if (mAddedAt != null ? !mAddedAt.equals(that.mAddedAt) : that.mAddedAt != null) {
+            return false;
+        }
+        if (mRemovedAt != null ? !mRemovedAt.equals(that.mRemovedAt) : that.mRemovedAt != null) {
+            return false;
+        }
+        if (!mUser.equals(that.mUser)) {
+            return false;
+        }
 
         return true;
     }
@@ -230,7 +243,7 @@ public class UserAssociation extends Association implements UserHolder {
     };
 
     @Nullable
-    private Date convertDirtyDate(long timestamp){
+    private Date convertDirtyDate(long timestamp) {
         return (timestamp <= 0) ? null : new Date(timestamp);
     }
 }

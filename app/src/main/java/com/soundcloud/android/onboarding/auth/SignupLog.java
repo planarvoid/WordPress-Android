@@ -67,8 +67,10 @@ public class SignupLog {
         } catch (IOException e) {
             Log.w(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
             return false;
-        }finally {
-            if (out != null) IOUtils.close(out);
+        } finally {
+            if (out != null) {
+                IOUtils.close(out);
+            }
         }
     }
 

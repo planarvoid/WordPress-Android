@@ -8,21 +8,21 @@ import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 import static com.soundcloud.android.testsupport.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.TrackHolder;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class ScContentProviderTest {
         expect(Content.TRACKS).toHaveCount(15);
         expect(Content.USERS).toHaveCount(14);
 
-        PublicApiPlaylist playlist  = readJson(PublicApiPlaylist.class, "/com/soundcloud/android/sync/playlist.json");
+        PublicApiPlaylist playlist = readJson(PublicApiPlaylist.class, "/com/soundcloud/android/sync/playlist.json");
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
@@ -135,7 +135,6 @@ public class ScContentProviderTest {
     }
 
 
-
     @Test
     public void shouldCleanupSoundStream() throws Exception {
         Activities a = getActivities("/com/soundcloud/android/sync/e1_stream.json");
@@ -180,7 +179,9 @@ public class ScContentProviderTest {
         List<ContentValues> cvs = new ArrayList<ContentValues>();
         for (Shortcut shortcut : shortcuts) {
             ContentValues cv = shortcut.buildContentValues();
-            if (cv != null) cvs.add(cv);
+            if (cv != null) {
+                cvs.add(cv);
+            }
         }
         int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
         expect(inserted).toEqual(cvs.size());
@@ -188,7 +189,7 @@ public class ScContentProviderTest {
 
 
         Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
-                null, null, new String[] { "blac" }, null);
+                null, null, new String[]{"blac"}, null);
 
         expect(cursor.getCount()).toEqual(4);  // 2 followings + 2 likes
         expect(cursor.moveToFirst()).toBeTrue();
@@ -251,7 +252,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
 
         for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
@@ -273,7 +274,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
         for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
@@ -313,7 +314,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
 
         for (PublicApiTrack t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
@@ -323,10 +324,10 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
 
-        long[] sorted = new long[] { 13403434, 18071729, 18213041, 18571159, 19658312 };
+        long[] sorted = new long[]{13403434, 18071729, 18213041, 18571159, 19658312};
         long[] result = new long[sorted.length];
         int i = 0;
-        while(c.moveToNext()) {
+        while (c.moveToNext()) {
             result[i++] = c.getLong(c.getColumnIndex(TableColumns.SoundView._ID));
         }
         expect(Arrays.equals(result, sorted)).toBeFalse();
@@ -349,9 +350,9 @@ public class ScContentProviderTest {
         Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(5);
-        long[] sorted = new long[] {61467451, 61465333, 61454101, 61451011, 61065502};
+        long[] sorted = new long[]{61467451, 61465333, 61454101, 61451011, 61065502};
         long[] result = new long[sorted.length];
-        int i=0;
+        int i = 0;
         while (c.moveToNext()) {
             result[i++] = c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID));
         }
@@ -418,7 +419,9 @@ public class ScContentProviderTest {
         List<ContentValues> cvs = new ArrayList<ContentValues>();
         for (Shortcut shortcut : shortcuts) {
             ContentValues cv = shortcut.buildContentValues();
-            if (cv != null) cvs.add(cv);
+            if (cv != null) {
+                cvs.add(cv);
+            }
         }
 
         int inserted = resolver.bulkInsert(Content.ME_SHORTCUTS.uri, cvs.toArray(new ContentValues[cvs.size()]));
@@ -454,7 +457,7 @@ public class ScContentProviderTest {
         c.setId(12);
         c.title = "Something";
         c.permalink_url = "http://soundcloud.com/foo";
-        c.artwork_url   = "http://soundcloud.com/foo/artwork";
+        c.artwork_url = "http://soundcloud.com/foo/artwork";
 
 
         Uri uri = resolver.insert(Content.ME_SHORTCUTS.uri, c.buildContentValues());

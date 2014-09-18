@@ -21,7 +21,7 @@ public class Category extends ScModel {
     private static final String FACEBOOK_FRIENDS = "facebook_friends";
     private static final String FACEBOOK_LIKES = "facebook_likes";
 
-    public static final Predicate<Category> HAS_USERS_PREDICATE = new Predicate<Category>(){
+    public static final Predicate<Category> HAS_USERS_PREDICATE = new Predicate<Category>() {
         @Override
         public boolean apply(Category input) {
             final DisplayType displayType = input.getDisplayType();
@@ -35,6 +35,7 @@ public class Category extends ScModel {
     public enum DisplayType {
         DEFAULT, EMPTY, PROGRESS, ERROR;
     }
+
     private DisplayType mDisplayType = DisplayType.DEFAULT;
 
     public Category() { /* for deserialization */ }
@@ -75,7 +76,7 @@ public class Category extends ScModel {
     }
 
     public String getName(Context context) {
-        int resId = context.getResources() .getIdentifier("category_" + mKey, "string", context.getPackageName());
+        int resId = context.getResources().getIdentifier("category_" + mKey, "string", context.getPackageName());
         return resId == 0 ? mKey : context.getString(resId);
     }
 
@@ -89,7 +90,9 @@ public class Category extends ScModel {
 
     public boolean isFollowed(Set<Long> userFollowings) {
         for (SuggestedUser user : mUsers) {
-            if (userFollowings.contains(user.getId())) return true;
+            if (userFollowings.contains(user.getId())) {
+                return true;
+            }
         }
         return false;
     }
@@ -120,7 +123,7 @@ public class Category extends ScModel {
     }
 
     public String getEmptyMessage(Resources resources) {
-        if (isErrorOrEmpty()){
+        if (isErrorOrEmpty()) {
             return resources.getString(isError() ? R.string.suggested_users_section_error : R.string.suggested_users_section_empty);
         }
         return null;
@@ -130,7 +133,9 @@ public class Category extends ScModel {
         List<SuggestedUser> resultSuggestedUsers = new ArrayList(userFollowings.size());
         for (SuggestedUser user : mUsers) {
             final boolean contains = userFollowings.contains(user.getId());
-            if ((isFollowing && contains) || (!isFollowing && !contains)) resultSuggestedUsers.add(user);
+            if ((isFollowing && contains) || (!isFollowing && !contains)) {
+                resultSuggestedUsers.add(user);
+            }
         }
         return resultSuggestedUsers;
     }
@@ -152,7 +157,7 @@ public class Category extends ScModel {
                 '}';
     }
 
-    public static final Category progress(){
+    public static final Category progress() {
         return new Category(DisplayType.PROGRESS);
     }
 
@@ -160,7 +165,7 @@ public class Category extends ScModel {
         return new Category(DisplayType.EMPTY);
     }
 
-    public static final Category error(){
+    public static final Category error() {
         return new Category(DisplayType.ERROR);
     }
 }

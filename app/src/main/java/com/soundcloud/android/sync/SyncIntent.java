@@ -20,9 +20,9 @@ import java.util.Set;
 /**
  * A collection of one or more content uris to be synced. Used by the {@link ApiSyncService} to coordinate intent fulfillment.
  * In the common case only one uri is requested, unless the sync is initiated by the {@link SyncAdapterService}.
- *
+ * <p/>
  * The sync result is optionally communicated back to the caller via a {@link ResultReceiver}.
- *
+ * <p/>
  * The action of the passed intent is either {@link Intent#ACTION_SYNC} or {@link ApiSyncService#ACTION_APPEND}
  * (for Activities).
  */
@@ -44,7 +44,9 @@ import java.util.Set;
         action = intent.getAction();
 
         ArrayList<Uri> syncUris = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
-        if (syncUris == null) syncUris = new ArrayList<Uri>();
+        if (syncUris == null) {
+            syncUris = new ArrayList<Uri>();
+        }
 
         if (intent.getData() != null) {
             syncUris.add(intent.getData());
@@ -62,8 +64,8 @@ import java.util.Set;
     public boolean onUriResult(CollectionSyncRequest request) {
         if (requestsRemaining.contains(request)) {
             // if this is a different instance of the same sync request, share the result
-            for (CollectionSyncRequest instance : requestsRemaining){
-                if (instance.equals(request) && instance != request){
+            for (CollectionSyncRequest instance : requestsRemaining) {
+                if (instance.equals(request) && instance != request) {
                     instance.setResult(request.getResult());
                 }
             }
@@ -81,7 +83,7 @@ import java.util.Set;
             finish();
             return true;
         } else {
-            Log.d(TAG, "requests remaining: "+request);
+            Log.d(TAG, "requests remaining: " + request);
             return false;
         }
     }
@@ -101,7 +103,7 @@ import java.util.Set;
     private boolean isSuccess() {
         for (CollectionSyncRequest r : collectionSyncRequests) {
             if (!r.getResult().success) {
-                Log.w(TAG, "collection sync request "+r+" not successful");
+                Log.w(TAG, "collection sync request " + r + " not successful");
                 return false;
             }
         }

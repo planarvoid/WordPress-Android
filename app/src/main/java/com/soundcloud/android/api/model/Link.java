@@ -47,12 +47,18 @@ public class Link implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Link)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Link)) {
+            return false;
+        }
 
         Link link = (Link) o;
 
-        if (href != null ? !href.equals(link.href) : link.href != null) return false;
+        if (href != null ? !href.equals(link.href) : link.href != null) {
+            return false;
+        }
 
         return true;
     }

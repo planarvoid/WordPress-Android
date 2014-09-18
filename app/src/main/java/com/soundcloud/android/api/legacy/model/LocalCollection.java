@@ -1,8 +1,8 @@
 package com.soundcloud.android.api.legacy.model;
 
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
@@ -22,15 +22,25 @@ public class LocalCollection implements Identifiable, Persisted {
     private long id;
     private final Uri uri;
 
-    /** timestamp of last successful sync */
+    /**
+     * timestamp of last successful sync
+     */
     public long last_sync_success = -1;
-    /** timestamp of last sync attempt */
+    /**
+     * timestamp of last sync attempt
+     */
     public long last_sync_attempt = -1;
-    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.collections.ScListFragment}) */
+    /**
+     * see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.collections.ScListFragment})
+     */
     public int sync_state = -1;
-    /** collection size */
+    /**
+     * collection size
+     */
     public int size = -1;
-    /** collection specific data - future_href for activities, sync misses for rest */
+    /**
+     * collection specific data - future_href for activities, sync misses for rest
+     */
     public String extra;
 
     public interface OnChangeListener {
@@ -38,7 +48,7 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public interface SyncState {
-        int IDLE    = 0;
+        int IDLE = 0;
         int PENDING = 1;
         int SYNCING = 2;
     }
@@ -70,7 +80,9 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public void setFromCursor(Cursor c) {
-        if (getId() <= 0) setId(c.getInt(c.getColumnIndex(TableColumns.Collections._ID)));
+        if (getId() <= 0) {
+            setId(c.getInt(c.getColumnIndex(TableColumns.Collections._ID)));
+        }
         last_sync_attempt = c.getLong(c.getColumnIndex(TableColumns.Collections.LAST_SYNC_ATTEMPT));
         last_sync_success = c.getLong(c.getColumnIndex(TableColumns.Collections.LAST_SYNC));
         sync_state = c.getInt(c.getColumnIndex(TableColumns.Collections.SYNC_STATE));
@@ -94,7 +106,7 @@ public class LocalCollection implements Identifiable, Persisted {
         this(uri, -1, -1, SyncState.IDLE, 0, null);
     }
 
-    public boolean isIdle(){
+    public boolean isIdle() {
         return sync_state == SyncState.IDLE;
     }
 
@@ -114,12 +126,24 @@ public class LocalCollection implements Identifiable, Persisted {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (getId() > 0) cv.put(TableColumns.Collections._ID, getId());
-        if (sync_state != -1) cv.put(TableColumns.Collections.SYNC_STATE, sync_state);
-        if (size != -1) cv.put(TableColumns.Collections.SIZE, size);
-        if (last_sync_attempt != -1) cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
-        if (last_sync_success != -1) cv.put(TableColumns.Collections.LAST_SYNC, last_sync_success);
-        if (!TextUtils.isEmpty(extra)) cv.put(TableColumns.Collections.EXTRA, extra);
+        if (getId() > 0) {
+            cv.put(TableColumns.Collections._ID, getId());
+        }
+        if (sync_state != -1) {
+            cv.put(TableColumns.Collections.SYNC_STATE, sync_state);
+        }
+        if (size != -1) {
+            cv.put(TableColumns.Collections.SIZE, size);
+        }
+        if (last_sync_attempt != -1) {
+            cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
+        }
+        if (last_sync_success != -1) {
+            cv.put(TableColumns.Collections.LAST_SYNC, last_sync_success);
+        }
+        if (!TextUtils.isEmpty(extra)) {
+            cv.put(TableColumns.Collections.EXTRA, extra);
+        }
         cv.put(TableColumns.Collections.URI, getUri().toString());
         return cv;
     }
@@ -140,20 +164,24 @@ public class LocalCollection implements Identifiable, Persisted {
         Content c = Content.match(getUri());
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
-        if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
+        if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) {
+            return false;
+        }
 
         // do not auto refresh users when the list opens, because users are always changing
-        if (c.isUserBased()) return last_sync_success <= 0;
+        if (c.isUserBased()) {
+            return last_sync_success <= 0;
+        }
 
-        final long staleTime = (PublicApiTrack.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
-                               (PublicApiPlaylist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :
-                               (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
-                               SyncConfig.DEFAULT_STALE_TIME;
+        final long staleTime = (PublicApiTrack.class.equals(c.modelType)) ? SyncConfig.TRACK_STALE_TIME :
+                (PublicApiPlaylist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :
+                        (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
+                                SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - last_sync_success > staleTime;
     }
 
-    public boolean hasNotBeenRegistered(){
+    public boolean hasNotBeenRegistered() {
         return id == 0;
     }
 
@@ -178,18 +206,36 @@ public class LocalCollection implements Identifiable, Persisted {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         LocalCollection that = (LocalCollection) o;
 
-        if (getId() != that.getId()) return false;
-        if (last_sync_attempt != that.last_sync_attempt) return false;
-        if (last_sync_success != that.last_sync_success) return false;
-        if (size != that.size) return false;
-        if (sync_state != that.sync_state) return false;
-        if (extra != null ? !extra.equals(that.extra) : that.extra != null) return false;
+        if (getId() != that.getId()) {
+            return false;
+        }
+        if (last_sync_attempt != that.last_sync_attempt) {
+            return false;
+        }
+        if (last_sync_success != that.last_sync_success) {
+            return false;
+        }
+        if (size != that.size) {
+            return false;
+        }
+        if (sync_state != that.sync_state) {
+            return false;
+        }
+        if (extra != null ? !extra.equals(that.extra) : that.extra != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (getUri() != null ? !getUri().equals(that.getUri()) : that.getUri() != null) return false;
+        if (getUri() != null ? !getUri().equals(that.getUri()) : that.getUri() != null) {
+            return false;
+        }
         return true;
     }
 

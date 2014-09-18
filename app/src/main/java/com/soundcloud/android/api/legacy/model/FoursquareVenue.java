@@ -17,7 +17,8 @@ public class FoursquareVenue implements Parcelable {
     public List<Category> categories;
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public FoursquareVenue() {}
+    public FoursquareVenue() {
+    }
 
     public FoursquareVenue(Parcel in) {
         id = in.readString();
@@ -27,8 +28,13 @@ public class FoursquareVenue implements Parcelable {
     }
 
     public Category getCategory() {
-        if (categories == null || categories.size() == 0) return null;
-        for (Category c : categories) if (c.primary) return c;
+        if (categories == null || categories.size() == 0) {
+            return null;
+        }
+        for (Category c : categories)
+            if (c.primary) {
+                return c;
+            }
         return null;
     }
 
@@ -88,7 +94,8 @@ public class FoursquareVenue implements Parcelable {
         public URI icon;
 
         @SuppressWarnings({"UnusedDeclaration"})
-        public Category() {}
+        public Category() {
+        }
 
         public Category(Parcel in) {
             id = in.readString();

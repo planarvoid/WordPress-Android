@@ -216,7 +216,9 @@ public class PlaylistEngagementsController {
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
                                     int checkedStringId) {
-        if (button == null) return;
+        if (button == null) {
+            return;
+        }
         Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
         final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
         button.setTextOn(buttonLabel);

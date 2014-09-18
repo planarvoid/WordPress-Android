@@ -1,19 +1,7 @@
-
 package com.soundcloud.android.api.legacy.model;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.location.Location;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.text.format.Time;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -38,6 +26,20 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.text.format.Time;
+import android.util.Log;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -50,8 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Recording extends PublicApiResource implements Comparable<Recording> {
 
@@ -94,7 +94,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     // private message to another user
     @Deprecated private PublicApiUser recipient;
     @Deprecated public String recipient_username;
-    @Deprecated public long   recipient_user_id;
+    @Deprecated public long recipient_user_id;
 
     // status
     public boolean external_upload;
@@ -106,8 +106,8 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
     private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
 
-    public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
-    public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
+    public static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
+    public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
     public static final String PROCESSED_APPEND = "_processed";
 
@@ -121,10 +121,10 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     }
 
     public static interface Status {
-        int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
-        int UPLOADING           = 1; // currently uploading
-        int UPLOADED            = 2; // successfully uploaded
-        int ERROR               = 4; // network / api error
+        int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
+        int UPLOADING = 1; // currently uploading
+        int UPLOADED = 2; // successfully uploaded
+        int ERROR = 4; // network / api error
     }
 
     public Recording() {
@@ -134,11 +134,14 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public Recording(File f) {
         this(f, null);
     }
+
     private Recording(File f, @Nullable String tip_key) {
-        if (f == null) throw new IllegalArgumentException("file is null");
+        if (f == null) {
+            throw new IllegalArgumentException("file is null");
+        }
         audio_path = f;
 
-        if (!TextUtils.isEmpty(tip_key)){
+        if (!TextUtils.isEmpty(tip_key)) {
             this.tip_key = tip_key;
         }
     }
@@ -153,7 +156,9 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         final String artwork = c.getString(c.getColumnIndex(TableColumns.Recordings.ARTWORK_PATH));
         artwork_path = TextUtils.isEmpty(artwork) ? null : new File(artwork);
         final String audio = c.getString(c.getColumnIndex(TableColumns.Recordings.AUDIO_PATH));
-        if (audio == null) throw new IllegalArgumentException("audio is null");
+        if (audio == null) {
+            throw new IllegalArgumentException("audio is null");
+        }
         audio_path = new File(audio);
         duration = c.getLong(c.getColumnIndex(TableColumns.Recordings.DURATION));
         description = c.getString(c.getColumnIndex(TableColumns.Recordings.DESCRIPTION));
@@ -170,14 +175,18 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         is_private = c.getInt(c.getColumnIndex(TableColumns.Recordings.IS_PRIVATE)) == 1;
         external_upload = c.getInt(c.getColumnIndex(TableColumns.Recordings.EXTERNAL_UPLOAD)) == 1;
         upload_status = c.getInt(c.getColumnIndex(TableColumns.Recordings.UPLOAD_STATUS));
-        if (!external_upload) mPlaybackStream = initializePlaybackStream(c);
+        if (!external_upload) {
+            mPlaybackStream = initializePlaybackStream(c);
+        }
     }
 
     public File getFile() {
         return audio_path;
     }
 
-    public @Nullable File getRawFile() {
+    public
+    @Nullable
+    File getRawFile() {
         return isRawFilename(audio_path.getName()) ? audio_path : null;
     }
 
@@ -195,24 +204,31 @@ public class Recording extends PublicApiResource implements Comparable<Recording
 
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
-        if (recipient != null) recipient.putDependencyValues(destination);
+        if (recipient != null) {
+            recipient.putDependencyValues(destination);
+        }
     }
 
     /**
      * @return the file to upload, or null. this will select a processed file if there is one.
      */
-    public @Nullable File getUploadFile() {
+    public
+    @Nullable
+    File getUploadFile() {
         return getProcessedFile().exists() ? getProcessedFile() :
                 (getEncodedFile().exists() ? getEncodedFile() :
-                (getFile().exists() ? getFile() : null));
+                        (getFile().exists() ? getFile() : null));
     }
 
-    public @Nullable PlaybackStream getPlaybackStream() {
+    public
+    @Nullable
+    PlaybackStream getPlaybackStream() {
         if (mPlaybackStream == null && !external_upload) {
             mPlaybackStream = initializePlaybackStream(null);
         }
         return mPlaybackStream;
     }
+
     public File generateImageFile(File imageDir) {
         return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
@@ -221,7 +237,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
      * @return last modified time of recording, or 0 if file does not exist.
      */
     public long lastModified() {
-        return audio_path.exists()? audio_path.lastModified() : getEncodedFile().lastModified();
+        return audio_path.exists() ? audio_path.lastModified() : getEncodedFile().lastModified();
     }
 
     public String getAbsolutePath() {
@@ -233,12 +249,18 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         List<String> tags = new ArrayList<String>();
         if (this.tags != null) {
             for (String t : this.tags) {
-                tags.add(t.contains(" ") ? "\""+t+"\"" : t);
+                tags.add(t.contains(" ") ? "\"" + t + "\"" : t);
             }
         }
-        if (!TextUtils.isEmpty(four_square_venue_id)) tags.add("foursquare:venue=" + four_square_venue_id);
-        if (latitude != 0) tags.add("geo:lat=" + latitude);
-        if (longitude != 0) tags.add("geo:lon=" + longitude);
+        if (!TextUtils.isEmpty(four_square_venue_id)) {
+            tags.add("foursquare:venue=" + four_square_venue_id);
+        }
+        if (latitude != 0) {
+            tags.add("geo:lat=" + latitude);
+        }
+        if (longitude != 0) {
+            tags.add("geo:lon=" + longitude);
+        }
         if (external_upload) {
             tags.add(TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD);
         } else {
@@ -254,14 +276,15 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return audio_path.exists() || getEncodedFile().exists();
     }
 
-    @Deprecated private void setRecipient(PublicApiUser recipient) {
-        this.recipient     = recipient;
-        recipient_user_id  = recipient.getId();
+    @Deprecated
+    private void setRecipient(PublicApiUser recipient) {
+        this.recipient = recipient;
+        recipient_user_id = recipient.getId();
         recipient_username = recipient.getDisplayName();
         is_private = true;
     }
 
-    public ContentValues buildContentValues(){
+    public ContentValues buildContentValues() {
         ContentValues cv = buildBaseContentValues();
         cv.put(TableColumns.Recordings.LONGITUDE, longitude);
         cv.put(TableColumns.Recordings.LATITUDE, latitude);
@@ -294,10 +317,10 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         cv.put(TableColumns.Recordings.TIP_KEY, tip_key);
         cv.put(TableColumns.Recordings.UPLOAD_STATUS, upload_status);
         if (mPlaybackStream != null) {
-            cv.put(TableColumns.Recordings.TRIM_LEFT,  mPlaybackStream.getStartPos());
+            cv.put(TableColumns.Recordings.TRIM_LEFT, mPlaybackStream.getStartPos());
             cv.put(TableColumns.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
-            cv.put(TableColumns.Recordings.OPTIMIZE,   mPlaybackStream.isOptimized() ? 1 : 0);
-            cv.put(TableColumns.Recordings.FADING,     mPlaybackStream.isFading() ? 1 : 0);
+            cv.put(TableColumns.Recordings.OPTIMIZE, mPlaybackStream.isOptimized() ? 1 : 0);
+            cv.put(TableColumns.Recordings.FADING, mPlaybackStream.isFading() ? 1 : 0);
         }
     }
 
@@ -309,7 +332,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return RAW_PATTERN.matcher(filename).matches();
     }
 
-    public static boolean isEncodedFilename(String filename){
+    public static boolean isEncodedFilename(String filename) {
         return ENCODED_PATTERN.matcher(filename).matches();
     }
 
@@ -334,7 +357,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return getId() > 0 ? Content.RECORDING.forId(getId()) : getBulkInsertUri();
     }
 
-    public boolean isLegacyRecording(){
+    public boolean isLegacyRecording() {
         return (external_upload && audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR));
     }
 
@@ -395,9 +418,15 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         data.put(Params.Track.DOWNLOADABLE, false);
         data.put(Params.Track.STREAMABLE, true);
 
-        if (!TextUtils.isEmpty(tagString())) data.put(Params.Track.TAG_LIST, tagString());
-        if (!TextUtils.isEmpty(description)) data.put(Params.Track.DESCRIPTION, description);
-        if (!TextUtils.isEmpty(genre))       data.put(Params.Track.GENRE, genre);
+        if (!TextUtils.isEmpty(tagString())) {
+            data.put(Params.Track.TAG_LIST, tagString());
+        }
+        if (!TextUtils.isEmpty(description)) {
+            data.put(Params.Track.DESCRIPTION, description);
+        }
+        if (!TextUtils.isEmpty(genre)) {
+            data.put(Params.Track.GENRE, genre);
+        }
 
         if (!TextUtils.isEmpty(service_ids)) {
             List<String> ids = new ArrayList<String>();
@@ -433,7 +462,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         final Map<String, ?> map = toParamsMap(resources);
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             if (entry.getValue() instanceof Iterable) {
-                for (Object o : (Iterable)entry.getValue()) {
+                for (Object o : (Iterable) entry.getValue()) {
                     request.add(entry.getKey(), o.toString());
                 }
             } else {
@@ -457,7 +486,9 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return upload_status == Status.ERROR;
     }
 
-    /** Need to re-encode if fading/optimize is enabled, or no encoding happened during recording */
+    /**
+     * Need to re-encode if fading/optimize is enabled, or no encoding happened during recording
+     */
     public boolean needsEncoding() {
         if (external_upload) {
             return false;
@@ -523,6 +554,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         public RecordingFilter(@Nullable Recording ignore) {
             toIgnore = ignore;
         }
+
         @Override
         public boolean accept(File dir, String name) {
             return (Recording.isRawFilename(name) || Recording.isEncodedFilename(name) || Recording.isAmplitudeFile(name)) &&
@@ -534,38 +566,46 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         private Recording toIgnore;
 
         public RecordingWavFilter(@Nullable Recording ignore) {
-                toIgnore = ignore;
-            }
-            @Override
-            public boolean accept(File dir, String name) {
-                return Recording.isRawFilename(name) && (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
-            }
+            toIgnore = ignore;
+        }
+
+        @Override
+        public boolean accept(File dir, String name) {
+            return Recording.isRawFilename(name) && (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
+        }
     }
 
     public static long getUserIdFromFile(File file) {
         final String path = file.getName();
         if (TextUtils.isEmpty(path) || !path.contains("_") || path.indexOf("_") + 1 >= path.length()) {
             return -1;
-        } else try {
-            return Long.valueOf(
-                    path.substring(path.indexOf('_') + 1,
-                            path.contains(".") ? path.indexOf('.') : path.length()));
-        } catch (NumberFormatException ignored) {
-            return -1;
+        } else {
+            try {
+                return Long.valueOf(
+                        path.substring(path.indexOf('_') + 1,
+                                path.contains(".") ? path.indexOf('.') : path.length()));
+            } catch (NumberFormatException ignored) {
+                return -1;
+            }
         }
     }
+
     // TODO , not sure where this belongs
     // Yeah, because it's absolutely fucking terrible.
-    public static @Nullable Recording fromIntent(@Nullable Intent intent, Context context, long userId) {
-        if (intent == null) return null;
+    public static
+    @Nullable
+    Recording fromIntent(@Nullable Intent intent, Context context, long userId) {
+        if (intent == null) {
+            return null;
+        }
         final String action = intent.getAction();
 
-        if (intent.hasExtra(EXTRA))  {
+        if (intent.hasExtra(EXTRA)) {
             return intent.getParcelableExtra(EXTRA);
             // 3rd party sharing?
         } else if (intent.hasExtra(Intent.EXTRA_STREAM) &&
                 (Intent.ACTION_SEND.equals(action) ||
-                        Actions.SHARE.equals(action)   ||
+                        Actions.SHARE.equals(action) ||
                         Actions.EDIT.equals(action))) {
 
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -594,7 +634,9 @@ public class Recording extends PublicApiResource implements Comparable<Recording
                 }
 
                 return r;
-            } else return null;
+            } else {
+                return null;
+            }
         } else if (intent.getData() != null) {
             RecordingStorage recordings = new RecordingStorage();
             return recordings.getRecordingByUri(intent.getData());
@@ -613,7 +655,9 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         intent.setData(null);
     }
 
-    public static @NotNull Recording create() {
+    public static
+    @NotNull
+    Recording create() {
         return create(null);
     }
 
@@ -621,10 +665,12 @@ public class Recording extends PublicApiResource implements Comparable<Recording
      * @param tip_key the key of the suggestion (tip) that was present when recording started
      * @return a recording initialised with a file path (which will be used for the recording).
      */
-    public static @NotNull Recording create(@Nullable String tip_key ) {
+    public static
+    @NotNull
+    Recording create(@Nullable String tip_key) {
         File file = new File(SoundRecorder.RECORD_DIR,
                 System.currentTimeMillis()
-                + "."+WavReader.EXTENSION);
+                        + "." + WavReader.EXTENSION);
 
         return new Recording(file, tip_key);
     }
@@ -694,7 +740,9 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         is_private = data.getBoolean("is_private", false);
         external_upload = data.getBoolean("external_upload", false);
         upload_status = data.getInt("upload_status");
-        if (!external_upload) mPlaybackStream = data.getParcelable("playback_stream");
+        if (!external_upload) {
+            mPlaybackStream = data.getParcelable("playback_stream");
+        }
     }
 
     @Override
@@ -731,7 +779,9 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         data.putBoolean("is_private", is_private);
         data.putBoolean("external_upload", external_upload);
         data.putInt("upload_status", upload_status);
-        if (!external_upload) data.putParcelable("playback_stream", mPlaybackStream);
+        if (!external_upload) {
+            data.putParcelable("playback_stream", mPlaybackStream);
+        }
         out.writeBundle(data);
     }
 
@@ -770,13 +820,15 @@ public class Recording extends PublicApiResource implements Comparable<Recording
             PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_LEFT));
-                long endPos   = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_RIGHT));
+                long endPos = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_RIGHT));
 
                 // validate, can happen after migration
-                if (endPos <= startPos) endPos = duration;
+                if (endPos <= startPos) {
+                    endPos = duration;
+                }
 
-                boolean optimize  = c.getInt(c.getColumnIndex(TableColumns.Recordings.OPTIMIZE)) == 1;
-                boolean fade  = c.getInt(c.getColumnIndex(TableColumns.Recordings.FADING)) == 1;
+                boolean optimize = c.getInt(c.getColumnIndex(TableColumns.Recordings.OPTIMIZE)) == 1;
+                boolean fade = c.getInt(c.getColumnIndex(TableColumns.Recordings.FADING)) == 1;
 
                 stream.setFading(fade);
                 stream.setOptimize(optimize);
@@ -800,12 +852,12 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         long trimmed = 0;
         final long toTrim = Math.max(0, dirSize - maxCacheSize);
 
-        if (toTrim > 0){
+        if (toTrim > 0) {
             final File[] list = IOUtils.nullSafeListFiles(directory, filter);
-            if (list.length > 0){
-                Arrays.sort(list,new FiletimeComparator(true));
+            if (list.length > 0) {
+                Arrays.sort(list, new FiletimeComparator(true));
                 int i = 0;
-                while (trimmed < toTrim && i < list.length){
+                while (trimmed < toTrim && i < list.length) {
                     trimmed += list[i].length();
                     list[i].delete();
                     i++;

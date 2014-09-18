@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.R;
@@ -10,7 +9,8 @@ import android.view.animation.AnimationUtils;
 
 public final class AnimUtils {
 
-    private AnimUtils() {}
+    private AnimUtils() {
+    }
 
     public static class SimpleAnimationListener implements Animation.AnimationListener {
 
@@ -55,13 +55,15 @@ public final class AnimUtils {
     public static void hideView(Context context, final View view, boolean animated) {
         view.clearAnimation();
 
-        if (view.getVisibility() == View.GONE) return;
+        if (view.getVisibility() == View.GONE) {
+            return;
+        }
 
         if (!animated) {
             view.setVisibility(View.GONE);
         } else {
-            hideView(context, view,new SimpleAnimationListener() {
-               @Override
+            hideView(context, view, new SimpleAnimationListener() {
+                @Override
                 public void onAnimationEnd(Animation animation) {
                     if (animation == view.getAnimation()) {
                         view.setVisibility(View.GONE);
@@ -73,7 +75,9 @@ public final class AnimUtils {
 
     public static void hideView(Context context, final View view, Animation.AnimationListener listener) {
         view.clearAnimation();
-        if (view.getVisibility() == View.GONE) return;
+        if (view.getVisibility() == View.GONE) {
+            return;
+        }
         Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
         animation.setAnimationListener(listener);
         view.startAnimation(animation);
@@ -81,7 +85,7 @@ public final class AnimUtils {
 
     public static void showView(Context context, final View view, boolean animated) {
         view.clearAnimation();
-        if (view.getVisibility() != View.VISIBLE){
+        if (view.getVisibility() != View.VISIBLE) {
             view.setVisibility(View.VISIBLE);
             if (animated) {
                 view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));

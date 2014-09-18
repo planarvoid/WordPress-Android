@@ -21,14 +21,20 @@ public class Shortcut extends ScModel {
     public String artwork_url;
 
     @Override
-    public @Nullable ContentValues buildContentValues() {
+    public
+    @Nullable
+    ContentValues buildContentValues() {
         final Uri dataUri = getDataUri();
-        if (dataUri == null) return null;
+        if (dataUri == null) {
+            return null;
+        }
 
         final String text = getText();
 
         // db constraints
-        if (TextUtils.isEmpty(kind) || TextUtils.isEmpty(text)) return null;
+        if (TextUtils.isEmpty(kind) || TextUtils.isEmpty(text)) {
+            return null;
+        }
 
         ContentValues cv = new ContentValues();
 
@@ -57,7 +63,9 @@ public class Shortcut extends ScModel {
         return cv;
     }
 
-    public @Nullable Uri getDataUri() {
+    public
+    @Nullable
+    Uri getDataUri() {
         if ("following".equals(kind)) {
             return Content.USER.forId(getId());
         } else if ("like".equals(kind)) {
@@ -67,7 +75,9 @@ public class Shortcut extends ScModel {
         }
     }
 
-    public @NotNull String getText() {
+    public
+    @NotNull
+    String getText() {
         if (!TextUtils.isEmpty(username)) {
             return username;
         } else if (!TextUtils.isEmpty(title)) {

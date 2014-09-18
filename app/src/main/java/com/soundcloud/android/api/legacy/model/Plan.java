@@ -18,9 +18,13 @@ public enum Plan {
     }
 
     public static Plan fromApi(String name) {
-        if (name == null) return UNKNOWN;
+        if (name == null) {
+            return UNKNOWN;
+        }
         for (Plan p : values()) {
-            if (p.name.equalsIgnoreCase(name)) return p;
+            if (p.name.equalsIgnoreCase(name)) {
+                return p;
+            }
         }
         return UNKNOWN;
     }

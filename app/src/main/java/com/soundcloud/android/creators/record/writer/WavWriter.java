@@ -30,19 +30,20 @@ public class WavWriter implements AudioWriter {
     private RandomAccessFile initializeWriter() throws IOException {
         RandomAccessFile writer = new RandomAccessFile(file, "rw");
         if (!file.exists() || writer.length() == 0) {
-            Log.d(TAG, "creating new WAV file ("+file.getAbsolutePath()+")");
+            Log.d(TAG, "creating new WAV file (" + file.getAbsolutePath() + ")");
             writer.setLength(0); // truncate
             WavHeader wh = config.createHeader();
             wh.write(writer);
         } else {
             long seekTo = writer.length();
-            Log.d(TAG, "appending to existing WAV file ("+file.getAbsolutePath()+") at "+seekTo);
+            Log.d(TAG, "appending to existing WAV file (" + file.getAbsolutePath() + ") at " + seekTo);
             writer.seek(seekTo);
         }
         return writer;
     }
 
-    @Override public AudioConfig getConfig() {
+    @Override
+    public AudioConfig getConfig() {
         return config;
     }
 
@@ -82,7 +83,9 @@ public class WavWriter implements AudioWriter {
             } else {
                 return false;
             }
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -104,7 +107,7 @@ public class WavWriter implements AudioWriter {
 
     @Override
     public void close() throws IOException {
-        if (!isClosed())  {
+        if (!isClosed()) {
             finalizeStream();
         }
     }

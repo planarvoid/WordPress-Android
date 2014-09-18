@@ -32,26 +32,26 @@ import java.util.List;
 public class C2DMReceiver extends BroadcastReceiver {
     public static final String TAG = C2DMReceiver.class.getSimpleName();
 
-    public static final String PREF_REG_ID          = "c2dm.reg_id";
-    public static final String PREF_REG_LAST_TRY    = "c2dm.last_try";
+    public static final String PREF_REG_ID = "c2dm.reg_id";
+    public static final String PREF_REG_LAST_TRY = "c2dm.last_try";
 
-    public static final String SENDER            = "android-c2dm@soundcloud.com";
+    public static final String SENDER = "android-c2dm@soundcloud.com";
 
-    public static final String ACTION_REGISTER   = "com.google.android.c2dm.intent.REGISTER";
+    public static final String ACTION_REGISTER = "com.google.android.c2dm.intent.REGISTER";
     public static final String ACTION_UNREGISTER = "com.google.android.c2dm.intent.UNREGISTER";
 
     public static final String ACTION_REGISTRATION = "com.google.android.c2dm.intent.REGISTRATION";
-    public static final String ACTION_RECEIVE      = "com.google.android.c2dm.intent.RECEIVE";
+    public static final String ACTION_RECEIVE = "com.google.android.c2dm.intent.RECEIVE";
 
 
     public static final String C2DM_EXTRA_UNREGISTERED = "unregistered";
-    public static final String C2DM_EXTRA_ERROR        = "error";
-    public static final String C2DM_EXTRA_REG_ID       = "registration_id";
+    public static final String C2DM_EXTRA_ERROR = "error";
+    public static final String C2DM_EXTRA_REG_ID = "registration_id";
 
     // actual extras sent via push notifications
-    public static final String SC_EXTRA_EVENT_TYPE     = "event_type";
+    public static final String SC_EXTRA_EVENT_TYPE = "event_type";
     @SuppressWarnings("UnusedDeclaration")
-    public static final String SC_URI                  = "uri";
+    public static final String SC_URI = "uri";
 
     private PowerManager.WakeLock wakeLock;
     private AccountOperations accountOperations;
@@ -65,7 +65,9 @@ public class C2DMReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onReceive(" + intent + ")");
+        }
 
         if (wakeLock == null) {
             wakeLock = makeLock(context);
@@ -88,7 +90,7 @@ public class C2DMReceiver extends BroadcastReceiver {
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
                 onAccountAdded(context, intent.getLongExtra(PublicApiUser.EXTRA_ID, -1L));
             } else {
-                Log.w(TAG, "unhandled intent: "+intent);
+                Log.w(TAG, "unhandled intent: " + intent);
             }
         } finally {
             wakeLock.release();
@@ -102,11 +104,15 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     public static synchronized void register(Context context) {
-        if (!isEnabled()) return;
+        if (!isEnabled()) {
+            return;
+        }
         final String regId = getRegistrationData(context, PREF_REG_ID);
 
         if (regId == null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "registering for c2dm");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "registering for c2dm");
+            }
             setRegistrationData(context, PREF_REG_LAST_TRY,
                     String.valueOf(System.currentTimeMillis()));
 
@@ -120,7 +126,9 @@ public class C2DMReceiver extends BroadcastReceiver {
                 Log.w(TAG, "error registering", e);
             }
         } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device is already registered with " + regId);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "device is already registered with " + regId);
+            }
 
             final String devUrl = getRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL);
             // make sure there is a server-side device registered
@@ -136,7 +144,9 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     public synchronized void unregister(Context context) {
-        if (!isEnabled()) return;
+        if (!isEnabled()) {
+            return;
+        }
 
         clearRegistrationData(context);
 
@@ -151,10 +161,14 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
 
-    /** callback when device successfully registered */
+    /**
+     * callback when device successfully registered
+     */
     private void onRegister(final Context context, Intent intent) {
         final String regId = intent.getStringExtra(C2DM_EXTRA_REG_ID);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onRegister(id=" + regId+")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onRegister(id=" + regId + ")");
+        }
 
         if (regId != null) {
             // save the reg_id
@@ -167,7 +181,9 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private static AsyncTask<String, Void, String> sendRegId(final Context context, String regId) {
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sendRegId("+regId+")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "sendRegId(" + regId + ")");
+        }
 
         final PowerManager.WakeLock lock = makeLock(context);
         final DeviceHelper deviceHelper = new DeviceHelper(context);
@@ -181,7 +197,9 @@ public class C2DMReceiver extends BroadcastReceiver {
             @Override
             protected void onPostExecute(String url) {
                 if (url != null) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device registered as " + url);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "device registered as " + url);
+                    }
                     setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, url);
                 } else {
                     Log.w(TAG, "device registration failed");
@@ -195,9 +213,13 @@ public class C2DMReceiver extends BroadcastReceiver {
         }.execute(regId, deviceHelper.getPackageName(), deviceHelper.getUniqueDeviceID());
     }
 
-    /** callback when device is unregistered */
+    /**
+     * callback when device is unregistered
+     */
     private void onUnregister(final Context context, Intent intent) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onUnregister(" + intent + ")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onUnregister(" + intent + ")");
+        }
 
         // clear local data
         setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, null);
@@ -225,18 +247,20 @@ public class C2DMReceiver extends BroadcastReceiver {
                 // wrong username/pw
                 break;
             case UNKNOWN_ERROR:
-                Log.w(TAG, "unknown error: " +error);
-               break;
+                Log.w(TAG, "unknown error: " + error);
+                break;
 
             case INVALID_SENDER:
             case PHONE_REGISTRATION_ERROR:
             default:
-                Log.w(TAG, "registration error: " +error);
+                Log.w(TAG, "registration error: " + error);
         }
     }
 
     private void onReceiveMessage(Intent intent) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onReceiveMessage(" + intent + ")");
+        }
 
         if (accountOperations.isUserLoggedIn()) {
             Account account = accountOperations.getSoundCloudAccount();
@@ -247,10 +271,12 @@ public class C2DMReceiver extends BroadcastReceiver {
                 case FOLLOWER:
                     Bundle extras = new Bundle();
                     extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, event.type);
-                    if (intent.getExtras().containsKey(C2DMReceiver.SC_URI)){
+                    if (intent.getExtras().containsKey(C2DMReceiver.SC_URI)) {
                         extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT_URI, intent.getExtras().getString(C2DMReceiver.SC_URI));
                     }
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "requesting sync (event=" + event + ")");
+                    }
 
                     // force a sync if triggered by push
                     extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -262,22 +288,30 @@ public class C2DMReceiver extends BroadcastReceiver {
                     break;
                 default:
                     // other types not handled yet
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "unhandled event "+event);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "unhandled event " + event);
+                    }
             }
-        }  else {
+        } else {
             Log.w(TAG, "push event received but no account registered - ignoring");
         }
 
     }
 
-    /* package */ static String getRegistrationData(Context context, String key) {
+    /* package */
+    static String getRegistrationData(Context context, String key) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                       .getString(key, null);
+                .getString(key, null);
     }
 
-    /* package */ static boolean setRegistrationData(Context context, String key, String value) {
+    /* package */
+    static boolean setRegistrationData(Context context, String key, String value) {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        if (value == null) e.remove(key); else e.putString(key, value);
+        if (value == null) {
+            e.remove(key);
+        } else {
+            e.putString(key, value);
+        }
         return e.commit();
     }
 
@@ -292,7 +326,9 @@ public class C2DMReceiver extends BroadcastReceiver {
             } else {
                 return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, url);
             }
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     private static synchronized boolean removeFromDeletionQueue(Context context, final String url) {
@@ -302,16 +338,24 @@ public class C2DMReceiver extends BroadcastReceiver {
             if (urls.length == 1) {
                 return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, null);
             } else {
-                List<String> newUrls = new ArrayList<String>(_urls.length()-1);
-                for (String u : urls) if (!u.equals(url)) newUrls.add(u);
+                List<String> newUrls = new ArrayList<String>(_urls.length() - 1);
+                for (String u : urls)
+                    if (!u.equals(url)) {
+                        newUrls.add(u);
+                    }
                 return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, TextUtils.join(",", newUrls));
             }
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
-    /* package */ static synchronized boolean processDeletionQueue(Context context, PowerManager.WakeLock lock) {
+    /* package */
+    static synchronized boolean processDeletionQueue(Context context, PowerManager.WakeLock lock) {
         if (IOUtils.isConnected(context)) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "processDeletionQueue()");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "processDeletionQueue()");
+            }
             String _urls = getRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE);
             if (_urls != null) {
                 for (String url : _urls.split(",")) {
@@ -322,17 +366,22 @@ public class C2DMReceiver extends BroadcastReceiver {
                 return false;
             }
         } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "not connectected, skipping deletion queue process");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "not connectected, skipping deletion queue process");
+            }
             return false;
         }
     }
 
     private static void deleteDevice(final Context context, PowerManager.WakeLock lock, final String url) {
         if (url != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "deleting " + url);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "deleting " + url);
+            }
 
             new DeleteRegIdTask(new PublicApi(context), lock) {
-                @Override protected void onPostExecute(Boolean success) {
+                @Override
+                protected void onPostExecute(Boolean success) {
                     super.onPostExecute(success);
                     if (success) {
                         removeFromDeletionQueue(context, url);

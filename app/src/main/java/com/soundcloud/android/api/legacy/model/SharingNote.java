@@ -22,7 +22,9 @@ public class SharingNote implements Parcelable {
     public SharingNote(Parcel in) {
         text = in.readString();
         final long createdAtTime = in.readLong();
-        if (createdAtTime != -1l) created_at = new Date(createdAtTime);
+        if (createdAtTime != -1l) {
+            created_at = new Date(createdAtTime);
+        }
     }
 
 
@@ -32,8 +34,12 @@ public class SharingNote implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SharingNote that = (SharingNote) o;
 

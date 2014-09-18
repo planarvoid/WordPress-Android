@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="135" android:versionName="14.09.02" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="135" android:versionName="14.09.18" package="com.soundcloud.android">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="19"/>
@@ -276,7 +276,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".comments.TrackCommentsActivity" android:label="@string/comments"/>
+        <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYLIST"/>

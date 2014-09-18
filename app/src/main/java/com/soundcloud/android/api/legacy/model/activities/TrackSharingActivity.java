@@ -27,7 +27,7 @@ public class TrackSharingActivity extends TrackActivity implements PlayableHolde
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest,flags);
+        super.writeToParcel(dest, flags);
         dest.writeParcelable(track, 0);
     }
 
@@ -35,6 +35,7 @@ public class TrackSharingActivity extends TrackActivity implements PlayableHolde
         public TrackSharingActivity createFromParcel(Parcel in) {
             return new TrackSharingActivity(in);
         }
+
         public TrackSharingActivity[] newArray(int size) {
             return new TrackSharingActivity[size];
         }
@@ -42,12 +43,20 @@ public class TrackSharingActivity extends TrackActivity implements PlayableHolde
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TrackSharingActivity)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TrackSharingActivity)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         TrackSharingActivity that = (TrackSharingActivity) o;
-        if (track != null ? !track.equals(that.track) : that.track != null) return false;
+        if (track != null ? !track.equals(that.track) : that.track != null) {
+            return false;
+        }
         return true;
     }
 

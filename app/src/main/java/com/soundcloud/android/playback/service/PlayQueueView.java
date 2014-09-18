@@ -121,14 +121,24 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PlayQueueView longs = (PlayQueueView) o;
 
-        if (position != longs.position) return false;
-        if (fetchState != longs.fetchState) return false;
-        if (trackIds != null ? !trackIds.equals(longs.trackIds) : longs.trackIds != null) return false;
+        if (position != longs.position) {
+            return false;
+        }
+        if (fetchState != longs.fetchState) {
+            return false;
+        }
+        if (trackIds != null ? !trackIds.equals(longs.trackIds) : longs.trackIds != null) {
+            return false;
+        }
 
         return true;
     }

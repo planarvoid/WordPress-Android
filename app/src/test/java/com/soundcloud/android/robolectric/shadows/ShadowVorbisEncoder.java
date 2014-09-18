@@ -18,7 +18,9 @@ public class ShadowVorbisEncoder {
 
     @Implementation
     public static int encodeWav(File in, File out, EncoderOptions options) throws IOException {
-        if (throwException != null) throw throwException;
+        if (throwException != null) {
+            throw throwException;
+        }
 
         if (simulateProgress && options.listener != null) {
             // simulate some progress
@@ -32,7 +34,9 @@ public class ShadowVorbisEncoder {
         fos.write(new byte[8192]);
         fos.close();
 
-        if (simulateCancel) throw new UserCanceledException();
+        if (simulateCancel) {
+            throw new UserCanceledException();
+        }
         return 0;
     }
 

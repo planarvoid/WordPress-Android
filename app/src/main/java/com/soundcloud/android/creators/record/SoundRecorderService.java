@@ -28,7 +28,7 @@ import android.util.Log;
 /**
  * In charge of lifecycle and notifications for the {@link SoundRecorder}
  */
-public class SoundRecorderService extends Service  {
+public class SoundRecorderService extends Service {
     private static final String TAG = SoundRecorderService.class.getSimpleName();
 
     // recorder/player
@@ -43,7 +43,7 @@ public class SoundRecorderService extends Service  {
     private Notification recordNotification;
 
     private LocalBroadcastManager broadcastManager;
-    private static final int IDLE_DELAY = 30*1000;  // interval after which we stop the service when idle
+    private static final int IDLE_DELAY = 30 * 1000;  // interval after which we stop the service when idle
 
     private long lastNotifiedTime;
 
@@ -53,14 +53,17 @@ public class SoundRecorderService extends Service  {
         @Override
         public void handleMessage(Message msg) {
             if (!recorder.isActive()) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "DelayedStopHandler: stopping service");
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "DelayedStopHandler: stopping service");
+                }
                 stopSelf(serviceStartId);
             }
         }
     };
 
     private final IBinder binder = new LocalBinder<SoundRecorderService>() {
-        @Override public SoundRecorderService getService() {
+        @Override
+        public SoundRecorderService getService() {
             return SoundRecorderService.this;
         }
     };
@@ -126,27 +129,29 @@ public class SoundRecorderService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "BroadcastReceiver#onReceive(" + action + ")");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "BroadcastReceiver#onReceive(" + action + ")");
+            }
 
             if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
-                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
+                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)) {
                     sendPlayingNotification(recorder.getRecording());
                 }
 
             } else if (SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
-                       SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
-                       SoundRecorder.PLAYBACK_ERROR.equals(action)) {
+                    SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
+                    SoundRecorder.PLAYBACK_ERROR.equals(action)) {
                 gotoIdleState(PLAYBACK_NOTIFY_ID);
 
             } else if (SoundRecorder.RECORD_STARTED.equals(action)) {
                 acquireWakeLock();
-                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
+                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)) {
                     sendRecordingNotification(recorder.getRecording());
                 }
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
                 final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l) / 1000;
-                if (!ScTextUtils.usesSameTimeElapsedString(lastNotifiedTime,time) && recordNotification != null){
+                if (!ScTextUtils.usesSameTimeElapsedString(lastNotifiedTime, time) && recordNotification != null) {
                     lastNotifiedTime = time;
                     updateRecordTicker(recordNotification, time);
                 }
@@ -158,7 +163,7 @@ public class SoundRecorderService extends Service  {
                 gotoIdleState(RECORD_NOTIFY_ID);
 
             } else if (SoundRecorder.NOTIFICATION_STATE.equals(action)) {
-                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
+                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)) {
                     if (recorder.isRecording()) {
                         sendRecordingNotification(recorder.getRecording());
                     } else if (recorder.isPlaying()) {
@@ -177,7 +182,9 @@ public class SoundRecorderService extends Service  {
     private void gotoIdleState(int cancelNotificationId) {
         killNotification(cancelNotificationId);
         scheduleServiceShutdownCheck();
-        if (!recorder.isActive()) stopForeground(true);
+        if (!recorder.isActive()) {
+            stopForeground(true);
+        }
     }
 
     private void killNotification(int id) {
@@ -205,12 +212,12 @@ public class SoundRecorderService extends Service  {
         Intent intent;
         if (!recording.isSaved()) {
             intent = (new Intent(Actions.RECORD))
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         } else {
             intent = (new Intent(this, RecordActivity.class))
-            .setData(recording.toUri())
-            .setAction(Intent.ACTION_MAIN);
+                    .setData(recording.toUri())
+                    .setAction(Intent.ACTION_MAIN);
         }
         startForeground(PLAYBACK_NOTIFY_ID, createPlaynotification(intent, recording));
     }
@@ -224,7 +231,7 @@ public class SoundRecorderService extends Service  {
         Notification notification = createOngoingNotification(this, pi);
 
         notification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
-                .getString(R.string.cloud_recorder_playback_event_title), title,
+                        .getString(R.string.cloud_recorder_playback_event_title), title,
                 pi);
 
         return notification;

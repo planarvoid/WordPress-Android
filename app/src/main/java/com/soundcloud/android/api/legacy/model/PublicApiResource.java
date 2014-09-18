@@ -3,9 +3,9 @@ package com.soundcloud.android.api.legacy.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,8 +59,12 @@ public abstract class PublicApiResource
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PublicApiResource)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PublicApiResource)) {
+            return false;
+        }
 
         PublicApiResource resourceBase = (PublicApiResource) o;
         return getId() == resourceBase.getId();
@@ -81,29 +85,32 @@ public abstract class PublicApiResource
     /**
      * Add resource's dependencies to the given map.
      * Used for object persistence in DB.
+     *
      * @param destination
      */
     @JsonIgnore
-    public void putDependencyValues(@NotNull BulkInsertMap destination){
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
         // no dependencies by default
     }
 
     /**
      * Put all necessary content values into the map, includeing the object itself
+     *
      * @param destination
      */
-    public void putFullContentValues(@NotNull BulkInsertMap destination){
+    public void putFullContentValues(@NotNull BulkInsertMap destination) {
         putDependencyValues(destination);
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
-    public Intent getViewIntent(){
+    public Intent getViewIntent() {
         return null;
     }
 
     public static class ResourceHolder<T extends PublicApiResource> extends CollectionHolder<T> {
 
-        public ResourceHolder() { }
+        public ResourceHolder() {
+        }
 
         public ResourceHolder(List<T> collection) {
             super(collection);

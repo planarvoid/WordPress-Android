@@ -6,11 +6,11 @@ import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.users.UserUrn;
 
 import android.content.AsyncQueryHandler;
 import android.content.Context;
@@ -31,14 +31,14 @@ import java.util.WeakHashMap;
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private static FollowStatus instance;
 
-    private WeakHashMap<FollowStatusChangedListener,FollowStatusChangedListener> listeners =
+    private WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener> listeners =
             new WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener>();
 
     private AsyncQueryHandler asyncQueryHandler;
     private long last_sync_success = -1;
     private LocalCollection followingCollectionState;
-    private HashMap<Long,Long> followedAtStamps = new HashMap<Long, Long>();
-    private HashMap<Long,Long> unFollowedAtStamps = new HashMap<Long, Long>();
+    private HashMap<Long, Long> followedAtStamps = new HashMap<Long, Long>();
+    private HashMap<Long, Long> unFollowedAtStamps = new HashMap<Long, Long>();
 
     private final Context context;
     private final SyncStateManager syncStateManager;
@@ -69,14 +69,14 @@ import java.util.WeakHashMap;
         return instance;
     }
 
-    public synchronized static void clearState(){
-        if (instance != null){
+    public synchronized static void clearState() {
+        if (instance != null) {
             instance.stopListening();
             instance = null;
         }
     }
 
-    public void stopListening(){
+    public void stopListening() {
         syncStateManager.removeChangeListener(followingCollectionState);
     }
 
@@ -104,7 +104,7 @@ import java.util.WeakHashMap;
         return followings.isEmpty();
     }
 
-    private void doQuery(){
+    private void doQuery() {
         asyncQueryHandler = new FollowingQueryHandler(context);
         asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
                 null, TableColumns.UserAssociations.REMOVED_AT + " IS NULL", null, null);
@@ -144,12 +144,16 @@ import java.util.WeakHashMap;
 
                 // update with anything that has occurred since last sync
 
-                for (Long id : followedAtStamps.keySet()){
-                    if (followedAtStamps.get(id) > last_sync_success) followings.add(id);
+                for (Long id : followedAtStamps.keySet()) {
+                    if (followedAtStamps.get(id) > last_sync_success) {
+                        followings.add(id);
+                    }
                 }
 
                 for (Long id : unFollowedAtStamps.keySet()) {
-                    if (unFollowedAtStamps.get(id) > last_sync_success) followings.remove(id);
+                    if (unFollowedAtStamps.get(id) > last_sync_success) {
+                        followings.remove(id);
+                    }
                 }
 
                 for (FollowStatusChangedListener l : listeners.keySet()) {

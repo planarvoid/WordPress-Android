@@ -2,8 +2,8 @@ package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.c2dm.C2DMReceiver.TAG;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -13,7 +13,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
+public class SendRegIdTask extends AsyncApiTask<String, Void, String> {
     private static final String DEVICE_ENDPOINT = "/me/devices";
 
     public SendRegIdTask(PublicCloudAPI api) {
@@ -22,14 +22,15 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        if (params.length < 3)
+        if (params.length < 3) {
             throw new IllegalArgumentException("need reg_id, app_identifier and device");
+        }
 
         try {
             HttpResponse resp = api.post(Request.to(DEVICE_ENDPOINT).with(
-                    "device_token",   params[0],
+                    "device_token", params[0],
                     "app_identifier", params[1],
-                    "device",         params[2]));
+                    "device", params[2]));
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
                 final Header location = resp.getFirstHeader("Location");

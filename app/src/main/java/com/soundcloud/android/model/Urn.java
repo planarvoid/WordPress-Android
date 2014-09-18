@@ -28,7 +28,7 @@ public abstract class Urn implements Parcelable {
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
 
-    private static final Pattern URN_PATTERN = Pattern.compile("^("+SOUNDCLOUD_SCHEME  + "):(" + SOUNDS_TYPE +
+    private static final Pattern URN_PATTERN = Pattern.compile("^(" + SOUNDCLOUD_SCHEME + "):(" + SOUNDS_TYPE +
             "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):-?\\d+");
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
@@ -122,11 +122,17 @@ public abstract class Urn implements Parcelable {
     }
 
     public Uri contentProviderUri() {
-        if (SOUNDS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
-        else if (TRACKS_TYPE.equals(type)) return Content.TRACK.forId(numericId);
-        else if (USERS_TYPE.equals(type)) return Content.USER.forId(numericId);
-        else if (PLAYLISTS_TYPE.equals(type)) return Content.PLAYLIST.forId(numericId);
-        else throw new IllegalStateException("Unsupported content type: " + type);
+        if (SOUNDS_TYPE.equals(type)) {
+            return Content.TRACK.forId(numericId);
+        } else if (TRACKS_TYPE.equals(type)) {
+            return Content.TRACK.forId(numericId);
+        } else if (USERS_TYPE.equals(type)) {
+            return Content.USER.forId(numericId);
+        } else if (PLAYLISTS_TYPE.equals(type)) {
+            return Content.PLAYLIST.forId(numericId);
+        } else {
+            throw new IllegalStateException("Unsupported content type: " + type);
+        }
     }
 
     @Override

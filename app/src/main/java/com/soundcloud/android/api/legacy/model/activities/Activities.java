@@ -4,8 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -46,7 +46,7 @@ public class Activities extends CollectionHolder<Activity> {
     public static final Activities EMPTY = new Activities();
 
     public Activities() {
-        this.collection =  new ArrayList<Activity>();
+        this.collection = new ArrayList<Activity>();
     }
 
     public Activities(List<Activity> collection) {
@@ -106,9 +106,9 @@ public class Activities extends CollectionHolder<Activity> {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
             for (Class<? extends Activity> type : types)
-            if (type.isAssignableFrom(e.getClass())) {
-                activities.add(e);
-            }
+                if (type.isAssignableFrom(e.getClass())) {
+                    activities.add(e);
+                }
         }
         return new Activities(activities);
     }
@@ -134,7 +134,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Map<Playable, Activities> groupedByPlayable() {
-        Map<Playable,Activities> grouped = new HashMap<Playable, Activities>();
+        Map<Playable, Activities> grouped = new HashMap<Playable, Activities>();
 
         for (Activity e : this) {
             Activities activities = grouped.get(e.getPlayable());
@@ -151,9 +151,13 @@ public class Activities extends CollectionHolder<Activity> {
         Collections.sort(collection);
     }
 
-    public @NotNull Activities merge(Activities old) {
+    public
+    @NotNull
+    Activities merge(Activities old) {
         //noinspection ObjectEquality
-        if (old == EMPTY) return this;
+        if (old == EMPTY) {
+            return this;
+        }
 
         Activities merged = new Activities(new ArrayList<Activity>(collection));
         merged.future_href = future_href;
@@ -174,7 +178,9 @@ public class Activities extends CollectionHolder<Activity> {
     public Activities filter(long timestamp) {
         Iterator<Activity> it = collection.iterator();
         while (it.hasNext()) {
-            if (it.next().getCreatedAt().getTime() <= timestamp) it.remove();
+            if (it.next().getCreatedAt().getTime() <= timestamp) {
+                it.remove();
+            }
         }
         return this;
     }
@@ -191,7 +197,9 @@ public class Activities extends CollectionHolder<Activity> {
         Set<Long> ids = new HashSet<Long>(10);
         for (Activities a : activities) {
             for (Activity e : a) {
-                if (e.getPlayable() != null) ids.add(e.getPlayable().getId());
+                if (e.getPlayable() != null) {
+                    ids.add(e.getPlayable().getId());
+                }
             }
         }
         return ids.size();
@@ -205,17 +213,19 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     private static Activities fetchRecent(PublicCloudAPI api,
-                                         final Request request,
-                                         int max,
-                                         int requestNumber) throws IOException {
-        if (max <= 0) return EMPTY;
+                                          final Request request,
+                                          int max,
+                                          int requestNumber) throws IOException {
+        if (max <= 0) {
+            return EMPTY;
+        }
         Request remote = new Request(request).set("limit", max);
         HttpResponse response = api.get(remote);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             Activities a = api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
             if (a.size() < max && a.moreResourcesExist() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
-                return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
+                return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber + 1));
             } else {
                 return a;
             }
@@ -224,8 +234,10 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-    public static @Nullable Activities fetch(PublicCloudAPI api,
-                                   final Request request) throws IOException {
+    public static
+    @Nullable
+    Activities fetch(PublicCloudAPI api,
+                     final Request request) throws IOException {
         HttpResponse response = api.get(request);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
@@ -237,7 +249,9 @@ public class Activities extends CollectionHolder<Activity> {
     private static Activities handleUnexpectedResponse(Request request, HttpResponse response) throws IOException {
         final int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == HttpStatus.SC_NO_CONTENT) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Got no content response (204)");
+            }
             return EMPTY;
         } else if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
             // a 404 also translates to Unauthorized here, since the API is a bit fucked up
@@ -252,7 +266,7 @@ public class Activities extends CollectionHolder<Activity> {
 
     public ContentValues[] buildContentValues(final int contentId) {
         ContentValues[] cv = new ContentValues[size()];
-        for (int i=0; i<size(); i++) {
+        for (int i = 0; i < size(); i++) {
             cv[i] = get(i).buildContentValues();
             if (contentId >= 0) {
                 cv[i].put(TableColumns.Activities.CONTENT_ID, contentId);

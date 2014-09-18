@@ -15,7 +15,7 @@ import android.widget.TextView;
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 public class SeekBarPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
-    private static final String androidns="http://schemas.android.com/apk/res/android";
+    private static final String androidns = "http://schemas.android.com/apk/res/android";
 
     private SeekBar seekBar;
     private TextView splashText, valueText;
@@ -41,8 +41,9 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         layout.setPadding(6, 6, 6, 6);
 
         splashText = new TextView(context);
-        if (dialogMessage != null)
+        if (dialogMessage != null) {
             splashText.setText(dialogMessage);
+        }
         layout.addView(splashText);
 
         valueText = new TextView(context);
@@ -57,8 +58,9 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         seekBar.setOnSeekBarChangeListener(this);
         layout.addView(seekBar, params);
 
-        if (shouldPersist())
+        if (shouldPersist()) {
             value = getPersistedInt(defaultValue);
+        }
 
         seekBar.setMax(maxValue);
         seekBar.setProgress(value);
@@ -67,36 +69,48 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     }
 
     @Override
-    protected void onSetInitialValue(boolean restore, Object defaultValue)
-    {
+    protected void onSetInitialValue(boolean restore, Object defaultValue) {
         super.onSetInitialValue(restore, defaultValue);
-        if (restore)
+        if (restore) {
             value = shouldPersist() ? getPersistedInt(this.defaultValue) : 0;
-        else
-            value = (Integer)defaultValue;
+        } else {
+            value = (Integer) defaultValue;
+        }
     }
 
-    public void onProgressChanged(SeekBar seek, int value, boolean fromTouch)
-    {
+    public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
         String t = String.valueOf(value);
         valueText.setText(suffix == null ? t : t.concat(suffix));
 
-        if (shouldPersist())
+        if (shouldPersist()) {
             persistInt(value);
+        }
 
         callChangeListener(value);
     }
-    public void onStartTrackingTouch(SeekBar seek) {}
-    public void onStopTrackingTouch(SeekBar seek) {}
 
-    public void setMax(int max) { maxValue = max; }
-    public int getMax() { return maxValue; }
+    public void onStartTrackingTouch(SeekBar seek) {
+    }
+
+    public void onStopTrackingTouch(SeekBar seek) {
+    }
+
+    public void setMax(int max) {
+        maxValue = max;
+    }
+
+    public int getMax() {
+        return maxValue;
+    }
 
     public void setProgress(int progress) {
         value = progress;
-        if (seekBar != null)
+        if (seekBar != null) {
             seekBar.setProgress(progress);
+        }
     }
 
-    public int getProgress() { return value; }
+    public int getProgress() {
+        return value;
+    }
 }

@@ -112,7 +112,9 @@ public class PlayablePresenter {
     }
 
     private void setupPrivateIndicator(PlayablePresenterItem item) {
-        if (privateIndicator == null) return;
+        if (privateIndicator == null) {
+            return;
+        }
 
         if (item.isPrivate()) {
             privateIndicator.setBackgroundResource(R.drawable.round_rect_orange);

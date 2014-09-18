@@ -32,7 +32,7 @@ public enum SignupVia {
 
     public static SignupVia fromString(String s) {
         for (SignupVia v : values()) {
-            if (v.name.equals(s)) return v;
+            if (v.name.equals(s)) { return v; }
         }
         return NONE;
 

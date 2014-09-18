@@ -346,7 +346,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL("DROP VIEW  IF EXISTS TrackView");
 
             for (Table t : Table.values()) {
-                if (t == Table.RECORDINGS) continue;
+                if (t == Table.RECORDINGS) {
+                    continue;
+                }
                 t.recreate(db);
             }
             return true;

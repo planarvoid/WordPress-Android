@@ -3,8 +3,8 @@ package com.soundcloud.android.preferences;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -28,24 +28,24 @@ import java.net.URL;
 public class DeveloperPreferences {
     public static final String PREF_KEY = "dev-settings";
 
-    public static final String DEV_CLEAR_NOTIFICATIONS  = "dev.clearNotifications";
+    public static final String DEV_CLEAR_NOTIFICATIONS = "dev.clearNotifications";
     public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
-    public static final String DEV_SYNC_NOW             = "dev.syncNow";
-    public static final String DEV_CRASH                = "dev.crash";
-    public static final String DEV_CLEAR_RECORDINGS     = "dev.clearRecordings";
-    public static final String DEV_HTTP_PROXY           = "dev.http.proxy";
-    public static final String DEV_RECORDING_TYPE       = "dev.defaultRecordingType";
-    public static final String DEV_RECORDING_TYPE_RAW   = "raw";
+    public static final String DEV_SYNC_NOW = "dev.syncNow";
+    public static final String DEV_CRASH = "dev.crash";
+    public static final String DEV_CLEAR_RECORDINGS = "dev.clearRecordings";
+    public static final String DEV_HTTP_PROXY = "dev.http.proxy";
+    public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
+    public static final String DEV_RECORDING_TYPE_RAW = "raw";
 
 
     private final SoundCloudApplication application;
 
     @Inject
-    public DeveloperPreferences(SoundCloudApplication application){
+    public DeveloperPreferences(SoundCloudApplication application) {
         this.application = application;
     }
 
-    public  void setup(final PreferenceActivity activity) {
+    public void setup(final PreferenceActivity activity) {
         activity.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
@@ -104,7 +104,9 @@ public class DeveloperPreferences {
                             }
                         }
                         final Intent intent = new Intent(Actions.CHANGE_PROXY_ACTION);
-                        if (!TextUtils.isEmpty(s.toString())) intent.putExtra("proxy", s.toString());
+                        if (!TextUtils.isEmpty(s.toString())) {
+                            intent.putExtra("proxy", s.toString());
+                        }
                         activity.sendBroadcast(intent);
                         return true;
                     }

@@ -44,7 +44,9 @@ public enum ApiImageSize {
 
     public static ApiImageSize fromString(String s) {
         for (ApiImageSize gs : values()) {
-            if (gs.sizeSpec.equalsIgnoreCase(s)) return gs;
+            if (gs.sizeSpec.equalsIgnoreCase(s)) {
+                return gs;
+            }
         }
         return Unknown;
     }
@@ -92,7 +94,7 @@ public enum ApiImageSize {
 
     public static ApiImageSize getFullImageSize(Resources resources) {
         ApiImageSize apiImageSize = ApiImageSize.fromString(resources.getString(R.string.full_image_size));
-        if (apiImageSize != Unknown){
+        if (apiImageSize != Unknown) {
             return apiImageSize;
         } else {
             return ApiImageSize.T500;
@@ -101,7 +103,9 @@ public enum ApiImageSize {
     }
 
     public String formatUri(String uri) {
-        if (TextUtils.isEmpty(uri)) return null;
+        if (TextUtils.isEmpty(uri)) {
+            return null;
+        }
         for (ApiImageSize size : ApiImageSize.values()) {
             if (uri.contains("-" + size.sizeSpec) && this != size) {
                 return uri.replace("-" + size.sizeSpec, "-" + sizeSpec);
@@ -122,7 +126,7 @@ public enum ApiImageSize {
     public static ApiImageSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
         ApiImageSize valid = null;
         for (ApiImageSize gs : values()) {
-            if (fillDimensions){
+            if (fillDimensions) {
                 if (gs.width >= width && gs.height >= height) {
                     valid = gs;
                 } else {

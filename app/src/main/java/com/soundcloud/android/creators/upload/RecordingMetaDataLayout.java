@@ -2,9 +2,9 @@ package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
@@ -71,29 +71,33 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         artwork = (ImageView) findViewById(R.id.artwork);
         whatText = (EditText) findViewById(R.id.what);
         whereText = (TextView) findViewById(R.id.where);
-        if (location == null) preloadLocations();
+        if (location == null) {
+            preloadLocations();
+        }
     }
 
     public void setActivity(final FragmentActivity activity) {
-         whereText.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 if (recording == null) return;
-                 Intent intent = new Intent(getContext(), LocationPickerActivity.class);
-                 intent.putExtra("name", ((TextView) v).getText().toString());
-                 if (recording.longitude != 0) {
-                     intent.putExtra("long", recording.longitude);
-                 }
-                 if (recording.latitude != 0) {
-                     intent.putExtra("lat", recording.latitude);
-                 }
-                 synchronized (this) {
-                     intent.putParcelableArrayListExtra("venues", venues);
-                     intent.putExtra("location", location);
-                 }
-                 activity.startActivityForResult(intent, Consts.RequestCodes.PICK_VENUE);
-             }
-         });
+        whereText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (recording == null) {
+                    return;
+                }
+                Intent intent = new Intent(getContext(), LocationPickerActivity.class);
+                intent.putExtra("name", ((TextView) v).getText().toString());
+                if (recording.longitude != 0) {
+                    intent.putExtra("long", recording.longitude);
+                }
+                if (recording.latitude != 0) {
+                    intent.putExtra("lat", recording.latitude);
+                }
+                synchronized (this) {
+                    intent.putParcelableArrayListExtra("venues", venues);
+                    intent.putExtra("location", location);
+                }
+                activity.startActivityForResult(intent, Consts.RequestCodes.PICK_VENUE);
+            }
+        });
 
         artwork.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,8 +133,8 @@ public class RecordingMetaDataLayout extends RelativeLayout {
                 protected void onPostExecute(List<FoursquareVenue> venues) {
                     if (venues != null && !venues.isEmpty()) {
                         synchronized (this) {
-                          RecordingMetaDataLayout.this.location = location;
-                          RecordingMetaDataLayout.this.venues.addAll(venues);
+                            RecordingMetaDataLayout.this.location = location;
+                            RecordingMetaDataLayout.this.venues.addAll(venues);
                         }
                     }
                 }
@@ -138,9 +142,11 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         }
     }
 
-    public void setRecording(Recording recording, boolean map){
+    public void setRecording(Recording recording, boolean map) {
         this.recording = recording;
-        if (map) mapFromRecording(recording);
+        if (map) {
+            mapFromRecording(recording);
+        }
     }
 
     /* package */
@@ -178,7 +184,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         }
     }
 
-    public void reset(){
+    public void reset() {
         whatText.setText(null);
         whereText.setText(null);
         clearArtwork();
@@ -186,9 +192,9 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     public void setImage(File file) {
-        if (file != null){
+        if (file != null) {
             artworkFile = file;
-            ImageUtils.setImage(file, artwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
+            ImageUtils.setImage(file, artwork, (int) (getResources().getDisplayMetrics().density * 100f), (int) (getResources().getDisplayMetrics().density * 100f));
         }
     }
 
@@ -213,9 +219,15 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     public void mapFromRecording(final Recording recording) {
-        if (!TextUtils.isEmpty(recording.what_text)) whatText.setTextKeepState(recording.what_text);
-        if (!TextUtils.isEmpty(recording.where_text)) whereText.setTextKeepState(recording.where_text);
-        if (recording.artwork_path != null) setImage(recording.artwork_path);
+        if (!TextUtils.isEmpty(recording.what_text)) {
+            whatText.setTextKeepState(recording.what_text);
+        }
+        if (!TextUtils.isEmpty(recording.where_text)) {
+            whereText.setTextKeepState(recording.where_text);
+        }
+        if (recording.artwork_path != null) {
+            setImage(recording.artwork_path);
+        }
 
         setWhere(TextUtils.isEmpty(recording.where_text) ? "" : recording.where_text,
                 TextUtils.isEmpty(recording.four_square_venue_id) ? "" : recording.four_square_venue_id,
@@ -224,7 +236,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         clearArtwork();
     }
 

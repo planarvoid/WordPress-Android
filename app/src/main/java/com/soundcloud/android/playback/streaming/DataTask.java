@@ -30,10 +30,14 @@ abstract class DataTask extends StreamItemTask {
 
     public DataTask(StreamItem item, Range chunkRange, Range byteRange, PublicCloudAPI api) {
         super(item, api);
-        if (byteRange == null) throw new IllegalArgumentException("byterange cannot be null");
-        if (chunkRange == null) throw new IllegalArgumentException("chunkRange cannot be null");
+        if (byteRange == null) {
+            throw new IllegalArgumentException("byterange cannot be null");
+        }
+        if (chunkRange == null) {
+            throw new IllegalArgumentException("chunkRange cannot be null");
+        }
         if (item.getContentLength() > 0 &&
-            byteRange.start > item.getContentLength()) {
+                byteRange.start > item.getContentLength()) {
 
             Log.w(LOG_TAG, String.format("requested range > contentlength (%d > %d)",
                     byteRange.start, item.getContentLength()));
@@ -147,7 +151,7 @@ abstract class DataTask extends StreamItemTask {
                     case HttpStatus.SC_PARTIAL_CONTENT:
                         if (dst.remaining() < connection.getContentLength()) {
                             throw new IOException(String.format(Locale.ENGLISH, "allocated buffer is too small (%d < %d)",
-                                        dst.remaining(), connection.getContentLength()));
+                                    dst.remaining(), connection.getContentLength()));
                         }
                         is = new BufferedInputStream(connection.getInputStream());
                         final byte[] bytes = new byte[8192];
@@ -158,7 +162,9 @@ abstract class DataTask extends StreamItemTask {
                 }
                 return status;
             } finally {
-                if (is != null) is.close();
+                if (is != null) {
+                    is.close();
+                }
                 connection.disconnect();
             }
         }

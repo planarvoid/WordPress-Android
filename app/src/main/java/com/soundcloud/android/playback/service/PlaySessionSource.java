@@ -12,7 +12,7 @@ import android.os.Parcelable;
 
 import java.util.Locale;
 
-public class PlaySessionSource implements Parcelable{
+public class PlaySessionSource implements Parcelable {
 
     public static final PlaySessionSource EMPTY = new PlaySessionSource();
 
@@ -80,7 +80,7 @@ public class PlaySessionSource implements Parcelable{
         this.exploreVersion = exploreVersion;
     }
 
-    public boolean originatedInExplore(){
+    public boolean originatedInExplore() {
         return originScreen.startsWith("explore");
     }
 
@@ -124,15 +124,19 @@ public class PlaySessionSource implements Parcelable{
         }
     };
 
-    public static void clearPreferenceKeys(SharedPreferences.Editor editor){
+    public static void clearPreferenceKeys(SharedPreferences.Editor editor) {
         editor.remove(PREF_KEY_ORIGIN_SCREEN_TAG);
         editor.remove(PREF_KEY_PLAYLIST_ID);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PlaySessionSource that = (PlaySessionSource) o;
 

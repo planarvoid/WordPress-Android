@@ -33,6 +33,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     private enum DisplayMode {
         LOADING, ERROR, CONTENT
     }
+
     private DisplayMode mMode = DisplayMode.LOADING;
 
     private static final String KEY_OBSERVABLE = "buckets_observable";
@@ -105,7 +106,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         // TODO: get rid of StateHolderFragment in favor of setRetainInstanceState or Memento
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
         Observable<CategoryGroup> observable;
-        if (savedState.has(KEY_OBSERVABLE)){
+        if (savedState.has(KEY_OBSERVABLE)) {
             observable = savedState.get(KEY_OBSERVABLE);
         } else {
             observable = createCategoriesObservable();
@@ -134,7 +135,9 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     }
 
     private void loadCategories(Observable<CategoryGroup> observable) {
-        if (observer == null) observer = new CategoryGroupsObserver(this);
+        if (observer == null) {
+            observer = new CategoryGroupsObserver(this);
+        }
         subscription = observable.subscribe(observer);
         setDisplayMode(DisplayMode.LOADING);
     }
@@ -149,7 +152,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Category item = adapter.getItem(position - listView.getHeaderViewsCount());
-        if (item.isError()){
+        if (item.isError()) {
             refresh();
         } else {
             final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
@@ -158,13 +161,13 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         }
     }
 
-    private boolean shouldShowFacebook(){
+    private boolean shouldShowFacebook() {
         return getArguments() != null && getArguments().getBoolean(SHOW_FACEBOOK, false);
     }
 
-    private void setDisplayMode(DisplayMode mode){
+    private void setDisplayMode(DisplayMode mode) {
         mMode = mode;
-        switch (mMode){
+        switch (mMode) {
             case LOADING:
                 emptyView.setStatus(EmptyView.Status.WAITING);
                 emptyView.setVisibility(View.VISIBLE);
@@ -196,7 +199,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
             fragment.adapter.addItem(categoryGroup);
             fragment.adapter.notifyDataSetChanged();
 
-            if (!categoryGroup.isFacebook()){
+            if (!categoryGroup.isFacebook()) {
                 fragment.setDisplayMode(DisplayMode.CONTENT);
             } else if (fragment.shouldShowFacebook()) {
                 final FollowingOperations followingOperations = new FollowingOperations();

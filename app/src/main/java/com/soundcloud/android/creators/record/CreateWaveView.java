@@ -78,9 +78,13 @@ public class CreateWaveView extends View {
             this.mode = mode;
             currentProgress = -1;
 
-            if (this.mode == CreateWaveDisplay.MODE_REC) resetZoomBitmaps();
+            if (this.mode == CreateWaveDisplay.MODE_REC) {
+                resetZoomBitmaps();
+            }
 
-            if (animate) animationStartTime = System.currentTimeMillis();
+            if (animate) {
+                animationStartTime = System.currentTimeMillis();
+            }
             invalidate();
         }
     }
@@ -119,7 +123,9 @@ public class CreateWaveView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
-        if (recorder.isGeneratingWaveform()) return;
+        if (recorder.isGeneratingWaveform()) {
+            return;
+        }
 
         final float[] trimWindow = recorder.getTrimWindow();
         final float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - animationStartTime)) / ANIMATION_ZOOM_TIME));
@@ -164,7 +170,9 @@ public class CreateWaveView extends View {
             }
         }
 
-        if (animating) invalidate();
+        if (animating) {
+            invalidate();
+        }
     }
 
     /**
@@ -250,7 +258,9 @@ public class CreateWaveView extends View {
 
     @Override
     protected void onSizeChanged(int width, int height, int oldw, int oldh) {
-        if (width == 0 || height == 0) return;
+        if (width == 0 || height == 0) {
+            return;
+        }
 
         maxWaveHeight = height - glowHeight;
         LinearGradient lg = new LinearGradient(0, 0, 0, maxWaveHeight,
@@ -266,18 +276,24 @@ public class CreateWaveView extends View {
 
         Bitmap old = zoomBitmap1;
         zoomBitmap1 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        if (old != null) old.recycle();
+        if (old != null) {
+            old.recycle();
+        }
 
         old = zoomBitmap2;
         zoomBitmap2 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        if (old != null) old.recycle();
+        if (old != null) {
+            old.recycle();
+        }
 
         nextBitmapX = -1;
     }
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-        if (maxWaveHeight == 0) return;
+        if (maxWaveHeight == 0) {
+            return;
+        }
 
         final int width = getWidth();
         if (nextBitmapX != -1 && zoomBitmap1 != null && zoomBitmap2 != null) {
@@ -446,7 +462,7 @@ public class CreateWaveView extends View {
          */
         private int getAmplitudePoints(float[] points, int maxWaveHeight) {
             int ptIndex = 0;
-            for (int x = 0; x < lastDrawX && ptIndex < points.length+3; x++) {
+            for (int x = 0; x < lastDrawX && ptIndex < points.length + 3; x++) {
                 final float a = size == lastDrawX ? get(x) : getInterpolatedValue(x, lastDrawX);
                 points[ptIndex] = x;
                 points[ptIndex + 1] = height / 2 - a * maxWaveHeight / 2;

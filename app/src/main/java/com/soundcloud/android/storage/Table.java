@@ -53,7 +53,9 @@ public enum Table {
     public static final String TAG = DatabaseManager.TAG;
 
     Table(String name, boolean view, String create, String... fields) {
-        if (name == null) throw new NullPointerException();
+        if (name == null) {
+            throw new NullPointerException();
+        }
         this.name = name;
         this.view = view;
         if (create != null) {
@@ -80,13 +82,17 @@ public enum Table {
 
     public static Table get(String name) {
         for (Table table : values()) {
-            if (table.name.equals(name)) return table;
+            if (table.name.equals(name)) {
+                return table;
+            }
         }
         return null;
     }
 
     public void drop(SQLiteDatabase db) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "dropping " + name);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "dropping " + name);
+        }
         db.execSQL("DROP " + (view ? "VIEW" : "TABLE") + " IF EXISTS " + name);
     }
 
@@ -125,7 +131,9 @@ public enum Table {
         while (cursor != null && cursor.moveToNext()) {
             cols.add(cursor.getString(1));
         }
-        if (cursor != null) cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
         return cols;
     }
 
@@ -169,7 +177,9 @@ public enum Table {
         // copy current data to tmp table
         final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing " + sql);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "executing " + sql);
+        }
         db.execSQL(sql);
 
         // recreate current table with new schema
@@ -178,7 +188,9 @@ public enum Table {
 
         // and copy old data from tmp
         final String copy = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing " + copy);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "executing " + copy);
+        }
         db.execSQL(copy);
         db.execSQL("DROP table " + tmpTable);
 
@@ -198,7 +210,9 @@ public enum Table {
         db.beginTransaction();
         int updated = 0;
         for (ContentValues v : values) {
-            if (v == null) continue;
+            if (v == null) {
+                continue;
+            }
             long id = v.getAsLong(BaseColumns._ID);
             List<Object> bindArgs = new ArrayList<Object>();
             StringBuilder sb = new StringBuilder();
@@ -220,7 +234,9 @@ public enum Table {
             }
             sb.append(");");
             final String sql = sb.toString();
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:" + sql);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "sql:" + sql);
+            }
             db.execSQL(sql, bindArgs.toArray());
             updated++;
         }
@@ -254,7 +270,9 @@ public enum Table {
     @NotNull
     ContentValues build(@NotNull Object... args) {
         ContentValues cv = new ContentValues();
-        if (args.length % 2 != 0) throw new IllegalArgumentException("need even number of arguments");
+        if (args.length % 2 != 0) {
+            throw new IllegalArgumentException("need even number of arguments");
+        }
         for (int i = 0; i < args.length; i += 2) {
             final Object obj = args[i + 1];
             final String key = args[i].toString();

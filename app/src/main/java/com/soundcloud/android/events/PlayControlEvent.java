@@ -90,7 +90,7 @@ public final class PlayControlEvent {
 
     private static PlayControlEvent tap(String source, boolean isSkip) {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, isSkip ? "skip":"prev")
+                .putAttribute(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
                 .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
                 .putAttribute(ATTRIBUTE_LOCATION, source);
     }
@@ -108,11 +108,17 @@ public final class PlayControlEvent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PlayControlEvent that = (PlayControlEvent) o;
-        if (!attributes.equals(that.attributes)) return false;
+        if (!attributes.equals(that.attributes)) {
+            return false;
+        }
 
         return true;
     }

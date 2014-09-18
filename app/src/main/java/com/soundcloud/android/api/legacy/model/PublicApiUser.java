@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,17 +8,17 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.json.Views;
+import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Model;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.users.UserUrn;
-import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -40,8 +39,8 @@ import android.text.TextUtils;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
 public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource {
-    public static final int     TYPE = 0;
-    public static final String  EXTRA = "user";
+    public static final int TYPE = 0;
+    public static final String EXTRA = "user";
 
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
@@ -61,10 +60,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Nullable public String discogs_name;
 
     // counts
-    public int    track_count            = NOT_SET;
-    public int    followers_count        = NOT_SET;
-    public int    followings_count       = NOT_SET;
-    public int    private_tracks_count   = NOT_SET;
+    public int track_count = NOT_SET;
+    public int followers_count = NOT_SET;
+    public int followings_count = NOT_SET;
+    public int private_tracks_count = NOT_SET;
     @JsonProperty("public_likes_count")
     public int public_likes_count = NOT_SET;
 
@@ -92,7 +91,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         mURN = Urn.forUser(id);
     }
 
-    public PublicApiUser(SuggestedUser suggestedUser){
+    public PublicApiUser(SuggestedUser suggestedUser) {
         setUrn(suggestedUser.getUrn().toString());
         username = suggestedUser.getUsername();
         city = suggestedUser.getCity();
@@ -161,7 +160,9 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         private_tracks_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PRIVATE_TRACKS_COUNT));
 
         final String tempDesc = cursor.getString(cursor.getColumnIndex(TableColumns.Users.DESCRIPTION));
-        if (TextUtils.isEmpty(tempDesc)) description = tempDesc;
+        if (TextUtils.isEmpty(tempDesc)) {
+            description = tempDesc;
+        }
         return this;
     }
 
@@ -184,31 +185,71 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         }
     };
 
-    public ContentValues buildContentValues(){
+    public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
         // account for partial objects, don't overwrite local full objects
-        if (username != null) cv.put(TableColumns.Users.USERNAME, username);
-        if (permalink != null) cv.put(TableColumns.Users.PERMALINK, permalink);
-        if (avatar_url != null) cv.put(TableColumns.Users.AVATAR_URL, avatar_url);
-        if (permalink_url != null) cv.put(TableColumns.Users.PERMALINK_URL, permalink_url);
-        if (track_count != NOT_SET) cv.put(TableColumns.Users.TRACK_COUNT, track_count);
-        if (public_likes_count != NOT_SET) cv.put(TableColumns.Users.PUBLIC_LIKES_COUNT, public_likes_count);
-        if (city != null) cv.put(TableColumns.Users.CITY, city);
-        if (country != null) cv.put(TableColumns.Users.COUNTRY, country);
-        if (discogs_name != null) cv.put(TableColumns.Users.DISCOGS_NAME, discogs_name);
-        if (full_name != null) cv.put(TableColumns.Users.FULL_NAME, full_name);
-        if (myspace_name != null) cv.put(TableColumns.Users.MYSPACE_NAME, myspace_name);
-        if (followers_count != NOT_SET) cv.put(TableColumns.Users.FOLLOWERS_COUNT, followers_count);
-        if (followings_count != NOT_SET)cv.put(TableColumns.Users.FOLLOWINGS_COUNT, followings_count);
-        if (track_count != -1)cv.put(TableColumns.Users.TRACK_COUNT, track_count);
-        if (website != null) cv.put(TableColumns.Users.WEBSITE, website);
-        if (website_title != null) cv.put(TableColumns.Users.WEBSITE_TITLE, website_title);
-        if (plan != null) cv.put(TableColumns.Users.PLAN, plan);
-        if (private_tracks_count != NOT_SET) cv.put(TableColumns.Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
-        if (primary_email_confirmed != null) cv.put(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
+        if (username != null) {
+            cv.put(TableColumns.Users.USERNAME, username);
+        }
+        if (permalink != null) {
+            cv.put(TableColumns.Users.PERMALINK, permalink);
+        }
+        if (avatar_url != null) {
+            cv.put(TableColumns.Users.AVATAR_URL, avatar_url);
+        }
+        if (permalink_url != null) {
+            cv.put(TableColumns.Users.PERMALINK_URL, permalink_url);
+        }
+        if (track_count != NOT_SET) {
+            cv.put(TableColumns.Users.TRACK_COUNT, track_count);
+        }
+        if (public_likes_count != NOT_SET) {
+            cv.put(TableColumns.Users.PUBLIC_LIKES_COUNT, public_likes_count);
+        }
+        if (city != null) {
+            cv.put(TableColumns.Users.CITY, city);
+        }
+        if (country != null) {
+            cv.put(TableColumns.Users.COUNTRY, country);
+        }
+        if (discogs_name != null) {
+            cv.put(TableColumns.Users.DISCOGS_NAME, discogs_name);
+        }
+        if (full_name != null) {
+            cv.put(TableColumns.Users.FULL_NAME, full_name);
+        }
+        if (myspace_name != null) {
+            cv.put(TableColumns.Users.MYSPACE_NAME, myspace_name);
+        }
+        if (followers_count != NOT_SET) {
+            cv.put(TableColumns.Users.FOLLOWERS_COUNT, followers_count);
+        }
+        if (followings_count != NOT_SET) {
+            cv.put(TableColumns.Users.FOLLOWINGS_COUNT, followings_count);
+        }
+        if (track_count != -1) {
+            cv.put(TableColumns.Users.TRACK_COUNT, track_count);
+        }
+        if (website != null) {
+            cv.put(TableColumns.Users.WEBSITE, website);
+        }
+        if (website_title != null) {
+            cv.put(TableColumns.Users.WEBSITE_TITLE, website_title);
+        }
+        if (plan != null) {
+            cv.put(TableColumns.Users.PLAN, plan);
+        }
+        if (private_tracks_count != NOT_SET) {
+            cv.put(TableColumns.Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
+        }
+        if (primary_email_confirmed != null) {
+            cv.put(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed ? 1 : 0);
+        }
 
         if (getId() != -1 && getId() == SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId()) {
-            if (description != null) cv.put(TableColumns.Users.DESCRIPTION, description);
+            if (description != null) {
+                cv.put(TableColumns.Users.DESCRIPTION, description);
+            }
         }
         cv.put(TableColumns.Users.LAST_UPDATED, System.currentTimeMillis());
         return cv;
@@ -269,13 +310,14 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         this.avatar_url = avatarUrl;
     }
 
-    public String getPermalink(){
+    public String getPermalink() {
         return permalink;
     }
+
     public String getDisplayName() {
-        if (!TextUtils.isEmpty(username)){
+        if (!TextUtils.isEmpty(username)) {
             return username;
-        } else if (!TextUtils.isEmpty(permalink)){
+        } else if (!TextUtils.isEmpty(permalink)) {
             return permalink;
         } else {
             return ScTextUtils.EMPTY_STRING;
@@ -293,7 +335,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
 
     // setter for deserialization, we want it null if it doesn't exist and to keep it private
     @JsonProperty("primary_email_confirmed")
-    public void setPrimaryEmailConfirmed(boolean val){
+    public void setPrimaryEmailConfirmed(boolean val) {
         primary_email_confirmed = val;
     }
 
@@ -315,7 +357,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     }
 
     public boolean removeAFollower() {
-        if (isFollowersCountSet()){
+        if (isFollowersCountSet()) {
             followers_count--;
             return true;
         } else {
@@ -358,7 +400,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
                 UserProperty.USERNAME.bind(username),
                 UserProperty.FOLLOWERS_COUNT.bind(followers_count)
         );
-        if (country != null){
+        if (country != null) {
             propertySet.put(UserProperty.COUNTRY, country);
         }
         return propertySet;
@@ -366,7 +408,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
 
     public static interface DataKeys {
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
-        String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
+        String SEEN_CREATE_AUTOSAVE = "seenCreateAutoSave";
 
     }
 
@@ -375,16 +417,16 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return this;
     }
 
-    public boolean hasAvatarUrl(){
+    public boolean hasAvatarUrl() {
         return !TextUtils.isEmpty(avatar_url);
     }
 
-    public String getNonDefaultAvatarUrl(){
+    public String getNonDefaultAvatarUrl() {
         return shouldLoadIcon() ? avatar_url : null;
     }
 
     @Override
-    public boolean isStale(){
+    public boolean isStale() {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.USER;
     }
 
@@ -397,22 +439,50 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         this.setId(user.getId());
         this.username = user.username;
 
-        if (user.avatar_url != null) this.avatar_url = user.avatar_url;
-        if (user.permalink != null) this.permalink = user.permalink;
-        if (user.full_name != null) this.full_name = user.full_name;
-        if (user.city != null) this.city = user.city;
-        if (user.country != null)this.country = user.country;
-        if (user.track_count != -1) this.track_count = user.track_count;
-        if (user.followers_count != -1) this.followers_count = user.followers_count;
-        if (user.followings_count != -1)this.followings_count = user.followings_count;
-        if (user.public_likes_count != -1) this.public_likes_count = user.public_likes_count;
-        if (user.private_tracks_count != -1) this.private_tracks_count = user.private_tracks_count;
-        if (user.discogs_name != null) this.discogs_name = user.discogs_name;
-        if (user.myspace_name != null) this.myspace_name = user.myspace_name;
-        if (user.description != null) this.description = user.description;
-        if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
+        if (user.avatar_url != null) {
+            this.avatar_url = user.avatar_url;
+        }
+        if (user.permalink != null) {
+            this.permalink = user.permalink;
+        }
+        if (user.full_name != null) {
+            this.full_name = user.full_name;
+        }
+        if (user.city != null) {
+            this.city = user.city;
+        }
+        if (user.country != null) {
+            this.country = user.country;
+        }
+        if (user.track_count != -1) {
+            this.track_count = user.track_count;
+        }
+        if (user.followers_count != -1) {
+            this.followers_count = user.followers_count;
+        }
+        if (user.followings_count != -1) {
+            this.followings_count = user.followings_count;
+        }
+        if (user.public_likes_count != -1) {
+            this.public_likes_count = user.public_likes_count;
+        }
+        if (user.private_tracks_count != -1) {
+            this.private_tracks_count = user.private_tracks_count;
+        }
+        if (user.discogs_name != null) {
+            this.discogs_name = user.discogs_name;
+        }
+        if (user.myspace_name != null) {
+            this.myspace_name = user.myspace_name;
+        }
+        if (user.description != null) {
+            this.description = user.description;
+        }
+        if (user.primary_email_confirmed != null) {
+            this.primary_email_confirmed = user.primary_email_confirmed;
+        }
 
-        if (cacheUpdateMode == CacheUpdateMode.FULL){
+        if (cacheUpdateMode == CacheUpdateMode.FULL) {
             last_updated = user.last_updated;
         }
         return this;
@@ -445,12 +515,14 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return 0;
     }
 
-    public @Nullable String getWebSiteTitle() {
+    public
+    @Nullable
+    String getWebSiteTitle() {
         if (!TextUtils.isEmpty(website_title)) {
             return website_title;
         } else if (!TextUtils.isEmpty(website)) {
             return website.replace("http://www.", "")
-                          .replace("http://", "");
+                    .replace("http://", "");
         } else {
             return null;
         }

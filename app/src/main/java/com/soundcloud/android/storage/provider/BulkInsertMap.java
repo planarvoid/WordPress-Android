@@ -17,8 +17,8 @@ import java.util.Set;
  */
 public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues>> {
 
-    public void add(Uri uri, ContentValues values){
-        if (!containsKey(uri)){
+    public void add(Uri uri, ContentValues values) {
+        if (!containsKey(uri)) {
             put(uri, new LinkedHashSet<ResourceValues>());
         }
         get(uri).add(new ResourceValues(values));
@@ -40,14 +40,19 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
 
     public class ResourceValues {
         ContentValues contentValues;
+
         private ResourceValues(ContentValues contentValues) {
             this.contentValues = contentValues;
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             ResourceValues that = (ResourceValues) o;
 
@@ -64,8 +69,8 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
 
         @Override
         public int hashCode() {
-            if (contentValues != null){
-                if (contentValues.containsKey(TableColumns.ResourceTable._ID)){
+            if (contentValues != null) {
+                if (contentValues.containsKey(TableColumns.ResourceTable._ID)) {
                     return contentValues.getAsLong(TableColumns.ResourceTable._ID).hashCode();
                 }
                 return contentValues.hashCode();

@@ -72,7 +72,7 @@ public class StatsView extends View {
 
         textPaint = new Paint();
         textPaint.setColor(textColor);
-        textPaint.setAntiAlias(true );
+        textPaint.setAntiAlias(true);
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setTextSize(r.getDimensionPixelSize(R.dimen.stats_view_item_text_size));
 
@@ -86,11 +86,11 @@ public class StatsView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width  = 0;
+        int width = 0;
         int height = 0;
-        long[]      counts   = {plays, likes, reposts, comments};
+        long[] counts = {plays, likes, reposts, comments};
 
-        boolean    hasDrawn = false;
+        boolean hasDrawn = false;
 
         final int paddingLeft = getPaddingLeft();
         final int paddingRight = getPaddingRight();
@@ -101,9 +101,11 @@ public class StatsView extends View {
         int textHeight = fm.descent - fm.ascent + fm.leading;
 
         for (int i = 0; i < icons.length; i++) {
-            if (counts[i] <= 0) continue;
-            Drawable icon   = icons[i];
-            String   string = Long.toString(counts[i]);
+            if (counts[i] <= 0) {
+                continue;
+            }
+            Drawable icon = icons[i];
+            String string = Long.toString(counts[i]);
             if (hasDrawn) {
                 width += separatorWidth;
                 width += itemPadding;
@@ -124,7 +126,7 @@ public class StatsView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        long[] counts   = {plays, likes, reposts, comments};
+        long[] counts = {plays, likes, reposts, comments};
         Drawable[] icons = {
                 playsIcon,
                 liked ? likedIcon : likesIcon,
@@ -135,10 +137,12 @@ public class StatsView extends View {
         int x = 0;
         boolean hasDrawn = false;
         for (int i = 0; i < icons.length; i++) {
-            if (counts[i] <= 0) continue;
+            if (counts[i] <= 0) {
+                continue;
+            }
 
-            Drawable icon   = icons[i];
-            String   string = ScTextUtils.formatNumberWithCommas(counts[i]);
+            Drawable icon = icons[i];
+            String string = ScTextUtils.formatNumberWithCommas(counts[i]);
 
             if (hasDrawn) {
                 separator.setBounds(x, 0, x + separatorWidth, getHeight());
@@ -149,8 +153,8 @@ public class StatsView extends View {
             }
 
             final int iconHeight = icon.getIntrinsicHeight();
-            final int iconWidth  = icon.getIntrinsicWidth();
-            final int iconY      = (getHeight() - iconHeight) / 2 + offsets[i];
+            final int iconWidth = icon.getIntrinsicWidth();
+            final int iconY = (getHeight() - iconHeight) / 2 + offsets[i];
 
             icon.setBounds(x, iconY, x + iconWidth, iconY + iconHeight);
             icon.draw(canvas);
@@ -182,7 +186,9 @@ public class StatsView extends View {
 
         textPaint.setColor(isPressed() ? pressedColor : textColor);
 
-        if (changed) invalidate();
+        if (changed) {
+            invalidate();
+        }
     }
 
     void updateWithPlayable(PlayablePresenterItem item) {

@@ -14,7 +14,7 @@ import java.io.RandomAccessFile;
 import java.util.List;
 
 class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
-    static final long MAX_MD5_CHECK_SIZE = 5 * 1024*1024; // don't md5 check files over 5MB
+    static final long MAX_MD5_CHECK_SIZE = 5 * 1024 * 1024; // don't md5 check files over 5MB
 
     private long mContentLength;
     private String mEtag;
@@ -34,8 +34,9 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         File chunkFile = params[0];
         File completeFile = params[1];
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             Log.d(LOG_TAG, "About to write complete file to " + completeFile);
+        }
 
         if (completeFile.exists()) {
             Log.e(LOG_TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
@@ -48,24 +49,30 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         }
         // optimization - if chunks have been written in order, just move and truncate file
         else if (isOrdered(mIndexes)) {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "chunk file is already in order, moving");
+            }
             return move(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
         } else {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "reassembling chunkfile");
+            }
             return reassembleFile(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
         }
     }
 
     private boolean checkEtag(File file, String etag) {
-        if (etag == null || file.length() > MAX_MD5_CHECK_SIZE) return true;
+        if (etag == null || file.length() > MAX_MD5_CHECK_SIZE) {
+            return true;
+        }
 
-        final String calculatedEtag = '"'+ IOUtils.md5(file)+'"';
+        final String calculatedEtag = '"' + IOUtils.md5(file) + '"';
         if (!calculatedEtag.equals(etag)) {
-            Log.w(LOG_TAG, "etag " +etag+ " for complete file "+ file + " does not match "+calculatedEtag);
+            Log.w(LOG_TAG, "etag " + etag + " for complete file " + file + " does not match " + calculatedEtag);
             return false;
-        } else return true;
+        } else {
+            return true;
+        }
     }
 
     private Boolean move(File chunkFile, File completeFile) {
@@ -87,7 +94,9 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
     private boolean isOrdered(Iterable<Integer> indexes) {
         int last = 0;
         for (int i : indexes) {
-            if (last > i) return false;
+            if (last > i) {
+                return false;
+            }
             last = i;
         }
         return true;
@@ -112,20 +121,27 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
                     fos.write(buffer);
                 }
             }
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "complete file " + completeFile + " written");
+            }
         } catch (IOException e) {
             Log.e(LOG_TAG, "IO error during complete file creation", e);
-            if (completeFile.delete()) Log.d(LOG_TAG, "Deleted " + completeFile);
+            if (completeFile.delete()) {
+                Log.d(LOG_TAG, "Deleted " + completeFile);
+            }
             return false;
         } finally {
-            if (raf != null) try {
-                raf.close();
-            } catch (IOException ignored) {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException ignored) {
+                }
             }
-            if (fos != null) try {
-                fos.close();
-            } catch (IOException ignored) {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ignored) {
+                }
             }
         }
         return true;

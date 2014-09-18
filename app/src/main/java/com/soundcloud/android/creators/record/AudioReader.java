@@ -43,6 +43,7 @@ public abstract class AudioReader implements Closeable {
 
     /**
      * Reads up to length bytes audiodata into the buffer, starting from the current position
+     *
      * @param buffer the bytebuffer to read bytes into
      * @param length the number of bytes to read (should be buffer.capacity())
      * @return the number of read bytes, or -1 for EOF
@@ -59,17 +60,25 @@ public abstract class AudioReader implements Closeable {
     public abstract void reopen() throws IOException;
 
 
-    public static @NotNull AudioReader guessMultiple(@Nullable File... files) throws IOException {
-        if (files == null) return AudioReader.EMPTY;
+    public static
+    @NotNull
+    AudioReader guessMultiple(@Nullable File... files) throws IOException {
+        if (files == null) {
+            return AudioReader.EMPTY;
+        }
         for (File f : files) {
             AudioReader reader = guess(f);
-            if (!(reader instanceof EmptyReader)) return reader;
+            if (!(reader instanceof EmptyReader)) {
+                return reader;
+            }
         }
         return AudioReader.EMPTY;
     }
 
     public static AudioReader guess(@Nullable File file) throws IOException {
-        if (file == null || !file.exists()) return AudioReader.EMPTY;
+        if (file == null || !file.exists()) {
+            return AudioReader.EMPTY;
+        }
 
         final String ext = IOUtils.extension(file);
         if (ext == null) {

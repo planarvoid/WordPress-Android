@@ -22,7 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class SignUpLayout extends AuthLayout {
-    private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
+    private static final String BUNDLE_EMAIL = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
     private Button signUpButton;
 
@@ -31,10 +31,14 @@ public class SignUpLayout extends AuthLayout {
 
     public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
+
         void onCancelSignUp();
+
         void onShowTermsOfUse();
+
         void onShowPrivacyPolicy();
     }
+
     public SignUpLayout(Context context) {
         super(context);
     }
@@ -62,10 +66,10 @@ public class SignUpLayout extends AuthLayout {
 
         final Context context = getContext();
 
-        final AutoCompleteTextView emailField = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
+        final AutoCompleteTextView emailField = (AutoCompleteTextView) findViewById(R.id.auto_txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_choose_a_password);
-        final Button   cancelButton       = (Button)   findViewById(R.id.btn_cancel);
-        signUpButton = (Button)   findViewById(R.id.btn_signup);
+        final Button cancelButton = (Button) findViewById(R.id.btn_cancel);
+        signUpButton = (Button) findViewById(R.id.btn_signup);
 
         validDrawable = getResources().getDrawable(R.drawable.ic_done_dark_sm);
         placeholderDrawable = new ColorDrawable(Color.TRANSPARENT);
@@ -180,7 +184,7 @@ public class SignUpLayout extends AuthLayout {
     }
 
     private void hideKeyboardOnSignup(AutoCompleteTextView emailField, EditText passwordField) {
-        InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
         imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
     }
@@ -203,19 +207,21 @@ public class SignUpLayout extends AuthLayout {
     }
 
     public Bundle getStateBundle() {
-        EditText emailField          = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
 
         Bundle bundle = new Bundle();
-        bundle.putCharSequence(BUNDLE_EMAIL,    emailField.getText());
+        bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
         bundle.putCharSequence(BUNDLE_PASSWORD, choosePasswordField.getText());
         return bundle;
     }
 
     public void setState(@Nullable Bundle bundle) {
-        if (bundle == null) return;
+        if (bundle == null) {
+            return;
+        }
 
-        EditText emailField          = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
 
         emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
@@ -232,10 +238,10 @@ public class SignUpLayout extends AuthLayout {
 
         @Override
         public void validate(TextView textView, String text) {
-            if (validate(text)){
+            if (validate(text)) {
                 textView.setCompoundDrawablesWithIntrinsicBounds(null, null, validDrawable, null);
             } else {
-                textView.setCompoundDrawables(null,null, placeholderDrawable,null);
+                textView.setCompoundDrawables(null, null, placeholderDrawable, null);
             }
             validateForm();
         }

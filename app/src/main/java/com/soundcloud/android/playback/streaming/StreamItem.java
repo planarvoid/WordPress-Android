@@ -53,14 +53,18 @@ public class StreamItem implements Parcelable {
     private static final Pattern STREAM_PATTERN = Pattern.compile("/(\\d+)/stream(\\?secret_token=s-\\w+)?$");
 
     public StreamItem(String url) {
-        if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
+        if (TextUtils.isEmpty(url)) {
+            throw new IllegalArgumentException();
+        }
         try {
             this.url = new URL(url);
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("invalid url",e);
+            throw new IllegalArgumentException("invalid url", e);
         }
         trackId = getTrackId(url);
-        if (trackId == -1) throw new IllegalArgumentException("could not get track id from "+url);
+        if (trackId == -1) {
+            throw new IllegalArgumentException("could not get track id from " + url);
+        }
         this.urlHash = urlHash(url);
     }
 
@@ -91,12 +95,12 @@ public class StreamItem implements Parcelable {
     }
 
     public int numberOfChunks(int chunkSize) {
-        return (int) Math.ceil(((double ) getContentLength()) / ((double ) chunkSize));
+        return (int) Math.ceil(((double) getContentLength()) / ((double) chunkSize));
     }
 
     public String etag() {
         if (mEtag == null && mCachedFile != null && mCachedFile.exists()) {
-            mEtag = '"'+ IOUtils.md5(mCachedFile)+'"';
+            mEtag = '"' + IOUtils.md5(mCachedFile) + '"';
         }
         return mEtag;
     }
@@ -119,7 +123,7 @@ public class StreamItem implements Parcelable {
 
     public boolean invalidateRedirectUrl(int statusCode) {
         mHttpErrorStatus = statusCode;
-        if (PublicApiWrapper.isStatusCodeClientError(statusCode)){
+        if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
             mRedirectedUrl = null;
         }
         return mRedirectedUrl == null;
@@ -132,6 +136,7 @@ public class StreamItem implements Parcelable {
     /**
      * Checks is the redirect is expired.
      * Note: this assumes that the client clock is correct and is therefore not reliable.
+     *
      * @return true if the redirect is no longer valid.
      */
     public boolean isRedirectExpired() {
@@ -202,8 +207,12 @@ public class StreamItem implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         StreamItem that = (StreamItem) o;
         return !(url != null ? !url.toString().equals(that.url.toString()) : that.url != null);
     }
@@ -222,7 +231,9 @@ public class StreamItem implements Parcelable {
             dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
             write(dos);
         } finally {
-            if (dos != null) dos.close();
+            if (dos != null) {
+                dos.close();
+            }
         }
     }
 
@@ -253,9 +264,12 @@ public class StreamItem implements Parcelable {
         }
     }
 
-    /* package */ static StreamItem read(DataInputStream dis) throws IOException {
+    /* package */
+    static StreamItem read(DataInputStream dis) throws IOException {
         final String url = dis.readUTF();
-        if (TextUtils.isEmpty(url)) throw new IOException("no url stored");
+        if (TextUtils.isEmpty(url)) {
+            throw new IOException("no url stored");
+        }
         StreamItem item = new StreamItem(url);
         item.mContentLength = dis.readLong();
         item.mEtag = dis.readUTF();

@@ -22,10 +22,18 @@ public class EmptyViewBuilder {
 
     public EmptyView build(Context context) {
         EmptyView view = new EmptyView(context);
-        if (messageText != null) view.setMessageText(messageText);
-        if (actionText != null) view.setActionText(actionText);
-        if (secondaryText != null) view.setSecondaryText(secondaryText);
-        if (image > 0) view.setImage(image);
+        if (messageText != null) {
+            view.setMessageText(messageText);
+        }
+        if (actionText != null) {
+            view.setActionText(actionText);
+        }
+        if (secondaryText != null) {
+            view.setSecondaryText(secondaryText);
+        }
+        if (image > 0) {
+            view.setImage(image);
+        }
         view.setButtonActions(action);
         return view;
     }

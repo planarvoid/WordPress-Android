@@ -167,7 +167,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     @NotNull
     private List<Long> queryIdsByUri(Uri contentUri, @Nullable String selection, @Nullable String[] selectionArgs) {
         Cursor cursor = resolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
-        if (cursor == null) return Collections.emptyList();
+        if (cursor == null) {
+            return Collections.emptyList();
+        }
 
         try {
             List<Long> ids = new ArrayList<Long>(cursor.getCount());
@@ -183,7 +185,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     @NotNull
     private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
         Cursor cursor = resolver.query(contentUri, projection, selection, selectionArgs, order);
-        if (cursor == null) return Collections.emptyList();
+        if (cursor == null) {
+            return Collections.emptyList();
+        }
 
         try {
             List<T> objects = new ArrayList<T>(cursor.getCount());
@@ -199,7 +203,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     @Nullable
     public T queryById(long id) {
         Cursor cursor = resolver.query(getContent().forId(id), null, null, null, null);
-        if (cursor == null) return null;
+        if (cursor == null) {
+            return null;
+        }
 
         try {
             if (cursor.moveToFirst()) {
@@ -222,7 +228,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
 
     public int count(@Nullable String where, String... whereArgs) {
         Cursor cursor = resolver.query(getContent().uri, null, where, whereArgs, null);
-        if (cursor == null) return 0;
+        if (cursor == null) {
+            return 0;
+        }
 
         try {
             return cursor.getCount();
@@ -252,7 +260,9 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     public Class<T> getModelClass() {
         @SuppressWarnings("unchecked")
         Class<T> klass = (Class<T>) getContent().modelType;
-        if (klass == null) throw new DAOException("No modelclass defined");
+        if (klass == null) {
+            throw new DAOException("No modelclass defined");
+        }
         return klass;
     }
 

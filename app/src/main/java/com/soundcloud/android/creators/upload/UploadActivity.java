@@ -9,11 +9,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -85,7 +85,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         }
     }
 
-    private void setUploadLayout(int layoutId){
+    private void setUploadLayout(int layoutId) {
         super.setContentView(layoutId);
         recordingMetadata = (RecordingMetaDataLayout) findViewById(R.id.metadata_layout);
         recordingMetadata.setActivity(this);
@@ -96,7 +96,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (recording.external_upload){
+                if (recording.external_upload) {
                     storage.delete(recording);
                 } else {
                     setResult(RESULT_OK, new Intent().setData(recording.toUri()));
@@ -171,7 +171,9 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recordingMetadata != null) recordingMetadata.onDestroy();
+        if (recordingMetadata != null) {
+            recordingMetadata.onDestroy();
+        }
     }
 
     @Override
@@ -222,8 +224,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
 
     @Override
     public void onPositiveButtonClicked(int requestCode) {
-        switch (requestCode){
-            case DIALOG_PICK_IMAGE :
+        switch (requestCode) {
+            case DIALOG_PICK_IMAGE:
                 ImageUtils.startTakeNewPictureIntent(this, recording.generateImageFile(Recording.IMAGE_DIR),
                         Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                 break;
@@ -232,8 +234,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
 
     @Override
     public void onNegativeButtonClicked(int requestCode) {
-        switch (requestCode){
-            case DIALOG_PICK_IMAGE :
+        switch (requestCode) {
+            case DIALOG_PICK_IMAGE:
                 ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
         }
     }
@@ -285,13 +287,12 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                         // this should reload the services and the list should auto refresh
                         // from the content observer
                         startService(new Intent(this, ApiSyncService.class)
-                                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                                        .setData(Content.ME_CONNECTIONS.uri));
+                                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                .setData(Content.ME_CONNECTIONS.uri));
                     }
                 }
         }
     }
-
 
 
 }

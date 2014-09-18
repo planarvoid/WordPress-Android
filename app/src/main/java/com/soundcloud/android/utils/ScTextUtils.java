@@ -45,15 +45,15 @@ public class ScTextUtils {
     private ScTextUtils() {
     }
 
-    public static boolean isBlank(@Nullable String string){
+    public static boolean isBlank(@Nullable String string) {
         return Strings.isNullOrEmpty(nullToEmpty(string).trim());
     }
 
-    public static boolean isNotBlank(@Nullable String string){
+    public static boolean isNotBlank(@Nullable String string) {
         return !isBlank(string);
     }
 
-    public static String safeToString(@Nullable Object object){
+    public static String safeToString(@Nullable Object object) {
         return object == null ? EMPTY_STRING : object.toString();
     }
 
@@ -81,7 +81,9 @@ public class ScTextUtils {
      * @return spanned text
      */
     public static Spanned fromHtml(String source) {
-        if (source == null || TextUtils.isEmpty(source)) return new SpannedString(EMPTY_STRING);
+        if (source == null || TextUtils.isEmpty(source)) {
+            return new SpannedString(EMPTY_STRING);
+        }
 
         source = source.replace(System.getProperty("line.separator"), "<br/>");
 
@@ -101,9 +103,9 @@ public class ScTextUtils {
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
      *
-     * @param view the textview
-     * @param link the link to set, or null to use the whole text
-     * @param listener the listener
+     * @param view      the textview
+     * @param link      the link to set, or null to use the whole text
+     * @param listener  the listener
      * @param underline underline the text
      * @param highlight highlight the clickable text on state change
      * @return true if the link was added
@@ -117,11 +119,13 @@ public class ScTextUtils {
         if (link != null) {
             start = string.indexOf(link);
             end = start + link.length();
-            if (start == -1) return false;
+            if (start == -1) {
+                return false;
+            }
         }
 
         if (text instanceof Spannable) {
-            ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ((Spannable) text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
             SpannableString s = SpannableString.valueOf(text);
             if (s != null) {  // robolectric
@@ -134,7 +138,9 @@ public class ScTextUtils {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        if (!highlight) view.setHighlightColor(Color.TRANSPARENT); // it will highlight by default
+        if (!highlight) {
+            view.setHighlightColor(Color.TRANSPARENT);
+        } // it will highlight by default
         return true;
     }
 
@@ -142,7 +148,7 @@ public class ScTextUtils {
         return String.format(Locale.ENGLISH, "%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
-    public static String getClippedString(String string, int maxLength){
+    public static String getClippedString(String string, int maxLength) {
         checkArgument(isNotBlank(string), "String must be non null/not empty");
         int length = (string.length() < maxLength) ? string.length() : maxLength;
         return string.substring(0, length);
@@ -176,18 +182,19 @@ public class ScTextUtils {
     }
 
     public static boolean usesSameTimeElapsedString(double elapsedSeconds1, double elapsedSeconds2) {
-        if (elapsedSeconds1 < 60)
+        if (elapsedSeconds1 < 60) {
             return (int) elapsedSeconds1 == (int) elapsedSeconds2;
-        else if (elapsedSeconds1 < 3600)
+        } else if (elapsedSeconds1 < 3600) {
             return (int) (elapsedSeconds1 / 60) == (int) (elapsedSeconds2 / 60);
-        else if (elapsedSeconds1 < 86400)
+        } else if (elapsedSeconds1 < 86400) {
             return (int) (elapsedSeconds1 / 3600) == (int) (elapsedSeconds2 / 3600);
-        else if (elapsedSeconds1 < 2592000)
+        } else if (elapsedSeconds1 < 2592000) {
             return (int) (elapsedSeconds1 / 86400) == (int) (elapsedSeconds2 / 86400);
-        else if (elapsedSeconds1 < 31536000)
+        } else if (elapsedSeconds1 < 31536000) {
             return (int) (elapsedSeconds1 / 2592000) == (int) (elapsedSeconds2 / 2592000);
-        else
+        } else {
             return (int) (elapsedSeconds1 / 31536000) == (int) (elapsedSeconds2 / 31536000);
+        }
     }
 
     public static String formatSecondsOrMinutes(Resources resources, long time, TimeUnit unit) {
@@ -199,18 +206,19 @@ public class ScTextUtils {
     }
 
     public static String formatTimeElapsed(Resources r, double elapsedSeconds, boolean longerText) {
-        if (elapsedSeconds < 60)
+        if (elapsedSeconds < 60) {
             return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
-        else if (elapsedSeconds < 3600)
+        } else if (elapsedSeconds < 3600) {
             return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsedSeconds / 60), (int) (elapsedSeconds / 60));
-        else if (elapsedSeconds < 86400)
+        } else if (elapsedSeconds < 86400) {
             return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsedSeconds / 3600), (int) (elapsedSeconds / 3600));
-        else if (elapsedSeconds < 2592000)
+        } else if (elapsedSeconds < 2592000) {
             return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsedSeconds / 86400), (int) (elapsedSeconds / 86400));
-        else if (elapsedSeconds < 31536000)
+        } else if (elapsedSeconds < 31536000) {
             return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsedSeconds / 2592000), (int) (elapsedSeconds / 2592000));
-        else
+        } else {
             return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
+        }
     }
 
     public static String formatTimeElapsed(Resources r, long elapsedSeconds) {
@@ -266,7 +274,9 @@ public class ScTextUtils {
 
         @Override
         public void onClick(View widget) {
-            if (listener != null) listener.onClick();
+            if (listener != null) {
+                listener.onClick();
+            }
         }
 
         @Override
@@ -301,7 +311,7 @@ public class ScTextUtils {
         final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
     }
 
-    public static String formatNumberWithCommas(long number){
+    public static String formatNumberWithCommas(long number) {
         return DECIMAL_FORMAT.format(number);
     }
 
@@ -312,7 +322,7 @@ public class ScTextUtils {
         return format;
     }
 
-    private static String shortenFactorialNumber(double number){
+    private static String shortenFactorialNumber(double number) {
         return ROUNDED_FORMAT.format(number);
     }
 
@@ -333,12 +343,12 @@ public class ScTextUtils {
             return EMPTY_STRING;
         } else if (number <= 9999) {
             return formatNumberWithCommas(number);
-        } else if (number <= 999999){
-            return shortenFactorialNumber(number/1000.0) + "K";
-        } else if (number <= 999999999){
-            return shortenFactorialNumber(number/1000000.0) + "M";
+        } else if (number <= 999999) {
+            return shortenFactorialNumber(number / 1000.0) + "K";
+        } else if (number <= 999999999) {
+            return shortenFactorialNumber(number / 1000000.0) + "M";
         } else {
-            return shortenFactorialNumber(number/1000000000.0) + "BN";
+            return shortenFactorialNumber(number / 1000000000.0) + "BN";
         }
     }
 }

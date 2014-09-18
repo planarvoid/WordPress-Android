@@ -63,11 +63,11 @@ public class TrackSourceInfo {
         return playlistOwnerId;
     }
 
-    public boolean hasSource(){
+    public boolean hasSource() {
         return ScTextUtils.isNotBlank(source);
     }
 
-    public boolean isFromPlaylist(){
+    public boolean isFromPlaylist() {
         return playlistId > 0;
     }
 
@@ -77,7 +77,9 @@ public class TrackSourceInfo {
                 .add("originScreen", originScreen)
                 .add("userTriggered", userTriggered);
 
-        if (hasSource()) toStringHelper.add("source", source).add("sourceVersion", sourceVersion);
+        if (hasSource()) {
+            toStringHelper.add("source", source).add("sourceVersion", sourceVersion);
+        }
         if (isFromPlaylist()) {
             toStringHelper.add("playlistId", playlistId)
                     .add("playlistPos", playlistPosition)

@@ -43,7 +43,9 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
             uri = resolved;
         }
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resolving uri "+uri+" remotely");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "resolving uri " + uri + " remotely");
+        }
         Uri resolvedUri = new ResolveTask(api).resolve(uri);
         if (resolvedUri != null) {
             try {
@@ -60,9 +62,9 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
 
     private PublicApiResource fetchResource(Uri resolvedUri) {
         final Request request = Request.to(resolvedUri.getPath() +
-            (resolvedUri.getQuery() != null ? ("?"+resolvedUri.getQuery()) : ""));
+                (resolvedUri.getQuery() != null ? ("?" + resolvedUri.getQuery()) : ""));
 
-        return new FetchModelTask(api){
+        return new FetchModelTask(api) {
             @Override
             protected void persist(PublicApiResource scResource) {
                 new BulkStorage(contentResolver).bulkInsert(Lists.newArrayList(scResource));
@@ -94,7 +96,9 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
         return "soundcloud.com".equals(uri.getHost()) && uri.getPath().startsWith("/-/t/click");
     }
 
-    static @NotNull Uri extractClickTrackingRedirectUrl(Uri uri) {
+    static
+    @NotNull
+    Uri extractClickTrackingRedirectUrl(Uri uri) {
         if (isClickTrackingUrl(uri)) {
             String url = uri.getQueryParameter("url");
             if (!TextUtils.isEmpty(url)) {
@@ -105,13 +109,14 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     }
 
     //only handle the first 3 path segments (resource only for now, actions to be implemented later)
-    /* package */ static Uri fixUri(Uri data) {
+    /* package */
+    static Uri fixUri(Uri data) {
         if (!data.getPathSegments().isEmpty()) {
             final int cutoff;
             final int segments = data.getPathSegments().size();
             if (segments > 1 &&
                     ("follow".equals(data.getPathSegments().get(1)) ||
-                     "favorite".equals(data.getPathSegments().get(1)))) {
+                            "favorite".equals(data.getPathSegments().get(1)))) {
                 cutoff = 1;
             } else {
                 cutoff = segments;

@@ -40,12 +40,12 @@ import java.lang.reflect.Method;
 
 /**
  * https://github.com/paramvir-b/AndroidGridViewCompatLib
- *
+ * <p/>
  * This class is based on the GridView. We need to create this class as multiselection comes in API
  * 10 into GridView. So lot of code is copied from the Android Source Code. APIs which we are
  * implementing here are suffixed with 'C' to avoid recursion which when you try to call the API
  * using reflection. So we made the signature different.
- *
+ * <p/>
  * <pre>
  * Ref code:
  * https://github.com/android/platform_frameworks_base/blob/master/core/java/android/widget/GridView.java
@@ -94,7 +94,7 @@ public class GridViewCompat extends GridView {
             gridView_getCheckedItemIds =
                     GridView.class.getMethod("getCheckedItemIds", (Class<?>[]) null);
             gridView_isItemChecked =
-                    GridView.class.getMethod("isItemChecked", new Class[] {
+                    GridView.class.getMethod("isItemChecked", new Class[]{
                             int.class
                     });
             gridView_getCheckedItemPosition =
@@ -103,12 +103,12 @@ public class GridViewCompat extends GridView {
                     GridView.class.getMethod("getCheckedItemPositions", (Class<?>[]) null);
             gridView_clearChoices = GridView.class.getMethod("clearChoices", (Class<?>[]) null);
             gridView_setItemChecked =
-                    GridView.class.getMethod("setItemChecked", new Class[] {
+                    GridView.class.getMethod("setItemChecked", new Class[]{
                             int.class,
                             boolean.class
                     });
             gridView_setChoiceMode =
-                    GridView.class.getMethod("setChoiceMode", new Class[] {
+                    GridView.class.getMethod("setChoiceMode", new Class[]{
                             int.class
                     });
             gridView_getCheckedItemCount =
@@ -156,7 +156,7 @@ public class GridViewCompat extends GridView {
     /**
      * SparseArrays map longs to Objects. Unlike a normal array of Objects, there can be gaps in the
      * indices. It is intended to be more efficient than using a HashMap to map Longs to Objects.
-     *
+     * <p/>
      * <pre>
      * Source : https://github.com/android/platform_frameworks_base/blob/master/core/java/android/util/LongSparseArray.java
      * </pre>
@@ -199,7 +199,7 @@ public class GridViewCompat extends GridView {
         /**
          * Sets all supplied keys to the given unique value.
          *
-         * @param keyArray Keys to set
+         * @param keyArray    Keys to set
          * @param uniqueValue Value to set all supplied keys to
          */
         public void setValues(long[] keyArray, E uniqueValue) {
@@ -402,8 +402,9 @@ public class GridViewCompat extends GridView {
             }
 
             for (int i = 0; i < size; i++)
-                if (values[i] == value)
+                if (values[i] == value) {
                     return i;
+                }
 
             return -1;
         }
@@ -463,18 +464,20 @@ public class GridViewCompat extends GridView {
             while (high - low > 1) {
                 guess = (high + low) / 2;
 
-                if (a[guess] < key)
+                if (a[guess] < key) {
                     low = guess;
-                else
+                } else {
                     high = guess;
+                }
             }
 
-            if (high == start + len)
+            if (high == start + len) {
                 return ~(start + len);
-            else if (a[high] == key)
+            } else if (a[high] == key) {
                 return high;
-            else
+            } else {
                 return ~high;
+            }
         }
 
         private void checkIntegrity() {
@@ -502,7 +505,7 @@ public class GridViewCompat extends GridView {
     /**
      * ArrayUtils contains some methods that you can call to find out the most efficient increments
      * by which to grow arrays. *
-     *
+     * <p/>
      * <pre>
      * Source : https://github.com/android/platform_frameworks_base/blob/master/core/java/com/android/internal/util/ArrayUtils.java
      * </pre>
@@ -517,8 +520,9 @@ public class GridViewCompat extends GridView {
 
         public static int idealByteArraySize(int need) {
             for (int i = 4; i < 32; i++)
-                if (need <= (1 << i) - 12)
+                if (need <= (1 << i) - 12) {
                     return (1 << i) - 12;
+                }
 
             return need;
         }
@@ -608,11 +612,13 @@ public class GridViewCompat extends GridView {
         public static <T> boolean contains(T[] array, T value) {
             for (T element : array) {
                 if (element == null) {
-                    if (value == null)
+                    if (value == null) {
                         return true;
+                    }
                 } else {
-                    if (value != null && element.equals(value))
+                    if (value != null && element.equals(value)) {
                         return true;
+                    }
                 }
             }
             return false;
@@ -717,13 +723,14 @@ public class GridViewCompat extends GridView {
     /**
      * WARN Do not call the default api
      *
-     * @see #setChoiceMode(int)
      * @return The current choice mode
+     * @see #setChoiceMode(int)
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public int getChoiceMode() {
-        if (!inCompatibleMode && gridView_getChoiceMode != null)
+        if (!inCompatibleMode && gridView_getChoiceMode != null) {
             return super.getChoiceMode();
+        }
         return choiceModeC;
     }
 
@@ -865,7 +872,7 @@ public class GridViewCompat extends GridView {
 
     /**
      * WARN Do not call the default api
-     *
+     * <p/>
      * <pre>
      *
      * public void setItemChecked(int position, boolean value) {
@@ -1072,8 +1079,9 @@ public class GridViewCompat extends GridView {
      */
     @Override
     public boolean performItemClick(View view, int position, long id) {
-        if (!inCompatibleMode)
+        if (!inCompatibleMode) {
             return super.performItemClick(view, position, id);
+        }
 
         boolean handled = false;
         boolean dispatchItemClick = true;

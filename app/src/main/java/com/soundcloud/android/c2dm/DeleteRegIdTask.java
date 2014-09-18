@@ -2,8 +2,8 @@ package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.c2dm.C2DMReceiver.TAG;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -24,12 +24,16 @@ public class DeleteRegIdTask extends AsyncApiTask<String, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if (lock != null) lock.acquire();
+        if (lock != null) {
+            lock.acquire();
+        }
     }
 
     @Override
     protected void onPostExecute(Boolean success) {
-        if (lock != null) lock.release();
+        if (lock != null) {
+            lock.release();
+        }
     }
 
     @Override
@@ -39,22 +43,28 @@ public class DeleteRegIdTask extends AsyncApiTask<String, Void, Boolean> {
             final int code = resp.getStatusLine().getStatusCode();
             switch (code) {
                 case HttpStatus.SC_OK:
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "deleted remote device "+params[0]);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "deleted remote device " + params[0]);
+                    }
                     return true;
                 case HttpStatus.SC_NOT_FOUND:
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "already deleted remote device "+params[0]);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "already deleted remote device " + params[0]);
+                    }
                     return true;
                 case HttpStatus.SC_FORBIDDEN:
                     // this happens when user logs into different account - just give up in this case
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "cannot delete device (forbidden) "+params[0]);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "cannot delete device (forbidden) " + params[0]);
+                    }
                     return true;
                 default:
-                    Log.w(TAG, DeleteRegIdTask.class.getSimpleName()+": unexpected status code "
+                    Log.w(TAG, DeleteRegIdTask.class.getSimpleName() + ": unexpected status code "
                             + resp.getStatusLine());
                     return false;
             }
         } catch (IOException e) {
-            Log.w(TAG, getClass().getSimpleName()+": unexpected IO error", e);
+            Log.w(TAG, getClass().getSimpleName() + ": unexpected IO error", e);
             return false;
         }
     }

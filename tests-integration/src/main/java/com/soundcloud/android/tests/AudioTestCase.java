@@ -106,7 +106,9 @@ public abstract class AudioTestCase extends ScAndroidTestCase {
             //assertEquals(expectedDuration, duration);
             assertTrue(duration > 0);
         } finally {
-            if (mp != null) mp.release();
+            if (mp != null) {
+                mp.release();
+            }
         }
     }
 

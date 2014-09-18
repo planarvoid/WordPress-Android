@@ -98,7 +98,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
-                               ApplicationProperties applicationProperties) {
+                            ApplicationProperties applicationProperties) {
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
                 ANDROID_REDIRECT_URI, accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
@@ -110,7 +110,9 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                              DeviceHelper deviceHelper) {
         super(clientId, clientSecret, redirectUri, accountOperations.getSoundCloudToken());
         // context can be null in tests
-        if (context == null) return;
+        if (context == null) {
+            return;
+        }
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.applicationProperties = applicationProperties;
         this.context = context;
@@ -329,7 +331,9 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             } finally {
                 IOUtils.close(inputStream);
             }
-            if (holder == null) throw new IOException("invalid data");
+            if (holder == null) {
+                throw new IOException("invalid data");
+            }
 
             if (holder.collection != null) {
                 objects.addAll(holder.collection);

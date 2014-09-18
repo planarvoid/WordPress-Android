@@ -18,10 +18,15 @@ import java.util.List;
  */
 public class ResolverHelper {
 
-    private ResolverHelper() {}
+    private ResolverHelper() {
+    }
 
-    public static @NotNull List<Long> idCursorToList(Cursor c) {
-        if (c == null) return Collections.emptyList();
+    public static
+    @NotNull
+    List<Long> idCursorToList(Cursor c) {
+        if (c == null) {
+            return Collections.emptyList();
+        }
         List<Long> ids = new ArrayList<Long>(c.getCount());
         while (c.moveToNext()) {
             ids.add(c.getLong(0));
@@ -30,7 +35,7 @@ public class ResolverHelper {
         return ids;
     }
 
-    public static String getWhereInClause(String column, int size){
+    public static String getWhereInClause(String column, int size) {
         StringBuilder sb = new StringBuilder(column).append(" IN (?");
         for (int i = 1; i < size; i++) {
             sb.append(",?");
@@ -49,7 +54,7 @@ public class ResolverHelper {
         return idList;
     }
 
-    public static Uri addIdOnlyParameter(Uri uri){
+    public static Uri addIdOnlyParameter(Uri uri) {
         return uri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build();
     }
 

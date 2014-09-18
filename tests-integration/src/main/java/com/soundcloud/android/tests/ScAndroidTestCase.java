@@ -48,8 +48,12 @@ public abstract class ScAndroidTestCase extends AndroidTestCase {
     protected File externalPath(String name) {
         checkStorage();
         File file = new File(new File(Environment.getExternalStorageDirectory(), Runner.TEST_DIR), name);
-        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) fail("could not create "+file.getParentFile());
-        if (file.exists() && !file.delete()) fail("could not delete " + file);
+        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+            fail("could not create " + file.getParentFile());
+        }
+        if (file.exists() && !file.delete()) {
+            fail("could not delete " + file);
+        }
         return file;
     }
 
@@ -64,7 +68,7 @@ public abstract class ScAndroidTestCase extends AndroidTestCase {
 
     protected String newFilename(String name, String suffix) {
         int dot = name.lastIndexOf('.');
-        if (dot != -1 && dot+1 < name.length()) {
+        if (dot != -1 && dot + 1 < name.length()) {
             return name.substring(0, dot) + suffix + name.substring(dot, name.length());
         } else {
             return name + suffix;

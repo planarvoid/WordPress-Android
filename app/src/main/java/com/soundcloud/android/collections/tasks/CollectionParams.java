@@ -23,7 +23,9 @@ public class CollectionParams<T extends ScModel> {
     }
 
     public Uri getPagedUri() {
-        if (contentUri == null) return null;
+        if (contentUri == null) {
+            return null;
+        }
 
         Uri.Builder b = contentUri.buildUpon();
         if (startIndex > 0) {

@@ -1,4 +1,3 @@
-
 package com.soundcloud.android.collections;
 
 import com.google.common.base.Function;
@@ -98,7 +97,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return data.get(location);
     }
 
-    public @NotNull List<T> getItems() {
+    public
+    @NotNull
+    List<T> getItems() {
         return data;
     }
 
@@ -134,7 +135,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (position >= data.size()) return AdapterView.INVALID_ROW_ID;
+        if (position >= data.size()) {
+            return AdapterView.INVALID_ROW_ID;
+        }
 
         final T item = getItem(position);
         if (item.getListItemId() != -1) {
@@ -190,7 +193,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return getCount() == 0;
     }
 
-    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
+    public void updateItems(Map<Urn, PublicApiResource> updatedItems) {
         notifyDataSetChanged();
     }
 
@@ -259,7 +262,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     }
 
     protected void checkForStaleItems(@NotNull Context context, List<? extends ScModel> items) {
-        if (items.isEmpty()) return;
+        if (items.isEmpty()) {
+            return;
+        }
 
         final boolean onWifi = IOUtils.isWifiConnected(context);
         Set<Long> trackUpdates = new HashSet<Long>();

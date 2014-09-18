@@ -46,7 +46,7 @@ public class PlaybackStream implements Parcelable {
         trimWindow[1] = 1.0f;
     }
 
-    public long getDuration(){
+    public long getDuration() {
         return endPos - startPos;
     }
 
@@ -59,17 +59,21 @@ public class PlaybackStream implements Parcelable {
     }
 
     public TrimPreview setStartPositionByPercent(float newPos, long moveTime) {
-        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal start percent " + newPos);
+        if (newPos < 0d || newPos > 1d) {
+            throw new IllegalArgumentException("Illegal start percent " + newPos);
+        }
 
         trimWindow[0] = newPos;
 
         final long old = startPos;
         startPos = (long) (newPos * getTotalDuration());
-        return new TrimPreview(this,old, startPos, moveTime);
+        return new TrimPreview(this, old, startPos, moveTime);
     }
 
     public TrimPreview setEndPositionByPercent(float newPos, long moveTime) {
-        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal end percent " + newPos);
+        if (newPos < 0d || newPos > 1d) {
+            throw new IllegalArgumentException("Illegal end percent " + newPos);
+        }
 
         trimWindow[1] = newPos;
 
@@ -176,9 +180,17 @@ public class PlaybackStream implements Parcelable {
         return getTotalDuration() - endPos;
     }
 
-    public boolean isFiltered() { return filter != null || optimize; }
-    public boolean isTrimmed()  { return startPos > 0 || (endPos > 0 && endPos < getTotalDuration()); }
-    public boolean isModified() { return isTrimmed() || isFiltered(); }
+    public boolean isFiltered() {
+        return filter != null || optimize;
+    }
+
+    public boolean isTrimmed() {
+        return startPos > 0 || (endPos > 0 && endPos < getTotalDuration());
+    }
+
+    public boolean isModified() {
+        return isTrimmed() || isFiltered();
+    }
 
     public long getTotalDuration() {
         return playbackFile.getDuration();

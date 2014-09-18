@@ -574,8 +574,12 @@ public class ApiWrapperTest {
             t2.start();
             t1.join();
             t2.join();
-            if (throwable[0] != null) throw throwable[0];
-            if (throwable[1] != null) throw throwable[1];
+            if (throwable[0] != null) {
+                throw throwable[0];
+            }
+            if (throwable[1] != null) {
+                throw throwable[1];
+            }
 
             assertEquals("Hi", Http.getString(api.get(foo)));
         }

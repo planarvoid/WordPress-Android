@@ -9,7 +9,7 @@ public class CheckableImageView extends ImageView implements Checkable {
 
     private boolean isChecked;
 
-    private static final int[] CHECKED_STATE_SET = { android.R.attr.state_checked };
+    private static final int[] CHECKED_STATE_SET = {android.R.attr.state_checked};
 
     public CheckableImageView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
@@ -18,8 +18,9 @@ public class CheckableImageView extends ImageView implements Checkable {
     @Override
     public int[] onCreateDrawableState(final int extraSpace) {
         final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
-        if (isChecked())
+        if (isChecked()) {
             mergeDrawableStates(drawableState, CHECKED_STATE_SET);
+        }
         return drawableState;
     }
 
@@ -35,8 +36,9 @@ public class CheckableImageView extends ImageView implements Checkable {
 
     @Override
     public void setChecked(final boolean checked) {
-        if (isChecked == checked)
+        if (isChecked == checked) {
             return;
+        }
         isChecked = checked;
         refreshDrawableState();
     }

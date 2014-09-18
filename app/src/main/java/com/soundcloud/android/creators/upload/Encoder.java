@@ -3,11 +3,11 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.creators.record.jni.EncoderOptions;
 import com.soundcloud.android.creators.record.jni.ProgressListener;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.BroadcastReceiver;
@@ -37,13 +37,15 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     public void run() {
         Log.d(TAG, "Encoder.run(" + recording + ")");
 
-        final File wav  = recording.getFile();
-        final File ogg  = recording.getEncodedFile();
+        final File wav = recording.getFile();
+        final File ogg = recording.getEncodedFile();
 
         File tmp = null;
         try {
             PlaybackStream stream = recording.getPlaybackStream();
-            if (stream == null) throw new IOException("No playbackstream available");
+            if (stream == null) {
+                throw new IOException("No playbackstream available");
+            }
             final File in;
             if (wav.exists()) {
                 in = wav;
@@ -62,7 +64,9 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
                     this,
                     stream.getPlaybackFilter());
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "encoding from source " + in.getAbsolutePath());
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "encoding from source " + in.getAbsolutePath());
+            }
             tmp = File.createTempFile("encoder-" + recording.getId(), ".ogg", out.getParentFile());
             broadcast(UploadService.PROCESSING_STARTED);
             long now = System.currentTimeMillis();
@@ -114,7 +118,9 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Encoder#onProgress(" + current + ", " + max + ")");
         }
-        if (cancelled) throw new UserCanceledException();
+        if (cancelled) {
+            throw new UserCanceledException();
+        }
 
         if (lastProgressSent == 0 || System.currentTimeMillis() - lastProgressSent > 1000) {
             final int percent = (int) Math.min(100, Math.round(100 * (current / (double) max)));

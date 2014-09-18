@@ -29,7 +29,9 @@ public class VorbisReader extends AudioReader {
     @Override
     public void seek(long pos) throws IOException {
         final int ret = decoder.timeSeek(pos / 1000d);
-        if (ret < 0) throw new IOException("timeSeek("+pos+") returned "+ret);
+        if (ret < 0) {
+            throw new IOException("timeSeek(" + pos + ") returned " + ret);
+        }
     }
 
     @Override
@@ -76,7 +78,9 @@ public class VorbisReader extends AudioReader {
     private VorbisInfo getInfo() {
         if (info == null) {
             info = decoder.getInfo();
-            if (info == null) info = new VorbisInfo();
+            if (info == null) {
+                info = new VorbisInfo();
+            }
         }
         return info;
     }

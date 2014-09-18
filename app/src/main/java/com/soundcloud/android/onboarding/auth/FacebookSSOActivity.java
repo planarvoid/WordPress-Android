@@ -1,12 +1,12 @@
 package com.soundcloud.android.onboarding.auth;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.TempEndpoints;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
@@ -61,9 +61,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
 
     // permissions used by SoundCloud (also backend) - only email is required for successful signup
     private static final String[] DEFAULT_PERMISSIONS = {
-        "publish_actions",
-        "email",
-        "user_birthday",
+            "publish_actions",
+            "email",
+            "user_birthday",
     };
 
     // intents coming from the Facebook app start with this string (action)
@@ -94,7 +94,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
          * Workaround for https://code.google.com/p/android/issues/detail?id=17787
          * Login fragment has to be shown on or after onResume
          */
-        if (loginBundle != null){
+        if (loginBundle != null) {
             login(loginBundle);
             loginBundle = null;
         }
@@ -106,7 +106,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             try {
                 final FBToken token = getTokenFromIntent(data);
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "got token: "+token);
+                    Log.d(TAG, "got token: " + token);
                 }
                 token.store(this);
                 // save login bundle for login in onResume
@@ -139,25 +139,35 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
                 // fb deeplink intent, contains short-lived token which can be extended ?
                 FBToken token = FBToken.fromIntent(intent);
                 if (token != null) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "got FB token via intent: "+token);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "got FB token via intent: " + token);
+                    }
 
                     if (token.isShortLived()) {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "token is short lived, extending");
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "token is short lived, extending");
+                        }
                         extendAccessToken(token, context);
                     } else {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "token is long-lived");
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "token is long-lived");
+                        }
                         // we already got a long-lived token, store it
                         token.store(context);
                         token.sendToBackend(context);
                     }
                 }
                 return true;
-            } else return false;
+            } else {
+                return false;
+            }
         }
     }
 
     public static boolean extendAccessTokenIfNeeded(Context context) {
-        if (!isSupported(context)) return false;
+        if (!isSupported(context)) {
+            return false;
+        }
 
         FBToken token = FBToken.load(context);
         return token.shouldRefresh() && extendAccessToken(token, context);
@@ -167,13 +177,15 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
         return FacebookSSOActivity.validateActivityIntent(context, FacebookSSOActivity.getAuthIntent(context));
     }
 
-    /* package */ static Intent getRefreshIntent() {
+    /* package */
+    static Intent getRefreshIntent() {
         Intent intent = new Intent();
         intent.setClassName(FB_PACKAGE, "com.facebook.katana.platform.TokenRefreshService");
         return intent;
     }
 
-    /* package */ static Intent getAuthIntent(Context context, String... permissions) {
+    /* package */
+    static Intent getAuthIntent(Context context, String... permissions) {
         final String applicationId = getFacebookAppId(context);
         Intent intent = new Intent();
         intent.setClassName(FB_PACKAGE, "com.facebook.katana.ProxyAuth");
@@ -215,8 +227,11 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
         }
     }
 
-    /* package */ static boolean extendAccessToken(final FBToken token, final Context context) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "extendAccessToken("+token+")");
+    /* package */
+    static boolean extendAccessToken(final FBToken token, final Context context) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "extendAccessToken(" + token + ")");
+        }
         return token.accessToken != null &&
                 validateServiceIntent(context, getRefreshIntent()) &&
                 context.bindService(getRefreshIntent(), new ServiceConnection() {
@@ -304,7 +319,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             }
         } else {   // No errors.
             FBToken token = FBToken.fromIntent(data);
-            if (token == null || token.isExpired()) throw new SSOException("session is not valid");
+            if (token == null || token.isExpired()) {
+                throw new SSOException("session is not valid");
+            }
             return token;
         }
     }
@@ -326,13 +343,15 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
     }
 
     public static class FBToken {
-        private static final String TOKEN_TYPE  = "fb_access_token";
-        private static final String PREF_KEY    = "facebook-session";
-        private static final String TOKEN_KEY   = "token";
+        private static final String TOKEN_TYPE = "fb_access_token";
+        private static final String PREF_KEY = "facebook-session";
+        private static final String TOKEN_KEY = "token";
         private static final String EXPIRES_KEY = "expires";
         private static final String LAST_REFRESH_KEY = "lastRefresh";
 
-        /** Tokens can only be refreshed every 24h, otherwise same token will be returned */
+        /**
+         * Tokens can only be refreshed every 24h, otherwise same token will be returned
+         */
         private static final long REFRESH_TOKEN_BARRIER = 24L * 60L * 60L * 1000L;
 
         final String accessToken;
@@ -340,11 +359,11 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
         /**
          * This will be 0 if offline_access is requested and migration setting has not been enabled.
          * If the migration setting is enabled a new token will be valid for 60 days after authorisation.
-         *
+         * <p/>
          * The token can be extended afterwards, using
          * {@link FacebookSSOActivity#extendAccessToken(FacebookSSOActivity.FBToken,
          * android.content.Context)}
-         *
+         * <p/>
          * If migration setting is not enabled and no offline_access is required a short lived (1h) token  will be issued
          * (which cannot be extended).
          */
@@ -378,7 +397,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             return new PostTokenTask(new PublicApi(context)).execute(this);
         }
 
-        public static @NotNull FBToken load(Context context) {
+        public static
+        @NotNull
+        FBToken load(Context context) {
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
             FBToken token = new FBToken(prefs.getString(TOKEN_KEY, null), prefs.getLong(EXPIRES_KEY, 0));
             token.lastRefresh = prefs.getLong(LAST_REFRESH_KEY, 0);
@@ -395,7 +416,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
         }
 
         public boolean isShortLived() {
-            return (expires - System.currentTimeMillis()) <=  120 * 1000 * 60; // short-lived == 1-2 hours
+            return (expires - System.currentTimeMillis()) <= 120 * 1000 * 60; // short-lived == 1-2 hours
         }
 
         public static void clear(Context context) {
@@ -405,7 +426,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             editor.apply();
         }
 
-        public @Nullable static FBToken fromIntent(@NotNull Intent intent) {
+        public
+        @Nullable
+        static FBToken fromIntent(@NotNull Intent intent) {
             if (intent.hasExtra(TOKEN) && intent.hasExtra(EXPIRES)) {
                 String token = intent.getStringExtra(TOKEN);
                 String expiresIn = intent.getStringExtra(EXPIRES);
@@ -427,11 +450,11 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             // NB: for security reasons make sure not to log the full access token here
             return "Token{" +
                     "accessToken='" +
-                        (accessToken != null ?
-                         accessToken.substring(0, Math.min(accessToken.length(), 10)) + "..." : null)  +
+                    (accessToken != null ?
+                            accessToken.substring(0, Math.min(accessToken.length(), 10)) + "..." : null) +
                     "', expires=" + expires + (expires > 0 ? " (" + new Date(expires) + ")" : "") +
                     ", lastRefresh=" + lastRefresh + (lastRefresh > 0 ? " (" + new Date(lastRefresh) + ")" : "") +
-                    ", tokenHash="+ (accessToken != null ? IOUtils.md5(accessToken) : null) +
+                    ", tokenHash=" + (accessToken != null ? IOUtils.md5(accessToken) : null) +
                     '}';
         }
     }
@@ -458,7 +481,9 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
                     + "571b6469b232d8e768a7f7ca04f7abe4a775615916c07940656b58717457b42bd"
                     + "928a2";
 
-    /** Communicates a new token back to the backend */
+    /**
+     * Communicates a new token back to the backend
+     */
     /* package */ static class PostTokenTask extends AsyncApiTask<FBToken, Void, Boolean> {
         public PostTokenTask(PublicCloudAPI api) {
             super(api);
@@ -466,15 +491,21 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
 
         @Override
         protected Boolean doInBackground(FBToken... params) {
-            if (params == null || params.length == 0) throw new IllegalArgumentException();
+            if (params == null || params.length == 0) {
+                throw new IllegalArgumentException();
+            }
             final FBToken token = params[0];
-            if (token.isExpired()) throw new IllegalArgumentException("can not update expired token: "+token);
+            if (token.isExpired()) {
+                throw new IllegalArgumentException("can not update expired token: " + token);
+            }
 
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, getClass().getSimpleName()+"("+token+")");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, getClass().getSimpleName() + "(" + token + ")");
+            }
 
             HttpGet me = new HttpGet("https://graph.facebook.com/me");
-            me.setHeader("Authorization", "OAuth "+token.accessToken);
+            me.setHeader("Authorization", "OAuth " + token.accessToken);
             try {
                 final HttpResponse resp = api.safeExecute(null, me);
                 int status = resp.getStatusLine().getStatusCode();
@@ -483,24 +514,26 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
                     Object id = o.get("id");
                     if (id != null) {
                         final HttpResponse scResp = api.post(Request.to(TempEndpoints.i1.ME_FACEBOOK_TOKEN).with(
-                                "uid",   id.toString(),
+                                "uid", id.toString(),
                                 "token", token.accessToken));
 
                         switch (scResp.getStatusLine().getStatusCode()) {
                             case HttpStatus.SC_OK:
-                                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "updated token");
+                                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                    Log.d(TAG, "updated token");
+                                }
                                 return true;
                             case HttpStatus.SC_NOT_FOUND:
                             case HttpStatus.SC_UNPROCESSABLE_ENTITY:
                             default:
-                                Log.w(TAG, "could not update token: "+scResp.getStatusLine());
+                                Log.w(TAG, "could not update token: " + scResp.getStatusLine());
                                 return false;
                         }
                     } else {
-                        Log.w(TAG, "could not update token, malformed api reply "+id);
+                        Log.w(TAG, "could not update token, malformed api reply " + id);
                     }
                 } else {
-                    throw new IOException("Unexpected status code: "+status);
+                    throw new IOException("Unexpected status code: " + status);
                 }
             } catch (IOException e) {
                 Log.w(TAG, "could not update token", e);

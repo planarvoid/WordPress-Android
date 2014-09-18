@@ -1,12 +1,12 @@
 package com.soundcloud.android.creators.upload;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.onboarding.auth.ConnectActivity;
-import com.soundcloud.android.cache.ConnectionsCache;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.Connection;
+import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.creators.upload.tasks.NewConnectionTask;
+import com.soundcloud.android.onboarding.auth.ConnectActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,7 +36,9 @@ public class ConnectionListLayout extends LinearLayout {
         setLayoutParams();
     }
 
-    /** @noinspection UnusedDeclaration*/
+    /**
+     * @noinspection UnusedDeclaration
+     */
     public ConnectionListLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         setLayoutParams();
@@ -191,7 +193,9 @@ public class ConnectionListLayout extends LinearLayout {
         }
 
         public Adapter loadIfNecessary(Context context) {
-            if (mFailed || mConnections == null) load(context);
+            if (mFailed || mConnections == null) {
+                load(context);
+            }
             return this;
         }
 
@@ -199,7 +203,9 @@ public class ConnectionListLayout extends LinearLayout {
             // try to use cached connections first
             final Set<Connection> connections = ConnectionsCache.get(context).getConnections();
 
-            if (connections != null) setConnections(connections, true);
+            if (connections != null) {
+                setConnections(connections, true);
+            }
             // request update, but only use it if no cached connections were fetched
             ConnectionsCache.get(context).requestConnections(
                     new ConnectionsCache.Listener() {

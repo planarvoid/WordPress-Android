@@ -35,7 +35,7 @@ public class CategoryGroup extends ScModel {
     @NotNull
     public List<SuggestedUser> getAllSuggestedUsers() {
         List<SuggestedUser> allUsers = new ArrayList<SuggestedUser>();
-        for (Category category : mCategories){
+        for (Category category : mCategories) {
             allUsers.addAll(category.getUsers());
         }
         return allUsers;
@@ -69,13 +69,21 @@ public class CategoryGroup extends ScModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         CategoryGroup that = (CategoryGroup) o;
 
-        if (!mKey.equals(that.mKey)) return false;
+        if (!mKey.equals(that.mKey)) {
+            return false;
+        }
 
         return true;
     }

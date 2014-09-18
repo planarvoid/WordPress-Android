@@ -29,7 +29,9 @@ public class WaveformData {
      * @return the waveform data downsampled to the required width
      */
     public WaveformData scale(int requiredWidth) {
-        if (requiredWidth <= 0) throw new IllegalArgumentException("Invalid width: " + requiredWidth);
+        if (requiredWidth <= 0) {
+            throw new IllegalArgumentException("Invalid width: " + requiredWidth);
+        }
         if (requiredWidth == samples.length) {
             return this;
         } else {

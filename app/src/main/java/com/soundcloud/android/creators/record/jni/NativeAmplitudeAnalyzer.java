@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.record.jni;
 
-import com.soundcloud.android.creators.record.AudioConfig;
 import com.soundcloud.android.creators.record.AmplitudeAnalyzer;
+import com.soundcloud.android.creators.record.AudioConfig;
 
 import java.nio.ByteBuffer;
 
@@ -19,6 +19,7 @@ public class NativeAmplitudeAnalyzer implements AmplitudeAnalyzer {
     }
 
     public native float frameAmplitude(ByteBuffer buffer, int length);
+
     public native int getLastValue();
 
     static {
@@ -26,7 +27,9 @@ public class NativeAmplitudeAnalyzer implements AmplitudeAnalyzer {
             System.loadLibrary("native_amplitude_analyzer");
         } catch (UnsatisfiedLinkError e) {
             // only ignore exception in non-android env
-            if ("Dalvik".equals(System.getProperty("java.vm.name"))) throw e;
+            if ("Dalvik".equals(System.getProperty("java.vm.name"))) {
+                throw e;
+            }
         }
     }
 }

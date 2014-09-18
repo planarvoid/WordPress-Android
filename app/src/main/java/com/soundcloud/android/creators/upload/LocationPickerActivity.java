@@ -46,12 +46,12 @@ import java.util.List;
 
 public class LocationPickerActivity extends ListActivity {
 
-    public static final String EXTRA_LATITUDE  = "latitude";
+    public static final String EXTRA_LATITUDE = "latitude";
     public static final String EXTRA_LONGITUDE = "longitude";
-    public static final String EXTRA_NAME      = "name";
-    public static final String EXTRA_4SQ_ID    = "id";
-    public static final String EXTRA_LOCATION  = "location";
-    public static final String EXTRA_VENUES    = "venues";
+    public static final String EXTRA_NAME = "name";
+    public static final String EXTRA_4SQ_ID = "id";
+    public static final String EXTRA_LOCATION = "location";
+    public static final String EXTRA_VENUES = "venues";
 
     private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
     private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
@@ -77,8 +77,8 @@ public class LocationPickerActivity extends ListActivity {
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
-                    (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
-                     event.getAction() == KeyEvent.ACTION_DOWN)) {
+                        (event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                                event.getAction() == KeyEvent.ACTION_DOWN)) {
                     Intent data = new Intent();
 
                     data.setData(Uri.parse("location://manual"));
@@ -105,7 +105,9 @@ public class LocationPickerActivity extends ListActivity {
 
         final Intent intent = getIntent();
         if (intent != null) {
-            if (intent.hasExtra(EXTRA_NAME)) where.setText(intent.getStringExtra(EXTRA_NAME));
+            if (intent.hasExtra(EXTRA_NAME)) {
+                where.setText(intent.getStringExtra(EXTRA_NAME));
+            }
             if (intent.hasExtra(EXTRA_LOCATION)) {
                 location = intent.getParcelableExtra(EXTRA_LOCATION);
             }
@@ -116,7 +118,9 @@ public class LocationPickerActivity extends ListActivity {
         }
 
         if (location == null) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) Log.v(TAG, "best provider: " + provider);
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                Log.v(TAG, "best provider: " + provider);
+            }
             location = getManager().getLastKnownLocation(provider);
         }
 
@@ -126,7 +130,8 @@ public class LocationPickerActivity extends ListActivity {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.location_picker_no_providers_enabled)
                         .setPositiveButton(R.string.location_picker_go_to_settings, new Dialog.OnClickListener() {
-                            @Override public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                                 } catch (ActivityNotFoundException ignored) {
@@ -265,8 +270,8 @@ public class LocationPickerActivity extends ListActivity {
         public void onLocationChanged(Location location) {
             if (location != null) {
                 if (LocationPickerActivity.this.location != null &&
-                   !LocationPickerActivity.this.location.equals(location) &&
-                    LocationPickerActivity.this.location.distanceTo(location) < MIN_DISTANCE) {
+                        !LocationPickerActivity.this.location.equals(location) &&
+                        LocationPickerActivity.this.location.distanceTo(location) < MIN_DISTANCE) {
                     // the preloaded location was good enough, stop here
                     getManager().removeUpdates(this);
                 } else {
@@ -288,14 +293,19 @@ public class LocationPickerActivity extends ListActivity {
         }
 
         private void loadVenues(Location loc, int max) {
-            if (loc == null) return;
+            if (loc == null) {
+                return;
+            }
             new FoursquareVenueTask(max) {
-                @Override protected void onPreExecute() {
+                @Override
+                protected void onPreExecute() {
                     if (venues == null || venues.isEmpty()) {
                         showDialog(LOADING);
                     }
                 }
-                @Override protected void onPostExecute(List<FoursquareVenue> venues) {
+
+                @Override
+                protected void onPostExecute(List<FoursquareVenue> venues) {
                     try {
                         dismissDialog(LOADING);
                     } catch (IllegalArgumentException ignored) {
@@ -313,8 +323,8 @@ public class LocationPickerActivity extends ListActivity {
         public void onProviderEnabled(String name) {
             LocationProvider provider = getManager().getProvider(name);
             if (provider != null &&
-                LocationPickerActivity.this.provider != null &&
-                getManager().getProvider(LocationPickerActivity.this.provider).getAccuracy() > provider.getAccuracy()) {
+                    LocationPickerActivity.this.provider != null &&
+                    getManager().getProvider(LocationPickerActivity.this.provider).getAccuracy() > provider.getAccuracy()) {
                 // this provider is better, use it
                 requestLocationUpdates(name, this);
                 LocationPickerActivity.this.provider = name;

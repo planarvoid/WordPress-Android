@@ -4,10 +4,10 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.IOUtils;
@@ -62,7 +62,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     @Override
     public void run() {
-        Log.d(UploadService.TAG, "Uploader.run("+ upload +")");
+        Log.d(UploadService.TAG, "Uploader.run(" + upload + ")");
 
         try {
             upload(0);
@@ -78,8 +78,12 @@ public class Uploader extends BroadcastReceiver implements Runnable {
      */
     private boolean upload(int tries) {
         final File toUpload = upload.getUploadFile();
-        if (toUpload == null || !toUpload.exists()) throw new IllegalArgumentException("File to be uploaded does not exist");
-        if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
+        if (toUpload == null || !toUpload.exists()) {
+            throw new IllegalArgumentException("File to be uploaded does not exist");
+        }
+        if (toUpload.length() == 0) {
+            throw new IllegalArgumentException("File to be uploaded is empty");
+        }
 
         final FileBody soundBody = new FileBody(toUpload);
         final FileBody artworkBody = upload.hasArtwork() ? new FileBody(upload.getArtwork()) : null;
@@ -87,7 +91,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 
         try {
-            if (isCancelled()) throw new UserCanceledException();
+            if (isCancelled()) {
+                throw new UserCanceledException();
+            }
             Log.v(TAG, "starting upload of " + toUpload);
 
             broadcast(UploadService.TRANSFER_STARTED);
@@ -96,7 +102,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
                 @Override
                 public void transferred(long transferred) throws IOException {
-                    if (isCancelled()) throw new UserCanceledException();
+                    if (isCancelled()) {
+                        throw new UserCanceledException();
+                    }
 
                     if (System.currentTimeMillis() - lastPublished > 1000) {
                         final int progress = (int) Math.min(100, (100 * transferred) / totalTransfer);
@@ -117,11 +125,13 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                     return true;
                 case HttpStatus.SC_INTERNAL_SERVER_ERROR:
                     // can happen on sandbox - retry once in this case
-                    if (tries < MAX_TRIES) return upload(tries + 1);
+                    if (tries < MAX_TRIES) {
+                        return upload(tries + 1);
+                    }
 
                     //noinspection fallthrough
                 default:
-                    final String message = String.format(Locale.US,  "Upload failed: %d (%s), try=%d",
+                    final String message = String.format(Locale.US, "Upload failed: %d (%s), try=%d",
                             status.getStatusCode(),
                             status.getReasonPhrase(),
                             tries);
@@ -157,7 +167,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             //request to update my collection
             syncStateManager.forceToStale(Content.ME_SOUNDS);
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Upload successful : " + track);
+            }
 
             upload.markUploaded();
             if (!upload.external_upload) {
@@ -189,7 +201,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     public void onReceive(Context context, Intent intent) {
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
         if (upload.equals(recording)) {
-            Log.d(TAG, "canceling upload of "+ upload);
+            Log.d(TAG, "canceling upload of " + upload);
             cancel();
         }
     }

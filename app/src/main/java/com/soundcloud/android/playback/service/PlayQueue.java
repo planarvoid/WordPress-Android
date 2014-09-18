@@ -75,7 +75,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return !playQueueItems.isEmpty();
     }
 
-    public TrackUrn getUrn(int position){
+    public TrackUrn getUrn(int position) {
         return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : TrackUrn.NOT_SET;
     }
 
@@ -139,8 +139,12 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PlayQueue playQueue = (PlayQueue) o;
         return Objects.equal(playQueueItems, playQueue.playQueueItems);

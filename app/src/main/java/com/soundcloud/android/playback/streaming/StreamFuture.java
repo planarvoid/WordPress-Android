@@ -69,9 +69,13 @@ public class StreamFuture implements Future<ByteBuffer> {
                     wait(millis);
                 }
             }
-            if (canceled) throw new ExecutionException("canceled: "+item, null);
-            else if (!ready) throw new TimeoutException();
-            else return byteBuffer;
+            if (canceled) {
+                throw new ExecutionException("canceled: " + item, null);
+            } else if (!ready) {
+                throw new TimeoutException();
+            } else {
+                return byteBuffer;
+            }
         }
     }
 }

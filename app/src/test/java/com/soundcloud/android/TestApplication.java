@@ -1,9 +1,9 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.creators.record.WavHeader;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.record.WavHeader;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 
@@ -22,6 +22,7 @@ public class TestApplication extends SoundCloudApplication {
     public final Token token;
     public final List<Intent> broadcasts = new ArrayList<Intent>();
     private PublicApiWrapper mCloudApi;
+
     public TestApplication() {
         this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
     }
@@ -32,12 +33,13 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     @Override
-    public void onCreate(){
+    public void onCreate() {
         super.onCreate();
         mCloudApi = PublicApiWrapper.getInstance(this);
         mCloudApi.setToken(token);
     }
-    public PublicCloudAPI getCloudAPI(){
+
+    public PublicCloudAPI getCloudAPI() {
         return mCloudApi;
     }
 
@@ -51,7 +53,9 @@ public class TestApplication extends SoundCloudApplication {
     public static Recording getValidRecording() throws IOException {
         Recording r = new Recording(createEmptyWavFile());
         if (!r.getEncodedFile().exists() &&
-            !r.getEncodedFile().createNewFile()) throw new RuntimeException("could not build encoded file");
+                !r.getEncodedFile().createNewFile()) {
+            throw new RuntimeException("could not build encoded file");
+        }
         fill(r.getEncodedFile());
         return r;
     }
@@ -70,7 +74,7 @@ public class TestApplication extends SoundCloudApplication {
         if (length > 0) {
             RandomAccessFile rf = new RandomAccessFile(tmp, "rw");
             rf.setLength(length);
-            rf.seek(length-1);
+            rf.seek(length - 1);
             rf.write(42);
             rf.close();
         }

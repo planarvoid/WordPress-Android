@@ -34,12 +34,12 @@ public class ScModelManager {
         final int trackCapacity;
         final int userCapacity;
         final int playlistCapacity;
-        if(availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
+        if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
             trackCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
             userCapacity = Ints.saturatedCast((availableMemory * 20) / LOW_MEM_REFERENCE);
             playlistCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
         } else {
-            trackCapacity =  DEFAULT_CACHE_CAPACITY * 4;
+            trackCapacity = DEFAULT_CACHE_CAPACITY * 4;
             userCapacity = DEFAULT_CACHE_CAPACITY * 2;
             playlistCapacity = DEFAULT_CACHE_CAPACITY;
         }
@@ -132,7 +132,9 @@ public class ScModelManager {
         }
     }
 
-    private @Nullable ModelCache getCacheFromUri(Uri uri) {
+    private
+    @Nullable
+    ModelCache getCacheFromUri(Uri uri) {
         switch (Content.match(uri)) {
             case TRACK:
                 return trackCache;
@@ -157,10 +159,14 @@ public class ScModelManager {
      * @param cache optional cache to lookup object in and cache to
      * @return the resource found, or null if no resource found
      */
-    private @Nullable ScModel getModel(Uri uri, @Nullable ModelCache cache) {
+    private
+    @Nullable
+    ScModel getModel(Uri uri, @Nullable ModelCache cache) {
         ScModel resource = null;
 
-        if (cache != null) resource = cache.get(UriUtils.getLastSegmentAsLong(uri));
+        if (cache != null) {
+            resource = cache.get(UriUtils.getLastSegmentAsLong(uri));
+        }
 
         Content c = Content.match(uri);
         if (resource == null) {
@@ -185,12 +191,16 @@ public class ScModelManager {
     public
     @Nullable
     PublicApiTrack getTrack(long id) {
-        if (id < 0) return null;
+        if (id < 0) {
+            return null;
+        }
 
         PublicApiTrack t = trackCache.get(id);
         if (t == null) {
             t = (PublicApiTrack) getModel(Content.TRACK.forId(id), null);
-            if (t != null) trackCache.put(t);
+            if (t != null) {
+                trackCache.put(t);
+            }
         }
         return t;
     }
@@ -198,12 +208,16 @@ public class ScModelManager {
     public
     @Nullable
     PublicApiUser getUser(long id) {
-        if (id < 0) return null;
+        if (id < 0) {
+            return null;
+        }
 
         PublicApiUser u = userCache.get(id);
         if (u == null) {
             u = (PublicApiUser) getModel(Content.USER.forId(id));
-            if (u != null) userCache.put(u);
+            if (u != null) {
+                userCache.put(u);
+            }
         }
         return u;
     }
@@ -212,12 +226,16 @@ public class ScModelManager {
     public
     @Nullable
     PublicApiPlaylist getPlaylist(long id) {
-        if (id < 0) return null;
+        if (id < 0) {
+            return null;
+        }
 
         PublicApiPlaylist p = playlistCache.get(id);
         if (p == null) {
             p = (PublicApiPlaylist) getModel(Content.PLAYLIST.forId(id));
-            if (p != null) playlistCache.put(p);
+            if (p != null) {
+                playlistCache.put(p);
+            }
         }
         return p;
     }
@@ -256,7 +274,9 @@ public class ScModelManager {
     }
 
     public PublicApiTrack cache(@Nullable PublicApiTrack track, PublicApiResource.CacheUpdateMode updateMode) {
-        if (track == null) return null;
+        if (track == null) {
+            return null;
+        }
 
         if (track.user != null) {
             track.user = cache(track.user, updateMode);
@@ -276,7 +296,9 @@ public class ScModelManager {
     }
 
     public PublicApiPlaylist cache(@Nullable PublicApiPlaylist playlist, PublicApiResource.CacheUpdateMode updateMode) {
-        if (playlist == null) return null;
+        if (playlist == null) {
+            return null;
+        }
 
         if (playlist.user != null) {
             playlist.user = cache(playlist.user, updateMode);
@@ -303,7 +325,9 @@ public class ScModelManager {
     }
 
     public PublicApiUser cache(@Nullable PublicApiUser user, PublicApiResource.CacheUpdateMode updateMode) {
-        if (user == null) return null;
+        if (user == null) {
+            return null;
+        }
 
         if (userCache.containsKey(user.getId())) {
             if (updateMode.shouldUpdate()) {

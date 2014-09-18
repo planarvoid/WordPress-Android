@@ -10,26 +10,26 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.APIResponse;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -255,7 +255,9 @@ public class FollowingOperations {
         // make sure the cache reflects the new state of each following
         for (long userId : userIds) {
             final PublicApiUser cachedUser = modelManager.getCachedUser(userId);
-            if (cachedUser != null) cachedUser.user_following = shouldFollow;
+            if (cachedUser != null) {
+                cachedUser.user_following = shouldFollow;
+            }
         }
         // invalidate stream SyncState if necessary
         if (hadNoFollowings && !followStatus.isEmpty()) {

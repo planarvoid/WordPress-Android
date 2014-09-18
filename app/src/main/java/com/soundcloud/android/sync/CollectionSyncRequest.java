@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
@@ -29,7 +29,7 @@ import java.io.IOException;
     private LocalCollection localCollection;
     private ApiSyncResult result;
 
-    public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
+    public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI) {
         this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context));
     }
 
@@ -101,15 +101,24 @@ import java.io.IOException;
         this.result = result;
     }
 
-    @Override @SuppressWarnings("RedundantIfStatement")
+    @Override
+    @SuppressWarnings("RedundantIfStatement")
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CollectionSyncRequest that = (CollectionSyncRequest) o;
 
-        if (action != null ? !action.equals(that.action) : that.action != null) return false;
-        if (contentUri != null ? !contentUri.equals(that.contentUri) : that.contentUri != null) return false;
+        if (action != null ? !action.equals(that.action) : that.action != null) {
+            return false;
+        }
+        if (contentUri != null ? !contentUri.equals(that.contentUri) : that.contentUri != null) {
+            return false;
+        }
         return true;
     }
 
