@@ -1,13 +1,21 @@
 package com.soundcloud.android.sync;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -15,11 +23,6 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.api.legacy.model.Connection;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.tasks.FetchUserTask;
@@ -36,11 +39,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.util.ArrayMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -106,7 +111,7 @@ public class ApiSyncer extends SyncStrategy {
 
                 case ME_LIKES:
                 case ME_SOUNDS:
-                    result = syncSoundAssociations(c, uri, userId);
+                    result = safeSyncSoundAssociations(c, uri, userId);
                     break;
 
                 case PLAYLIST_LOOKUP:
@@ -164,13 +169,12 @@ public class ApiSyncer extends SyncStrategy {
             result.success = true;
         } catch (RuntimeException ex) {
             ErrorUtils.handleSilentException(ex);
-            throw new IOException("Problem parsing activities : " + ex);
+            throw new IOException("Problem syncing activities : " + ex);
         }
         return result;
     }
 
-
-    private ApiSyncResult syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
+    private ApiSyncResult safeSyncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         log("syncSoundAssociations(" + uri + ")");
 
         final Request request = Request.to(content.remoteUri, userId)
@@ -178,6 +182,8 @@ public class ApiSyncer extends SyncStrategy {
                 .with("representation", "mini");
 
         List<SoundAssociation> associations = api.readFullCollection(request, PublicApiResource.ResourceHolder.class);
+        associations = removeInvalidAssociations(userId, associations, request.toUrl());
+
         boolean changed = soundAssociationStorage.syncToLocal(associations, uri);
         ApiSyncResult result = new ApiSyncResult(uri);
         result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
@@ -186,6 +192,26 @@ public class ApiSyncer extends SyncStrategy {
         return result;
     }
 
+    private List<SoundAssociation> removeInvalidAssociations(long userId, List<SoundAssociation> associations, String originalRequest) throws IOException {
+        Iterable invalidAssociations = Iterables.filter(associations, new Predicate<SoundAssociation>() {
+            @Override
+            public boolean apply(SoundAssociation input) {
+                return input.getPlayable() == null;
+            }
+        });
+
+        if (!Iterables.isEmpty(invalidAssociations)) {
+            Map<String,String> logMap = new ArrayMap<>(5);
+            logMap.put("Total SoundAssociation Size ", String.valueOf(associations.size()));
+            logMap.put("Invalid SoundAssociation Size ", String.valueOf(Iterables.size(invalidAssociations)));
+            logMap.put("First Invalid SoundAssociation ", String.valueOf(invalidAssociations.iterator().next()));
+            logMap.put("User Id " , String.valueOf(userId));
+            logMap.put("Original request" , String.valueOf(originalRequest));
+            ErrorUtils.handleSilentException(new IllegalStateException("Problem syncing Sound Associations"), logMap);
+        }
+        Iterables.removeAll(associations, Lists.newArrayList(invalidAssociations));
+        return associations;
+    }
 
 
     private ApiSyncResult syncActivities(Uri uri, String action) throws IOException {

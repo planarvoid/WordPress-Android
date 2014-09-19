@@ -3,6 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 
@@ -76,10 +77,13 @@ import java.io.IOException;
         } catch (PublicCloudAPI.UnexpectedResponseException e) {
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncResult.fromUnexpectedResponseException(contentUri);
-
         } catch (IOException e) {
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncResult.fromIOException(contentUri);
+        } catch (RuntimeException ex) {
+            ErrorUtils.handleSilentException(ex);
+            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
+            result = ApiSyncResult.fromUnexpectedResponseException(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
             PublicApiWrapper.setBackgroundMode(false);

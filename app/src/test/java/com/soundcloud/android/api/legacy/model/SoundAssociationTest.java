@@ -60,7 +60,7 @@ public class SoundAssociationTest {
         a2 = new SoundAssociation(new PublicApiTrack(1), new Date(), SoundAssociation.Type.TRACK_LIKE);
         expect(a1).not.toEqual(a2);
 
-        a2 = new SoundAssociation(new PublicApiPlaylist(1), new Date(), SoundAssociation.Type.TRACK);
+        a2 = new SoundAssociation(new PublicApiPlaylist(1), new Date(), SoundAssociation.Type.PLAYLIST);
         expect(a1).not.toEqual(a2);
 
         a2 = null;

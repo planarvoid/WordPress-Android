@@ -9,6 +9,7 @@ import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -22,7 +23,7 @@ import java.util.Date;
  */
 public class SoundAssociation extends Association implements PlayableHolder {
 
-    public @NotNull Playable playable;
+    public @Nullable Playable playable;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
     public SoundAssociation() { }
@@ -104,8 +105,9 @@ public class SoundAssociation extends Association implements PlayableHolder {
         return playable.user;
     }
 
+    @Nullable
     @Override
-    @NotNull public Playable getPlayable() {
+    public Playable getPlayable() {
         return playable;
     }
 
@@ -140,20 +142,23 @@ public class SoundAssociation extends Association implements PlayableHolder {
 
     @Override
     public boolean equals(Object o) {
-        if (super.equals(o)) {
-            SoundAssociation that = (SoundAssociation) o;
-            return playable.equals(that.playable)
-                    && playable.getClass().equals(that.playable.getClass())
-                    && associationType == that.associationType;
-        }
-        return false;
+        if (this == o) return true;
+        if (!(o instanceof SoundAssociation)) return false;
+        if (!super.equals(o)) return false;
+
+        SoundAssociation that = (SoundAssociation) o;
+
+        if (playable != null ? !playable.equals(that.playable) : that.playable != null) return false;
+        if (associationType != that.associationType) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + (playable != null ? playable.hashCode() : 0);
         result = 31 * result + associationType;
-        result = 31 * result + playable.hashCode();
         return result;
     }
 

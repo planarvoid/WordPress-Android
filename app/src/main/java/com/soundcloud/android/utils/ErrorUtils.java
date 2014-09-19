@@ -5,12 +5,14 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIRequestException;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorNotImplementedException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Map;
 
 public class ErrorUtils {
 
@@ -74,6 +76,16 @@ public class ErrorUtils {
         handleSilentException(e, null, null);
     }
 
+    public static void handleSilentException(Throwable e, @NotNull Map<String,String> customLogs){
+        if (ApplicationProperties.shouldReportCrashes()) {
+            Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
+            for (Map.Entry<String,String> entry : customLogs.entrySet()){
+                Crashlytics.setString(entry.getKey(), entry.getValue());
+            }
+            Crashlytics.logException(e);
+        }
+    }
+
     private static synchronized void handleSilentException(
             Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         if (ApplicationProperties.shouldReportCrashes()) {
@@ -84,6 +96,8 @@ public class ErrorUtils {
             Crashlytics.logException(e);
         }
     }
+
+
 
     // we use this exception to signal fatal conditions that should crash the app
     public static class FatalException extends RuntimeException {
