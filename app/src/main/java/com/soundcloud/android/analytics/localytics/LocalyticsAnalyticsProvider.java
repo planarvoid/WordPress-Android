@@ -24,6 +24,7 @@ import android.content.Context;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
@@ -35,7 +36,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
 
     private static final int NO_USER = -1;
-    private static final long SESSION_EXPIRY = 60 * 1000; // 1 min
+    private static final long SESSION_EXPIRY = TimeUnit.MINUTES.toMillis(1);
 
     private final LocalyticsSession session;
     private final LocalyticsUIEventHandler uiEventHandler;
