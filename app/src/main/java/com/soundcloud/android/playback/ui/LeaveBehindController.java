@@ -19,23 +19,19 @@ import android.widget.ImageView;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+@SuppressWarnings("PMD.AccessorClassGeneration")
 class LeaveBehindController implements View.OnClickListener{
 
     private final View trackView;
     private final ImageOperations imageOperations;
     private final Context context;
     private final DeviceHelper deviceHelper;
+    private final LeaveBehindListener listener;
 
     private @Nullable PropertySet data;
 
     private View leaveBehind;
     private ImageView adImage;
-    private LeaveBehindListener listener;
-    public interface LeaveBehindListener {
-        void onLeaveBehindShown();
-        void onLeaveBehindHidden();
-    }
-
     private final ImageListener imageListener = new ImageListener() {
         @Override
         public void onLoadingStarted(String imageUri, View view) {}
@@ -49,6 +45,11 @@ class LeaveBehindController implements View.OnClickListener{
         }
     };
     private View leaveBehindClose;
+
+    public interface LeaveBehindListener {
+        void onLeaveBehindShown();
+        void onLeaveBehindHidden();
+    }
 
     private LeaveBehindController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;

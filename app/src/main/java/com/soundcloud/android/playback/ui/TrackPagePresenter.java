@@ -188,7 +188,10 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
             setProgress(trackPage, PlaybackProgress.empty());
         }
+        configureLeaveBehind(stateTransition, isCurrentTrack, isForeground, holder);
+    }
 
+    private void configureLeaveBehind(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
                 holder.leaveBehindController.show();
