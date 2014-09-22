@@ -207,17 +207,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    /**
-     * Closes a analytics session for the player
-     */
-    public void closeSessionForPlayer() {
-        if (isActivitySessionClosed()) {
-            closeSession();
-        } else {
-            Log.d(TAG, "Didn't close analytics session for player; activity session still alive and well!");
-        }
-    }
-
     //TODO: Should be a standardized anonymous id
     private String getCustomerId(long currentUserId) {
         if (currentUserId == NO_USER) {
