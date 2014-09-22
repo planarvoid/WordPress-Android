@@ -29,6 +29,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
 
     private CompositeSubscription subscription = new CompositeSubscription();
     private PlayerTrackPager trackPager;
+    private TrackPagerAdapter adapter;
     private boolean wasPageChange;
     private boolean wasDragging;
 
@@ -81,8 +82,9 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
         this.adsOperations = adsOperations;
     }
 
-    public void initialize(PlayerTrackPager trackPager) {
+    public void initialize(PlayerTrackPager trackPager, TrackPagerAdapter adapter) {
         this.trackPager = trackPager;
+        this.adapter = adapter;
         this.trackPager.setOnPageChangeListener(this);
         subscribe();
     }
@@ -94,7 +96,10 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
 
     @Override
     public void onPageSelected(int position) {
-        trackPager.setPagingEnabled(!adsOperations.isAudioAdAtPosition(position) || playQueueManager.isCurrentPosition(position));
+        final int playQueuePosition = adapter.getPlayQueuePosition(position);
+        final boolean notAudioAd = !adsOperations.isAudioAdAtPosition(playQueuePosition);
+        final boolean currentPosition = playQueueManager.isCurrentPosition(playQueuePosition);
+        trackPager.setPagingEnabled(notAudioAd || currentPosition);
         wasPageChange = true;
     }
 
