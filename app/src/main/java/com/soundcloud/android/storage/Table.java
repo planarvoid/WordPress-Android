@@ -1,7 +1,6 @@
 package com.soundcloud.android.storage;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.database.Cursor;

@@ -1,6 +1,5 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.Context;
@@ -177,14 +176,5 @@ public class DatabaseManager extends SQLiteOpenHelper {
                     "(from " + oldVersion + ")", exception);
         }
         return false;
-    }
-
-    private static void cleanActivities(SQLiteDatabase db) {
-        Table.ACTIVITIES.recreate(db);
-        db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + TableColumns.Collections.EXTRA + " = NULL");
-    }
-
-    private static void resetSyncState(SQLiteDatabase db) {
-        db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + TableColumns.Collections.SYNC_STATE + " =" + LocalCollection.SyncState.IDLE);
     }
 }

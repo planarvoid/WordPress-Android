@@ -1,14 +1,17 @@
-package com.soundcloud.android.storage.provider;
+package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,8 +22,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class TableTest {
+
+    @Before
+    public void setup() {
+        ContentProvider provider = new ScContentProvider(new DatabaseManager(Robolectric.application));
+        provider.onCreate();
+        ShadowContentResolver.registerProvider(ScContentProvider.AUTHORITY, provider);
+    }
 
     @Test
     public void shouldProvideACreateStringForViews() throws Exception {
@@ -58,14 +68,14 @@ public class TableTest {
 
     @Test
     public void shouldGetColumnNames() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
         List<String> columns = Table.SOUNDS.getColumnNames(db);
         expect(columns.isEmpty()).toBeFalse();
     }
 
     @Test
     public void shouldDropAndCreateTable() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
         Table table = Table.SOUNDS;
 
         expect(table.exists(db)).toBeTrue();
@@ -79,7 +89,7 @@ public class TableTest {
 
     @Test
     public void shouldAddColumnToTracks() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
         String oldSchema = Table.SOUNDS.createString;
         db.execSQL(oldSchema);
@@ -96,7 +106,7 @@ public class TableTest {
 
     @Test
     public void shouldAlterColumnsWithoutRenamingColumn() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
         String oldSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
@@ -133,7 +143,7 @@ public class TableTest {
 
     @Test
     public void shouldAlterColumnsWithRenamingColumn() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
         String oldSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
                         " keep_me VARCHAR(255)," +
@@ -178,7 +188,7 @@ public class TableTest {
 
     @Test
     public void upsertShouldInsertContentValues() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
         ContentValues[] values = new ContentValues[3];
 
@@ -204,7 +214,7 @@ public class TableTest {
 
     @Test
     public void upsertShouldUpdateContentValues() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableColumns.Recordings._ID, 1l);
@@ -221,7 +231,7 @@ public class TableTest {
 
     @Test
     public void shouldInsertAndUpsertEntries() {
-        SQLiteDatabase db = new DatabaseManager(DefaultTestRunner.application).getWritableDatabase();
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
         long id = Table.RECORDINGS.insertOrReplaceArgs(db,
             TableColumns.Recordings.WHAT_TEXT,  "what",
@@ -234,7 +244,7 @@ public class TableTest {
             TableColumns.Recordings.WHAT_TEXT, "was"
         );
 
-        Cursor c = DefaultTestRunner.application.getContentResolver().
+        Cursor c = Robolectric.application.getContentResolver().
                 query(Content.RECORDINGS.forId(id),
                         null, null, null, null);
 
