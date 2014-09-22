@@ -7,14 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.localytics.android.LocalyticsSession;
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,22 +22,14 @@ import android.app.Activity;
 @RunWith(SoundCloudTestRunner.class)
 public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
-    private static final PropertySet TRACK_DATA = PropertySet.from(
-            TrackProperty.URN.bind(Urn.forTrack(1L)),
-            TrackProperty.POLICY.bind("allow"),
-            PlayableProperty.DURATION.bind(0)
-    );
-
     private LocalyticsAnalyticsProvider localyticsProvider;
-    @Mock
-    private LocalyticsSession localyticsSession;
-    @Mock
-    private PlaybackStateProvider playbackWrapper;
+
+    @Mock private LocalyticsSession localyticsSession;
+    @Mock private PlaybackStateProvider playbackWrapper;
 
     @Before
     public void setUp() throws Exception {
         localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackWrapper);
-
     }
 
     @After

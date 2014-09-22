@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics;
 
-import com.localytics.android.Constants;
+import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
@@ -9,7 +9,6 @@ import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.Log;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -65,10 +64,10 @@ public class AnalyticsProviderFactory {
         return providers;
     }
 
-    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     private void initLogging() {
         Log.d(analyticsProperties.toString());
-        Constants.IS_LOGGABLE = analyticsProperties.isAnalyticsAvailable() && applicationProperties.useVerboseLogging();
+        LocalyticsSession.setLoggingEnabled(analyticsProperties.isAnalyticsAvailable()
+                && applicationProperties.useVerboseLogging());
     }
 
     // A list of providers that should always be enabled, regardless of user preference
