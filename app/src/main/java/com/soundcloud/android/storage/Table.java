@@ -141,7 +141,7 @@ public enum Table {
         return alterColumns(db, new String[0], new String[0]);
     }
 
-    public List<String> alterColumns(SQLiteDatabase db, @Nullable String[] fromAppendCols, @Nullable String[] toAppendCols) {
+    public List<String> alterColumns(SQLiteDatabase db, String[] fromAppendCols, String[] toAppendCols) {
         return alterColumns(db, name, createString, fromAppendCols, toAppendCols);
     }
 
