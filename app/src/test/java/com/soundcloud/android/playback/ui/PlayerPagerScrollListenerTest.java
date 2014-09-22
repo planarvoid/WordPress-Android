@@ -132,13 +132,6 @@ public class PlayerPagerScrollListenerTest {
         verify(playerTrackPager).setPagingEnabled(true);
     }
 
-    @Test
-    public void setsPagingEnabledWhenScrollStateIdle() {
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        verify(playerTrackPager).setPagingEnabled(true);
-    }
-
     private void startPagerSwipe(PlayerUIEvent lastSlidingPlayerEvent, int newPosition, int oldPosition) {
         eventBus.publish(EventQueue.PLAYER_UI, lastSlidingPlayerEvent);
         when(playQueueManager.getCurrentPosition()).thenReturn(newPosition);

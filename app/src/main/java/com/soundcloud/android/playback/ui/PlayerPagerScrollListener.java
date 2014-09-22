@@ -110,7 +110,6 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
         } else if (state == ViewPager.SCROLL_STATE_IDLE) {
             wasDragging = false;
             wasPageChange = false;
-            trackPager.setPagingEnabled(true);
         }
     }
 
