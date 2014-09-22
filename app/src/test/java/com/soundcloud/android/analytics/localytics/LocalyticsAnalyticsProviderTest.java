@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.localytics;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -22,13 +23,16 @@ public class LocalyticsAnalyticsProviderTest {
 
     private LocalyticsAnalyticsProvider localyticsProvider;
 
-    @Mock
-    private LocalyticsSession localyticsSession;
-
+    @Mock private LocalyticsSession localyticsSession;
 
     @Before
     public void setUp() throws CreateModelException {
         localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null);
+    }
+
+    @Test
+    public void setsCustomSessionTimeout() {
+        expect(LocalyticsSession.getSessionExpiration()).toEqual(60000L);
     }
 
     @Test

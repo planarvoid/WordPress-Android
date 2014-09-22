@@ -35,12 +35,17 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     static final AtomicBoolean ACTIVITY_SESSION_OPEN = new AtomicBoolean();
 
     private static final int NO_USER = -1;
+    private static final long SESSION_EXPIRY = 60 * 1000; // 1 min
 
     private final LocalyticsSession session;
     private final LocalyticsUIEventHandler uiEventHandler;
     private final LocalyticsOnboardingEventHandler onboardingEventHandler;
     private final PlaybackStateProvider playbackStateWrapper;
     private final LocalyticsSearchEventHandler searchEventHandler;
+
+    static {
+        LocalyticsSession.setSessionExpiration(SESSION_EXPIRY);
+    }
 
     @Inject
     public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, AccountOperations accountOperations) {

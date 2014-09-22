@@ -3,7 +3,7 @@ package com.soundcloud.android.analytics;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.localytics.android.Constants;
+import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
@@ -79,7 +79,7 @@ public class AnalyticsProviderFactoryTest {
 
         factory.getProviders();
 
-        expect(Constants.IS_LOGGABLE).toBeTrue();
+        expect(LocalyticsSession.isLoggingEnabled()).toBeTrue();
     }
 
     @Test
@@ -88,6 +88,6 @@ public class AnalyticsProviderFactoryTest {
 
         factory.getProviders();
 
-        expect(Constants.IS_LOGGABLE).toBeFalse();
+        expect(LocalyticsSession.isLoggingEnabled()).toBeFalse();
     }
 }
