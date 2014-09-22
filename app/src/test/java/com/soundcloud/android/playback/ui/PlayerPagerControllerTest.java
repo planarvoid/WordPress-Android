@@ -88,6 +88,7 @@ public class PlayerPagerControllerTest {
         when(viewPager.getContext()).thenReturn(Robolectric.application);
         when(playerPagerScrollListener.getPageChangedObservable()).thenReturn(scrollStateObservable);
         when(playQueueDataSource.getCurrentTrackAsQueue()).thenReturn(adQueueData);
+        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
         controller.onViewCreated(container);
     }
 
@@ -340,11 +341,10 @@ public class PlayerPagerControllerTest {
         when(viewPager.getCurrentItem()).thenReturn(1);
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
-        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
-        verify(adapter).setCurrentData(fullQueueData);
+        verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
     }
 
@@ -354,11 +354,11 @@ public class PlayerPagerControllerTest {
         when(adapter.isAudioAdAtPosition(0)).thenReturn(true);
         when(adapter.getCount()).thenReturn(1);
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
-        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
+        controller.onResume();
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
-        verify(adapter).setCurrentData(fullQueueData);
+        verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
     }
 
@@ -372,17 +372,17 @@ public class PlayerPagerControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
+        verify(adapter).setCurrentData(fullQueueData); // verify first fullQueue, but it should only happen once
         verify(viewPager).setCurrentItem(2, true);
     }
 
     @Test
     public void refreshesPlayQueueAfterNewPlayQueueEvent() {
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
-        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
 
-        verify(adapter).setCurrentData(fullQueueData);
+        verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
     }
 
@@ -391,16 +391,13 @@ public class PlayerPagerControllerTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(2);
         when(viewPager.getCurrentItem()).thenReturn(1);
         when(adapter.isAudioAdAtPosition(1)).thenReturn(true);
-        when(playQueueDataSource.getFullQueue()).thenReturn(fullQueueData);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(adapter).setCurrentData(fullQueueData);
+        verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
     }
-
-
 }

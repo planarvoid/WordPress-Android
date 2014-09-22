@@ -289,7 +289,7 @@ class PlayerPagerController {
 
     private boolean isLookingAtAdWithFullQueue() {
         return adapter.isAudioAdAtPosition(trackPager.getCurrentItem()) &&
-                isResumed && adapter.getCount() > 0;
+                isResumed && adapter.getCount() > 1;
     }
 
     private final class SetQueueOnScrollSubscriber extends DefaultSubscriber<Integer> {
