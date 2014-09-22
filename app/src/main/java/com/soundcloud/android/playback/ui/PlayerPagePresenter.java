@@ -12,10 +12,11 @@ public interface PlayerPagePresenter {
 
     View createItemView(ViewGroup container, SkipListener skipListener);
     View clearItemView(View convertView);
-    void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider);
+    void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack,
+                      boolean isForeground, ViewVisibilityProvider viewVisibilityProvider);
 
     void setProgress(View trackPage, PlaybackProgress progress);
-    void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean isCurrentTrack);
+    void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground);
     void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent);
 
     void onBackground(View trackPage);

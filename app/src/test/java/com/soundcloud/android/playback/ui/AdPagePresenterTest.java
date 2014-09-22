@@ -50,7 +50,7 @@ public class AdPagePresenterTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         presenter = new AdPagePresenter(imageOperations, Robolectric.application.getResources(), playerOverlayControllerFactory, pageListener, Robolectric.application);
         adView = presenter.createItemView(new FrameLayout(new FragmentActivity()), skipListener);
-        presenter.bindItemView(adView, buildAd(), true, viewVisibilityProvider);
+        presenter.bindItemView(adView, buildAd(), true, true, viewVisibilityProvider);
     }
 
     @Test
@@ -159,19 +159,19 @@ public class AdPagePresenterTest {
 
     @Test
     public void setPlayingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayaState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true);
+        presenter.setPlayState(adView, new StateTransition(PlayaState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true, true);
         expect(adView.findViewById(R.id.play_controls)).toBeGone();
     }
 
     @Test
     public void setBufferingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayaState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true);
+        presenter.setPlayState(adView, new StateTransition(PlayaState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true, true);
         expect(adView.findViewById(R.id.play_controls)).toBeGone();
     }
 
     @Test
     public void setIdleStateShouldShowPlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.forTrack(123L)), true);
+        presenter.setPlayState(adView, new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.forTrack(123L)), true, true);
         expect(adView.findViewById(R.id.play_controls)).toBeVisible();
     }
 

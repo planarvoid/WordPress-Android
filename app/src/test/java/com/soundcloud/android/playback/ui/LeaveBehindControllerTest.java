@@ -43,6 +43,7 @@ public class LeaveBehindControllerTest {
     private View trackView;
     @Mock private ImageOperations imageOperations;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private LeaveBehindController.LeaveBehindListener listener;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
@@ -50,7 +51,7 @@ public class LeaveBehindControllerTest {
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
         LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations,
                 Robolectric.application, deviceHelper);
-        controller = factory.create(trackView);
+        controller = factory.create(trackView, listener);
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
     }
 

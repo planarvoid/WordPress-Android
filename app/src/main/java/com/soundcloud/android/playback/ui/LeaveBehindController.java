@@ -30,6 +30,11 @@ class LeaveBehindController implements View.OnClickListener{
 
     private View leaveBehind;
     private ImageView adImage;
+    private LeaveBehindListener listener;
+    public interface LeaveBehindListener {
+        void onLeaveBehindShown();
+        void onLeaveBehindHidden();
+    }
 
     private final ImageListener imageListener = new ImageListener() {
         @Override
@@ -45,8 +50,9 @@ class LeaveBehindController implements View.OnClickListener{
     };
     private View leaveBehindClose;
 
-    private LeaveBehindController(View trackView, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
+    private LeaveBehindController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
+        this.listener = listener;
         this.imageOperations = imageOperations;
         this.context = context;
         this.deviceHelper = deviceHelper;
@@ -110,6 +116,7 @@ class LeaveBehindController implements View.OnClickListener{
             leaveBehind.setClickable(true);
             adImage.setVisibility(View.VISIBLE);
             leaveBehindClose.setVisibility(View.VISIBLE);
+            listener.onLeaveBehindShown();
         }
     }
 
@@ -127,6 +134,7 @@ class LeaveBehindController implements View.OnClickListener{
             setInvisible();
             leaveBehind = null;
             data = null;
+            listener.onLeaveBehindHidden();
         }
     }
 
@@ -151,8 +159,8 @@ class LeaveBehindController implements View.OnClickListener{
             this.deviceHelper = deviceHelper;
         }
 
-        LeaveBehindController create(View trackView) {
-            return new LeaveBehindController(trackView, imageOperations, context, deviceHelper);
+        LeaveBehindController create(View trackView, LeaveBehindListener listener) {
+            return new LeaveBehindController(trackView, listener, imageOperations, context, deviceHelper);
         }
     }
 

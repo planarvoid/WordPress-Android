@@ -81,6 +81,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     private CompositeSubscription subscription = new CompositeSubscription();
     private ViewVisibilityProvider viewVisibilityProvider;
+    private boolean isForeground;
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
@@ -115,12 +116,14 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     void onPause() {
+        isForeground = false;
         for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
             getPresenter(entry.getValue()).onBackground(entry.getKey());
         }
     }
 
     void onResume() {
+        isForeground = true;
         for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
             getPresenter(entry.getValue()).onForeground(entry.getKey());
         }
@@ -191,7 +194,12 @@ public class TrackPagerAdapter extends PagerAdapter {
         if (trackPageRecycler.hasExistingPage(urn)){
             view = trackPageRecycler.removePageByUrn(urn);
             trackByViews.put(view, trackPageData);
-            trackPagePresenter.onForeground(view);
+            if (isForeground){
+                trackPagePresenter.onForeground(view);
+            } else {
+                trackPagePresenter.onBackground(view);
+            }
+
         } else {
             view = trackPageRecycler.getRecycledPage();
             bindView(position, view);
@@ -347,7 +355,8 @@ public class TrackPagerAdapter extends PagerAdapter {
         public void onNext(PropertySet track) {
             TrackUrn trackUrn = track.get(TrackProperty.URN);
             if (isTrackRelatedToView(trackPage, trackUrn)) {
-                presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn), viewVisibilityProvider);
+                presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn),
+                        isForeground, viewVisibilityProvider);
                 updateProgress(presenter, trackPage, trackUrn);
             }
         }
@@ -364,7 +373,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
         @Override
         public void onNext(Playa.StateTransition stateTransition) {
-            presenter.setPlayState(trackPage, stateTransition, isViewPresentingCurrentTrack(trackPage));
+            presenter.setPlayState(trackPage, stateTransition, isViewPresentingCurrentTrack(trackPage), isForeground);
         }
     }
 

@@ -4,13 +4,18 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.AspectRatioImageView
-            android:id="@+id/artwork_image_view"
-            style="@style/PlayerTrackArtwork"/>
+    <FrameLayout android:id="@+id/artwork_holder"
+                 style="@style/PlayerTrackArtworkHolder">
 
-    <com.soundcloud.android.view.AspectRatioImageView
-            android:id="@+id/artwork_overlay_image"
-            style="@style/PlayerTrackArtwork"/>
+        <com.soundcloud.android.view.AspectRatioImageView
+                android:id="@+id/artwork_image_view"
+                style="@style/PlayerTrackArtwork"/>
+
+        <com.soundcloud.android.view.AspectRatioImageView
+                android:id="@+id/artwork_overlay_image"
+                style="@style/PlayerTrackArtwork"/>
+
+    </FrameLayout>
 
     <View android:id="@+id/artwork_overlay_dark"
                   android:layout_width="match_parent"

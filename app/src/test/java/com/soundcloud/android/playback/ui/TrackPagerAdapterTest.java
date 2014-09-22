@@ -118,16 +118,18 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
+        adapter.onResume();
         final View currentTrackView = getPageView();
         Playa.StateTransition state = new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
-        verify(trackPagePresenter).setPlayState(currentTrackView, state, true);
+        verify(trackPagePresenter).setPlayState(currentTrackView, state, true, true);
     }
 
     @Test
     public void onPlayingStateEventCallsSetPlayStateForOtherPage() {
+        adapter.onResume();
         setCurrentTrackState(0, TRACK1_URN, true);
         setCurrentTrackState(1, TRACK2_URN, false);
 
@@ -138,8 +140,8 @@ public class TrackPagerAdapterTest {
         Playa.StateTransition state = new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
-        verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true);
-        verify(trackPagePresenter).setPlayState(viewForOtherTrack, state, false);
+        verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true, true);
+        verify(trackPagePresenter).setPlayState(viewForOtherTrack, state, false, true);
     }
 
     @Test
@@ -218,9 +220,10 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void creatingNewTrackViewSetThePlayState() {
+        adapter.onResume();
         View currentPageView = getPageView();
 
-        verify(trackPagePresenter).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true));
+        verify(trackPagePresenter).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true), eq(true));
     }
 
     @Test
@@ -234,7 +237,7 @@ public class TrackPagerAdapterTest {
 
         View currentPageView = (View) adapter.instantiateItem(container, 3);
 
-        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true));
+        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true), eq(true));
     }
 
     @Test
@@ -261,9 +264,10 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldBindTrackViewForTracks() {
+        adapter.onResume();
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(pageView, track, true, viewVisibilityProvider);
+        verify(trackPagePresenter).bindItemView(pageView, track, true, true, viewVisibilityProvider);
     }
 
     @Test
@@ -277,10 +281,11 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldBindAdViewForAudioAds() {
+        adapter.onResume();
         setupAudioAd();
         View pageView = getAdPageView();
 
-        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true), same(viewVisibilityProvider));
+        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture(), eq(true), eq(true), same(viewVisibilityProvider));
 
         expect(captorPropertySet.getValue().contains(AdProperty.ARTWORK)).toBeTrue();
         expect(captorPropertySet.getValue().get(AdProperty.MONETIZABLE_TRACK_URN)).toEqual(MONETIZABLE_TRACK_URN);
@@ -372,6 +377,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void reusingExistingViewSetsForegroundStateOnPresenter() {
+        adapter.onResume();
         final View view = getPageView();
         when(trackPagePresenter.clearItemView(view)).thenReturn(view);
         when(trackPagePresenter.accept(view)).thenReturn(true);

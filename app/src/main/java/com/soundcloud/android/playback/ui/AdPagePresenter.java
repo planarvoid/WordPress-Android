@@ -69,7 +69,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider) {
+    public void bindItemView(View view, PropertySet propertySet, boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
         bindItemView(view, new PlayerAd(propertySet, resources));
     }
 
@@ -181,7 +181,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void setPlayState(View adView, Playa.StateTransition stateTransition, boolean isCurrentTrack) {
+    public void setPlayState(View adView, Playa.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
