@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowPreferenceManager;
@@ -121,10 +120,10 @@ public class PlaylistTagStorageTest {
         tagStorage.addRecentTag("tag2");
 
         Observer observer = mock(Observer.class);
-        Observable<PlaylistTagsCollection> observable = tagStorage.getRecentTagsAsync();
+        Observable<List<String>> observable = tagStorage.getRecentTagsAsync();
         observable.subscribe(observer);
 
-        ArgumentCaptor<PlaylistTagsCollection> tagsCaptor = ArgumentCaptor.forClass(PlaylistTagsCollection.class);
+        ArgumentCaptor<List> tagsCaptor = ArgumentCaptor.forClass(List.class);
         verify(observer).onNext(tagsCaptor.capture());
 
         expect(tagsCaptor.getValue()).toContainExactly("tag2", "tag1");

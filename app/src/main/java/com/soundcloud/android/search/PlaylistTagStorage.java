@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -54,21 +53,21 @@ public class PlaylistTagStorage extends ScheduledOperations {
         sharedPreferences.edit().putString(KEY_POPULAR_TAGS, serialize(tags)).apply();
     }
 
-    public Observable<PlaylistTagsCollection> getRecentTagsAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribe<PlaylistTagsCollection>() {
+    public Observable<List<String>> getRecentTagsAsync() {
+        return schedule(Observable.create(new Observable.OnSubscribe<List<String>>() {
             @Override
-            public void call(Subscriber<? super PlaylistTagsCollection> observer) {
-                observer.onNext(new PlaylistTagsCollection(getRecentTags()));
-                observer.onCompleted();
+            public void call(Subscriber<? super List<String>> subscriber) {
+                subscriber.onNext(getRecentTags());
+                subscriber.onCompleted();
             }
         }));
     }
 
-    public Observable<PlaylistTagsCollection> getPopularTagsAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribe<PlaylistTagsCollection>() {
+    public Observable<List<String>> getPopularTagsAsync() {
+        return schedule(Observable.create(new Observable.OnSubscribe<List<String>>() {
             @Override
-            public void call(Subscriber<? super PlaylistTagsCollection> observer) {
-                observer.onNext(new PlaylistTagsCollection(getPopularTags()));
+            public void call(Subscriber<? super List<String>> observer) {
+                observer.onNext(getPopularTags());
                 observer.onCompleted();
             }
         }));
@@ -87,7 +86,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
     private List<String> getStoredTags(String key) {
         String storedTags = sharedPreferences.getString(key, "");
         if (ScTextUtils.isBlank(storedTags)) {
-            return new LinkedList<String>();
+            return new LinkedList<>();
         }
         return deserialize(storedTags);
     }

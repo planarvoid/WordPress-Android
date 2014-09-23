@@ -2,8 +2,8 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.android.OperatorPaged.Page;
 import static rx.android.OperatorPaged.LegacyPager;
+import static rx.android.OperatorPaged.Page;
 import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.base.Optional;
@@ -16,13 +16,13 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
-import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistCollection;
+import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -85,6 +85,20 @@ public class SearchOperations {
         }
     };
 
+    private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
+        @Override
+        public List<String> call(ModelCollection<String> collection) {
+            return collection.getCollection();
+        }
+    };
+
+    private final Action1<ModelCollection<String>> cachePopularTags = new Action1<ModelCollection<String>>() {
+        @Override
+        public void call(ModelCollection<String> tags) {
+            tagStorage.cachePopularTags(tags.getCollection());
+        }
+    };
+
     private final ScModelManager modelManager;
     private final RxHttpClient rxHttpClient;
     private final PlaylistTagStorage tagStorage;
@@ -115,7 +129,7 @@ public class SearchOperations {
         return getSearchResults(APIEndpoints.SEARCH_USERS, query);
     }
 
-    private Observable<Page<SearchResultsCollection>> getSearchResults(APIEndpoints apiEndpoint , @Nullable String query) {
+    private Observable<Page<SearchResultsCollection>> getSearchResults(APIEndpoints apiEndpoint, @Nullable String query) {
         final RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(apiEndpoint.path());
         return getPageObservable(builder.addQueryParameters("q", query).build());
     }
@@ -127,9 +141,9 @@ public class SearchOperations {
 
     private RequestBuilder<SearchResultsCollection> createSearchRequestBuilder(String path) {
         return RequestBuilder.<SearchResultsCollection>get(path)
-                    .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
-                    .forPublicAPI()
-                    .forResource(TypeToken.of(SearchResultsCollection.class));
+                .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
+                .forPublicAPI()
+                .forResource(TypeToken.of(SearchResultsCollection.class));
     }
 
     private Observable<Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
@@ -145,15 +159,15 @@ public class SearchOperations {
         return source.lift(pagedWith(searchResultsPager));
     }
 
-    Observable<PlaylistTagsCollection> getRecentPlaylistTags() {
+    Observable<List<String>> getRecentPlaylistTags() {
         return tagStorage.getRecentTagsAsync();
     }
 
-    Observable<PlaylistTagsCollection> getPlaylistTags() {
-        return getCachedPlaylistTags().mergeMap(new Func1<PlaylistTagsCollection, Observable<PlaylistTagsCollection>>() {
+    Observable<List<String>> getPlaylistTags() {
+        return getCachedPlaylistTags().mergeMap(new Func1<List<String>, Observable<List<String>>>() {
             @Override
-            public Observable<PlaylistTagsCollection> call(PlaylistTagsCollection tags) {
-                if (tags.getCollection().isEmpty()) {
+            public Observable<List<String>> call(List<String> tags) {
+                if (tags.isEmpty()) {
                     return fetchAndCachePopularTags();
                 }
                 return Observable.just(tags);
@@ -161,21 +175,17 @@ public class SearchOperations {
         });
     }
 
-    private Observable<PlaylistTagsCollection> getCachedPlaylistTags() {
+    private Observable<List<String>> getCachedPlaylistTags() {
         return tagStorage.getPopularTagsAsync();
     }
 
-    private Observable<PlaylistTagsCollection> fetchAndCachePopularTags() {
-        APIRequest<PlaylistTagsCollection> request = RequestBuilder.<PlaylistTagsCollection>get(APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
+    private Observable<List<String>> fetchAndCachePopularTags() {
+        APIRequest<ModelCollection<String>> request = RequestBuilder.<ModelCollection<String>>get(APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(PlaylistTagsCollection.class))
+                .forResource(new TypeToken<ModelCollection<String>>() {
+                })
                 .build();
-        return rxHttpClient.<PlaylistTagsCollection>fetchModels(request).doOnNext(new Action1<PlaylistTagsCollection>() {
-            @Override
-            public void call(PlaylistTagsCollection tags) {
-                tagStorage.cachePopularTags(tags.getCollection());
-            }
-        });
+        return rxHttpClient.<ModelCollection<String>>fetchModels(request).doOnNext(cachePopularTags).map(collectionToList);
     }
 
     Observable<Page<ApiPlaylistCollection>> getPlaylistResults(final String query) {

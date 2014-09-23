@@ -10,7 +10,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.DefaultFragment;
-import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
@@ -36,7 +35,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class PlaylistTagsFragment extends DefaultFragment implements ListenableScrollView.OnScrollListener,
-        ReactiveComponent<ConnectableObservable<PlaylistTagsCollection>> {
+        ReactiveComponent<ConnectableObservable<List<String>>> {
 
     public static final String TAG = "playlist_tags";
 
@@ -46,8 +45,8 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
 
     private Subscription connectionSubscription = Subscriptions.empty();
     private CompositeSubscription viewSubscriptions;
-    private ConnectableObservable<PlaylistTagsCollection> allTagsObservable;
-    private Observable<PlaylistTagsCollection> recentTagsObservable;
+    private ConnectableObservable<List<String>> allTagsObservable;
+    private Observable<List<String>> recentTagsObservable;
 
     private final OnClickListener recentTagClickListener = new OnClickListener() {
         @Override
@@ -90,18 +89,18 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
     }
 
     @Override
-    public ConnectableObservable<PlaylistTagsCollection> buildObservable() {
-        ConnectableObservable<PlaylistTagsCollection> observable = buildAllTagsObservable();
+    public ConnectableObservable<List<String>> buildObservable() {
+        ConnectableObservable<List<String>> observable = buildAllTagsObservable();
         viewSubscriptions.add(observable.subscribe(new TagsSubscriber()));
         return observable;
     }
 
-    private ConnectableObservable<PlaylistTagsCollection> buildAllTagsObservable() {
+    private ConnectableObservable<List<String>> buildAllTagsObservable() {
         return searchOperations.getPlaylistTags().observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<PlaylistTagsCollection> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<String>> observable) {
         allTagsObservable = observable;
         connectionSubscription = allTagsObservable.connect();
         return connectionSubscription;
@@ -142,12 +141,12 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
         ((TagEventsListener) getActivity()).onTagsScrolled();
     }
 
-    private void displayPopularTags(PlaylistTagsCollection tags) {
-        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.all_tags, popularTagClickListener);
+    private void displayPopularTags(List<String> tags) {
+        displayTags(getLayoutInflater(null), getView(), tags, R.id.all_tags, popularTagClickListener);
     }
 
-    private void displayRecentTags(PlaylistTagsCollection tags) {
-        displayTags(getLayoutInflater(null), getView(), tags.getCollection(), R.id.recent_tags, recentTagClickListener);
+    private void displayRecentTags(List<String> tags) {
+        displayTags(getLayoutInflater(null), getView(), tags, R.id.recent_tags, recentTagClickListener);
     }
 
     private void displayTags(LayoutInflater inflater, View layout, List<String> tags,
@@ -174,20 +173,20 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
         listener.onTagSelected((String) v.getTag());
     }
 
-    private final class TagsSubscriber extends DefaultSubscriber<PlaylistTagsCollection> {
+    private final class TagsSubscriber extends DefaultSubscriber<List<String>> {
 
         @Override
-        public void onNext(PlaylistTagsCollection tags) {
+        public void onNext(List<String> tags) {
             displayPopularTags(tags);
         }
 
     }
 
-    private final class RecentsSubscriber extends DefaultSubscriber<PlaylistTagsCollection> {
+    private final class RecentsSubscriber extends DefaultSubscriber<List<String>> {
 
         @Override
-        public void onNext(PlaylistTagsCollection tags) {
-            if (!tags.getCollection().isEmpty()) {
+        public void onNext(List<String> tags) {
+            if (!tags.isEmpty()) {
                 getView().findViewById(R.id.recent_tags_container).setVisibility(VISIBLE);
                 displayRecentTags(tags);
             }

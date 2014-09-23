@@ -13,10 +13,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.playlists.PlaylistTagsCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.EmptyViewController;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -34,6 +33,7 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistTagsFragmentTest {
@@ -50,14 +50,11 @@ public class PlaylistTagsFragmentTest {
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
 
-        final PlaylistTagsCollection popularTags = new PlaylistTagsCollection();
-        popularTags.setCollection(Arrays.asList("popular1", "popular2", "popular3"));
+        final List<String> popularTags = Arrays.asList("popular1", "popular2", "popular3");
+        final List<String> recentTags = Arrays.asList("recent1", "recent2", "recent3");
 
-        final PlaylistTagsCollection recentTags = new PlaylistTagsCollection();
-        recentTags.setCollection(Arrays.asList("recent1", "recent2", "recent3"));
-
-        when(searchOperations.getPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>from(popularTags));
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>from(recentTags));
+        when(searchOperations.getPlaylistTags()).thenReturn(Observable.just(popularTags));
+        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.just(recentTags));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -102,8 +99,7 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldNotShowRecentTagsIfRecentTagsDoNotExist() throws Exception {
-        PlaylistTagsCollection collection = new PlaylistTagsCollection(Collections.<String>emptyList());
-        Observable<PlaylistTagsCollection> observable = Observable.<PlaylistTagsCollection>from(collection);
+        Observable<List<String>> observable = Observable.just(Collections.<String>emptyList());
         when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
 
         createFragment();
@@ -113,7 +109,7 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldNotShowRecentTagsOnError() throws Exception {
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<PlaylistTagsCollection>error(new Exception()));
+        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<List<String>>error(new Exception()));
 
         createFragment();
         View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags_container);
