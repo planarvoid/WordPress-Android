@@ -10,22 +10,13 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -37,8 +28,6 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -98,7 +87,6 @@ public class SearchResultsFragment extends DefaultFragment
 
     private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
-        listViewController.setScrollListener(adapter);
         addLifeCycleComponent(listViewController);
     }
 
@@ -137,7 +125,7 @@ public class SearchResultsFragment extends DefaultFragment
     @Override
     public Subscription connectObservable(ConnectableObservable<Page<SearchResultsCollection>> observable) {
         this.observable = observable;
-        observable.subscribe(adapter);
+        //observable.subscribe(adapter);
         connectionSubscription = observable.connect();
         return connectionSubscription;
     }
@@ -182,23 +170,23 @@ public class SearchResultsFragment extends DefaultFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PublicApiResource item = adapter.getItem(position);
-        Context context = getActivity();
-        if (item instanceof PublicApiTrack) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
-            final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
-            final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
-            playbackOperations
-                    .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()))
-                    .subscribe(subscriberProvider.get());
-        } else if (item instanceof PublicApiPlaylist) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
-            Playable playableAtPosition = ((PlayableHolder) adapter.getItems().get(position)).getPlayable();
-            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playableAtPosition).getUrn(), getTrackingScreen());
-        } else if (item instanceof PublicApiUser) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
-            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
-        }
+//        PublicApiResource item = adapter.getItem(position);
+//        Context context = getActivity();
+//        if (item instanceof PublicApiTrack) {
+//            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
+//            final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
+//            final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
+//            playbackOperations
+//                    .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()))
+//                    .subscribe(subscriberProvider.get());
+//        } else if (item instanceof PublicApiPlaylist) {
+//            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
+//            Playable playableAtPosition = ((PlayableHolder) adapter.getItems().get(position)).getPlayable();
+//            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playableAtPosition).getUrn(), getTrackingScreen());
+//        } else if (item instanceof PublicApiUser) {
+//            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
+//            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
+//        }
     }
 
     private List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {

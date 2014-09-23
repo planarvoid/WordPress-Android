@@ -53,8 +53,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsFragmentTest {
 
-    @InjectMocks
-    private LegacySearchResultsFragment fragment;
+    @InjectMocks private SearchResultsFragment fragment;
 
     private TestEventBus eventBus = new TestEventBus();
 
