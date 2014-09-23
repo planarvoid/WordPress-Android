@@ -128,7 +128,9 @@ public class SoundAssociation extends Association implements PlayableHolder {
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
         super.putDependencyValues(destination);
-        playable.putFullContentValues(destination);
+        if (playable != null) {
+            playable.putFullContentValues(destination);
+        }
     }
 
     @Override
