@@ -1,5 +1,6 @@
 GEM
   remote: https://rubygems.org/
+  remote: http://gems.int.s-cloud.net/
   specs:
     android-publisher (0.0.1)
       oauth2
