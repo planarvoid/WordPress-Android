@@ -7,7 +7,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
@@ -41,7 +40,6 @@ public class PlaylistResultsFragment extends DefaultFragment
     @Inject PlaylistDiscoveryOperations operations;
     @Inject ListViewController listViewController;
     @Inject PagingItemAdapter<ApiPlaylist> adapter;
-    @Inject ScModelManager modelManager;
     @Inject EventBus eventBus;
 
     private ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> observable;
