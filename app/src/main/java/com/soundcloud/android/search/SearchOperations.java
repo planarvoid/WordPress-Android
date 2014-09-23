@@ -6,10 +6,6 @@ import static rx.android.OperatorPaged.LegacyPager;
 import static rx.android.OperatorPaged.Page;
 import static rx.android.OperatorPaged.pagedWith;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
@@ -19,26 +15,19 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
-import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.OperatorPaged;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
-public class SearchOperations {
+class SearchOperations {
 
     private static final Func1<SearchResultsCollection, SearchResultsCollection> FILTER_UNKOWN_RESOURCES =
             new Func1<SearchResultsCollection, SearchResultsCollection>() {
@@ -69,7 +58,7 @@ public class SearchOperations {
     private final Func1<SearchResultsCollection, SearchResultsCollection> cacheResources = new Func1<SearchResultsCollection, SearchResultsCollection>() {
         @Override
         public SearchResultsCollection call(SearchResultsCollection results) {
-            List<PublicApiResource> cachedResults = new ArrayList<PublicApiResource>(results.size());
+            List<PublicApiResource> cachedResults = new ArrayList<>(results.size());
             for (PublicApiResource resource : results) {
                 PublicApiResource cachedResource = modelManager.cache(resource, PublicApiResource.CacheUpdateMode.FULL);
                 cachedResults.add(cachedResource);
@@ -78,37 +67,13 @@ public class SearchOperations {
         }
     };
 
-    private final Action1<ApiPlaylistCollection> preCachePlaylistResults = new Action1<ApiPlaylistCollection>() {
-        @Override
-        public void call(ApiPlaylistCollection collection) {
-            fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), ApiPlaylist.TO_PLAYLIST)));
-        }
-    };
-
-    private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
-        @Override
-        public List<String> call(ModelCollection<String> collection) {
-            return collection.getCollection();
-        }
-    };
-
-    private final Action1<ModelCollection<String>> cachePopularTags = new Action1<ModelCollection<String>>() {
-        @Override
-        public void call(ModelCollection<String> tags) {
-            tagStorage.cachePopularTags(tags.getCollection());
-        }
-    };
-
     private final ScModelManager modelManager;
     private final RxHttpClient rxHttpClient;
-    private final PlaylistTagStorage tagStorage;
     private final BulkStorage bulkStorage;
 
     @Inject
-    public SearchOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage,
-                            BulkStorage bulkStorage, ScModelManager modelManager) {
+    public SearchOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage, ScModelManager modelManager) {
         this.rxHttpClient = rxHttpClient;
-        this.tagStorage = tagStorage;
         this.bulkStorage = bulkStorage;
         this.modelManager = modelManager;
     }
@@ -159,95 +124,4 @@ public class SearchOperations {
         return source.lift(pagedWith(searchResultsPager));
     }
 
-    Observable<List<String>> getRecentPlaylistTags() {
-        return tagStorage.getRecentTagsAsync();
-    }
-
-    Observable<List<String>> getPlaylistTags() {
-        return getCachedPlaylistTags().mergeMap(new Func1<List<String>, Observable<List<String>>>() {
-            @Override
-            public Observable<List<String>> call(List<String> tags) {
-                if (tags.isEmpty()) {
-                    return fetchAndCachePopularTags();
-                }
-                return Observable.just(tags);
-            }
-        });
-    }
-
-    private Observable<List<String>> getCachedPlaylistTags() {
-        return tagStorage.getPopularTagsAsync();
-    }
-
-    private Observable<List<String>> fetchAndCachePopularTags() {
-        APIRequest<ModelCollection<String>> request = RequestBuilder.<ModelCollection<String>>get(APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
-                .forPrivateAPI(1)
-                .forResource(new TypeToken<ModelCollection<String>>() {
-                })
-                .build();
-        return rxHttpClient.<ModelCollection<String>>fetchModels(request).doOnNext(cachePopularTags).map(collectionToList);
-    }
-
-    Observable<Page<ApiPlaylistCollection>> getPlaylistResults(final String query) {
-        final APIRequest<ApiPlaylistCollection> request =
-                createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path())
-                        .addQueryParameters("tag", query)
-                        .build();
-        return getPlaylistResultsPage(query, request).finallyDo(new Action0() {
-            @Override
-            public void call() {
-                tagStorage.addRecentTag(query);
-            }
-        });
-    }
-
-    private Observable<Page<ApiPlaylistCollection>> getPlaylistResultsNextPage(String query, String nextHref) {
-        final RequestBuilder<ApiPlaylistCollection> builder = createPlaylistResultsRequest(nextHref);
-        return getPlaylistResultsPage(query, builder.build());
-    }
-
-    private RequestBuilder<ApiPlaylistCollection> createPlaylistResultsRequest(String url) {
-        return RequestBuilder.<ApiPlaylistCollection>get(url)
-                .forPrivateAPI(1)
-                .forResource(TypeToken.of(ApiPlaylistCollection.class));
-    }
-
-    private Observable<Page<ApiPlaylistCollection>> getPlaylistResultsPage(
-            String query, APIRequest<ApiPlaylistCollection> request) {
-        Observable<ApiPlaylistCollection> source = rxHttpClient.fetchModels(request);
-        source = source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
-        return source.lift(pagedWith(discoveryResultsPager(query)));
-    }
-
-    private LegacyPager<ApiPlaylistCollection> discoveryResultsPager(final String query) {
-        return new LegacyPager<ApiPlaylistCollection>() {
-            @Override
-            public Observable<Page<ApiPlaylistCollection>> call(ApiPlaylistCollection collection) {
-                final Optional<Link> nextLink = collection.getNextLink();
-                if (nextLink.isPresent()) {
-                    return getPlaylistResultsNextPage(query, nextLink.get().getHref());
-                } else {
-                    return OperatorPaged.emptyObservable();
-                }
-            }
-        };
-    }
-
-    private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {
-        return new Func1<ApiPlaylistCollection, ApiPlaylistCollection>() {
-            @Override
-            public ApiPlaylistCollection call(ApiPlaylistCollection collection) {
-                for (ApiPlaylist playlist : collection) {
-                    LinkedList<String> tagsWithSearchTag = new LinkedList<String>(removeItemIgnoreCase(playlist.getTags(), searchTag));
-                    tagsWithSearchTag.addFirst(searchTag);
-                    playlist.setTags(tagsWithSearchTag);
-                }
-                return collection;
-            }
-        };
-    }
-
-    private Collection<String> removeItemIgnoreCase(List<String> list, String itemToRemove) {
-        return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
-    }
 }

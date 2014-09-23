@@ -38,7 +38,7 @@ public class PlaylistResultsFragment extends DefaultFragment
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
-    @Inject SearchOperations searchOperations;
+    @Inject PlaylistDiscoveryOperations operations;
     @Inject ListViewController listViewController;
     @Inject PagingItemAdapter<ApiPlaylist> adapter;
     @Inject ScModelManager modelManager;
@@ -77,7 +77,7 @@ public class PlaylistResultsFragment extends DefaultFragment
     @Override
     public ConnectableObservable<Page<ApiPlaylistCollection>> buildObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
-        return searchOperations.getPlaylistResults(playlistTag).observeOn(mainThread()).replay();
+        return operations.playlistsForTag(playlistTag).observeOn(mainThread()).replay();
     }
 
     @Override

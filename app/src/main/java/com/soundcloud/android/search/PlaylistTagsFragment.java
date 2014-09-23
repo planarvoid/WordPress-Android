@@ -39,7 +39,7 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
 
     public static final String TAG = "playlist_tags";
 
-    @Inject SearchOperations searchOperations;
+    @Inject PlaylistDiscoveryOperations operations;
     @Inject EventBus eventBus;
     @Inject EmptyViewController emptyViewController;
 
@@ -84,7 +84,7 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recentTagsObservable = searchOperations.getRecentPlaylistTags().observeOn(mainThread());
+        recentTagsObservable = operations.recentPlaylistTags().observeOn(mainThread());
         connectObservable(buildAllTagsObservable());
     }
 
@@ -96,7 +96,7 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
     }
 
     private ConnectableObservable<List<String>> buildAllTagsObservable() {
-        return searchOperations.getPlaylistTags().observeOn(mainThread()).replay();
+        return operations.popularPlaylistTags().observeOn(mainThread()).replay();
     }
 
     @Override

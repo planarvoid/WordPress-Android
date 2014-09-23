@@ -56,7 +56,7 @@ public class PlaylistResultsFragmentTest {
     @InjectMocks
     private PlaylistResultsFragment fragment;
 
-    @Mock private SearchOperations searchOperations;
+    @Mock private PlaylistDiscoveryOperations operations;
     @Mock private ListViewController listViewController;
     @Mock private PagingItemAdapter<ApiPlaylist> adapter;
     @Mock private ScModelManager modelManager;
@@ -68,7 +68,7 @@ public class PlaylistResultsFragmentTest {
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
         Observable<Page<ApiPlaylistCollection>> observable = TestObservables.emptyObservable(subscription);
-        when(searchOperations.getPlaylistResults(anyString())).thenReturn(observable);
+        when(operations.playlistsForTag(anyString())).thenReturn(observable);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         createFragment();
     }
@@ -78,7 +78,7 @@ public class PlaylistResultsFragmentTest {
         ApiPlaylistCollection collection = new ApiPlaylistCollection();
         ApiPlaylist playlist = new ApiPlaylist();
         collection.setCollection(Lists.newArrayList(playlist));
-        when(searchOperations.getPlaylistResults("selected tag")).thenReturn(
+        when(operations.playlistsForTag("selected tag")).thenReturn(
                 RxTestHelper.singlePage(Observable.<ApiPlaylistCollection>from(collection)));
 
         fragment.onCreate(null);

@@ -38,7 +38,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistTagsFragmentTest {
 
-    @Mock private SearchOperations searchOperations;
+    @Mock private PlaylistDiscoveryOperations operations;
     @Mock private SearchActionBarController actionBarController;
     @Mock private EmptyViewController emptyViewController;
 
@@ -53,8 +53,8 @@ public class PlaylistTagsFragmentTest {
         final List<String> popularTags = Arrays.asList("popular1", "popular2", "popular3");
         final List<String> recentTags = Arrays.asList("recent1", "recent2", "recent3");
 
-        when(searchOperations.getPlaylistTags()).thenReturn(Observable.just(popularTags));
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.just(recentTags));
+        when(operations.popularPlaylistTags()).thenReturn(Observable.just(popularTags));
+        when(operations.recentPlaylistTags()).thenReturn(Observable.just(recentTags));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -72,7 +72,7 @@ public class PlaylistTagsFragmentTest {
     @Test
     public void shouldCacheObservableResults() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(searchOperations.getPlaylistTags()).thenReturn(observable);
+        when(operations.popularPlaylistTags()).thenReturn(observable);
 
         createFragment();
         // go through config change; onViewCreated is called again, should not trigger the source sequence again
@@ -100,7 +100,7 @@ public class PlaylistTagsFragmentTest {
     @Test
     public void shouldNotShowRecentTagsIfRecentTagsDoNotExist() throws Exception {
         Observable<List<String>> observable = Observable.just(Collections.<String>emptyList());
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(observable);
+        when(operations.recentPlaylistTags()).thenReturn(observable);
 
         createFragment();
         View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags_container);
@@ -109,7 +109,7 @@ public class PlaylistTagsFragmentTest {
 
     @Test
     public void shouldNotShowRecentTagsOnError() throws Exception {
-        when(searchOperations.getRecentPlaylistTags()).thenReturn(Observable.<List<String>>error(new Exception()));
+        when(operations.recentPlaylistTags()).thenReturn(Observable.<List<String>>error(new Exception()));
 
         createFragment();
         View recentTagsLayout = fragment.getView().findViewById(R.id.recent_tags_container);
