@@ -23,7 +23,7 @@ import java.util.Date;
  */
 public class SoundAssociation extends Association implements PlayableHolder {
 
-    public @Nullable Playable playable;
+    public Playable playable;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
     public SoundAssociation() { }
