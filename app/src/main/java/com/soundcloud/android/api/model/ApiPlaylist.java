@@ -1,12 +1,10 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.Sharing;
-import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.playlists.PlaylistUrn;
 
 import java.util.Date;
 import java.util.List;
@@ -22,17 +20,6 @@ public class ApiPlaylist extends ScModel {
     private PlayableStats stats;
     private int duration;
     private Sharing sharing;
-
-    /**
-     * While we're still using the model hierarchy from public API, we need
-     * to convert to these classes on a number of occasions
-     */
-    public static final Function<ApiPlaylist, PublicApiPlaylist> TO_PLAYLIST = new Function<ApiPlaylist, PublicApiPlaylist>() {
-        @Override
-        public PublicApiPlaylist apply(ApiPlaylist input) {
-            return new PublicApiPlaylist(input);
-        }
-    };
 
     /**
      * Required for Jackson
