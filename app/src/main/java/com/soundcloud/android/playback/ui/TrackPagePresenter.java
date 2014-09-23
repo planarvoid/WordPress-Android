@@ -113,11 +113,12 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PropertySet track, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider) {
-        bindItemView(view, new PlayerTrack(track), isCurrentTrack, viewVisibilityProvider);
+    public void bindItemView(View view, PropertySet track, boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
+        bindItemView(view, new PlayerTrack(track), isCurrentTrack, isForeground, viewVisibilityProvider);
     }
 
-    private void bindItemView(View trackView, PlayerTrack track, boolean isCurrentTrack, ViewVisibilityProvider viewVisibilityProvider) {
+    private void bindItemView(View trackView, PlayerTrack track, boolean isCurrentTrack,
+                              boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
         final TrackPageHolder holder = getViewHolder(trackView);
         holder.title.setText(track.getTitle());
 
@@ -125,11 +126,10 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.profileLink.setTag(track.getUserUrn());
 
         holder.artworkController.loadArtwork(track.getUrn(), isCurrentTrack, viewVisibilityProvider);
-        holder.waveformController.onForeground(); // We must be in the foreground if we're binding the view
-        holder.waveformController.setWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()));
         holder.timestamp.setInitialProgress(track.getDuration());
-        holder.waveformController.setDuration(track.getDuration());
         holder.menuController.setTrack(track);
+        holder.waveformController.setWaveform(waveformOperations.waveformDataFor(track.getUrn(), track.getWaveformUrl()), isForeground);
+        holder.waveformController.setDuration(track.getDuration());
 
         setLikeCount(holder, track.getLikeCount());
         holder.likeToggle.setChecked(track.isUserLike());
@@ -150,7 +150,11 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     public void clearLeaveBehind(View view) {
-        getViewHolder(view).leaveBehindController.clear();
+        clearLeaveBehind(getViewHolder(view));
+    }
+
+    private void clearLeaveBehind(TrackPageHolder viewHolder) {
+        viewHolder.leaveBehindController.clear();
     }
 
     public View clearItemView(View view) {
@@ -171,7 +175,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void setPlayState(View trackPage, StateTransition stateTransition, boolean isCurrentTrack) {
+    public void setPlayState(View trackPage, StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
@@ -184,12 +188,15 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
             setProgress(trackPage, PlaybackProgress.empty());
         }
+        configureLeaveBehind(stateTransition, isCurrentTrack, isForeground, holder);
+    }
 
+    private void configureLeaveBehind(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
-            if (stateTransition.isPlayerPlaying()) {
+            if (stateTransition.isPlayerPlaying() && isForeground) {
                 holder.leaveBehindController.show();
             } else if (stateTransition.isPaused() || stateTransition.wasError()) {
-                holder.leaveBehindController.clear();
+                clearLeaveBehind(holder);
             }
         }
     }
@@ -279,8 +286,12 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void setOverlayPlayState(TrackPageHolder holder, StateTransition state) {
+        setOverlayPlayState(holder, state.playSessionIsActive());
+    }
+
+    private void setOverlayPlayState(TrackPageHolder holder, boolean isActive) {
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
-            if (state.playSessionIsActive()) {
+            if (isActive) {
                 playerOverlayController.showPlayingState();
             } else {
                 playerOverlayController.showIdleState();
@@ -428,7 +439,19 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
 
-        holder.leaveBehindController = leaveBehindControllerFactory.create(trackView);
+        holder.leaveBehindController = leaveBehindControllerFactory.create(trackView, new LeaveBehindController.LeaveBehindListener() {
+            @Override
+            public void onLeaveBehindShown() {
+                setOverlayPlayState(holder, false);
+                holder.waveformController.setCollapsed();
+            }
+
+            @Override
+            public void onLeaveBehindHidden() {
+                setOverlayPlayState(holder, true);
+                holder.waveformController.setExpanded();
+            }
+        });
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
@@ -437,7 +460,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                holder.leaveBehindController.clear();
+                clearLeaveBehind(holder);
                 holder.menuController.show();
             }
         });

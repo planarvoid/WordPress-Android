@@ -153,12 +153,12 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="SignUp.ScrollView.Base">
+    <style name="SignUp.ScrollViewBase">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="SignUp.ScrollView" parent="SignUp.ScrollView.Base">
+    <style name="SignUp.ScrollView" parent="SignUp.ScrollViewBase">
 
     </style>
 
@@ -167,7 +167,7 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="SignUp.Content.Base">
+    <style name="SignUp.ContentBase">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
@@ -176,7 +176,7 @@
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="SignUp.Content" parent="SignUp.Content.Base">
+    <style name="SignUp.Content" parent="SignUp.ContentBase">
     </style>
 
     <style name="SignUp.TermsText">

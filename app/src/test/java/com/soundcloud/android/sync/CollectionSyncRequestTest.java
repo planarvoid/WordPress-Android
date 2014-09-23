@@ -131,6 +131,17 @@ public class CollectionSyncRequestTest {
     }
 
     @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForNullPointerException() throws IOException {
+        setupExceptionThrowingSync(new NullPointerException());
+
+        collectionSyncRequest.onQueued();
+        collectionSyncRequest.execute();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(collectionSyncRequest.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+    }
+
+    @Test
     public void shouldCallOnSyncComplete() throws IOException {
         setupSuccessfulSync();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
@@ -146,7 +157,7 @@ public class CollectionSyncRequestTest {
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
     }
 
-    private void setupExceptionThrowingSync(IOException e) throws IOException {
+    private void setupExceptionThrowingSync(Exception e) throws IOException {
         setupSync();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenThrow(e);
 

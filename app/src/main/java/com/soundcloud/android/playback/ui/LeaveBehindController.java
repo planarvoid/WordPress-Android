@@ -19,18 +19,19 @@ import android.widget.ImageView;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+@SuppressWarnings("PMD.AccessorClassGeneration")
 class LeaveBehindController implements View.OnClickListener{
 
     private final View trackView;
     private final ImageOperations imageOperations;
     private final Context context;
     private final DeviceHelper deviceHelper;
+    private final LeaveBehindListener listener;
 
     private @Nullable PropertySet data;
 
     private View leaveBehind;
     private ImageView adImage;
-
     private final ImageListener imageListener = new ImageListener() {
         @Override
         public void onLoadingStarted(String imageUri, View view) {}
@@ -45,8 +46,14 @@ class LeaveBehindController implements View.OnClickListener{
     };
     private View leaveBehindClose;
 
-    private LeaveBehindController(View trackView, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
+    public interface LeaveBehindListener {
+        void onLeaveBehindShown();
+        void onLeaveBehindHidden();
+    }
+
+    private LeaveBehindController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
+        this.listener = listener;
         this.imageOperations = imageOperations;
         this.context = context;
         this.deviceHelper = deviceHelper;
@@ -110,6 +117,7 @@ class LeaveBehindController implements View.OnClickListener{
             leaveBehind.setClickable(true);
             adImage.setVisibility(View.VISIBLE);
             leaveBehindClose.setVisibility(View.VISIBLE);
+            listener.onLeaveBehindShown();
         }
     }
 
@@ -127,6 +135,7 @@ class LeaveBehindController implements View.OnClickListener{
             setInvisible();
             leaveBehind = null;
             data = null;
+            listener.onLeaveBehindHidden();
         }
     }
 
@@ -151,8 +160,8 @@ class LeaveBehindController implements View.OnClickListener{
             this.deviceHelper = deviceHelper;
         }
 
-        LeaveBehindController create(View trackView) {
-            return new LeaveBehindController(trackView, imageOperations, context, deviceHelper);
+        LeaveBehindController create(View trackView, LeaveBehindListener listener) {
+            return new LeaveBehindController(trackView, listener, imageOperations, context, deviceHelper);
         }
     }
 

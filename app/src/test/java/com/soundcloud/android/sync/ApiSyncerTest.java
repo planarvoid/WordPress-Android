@@ -99,6 +99,11 @@ public class ApiSyncerTest {
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
+    @Test(expected = IOException.class)
+    public void shouldThrowIOExceptionOnInvalidStreamResponse() throws Exception {
+        sync(Content.ME_SOUND_STREAM.uri,"e1_stream_missing_track.json");
+    }
+
     @Test
     public void syncStreamWithHardRefreshReplacesExistingActivities() throws Exception {
         // initial sync
@@ -199,6 +204,20 @@ public class ApiSyncerTest {
         expect(Content.TRACKS).toHaveCount(1);
         expect(Content.PLAYLISTS).toHaveCount(1);
         expect(Content.ME_LIKES).toHaveCount(2);
+    }
+
+    @Test
+    public void syncOnLikesWithMissingTrackRemovedMissingTrack() throws Exception {
+        TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
+                + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini_missing_track.json");
+
+        ApiSyncResult result = sync(Content.ME_LIKES.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(startTime);
+
+        expect(Content.TRACKS).toHaveCount(0);
+        expect(Content.PLAYLISTS).toHaveCount(1);
+        expect(Content.ME_LIKES).toHaveCount(1);
     }
 
     @Test

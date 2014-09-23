@@ -142,11 +142,16 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         createWaveforms(HAS_WIDTH);
     }
 
-    public void setWaveform(Observable<WaveformResult> waveformResultObservable) {
+    public void setWaveform(Observable<WaveformResult> waveformResultObservable, boolean isForeground) {
         waveformView.showLoading();
         this.waveformResultObservable = waveformResultObservable;
         createState.set(IS_CREATION_PENDING);
         createWaveforms(HAS_WAVEFORM_DATA);
+        if (isForeground){
+            onForeground();
+        } else {
+            onBackground();
+        }
     }
 
     public void reset() {

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.model.Urn;
@@ -27,6 +29,7 @@ import org.mockito.Mock;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import javax.inject.Provider;
@@ -46,14 +49,18 @@ public class PlayerArtworkControllerTest {
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
     private Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
+    private View artworkHolder;
 
     @Before
     public void setUp() throws Exception {
+        artworkHolder = new FrameLayout(Robolectric.application);
+
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
-        when(animationControllerFactory.create(wrappedImageView)).thenReturn(progressController);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay_image)).thenReturn(artworkOverlayImage);
+        when(playerTrackArtworkView.findViewById(R.id.artwork_holder)).thenReturn(artworkHolder);
+        when(animationControllerFactory.create(artworkHolder)).thenReturn(progressController);
         playerArtworkLoaderProvider = new Provider<PlayerArtworkLoader>() {
             @Override
             public PlayerArtworkLoader get() {
@@ -147,7 +154,7 @@ public class PlayerArtworkControllerTest {
         when(playerTrackArtworkView.getWidth()).thenReturn(10);
         playerArtworkController.onArtworkSizeChanged();
         playerArtworkController.displayScrubPosition(.5f);
-        verify(wrappedImageView).setTranslationX(-5);
+        expect(ViewHelper.getTranslationX(artworkHolder)).toEqual(-5F);
     }
 
     @Test

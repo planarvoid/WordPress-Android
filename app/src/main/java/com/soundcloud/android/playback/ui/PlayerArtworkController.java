@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -26,6 +25,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     private final PlayerTrackArtworkView artworkView;
     private final ImageView wrappedImageView;
     private final ImageView imageOverlay;
+    private final View imageHolder;
     private final ProgressController progressController;
     private final PlayerArtworkLoader playerArtworkLoader;
 
@@ -42,7 +42,8 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         this.playerArtworkLoader = playerArtworkLoader;
         wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
         imageOverlay = (ImageView) artworkView.findViewById(R.id.artwork_overlay_image);
-        progressController = animationControllerFactory.create(wrappedImageView);
+        imageHolder = artworkView.findViewById(R.id.artwork_holder);
+        progressController = animationControllerFactory.create(imageHolder);
         artworkView.setOnWidthChangedListener(this);
     }
 
@@ -64,17 +65,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     public void showIdleState(PlaybackProgress progress) {
         showIdleState();
         setProgress(progress);
-        adjustOverlayToImagePosition();
-    }
-
-    private void adjustOverlayToImagePosition() {
-        ViewHelper.setTranslationX(imageOverlay, ViewHelper.getTranslationX(wrappedImageView));
     }
 
     public void showIdleState() {
         isPlaying = false;
         progressController.cancelProgressAnimation();
-        adjustOverlayToImagePosition();
     }
 
     @Override
@@ -91,8 +86,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     @Override
     public void displayScrubPosition(float scrubPosition) {
         if (helper != null) {
-            helper.setValueFromProportion(wrappedImageView, scrubPosition);
-            helper.setValueFromProportion(imageOverlay, scrubPosition);
+            helper.setValueFromProportion(imageHolder, scrubPosition);
         }
     }
 
@@ -136,6 +130,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         final int imageViewWidth = wrappedImageView.getMeasuredWidth();
 
         if (width > 0 && imageViewWidth > 0) {
+            imageHolder.getLayoutParams().width = imageViewWidth;
             helper = new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width)));
             progressController.setHelper(helper);
 

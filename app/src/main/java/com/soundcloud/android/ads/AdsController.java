@@ -174,9 +174,9 @@ public class AdsController {
         public void onNext(Playa.StateTransition state) {
             skipAdSubscription.unsubscribe();
             skipAdSubscription = Observable.timer(SKIP_DELAY_SECS, TimeUnit.SECONDS, scheduler)
-                    .subscribe(new Action1<Long>() {
+                    .subscribe(new DefaultSubscriber<Long>() {
                         @Override
-                        public void call(Long time) {
+                        public void onNext(Long args) {
                             playQueueManager.autoNextTrack();
                         }
                     });

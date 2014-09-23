@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playback.ui.LeaveBehindController.*;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -52,7 +53,7 @@ public class TrackPagePresenterTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
     @Mock private PlayerOverlayController playerVisualStateController;
-    @Mock private LeaveBehindController.Factory leaveBehindControllerFactory;
+    @Mock private Factory leaveBehindControllerFactory;
     @Mock private LeaveBehindController leaveBehindController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
@@ -75,7 +76,7 @@ public class TrackPagePresenterTest {
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
-        when(leaveBehindControllerFactory.create(any(View.class))).thenReturn(leaveBehindController);
+        when(leaveBehindControllerFactory.create(any(View.class), any(LeaveBehindListener.class))).thenReturn(leaveBehindController);
         trackView = presenter.createItemView(container, skipListener);
     }
 
@@ -94,142 +95,142 @@ public class TrackPagePresenterTest {
 
     @Test
     public void playingStateSetsToggleChecked() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).footerPlayToggle).toBeChecked();
     }
 
     @Test
     public void playingStateShowsBackgroundOnTitle() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).title.isShowingBackground()).toBeTrue();
     }
 
     @Test
     public void playingStateShowsBackgroundOnUser() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).user.isShowingBackground()).toBeTrue();
     }
 
     @Test
     public void pausedStateSetsToggleUnchecked() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).footerPlayToggle).not.toBeChecked();
     }
 
     @Test
     public void pausedStateHidesBackgroundOnTitle() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).title.isShowingBackground()).toBeFalse();
     }
 
     @Test
     public void playingStateHidesBackgroundOnUser() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).user.isShowingBackground()).toBeFalse();
     }
 
     @Test
     public void playingStateShowsBackgroundOnTimestamp() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).timestamp.isShowingBackground()).toBeTrue();
     }
 
     @Test
     public void pauseStateHidesBackgroundOnTimestamp() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
         expect(getHolder(trackView).timestamp.isShowingBackground()).toBeFalse();
     }
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET, 10, 20), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET, 10, 20), true, true);
         verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithCurrentTrackDoesNotResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true, true);
 
         verify(waveformViewController, never()).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true, true);
         verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false, true);
 
         verify(waveformViewController).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void bufferingStateWithCurrentTrackShowsBufferingStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true, true);
         verify(waveformViewController).showBufferingState();
     }
 
     @Test
     public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, Urn.forTrack(123L), 10, 20), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, Urn.forTrack(123L), 10, 20), true, true);
         verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void bufferingStateWithOtherTrackResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false, true);
 
         verify(waveformViewController).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void bufferingStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void bufferingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void idleStateWithCurrentTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void idleStateWithCurrentTrackShowsIdleStateOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void idleStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void idleStateWithOtherTrackShowsIdleStateOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), false);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), false, true);
         verify(artworkController).showIdleState();
     }
 
@@ -476,15 +477,31 @@ public class TrackPagePresenterTest {
     @Test
     public void onPauseDismissOnLeaveBehindController() {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
 
         verify(leaveBehindController).clear();
     }
 
     @Test
+    public void onPlayShowsInBackgroundDoesNotShowLeaveBehind() {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, false);
+
+        verify(leaveBehindController, never()).show();
+    }
+
+    @Test
+    public void onPlayShowsOnLeaveBehindController() {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
+
+        verify(leaveBehindController).show();
+    }
+
+    @Test
     public void onPlaybackErrorDismissOnLeaveBehindController() {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED), true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED), true, true);
 
         verify(leaveBehindController).clear();
     }
@@ -501,6 +518,6 @@ public class TrackPagePresenterTest {
     }
 
     private void populateTrackPage() {
-        presenter.bindItemView(trackView, TestPropertySets.expectedTrackForPlayer(), true, viewVisibilityProvider);
+        presenter.bindItemView(trackView, TestPropertySets.expectedTrackForPlayer(), true, true, viewVisibilityProvider);
     }
 }
