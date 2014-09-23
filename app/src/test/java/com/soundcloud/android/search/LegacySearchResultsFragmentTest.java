@@ -51,9 +51,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SearchResultsFragmentTest {
+public class LegacySearchResultsFragmentTest {
 
-    @InjectMocks private SearchResultsFragment fragment;
+    @InjectMocks private LegacySearchResultsFragment fragment;
 
     private TestEventBus eventBus = new TestEventBus();
 
