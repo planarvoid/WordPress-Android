@@ -1,8 +1,8 @@
 package com.soundcloud.android.search;
 
-import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
@@ -18,11 +18,12 @@ import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,19 +32,21 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
+@SuppressLint("ValidFragment")
 public class PlaylistResultsFragment extends DefaultFragment
-        implements ReactiveListComponent<ConnectableObservable<Page<ModelCollection<ApiPlaylist>>>> {
+        implements ReactiveListComponent<ConnectableObservable<ModelCollection<ApiPlaylist>>> {
 
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
     @Inject PlaylistDiscoveryOperations operations;
     @Inject ListViewController listViewController;
-    @Inject PagingItemAdapter<ApiPlaylist> adapter;
+    @Inject EndlessAdapter<ApiPlaylist> adapter;
     @Inject EventBus eventBus;
 
-    private ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> observable;
+    private ConnectableObservable<ModelCollection<ApiPlaylist>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
+    private PlaylistDiscoveryOperations.PlaylistPager pager;
 
     public static PlaylistResultsFragment newInstance(String tag) {
         PlaylistResultsFragment fragment = new PlaylistResultsFragment();
@@ -59,27 +62,39 @@ public class PlaylistResultsFragment extends DefaultFragment
         addLifeCycleComponents();
     }
 
+    @VisibleForTesting
+    PlaylistResultsFragment(PlaylistDiscoveryOperations operations, ListViewController listViewController,
+                            EndlessAdapter<ApiPlaylist> adapter, EventBus eventBus) {
+        this.operations = operations;
+        this.listViewController = listViewController;
+        this.adapter = adapter;
+        this.eventBus = eventBus;
+    }
+
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter);
-        listViewController.setScrollListener(new AbsListViewParallaxer(adapter));
+        listViewController.setScrollListener(new AbsListViewParallaxer(null));
         addLifeCycleComponent(listViewController);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
+        this.pager = operations.pager(playlistTag);
+        listViewController.setAdapter(adapter, pager);
+
         eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLIST_DISCO.get());
         connectObservable(buildObservable());
     }
 
     @Override
-    public ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> buildObservable() {
+    public ConnectableObservable<ModelCollection<ApiPlaylist>> buildObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
-        return operations.playlistsForTag(playlistTag).observeOn(mainThread()).replay();
+        return pager.page(operations.playlistsForTag(playlistTag)).observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> observable) {
+    public Subscription connectObservable(ConnectableObservable<ModelCollection<ApiPlaylist>> observable) {
         this.observable = observable;
         this.observable.subscribe(adapter);
         connectionSubscription = observable.connect();

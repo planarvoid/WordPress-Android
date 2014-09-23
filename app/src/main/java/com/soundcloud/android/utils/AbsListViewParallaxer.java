@@ -26,7 +26,7 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     private final HashMap<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<ViewGroup, Iterable<View>>();
     private final HashMap<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<ParallaxImageView>>();
 
-    public AbsListViewParallaxer(AbsListView.OnScrollListener scrollListenerDelegate) {
+    public AbsListViewParallaxer(@Nullable AbsListView.OnScrollListener scrollListenerDelegate) {
         this.onScrollListenerDelegate = scrollListenerDelegate;
     }
 

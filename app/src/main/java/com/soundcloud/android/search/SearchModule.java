@@ -4,7 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.AssociationsModule;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.PlaylistGridPresenter;
 import dagger.Module;
 import dagger.Provides;
@@ -20,7 +20,7 @@ import dagger.Provides;
 public class SearchModule {
 
     @Provides
-    public PagingItemAdapter<ApiPlaylist> playlistsResultAdapter(PlaylistGridPresenter presenter) {
-        return new PagingItemAdapter<ApiPlaylist>(R.layout.grid_loading_item, presenter);
+    public EndlessAdapter<ApiPlaylist> playlistsResultAdapter(PlaylistGridPresenter presenter) {
+        return new EndlessAdapter<>(R.layout.grid_loading_item, presenter);
     }
 }
