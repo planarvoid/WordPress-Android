@@ -14,6 +14,7 @@ import dagger.Provides;
                 TabbedSearchFragment.class,
                 SearchActivity.class,
                 SearchResultsFragment.class,
+                LegacySearchResultsFragment.class,
                 PlaylistTagsFragment.class,
                 PlaylistResultsFragment.class
         }, includes = AssociationsModule.class)

@@ -54,14 +54,14 @@ import java.util.List;
 public class SearchResultsFragmentTest {
 
     @InjectMocks
-    private SearchResultsFragment fragment;
+    private LegacySearchResultsFragment fragment;
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private SearchOperations searchOperations;
+    @Mock private LegacySearchOperations searchOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ListViewController listViewController;
-    @Mock private SearchResultsAdapter adapter;
+    @Mock private LegacySearchResultsAdapter adapter;
     @Mock private FragmentActivity activity;
     @Captor private ArgumentCaptor<Intent> intentCaptor;
 
@@ -77,7 +77,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldGetAllResultsForAllQueryOnCreate() throws Exception {
-        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
+        createWithArguments(buildSearchArgs("skrillex", LegacySearchResultsFragment.TYPE_ALL));
         createFragmentView();
 
         verify(searchOperations).getAllSearchResults("skrillex");
@@ -88,7 +88,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getTrackSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_TRACKS));
+        createWithArguments(buildSearchArgs("skrillex", LegacySearchResultsFragment.TYPE_TRACKS));
         createFragmentView();
 
         verify(searchOperations).getTrackSearchResults("skrillex");
@@ -99,7 +99,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getPlaylistSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_PLAYLISTS));
+        createWithArguments(buildSearchArgs("skrillex", LegacySearchResultsFragment.TYPE_PLAYLISTS));
         createFragmentView();
 
         verify(searchOperations).getPlaylistSearchResults("skrillex");
@@ -110,7 +110,7 @@ public class SearchResultsFragmentTest {
         when(searchOperations.getUserSearchResults(anyString()))
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
 
-        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_USERS));
+        createWithArguments(buildSearchArgs("skrillex", LegacySearchResultsFragment.TYPE_USERS));
         createFragmentView();
 
         verify(searchOperations).getUserSearchResults("skrillex");
@@ -118,7 +118,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void shouldConnectListViewControllerInOnViewCreated() {
-        createWithArguments(buildSearchArgs("skrillex", SearchResultsFragment.TYPE_ALL));
+        createWithArguments(buildSearchArgs("skrillex", LegacySearchResultsFragment.TYPE_ALL));
         createFragmentView();
 
         verify(listViewController).connect(refEq(fragment), any(ConnectableObservable.class));
@@ -150,7 +150,7 @@ public class SearchResultsFragmentTest {
     public void shouldSendSearchEverythingTrackingScreenOnItemClick() throws Exception {
         when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
-        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_ALL));
+        createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_ALL));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_EVERYTHING)));
@@ -162,7 +162,7 @@ public class SearchResultsFragmentTest {
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(0)).thenReturn(new PublicApiTrack());
 
-        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
+        createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(playbackOperations).playTracks(anyList(), eq(0), eq(new PlaySessionSource(Screen.SEARCH_TRACKS)));
@@ -175,7 +175,7 @@ public class SearchResultsFragmentTest {
         when(adapter.getItem(0)).thenReturn(playlist);
         when(adapter.getItems()).thenReturn(Arrays.asList(((PublicApiResource) playlist)));
 
-        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
+        createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         verify(activity).startActivity(intentCaptor.capture());
@@ -189,7 +189,7 @@ public class SearchResultsFragmentTest {
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(anyInt())).thenReturn(new PublicApiTrack());
 
-        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_TRACKS));
+        createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
@@ -205,7 +205,7 @@ public class SearchResultsFragmentTest {
         when(adapter.getItem(anyInt())).thenReturn(playlist);
         when(adapter.getItems()).thenReturn(Arrays.asList(((PublicApiResource) playlist)));
 
-        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_PLAYLISTS));
+        createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
@@ -220,7 +220,7 @@ public class SearchResultsFragmentTest {
                 .thenReturn(Observable.<Page<SearchResultsCollection>>empty());
         when(adapter.getItem(anyInt())).thenReturn(new PublicApiUser());
 
-        createWithArguments(buildSearchArgs("", SearchResultsFragment.TYPE_USERS));
+        createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_USERS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
         SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
@@ -244,7 +244,7 @@ public class SearchResultsFragmentTest {
     private View createFragmentView() {
         View layout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), null, null);
         Robolectric.shadowOf(fragment).setView(layout);
-        final Bundle defaultArguments = buildSearchArgs("", SearchResultsFragment.TYPE_ALL);
+        final Bundle defaultArguments = buildSearchArgs("", LegacySearchResultsFragment.TYPE_ALL);
         fragment.setArguments(defaultArguments);
         fragment.onCreate(null);
         fragment.onViewCreated(layout, null);

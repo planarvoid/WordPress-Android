@@ -51,11 +51,11 @@ public class SearchResultsAdapterTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    private SearchResultsAdapter adapter;
+    private LegacySearchResultsAdapter adapter;
 
     @Before
     public void setup() {
-        adapter = new SearchResultsAdapter(userPresenter, trackPresenter, playlistPresenter, followingOperations, eventBus);
+        adapter = new LegacySearchResultsAdapter(userPresenter, trackPresenter, playlistPresenter, followingOperations, eventBus);
     }
 
     @Test
@@ -64,9 +64,9 @@ public class SearchResultsAdapterTest {
         adapter.addItem(new PublicApiTrack());
         adapter.addItem(new PublicApiPlaylist());
 
-        expect(adapter.getItemViewType(0)).toEqual(SearchResultsAdapter.TYPE_USER);
-        expect(adapter.getItemViewType(1)).toEqual(SearchResultsAdapter.TYPE_TRACK);
-        expect(adapter.getItemViewType(2)).toEqual(SearchResultsAdapter.TYPE_PLAYLIST);
+        expect(adapter.getItemViewType(0)).toEqual(LegacySearchResultsAdapter.TYPE_USER);
+        expect(adapter.getItemViewType(1)).toEqual(LegacySearchResultsAdapter.TYPE_TRACK);
+        expect(adapter.getItemViewType(2)).toEqual(LegacySearchResultsAdapter.TYPE_PLAYLIST);
     }
 
     @Test

@@ -1,6 +1,8 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
@@ -14,11 +16,13 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_PLAYLISTS = 2;
     protected static final int TAB_PEOPLE = 3;
 
+    private final FeatureFlags featureFlags;
     private final Resources resources;
     private final String query;
 
-    public SearchPagerAdapter(Resources resources, FragmentManager fm, String query) {
+    public SearchPagerAdapter(FeatureFlags featureFlags, Resources resources, FragmentManager fm, String query) {
         super(fm);
+        this.featureFlags = featureFlags;
         this.resources = resources;
         this.query = query;
     }
@@ -27,15 +31,23 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_ALL, query);
+                return getSearchResultFragment(LegacySearchResultsFragment.TYPE_ALL);
             case TAB_TRACKS:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_TRACKS, query);
+                return getSearchResultFragment(LegacySearchResultsFragment.TYPE_TRACKS);
             case TAB_PLAYLISTS:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_PLAYLISTS, query);
+                return getSearchResultFragment(LegacySearchResultsFragment.TYPE_PLAYLISTS);
             case TAB_PEOPLE:
-                return SearchResultsFragment.newInstance(SearchResultsFragment.TYPE_USERS, query);
+                return getSearchResultFragment(LegacySearchResultsFragment.TYPE_USERS);
         }
         throw new IllegalArgumentException("Unexpected position for getItem " + position);
+    }
+
+    private Fragment getSearchResultFragment(int type) {
+        if (featureFlags.isEnabled(Feature.API_MOBILE_SEARCH)) {
+            return SearchResultsFragment.newInstance(type, query);
+        } else {
+            return LegacySearchResultsFragment.newInstance(type, query);
+        }
     }
 
     @Override

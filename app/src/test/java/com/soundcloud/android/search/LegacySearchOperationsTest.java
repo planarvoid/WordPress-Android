@@ -37,9 +37,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SearchOperationsTest {
+public class LegacySearchOperationsTest {
 
-    @InjectMocks private SearchOperations searchOperations;
+    @InjectMocks private LegacySearchOperations searchOperations;
 
     @Mock
     private RxHttpClient rxHttpClient;
