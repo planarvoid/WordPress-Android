@@ -17,6 +17,7 @@ import java.io.IOException;
  * job, then updates {@link LocalCollection}. The actual execution happens in
  * {@link com.soundcloud.android.sync.ApiSyncService#flushSyncRequests()}.
  */
+@SuppressWarnings({"PMD.AvoidCatchingGenericException"})
 /* package */  class CollectionSyncRequest {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();

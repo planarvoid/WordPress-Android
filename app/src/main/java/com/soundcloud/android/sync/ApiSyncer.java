@@ -162,6 +162,7 @@ public class ApiSyncer extends SyncStrategy {
      *
      * Rethrows as IOException which will be caught in {@link CollectionSyncRequest#execute()}
      */
+    @SuppressWarnings({"PMD.AvoidCatchingGenericException"})
     private ApiSyncResult safeSyncActivities(Uri uri, String action) throws IOException {
         ApiSyncResult result;
         try {
@@ -218,55 +219,68 @@ public class ApiSyncer extends SyncStrategy {
         log("syncActivities(" + uri + "); action=" + action);
 
         final Content c = Content.match(uri);
-        final int inserted;
-        Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity oldestActivity = activitiesStorage.getOldestActivity(c);
-            Request request = new Request(c.request()).add("limit", Consts.LIST_PAGE_SIZE);
-            if (oldestActivity != null) {
-                request.add("cursor", oldestActivity.toGUID());
-            }
-            activities = Activities.fetch(api, request);
-            if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
-                // this can happen at the end of the list
-                result.change = ApiSyncResult.UNCHANGED;
-            } else {
-                inserted = activitiesStorage.insert(c, activities);
-                result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
-            }
+            appendActivities(result, c);
         } else if (ApiSyncService.ACTION_HARD_REFRESH.equals(action)) {
-            activities = Activities.fetchRecent(api, c.request(), MAX_LOOKUP_COUNT);
-            resolver.delete(c.uri, null, null);
-            activitiesStorage.insert(c, activities);
-            result.setSyncData(true, System.currentTimeMillis(), activities.size(), ApiSyncResult.CHANGED);
-
+            hardRefreshActivities(result, c);
         } else {
-
-            final Activity newestActivity = activitiesStorage.getLatestActivity(c);
-            Request request = new Request(c.request());
-            if (newestActivity != null) {
-                request.add("uuid[to]", newestActivity.toGUID());
-            }
-
-            log("activities: performing activity fetch request " + request);
-            activities = Activities.fetchRecent(api, request, MAX_LOOKUP_COUNT);
-
-            if (activities.moreResourcesExist()) {
-                // delete all activities to avoid gaps in the data
-                resolver.delete(c.uri, null, null);
-            }
-
-            final Activity latestActivity = activitiesStorage.getLatestActivity(c);
-            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
-                // this can happen at the beginning of the list if the api returns the first item incorrectly
-                inserted = 0;
-            } else {
-                inserted = activitiesStorage.insert(c, activities);
-            }
-            result.setSyncData(System.currentTimeMillis(), activities.size());
-            result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
+            prependActivities(result, c);
         }
         return result;
+    }
+
+    private void prependActivities(ApiSyncResult result, Content c) throws IOException {
+        Activities activities;
+        int inserted;
+        final Activity newestActivity = activitiesStorage.getLatestActivity(c);
+        Request request = new Request(c.request());
+        if (newestActivity != null) {
+            request.add("uuid[to]", newestActivity.toGUID());
+        }
+
+        log("activities: performing activity fetch request " + request);
+        activities = Activities.fetchRecent(api, request, MAX_LOOKUP_COUNT);
+
+        if (activities.moreResourcesExist()) {
+            // delete all activities to avoid gaps in the data
+            resolver.delete(c.uri, null, null);
+        }
+
+        final Activity latestActivity = activitiesStorage.getLatestActivity(c);
+        if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
+            // this can happen at the beginning of the list if the api returns the first item incorrectly
+            inserted = 0;
+        } else {
+            inserted = activitiesStorage.insert(c, activities);
+        }
+        result.setSyncData(System.currentTimeMillis(), activities.size());
+        result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
+    }
+
+    private void hardRefreshActivities(ApiSyncResult result, Content c) throws IOException {
+        Activities activities;
+        activities = Activities.fetchRecent(api, c.request(), MAX_LOOKUP_COUNT);
+        resolver.delete(c.uri, null, null);
+        activitiesStorage.insert(c, activities);
+        result.setSyncData(true, System.currentTimeMillis(), activities.size(), ApiSyncResult.CHANGED);
+    }
+
+    private void appendActivities(ApiSyncResult result, Content c) throws IOException {
+        Activities activities;
+        int inserted;
+        final Activity oldestActivity = activitiesStorage.getOldestActivity(c);
+        Request request = new Request(c.request()).add("limit", Consts.LIST_PAGE_SIZE);
+        if (oldestActivity != null) {
+            request.add("cursor", oldestActivity.toGUID());
+        }
+        activities = Activities.fetch(api, request);
+        if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
+            // this can happen at the end of the list
+            result.change = ApiSyncResult.UNCHANGED;
+        } else {
+            inserted = activitiesStorage.insert(c, activities);
+            result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
+        }
     }
 
     private ApiSyncResult syncMe(Content c) throws IOException {

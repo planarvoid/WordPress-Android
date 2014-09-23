@@ -9,7 +9,6 @@ import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -109,7 +108,6 @@ public class SoundAssociation extends Association implements PlayableHolder {
         return playable.user;
     }
 
-    @Nullable
     @Override
     public Playable getPlayable() {
         return playable;
