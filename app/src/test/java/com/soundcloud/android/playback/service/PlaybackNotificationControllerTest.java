@@ -32,8 +32,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Functions;
 
 import android.app.Notification;
@@ -183,6 +183,7 @@ public class PlaybackNotificationControllerTest {
     @Test
     public void playQueueEventClearsExistingBitmapWhenArtworkCapableAndNoCachedBitmap() {
         when(playbackNotificationPresenter.artworkCapable()).thenReturn(true);
+        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
 
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
@@ -288,7 +289,7 @@ public class PlaybackNotificationControllerTest {
         controller.notifyIdleState();
 
         ArgumentCaptor<Observable> captor = ArgumentCaptor.forClass(Observable.class);
-        verify(playbackNotificationPresenter).updateToIdleState(captor.capture(), any(Action1.class));
+        verify(playbackNotificationPresenter).updateToIdleState(captor.capture(), any(Subscriber.class));
         expect(captor.getValue().toBlockingObservable().lastOrDefault(null)).toBe(notification);
     }
 
@@ -300,9 +301,9 @@ public class PlaybackNotificationControllerTest {
 
         controller.notifyIdleState();
 
-        ArgumentCaptor<Action1> captor = ArgumentCaptor.forClass(Action1.class);
+        ArgumentCaptor<Subscriber> captor = ArgumentCaptor.forClass(Subscriber.class);
         verify(playbackNotificationPresenter).updateToIdleState(any(Observable.class), captor.capture());
-        captor.getValue().call(notification);
+        captor.getValue().onNext(notification);
 
         // twice because the playqueue changed event will result in the first notification
         verify(notificationManager, times(2)).notify(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
@@ -313,7 +314,7 @@ public class PlaybackNotificationControllerTest {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-        when(playbackNotificationPresenter.updateToIdleState(any(Observable.class), any(Action1.class))).thenReturn(true);
+        when(playbackNotificationPresenter.updateToIdleState(any(Observable.class), any(Subscriber.class))).thenReturn(true);
         expect(controller.notifyIdleState()).toBeTrue();
     }
 

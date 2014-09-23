@@ -113,7 +113,7 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         popupMenuWrapper.setItemVisible(R.id.repost, !isUserRepost);
     }
 
-    private void setMenuPrivacy(boolean isPrivate) {
+    private void setMenuPrivacy(boolean isPrivate){
         popupMenuWrapper.setItemEnabled(R.id.unpost, !isPrivate);
         popupMenuWrapper.setItemEnabled(R.id.repost, !isPrivate);
         popupMenuWrapper.setItemEnabled(R.id.share, !isPrivate);
