@@ -17,12 +17,12 @@ import com.google.common.collect.Multimap;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +35,7 @@ import rx.Observer;
 import rx.android.OperatorPaged;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,12 +47,12 @@ public class PlaylistDiscoveryOperationsTest {
     @Mock PlaylistTagStorage tagStorage;
     @Mock RxHttpClient rxHttpClient;
     @Mock Observer observer;
-    @Mock BulkStorage bulkStorage;
+    @Mock PlaylistWriteStorage playlistWriteStorage;
 
     @Before
     public void setup() {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        when(bulkStorage.bulkInsertAsync(any(Iterable.class))).thenReturn(Observable.<Iterable>empty());
+        when(playlistWriteStorage.storePlaylistsAsync(any(Collection.class))).thenReturn(Observable.<TxnResult>empty());
     }
 
     @Test
@@ -132,8 +133,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        final List<PublicApiPlaylist> resources = Arrays.asList(new PublicApiPlaylist(collection.getCollection().get(0)));
-        verify(bulkStorage).bulkInsertAsync(resources);
+        verify(playlistWriteStorage).storePlaylistsAsync(collection.getCollection());
     }
 
     private ModelCollection<ApiPlaylist> buildPlaylistSummariesResponse() throws CreateModelException {

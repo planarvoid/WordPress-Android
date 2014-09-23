@@ -2,8 +2,8 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -13,7 +13,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackUrn;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.hamcrest.Matchers;
 
 import android.content.ContentValues;
@@ -27,7 +26,7 @@ public class DatabaseFixtures {
         this.database = database;
     }
 
-    public ApiTrack insertTrack() throws CreateModelException {
+    public ApiTrack insertTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         insertUser(track.getUser());
         insertTrack(track);
@@ -64,7 +63,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SOUNDS, cv);
     }
 
-    public ApiPlaylist insertPlaylist() throws CreateModelException {
+    public ApiPlaylist insertPlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
@@ -86,7 +85,7 @@ public class DatabaseFixtures {
         return id;
     }
 
-    public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) throws CreateModelException {
+    public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) {
         ApiTrack apiTrack = insertTrack();
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getId());
@@ -96,7 +95,7 @@ public class DatabaseFixtures {
         return apiTrack;
     }
 
-    public ApiUser insertUser() throws CreateModelException {
+    public ApiUser insertUser() {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
         insertUser(user);
         return user;
@@ -188,7 +187,7 @@ public class DatabaseFixtures {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public PublicApiComment insertComment() throws CreateModelException {
+    public PublicApiComment insertComment() {
         PublicApiComment comment = ModelFixtures.create(PublicApiComment.class);
         insertComment(comment);
         return comment;
@@ -203,7 +202,7 @@ public class DatabaseFixtures {
         return insertInto(Table.ACTIVITIES, cv);
     }
 
-    public AffiliationActivity insertAffiliation() throws CreateModelException {
+    public AffiliationActivity insertAffiliation() {
         AffiliationActivity affiliation = ModelFixtures.create(AffiliationActivity.class);
         insertAffiliation(affiliation);
         return affiliation;

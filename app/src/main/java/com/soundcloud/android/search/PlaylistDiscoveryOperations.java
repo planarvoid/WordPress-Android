@@ -6,7 +6,6 @@ import static rx.android.OperatorPaged.pagedWith;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
@@ -15,7 +14,7 @@ import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.storage.BulkStorage;
+import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import rx.Observable;
 import rx.android.OperatorPaged;
 import rx.functions.Action0;
@@ -31,7 +30,7 @@ class PlaylistDiscoveryOperations {
 
     private final RxHttpClient rxHttpClient;
     private final PlaylistTagStorage tagStorage;
-    private final BulkStorage bulkStorage;
+    private final PlaylistWriteStorage playlistWriteStorage;
 
     private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
         @Override
@@ -50,16 +49,16 @@ class PlaylistDiscoveryOperations {
     private final Action1<ModelCollection<ApiPlaylist>> preCachePlaylistResults = new Action1<ModelCollection<ApiPlaylist>>() {
         @Override
         public void call(ModelCollection<ApiPlaylist> collection) {
-            fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), ApiPlaylist.TO_PLAYLIST)));
+            fireAndForget(playlistWriteStorage.storePlaylistsAsync(collection.getCollection()));
         }
     };
 
 
     @Inject
-    PlaylistDiscoveryOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage, BulkStorage bulkStorage) {
+    PlaylistDiscoveryOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage, PlaylistWriteStorage playlistWriteStorage) {
         this.rxHttpClient = rxHttpClient;
         this.tagStorage = tagStorage;
-        this.bulkStorage = bulkStorage;
+        this.playlistWriteStorage = playlistWriteStorage;
     }
 
 
