@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="140" android:versionName="14.09.19" package="com.soundcloud.android.tests">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="141" android:versionName="14.09.23" package="com.soundcloud.android.tests">
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="7"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_LOGS"/>
