@@ -146,14 +146,24 @@ public class SoundAssociation extends Association implements PlayableHolder {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SoundAssociation)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SoundAssociation)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         SoundAssociation that = (SoundAssociation) o;
 
-        if (playable != null ? !playable.equals(that.playable) : that.playable != null) return false;
-        if (associationType != that.associationType) return false;
+        if (playable != null ? !playable.equals(that.playable) : that.playable != null) {
+            return false;
+        }
+        if (associationType != that.associationType) {
+            return false;
+        }
 
         return true;
     }

@@ -17,8 +17,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.users.UserUrn;
 import rx.Subscriber;
-import rx.functions.Func1;
-import rx.functions.Action1;
 
 import android.content.Context;
 
