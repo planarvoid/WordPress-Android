@@ -14,7 +14,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -62,12 +62,12 @@ public class PlaylistResultsFragmentTest {
     @Mock private ScModelManager modelManager;
     @Mock private EmptyView emptyView;
     @Mock private Subscription subscription;
-    @Captor private ArgumentCaptor<Page<ApiPlaylistCollection>> pageCaptor;
+    @Captor private ArgumentCaptor<Page<ModelCollection<ApiPlaylist>>> pageCaptor;
 
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        Observable<Page<ApiPlaylistCollection>> observable = TestObservables.emptyObservable(subscription);
+        Observable<Page<ModelCollection<ApiPlaylist>>> observable = TestObservables.emptyObservable(subscription);
         when(operations.playlistsForTag(anyString())).thenReturn(observable);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         createFragment();
@@ -75,11 +75,11 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() throws Exception {
-        ApiPlaylistCollection collection = new ApiPlaylistCollection();
+        ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
         ApiPlaylist playlist = new ApiPlaylist();
         collection.setCollection(Lists.newArrayList(playlist));
         when(operations.playlistsForTag("selected tag")).thenReturn(
-                RxTestHelper.singlePage(Observable.<ApiPlaylistCollection>from(collection)));
+                RxTestHelper.singlePage(Observable.<ModelCollection<ApiPlaylist>>from(collection)));
 
         fragment.onCreate(null);
 

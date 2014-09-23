@@ -19,7 +19,6 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.BulkStorage;
@@ -117,7 +116,7 @@ public class PlaylistDiscoveryOperationsTest {
 
     @Test
     public void shouldDeliverPlaylistDiscoveryResultsToObserver() throws CreateModelException {
-        ApiPlaylistCollection collection = buildPlaylistSummariesResponse();
+        ModelCollection<ApiPlaylist> collection = buildPlaylistSummariesResponse();
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
@@ -129,7 +128,7 @@ public class PlaylistDiscoveryOperationsTest {
 
     @Test
     public void shouldWritePlaylistDiscoveryResultToLocalStorage() throws CreateModelException {
-        ApiPlaylistCollection collection = buildPlaylistSummariesResponse();
+        ModelCollection<ApiPlaylist> collection = buildPlaylistSummariesResponse();
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
@@ -137,12 +136,12 @@ public class PlaylistDiscoveryOperationsTest {
         verify(bulkStorage).bulkInsertAsync(resources);
     }
 
-    private ApiPlaylistCollection buildPlaylistSummariesResponse() throws CreateModelException {
+    private ModelCollection<ApiPlaylist> buildPlaylistSummariesResponse() throws CreateModelException {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        ApiPlaylistCollection collection = new ApiPlaylistCollection();
+        ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
         collection.setCollection(Arrays.asList(playlist));
-        when(rxHttpClient.<ApiPlaylistCollection>fetchModels(any(APIRequest.class))).thenReturn(
-                Observable.<ApiPlaylistCollection>from(collection));
+        when(rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(any(APIRequest.class))).thenReturn(
+                Observable.<ModelCollection<ApiPlaylist>>from(collection));
         return collection;
     }
 

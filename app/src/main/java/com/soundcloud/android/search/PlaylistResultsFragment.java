@@ -9,7 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.DefaultFragment;
@@ -33,7 +33,7 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 
 public class PlaylistResultsFragment extends DefaultFragment
-        implements ReactiveListComponent<ConnectableObservable<Page<ApiPlaylistCollection>>> {
+        implements ReactiveListComponent<ConnectableObservable<Page<ModelCollection<ApiPlaylist>>>> {
 
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
@@ -44,7 +44,7 @@ public class PlaylistResultsFragment extends DefaultFragment
     @Inject ScModelManager modelManager;
     @Inject EventBus eventBus;
 
-    private ConnectableObservable<Page<ApiPlaylistCollection>> observable;
+    private ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public static PlaylistResultsFragment newInstance(String tag) {
@@ -75,13 +75,13 @@ public class PlaylistResultsFragment extends DefaultFragment
     }
 
     @Override
-    public ConnectableObservable<Page<ApiPlaylistCollection>> buildObservable() {
+    public ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> buildObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
         return operations.playlistsForTag(playlistTag).observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Page<ApiPlaylistCollection>> observable) {
+    public Subscription connectObservable(ConnectableObservable<Page<ModelCollection<ApiPlaylist>>> observable) {
         this.observable = observable;
         this.observable.subscribe(adapter);
         connectionSubscription = observable.connect();

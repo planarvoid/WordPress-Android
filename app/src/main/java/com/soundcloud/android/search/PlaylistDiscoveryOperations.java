@@ -13,7 +13,6 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistCollection;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.storage.BulkStorage;
@@ -48,9 +47,9 @@ class PlaylistDiscoveryOperations {
         }
     };
 
-    private final Action1<ApiPlaylistCollection> preCachePlaylistResults = new Action1<ApiPlaylistCollection>() {
+    private final Action1<ModelCollection<ApiPlaylist>> preCachePlaylistResults = new Action1<ModelCollection<ApiPlaylist>>() {
         @Override
-        public void call(ApiPlaylistCollection collection) {
+        public void call(ModelCollection<ApiPlaylist> collection) {
             fireAndForget(bulkStorage.bulkInsertAsync(Lists.transform(collection.getCollection(), ApiPlaylist.TO_PLAYLIST)));
         }
     };
@@ -93,8 +92,8 @@ class PlaylistDiscoveryOperations {
         return rxHttpClient.<ModelCollection<String>>fetchModels(request).doOnNext(cachePopularTags).map(collectionToList);
     }
 
-    Observable<OperatorPaged.Page<ApiPlaylistCollection>> playlistsForTag(final String tag) {
-        final APIRequest<ApiPlaylistCollection> request =
+    Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> playlistsForTag(final String tag) {
+        final APIRequest<ModelCollection<ApiPlaylist>> request =
                 createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParameters("tag", tag)
                         .build();
@@ -106,28 +105,29 @@ class PlaylistDiscoveryOperations {
         });
     }
 
-    private Observable<OperatorPaged.Page<ApiPlaylistCollection>> getPlaylistResultsNextPage(String query, String nextHref) {
-        final SoundCloudAPIRequest.RequestBuilder<ApiPlaylistCollection> builder = createPlaylistResultsRequest(nextHref);
+    private Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> getPlaylistResultsNextPage(String query, String nextHref) {
+        final SoundCloudAPIRequest.RequestBuilder<ModelCollection<ApiPlaylist>> builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPage(query, builder.build());
     }
 
-    private SoundCloudAPIRequest.RequestBuilder<ApiPlaylistCollection> createPlaylistResultsRequest(String url) {
-        return SoundCloudAPIRequest.RequestBuilder.<ApiPlaylistCollection>get(url)
+    private SoundCloudAPIRequest.RequestBuilder<ModelCollection<ApiPlaylist>> createPlaylistResultsRequest(String url) {
+        return SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ApiPlaylist>>get(url)
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(ApiPlaylistCollection.class));
+                .forResource(new TypeToken<ModelCollection<ApiPlaylist>>() {
+                });
     }
 
-    private Observable<OperatorPaged.Page<ApiPlaylistCollection>> getPlaylistResultsPage(
-            String query, APIRequest<ApiPlaylistCollection> request) {
-        Observable<ApiPlaylistCollection> source = rxHttpClient.fetchModels(request);
+    private Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> getPlaylistResultsPage(
+            String query, APIRequest<ModelCollection<ApiPlaylist>> request) {
+        Observable<ModelCollection<ApiPlaylist>> source = rxHttpClient.fetchModels(request);
         source = source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
         return source.lift(pagedWith(discoveryResultsPager(query)));
     }
 
-    private OperatorPaged.LegacyPager<ApiPlaylistCollection> discoveryResultsPager(final String query) {
-        return new OperatorPaged.LegacyPager<ApiPlaylistCollection>() {
+    private OperatorPaged.LegacyPager<ModelCollection<ApiPlaylist>> discoveryResultsPager(final String query) {
+        return new OperatorPaged.LegacyPager<ModelCollection<ApiPlaylist>>() {
             @Override
-            public Observable<OperatorPaged.Page<ApiPlaylistCollection>> call(ApiPlaylistCollection collection) {
+            public Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> call(ModelCollection<ApiPlaylist> collection) {
                 final Optional<Link> nextLink = collection.getNextLink();
                 if (nextLink.isPresent()) {
                     return getPlaylistResultsNextPage(query, nextLink.get().getHref());
@@ -138,10 +138,10 @@ class PlaylistDiscoveryOperations {
         };
     }
 
-    private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {
-        return new Func1<ApiPlaylistCollection, ApiPlaylistCollection>() {
+    private Func1<ModelCollection<ApiPlaylist>, ModelCollection<ApiPlaylist>> withSearchTag(final String searchTag) {
+        return new Func1<ModelCollection<ApiPlaylist>, ModelCollection<ApiPlaylist>>() {
             @Override
-            public ApiPlaylistCollection call(ApiPlaylistCollection collection) {
+            public ModelCollection<ApiPlaylist> call(ModelCollection<ApiPlaylist> collection) {
                 for (ApiPlaylist playlist : collection) {
                     LinkedList<String> tagsWithSearchTag = new LinkedList<String>(removeItemIgnoreCase(playlist.getTags(), searchTag));
                     tagsWithSearchTag.addFirst(searchTag);
