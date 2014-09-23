@@ -142,7 +142,7 @@ class PlaylistDiscoveryOperations {
         return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
-    final class PlaylistPager extends Pager<ModelCollection<ApiPlaylist>> {
+    class PlaylistPager extends Pager<ModelCollection<ApiPlaylist>> {
 
         private final String query;
 

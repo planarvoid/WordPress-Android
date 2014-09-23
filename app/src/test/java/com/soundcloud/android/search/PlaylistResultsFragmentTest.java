@@ -16,6 +16,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -55,11 +56,14 @@ public class PlaylistResultsFragmentTest {
     @Mock private EndlessAdapter<ApiPlaylist> adapter;
     @Mock private EmptyView emptyView;
     @Mock private Subscription subscription;
+    @Mock private PlaylistDiscoveryOperations.PlaylistPager pager;
 
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
         Observable<ModelCollection<ApiPlaylist>> observable = TestObservables.emptyObservable(subscription);
+        when(operations.pager(anyString())).thenReturn(pager);
+        when(pager.page(observable)).thenReturn(observable);
         when(operations.playlistsForTag(anyString())).thenReturn(observable);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         createFragment();
@@ -70,7 +74,9 @@ public class PlaylistResultsFragmentTest {
         ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
         ApiPlaylist playlist = new ApiPlaylist();
         collection.setCollection(Lists.newArrayList(playlist));
-        when(operations.playlistsForTag("selected tag")).thenReturn(Observable.just(collection));
+        final Observable<ModelCollection<ApiPlaylist>> observable = Observable.just(collection);
+        when(pager.page(observable)).thenReturn(observable);
+        when(operations.playlistsForTag("selected tag")).thenReturn(observable);
 
         fragment.onCreate(null);
 
