@@ -21,16 +21,17 @@ class UrnResolver {
             "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):(\\d+).*", Pattern.CASE_INSENSITIVE);
 
     Urn toUrn(@NotNull Uri uri) {
-        if (Urn.isValidUrn(uri)) {
-            return Urn.parse(uri.toString());
+        final String urnString = uri.toString();
+        if (Urn.isSoundCloudUrn(urnString)) {
+            return new Urn(urnString);
         }
 
-        Matcher deepLinkMatcher = DEEP_LINK_PATTERN.matcher(uri.toString());
+        Matcher deepLinkMatcher = DEEP_LINK_PATTERN.matcher(urnString);
         if (deepLinkMatcher.matches()) {
             return getUrn(deepLinkMatcher);
         }
 
-        Matcher webLinkMatcher = WEB_URN_PATTERN.matcher(uri.toString());
+        Matcher webLinkMatcher = WEB_URN_PATTERN.matcher(urnString);
         if (webLinkMatcher.matches()) {
             return getUrn(webLinkMatcher);
         }
@@ -39,6 +40,10 @@ class UrnResolver {
     }
 
     private Urn getUrn(Matcher matcher) {
-        return Urn.parse(Urn.SOUNDCLOUD_SCHEME + ":" + matcher.group(1).toLowerCase(Locale.US) + ":" + matcher.group(2));
+        String type = matcher.group(1).toLowerCase(Locale.US);
+        if (type.equals("sounds")) {
+            type = "tracks";
+        }
+        return new Urn(Urn.SOUNDCLOUD_SCHEME + ":" + type + ":" + matcher.group(2));
     }
 }

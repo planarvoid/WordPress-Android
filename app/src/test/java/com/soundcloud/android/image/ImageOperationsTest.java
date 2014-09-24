@@ -90,7 +90,7 @@ public class ImageOperationsTest {
     final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
 
     final private static String RESOLVER_URL_LARGE = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-    final private static Urn URN = Urn.parse("soundcloud:tracks:1");
+    final private static Urn URN = new Urn("soundcloud:tracks:1");
 
     private final Scheduler graphicsScheduler = Schedulers.immediate();
 

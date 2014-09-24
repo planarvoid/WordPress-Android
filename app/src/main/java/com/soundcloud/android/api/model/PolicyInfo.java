@@ -13,7 +13,7 @@ public class PolicyInfo {
     @JsonCreator
     public PolicyInfo(@JsonProperty("urn") String trackUrn, @JsonProperty("monetizable") boolean monetizable,
                       @JsonProperty("policy") String policy) {
-        this(Urn.parse(trackUrn), monetizable, policy);
+        this(new Urn(trackUrn), monetizable, policy);
     }
 
     public PolicyInfo(Urn trackUrn, boolean monetizable, String policy) {
