@@ -21,47 +21,45 @@ public class UrnTest {
     @Test
     public void shouldParseUserUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:users:123");
-        expect(urn.type).toEqual("users");
+        expect(urn.isUser()).toBeTrue();
         expect(urn.numericId).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.USER.forId(123L));
-        expect(urn.isSound()).toBeFalse();
     }
 
     @Test
     public void shouldParseLegacyTrackUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:sounds:123");
-        expect(urn.type).toEqual("tracks");
+        expect(urn.isTrack()).toBeTrue();
+        expect(urn.isSound()).toBeTrue();
         expect(urn.numericId).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
-        expect(urn.isSound()).toBeTrue();
     }
 
     @Test
     public void shouldParseTrackUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:tracks:123");
-        expect(urn.type).toEqual("tracks");
+        expect(urn.isTrack()).toBeTrue();
+        expect(urn.isSound()).toBeTrue();
         expect(urn.numericId).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
-        expect(urn.isSound()).toBeTrue();
     }
 
     @Test
     public void shouldParsePlaylistUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:playlists:123");
-        expect(urn.type).toEqual("playlists");
+        expect(urn.isPlaylist()).toBeTrue();
+        expect(urn.isSound()).toBeTrue();
         expect(urn.numericId).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
-        expect(urn.isSound()).toBeTrue();
     }
 
     // Eventually we shouldn't have to do it anymore, but this is how we currently represent local playlists
     @Test
     public void shouldParseNegativePlaylistUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:playlists:-123");
-        expect(urn.type).toEqual("playlists");
+        expect(urn.isPlaylist()).toBeTrue();
         expect(urn.numericId).toEqual(-123L);
         expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(-123L));
-        expect(urn.isSound()).toBeTrue();
     }
 
     // This is still up for debate, but right now we represent NOT_SET Urns with numeric part -1
@@ -69,32 +67,6 @@ public class UrnTest {
     public void shouldAllowUrnsWithNegativeOneIds() {
         final Urn urn = Urn.parse("soundcloud:tracks:-1");
         expect(urn.numericId).toEqual(-1L);
-    }
-
-    @Test
-    public void isTrackShouldBeTrueForTrackAndSound() {
-        expect(Urn.parse("soundcloud:sounds:123").isTrack()).toBeTrue();
-        expect(Urn.parse("soundcloud:tracks:123").isTrack()).toBeTrue();
-    }
-
-    @Test
-    public void isTrackShouldBeFalseForPlaylist() {
-        expect(Urn.parse("soundcloud:playlists:123").isTrack()).toBeFalse();
-    }
-
-    @Test
-    public void isPlaylistShouldBeTrueForPlaylist() {
-        expect(Urn.parse("soundcloud:playlists:123").isPlaylist()).toBeTrue();
-    }
-
-    @Test
-    public void isPlaylistShouldBeFalseForTrack() {
-        expect(Urn.parse("soundcloud:tracks:123").isPlaylist()).toBeFalse();
-    }
-
-    @Test
-    public void isUserShouldBeTrueForUser() {
-        expect(Urn.parse("soundcloud:users:123").isUser()).toBeTrue();
     }
 
     @Test
