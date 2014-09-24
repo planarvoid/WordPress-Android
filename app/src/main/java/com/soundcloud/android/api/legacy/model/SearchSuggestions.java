@@ -215,10 +215,23 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
             if (intentData != null) {
                 return intentData;
             }
-            return getClientUri().contentProviderUri().toString();
+            return contentProviderUri().toString();
         }
 
-        public Urn getClientUri() {
+        private Uri contentProviderUri() {
+            final Urn urn = getUrn();
+            if (urn.isTrack()) {
+                return Content.TRACK.forId(urn.getNumericId());
+            } else if (urn.isUser()) {
+                return Content.USER.forId(urn.getNumericId());
+            } else if (urn.isPlaylist()) {
+                return Content.PLAYLIST.forId(urn.getNumericId());
+            } else {
+                throw new IllegalStateException("Can't convert to content Uri: " + urn);
+            }
+        }
+
+        public Urn getUrn() {
             return new Urn(Urn.SOUNDCLOUD_SCHEME + ":" + kind + "s:" + id);
         }
 

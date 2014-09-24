@@ -2,10 +2,8 @@ package com.soundcloud.android.model;
 
 import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.storage.provider.Content;
 import org.jetbrains.annotations.NotNull;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -110,18 +108,6 @@ public final class Urn implements Parcelable {
         return Consts.NOT_SET;
     }
 
-    public Uri contentProviderUri() {
-        if (isTrack()) {
-            return Content.TRACK.forId(getNumericId());
-        } else if (isUser()) {
-            return Content.USER.forId(getNumericId());
-        } else if (isPlaylist()) {
-            return Content.PLAYLIST.forId(getNumericId());
-        } else {
-            throw new IllegalStateException("Can't convert to content Uri: " + content);
-        }
-    }
-
     @Override
     public String toString() {
         return content;
@@ -131,8 +117,7 @@ public final class Urn implements Parcelable {
         try {
             return URLEncoder.encode(toString(), Charsets.UTF_8.displayName());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.provider.Content;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,7 +36,6 @@ public class UrnTest {
         Urn urn = new Urn("soundcloud:users:123");
         expect(urn.isUser()).toBeTrue();
         expect(urn.getNumericId()).toEqual(123L);
-        expect(urn.contentProviderUri()).toEqual(Content.USER.forId(123L));
     }
 
     @Test
@@ -47,7 +45,6 @@ public class UrnTest {
         expect(urn.isSound()).toBeTrue();
         expect(urn.getNumericId()).toEqual(123L);
         expect(urn.toString()).toEqual("soundcloud:tracks:123");
-        expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
     }
 
     @Test
@@ -56,7 +53,6 @@ public class UrnTest {
         expect(urn.isTrack()).toBeTrue();
         expect(urn.isSound()).toBeTrue();
         expect(urn.getNumericId()).toEqual(123L);
-        expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
     }
 
     @Test
@@ -65,7 +61,6 @@ public class UrnTest {
         expect(urn.isPlaylist()).toBeTrue();
         expect(urn.isSound()).toBeTrue();
         expect(urn.getNumericId()).toEqual(123L);
-        expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
     }
 
     // Eventually we shouldn't have to do it anymore, but this is how we currently represent local playlists
@@ -74,7 +69,6 @@ public class UrnTest {
         Urn urn = new Urn("soundcloud:playlists:-123");
         expect(urn.isPlaylist()).toBeTrue();
         expect(urn.getNumericId()).toEqual(-123L);
-        expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(-123L));
     }
 
     // This is still up for debate, but right now we represent NOT_SET Urns with numeric part -1
