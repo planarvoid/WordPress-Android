@@ -81,7 +81,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     @Deprecated
     public long getTrackId(int position) {
-        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().numericId : Consts.NOT_SET;
+        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().getNumericId() : Consts.NOT_SET;
     }
 
     public PropertySet getMetaData(int position) {
@@ -112,7 +112,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         List<Long> trackIds = Lists.transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {
-                return input.getTrackUrn().numericId;
+                return input.getTrackUrn().getNumericId();
             }
         });
         return trackIds;

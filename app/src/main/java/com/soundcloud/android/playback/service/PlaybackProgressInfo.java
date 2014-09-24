@@ -22,7 +22,7 @@ public class PlaybackProgressInfo {
     }
 
     public boolean shouldResumeTrack(Urn trackUrn) {
-        return getTrackId() == trackUrn.numericId && time > 0;
+        return getTrackId() == trackUrn.getNumericId() && time > 0;
     }
 
     @Override

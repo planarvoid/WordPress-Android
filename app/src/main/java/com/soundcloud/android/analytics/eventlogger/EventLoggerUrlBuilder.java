@@ -111,7 +111,7 @@ public class EventLoggerUrlBuilder {
         builder.appendQueryParameter(ACTION, event.isPlayEvent() ? "play" : "stop");
         builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
         // EventLogger v0 requires us to pass URNs in the legacy format
-        builder.appendQueryParameter(SOUND, "soundcloud:sounds:" + event.getTrackUrn().numericId);
+        builder.appendQueryParameter(SOUND, "soundcloud:sounds:" + event.getTrackUrn().getNumericId());
 
         final String trackPolicy = event.getTrackPolicy();
         if (trackPolicy != null && !event.isAd()) {

@@ -246,7 +246,7 @@ public class SoundAssociationOperations {
 
     private Observable<? extends Playable> resolveLegacyModel(final Urn urn) {
         return urn.isTrack()
-                ? trackStorage.getTrackAsync(urn.numericId)
+                ? trackStorage.getTrackAsync(urn.getNumericId())
                 : legacyPlaylistOperations.loadPlaylist(urn);
     }
 

@@ -118,7 +118,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private String getStreamUrlAppendedId(PropertySet track){
         final String streamUrl = track.get(TrackProperty.STREAM_URL);
-        final String trackId = String.valueOf(track.get(TrackProperty.URN).numericId);
+        final String trackId = String.valueOf(track.get(TrackProperty.URN).getNumericId());
         return Uri.parse(streamUrl).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY, trackId).build().toString();
     }
 

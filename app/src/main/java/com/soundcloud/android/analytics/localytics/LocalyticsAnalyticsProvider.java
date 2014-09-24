@@ -114,7 +114,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             Map<String, String> eventAttributes = new HashMap<String, String>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
-            eventAttributes.put("track_id", String.valueOf(eventData.getTrackUrn().numericId));
+            eventAttributes.put("track_id", String.valueOf(eventData.getTrackUrn().getNumericId()));
 
             final long duration = eventData.getDuration();
             eventAttributes.put("track_length_ms", String.valueOf(duration));

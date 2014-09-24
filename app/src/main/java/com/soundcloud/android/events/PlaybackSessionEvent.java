@@ -134,7 +134,7 @@ public class PlaybackSessionEvent {
     }
 
     public boolean isPlayingOwnPlaylist() {
-        return trackSourceInfo.getPlaylistOwnerId() == userUrn.numericId;
+        return trackSourceInfo.getPlaylistOwnerId() == userUrn.getNumericId();
     }
 
     public int getDuration() {

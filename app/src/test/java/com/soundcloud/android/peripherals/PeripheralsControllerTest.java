@@ -95,7 +95,7 @@ public class PeripheralsControllerTest {
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         expect(secondBroadcast.getAction()).toEqual("com.android.music.metachanged");
-        expect(secondBroadcast.getExtras().get("id")).toEqual(track.get(TrackProperty.URN).numericId);
+        expect(secondBroadcast.getExtras().get("id")).toEqual(track.get(TrackProperty.URN).getNumericId());
         expect(secondBroadcast.getExtras().get("artist")).toEqual(track.get(PlayableProperty.CREATOR_NAME));
         expect(secondBroadcast.getExtras().get("track")).toEqual(track.get(PlayableProperty.TITLE));
         expect(secondBroadcast.getExtras().get("duration")).toEqual(track.get(PlayableProperty.DURATION));

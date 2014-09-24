@@ -47,7 +47,7 @@ class CommentsOperations {
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
-        final APIRequest request = apiRequest(APIEndpoints.TRACK_COMMENTS.path(trackUrn.numericId))
+        final APIRequest request = apiRequest(APIEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .addQueryParameters("linked_partitioning", "1")
                 .addQueryParameters("limit", COMMENTS_PAGE_SIZE)
                 .build();

@@ -61,7 +61,7 @@ public class TrackCommentsActivity extends ScActivity {
         if (featureFlags.isEnabled(Feature.COMMENTS_REDESIGN)) {
             fragment = CommentsFragment.create(trackUrn);
         } else {
-            final Uri contentUri = Content.TRACK_COMMENTS.forId(trackUrn.numericId);
+            final Uri contentUri = Content.TRACK_COMMENTS.forId(trackUrn.getNumericId());
             fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
         }
         getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();

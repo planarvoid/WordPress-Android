@@ -48,8 +48,8 @@ class SoundStreamStorage {
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
                         ActivityView.USER_USERNAME,
-                        exists(soundAssociationQuery(LIKE, userUrn.numericId)).as(SoundView.USER_LIKE),
-                        exists(soundAssociationQuery(REPOST, userUrn.numericId)).as(SoundView.USER_REPOST)
+                        exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
+                        exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)
                 )
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereLt(ActivityView.CREATED_AT, timestamp)

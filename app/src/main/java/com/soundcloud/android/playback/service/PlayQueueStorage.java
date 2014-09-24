@@ -39,7 +39,7 @@ public class PlayQueueStorage {
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
                 newItems.add(ContentValuesBuilder.values(3)
-                        .put(TableColumns.PlayQueue.TRACK_ID, item.getTrackUrn().numericId)
+                        .put(TableColumns.PlayQueue.TRACK_ID, item.getTrackUrn().getNumericId())
                         .put(TableColumns.PlayQueue.SOURCE, item.getSource())
                         .put(TableColumns.PlayQueue.SOURCE_VERSION, item.getSourceVersion())
                         .get());

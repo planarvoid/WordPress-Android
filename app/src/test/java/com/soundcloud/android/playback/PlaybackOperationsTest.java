@@ -159,7 +159,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         playbackOperations
                 .playTracks(Observable.from(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -177,7 +177,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
         playbackOperations
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe();
@@ -198,7 +198,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.EXPLORE_TRENDING_MUSIC.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         playbackOperations
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -720,7 +720,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTracksUrn(123L)));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         playbackOperations
                 .playTracks(Observable.just(TRACK_URN), TRACK_URN, 0, playSessionSource)

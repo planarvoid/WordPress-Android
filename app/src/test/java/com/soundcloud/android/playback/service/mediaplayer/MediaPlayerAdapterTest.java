@@ -80,7 +80,7 @@ public class MediaPlayerAdapterTest {
     @Before
     public void setUp() throws Exception {
         track = TestPropertySets.expectedTrackForPlayer();
-        streamUrlWithId = track.get(TrackProperty.STREAM_URL) + "?track_id="+track.get(TrackProperty.URN).numericId;
+        streamUrlWithId = track.get(TrackProperty.STREAM_URL) + "?track_id="+ track.get(TrackProperty.URN).getNumericId();
         streamUriWithId = Uri.parse(streamUrlWithId);
         duration = track.get(PlayableProperty.DURATION);
 

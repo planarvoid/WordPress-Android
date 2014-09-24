@@ -22,7 +22,7 @@ public class UrnTest {
     public void shouldParseUserUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:users:123");
         expect(urn.isUser()).toBeTrue();
-        expect(urn.numericId).toEqual(123L);
+        expect(urn.getNumericId()).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.USER.forId(123L));
     }
 
@@ -31,7 +31,7 @@ public class UrnTest {
         Urn urn = Urn.parse("soundcloud:sounds:123");
         expect(urn.isTrack()).toBeTrue();
         expect(urn.isSound()).toBeTrue();
-        expect(urn.numericId).toEqual(123L);
+        expect(urn.getNumericId()).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
     }
 
@@ -40,7 +40,7 @@ public class UrnTest {
         Urn urn = Urn.parse("soundcloud:tracks:123");
         expect(urn.isTrack()).toBeTrue();
         expect(urn.isSound()).toBeTrue();
-        expect(urn.numericId).toEqual(123L);
+        expect(urn.getNumericId()).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.TRACK.forId(123L));
     }
 
@@ -49,7 +49,7 @@ public class UrnTest {
         Urn urn = Urn.parse("soundcloud:playlists:123");
         expect(urn.isPlaylist()).toBeTrue();
         expect(urn.isSound()).toBeTrue();
-        expect(urn.numericId).toEqual(123L);
+        expect(urn.getNumericId()).toEqual(123L);
         expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(123L));
     }
 
@@ -58,7 +58,7 @@ public class UrnTest {
     public void shouldParseNegativePlaylistUrns() throws Exception {
         Urn urn = Urn.parse("soundcloud:playlists:-123");
         expect(urn.isPlaylist()).toBeTrue();
-        expect(urn.numericId).toEqual(-123L);
+        expect(urn.getNumericId()).toEqual(-123L);
         expect(urn.contentProviderUri()).toEqual(Content.PLAYLIST.forId(-123L));
     }
 
@@ -66,7 +66,7 @@ public class UrnTest {
     @Test
     public void shouldAllowUrnsWithNegativeOneIds() {
         final Urn urn = Urn.parse("soundcloud:tracks:-1");
-        expect(urn.numericId).toEqual(-1L);
+        expect(urn.getNumericId()).toEqual(-1L);
     }
 
     @Test

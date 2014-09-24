@@ -45,7 +45,7 @@ public final class Urn implements Parcelable {
 
     private final String scheme;
     private final String type;
-    @Deprecated public final long numericId;
+    private final long numericId;
 
     public static boolean isValidUrn(Uri uri) {
         return isValidUrn(uri.toString());
@@ -119,6 +119,10 @@ public final class Urn implements Parcelable {
 
     public boolean isUser() {
         return USERS_TYPE.equalsIgnoreCase(type);
+    }
+
+    public long getNumericId() {
+        return numericId;
     }
 
     public Uri contentProviderUri() {

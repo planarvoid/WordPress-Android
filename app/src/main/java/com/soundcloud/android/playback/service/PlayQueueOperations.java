@@ -101,7 +101,7 @@ public class PlayQueueOperations {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // TODO: migrate the preferences to store the URN, not the ID
-        editor.putLong(Keys.TRACK_ID.name(), currentUrn.numericId);
+        editor.putLong(Keys.TRACK_ID.name(), currentUrn.getNumericId());
         editor.putInt(Keys.PLAY_POSITION.name(), position);
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
 

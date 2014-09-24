@@ -111,7 +111,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
                     .scheme(env.getSecureResourceHost().getSchemeName())
                     .authority(env.getSecureResourceHost().getHostName())
                     .appendPath(resourcePath)
-                    .appendPath(String.valueOf(urn.numericId)).build();
+                    .appendPath(String.valueOf(urn.getNumericId())).build();
         } catch (IllegalArgumentException e) {
             return null;
         }

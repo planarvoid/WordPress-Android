@@ -67,7 +67,7 @@ public class LegacyPlaylistOperations {
 
     public Observable<PublicApiPlaylist> loadPlaylist(final Urn playlistUrn) {
         Log.d(LOG_TAG, "Loading playlist " + playlistUrn);
-        return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId)
+        return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.getNumericId())
                 .onErrorResumeNext(handlePlaylistNotFound(playlistUrn))
                 .mergeMap(syncIfNecessary);
     }
@@ -104,7 +104,7 @@ public class LegacyPlaylistOperations {
             @Override
             public Observable<PublicApiPlaylist> call(Boolean playlistWasUpdated) {
                 Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlistUrn);
-                return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId);
+                return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.getNumericId());
             }
         });
     }

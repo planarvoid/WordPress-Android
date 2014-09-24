@@ -74,7 +74,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         expect(stopEventAttributes.getValue().get("context")).toEqual(Screen.YOUR_LIKES.get());
         expect(stopEventAttributes.getValue().get("play_duration_ms")).toEqual("1000");
         expect(stopEventAttributes.getValue().get("track_length_ms")).toEqual(String.valueOf(DURATION));
-        expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(TRACK_URN.numericId));
+        expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(TRACK_URN.getNumericId()));
     }
 
     @Test

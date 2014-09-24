@@ -196,7 +196,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
                 new DefaultSubscriber<Playa.StateTransition>() {
             @Override
             public void onNext(Playa.StateTransition event) {
-                playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().numericId)
+                playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn().getNumericId())
                         && event.playSessionIsActive());
             }
         });
@@ -289,7 +289,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
 
     private void playTracksAtPosition(int trackPosition, Subscriber playbackSubscriber) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
         final Observable<Urn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());

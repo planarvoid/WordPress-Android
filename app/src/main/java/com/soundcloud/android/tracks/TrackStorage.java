@@ -51,10 +51,10 @@ public class TrackStorage {
                         SoundView.PERMALINK_URL,
                         SoundView.SHARING,
                         SoundView.CREATED_AT,
-                        exists(soundAssociationQuery(LIKE, loggedInUserUrn.numericId)).as(SoundView.USER_LIKE),
-                        exists(soundAssociationQuery(REPOST, loggedInUserUrn.numericId)).as(SoundView.USER_REPOST)
+                        exists(soundAssociationQuery(LIKE, loggedInUserUrn.getNumericId())).as(SoundView.USER_LIKE),
+                        exists(soundAssociationQuery(REPOST, loggedInUserUrn.getNumericId())).as(SoundView.USER_REPOST)
                 )
-                .whereEq(SoundView._ID, trackUrn.numericId);
+                .whereEq(SoundView._ID, trackUrn.getNumericId());
         return scheduler.scheduleQuery(filterIncompleteTracks(query)).map(new TrackItemMapper());
     }
 
@@ -63,7 +63,7 @@ public class TrackStorage {
     }
 
     public Observable<PropertySet> trackDetails(final Urn trackUrn) {
-        final Query query = Query.from(Table.SOUND_VIEW.name) .select(SoundView.DESCRIPTION).whereEq(SoundView._ID, trackUrn.numericId);
+        final Query query = Query.from(Table.SOUND_VIEW.name) .select(SoundView.DESCRIPTION).whereEq(SoundView._ID, trackUrn.getNumericId());
         return scheduler.scheduleQuery(query).map(new TrackDescriptionMapper());
     }
 

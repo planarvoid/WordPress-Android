@@ -111,7 +111,7 @@ public class SyncInitiator {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-                final Uri contentUri = Content.PLAYLIST.forId(playlistUrn.numericId);
+                final Uri contentUri = Content.PLAYLIST.forId(playlistUrn.getNumericId());
                 requestPlaylistSync(new ResultReceiverAdapter(subscriber, contentUri));
             }
         });
@@ -128,7 +128,7 @@ public class SyncInitiator {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-                final Uri contentUri = Content.TRACKS.forId(trackUrn.numericId);
+                final Uri contentUri = Content.TRACKS.forId(trackUrn.getNumericId());
                 requestTrackSync(new ResultReceiverAdapter(subscriber, contentUri));
             }
         });

@@ -81,7 +81,7 @@ import java.util.WeakHashMap;
     }
 
     public boolean isFollowing(Urn urn) {
-        return followings.contains(urn.numericId);
+        return followings.contains(urn.getNumericId());
     }
 
     public boolean isFollowing(PublicApiUser user) {

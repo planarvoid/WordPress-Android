@@ -70,14 +70,14 @@ public final class UIEvent {
         return new UIEvent(isLike ? Kind.LIKE : Kind.UNLIKE)
                 .putAttribute("context", screenTag)
                 .putAttribute("resource", getPlayableType(resourceUrn))
-                .putAttribute("resource_id", String.valueOf(resourceUrn.numericId));
+                .putAttribute("resource_id", String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(isRepost ? Kind.REPOST : Kind.UNREPOST)
                 .putAttribute("context", screenTag)
                 .putAttribute("resource", getPlayableType(resourceUrn))
-                .putAttribute("resource_id", String.valueOf(resourceUrn.numericId));
+                .putAttribute("resource_id", String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
@@ -97,7 +97,7 @@ public final class UIEvent {
         return new UIEvent(Kind.SHARE)
                 .putAttribute("context", screenTag)
                 .putAttribute("resource", getPlayableType(resourceUrn))
-                .putAttribute("resource_id", String.valueOf(resourceUrn.numericId));
+                .putAttribute("resource_id", String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromShuffleMyLikes() {

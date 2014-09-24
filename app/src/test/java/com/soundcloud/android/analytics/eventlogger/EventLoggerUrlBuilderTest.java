@@ -195,7 +195,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=" + audioAdTrack.get(PlayableProperty.DURATION)
-                + "&sound=" + "soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).numericId
+                + "&sound=" + "soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId()
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
                 + "&page_name=origin"

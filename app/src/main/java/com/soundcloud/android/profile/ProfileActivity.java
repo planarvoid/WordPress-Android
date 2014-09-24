@@ -191,7 +191,7 @@ public class ProfileActivity extends ScActivity implements
             loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
         } else if (intent.hasExtra(EXTRA_USER_URN)) {
             Urn urn = intent.getParcelableExtra(EXTRA_USER_URN);
-            loadUserById(urn.numericId);
+            loadUserById(urn.getNumericId());
         } else if (intent.getData() == null || !loadUserByUri(intent.getData())) {
             loadYou();
         }

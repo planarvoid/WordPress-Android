@@ -97,7 +97,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     private long idFromUrn() {
         if (mURN != null) {
-            return mURN.numericId;
+            return mURN.getNumericId();
         }
         return NOT_SET;
     }
