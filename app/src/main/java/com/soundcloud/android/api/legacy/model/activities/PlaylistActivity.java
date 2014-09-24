@@ -5,8 +5,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.SharingNote;
+import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 

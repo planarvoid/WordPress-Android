@@ -7,7 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -47,7 +47,7 @@ public class PlaylistStorageTest {
         ApiTrack firstTrack = helper.insertPlaylistTrack(apiPlaylist, 0);
         ApiTrack secondTrack = helper.insertPlaylistTrack(apiPlaylist, 1);
 
-        TestObserver<TrackUrn> observer = new TestObserver<TrackUrn>();
+        TestObserver<Urn> observer = new TestObserver<>();
         storage.trackUrns(apiPlaylist.getUrn()).subscribe(observer);
         expect(observer.getOnNextEvents()).toContainExactly(
                 firstTrack.getUrn(), secondTrack.getUrn(), thirdTrack.getUrn()

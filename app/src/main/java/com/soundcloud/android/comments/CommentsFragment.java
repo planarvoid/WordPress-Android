@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
@@ -36,7 +36,7 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
     private ConnectableObservable<List<Comment>> comments;
     private Subscription subscription = Subscriptions.empty();
 
-    public static CommentsFragment create(TrackUrn trackUrn) {
+    public static CommentsFragment create(Urn trackUrn) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_TRACK_URN, trackUrn);
         CommentsFragment fragment = new CommentsFragment();
@@ -62,7 +62,7 @@ public class CommentsFragment extends DefaultFragment implements ReactiveListCom
 
     @Override
     public Observable<List<Comment>> buildObservable() {
-        final TrackUrn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
+        final Urn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
         comments = operations.pager().page(operations.comments(trackUrn))
                 .map(TO_COMMENT_VIEW_MODEL)
                 .observeOn(mainThread())

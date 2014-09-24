@@ -33,7 +33,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -80,7 +80,7 @@ public class PlayQueueManagerTest {
         when(playQueue.copy()).thenReturn(playQueue);
         when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<ModelCollection<PolicyInfo>>empty());
 
-        when(playQueue.getUrn(3)).thenReturn(TrackUrn.forTrack(369L));
+        when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
@@ -110,8 +110,8 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(queue2, 2, source2);
 
         expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).toContainExactly(PlayQueueEvent.fromNewQueue());
-        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toContainExactly(CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(1L)),
-                CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(3L)));
+        expect(eventBus.eventsOn(EventQueue.PLAY_QUEUE_TRACK)).toContainExactly(CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(1L)),
+                CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(3L)));
     }
 
     @Test
@@ -229,7 +229,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldPublishTrackChangedEventOnSetNewPlayQueue(){
-        final TrackUrn trackUrn = Urn.forTrack(3L);
+        final Urn trackUrn = Urn.forTrack(3L);
         when(playQueue.getUrn(0)).thenReturn(trackUrn);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
@@ -240,7 +240,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSaveCurrentPositionWhenSettingNonEmptyPlayQueue() {
         int currentPosition = 5;
-        TrackUrn currentUrn = Urn.forTrack(3L);
+        Urn currentUrn = Urn.forTrack(3L);
         when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(currentPosition)).thenReturn(currentUrn);
 
@@ -250,7 +250,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldStoreTracksWhenSettingNewPlayQueue() {
-        TrackUrn currentUrn = Urn.forTrack(3L);
+        Urn currentUrn = Urn.forTrack(3L);
         when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(0)).thenReturn(currentUrn);
 
@@ -266,7 +266,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void saveProgressSavesPlayQueueInfoUsingPlayQueueOperations() {
-        TrackUrn currentUrn = Urn.forTrack(3L);
+        Urn currentUrn = Urn.forTrack(3L);
         when(playQueue.hasItems()).thenReturn(true);
         when(playQueue.getUrn(0)).thenReturn(currentUrn);
         when(playQueue.shouldPersistTrackAt(0)).thenReturn(true);
@@ -288,8 +288,8 @@ public class PlayQueueManagerTest {
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         // Saves first time when we call setNewPlayQueue
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(Urn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(Urn.class), any(PlaySessionSource.class), anyLong());
     }
 
     @Test
@@ -302,8 +302,8 @@ public class PlayQueueManagerTest {
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         // Saves first time when we call setNewPlayQueue
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(TrackUrn.class), any(PlaySessionSource.class), anyLong());
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(TrackUrn.class), any(PlaySessionSource.class), eq(0L));
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(Urn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(Urn.class), any(PlaySessionSource.class), eq(0L));
     }
 
     @Test
@@ -492,7 +492,7 @@ public class PlayQueueManagerTest {
     @Test
     public void getNextTrackUrnReturnsNotSetTrackUrnIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
-        expect(playQueueManager.getNextTrackUrn()).toEqual(TrackUrn.NOT_SET);
+        expect(playQueueManager.getNextTrackUrn()).toEqual(Urn.NOT_SET);
     }
 
     @Test
@@ -532,7 +532,7 @@ public class PlayQueueManagerTest {
         });
 
         expect(playQueueManager.getQueueSize()).toEqual(3);
-        expect(playQueueManager.getUrnAtPosition(0)).toEqual(TrackUrn.forTrack(1L));
+        expect(playQueueManager.getUrnAtPosition(0)).toEqual(Urn.forTrack(1L));
         expect(playQueueManager.getCurrentPosition()).toEqual(2);
     }
 
@@ -648,8 +648,8 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks() {
-        TrackUrn currentUrn = Urn.forTrack(123L);
-        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
+        Urn currentUrn = Urn.forTrack(123L);
+        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
         when(playQueue.getUrn(0)).thenReturn(currentUrn);
 
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
@@ -661,7 +661,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(observable);
+        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
 
         playQueueManager.fetchTracksRelatedToCurrentTrack();
         expect(observable.subscribedTo()).toBeTrue();
@@ -669,7 +669,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks() {
-        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
+        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
         playQueueManager.fetchTracksRelatedToCurrentTrack();
         expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
         expectBroadcastPlayQueueUpdate();
@@ -677,7 +677,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldNotPublishPlayQueueRelatedTracksEventOnEmptyRelatedLoad() throws CreateModelException {
-        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
+        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>empty());
         playQueueManager.fetchTracksRelatedToCurrentTrack();
 
         eventBus.verifyNoEventsOn(EventQueue.PLAY_QUEUE);
@@ -686,7 +686,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldPublishPlayQueueUpdateEventOnRelatedTracksReturned() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final TrackUrn trackUrn = Urn.forTrack(123L);
+        final Urn trackUrn = Urn.forTrack(123L);
         when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123")));
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
         playQueueManager.fetchTracksRelatedToCurrentTrack();
@@ -697,7 +697,7 @@ public class PlayQueueManagerTest {
     @Test
     public void relatedTrackLoadShouldCauseQueueToBeSaved() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final TrackUrn trackUrn = Urn.forTrack(123L);
+        final Urn trackUrn = Urn.forTrack(123L);
         final RecommendedTracksCollection related = new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123");
         when(playQueueOperations.getRelatedTracks(trackUrn)).thenReturn(Observable.just(related));
 
@@ -816,7 +816,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldRetryWithSameObservable() {
         TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueueOperations.getRelatedTracks(any(TrackUrn.class))).thenReturn(observable);
+        when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(observable);
 
         playQueueManager.fetchTracksRelatedToCurrentTrack();
         playQueueManager.retryRelatedTracksFetch();

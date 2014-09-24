@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackUrn;
 
 import android.view.View;
 
@@ -11,7 +10,7 @@ import java.util.Map;
 
 class TrackPageRecycler {
 
-    private final LinkedHashMap<TrackUrn, View> viewMap;
+    private final Map<Urn, View> viewMap;
     private final LinkedList<View> scrapViews;
 
     TrackPageRecycler() {
@@ -23,11 +22,11 @@ class TrackPageRecycler {
         return trackPage == viewMap.get(urn);
     }
 
-    boolean hasExistingPage(TrackUrn urn){
+    boolean hasExistingPage(Urn urn){
         return viewMap.containsKey(urn);
     }
 
-    View removePageByUrn(TrackUrn urn) {
+    View removePageByUrn(Urn urn) {
         final View view = viewMap.get(urn);
         viewMap.remove(urn);
         return view;
@@ -35,7 +34,7 @@ class TrackPageRecycler {
 
     View getRecycledPage() {
         if (scrapViews.isEmpty()){
-            Map.Entry<TrackUrn, View> entry = viewMap.entrySet().iterator().next();
+            Map.Entry<Urn, View> entry = viewMap.entrySet().iterator().next();
             View view = entry.getValue();
             viewMap.remove(entry.getKey());
             return view;
@@ -44,7 +43,7 @@ class TrackPageRecycler {
         }
     }
 
-    void recyclePage(TrackUrn urn, View view) {
+    void recyclePage(Urn urn, View view) {
         viewMap.put(urn, view);
     }
 

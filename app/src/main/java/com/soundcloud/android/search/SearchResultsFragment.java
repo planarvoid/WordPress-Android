@@ -18,7 +18,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -174,7 +174,7 @@ public class SearchResultsFragment extends DefaultFragment
 //        Context context = getActivity();
 //        if (item instanceof PublicApiTrack) {
 //            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
-//            final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
+//            final List<Urn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
 //            final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
 //            playbackOperations
 //                    .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()))
@@ -189,10 +189,10 @@ public class SearchResultsFragment extends DefaultFragment
 //        }
     }
 
-    private List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {
-        return Lists.transform(filter, new Function<PlayableHolder, TrackUrn>() {
+    private List<Urn> toTrackUrn(List<? extends PlayableHolder> filter) {
+        return Lists.transform(filter, new Function<PlayableHolder, Urn>() {
             @Override
-            public TrackUrn apply(PlayableHolder input) {
+            public Urn apply(PlayableHolder input) {
                 return ((PublicApiTrack) input.getPlayable()).getUrn();
             }
         });

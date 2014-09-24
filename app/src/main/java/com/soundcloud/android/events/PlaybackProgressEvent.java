@@ -1,13 +1,13 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.model.Urn;
 
 public class PlaybackProgressEvent {
     PlaybackProgress playbackProgress;
-    TrackUrn trackUrn;
+    Urn trackUrn;
 
-    public PlaybackProgressEvent(PlaybackProgress playbackProgress, TrackUrn trackUrn) {
+    public PlaybackProgressEvent(PlaybackProgress playbackProgress, Urn trackUrn) {
         this.playbackProgress = playbackProgress;
         this.trackUrn = trackUrn;
     }
@@ -16,7 +16,7 @@ public class PlaybackProgressEvent {
         return playbackProgress;
     }
 
-    public TrackUrn getTrackUrn() {
+    public Urn getTrackUrn() {
         return trackUrn;
     }
 }

@@ -31,7 +31,6 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -69,7 +68,7 @@ public class SoundAdapterTest {
 
     @Before
     public void setup() {
-        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
         adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus, buildProvider(expandPlayerSubscriber));
     }
@@ -170,7 +169,7 @@ public class SoundAdapterTest {
 
     @Test
     public void playQueueTrackEventForPositionChangedShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
         verify(trackPresenter).setPlayingTrack(playingTrack);
@@ -178,7 +177,7 @@ public class SoundAdapterTest {
 
     @Test
     public void playQueueTrackEventForNewQueueShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
         verify(trackPresenter).setPlayingTrack(playingTrack);

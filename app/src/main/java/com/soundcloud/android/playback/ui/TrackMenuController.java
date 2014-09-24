@@ -11,7 +11,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
@@ -87,12 +87,12 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         }
     }
 
-    private void handleUnpost(TrackUrn urn) {
+    private void handleUnpost(Urn urn) {
         fireAndForget(associationOperations.toggleRepost(urn, false));
         eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleRepost(false, playQueueManager.getScreenTag(), urn));
     }
 
-    private void handleRepost(TrackUrn urn) {
+    private void handleRepost(Urn urn) {
         fireAndForget(associationOperations.toggleRepost(urn, true));
         eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
     }

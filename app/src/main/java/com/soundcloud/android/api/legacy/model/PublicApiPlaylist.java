@@ -5,13 +5,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.json.Views;
+import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
@@ -129,11 +128,6 @@ public class PublicApiPlaylist extends Playable {
     public void setId(long id) {
         super.setId(id);
         mURN = Urn.forPlaylist(id);
-    }
-
-    @Override
-    public PlaylistUrn getUrn() {
-        return (PlaylistUrn) super.getUrn();
     }
 
     @Override

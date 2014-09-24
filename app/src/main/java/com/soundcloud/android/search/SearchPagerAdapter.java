@@ -38,8 +38,9 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
                 return getSearchResultFragment(LegacySearchResultsFragment.TYPE_PLAYLISTS);
             case TAB_PEOPLE:
                 return getSearchResultFragment(LegacySearchResultsFragment.TYPE_USERS);
+            default:
+                throw new IllegalArgumentException("Unexpected position for getItem " + position);
         }
-        throw new IllegalArgumentException("Unexpected position for getItem " + position);
     }
 
     private Fragment getSearchResultFragment(int type) {
@@ -61,8 +62,9 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
                 return resources.getString(R.string.search_type_playlists);
             case TAB_PEOPLE:
                 return resources.getString(R.string.search_type_people);
+            default:
+                throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
-        throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
     }
 
     @Override

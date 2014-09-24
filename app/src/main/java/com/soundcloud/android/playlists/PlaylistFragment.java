@@ -27,7 +27,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -227,7 +227,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         super.onDestroyView();
     }
 
-    private PlaylistUrn getPlaylistUrn() {
+    private Urn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
         if (playlist != null) {
             return playlist.getUrn();
@@ -293,7 +293,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
-        final Observable<TrackUrn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
+        final Observable<Urn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);

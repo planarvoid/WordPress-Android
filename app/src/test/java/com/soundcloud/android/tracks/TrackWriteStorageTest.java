@@ -107,9 +107,9 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storePoliciesAsync(policies).subscribe(observer);
 
-        expectPolicyInserted(TrackUrn.forTrack(1L), true, "allowed");
-        expectPolicyInserted(TrackUrn.forTrack(2L), false, "monetizable");
-        expectPolicyInserted(TrackUrn.forTrack(3L), true, "something");
+        expectPolicyInserted(Urn.forTrack(1L), true, "allowed");
+        expectPolicyInserted(Urn.forTrack(2L), false, "monetizable");
+        expectPolicyInserted(Urn.forTrack(3L), true, "something");
     }
 
     @Test
@@ -174,7 +174,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         ), counts(1));
     }
 
-    private void expectPolicyInserted(TrackUrn trackUrn, boolean monetizable, String policy) {
+    private void expectPolicyInserted(Urn trackUrn, boolean monetizable, String policy) {
         assertThat(select(from(Table.SOUND_VIEW.name)
                         .whereEq(TableColumns.SoundView._ID, trackUrn.numericId)
                         .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)

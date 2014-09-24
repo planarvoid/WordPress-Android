@@ -14,8 +14,7 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import rx.Subscriber;
 
 import android.content.Context;
@@ -37,12 +36,12 @@ class TrackPageListener extends PageListener {
         this.playQueueManager = playQueueManager;
     }
 
-    public void onToggleLike(boolean isLike, TrackUrn trackUrn) {
+    public void onToggleLike(boolean isLike, Urn trackUrn) {
         fireAndForget(associationOperations.toggleLike(trackUrn, isLike));
         eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(), trackUrn));
     }
 
-    public void onGotoUser(final Context activityContext, final UserUrn userUrn) {
+    public void onGotoUser(final Context activityContext, final Urn userUrn) {
         eventBus.queue(EventQueue.PLAYER_UI)
                 .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
                 .subscribe(startProfileActivity(activityContext, userUrn));
@@ -57,7 +56,7 @@ class TrackPageListener extends PageListener {
         }
     }
 
-    private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final UserUrn userUrn) {
+    private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {

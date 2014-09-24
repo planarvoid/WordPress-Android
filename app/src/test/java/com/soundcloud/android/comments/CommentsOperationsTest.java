@@ -13,7 +13,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +46,7 @@ public class CommentsOperationsTest {
 
     @Test
     public void shouldRetrieveCommentsForGivenTrack() {
-        TrackUrn track = Urn.forTrack(123L);
+        Urn track = Urn.forTrack(123L);
         operations.comments(track).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);

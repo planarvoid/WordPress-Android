@@ -9,8 +9,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
@@ -43,7 +42,7 @@ public class PlaybackSessionAnalyticsController {
     }
 
     public void onStateTransition(Playa.StateTransition stateTransition) {
-        final TrackUrn currentTrack = stateTransition.getTrackUrn();
+        final Urn currentTrack = stateTransition.getTrackUrn();
         if (!currentTrack.equals(lastStateTransition.getTrackUrn())) {
             if (lastStateTransition.isPlayerPlaying()) {
                 // publish skip event manually, since it went from playing the last track to playing the new
@@ -90,7 +89,7 @@ public class PlaybackSessionAnalyticsController {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
-                final UserUrn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
+                final Urn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
                 final long progress = stateTransition.getProgress().position;
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                 lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);

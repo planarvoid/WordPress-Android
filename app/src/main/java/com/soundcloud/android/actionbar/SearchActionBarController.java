@@ -16,7 +16,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +95,7 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     private void playTrack(Urn urn) {
-        playbackOperations.startPlaybackWithRecommendations((TrackUrn) urn, Screen.SEARCH_SUGGESTIONS)
+        playbackOperations.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS)
                 .subscribe(expandPlayerSubscriberProvider.get());
         clearFocus();
         searchView.setSuggestionsAdapter(null);

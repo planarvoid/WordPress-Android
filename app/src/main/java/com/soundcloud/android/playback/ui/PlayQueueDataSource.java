@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ class PlayQueueDataSource {
     private List<TrackPageData> createFullQueue() {
         List<TrackPageData> trackPageDataCollection = Lists.newArrayListWithExpectedSize(playQueueManager.getQueueSize());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++){
-            final TrackUrn trackUrn = playQueueManager.getUrnAtPosition(i);
+            final Urn trackUrn = playQueueManager.getUrnAtPosition(i);
             final PropertySet metaData = playQueueManager.getMetaDataAt(i);
             trackPageDataCollection.add(new TrackPageData(i, trackUrn, metaData));
         }

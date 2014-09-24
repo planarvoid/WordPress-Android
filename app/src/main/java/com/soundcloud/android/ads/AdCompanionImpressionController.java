@@ -6,9 +6,9 @@ import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -89,12 +89,12 @@ public class AdCompanionImpressionController {
     }
 
     private static final class State {
-        private final TrackUrn currentTrackUrn;
+        private final Urn currentTrackUrn;
         private final boolean isAppInForeground;
         private final boolean currentTrackIsAnAudioAd;
         private final boolean playerIsExpanding;
 
-        public State(TrackUrn currentTrackUrn, boolean isAppInForeground, boolean currentTrackIsAnAudioAd, boolean playerIsExpanding) {
+        public State(Urn currentTrackUrn, boolean isAppInForeground, boolean currentTrackIsAnAudioAd, boolean playerIsExpanding) {
             this.currentTrackUrn = currentTrackUrn;
             this.isAppInForeground = isAppInForeground;
             this.currentTrackIsAnAudioAd = currentTrackIsAnAudioAd;

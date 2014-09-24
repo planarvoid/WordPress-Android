@@ -12,7 +12,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -124,10 +124,10 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
     // TODO: this should not depend on content URIs, since we're trying to move away from it. Difficult to do without
     // migrating the front end first to not use content URIs
     @SuppressWarnings("PMD.NPathComplexity")
-    public Observable<List<TrackUrn>> getTracksForUriAsync(final Uri uri) {
-        return schedule(Observable.create(new Observable.OnSubscribe<List<TrackUrn>>() {
+    public Observable<List<Urn>> getTracksForUriAsync(final Uri uri) {
+        return schedule(Observable.create(new Observable.OnSubscribe<List<Urn>>() {
             @Override
-            public void call(Subscriber<? super List<TrackUrn>> observer) {
+            public void call(Subscriber<? super List<Urn>> observer) {
 
                 final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
                 final String idColumn = isActivityCursor ? TableColumns.ActivityView.SOUND_ID : TableColumns.SoundView._ID;
@@ -149,14 +149,14 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
                 }
             }
 
-            private List<TrackUrn> toTrackUrns(String idColumn, Cursor cursor) {
+            private List<Urn> toTrackUrns(String idColumn, Cursor cursor) {
                 if (cursor == null) {
-                    return Collections.<TrackUrn>emptyList();
+                    return Collections.<Urn>emptyList();
                 }
 
-                List<TrackUrn> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
+                List<Urn> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
                 while (cursor.moveToNext()) {
-                    newQueue.add(TrackUrn.forTrack(cursor.getLong(cursor.getColumnIndex(idColumn))));
+                    newQueue.add(Urn.forTrack(cursor.getLong(cursor.getColumnIndex(idColumn))));
                 }
                 return newQueue;
             }

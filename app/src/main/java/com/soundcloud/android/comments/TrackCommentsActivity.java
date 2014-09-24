@@ -14,7 +14,7 @@ import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -56,7 +56,7 @@ public class TrackCommentsActivity extends ScActivity {
     }
 
     private void attachCommentsFragment(PropertySet commentedTrack) {
-        final TrackUrn trackUrn = commentedTrack.get(TrackProperty.URN);
+        final Urn trackUrn = commentedTrack.get(TrackProperty.URN);
         Fragment fragment;
         if (featureFlags.isEnabled(Feature.COMMENTS_REDESIGN)) {
             fragment = CommentsFragment.create(trackUrn);

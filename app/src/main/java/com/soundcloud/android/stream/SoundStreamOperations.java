@@ -10,7 +10,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -81,7 +80,7 @@ class SoundStreamOperations {
         return pagedStreamItems(INITIAL_TIMESTAMP, false);
     }
 
-    public Observable<TrackUrn> trackUrnsForPlayback() {
+    public Observable<Urn> trackUrnsForPlayback() {
         return soundStreamStorage.trackUrns();
     }
 

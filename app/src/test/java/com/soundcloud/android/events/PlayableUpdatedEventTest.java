@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
@@ -15,7 +14,7 @@ public class PlayableUpdatedEventTest {
 
     @Test
     public void shouldCreateEventForLike() {
-        PlaylistUrn urn = Urn.forPlaylist(123L);
+        Urn urn = Urn.forPlaylist(123L);
         int likesCount = 5;
 
         PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(urn, true, likesCount);
@@ -26,7 +25,7 @@ public class PlayableUpdatedEventTest {
 
     @Test
     public void shouldCreateEventForRepost() {
-        PlaylistUrn urn = Urn.forPlaylist(123L);
+        Urn urn = Urn.forPlaylist(123L);
         int repostCount = 5;
 
         PlayableUpdatedEvent event = PlayableUpdatedEvent.forRepost(urn, true, repostCount);

@@ -9,7 +9,7 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.android.Pager;
 import rx.functions.Func1;
@@ -46,7 +46,7 @@ class CommentsOperations {
         return pager;
     }
 
-    Observable<CommentsCollection> comments(TrackUrn trackUrn) {
+    Observable<CommentsCollection> comments(Urn trackUrn) {
         final APIRequest request = apiRequest(APIEndpoints.TRACK_COMMENTS.path(trackUrn.numericId))
                 .addQueryParameters("linked_partitioning", "1")
                 .addQueryParameters("limit", COMMENTS_PAGE_SIZE)

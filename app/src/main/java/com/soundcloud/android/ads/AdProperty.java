@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.Property;
 
 import android.net.Uri;
@@ -9,7 +9,7 @@ import java.util.List;
 
 public class AdProperty {
     public static final Property<String> AD_URN = Property.of(AdProperty.class, String.class);
-    public static final Property<TrackUrn> MONETIZABLE_TRACK_URN =  Property.of(AdProperty.class, TrackUrn.class);
+    public static final Property<Urn> MONETIZABLE_TRACK_URN =  Property.of(AdProperty.class, Urn.class);
     public static final Property<Uri> CLICK_THROUGH_LINK = Property.of(AdProperty.class, Uri.class);
     public static final Property<Uri> ARTWORK = Property.of(AdProperty.class, Uri.class);
     public static final Property<String> MONETIZABLE_TRACK_TITLE =  Property.of(AdProperty.class, String.class);

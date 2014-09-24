@@ -4,6 +4,7 @@ import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -64,14 +65,14 @@ public class LegacyPlaylistOperations {
                 .mergeMap(handlePlaylistCreationStored());
     }
 
-    public Observable<PublicApiPlaylist> loadPlaylist(final PlaylistUrn playlistUrn) {
+    public Observable<PublicApiPlaylist> loadPlaylist(final Urn playlistUrn) {
         Log.d(LOG_TAG, "Loading playlist " + playlistUrn);
         return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.numericId)
                 .onErrorResumeNext(handlePlaylistNotFound(playlistUrn))
                 .mergeMap(syncIfNecessary);
     }
 
-    public Observable<PublicApiPlaylist> refreshPlaylist(final PlaylistUrn playlistUrn) {
+    public Observable<PublicApiPlaylist> refreshPlaylist(final Urn playlistUrn) {
         Log.d(LOG_TAG, "Refreshing playlist " + playlistUrn);
         return syncThenLoadPlaylist(playlistUrn);
     }
@@ -80,7 +81,7 @@ public class LegacyPlaylistOperations {
      * If a playlist cannot be found in local storage, returns a sync sequence for resume purposes, otherwise
      * simply propagates the error.
      */
-    private Func1<Throwable, Observable<? extends PublicApiPlaylist>> handlePlaylistNotFound(final PlaylistUrn playlistUrn) {
+    private Func1<Throwable, Observable<? extends PublicApiPlaylist>> handlePlaylistNotFound(final Urn playlistUrn) {
         return new Func1<Throwable, Observable<? extends PublicApiPlaylist>>() {
             @Override
             public Observable<? extends PublicApiPlaylist> call(Throwable throwable) {
@@ -97,7 +98,7 @@ public class LegacyPlaylistOperations {
     /**
      * Performs a sync on the given playlist, then reloads it from local storage.
      */
-    private Observable<PublicApiPlaylist> syncThenLoadPlaylist(final PlaylistUrn playlistUrn) {
+    private Observable<PublicApiPlaylist> syncThenLoadPlaylist(final Urn playlistUrn) {
         Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistUrn);
         return syncInitiator.syncPlaylist(playlistUrn).mergeMap(new Func1<Boolean, Observable<PublicApiPlaylist>>() {
             @Override

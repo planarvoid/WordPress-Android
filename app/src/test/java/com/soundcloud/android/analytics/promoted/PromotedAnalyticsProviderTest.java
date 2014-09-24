@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
@@ -18,8 +16,8 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +34,7 @@ public class PromotedAnalyticsProviderTest {
 
     @Mock private EventTracker eventTracker;
 
-    private UserUrn userUrn = Urn.forUser(123L);
+    private Urn userUrn = Urn.forUser(123L);
 
     @Before
     public void setUp() throws Exception {
@@ -144,9 +142,9 @@ public class PromotedAnalyticsProviderTest {
 
     @Test
     public void tracksAudioAdCompanionImpressions() {
-        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(TrackUrn.forTrack(999));
+        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(999));
         AudioAdCompanionImpressionEvent impressionEvent = new AudioAdCompanionImpressionEvent(
-                audioAdMetadata, TrackUrn.forTrack(888), UserUrn.forUser(777), 333
+                audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), 333
         );
 
         analyticsProvider.handleAudioAdCompanionImpression(impressionEvent);

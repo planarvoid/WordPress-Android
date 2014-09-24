@@ -7,11 +7,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
+import com.soundcloud.android.storage.TrackStorage;
 import org.apache.http.HttpStatus;
 
 import android.util.Log;

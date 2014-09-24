@@ -19,7 +19,7 @@ public class ApiTrackTest {
                 getClass().getResourceAsStream("suggested_track.json"), ApiTrack.class);
 
 
-        Expect.expect(apiTrack.getUrn().toString()).toEqual("soundcloud:sounds:105834033");
+        Expect.expect(apiTrack.getUrn().toString()).toEqual("soundcloud:tracks:105834033");
         Expect.expect(apiTrack.getTitle()).toEqual("[Sketch] - Beloved");
         Expect.expect(apiTrack.getGenre()).toEqual("Piano");
         Expect.expect(apiTrack.getUser().getUsername()).toEqual("georgegao");

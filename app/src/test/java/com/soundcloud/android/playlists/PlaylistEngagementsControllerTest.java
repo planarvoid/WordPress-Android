@@ -24,7 +24,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -72,7 +71,7 @@ public class PlaylistEngagementsControllerTest {
     public void shouldPublishUIEventWhenLikingPlayable() {
         controller.setPlayable(track);
 
-        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean()))
+        when(soundAssocOps.toggleLike(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
         rootView.findViewById(R.id.toggle_like).performClick();
 
@@ -85,7 +84,7 @@ public class PlaylistEngagementsControllerTest {
     public void shouldPublishUIEventWhenUnlikingPlayable() {
         controller.setPlayable(track);
 
-        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean()))
+        when(soundAssocOps.toggleLike(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
         ToggleButton likeToggle = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         likeToggle.setChecked(true);
@@ -99,7 +98,7 @@ public class PlaylistEngagementsControllerTest {
     @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
         controller.setPlayable(track);
-        when(soundAssocOps.toggleRepost(any(TrackUrn.class), anyBoolean()))
+        when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
 
         rootView.findViewById(R.id.toggle_repost).performClick();
@@ -112,7 +111,7 @@ public class PlaylistEngagementsControllerTest {
     @Test
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
         controller.setPlayable(track);
-        when(soundAssocOps.toggleRepost(any(TrackUrn.class), anyBoolean()))
+        when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
         ToggleButton repostToggle = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
 
@@ -189,7 +188,7 @@ public class PlaylistEngagementsControllerTest {
         expect(likeButton.isChecked()).toBeFalse();
 
         track.user_like = true;
-        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean()))
+        when(soundAssocOps.toggleLike(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.just(PropertySet.create()));
 
         likeButton.performClick();
@@ -206,7 +205,7 @@ public class PlaylistEngagementsControllerTest {
         expect(repostButton.isChecked()).toBeFalse();
 
         track.user_repost = true;
-        when(soundAssocOps.toggleRepost(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
         repostButton.performClick();
 
@@ -223,7 +222,7 @@ public class PlaylistEngagementsControllerTest {
 
         final Subscription likeSubscription = mock(Subscription.class);
         final Observable observable = TestObservables.fromSubscription(likeSubscription);
-        when(soundAssocOps.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(observable);
+        when(soundAssocOps.toggleLike(any(Urn.class), anyBoolean())).thenReturn(observable);
 
         likeButton.performClick();
 

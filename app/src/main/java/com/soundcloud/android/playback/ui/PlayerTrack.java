@@ -3,8 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 class PlayerTrack implements PropertySetSource {
@@ -15,7 +14,7 @@ class PlayerTrack implements PropertySetSource {
         this.source = source;
     }
 
-    TrackUrn getUrn() {
+    Urn getUrn() {
         return source.get(TrackProperty.URN);
     }
 
@@ -27,7 +26,7 @@ class PlayerTrack implements PropertySetSource {
         return source.get(PlayableProperty.CREATOR_NAME);
     }
 
-    UserUrn getUserUrn() {
+    Urn getUserUrn() {
         return source.get(PlayableProperty.CREATOR_URN);
     }
 

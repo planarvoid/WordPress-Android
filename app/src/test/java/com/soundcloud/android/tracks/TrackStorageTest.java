@@ -57,7 +57,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void descriptionByUrnEmitsInsertedDescription() throws CreateModelException {
-        final TrackUrn trackUrn = Urn.forTrack(123);
+        final Urn trackUrn = Urn.forTrack(123);
         testFixtures().insertDescription(trackUrn, "description123");
         storage.trackDetails(trackUrn).subscribe(observer);
         verify(observer).onNext(eq(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123"))));

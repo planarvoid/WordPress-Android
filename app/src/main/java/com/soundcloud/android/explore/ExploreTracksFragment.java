@@ -18,7 +18,6 @@ import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import rx.Subscription;
-import rx.android.Pager;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;

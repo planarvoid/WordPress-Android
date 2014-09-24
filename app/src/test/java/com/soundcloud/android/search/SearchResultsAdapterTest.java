@@ -19,7 +19,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
@@ -71,7 +70,7 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void trackChangedForNewQueueEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
         verify(trackPresenter).setPlayingTrack(playingTrack);
@@ -79,7 +78,7 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void trackChangedForPositionChangedEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
         verify(trackPresenter).setPlayingTrack(playingTrack);

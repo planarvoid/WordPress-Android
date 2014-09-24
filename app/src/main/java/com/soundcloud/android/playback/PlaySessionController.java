@@ -7,6 +7,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -14,7 +15,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import rx.Subscription;
@@ -133,7 +133,7 @@ public class PlaySessionController {
         }
     }
 
-    private StateTransition createPlayQueueCompleteEvent(TrackUrn trackUrn){
+    private StateTransition createPlayQueueCompleteEvent(Urn trackUrn){
         return new StateTransition(PlayaState.IDLE, Playa.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
     }
 }

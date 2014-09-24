@@ -6,10 +6,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
 import android.os.Bundle;

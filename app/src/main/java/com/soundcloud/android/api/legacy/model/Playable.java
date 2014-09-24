@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -392,7 +391,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return this;
     }
 
-    public UserUrn getUserUrn() {
+    public Urn getUserUrn() {
         return user != null ? user.getUrn() : Urn.forUser(user_id);
     }
 

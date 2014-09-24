@@ -18,7 +18,6 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -36,7 +35,7 @@ import java.util.Map;
 @RunWith(SoundCloudTestRunner.class)
 public class AdsOperationsTest {
 
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     private AdsOperations adsOperations;
     private AudioAd audioAd;

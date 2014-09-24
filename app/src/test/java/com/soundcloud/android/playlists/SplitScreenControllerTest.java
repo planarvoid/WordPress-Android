@@ -8,7 +8,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
@@ -48,16 +48,16 @@ public class SplitScreenControllerTest {
 
     @Test
     public void shouldListenForPositionChangeEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TrackUrn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
 
-        verify(trackPresenter).setPlayingTrack(TrackUrn.forTrack(123L));
+        verify(trackPresenter).setPlayingTrack(Urn.forTrack(123L));
     }
 
     @Test
     public void shouldListenForNewQueueEventsAndUpdateTrackPresenter() {
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TrackUrn.forTrack(123L)));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
 
-        verify(trackPresenter).setPlayingTrack(TrackUrn.forTrack(123L));
+        verify(trackPresenter).setPlayingTrack(Urn.forTrack(123L));
     }
 
     @Test

@@ -12,7 +12,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -116,7 +116,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         imageOverlay.setImageDrawable(null);
     }
 
-    public void loadArtwork(TrackUrn urn, boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
+    public void loadArtwork(Urn urn, boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlay, this, isHighPriority, viewVisibilityProvider);
     }
 

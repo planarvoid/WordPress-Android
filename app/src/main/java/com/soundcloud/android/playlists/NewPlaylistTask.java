@@ -1,8 +1,8 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;

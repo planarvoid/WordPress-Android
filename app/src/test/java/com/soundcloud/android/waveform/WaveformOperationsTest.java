@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -23,11 +22,11 @@ import java.io.IOException;
 @RunWith(SoundCloudTestRunner.class)
 public class WaveformOperationsTest {
 
-    private static final TrackUrn trackUrn = Urn.forTrack(1L);
+    private static final Urn trackUrn = Urn.forTrack(1L);
     private static final String waveformUrl = "http://waveform.png";
 
     private WaveformOperations waveformOperations;
-    private LruCache<TrackUrn, WaveformData> waveformCache;
+    private LruCache<Urn, WaveformData> waveformCache;
 
     @Mock
     private WaveformFetcher waveformFetcher;
@@ -42,7 +41,7 @@ public class WaveformOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        waveformCache = new LruCache<TrackUrn, WaveformData>(1);
+        waveformCache = new LruCache<Urn, WaveformData>(1);
         waveformOperations = new WaveformOperations(waveformCache, waveformFetcher);
         when(waveformFetcher.fetchDefault()).thenReturn(Observable.<WaveformData>empty());
         when(track.getUrn()).thenReturn(trackUrn);

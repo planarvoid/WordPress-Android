@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Intent;
@@ -40,8 +40,8 @@ public interface Playa {
         private final PlayaState newState;
         private final Reason reason;
         private final PlaybackProgress progress;
+        private final Urn trackUrn;
 
-        private TrackUrn trackUrn;
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<String>(2);
 
@@ -50,25 +50,25 @@ public interface Playa {
         // TODO: make private and use blueprints in tests
         @Deprecated
         public StateTransition(PlayaState newState, Reason reason) {
-            this(newState, reason, TrackUrn.NOT_SET);
+            this(newState, reason, Urn.NOT_SET);
         }
 
-        public StateTransition(PlayaState newState, Reason reason, TrackUrn trackUrn) {
+        public StateTransition(PlayaState newState, Reason reason, Urn trackUrn) {
             this(newState, reason, trackUrn, 0, 0);
         }
 
-        public StateTransition(PlayaState newState, Reason reason, TrackUrn trackUrn, long currentProgress, long duration) {
+        public StateTransition(PlayaState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
             this.newState = newState;
             this.reason = reason;
             this.trackUrn = trackUrn;
             progress = new PlaybackProgress(currentProgress, duration);
         }
 
-        public TrackUrn getTrackUrn() {
+        public Urn getTrackUrn() {
             return trackUrn;
         }
 
-        public boolean isForTrack(TrackUrn trackUrn) {
+        public boolean isForTrack(Urn trackUrn) {
             return this.trackUrn != null && this.trackUrn.equals(trackUrn);
         }
 

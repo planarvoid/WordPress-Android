@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 public final class CurrentPlayQueueTrackEvent {
@@ -9,29 +9,29 @@ public final class CurrentPlayQueueTrackEvent {
     private static final int POSITION_CHANGED = 1;
 
     private final int kind;
-    private final TrackUrn currentTrackUrn;
+    private final Urn currentTrackUrn;
 
     private final PropertySet currentMetaData;
 
-    private CurrentPlayQueueTrackEvent(int kind, TrackUrn currentTrackUrn, PropertySet currentMetaData) {
+    private CurrentPlayQueueTrackEvent(int kind, Urn currentTrackUrn, PropertySet currentMetaData) {
         this.kind = kind;
         this.currentTrackUrn = currentTrackUrn;
         this.currentMetaData = currentMetaData;
     }
 
-    public static CurrentPlayQueueTrackEvent fromNewQueue(TrackUrn trackUrn) {
+    public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn) {
         return fromNewQueue(trackUrn, PropertySet.create());
     }
 
-    public static CurrentPlayQueueTrackEvent fromNewQueue(TrackUrn trackUrn, PropertySet metaData) {
+    public static CurrentPlayQueueTrackEvent fromNewQueue(Urn trackUrn, PropertySet metaData) {
         return new CurrentPlayQueueTrackEvent(NEW_QUEUE, trackUrn, metaData);
     }
 
-    public static CurrentPlayQueueTrackEvent fromPositionChanged(TrackUrn trackUrn) {
+    public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn) {
             return fromPositionChanged(trackUrn, PropertySet.create());
     }
 
-    public static CurrentPlayQueueTrackEvent fromPositionChanged(TrackUrn trackUrn, PropertySet metaData) {
+    public static CurrentPlayQueueTrackEvent fromPositionChanged(Urn trackUrn, PropertySet metaData) {
         return new CurrentPlayQueueTrackEvent(POSITION_CHANGED, trackUrn, metaData);
     }
 
@@ -43,7 +43,7 @@ public final class CurrentPlayQueueTrackEvent {
         return kind == NEW_QUEUE;
     }
 
-    public TrackUrn getCurrentTrackUrn() {
+    public Urn getCurrentTrackUrn() {
         return currentTrackUrn;
     }
 

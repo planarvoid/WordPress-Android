@@ -3,10 +3,10 @@ package com.soundcloud.android.creators.record.writer;
 import com.soundcloud.android.creators.record.AudioConfig;
 import com.soundcloud.android.creators.record.AudioReader;
 import com.soundcloud.android.creators.record.AudioWriter;
-import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.record.jni.EncoderException;
 import com.soundcloud.android.creators.record.jni.EncoderOptions;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
+import com.soundcloud.android.creators.record.reader.VorbisReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

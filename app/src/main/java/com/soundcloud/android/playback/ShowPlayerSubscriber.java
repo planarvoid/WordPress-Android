@@ -7,12 +7,12 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class ShowPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
+public class ShowPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     private final PlaybackToastViewController playbackToastViewController;
     private final EventBus eventBus;
 

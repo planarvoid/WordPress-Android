@@ -6,7 +6,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
 
-    private TrackUrn playingTrack = TrackUrn.NOT_SET;
+    private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
     public TrackItemPresenter(ImageOperations imageOperations) {
@@ -109,7 +109,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         return playCount > 0;
     }
 
-    public void setPlayingTrack(@NotNull TrackUrn playingTrack) {
+    public void setPlayingTrack(@NotNull Urn playingTrack) {
         this.playingTrack = playingTrack;
     }
 

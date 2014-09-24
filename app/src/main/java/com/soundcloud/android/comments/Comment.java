@@ -1,7 +1,7 @@
 package com.soundcloud.android.comments;
 
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ public class Comment {
         this.apiComment = apiComment;
     }
 
-    UserUrn getUserUrn() {
+    Urn getUserUrn() {
         return apiComment.getUser().getUrn();
     }
 

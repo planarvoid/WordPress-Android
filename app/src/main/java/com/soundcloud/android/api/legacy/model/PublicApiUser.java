@@ -18,7 +18,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -253,11 +252,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         }
         cv.put(TableColumns.Users.LAST_UPDATED, System.currentTimeMillis());
         return cv;
-    }
-
-    @Override
-    public UserUrn getUrn() {
-        return (UserUrn) super.getUrn();
     }
 
     @Override

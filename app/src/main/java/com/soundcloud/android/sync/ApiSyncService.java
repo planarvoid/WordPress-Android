@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.ParallelAsyncTask;

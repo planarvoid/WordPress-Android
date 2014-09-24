@@ -1,8 +1,8 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static com.soundcloud.android.rx.TestObservables.withSubscription;
+import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -24,7 +24,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.propeller.PropertySet;
@@ -69,7 +68,7 @@ public class SoundStreamFragmentTest {
         when(soundStreamOperations.existingStreamItems()).thenReturn(streamItems);
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
-        when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
         fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController, playbackOperations, buildProvider(expandPlayerSubscriber));
         fragment.onAttach(activity);
     }
@@ -119,7 +118,7 @@ public class SoundStreamFragmentTest {
     @Test
     public void shouldPlayTrackWhenClickingOnTrackItem() {
         Robolectric.shadowOf(fragment).setActivity(activity);
-        final Observable<TrackUrn> streamTracks = just((Urn.forTrack(123)));
+        final Observable<Urn> streamTracks = just((Urn.forTrack(123)));
         when(soundStreamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
         when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
         fragment.onItemClick(null, null, 0, -1);

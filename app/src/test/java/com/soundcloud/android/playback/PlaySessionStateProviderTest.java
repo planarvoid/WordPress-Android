@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackProgressInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackUrn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +24,7 @@ import org.mockito.Mock;
 public class PlaySessionStateProviderTest {
 
     private static final long TRACK_ID = 123L;
-    private static final TrackUrn TRACK_URN = Urn.forTrack(TRACK_ID);
+    private static final Urn TRACK_URN = Urn.forTrack(TRACK_ID);
     private static final PublicApiTrack TRACK = new PublicApiTrack(TRACK_ID);
 
     private PlaySessionStateProvider provider;
@@ -87,7 +86,7 @@ public class PlaySessionStateProviderTest {
     public void onStateTransitionForPlayStoresPlayingTrackProgress() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 1, 456));
 
-        TrackUrn nextTrackUrn = Urn.forTrack(321);
+        Urn nextTrackUrn = Urn.forTrack(321);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, nextTrackUrn, 123, 456));
 
         expect(provider.getLastProgressByUrn(nextTrackUrn)).toEqual(new PlaybackProgress(123, 456));

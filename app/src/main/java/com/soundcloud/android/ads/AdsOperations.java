@@ -10,8 +10,8 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -49,7 +49,7 @@ public class AdsOperations {
         }
     };
 
-    public Observable<AudioAd> audioAd(TrackUrn sourceUrn) {
+    public Observable<AudioAd> audioAd(Urn sourceUrn) {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
         final APIRequest<AudioAd> request = SoundCloudAPIRequest.RequestBuilder.<AudioAd>get(endpoint)
                 .forPrivateAPI(1)
@@ -60,7 +60,7 @@ public class AdsOperations {
         return rxHttpClient.<AudioAd>fetchModels(request).doOnNext(cacheAudioAdTrack);
     }
 
-    public void insertAudioAd(TrackUrn monetizableTrack, AudioAd audioAd){
+    public void insertAudioAd(Urn monetizableTrack, AudioAd audioAd){
         PropertySet adMetaData = audioAd
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);

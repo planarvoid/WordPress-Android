@@ -17,7 +17,6 @@ import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -129,11 +128,6 @@ public class PublicApiTrack extends Playable {
     public void setId(long id) {
         super.setId(id);
         mURN = Urn.forTrack(id);
-    }
-
-    @Override
-    public TrackUrn getUrn() {
-        return (TrackUrn) super.getUrn();
     }
 
     public List<String> humanTags() {

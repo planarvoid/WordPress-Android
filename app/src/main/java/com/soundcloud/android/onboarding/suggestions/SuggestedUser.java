@@ -2,7 +2,6 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.model.Model;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.os.Parcel;
@@ -30,11 +29,6 @@ public class SuggestedUser extends ScModel {
         city = parcel.readString();
         country = parcel.readString();
         token = parcel.readString();
-    }
-
-    @Override
-    public UserUrn getUrn() {
-        return (UserUrn) super.getUrn();
     }
 
     public String getUsername() {

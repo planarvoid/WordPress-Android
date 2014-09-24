@@ -21,12 +21,12 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -97,7 +97,7 @@ public class ProfileActivity extends ScActivity implements
         return false;
     }
 
-    public static Intent getIntent(Context context, UserUrn userUrn) {
+    public static Intent getIntent(Context context, Urn userUrn) {
         return new Intent(context, ProfileActivity.class).putExtra(EXTRA_USER_URN, userUrn);
     }
 
@@ -190,7 +190,7 @@ public class ProfileActivity extends ScActivity implements
         } else if (intent.hasExtra(EXTRA_USER_ID)) {
             loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
         } else if (intent.hasExtra(EXTRA_USER_URN)) {
-            UserUrn urn = intent.getParcelableExtra(EXTRA_USER_URN);
+            Urn urn = intent.getParcelableExtra(EXTRA_USER_URN);
             loadUserById(urn.numericId);
         } else if (intent.getData() == null || !loadUserByUri(intent.getData())) {
             loadYou();

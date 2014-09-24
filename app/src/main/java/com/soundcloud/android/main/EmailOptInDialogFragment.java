@@ -5,10 +5,10 @@ import static android.view.View.OnClickListener;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.onboarding.OnboardingOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import android.annotation.SuppressLint;

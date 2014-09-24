@@ -19,7 +19,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class PeripheralsControllerTest {
     @Test
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final TrackUrn trackUrn = track.get(TrackProperty.URN);
+        final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackOperations.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));

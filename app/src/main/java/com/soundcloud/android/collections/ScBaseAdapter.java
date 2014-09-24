@@ -23,7 +23,6 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
@@ -116,10 +115,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return 0;
     }
 
-    protected List<TrackUrn> toTrackUrn(List<? extends PlayableHolder> filter) {
-        return Lists.transform(filter, new Function<PlayableHolder, TrackUrn>() {
+    protected List<Urn> toTrackUrn(List<? extends PlayableHolder> filter) {
+        return Lists.transform(filter, new Function<PlayableHolder, Urn>() {
             @Override
-            public TrackUrn apply(PlayableHolder input) {
+            public Urn apply(PlayableHolder input) {
                 return ((PublicApiTrack) input.getPlayable()).getUrn();
             }
         });

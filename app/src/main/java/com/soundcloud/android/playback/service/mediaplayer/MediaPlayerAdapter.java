@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -370,8 +370,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
     }
 
-    private TrackUrn getTrackUrn() {
-        return track == null ? TrackUrn.NOT_SET : track.get(TrackProperty.URN);
+    private Urn getTrackUrn() {
+        return track == null ? Urn.NOT_SET : track.get(TrackProperty.URN);
     }
 
     boolean isInErrorState(){

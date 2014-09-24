@@ -2,8 +2,6 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
@@ -11,19 +9,19 @@ import android.net.Uri;
 import java.util.List;
 
 public class AudioAdCompanionImpressionEvent {
-    private final TrackUrn monetizableTrackUrn;
+    private final Urn monetizableTrackUrn;
     private final long timeStamp;
-    private final UserUrn userUrn;
+    private final Urn userUrn;
     private final String adsWizzId;
     private final Uri artworkUri;
     private final Urn trackUrn;
     private final List<String> impressionUrls;
 
-    public AudioAdCompanionImpressionEvent(PropertySet adMetaData, Urn audioAdTrack, UserUrn userUrn) {
+    public AudioAdCompanionImpressionEvent(PropertySet adMetaData, Urn audioAdTrack, Urn userUrn) {
         this(adMetaData, audioAdTrack, userUrn, System.currentTimeMillis());
     }
 
-    public AudioAdCompanionImpressionEvent(PropertySet adMetaData, Urn audioAdTrack, UserUrn userUrn, long timeStamp) {
+    public AudioAdCompanionImpressionEvent(PropertySet adMetaData, Urn audioAdTrack, Urn userUrn, long timeStamp) {
         this.userUrn = userUrn;
         this.timeStamp = timeStamp;
         this.adsWizzId = adMetaData.get(AdProperty.AD_URN);

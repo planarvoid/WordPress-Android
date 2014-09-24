@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlists;
 
 
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -15,7 +15,7 @@ public class PlaylistOperations {
         this.playlistStorage = playlistStorage;
     }
 
-    public Observable<TrackUrn> trackUrnsForPlayback(PlaylistUrn playlistUrn) {
+    public Observable<Urn> trackUrnsForPlayback(Urn playlistUrn) {
         return playlistStorage.trackUrns(playlistUrn);
     }
 }

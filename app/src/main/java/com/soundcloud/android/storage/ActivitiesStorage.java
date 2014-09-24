@@ -4,9 +4,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
 

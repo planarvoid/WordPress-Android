@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.playlists.PlaylistUrn;
 
 import java.util.Date;
 import java.util.List;
@@ -29,11 +28,6 @@ public class ApiPlaylist extends ScModel {
 
     public ApiPlaylist(String urn) {
         super(urn);
-    }
-
-    @Override
-    public PlaylistUrn getUrn() {
-        return (PlaylistUrn) super.getUrn();
     }
 
     public String getTitle() {

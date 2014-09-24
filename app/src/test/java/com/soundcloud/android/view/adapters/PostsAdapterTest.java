@@ -32,7 +32,6 @@ import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -72,8 +71,8 @@ public class PostsAdapterTest {
 
     @Before
     public void setup() {
-        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(TrackUrn.class), any(PlaySessionSource.class)))
-                .thenReturn(Observable.<List<TrackUrn>>empty());
+        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<List<Urn>>empty());
         adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus, buildProvider(expandPlayerSubscriber));
     }
@@ -140,8 +139,8 @@ public class PostsAdapterTest {
 
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
 
-        List<TrackUrn> trackUrns = Arrays.asList(track.getUrn());
-        TrackUrn initialTrack = trackUrns.get(0);
+        List<Urn> trackUrns = Arrays.asList(track.getUrn());
+        Urn initialTrack = trackUrns.get(0);
         verify(playbackOperations).playTracksFromUri(
                 eq(Content.ME_LIKES.uri),
                 eq(0),
@@ -165,7 +164,7 @@ public class PostsAdapterTest {
 
     @Test
     public void playQueueTrackEventForPositionChangedShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
         verify(trackPresenter).setPlayingTrack(playingTrack);
@@ -173,7 +172,7 @@ public class PostsAdapterTest {
 
     @Test
     public void playQueueTrackEventForNewQueueShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
         verify(trackPresenter).setPlayingTrack(playingTrack);

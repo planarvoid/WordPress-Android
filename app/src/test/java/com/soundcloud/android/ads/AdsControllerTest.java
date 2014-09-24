@@ -23,7 +23,6 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -43,8 +42,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SoundCloudTestRunner.class)
 public class AdsControllerTest {
 
-    private static final TrackUrn CURRENT_TRACK_URN = Urn.forTrack(122L);
-    private static final TrackUrn NEXT_TRACK_URN = Urn.forTrack(123L);
+    private static final Urn CURRENT_TRACK_URN = Urn.forTrack(122L);
+    private static final Urn NEXT_TRACK_URN = Urn.forTrack(123L);
     private static final PropertySet MONETIZABLE_PROPERTY_SET = PropertySet.from(TrackProperty.URN.bind(NEXT_TRACK_URN), TrackProperty.MONETIZABLE.bind(true));
     private static final PropertySet NON_MONETIZABLE_PROPERTY_SET = PropertySet.from(TrackProperty.URN.bind(NEXT_TRACK_URN), TrackProperty.MONETIZABLE.bind(false));
 
@@ -85,7 +84,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate());
-        verify(trackOperations).track(any(TrackUrn.class));
+        verify(trackOperations).track(any(Urn.class));
     }
 
 
@@ -105,12 +104,12 @@ public class AdsControllerTest {
     public void newQueueEventDoesNotInsertAudioAdIntoPlayQueue() throws CreateModelException {
         when(playQueueManager.hasNextTrack()).thenReturn(true);
         when(playQueueManager.getNextTrackUrn()).thenReturn(NEXT_TRACK_URN);
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(MONETIZABLE_PROPERTY_SET));
-        when(adsOperations.audioAd(any(TrackUrn.class))).thenReturn(Observable.just(audioAd));
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(MONETIZABLE_PROPERTY_SET));
+        when(adsOperations.audioAd(any(Urn.class))).thenReturn(Observable.just(audioAd));
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(AudioAd.class));
     }
 
     @Test
@@ -119,7 +118,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(AudioAd.class));
     }
 
     @Test
@@ -132,7 +131,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(AudioAd.class));
     }
 
     @Test
@@ -145,7 +144,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(AudioAd.class));
     }
 
     @Test
@@ -156,7 +155,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(AudioAd.class));
     }
 
     @Test
@@ -168,7 +167,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackUrn.class), any(AudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(AudioAd.class));
     }
 
     @Test

@@ -6,7 +6,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.HttpProperties;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.api.Token;
 
 import android.net.Uri;
@@ -24,7 +24,7 @@ public class PlaybackServiceOperations {
         this.httpProperties = httpProperties;
     }
 
-    public String buildHLSUrlForTrack(TrackUrn urn) {
+    public String buildHLSUrlForTrack(Urn urn) {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
         Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
         return Uri.parse(httpProperties.getPrivateApiHostWithHttpScheme() + APIEndpoints.HLS_STREAM.unencodedPath(urn))

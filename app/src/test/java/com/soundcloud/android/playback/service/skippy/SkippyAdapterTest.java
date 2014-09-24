@@ -34,8 +34,7 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -72,14 +71,14 @@ public class SkippyAdapterTest {
     @Mock private Skippy.Configuration configuration;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
-    private UserUrn userUrn;
+    private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
     private PropertySet track;
-    private TrackUrn trackUrn;
+    private Urn trackUrn;
 
     @Before
     public void setUp() throws Exception {
-        userUrn = ModelFixtures.create(UserUrn.class);
+        userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
                 stateChangeHandler, eventBus, connectionHelper);

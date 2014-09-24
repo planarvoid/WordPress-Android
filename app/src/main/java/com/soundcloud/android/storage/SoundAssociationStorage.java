@@ -13,7 +13,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -204,14 +203,14 @@ public class SoundAssociationStorage extends ScheduledOperations {
                 .queryIds();
     }
 
-    public Observable<List<TrackUrn>> getLikesTrackUrnsAsync(){
-        return schedule(Observable.create(new Observable.OnSubscribe<List<TrackUrn>>() {
+    public Observable<List<Urn>> getLikesTrackUrnsAsync(){
+        return schedule(Observable.create(new Observable.OnSubscribe<List<Urn>>() {
             @Override
-            public void call(Subscriber<? super List<TrackUrn>> observer) {
-                observer.onNext(Lists.transform(getTrackLikesAsIds(), new Function<Long, TrackUrn>() {
+            public void call(Subscriber<? super List<Urn>> observer) {
+                observer.onNext(Lists.transform(getTrackLikesAsIds(), new Function<Long, Urn>() {
                     @Nullable
                     @Override
-                    public TrackUrn apply(@Nullable Long id) {
+                    public Urn apply(@Nullable Long id) {
                         return Urn.forTrack(id);
                     }
                 }));

@@ -8,7 +8,6 @@ import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class PlayerArtworkLoaderTest {
 
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() throws Exception {
-        final TrackUrn urn = Urn.forTrack(123L);
+        final Urn urn = Urn.forTrack(123L);
         final Bitmap cachedBitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
 

@@ -14,6 +14,7 @@ import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -21,7 +22,6 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -185,9 +185,9 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     private void playTrackOrStartPlaylistFragment(Context context, int position) {
         Playable playable = data.get(position).getPlayable();
         if (playable instanceof PublicApiTrack) {
-            List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+            List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
             int adjustedPosition = filterPlayables(data.subList(0, position)).size();
-            TrackUrn initialTrack = trackUrns.get(adjustedPosition);
+            Urn initialTrack = trackUrns.get(adjustedPosition);
             playbackOperations
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());

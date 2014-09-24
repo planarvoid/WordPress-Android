@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -59,7 +59,7 @@ public class PlayQueueStorage {
             @Override
             public PlayQueueItem map(CursorReader reader) {
                 return PlayQueueItem.fromTrack(
-                        TrackUrn.forTrack(reader.getLong(TableColumns.PlayQueue.TRACK_ID)),
+                        Urn.forTrack(reader.getLong(TableColumns.PlayQueue.TRACK_ID)),
                         reader.getString(TableColumns.PlayQueue.SOURCE),
                         reader.getString(TableColumns.PlayQueue.SOURCE_VERSION)
                 );

@@ -29,7 +29,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -94,8 +94,8 @@ public class PlaylistFragmentTest {
         playlist = createPlaylist();
 
         when(controller.getAdapter()).thenReturn(adapter);
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(playbackOperations.playTracks(any(Observable.class), any(TrackUrn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<TrackUrn>>empty());
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
+        when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
 
         fragment.onAttach(activity);
     }
@@ -124,7 +124,7 @@ public class PlaylistFragmentTest {
 
         final PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
 
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(Arrays.asList(playlist, playlist2)));
         View layout = createFragmentView();
 
         expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
@@ -134,7 +134,7 @@ public class PlaylistFragmentTest {
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
-        Observable<TrackUrn> trackLoadDescriptor = Observable.empty();
+        Observable<Urn> trackLoadDescriptor = Observable.empty();
         when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
         View layout = createFragmentView();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
@@ -159,7 +159,7 @@ public class PlaylistFragmentTest {
     public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<TrackUrn>empty());
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<Urn>empty());
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);
@@ -173,7 +173,7 @@ public class PlaylistFragmentTest {
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET));
+                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();
@@ -185,7 +185,7 @@ public class PlaylistFragmentTest {
     public void shouldNotSetToggleToPlayStateWhenPlayingDifferentPlaylistOnResume() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET));
+                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();
@@ -204,7 +204,7 @@ public class PlaylistFragmentTest {
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
         PublicApiUser user = new PublicApiUser();
         playlist.setUser(user);
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId());
         View layout = createFragmentView();
 
@@ -235,7 +235,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void callsShowContentWhenErrorIsReturned() throws Exception {
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
@@ -251,7 +251,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void setsEmptyViewToErrorWhenErrorIsReturned() throws Exception {
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("something bad happened")));
         createFragmentView();
         verify(controller).setEmptyViewStatus(EmptyView.Status.ERROR);
@@ -266,7 +266,7 @@ public class PlaylistFragmentTest {
     @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() throws Exception {
         PublicApiPlaylist playlist2 = createPlaylist();
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlist, playlist2)));
         createFragmentView();
 
@@ -299,7 +299,7 @@ public class PlaylistFragmentTest {
         PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track1, track2);
 
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlist, playlist2)));
 
         createFragmentView();
@@ -319,8 +319,8 @@ public class PlaylistFragmentTest {
         playlist.tracks = Lists.newArrayList(track1);
         PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist2));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist2));
 
         createFragmentView();
         fragment.onRefreshStarted(mock(View.class));
@@ -333,7 +333,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void showsToastErrorWhenContentAlreadyShownAndRefreshFails() {
-        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
@@ -347,8 +347,8 @@ public class PlaylistFragmentTest {
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
-        when(legacyPlaylistOperations.loadPlaylist(any(PlaylistUrn.class))).thenReturn(Observable.from(playlist));
-        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
@@ -360,7 +360,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void hidesRefreshStateWhenRefreshFails() {
-        when(legacyPlaylistOperations.refreshPlaylist(any(PlaylistUrn.class))).thenReturn(
+        when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);
 
@@ -374,7 +374,7 @@ public class PlaylistFragmentTest {
     public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
         when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET));
+                new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
         View layout = createFragmentView();
         fragment.onResume();

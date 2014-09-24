@@ -20,8 +20,7 @@ import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -53,7 +52,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final NetworkConnectionHelper connectionHelper;
 
     private volatile String currentStreamUrl;
-    private TrackUrn currentTrackUrn;
+    private Urn currentTrackUrn;
     private PlayaListener playaListener;
     private long lastStateChangeProgress;
 
@@ -269,7 +268,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Nullable
     private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric, long value, String cdnHost) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        UserUrn userUrn = accountOperations.getLoggedInUserUrn();
+        Urn userUrn = accountOperations.getLoggedInUserUrn();
         PlaybackProtocol playbackProtocol = getPlaybackProtocol();
         switch (metric) {
             case TIME_TO_PLAY:

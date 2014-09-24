@@ -19,7 +19,6 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,7 +158,7 @@ public class PlayerArtworkControllerTest {
 
     @Test
     public void loadArtworkDisplaysArtworkThroughImageOperations() throws Exception {
-        final TrackUrn urn = Urn.forTrack(123L);
+        final Urn urn = Urn.forTrack(123L);
         when(wrappedImageView.getResources()).thenReturn(Robolectric.application.getResources());
         when(wrappedImageView.getContext()).thenReturn(Robolectric.application);
 

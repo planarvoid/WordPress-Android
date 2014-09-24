@@ -10,7 +10,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -127,7 +127,7 @@ public class PlaybackNotificationController {
         return ApiImageSize.getListItemImageSize(resources);
     }
 
-    private void loadAndSetArtwork(final TrackUrn trackUrn, final Notification notification) {
+    private void loadAndSetArtwork(final Urn trackUrn, final Notification notification) {
         final ApiImageSize apiImageSize = getApiImageSize();
         final Bitmap cachedBitmap = imageOperations.getCachedBitmap(trackUrn, apiImageSize, targetIconWidth, targetIconHeight);
 

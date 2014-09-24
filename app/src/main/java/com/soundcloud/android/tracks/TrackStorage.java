@@ -11,7 +11,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
@@ -33,7 +32,7 @@ public class TrackStorage {
         this.scheduler = scheduler;
     }
 
-    public Observable<PropertySet> track(final TrackUrn trackUrn, final UserUrn loggedInUserUrn) {
+    public Observable<PropertySet> track(final Urn trackUrn, final Urn loggedInUserUrn) {
         final Query query = Query.from(Table.SOUND_VIEW.name)
                 .select(
                         SoundView._ID,
@@ -63,7 +62,7 @@ public class TrackStorage {
         return query.where(SoundView.TITLE + " is not null");
     }
 
-    public Observable<PropertySet> trackDetails(final TrackUrn trackUrn) {
+    public Observable<PropertySet> trackDetails(final Urn trackUrn) {
         final Query query = Query.from(Table.SOUND_VIEW.name) .select(SoundView.DESCRIPTION).whereEq(SoundView._ID, trackUrn.numericId);
         return scheduler.scheduleQuery(query).map(new TrackDescriptionMapper());
     }
@@ -113,10 +112,10 @@ public class TrackStorage {
             final String creator = cursorReader.getString(SoundView.USERNAME);
             propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
             final long creatorId = cursorReader.getLong(SoundView.USER_ID);
-            propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? UserUrn.NOT_SET : Urn.forUser(creatorId));
+            propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
         }
 
-        private TrackUrn readSoundUrn(CursorReader cursorReader) {
+        private Urn readSoundUrn(CursorReader cursorReader) {
             return Urn.forTrack(cursorReader.getInt(SoundView._ID));
         }
     }

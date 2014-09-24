@@ -20,6 +20,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.StreamPlaya;
@@ -31,7 +32,6 @@ import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class MediaPlayerAdapterTest {
     private Uri streamUriWithId;
     private int duration;
 
-    private UserUrn userUrn;
+    private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -84,7 +84,7 @@ public class MediaPlayerAdapterTest {
         streamUriWithId = Uri.parse(streamUrlWithId);
         duration = track.get(PlayableProperty.DURATION);
 
-        userUrn = ModelFixtures.create(UserUrn.class);
+        userUrn = ModelFixtures.create(Urn.class);
         when(context.getApplicationContext()).thenReturn(context);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(TestObservables.MockObservable.<Uri>empty());

@@ -3,7 +3,7 @@ package com.soundcloud.android.comments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 
@@ -53,7 +53,7 @@ public class CommentPresenter implements CellPresenter<Comment> {
                 ScTextUtils.formatTimestamp(comment.getTimeStamp(), TimeUnit.MILLISECONDS)));
     }
 
-    private void setUserAvatar(View itemView, UserUrn userUrn) {
+    private void setUserAvatar(View itemView, Urn userUrn) {
         imageOperations.displayInAdapterView(
                 userUrn,
                 ApiImageSize.getListItemImageSize(resources),

@@ -25,7 +25,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.junit.Before;
@@ -42,7 +41,7 @@ import android.graphics.Bitmap;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySessionControllerTest {
 
-    private TrackUrn trackUrn;
+    private Urn trackUrn;
     private PropertySet track;
     private PropertySet trackWithAdMeta;
 

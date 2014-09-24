@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -22,7 +22,7 @@ public class PlayerArtworkLoader {
         this.resources = resources;
     }
 
-    public void loadArtwork(TrackUrn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener, boolean isHighPriority,
+    public void loadArtwork(Urn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener, boolean isHighPriority,
                             ViewVisibilityProvider viewVisibilityProvider){
         final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
         final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);

@@ -22,7 +22,6 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -142,7 +141,7 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     private boolean isTrack(int position) {
-        return propertySets.get(position).get(PlayableProperty.URN) instanceof TrackUrn;
+        return propertySets.get(position).get(PlayableProperty.URN).isTrack();
     }
 
     @Override
@@ -165,7 +164,7 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     private void playTrack(int position, Screen screen) {
-        final List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+        final List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
         final int adjustedPosition = filterPlayables(data.subList(0, position)).size();
         playbackOperations
                 .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(screen))
@@ -173,9 +172,9 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     private void playTrack(int position, Screen screen, Uri streamUri) {
-        List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+        List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
         int adjustedPosition = filterPlayables(data.subList(0, position)).size();
-        TrackUrn initialTrack = trackUrns.get(adjustedPosition);
+        Urn initialTrack = trackUrns.get(adjustedPosition);
         playbackOperations
                 .playTracksFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
                 .subscribe(subscriberProvider.get());

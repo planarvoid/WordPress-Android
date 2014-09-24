@@ -3,7 +3,6 @@ package com.soundcloud.android.events;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
@@ -130,30 +129,30 @@ public final class UIEvent {
     }
 
     @VisibleForTesting
-    public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
+    public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, Urn audioAdTrack, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(Kind.AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
                 .putAttribute("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
                 .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.get(AdProperty.AUDIO_AD_CLICKTHROUGH_URLS));
     }
 
     @VisibleForTesting
-    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack, long timestamp) {
+    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, Urn audioAdTrack, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(Kind.SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
                 .addPromotedTrackingUrls(SKIPS, audioAd.get(AdProperty.AUDIO_AD_SKIP_URLS));
     }
 
-    private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, TrackUrn audioAdTrack) {
+    private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, Urn audioAdTrack) {
         return event.putAttribute("ad_urn", audioAd.get(AdProperty.AD_URN))
                 .putAttribute("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .putAttribute("ad_image_url", audioAd.get(AdProperty.ARTWORK).toString())
                 .putAttribute("ad_track_urn", audioAdTrack.toString());
     }
 
-    public static UIEvent fromAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
+    public static UIEvent fromAudioAdClick(PropertySet audioAd, Urn audioAdTrack) {
         return fromAudioAdCompanionDisplayClick(audioAd, audioAdTrack, System.currentTimeMillis());
     }
 
-    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, TrackUrn audioAdTrack) {
+    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, Urn audioAdTrack) {
         return fromSkipAudioAdClick(audioAd, audioAdTrack, System.currentTimeMillis());
     }
 

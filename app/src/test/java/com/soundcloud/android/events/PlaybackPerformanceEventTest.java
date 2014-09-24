@@ -4,9 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserUrn;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,11 +16,11 @@ public class PlaybackPerformanceEventTest {
     private static final PlayerType PLAYER_TYPE = PlayerType.MEDIA_PLAYER;
     private static final PlaybackProtocol PROTOCOL = PlaybackProtocol.HLS;
     private static final ConnectionType CONNECTION_TYPE = ConnectionType.FOUR_G;
-    private UserUrn userUrn;
+    private Urn userUrn;
     
     @Before
     public void setUp() throws Exception {
-        userUrn = ModelFixtures.create(UserUrn.class);
+        userUrn = ModelFixtures.create(Urn.class);
 
     }
     @Test

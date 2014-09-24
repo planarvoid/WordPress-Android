@@ -19,8 +19,7 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -90,12 +89,12 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 listener.onPlayerClose();
                 break;
             case R.id.track_page_like:
-                final TrackUrn trackUrn = (TrackUrn) view.getTag();
+                final Urn trackUrn = (Urn) view.getTag();
                 updateLikeStatus(view, trackUrn);
                 break;
             case R.id.profile_link:
                 final Context activityContext = view.getContext();
-                final UserUrn userUrn = (UserUrn) view.getTag();
+                final Urn userUrn = (Urn) view.getTag();
                 listener.onGotoUser(activityContext, userUrn);
                 break;
             default:
@@ -249,7 +248,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 : R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
     }
 
-    private void updateLikeStatus(View view, TrackUrn trackUrn) {
+    private void updateLikeStatus(View view, Urn trackUrn) {
         boolean isLike = ((Checkable) view).isChecked();
         listener.onToggleLike(isLike, trackUrn);
     }

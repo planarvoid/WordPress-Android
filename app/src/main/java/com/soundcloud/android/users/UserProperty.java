@@ -1,10 +1,11 @@
 package com.soundcloud.android.users;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.Property;
 
 public final class UserProperty {
 
-    public static final Property<UserUrn> URN = Property.of(UserProperty.class, UserUrn.class);
+    public static final Property<Urn> URN = Property.of(UserProperty.class, Urn.class);
     public static final Property<String> USERNAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> COUNTRY = Property.of(UserProperty.class, String.class);
     public static final Property<Integer> FOLLOWERS_COUNT = Property.of(UserProperty.class, Integer.class);

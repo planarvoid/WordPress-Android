@@ -32,7 +32,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
@@ -314,9 +313,9 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         int positionExcludingRecordings = position - recordingData.size();
         Playable playable = ((PlayableHolder) data.get(positionExcludingRecordings)).getPlayable();
         if (playable instanceof PublicApiTrack) {
-            List<TrackUrn> trackUrns = toTrackUrn(filterPlayables(data));
+            List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
             int adjustedPosition = filterPlayables(data.subList(0, positionExcludingRecordings)).size();
-            TrackUrn initialTrack = trackUrns.get(adjustedPosition);
+            Urn initialTrack = trackUrns.get(adjustedPosition);
             playbackOperations
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
                     .subscribe(subscriberProvider.get());

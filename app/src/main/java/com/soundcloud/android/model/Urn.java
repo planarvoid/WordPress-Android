@@ -2,10 +2,8 @@ package com.soundcloud.android.model;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import com.soundcloud.android.playlists.PlaylistUrn;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -20,13 +18,15 @@ import java.util.regex.Pattern;
  * Models a SoundCloud URN
  * see http://eng-doc.int.s-cloud.net/guidelines/urns/
  */
-public abstract class Urn implements Parcelable {
+public final class Urn implements Parcelable {
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
     public static final String SOUNDS_TYPE = "sounds";
     public static final String TRACKS_TYPE = "tracks";
     public static final String PLAYLISTS_TYPE = "playlists";
     public static final String USERS_TYPE = "users";
+
+    public static final Urn NOT_SET = new Urn(SOUNDCLOUD_SCHEME, "unknown", Consts.NOT_SET);
 
     private static final Pattern URN_PATTERN = Pattern.compile("^(" + SOUNDCLOUD_SCHEME + "):(" + SOUNDS_TYPE +
             "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):-?\\d+");
@@ -76,19 +76,19 @@ public abstract class Urn implements Parcelable {
     }
 
     @NotNull
-    public static TrackUrn forTrack(long id) {
-        return new TrackUrn(id);
+    public static Urn forTrack(long id) {
+        return new Urn(SOUNDCLOUD_SCHEME, TRACKS_TYPE, id);
     }
 
     @NotNull
-    public static PlaylistUrn forPlaylist(long id) {
-        return new PlaylistUrn(id);
+    public static Urn forPlaylist(long id) {
+        return new Urn(SOUNDCLOUD_SCHEME, PLAYLISTS_TYPE, id);
     }
 
     @NotNull
-    public static UserUrn forUser(long id) {
+    public static Urn forUser(long id) {
         final long normalizedId = Math.max(0, id); // to account for anonymous users
-        return new UserUrn(normalizedId);
+        return new Urn(SOUNDCLOUD_SCHEME, USERS_TYPE, normalizedId);
     }
 
     private static String urnString(String scheme, String type, long id) {

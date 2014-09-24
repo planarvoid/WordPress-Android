@@ -10,7 +10,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -55,7 +54,7 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void trackChangedEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated(view, null);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);
@@ -63,7 +62,7 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void newQueueEventShouldUpdateTrackPresenterWithCurrentlyPlayingTrack() {
-        final TrackUrn playingTrack = Urn.forTrack(123L);
+        final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated(view, null);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
         verify(trackItemPresenter).setPlayingTrack(playingTrack);

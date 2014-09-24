@@ -7,7 +7,6 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
@@ -15,7 +14,7 @@ import android.net.Uri;
 import java.util.Date;
 
 public abstract class TestPropertySets {
-    public static PropertySet audioAdProperties(TrackUrn monetizedTrack) {
+    public static PropertySet audioAdProperties(Urn monetizedTrack) {
         return PropertySet.from(
                 AdProperty.AD_URN.bind("advertisement:123"),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
@@ -96,7 +95,7 @@ public abstract class TestPropertySets {
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static PropertySet expectedTrackForAnalytics(TrackUrn trackUrn, String policy, int duration) {
+    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, String policy, int duration) {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.POLICY.bind(policy),
@@ -104,7 +103,7 @@ public abstract class TestPropertySets {
         );
     }
 
-    public static PropertySet expectedTrackForAnalytics(TrackUrn trackUrn) {
+    public static PropertySet expectedTrackForAnalytics(Urn trackUrn) {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
