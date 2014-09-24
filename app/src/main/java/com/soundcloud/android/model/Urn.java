@@ -21,12 +21,12 @@ import java.util.regex.Pattern;
 public final class Urn implements Parcelable {
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
-    public static final String SOUNDS_TYPE = "sounds";
-    public static final String TRACKS_TYPE = "tracks";
-    public static final String PLAYLISTS_TYPE = "playlists";
-    public static final String USERS_TYPE = "users";
-
     public static final Urn NOT_SET = new Urn(SOUNDCLOUD_SCHEME, "unknown", Consts.NOT_SET);
+
+    private static final String SOUNDS_TYPE = "sounds";
+    private static final String TRACKS_TYPE = "tracks";
+    private static final String PLAYLISTS_TYPE = "playlists";
+    private static final String USERS_TYPE = "users";
 
     private static final Pattern URN_PATTERN = Pattern.compile("^(" + SOUNDCLOUD_SCHEME + "):(" + SOUNDS_TYPE +
             "|" + TRACKS_TYPE + "|" + PLAYLISTS_TYPE + "|" + USERS_TYPE + "):-?\\d+");
