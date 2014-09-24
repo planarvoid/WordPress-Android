@@ -24,7 +24,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -84,7 +83,7 @@ public class PlaylistFragmentTest {
                 playlistEngagementsController,
                 ptrController,
                 playQueueManager,
-                new PlayablePresenter(imageOperations, Robolectric.application.getResources()),
+                new PlaylistPresenter(imageOperations),
                 buildProvider(expandPlayerSubscriber)
         );
 

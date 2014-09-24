@@ -22,7 +22,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
-import com.soundcloud.android.playback.views.PlayablePresenter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -69,7 +68,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
-    @Inject PlayablePresenter playablePresenter;
+    @Inject PlaylistPresenter playlistPresenter;
     @Inject PlaybackToastViewController playbackToastViewController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
@@ -131,7 +130,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
                      PlaylistEngagementsController playlistEngagementsController,
                      PullToRefreshController pullToRefreshController,
                      PlayQueueManager playQueueManager,
-                     PlayablePresenter playablePresenter,
+                     PlaylistPresenter playlistPresenter,
                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.controller = controller;
         this.playbackOperations = playbackOperations;
@@ -142,7 +141,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         this.playlistEngagementsController = playlistEngagementsController;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
-        this.playablePresenter = playablePresenter;
+        this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         addLifeCycleComponents();
     }
@@ -251,7 +250,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        playablePresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
+        playlistPresenter.setTitleView((TextView) detailsView.findViewById(R.id.title))
                 .setUsernameView((TextView) detailsView.findViewById(R.id.username))
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
                         ApiImageSize.getFullImageSize(getActivity().getResources()));
@@ -301,7 +300,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
 
     protected void refreshMetaData(PublicApiPlaylist playlist) {
         this.playlist = playlist;
-        playablePresenter.setPlayable(playlist);
+        playlistPresenter.setPlayable(playlist.toPropertySet());
         playlistEngagementsController.setPlayable(playlist);
         infoHeaderText.setText(createHeaderText(playlist));
 
@@ -316,7 +315,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
             playToggle.setVisibility(View.GONE);
         }
 
-        playablePresenter.setTextVisibility(View.VISIBLE);
+        playlistPresenter.setTextVisibility(View.VISIBLE);
         headerUsernameText.setEnabled(true);
     }
 
