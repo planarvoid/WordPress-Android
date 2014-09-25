@@ -118,7 +118,7 @@ public final class Urn implements Parcelable {
         try {
             return URLEncoder.encode(toString(), Charsets.UTF_8.displayName());
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
