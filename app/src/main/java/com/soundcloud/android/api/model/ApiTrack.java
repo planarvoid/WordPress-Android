@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.legacy.model.TrackStats;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.propeller.PropertySet;
 
 import android.os.Parcel;
 
@@ -12,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ApiTrack extends ScModel {
+public class ApiTrack extends ScModel implements PropertySetSource {
 
     private String title;
     private String genre;
@@ -227,6 +231,10 @@ public class ApiTrack extends ScModel {
         }
     };
 
+    public Boolean isPrivate() {
+        return getSharing() != Sharing.PUBLIC;
+    }
+
     private static class RelatedResources {
         private ApiUser user;
         private TrackStats stats;
@@ -259,5 +267,26 @@ public class ApiTrack extends ScModel {
                 ", sharing=" + sharing +
                 ", stats=" + stats +
                 '}';
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return PropertySet.from(
+                TrackProperty.URN.bind(getUrn()),
+                TrackProperty.TITLE.bind(getTitle()),
+                TrackProperty.CREATED_AT.bind(getCreatedAt()),
+                TrackProperty.DURATION.bind(getDuration()),
+                TrackProperty.IS_PRIVATE.bind(isPrivate()),
+                TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),
+                TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),
+                TrackProperty.MONETIZABLE.bind(isMonetizable()),
+                TrackProperty.POLICY.bind(getPolicy()),
+                TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
+                TrackProperty.COMMENTS_COUNT.bind(getStats().getCommentsCount()),
+                TrackProperty.LIKES_COUNT.bind(getStats().getLikesCount()),
+                TrackProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
+                TrackProperty.CREATOR_NAME.bind(getUserName()),
+                TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET)
+        );
     }
 }

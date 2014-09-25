@@ -26,4 +26,10 @@ public class ApiUserBlueprint {
         }
     };
 
+    @Default
+    String country = "Country";
+
+    @Default
+    int followersCount = 100;
+
 }

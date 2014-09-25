@@ -1,11 +1,17 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.propeller.PropertySet;
 
 import android.os.Parcel;
 
-public class ApiUser extends ScModel {
+public class ApiUser extends ScModel implements PropertySetSource {
+
+    private String country;
+    private int followersCount;
     private String username;
     private String avatarUrl;
 
@@ -31,6 +37,23 @@ public class ApiUser extends ScModel {
     @Deprecated
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public int getFollowersCount() {
+        return followersCount;
+    }
+
+    @JsonProperty("followers_count")
+    public void setFollowersCount(int followersCount) {
+        this.followersCount = followersCount;
     }
 
     @Override
@@ -60,4 +83,14 @@ public class ApiUser extends ScModel {
             return new ApiUser[size];
         }
     };
+
+    @Override
+    public PropertySet toPropertySet() {
+        return PropertySet.from(
+                UserProperty.URN.bind(getUrn()),
+                UserProperty.USERNAME.bind(getUsername()),
+                UserProperty.COUNTRY.bind(getCountry()),
+                UserProperty.FOLLOWERS_COUNT.bind(getFollowersCount())
+        );
+    }
 }
