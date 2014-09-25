@@ -44,7 +44,7 @@ public final class Urn implements Parcelable {
         }
     };
 
-    private final String content;
+    @NotNull private final String content;
     private final long numericId;
 
     public static boolean isSoundCloudUrn(String urnString) {

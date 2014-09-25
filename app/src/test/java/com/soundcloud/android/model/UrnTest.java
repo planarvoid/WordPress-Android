@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -80,13 +81,7 @@ public class UrnTest {
 
     @Test
     public void shouldImplementEqualsAndHashCode() throws Exception {
-        Urn uri = new Urn("soundcloud:tracks:123");
-        Urn uri2 = new Urn("soundcloud:tracks:123");
-        Urn uri3 = new Urn("soundcloud:tracks:1234");
-        expect(uri).toEqual(uri2);
-        expect(uri.hashCode()).toEqual(uri2.hashCode());
-        expect(uri).not.toEqual(uri3);
-        expect(uri.hashCode()).not.toEqual(uri3.hashCode());
+        EqualsVerifier.forClass(Urn.class).allFieldsShouldBeUsedExcept("numericId").verify();
     }
 
     @Test
