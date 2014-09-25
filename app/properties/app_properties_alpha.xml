@@ -12,4 +12,5 @@
 
     <!-- Feature flags -->
     <bool name="feature_leave_behind">true</bool>
+    <bool name="feature_add_comments">true</bool>
 </resources>

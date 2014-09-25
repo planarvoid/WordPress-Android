@@ -48,6 +48,16 @@ public class PopupMenuWrapperCompat implements PopupMenuWrapper {
     }
 
     @Override
+    public void setItemText(int itemId, String text) {
+        popupMenu.getMenu().findItem(itemId).setTitle(text);
+    }
+
+    @Override
+    public void removeItem(int itemId) {
+        popupMenu.getMenu().removeItem(itemId);
+    }
+
+    @Override
     public void dismiss() {
         popupMenu.dismiss();
     }

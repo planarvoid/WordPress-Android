@@ -11,6 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -48,6 +51,7 @@ public class TrackMenuControllerTest {
     @Mock private SoundAssociationOperations soundAssociationOps;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
+    @Mock private FeatureFlags featureFlags;
 
     private MockObservable<PropertySet> repostObservable;
     private TestEventBus eventBus = new TestEventBus();
@@ -58,12 +62,14 @@ public class TrackMenuControllerTest {
         privateTrack = new PlayerTrack(TestPropertySets.expectedPrivateTrackForPlayer());
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
+        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus, featureFlags)
                 .create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
         when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
+        when(featureFlags.isDisabled(Feature.ADD_COMMENTS)).thenReturn(false);
+        when(featureFlags.isEnabled(Feature.ADD_COMMENTS)).thenReturn(true);
     }
 
     @Test
@@ -172,6 +178,13 @@ public class TrackMenuControllerTest {
         verify(popupMenuWrapper).setItemEnabled(R.id.unpost, false);
         verify(popupMenuWrapper).setItemEnabled(R.id.repost, false);
         verify(popupMenuWrapper).setItemEnabled(R.id.share, false);
+    }
+
+    @Test
+    public void setProgressSetsProgressOnPopupMenuWrapperItem() {
+        controller.setProgress(new PlaybackProgress(20000, 40000));
+
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {

@@ -7,6 +7,7 @@ import dagger.Provides;
 
 @Module(addsTo = ApplicationModule.class, injects = {
         TrackCommentsActivity.class,
+        AddCommentDialogFragment.class,
         CommentsFragment.class
 })
 public class CommentsModule {

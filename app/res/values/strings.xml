@@ -288,6 +288,10 @@
     <string name="share">Share</string>
     <string name="repost">Repost</string>
     <string name="unpost">Unpost</string>
+    <string name="comment_at">Comment at %s</string>
+    <string name="comment_on">Comment on %s</string>
+    <string name="your_comment_has_been_posted">Your comment has been posted</string>
+    <string name="comment_could_not_be_created_at_this_time">Comment could not be created at this time</string>
     <string name="reposted_to_followers">Reposted to your followers</string>
     <string name="unposted_to_followers">Unposted</string>
     <string name="share_track_by_artist_on_soundcloud">Listen to %1$s by %2$s #np on #SoundCloud\n%3$s</string>

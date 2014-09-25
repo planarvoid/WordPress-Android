@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -165,6 +166,17 @@ public class Player extends ActivityTestCase<MainActivity> {
 
         TrackCommentsScreen trackCommentsScreen = trackInfoScreen.clickComments();
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
+    }
+
+    public void testPlayerTrackMakeComment() throws Exception {
+        playTrackFromLikes();
+
+        String originalTitle = playerElement.getTrackTitle();
+        playerElement.clickMenu().comment().click();
+
+        final AddCommentScreen addCommentScreen = new AddCommentScreen(solo);
+        assertTrue(addCommentScreen.waitForDialog());
+        assertTrue(addCommentScreen.getTitle().contains(originalTitle));
     }
 
     private void playExploreTrack() {

@@ -517,7 +517,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             fullScreenViews = Arrays.asList(title, user, close, timestamp);
             hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
-            progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp);
+            progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 
         private boolean hasNextButton() {

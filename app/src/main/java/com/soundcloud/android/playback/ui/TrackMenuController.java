@@ -5,10 +5,15 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.model.Urn;
@@ -22,10 +27,12 @@ import android.view.View;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
-public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickListener {
+public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener {
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
+    public static final String ADD_COMMENT_DIALOG_TAG = "info_dialog";
     public static final String PLAYLIST_DIALOG_TAG = "playlist_dialog";
 
     public static final String SHARE_TYPE = "text/plain";
@@ -35,25 +42,43 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
+    private final String commentAtUnformatted;
 
     @Nullable private PlayerTrack track;
+    @Nullable private PlaybackProgress lastProgress;
 
     private TrackMenuController(PlayQueueManager playQueueManager,
                                 SoundAssociationOperations associationOperations,
                                 FragmentActivity context,
                                 PopupMenuWrapper popupMenuWrapper,
-                                EventBus eventBus) {
+                                EventBus eventBus, FeatureFlags featureFlags) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
+        this.commentAtUnformatted = activity.getString(R.string.comment_at);
         setupMenu();
+    }
+
+    @Override
+    public void setProgress(PlaybackProgress progress) {
+        lastProgress = progress;
+        if (featureFlags.isEnabled(Feature.ADD_COMMENTS)) {
+            final String timestamp = ScTextUtils.formatTimestamp(progress.getPosition(), TimeUnit.MILLISECONDS);
+            popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
+        }
     }
 
     private void setupMenu() {
         popupMenuWrapper.inflate(R.menu.player_page_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
+
+        if (featureFlags.isDisabled(Feature.ADD_COMMENTS)) {
+            popupMenuWrapper.removeItem(R.id.comment);
+        }
     }
 
     @Override
@@ -72,12 +97,20 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
             case R.id.info:
                 TrackInfoFragment.create(track.getUrn()).show(activity.getSupportFragmentManager(), INFO_DIALOG_TAG);
                 return true;
+            case R.id.comment:
+                handleComment();
+                return true;
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog(track);
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void handleComment() {
+        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getUrn(), track.getTitle(), lastProgress, playQueueManager.getScreenTag());
+        fragment.show(activity.getSupportFragmentManager(), ADD_COMMENT_DIALOG_TAG);
     }
 
     private void handleShare(PlayerTrack track) {
@@ -148,22 +181,24 @@ public class TrackMenuController implements PopupMenuWrapper.OnMenuItemClickList
         private final SoundAssociationOperations associationOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
+        private final FeatureFlags featureFlags;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
                 SoundAssociationOperations associationOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                EventBus eventBus) {
+                EventBus eventBus, FeatureFlags featureFlags) {
             this.playQueueManager = playQueueManager;
             this.associationOperations = associationOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.eventBus = eventBus;
+            this.featureFlags = featureFlags;
         }
 
         TrackMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
             return new TrackMenuController(playQueueManager, associationOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
+                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus, featureFlags);
         }
     }
 

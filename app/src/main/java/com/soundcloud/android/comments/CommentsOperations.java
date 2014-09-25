@@ -2,7 +2,10 @@ package com.soundcloud.android.comments;
 
 import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
@@ -17,6 +20,7 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class CommentsOperations {
 
@@ -44,6 +48,17 @@ class CommentsOperations {
 
     CommentsPager pager() {
         return pager;
+    }
+
+    Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long position) {
+
+        final APIRequest request = RequestBuilder.<PublicApiComment>post(APIEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+                .forPublicAPI()
+                .forResource(TypeToken.of(PublicApiComment.class))
+                .withContent(new CommentHolder(commentText, position))
+                .build();
+
+        return httpClient.fetchModels(request);
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
@@ -82,4 +97,29 @@ class CommentsOperations {
             }
         }
     }
+
+    public static class CommentHolder {
+        @JsonProperty
+        final Map<String,String> comment;
+
+        public CommentHolder(String body, long timestamp) {
+            comment = Maps.newHashMapWithExpectedSize(2);
+            comment.put("body", body);
+            comment.put("timestamp", String.valueOf(timestamp));
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            return o instanceof CommentHolder && Objects.equal(comment, ((CommentHolder) o).comment);
+        }
+
+        @Override
+        public int hashCode() {
+            return comment.hashCode();
+        }
+    }
+
 }

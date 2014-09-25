@@ -264,6 +264,12 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void setProgressSetsProgressOnMenuController() {
+        presenter.setProgress(trackView, playbackProgress);
+        verify(trackMenuController).setProgress(playbackProgress);
+    }
+
+    @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
         final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(TRACK_URN, true, 1);

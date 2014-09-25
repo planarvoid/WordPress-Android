@@ -14,4 +14,5 @@
     <bool name="feature_leave_behind">true</bool>
     <bool name="feature_comments_redesign">false</bool>
     <bool name="feature_api_mobile_search">false</bool>
+    <bool name="feature_add_comments">true</bool>
 </resources>
