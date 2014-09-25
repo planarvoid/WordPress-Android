@@ -1,11 +1,8 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.android.OperatorPaged.LegacyPager;
-import static rx.android.OperatorPaged.Page;
-import static rx.android.OperatorPaged.pagedWith;
 
+import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
@@ -13,14 +10,18 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.storage.BulkStorage;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.android.OperatorPaged;
-import rx.functions.Action1;
+import rx.android.Pager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -29,41 +30,45 @@ import java.util.List;
 
 class SearchOperations {
 
-    private static final Func1<SearchResultsCollection, SearchResultsCollection> FILTER_UNKOWN_RESOURCES =
-            new Func1<SearchResultsCollection, SearchResultsCollection>() {
+    static final int TYPE_ALL = 0;
+    static final int TYPE_TRACKS = 1;
+    static final int TYPE_PLAYLISTS = 2;
+    static final int TYPE_USERS = 3;
+
+    static final Func1<ModelCollection<PropertySetSource>, List<PropertySet>> TO_PROPERTY_SET = new Func1<ModelCollection<PropertySetSource>, List<PropertySet>>() {
+        @Override
+        public List<PropertySet> call(ModelCollection<PropertySetSource> searchResults) {
+            List<PropertySet> propertyResults = new ArrayList<>();
+            for (PropertySetSource result : searchResults) {
+                propertyResults.add(result.toPropertySet());
+            }
+            return propertyResults;
+        }
+    };
+
+    private static final Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>> FILTER_UNKOWN_RESOURCES =
+            new Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>>() {
                 @Override
-                public SearchResultsCollection call(SearchResultsCollection unfilteredResult) {
-                    List<PublicApiResource> filteredList = new ArrayList<PublicApiResource>(Consts.LIST_PAGE_SIZE);
+                public ModelCollection<PublicApiResource> call(ModelCollection<PublicApiResource> unfilteredResult) {
+                    List<PublicApiResource> filteredList = new ArrayList<>(Consts.LIST_PAGE_SIZE);
                     for (PublicApiResource resource : unfilteredResult) {
                         if (!(resource instanceof UnknownResource)) {
                             filteredList.add(resource);
                         }
                     }
-                    return new SearchResultsCollection(filteredList, unfilteredResult.getNextHref());
+                    return new ModelCollection<>(filteredList);
                 }
             };
 
-    private final LegacyPager<SearchResultsCollection> searchResultsPager = new LegacyPager<SearchResultsCollection>() {
+    private final Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>> cacheResources = new Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>>() {
         @Override
-        public Observable<Page<SearchResultsCollection>> call(SearchResultsCollection searchResultsCollection) {
-            final String nextHref = searchResultsCollection.getNextHref();
-            if (ScTextUtils.isNotBlank(nextHref)) {
-                return getSearchResults(nextHref);
-            } else {
-                return OperatorPaged.emptyObservable();
-            }
-        }
-    };
-
-    private final Func1<SearchResultsCollection, SearchResultsCollection> cacheResources = new Func1<SearchResultsCollection, SearchResultsCollection>() {
-        @Override
-        public SearchResultsCollection call(SearchResultsCollection results) {
-            List<PublicApiResource> cachedResults = new ArrayList<>(results.size());
+        public ModelCollection<PublicApiResource> call(ModelCollection<PublicApiResource> results) {
+            List<PublicApiResource> cachedResults = new ArrayList<>(results.getCollection().size());
             for (PublicApiResource resource : results) {
                 PublicApiResource cachedResource = modelManager.cache(resource, PublicApiResource.CacheUpdateMode.FULL);
                 cachedResults.add(cachedResource);
             }
-            return new SearchResultsCollection(cachedResults, results.getNextHref());
+            return new ModelCollection<>(cachedResults);
         }
     };
 
@@ -78,50 +83,115 @@ class SearchOperations {
         this.modelManager = modelManager;
     }
 
-    public Observable<Page<SearchResultsCollection>> getAllSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_ALL, query);
+    SearchResultPager pager(int searchType) {
+        return new SearchResultPager(searchType);
     }
 
-    public Observable<Page<SearchResultsCollection>> getTrackSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_TRACKS, query);
+    public Observable<ModelCollection<PropertySetSource>> getSearchResult(String query, int searchType) {
+        return getSearchResult(query, searchType, true);
     }
 
-    public Observable<Page<SearchResultsCollection>> getPlaylistSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_PLAYLISTS, query);
+    private Observable<ModelCollection<PropertySetSource>> getSearchResult(String query, int searchType, boolean nextPage) {
+        switch (searchType) {
+            case TYPE_ALL:
+                return getAllSearchResults(query, nextPage);
+            case TYPE_TRACKS:
+                return getTrackSearchResults(query, nextPage);
+            case TYPE_PLAYLISTS:
+                 return getPlaylistSearchResults(query, nextPage);
+            case TYPE_USERS:
+                return getUserSearchResults(query, nextPage);
+            default:
+                throw new IllegalStateException("Unknown search type");
+        }
     }
 
-    public Observable<Page<SearchResultsCollection>> getUserSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_USERS, query);
+    private Observable<ModelCollection<PropertySetSource>> getAllSearchResults(String query, boolean firstPage) {
+        final APIEndpoints endpoint = APIEndpoints.SEARCH_ALL;
+        final TypeToken<ModelCollection<UniversalSearchResult>> typeToken = new TypeToken<ModelCollection<UniversalSearchResult>>() {
+        };
+
+        return getSearchResults(query, firstPage, endpoint, typeToken);
     }
 
-    private Observable<Page<SearchResultsCollection>> getSearchResults(APIEndpoints apiEndpoint, @Nullable String query) {
-        final RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(apiEndpoint.path());
+    private Observable<ModelCollection<PropertySetSource>> getTrackSearchResults(String query, boolean firstPage) {
+        final APIEndpoints endpoint = APIEndpoints.SEARCH_TRACKS;
+        final TypeToken<ModelCollection<ApiTrack>> typeToken = new TypeToken<ModelCollection<ApiTrack>>() {
+        };
+        return getSearchResults(query, firstPage, endpoint, typeToken);
+    }
+
+    private Observable<ModelCollection<PropertySetSource>> getPlaylistSearchResults(String query, boolean firstPage) {
+        final APIEndpoints endpoint = APIEndpoints.SEARCH_PLAYLISTS;
+        final TypeToken<ModelCollection<ApiPlaylist>> typeToken = new TypeToken<ModelCollection<ApiPlaylist>>() {
+        };
+        return getSearchResults(query, firstPage, endpoint, typeToken);
+    }
+
+    private Observable<ModelCollection<PropertySetSource>> getUserSearchResults(String query, boolean firstPage) {
+        final APIEndpoints endpoint = APIEndpoints.SEARCH_USERS;
+        final TypeToken<ModelCollection<ApiUser>> typeToken = new TypeToken<ModelCollection<ApiUser>>() {
+        };
+        return getSearchResults(query, firstPage, endpoint, typeToken);
+    }
+
+    private <T extends PropertySetSource>
+    Observable<ModelCollection<PropertySetSource>> getSearchResults(APIEndpoints apiEndpoint, @Nullable String query, TypeToken<ModelCollection<T>> typeToken) {
+        final RequestBuilder<ModelCollection<T>> builder = createSearchRequestBuilder(apiEndpoint.path(), typeToken);
         return getPageObservable(builder.addQueryParameters("q", query).build());
     }
 
-    private Observable<Page<SearchResultsCollection>> getSearchResults(String nextHref) {
-        final RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(nextHref);
+    private <T extends PropertySetSource>
+    Observable<ModelCollection<PropertySetSource>> getSearchResults(String nextHref, TypeToken<ModelCollection<T>> typeToken) {
+        final RequestBuilder<ModelCollection<T>> builder = createSearchRequestBuilder(nextHref, typeToken);
         return getPageObservable(builder.build());
     }
 
-    private RequestBuilder<SearchResultsCollection> createSearchRequestBuilder(String path) {
-        return RequestBuilder.<SearchResultsCollection>get(path)
-                .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
-                .forPublicAPI()
-                .forResource(TypeToken.of(SearchResultsCollection.class));
+    private <T extends PropertySetSource>
+    Observable<ModelCollection<PropertySetSource>> getSearchResults(String query, boolean firstPage, APIEndpoints endpoint, TypeToken<ModelCollection<T>> typeToken) {
+        if (firstPage) {
+            return getSearchResults(endpoint, query, typeToken);
+        }
+        return getSearchResults(query, typeToken);
     }
 
-    private Observable<Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
-        Observable<SearchResultsCollection> source = rxHttpClient.<SearchResultsCollection>fetchModels(request)
-                .map(FILTER_UNKOWN_RESOURCES)
-                .map(cacheResources)
-                .doOnNext(new Action1<SearchResultsCollection>() {
-                    @Override
-                    public void call(SearchResultsCollection collection) {
-                        fireAndForget(bulkStorage.bulkInsertAsync(collection));
-                    }
-                });
-        return source.lift(pagedWith(searchResultsPager));
+    private <T extends PropertySetSource>
+    RequestBuilder<ModelCollection<T>> createSearchRequestBuilder(String path, TypeToken<ModelCollection<T>> typeToken) {
+        return RequestBuilder.<ModelCollection<T>>get(path)
+                .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
+                .forPrivateAPI(1)
+                .forResource(typeToken);
+    }
+
+    private <T extends PropertySetSource>
+    Observable<ModelCollection<PropertySetSource>> getPageObservable(APIRequest<ModelCollection<T>> request) {
+        return rxHttpClient.fetchModels(request);
+        //.map(cacheResources)
+//                .doOnNext(new Action1<ModelCollection<T>>() {
+//                    @Override
+//                    public void call(ModelCollection<T> collection) {
+//                        fireAndForget(bulkStorage.bulkInsertAsync(collection));
+//                    }
+//                });
+    }
+
+    class SearchResultPager extends Pager<ModelCollection<PropertySetSource>> {
+
+        private final int searchType;
+
+        SearchResultPager(int searchType) {
+            this.searchType = searchType;
+        }
+
+        @Override
+        public Observable<ModelCollection<PropertySetSource>> call(ModelCollection<PropertySetSource> searchResultsCollection) {
+            final Optional<Link> nextHref = searchResultsCollection.getNextLink();
+            if (nextHref.isPresent()) {
+                return getSearchResult(nextHref.get().getHref(), searchType, false);
+            } else {
+                return Pager.finish();
+            }
+        }
     }
 
 }

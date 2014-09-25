@@ -1,9 +1,9 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
@@ -46,17 +46,25 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> {
         if (itemViewType == IGNORE_ITEM_VIEW_TYPE) {
             return itemViewType;
         } else {
-            final PropertySet item = getItem(position);
-            if (item.contains(UserProperty.URN)) {
+            final Urn urn = getUrn(position);
+            if (urn.isUser()) {
                 return TYPE_USER;
-            } else if (item.contains(TrackProperty.URN)) {
+            } else if (urn.isTrack()) {
                 return TYPE_TRACK;
-            } else if (item.contains(PlaylistProperty.URN)) {
+            } else if (urn.isPlaylist()) {
                 return TYPE_PLAYLIST;
             } else {
                 throw new IllegalStateException("Unexpected item type in " + SearchResultsAdapter.class.getSimpleName());
             }
         }
+    }
+
+    private Urn getUrn(int position) {
+        final PropertySet item = getItem(position);
+        if (item.contains(UserProperty.URN)) {
+            return item.get(UserProperty.URN);
+        }
+        return item.get(PlayableProperty.URN);
     }
 
     @Override

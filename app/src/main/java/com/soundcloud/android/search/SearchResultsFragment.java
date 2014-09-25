@@ -1,8 +1,8 @@
 package com.soundcloud.android.search;
 
-import static rx.android.OperatorPaged.Page;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -11,17 +11,19 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -40,7 +42,7 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class SearchResultsFragment extends DefaultFragment
-        implements ReactiveListComponent<ConnectableObservable<Page<SearchResultsCollection>>> {
+        implements ReactiveListComponent<ConnectableObservable<List<PropertySet>>> {
 
     private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
         @Override
@@ -50,13 +52,8 @@ public class SearchResultsFragment extends DefaultFragment
         }
     };
 
-    static final int TYPE_ALL = 0;
-    static final int TYPE_TRACKS = 1;
-    static final int TYPE_PLAYLISTS = 2;
-    static final int TYPE_USERS = 3;
-
-    private static final String KEY_QUERY = "query";
-    private static final String KEY_TYPE = "type";
+    static final String EXTRA_QUERY = "query";
+    static final String EXTRA_TYPE = "type";
 
     @Inject SearchOperations searchOperations;
     @Inject PlaybackOperations playbackOperations;
@@ -66,16 +63,18 @@ public class SearchResultsFragment extends DefaultFragment
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private int searchType;
-    private ConnectableObservable<Page<SearchResultsCollection>> observable;
+    private ConnectableObservable<List<PropertySet>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
     private Subscription playEventSubscription = Subscriptions.empty();
+    private SearchOperations.SearchResultPager pager;
+
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putInt(KEY_TYPE, type);
-        bundle.putString(KEY_QUERY, query);
+        bundle.putInt(EXTRA_TYPE, type);
+        bundle.putString(EXTRA_QUERY, query);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -85,8 +84,13 @@ public class SearchResultsFragment extends DefaultFragment
         addLifeCycleComponents();
     }
 
+    @VisibleForTesting
+    SearchResultsFragment(SearchOperations operations, ListViewController listViewController) {
+        this.searchOperations = operations;
+        this.listViewController = listViewController;
+    }
+
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter);
         addLifeCycleComponent(listViewController);
     }
 
@@ -94,38 +98,26 @@ public class SearchResultsFragment extends DefaultFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        searchType = getArguments().getInt(KEY_TYPE);
+        searchType = getArguments().getInt(EXTRA_TYPE);
+        pager = searchOperations.pager(searchType);
+        listViewController.setAdapter(adapter, pager, SearchOperations.TO_PROPERTY_SET);
 
         connectObservable(buildObservable());
     }
 
     @Override
-    public ConnectableObservable<Page<SearchResultsCollection>> buildObservable() {
-        final String query = getArguments().getString(KEY_QUERY);
-        Observable<Page<SearchResultsCollection>> observable;
-        switch (searchType) {
-            case TYPE_ALL:
-                observable = searchOperations.getAllSearchResults(query);
-                break;
-            case TYPE_TRACKS:
-                observable = searchOperations.getTrackSearchResults(query);
-                break;
-            case TYPE_PLAYLISTS:
-                observable = searchOperations.getPlaylistSearchResults(query);
-                break;
-            case TYPE_USERS:
-                observable = searchOperations.getUserSearchResults(query);
-                break;
-            default:
-                throw new IllegalArgumentException("Query type not valid");
-        }
-        return observable.observeOn(mainThread()).replay();
+    public ConnectableObservable<List<PropertySet>> buildObservable() {
+        final String query = getArguments().getString(EXTRA_QUERY);
+        final Observable<ModelCollection<PropertySetSource>> observable = searchOperations.getSearchResult(query, searchType);
+        return pager
+                .page(observable).map(SearchOperations.TO_PROPERTY_SET)
+                .observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<Page<SearchResultsCollection>> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
         this.observable = observable;
-        //observable.subscribe(adapter);
+        observable.subscribe(adapter);
         connectionSubscription = observable.connect();
         return connectionSubscription;
     }
@@ -141,13 +133,6 @@ public class SearchResultsFragment extends DefaultFragment
 
         listViewController.connect(this, observable);
         new EmptyViewBuilder().configureForSearch(listViewController.getEmptyView());
-        adapter.onViewCreated();
-    }
-
-    @Override
-    public void onDestroyView() {
-        adapter.onDestroyView();
-        super.onDestroyView();
     }
 
     @Override
@@ -204,13 +189,13 @@ public class SearchResultsFragment extends DefaultFragment
 
     private Screen getTrackingScreen() {
         switch(searchType) {
-            case TYPE_ALL:
+            case SearchOperations.TYPE_ALL:
                 return Screen.SEARCH_EVERYTHING;
-            case TYPE_TRACKS:
+            case SearchOperations.TYPE_TRACKS:
                 return Screen.SEARCH_TRACKS;
-            case TYPE_PLAYLISTS:
+            case SearchOperations.TYPE_PLAYLISTS:
                 return Screen.SEARCH_PLAYLISTS;
-            case TYPE_USERS:
+            case SearchOperations.TYPE_USERS:
                 return Screen.SEARCH_USERS;
             default:
                 throw new IllegalArgumentException("Query type not valid");
