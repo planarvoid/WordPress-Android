@@ -5,6 +5,7 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerManager;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerManagerCompat;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerManagerImpl;
+import com.soundcloud.android.properties.ApplicationProperties;
 import dagger.Module;
 import dagger.Provides;
 
@@ -14,8 +15,12 @@ import dagger.Provides;
 public class PlaybackServiceModule {
 
     @Provides
-    public StreamPlaya.PlayerSwitcherInfo providePlayerSwitcherInfo(){
-        return new StreamPlaya.PlayerSwitcherInfo(3, 1);
+    public StreamPlaya.PlayerSwitcherInfo providePlayerSwitcherInfo(ApplicationProperties applicationProperties){
+        if (applicationProperties.isReleaseBuild()){
+            return new StreamPlaya.PlayerSwitcherInfo(9, 1);
+        } else {
+            return new StreamPlaya.PlayerSwitcherInfo(5, 1);
+        }
     }
 
     @Provides
