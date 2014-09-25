@@ -99,7 +99,7 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
             likesCountText.setVisibility(View.VISIBLE);
             likesCountText.setText(ScTextUtils.formatNumberWithCommas(likesCount));
             final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
-            heartIcon.setLevel(propertySet.get(PlayableProperty.IS_LIKED) ? 1 : 0);
+            heartIcon.setLevel(propertySet.getOrElse(PlayableProperty.IS_LIKED, false) ? 1 : 0);
         }
     }
 
