@@ -14,6 +14,10 @@ class PlayerTrack implements PropertySetSource {
         this.source = source;
     }
 
+    public PropertySet getSource() {
+        return source;
+    }
+
     Urn getUrn() {
         return source.get(TrackProperty.URN);
     }

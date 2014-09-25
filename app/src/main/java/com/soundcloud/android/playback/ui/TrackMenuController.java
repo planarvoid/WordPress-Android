@@ -109,7 +109,7 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     }
 
     private void handleComment() {
-        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getUrn(), track.getTitle(), lastProgress, playQueueManager.getScreenTag());
+        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(), lastProgress, playQueueManager.getScreenTag());
         fragment.show(activity.getSupportFragmentManager(), ADD_COMMENT_DIALOG_TAG);
     }
 
