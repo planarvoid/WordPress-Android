@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener {
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
-    public static final String ADD_COMMENT_DIALOG_TAG = "info_dialog";
+    public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
     public static final String PLAYLIST_DIALOG_TAG = "playlist_dialog";
 
     public static final String SHARE_TYPE = "text/plain";

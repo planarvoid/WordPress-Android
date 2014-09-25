@@ -20,7 +20,7 @@ public class AddCommentScreen extends Screen {
     }
 
     public String getTitle() {
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.title)).getText();
+        return testDriver.findElement(With.id(eu.inmite.android.lib.dialogs.R.id.sdl__title)).getText();
     }
 
 }
