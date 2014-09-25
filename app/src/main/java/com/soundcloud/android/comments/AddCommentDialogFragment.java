@@ -5,6 +5,7 @@ import static rx.android.observables.AndroidObservable.bindActivity;
 import com.cocosw.undobar.UndoBarController;
 import com.cocosw.undobar.UndoBarController.UndoBar;
 import com.cocosw.undobar.UndoBarStyle;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
@@ -102,13 +103,14 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
         eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId()));
     }
 
-    private static final class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment> {
+    @VisibleForTesting
+    static final class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment> implements UndoBarController.UndoListener {
 
         private final Activity activity;
         private final PropertySet track;
         private final EventBus eventBus;
 
-        private CommentAddedSubscriber(Activity activity, PropertySet track, EventBus eventBus) {
+        CommentAddedSubscriber(Activity activity, PropertySet track, EventBus eventBus) {
             this.activity = activity;
             this.track = track;
             this.eventBus = eventBus;
@@ -119,7 +121,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
             new UndoBar(activity)
                     .message(R.string.your_comment_has_been_posted)
                     .style(createViewCommentBarStyle())
-                    .listener(createViewCommentListener())
+                    .listener(this)
                     .show();
         }
 
@@ -135,15 +137,11 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
                             AnimationUtils.loadAnimation(activity, android.R.anim.fade_out));
         }
 
-        private UndoBarController.UndoListener createViewCommentListener() {
-            return new UndoBarController.UndoListener() {
-                @Override
-                public void onUndo(Parcelable parcelable) {
-                    subscribeToCollapsedEvent(activity);
-                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-                    eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT));
-                }
-            };
+        @Override
+        public void onUndo(Parcelable parcelable) {
+            subscribeToCollapsedEvent(activity);
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT));
         }
 
         private void subscribeToCollapsedEvent(Context context) {
