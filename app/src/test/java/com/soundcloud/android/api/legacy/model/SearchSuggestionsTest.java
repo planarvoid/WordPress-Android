@@ -40,7 +40,7 @@ public class SearchSuggestionsTest {
         expect(suggestions.suggestions.get(0).kind).toEqual("user");
         expect(suggestions.suggestions.get(0).id).toEqual(2097360l);
         expect(suggestions.suggestions.get(0).score).toEqual(889523l);
-        expect(suggestions.suggestions.get(0).getClientUri().toString()).toEqual("soundcloud:users:2097360");
+        expect(suggestions.suggestions.get(0).getUrn().toString()).toEqual("soundcloud:users:2097360");
         expect(suggestions.suggestions.get(0).getIntentData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/2097360");
     }
 
@@ -190,10 +190,10 @@ public class SearchSuggestionsTest {
         SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/api/legacy/model/suggest_mixed.json");
 
-        expect(suggestions.suggestions.get(0).getClientUri()).toEqual(Urn.parse("soundcloud:users:2097360"));
-        expect(suggestions.suggestions.get(1).getClientUri()).toEqual(Urn.parse("soundcloud:tracks:196380"));
-        expect(suggestions.suggestions.get(2).getClientUri()).toEqual(Urn.parse("soundcloud:tracks:196381"));
-        expect(suggestions.suggestions.get(3).getClientUri()).toEqual(Urn.parse("soundcloud:playlists:324731"));
+        expect(suggestions.suggestions.get(0).getUrn()).toEqual(new Urn("soundcloud:users:2097360"));
+        expect(suggestions.suggestions.get(1).getUrn()).toEqual(new Urn("soundcloud:tracks:196380"));
+        expect(suggestions.suggestions.get(2).getUrn()).toEqual(new Urn("soundcloud:tracks:196381"));
+        expect(suggestions.suggestions.get(3).getUrn()).toEqual(new Urn("soundcloud:playlists:324731"));
     }
 
     @Test
