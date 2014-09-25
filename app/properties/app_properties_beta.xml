@@ -11,6 +11,6 @@
     <string name="api_host">api.soundcloud.com</string>
 
     <!-- Feature flags -->
-    <bool name="feature_leave_behind">true</bool>
-    <bool name="feature_comments_redesign">false</bool>
+    <bool name="feature_leave_behind">false</bool>
+    <bool name="feature_comments_redesign">true</bool>
 </resources>
