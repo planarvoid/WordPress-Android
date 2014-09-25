@@ -17,7 +17,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -107,7 +106,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getTrackId(currentPosition);
     }
 
-    public TrackUrn getCurrentTrackUrn() {
+    public Urn getCurrentTrackUrn() {
         return playQueue.getUrn(currentPosition);
     }
 
@@ -135,11 +134,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.size();
     }
 
-    public TrackUrn getUrnAtPosition(int position) {
+    public Urn getUrnAtPosition(int position) {
         return playQueue.getUrn(position);
     }
 
-    public int getPositionForUrn(final TrackUrn trackUrn) {
+    public int getPositionForUrn(final Urn trackUrn) {
         return Iterables.indexOf(playQueue, new Predicate<PlayQueueItem>() {
             @Override
             public boolean apply(PlayQueueItem input) {
@@ -180,8 +179,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.hasNextTrack(currentPosition);
     }
 
-    public TrackUrn getNextTrackUrn() {
-        return hasNextTrack() ? getUrnAtPosition(getNextPosition()) : TrackUrn.NOT_SET;
+    public Urn getNextTrackUrn() {
+        return hasNextTrack() ? getUrnAtPosition(getNextPosition()) : Urn.NOT_SET;
     }
 
     private boolean nextTrackInternal(boolean manual) {
@@ -417,8 +416,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
                 .putExtra(PlayQueueView.EXTRA, getViewWithAppendState(fetchState));
         context.sendBroadcast(intent);
 
-        final TrackUrn currentTrackUrn = getCurrentTrackUrn();
-        if (!TrackUrn.NOT_SET.equals(currentTrackUrn)){
+        final Urn currentTrackUrn = getCurrentTrackUrn();
+        if (!Urn.NOT_SET.equals(currentTrackUrn)){
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
             eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCurrentMetaData()));
         }
@@ -438,11 +437,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public static class InsertOperation implements QueueUpdateOperation {
 
         private final int position;
-        private final TrackUrn trackUrn;
+        private final Urn trackUrn;
         private final PropertySet metaData;
         private final boolean shouldPersist;
 
-        public InsertOperation(int position, TrackUrn trackUrn, PropertySet metaData, boolean shouldPersist) {
+        public InsertOperation(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
             this.position = position;
             this.trackUrn = trackUrn;
             this.metaData = metaData;

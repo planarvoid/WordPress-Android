@@ -15,7 +15,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -32,8 +31,8 @@ public class TrackOperationsTest {
     public static final String DESCRIPTION = "Description...";
     private TrackOperations trackOperations;
 
-    private TrackUrn trackUrn = Urn.forTrack(123L);
-    private UserUrn userUrn = Urn.forUser(123L);
+    private Urn trackUrn = Urn.forTrack(123L);
+    private Urn userUrn = Urn.forUser(123L);
     private PropertySet propertySet;
     private PropertySet descriptionPropertySet;
     private TestEventBus eventBus;
@@ -89,8 +88,8 @@ public class TrackOperationsTest {
     @Test
     public void fullTrackWithUpdateEmitsTrackFromStorageTwice() throws CreateModelException {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(any(TrackUrn.class), any(UserUrn.class))).thenReturn(Observable.just(propertySet));
-        when(trackStorage.trackDetails(any(TrackUrn.class))).thenReturn(Observable.just(descriptionPropertySet));
+        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(propertySet));
+        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(descriptionPropertySet));
 
         expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toBe(propertySet);
 
@@ -100,8 +99,8 @@ public class TrackOperationsTest {
     @Test
     public void fullTrackWithUpdatePublishesPlayableChangedEvent() throws CreateModelException {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(any(TrackUrn.class), any(UserUrn.class))).thenReturn(Observable.just(propertySet));
-        when(trackStorage.trackDetails(any(TrackUrn.class))).thenReturn(Observable.just(descriptionPropertySet));
+        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(propertySet));
+        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(descriptionPropertySet));
 
         expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toBe(propertySet);
 

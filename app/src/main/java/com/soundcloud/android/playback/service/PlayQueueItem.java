@@ -1,27 +1,27 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 final class PlayQueueItem {
 
-    private final TrackUrn trackUrn;
+    private final Urn trackUrn;
     private final String source;
     private final String sourceVersion;
 
     private final PropertySet metaData;
     private final boolean shouldPersist;
 
-    public static PlayQueueItem fromTrack(TrackUrn trackUrn, String source, String sourceVersion) {
+    public static PlayQueueItem fromTrack(Urn trackUrn, String source, String sourceVersion) {
         return new PlayQueueItem(trackUrn, source, sourceVersion, PropertySet.create(), true);
     }
 
-    public static PlayQueueItem fromTrack(TrackUrn trackUrn, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
+    public static PlayQueueItem fromTrack(Urn trackUrn, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
         return new PlayQueueItem(trackUrn, source, sourceVersion, metaData, shouldPersist);
     }
 
-    private PlayQueueItem(TrackUrn trackUrn, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
+    private PlayQueueItem(Urn trackUrn, String source, String sourceVersion, PropertySet metaData, boolean shouldPersist) {
         this.trackUrn = trackUrn;
         this.source = source;
         this.sourceVersion = sourceVersion;
@@ -29,7 +29,7 @@ final class PlayQueueItem {
         this.shouldPersist = shouldPersist;
     }
 
-    public TrackUrn getTrackUrn() {
+    public Urn getTrackUrn() {
         return trackUrn;
     }
 

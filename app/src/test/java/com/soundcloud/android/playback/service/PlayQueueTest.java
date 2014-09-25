@@ -4,12 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -59,7 +57,7 @@ public class PlayQueueTest {
     public void insertsTrackAtPosition() throws CreateModelException {
         PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
-        TrackUrn trackUrn = Urn.forTrack(123L);
+        Urn trackUrn = Urn.forTrack(123L);
         PropertySet metaData = PropertySet.create();
         playQueue.insertTrack(1, trackUrn, metaData, true);
 
@@ -77,7 +75,7 @@ public class PlayQueueTest {
 
         playQueue.remove(1);
 
-        expect(playQueue.getUrn(1)).toEqual(TrackUrn.forTrack(3L));
+        expect(playQueue.getUrn(1)).toEqual(Urn.forTrack(3L));
         expect(playQueue.size()).toBe(2);
     }
 
@@ -119,19 +117,19 @@ public class PlayQueueTest {
 
     @Test
     public void getUrnReturnsNotSetUrnWithEmptyQueue() throws Exception {
-        expect(PlayQueue.empty().getUrn(0)).toEqual(Urn.forTrack(Consts.NOT_SET));
+        expect(PlayQueue.empty().getUrn(0)).toEqual(Urn.NOT_SET);
     }
 
     @Test
     public void getUrnAtPositionReturnsNotSetForEmptyQueue() throws Exception {
-        expect(PlayQueue.empty().getUrn(0)).toBe(TrackUrn.NOT_SET);
+        expect(PlayQueue.empty().getUrn(0)).toBe(Urn.NOT_SET);
     }
 
     @Test
     public void getUrnAtInvalidPositionReturnsNotSet() throws Exception {
         PlayQueue playQueue = createPlayQueue(createTracksUrn(1L, 2L, 3L));
-        expect(playQueue.getUrn(-1)).toBe(TrackUrn.NOT_SET);
-        expect(playQueue.getUrn(3)).toBe(TrackUrn.NOT_SET);
+        expect(playQueue.getUrn(-1)).toBe(Urn.NOT_SET);
+        expect(playQueue.getUrn(3)).toBe(Urn.NOT_SET);
     }
 
     @Test
@@ -140,11 +138,11 @@ public class PlayQueueTest {
         expect(playQueue.getUrn(2)).toEqual(Urn.forTrack(3));
     }
 
-    private PlayQueue createPlayQueue(List<TrackUrn> trackUrns, PlaySessionSource source) {
+    private PlayQueue createPlayQueue(List<Urn> trackUrns, PlaySessionSource source) {
         return PlayQueue.fromTrackUrnList(trackUrns, source);
     }
 
-    private PlayQueue createPlayQueue(List<TrackUrn> trackUrns) {
+    private PlayQueue createPlayQueue(List<Urn> trackUrns) {
         return createPlayQueue(trackUrns, PlaySessionSource.EMPTY);
     }
 

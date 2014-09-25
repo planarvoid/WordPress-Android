@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.images.ImageUtils;
 import rx.Scheduler;
 import rx.Subscription;
@@ -39,7 +39,7 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     }
 
     @Override
-    public void loadArtwork(TrackUrn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener,
+    public void loadArtwork(Urn urn, ImageView wrappedImageView, ImageView imageOverlay, ImageListener listener,
                             boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
 
         super.loadArtwork(urn, wrappedImageView, imageOverlay, listener, isHighPriority, viewVisibilityProvider);

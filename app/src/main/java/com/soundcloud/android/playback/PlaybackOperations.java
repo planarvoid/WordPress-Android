@@ -9,6 +9,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -16,7 +17,6 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ErrorUtils;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -38,9 +38,9 @@ public class PlaybackOperations {
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
 
-    private static final Func1<List<TrackUrn>, Boolean> FILTER_EMPTY_TRACK_LIST = new Func1<List<TrackUrn>, Boolean>() {
+    private static final Func1<List<Urn>, Boolean> FILTER_EMPTY_TRACK_LIST = new Func1<List<Urn>, Boolean>() {
         @Override
-        public Boolean call(List<TrackUrn> trackUrnList) {
+        public Boolean call(List<Urn> trackUrnList) {
             if (trackUrnList.isEmpty()) {
                 throw new IllegalStateException("Attempting to play a track on an empty track list");
             } else {
@@ -74,30 +74,30 @@ public class PlaybackOperations {
         this.adsOperations = adsOperations;
     }
 
-    public Observable<List<TrackUrn>> playTracks(List<TrackUrn> trackUrns, int position, PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
         return playTracksList(Observable.from(trackUrns).toList(), trackUrns.get(position), position, playSessionSource, false);
     }
 
-    public Observable<List<TrackUrn>> playTracks(Observable<TrackUrn> allTracks, TrackUrn initialTrack, int position, PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTracks(Observable<Urn> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
         return playTracksList(allTracks.toList(), initialTrack, position, playSessionSource, false);
     }
 
     @Deprecated
-    public Observable<List<TrackUrn>> playTracksFromUri(Uri uri, final int startPosition, final TrackUrn initialTrack, final PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTracksFromUri(Uri uri, final int startPosition, final Urn initialTrack, final PlaySessionSource playSessionSource) {
         return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition, playSessionSource, false);
     }
 
-    public Observable<List<TrackUrn>> playTrackWithRecommendations(TrackUrn track, PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTrackWithRecommendations(Urn track, PlaySessionSource playSessionSource) {
         return playTracksList(Observable.from(track).toList(), track, 0, playSessionSource, true);
     }
 
-    public Observable<List<TrackUrn>> playTracksShuffled(List<TrackUrn> trackUrns, PlaySessionSource playSessionSource) {
-        List<TrackUrn> shuffled = Lists.newArrayList(trackUrns);
+    public Observable<List<Urn>> playTracksShuffled(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
+        List<Urn> shuffled = Lists.newArrayList(trackUrns);
         Collections.shuffle(shuffled);
         return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, true);
     }
 
-    private Observable<List<TrackUrn>> playTracksList(Observable<List<TrackUrn>> trackUrns, final TrackUrn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, boolean loadRelated) {
+    private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, boolean loadRelated) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return Observable.empty();
         }
@@ -108,12 +108,12 @@ public class PlaybackOperations {
                 .doOnNext(playNewQueueAction(startPosition, playSessionSource, initialTrack, loadRelated));
     }
 
-    public Observable<List<TrackUrn>> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
+    public Observable<List<Urn>> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
         modelManager.cache(track);
         return playTracksList(Observable.from(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);
     }
 
-    public Observable<List<TrackUrn>> startPlaybackWithRecommendations(TrackUrn urn, Screen screen) {
+    public Observable<List<Urn>> startPlaybackWithRecommendations(Urn urn, Screen screen) {
         return playTracksList(Observable.from(urn).toList(), urn, 0, new PlaySessionSource(screen), true);
     }
 
@@ -186,13 +186,13 @@ public class PlaybackOperations {
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
-    private Action1<List<TrackUrn>> playNewQueueAction(final int startPosition,
+    private Action1<List<Urn>> playNewQueueAction(final int startPosition,
                                                        final PlaySessionSource playSessionSource,
-                                                       final TrackUrn initialTrackUrn,
+                                                       final Urn initialTrackUrn,
                                                        final boolean loadRecommended) {
-        return new Action1<List<TrackUrn>>() {
+        return new Action1<List<Urn>>() {
             @Override
-            public void call(List<TrackUrn> trackUrns) {
+            public void call(List<Urn> trackUrns) {
                 final int updatedPosition = correctStartPositionAndDeduplicateList(trackUrns, startPosition, initialTrackUrn);
                 playNewQueue(trackUrns, updatedPosition, playSessionSource);
                 if (loadRecommended) {
@@ -202,7 +202,7 @@ public class PlaybackOperations {
         };
     }
 
-    private boolean shouldChangePlayQueue(TrackUrn trackUrn, PlaySessionSource playSessionSource) {
+    private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {
         return !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) || isPlaylist() && !isCurrentPlaylist(playSessionSource);
     }
 
@@ -218,11 +218,11 @@ public class PlaybackOperations {
         return playSessionSource.getOriginScreen().equals(playQueueManager.getScreenTag());
     }
 
-    private boolean isCurrentTrack(TrackUrn trackUrn) {
+    private boolean isCurrentTrack(Urn trackUrn) {
         return playQueueManager.isCurrentTrack(trackUrn);
     }
 
-    private void playNewQueue(List<TrackUrn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
+    private void playNewQueue(List<Urn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
             throw new UnSkippablePeriodException();
         }
@@ -232,7 +232,7 @@ public class PlaybackOperations {
         playCurrent();
     }
 
-    private int correctStartPositionAndDeduplicateList(List<TrackUrn> trackUrns, int startPosition, TrackUrn initialTrack) {
+    private int correctStartPositionAndDeduplicateList(List<Urn> trackUrns, int startPosition, Urn initialTrack) {
         int updatedPosition;
         if (startPosition < trackUrns.size() && trackUrns.get(startPosition).equals(initialTrack)) {
             updatedPosition = startPosition;
@@ -252,15 +252,15 @@ public class PlaybackOperations {
      * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
      * Returns the new startPosition
      */
-    private int getDeduplicatedList(List<TrackUrn> trackUrns, int startPosition) {
-        final Set<TrackUrn> seenTracks = Sets.newHashSetWithExpectedSize(trackUrns.size());
-        final TrackUrn playedTrack = trackUrns.get(startPosition);
+    private int getDeduplicatedList(List<Urn> trackUrns, int startPosition) {
+        final Set<Urn> seenTracks = Sets.newHashSetWithExpectedSize(trackUrns.size());
+        final Urn playedTrack = trackUrns.get(startPosition);
 
         int i = 0;
-        Iterator<TrackUrn> iterator = trackUrns.iterator();
+        Iterator<Urn> iterator = trackUrns.iterator();
         int adjustedPosition = startPosition;
         while (iterator.hasNext()) {
-            final TrackUrn track = iterator.next();
+            final Urn track = iterator.next();
             if (i != adjustedPosition && (seenTracks.contains(track) || track.equals(playedTrack))) {
                 iterator.remove();
                 if (i < adjustedPosition) {

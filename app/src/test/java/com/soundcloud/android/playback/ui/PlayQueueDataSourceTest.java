@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class PlayQueueDataSourceTest {
         checkTrackPageData(queue.get(0), 1, Urn.forTrack(456L), TestPropertySets.leaveBehindForPlayer());
     }
 
-    private void checkTrackPageData(TrackPageData trackPageData, int position, TrackUrn trackUrn, PropertySet propertySet){
+    private void checkTrackPageData(TrackPageData trackPageData, int position, Urn trackUrn, PropertySet propertySet){
         expect(trackPageData.getPositionInPlayQueue()).toBe(position);
         expect(trackPageData.getTrackUrn()).toEqual(trackUrn);
         expect(trackPageData.getProperties()).toEqual(propertySet);

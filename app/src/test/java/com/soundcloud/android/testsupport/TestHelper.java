@@ -29,7 +29,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -462,10 +462,10 @@ public class TestHelper {
         accountOperations.setAccountData(USER_ID.getKey(), Long.toString(id));
     }
 
-    public static List<TrackUrn> createTracksUrn(Long... ids) {
-        return Lists.transform(new ArrayList<Long>(Arrays.asList(ids)), new Function<Long, TrackUrn>() {
+    public static List<Urn> createTracksUrn(Long... ids) {
+        return Lists.transform(new ArrayList<Long>(Arrays.asList(ids)), new Function<Long, Urn>() {
             @Override
-            public TrackUrn apply(Long id) {
+            public Urn apply(Long id) {
                 return Urn.forTrack(id);
             }
         });

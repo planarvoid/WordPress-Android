@@ -31,8 +31,12 @@ public class PlayerMenuElement {
         return menuItems().get(2);
     }
 
-    public ViewElement info() {
+    public ViewElement comment() {
         return menuItems().get(3);
+    }
+
+    public ViewElement info() {
+        return menuItems().get(4);
     }
 
     private ViewElement container() {

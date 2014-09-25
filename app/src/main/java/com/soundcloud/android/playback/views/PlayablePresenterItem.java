@@ -49,9 +49,6 @@ public class PlayablePresenterItem {
     }
 
     public Urn getUrn() {
-        if (propertySet.contains(TrackProperty.URN)) {
-            return propertySet.get(TrackProperty.URN);
-        }
         return propertySet.get(PlayableProperty.URN);
     }
 

@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackUrn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,8 +14,8 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPageRecyclerTest {
 
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
-    private static final TrackUrn TRACK_URN2 = Urn.forTrack(456L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN2 = Urn.forTrack(456L);
     private TrackPageRecycler trackPageRecycler;
 
     @Mock private View view;

@@ -6,7 +6,9 @@ public enum Feature {
 
     TEST_FEATURE(-1),
     LEAVE_BEHIND(R.bool.feature_leave_behind),
-    COMMENTS_REDESIGN(R.bool.feature_comments_redesign);
+    COMMENTS_REDESIGN(R.bool.feature_comments_redesign),
+    API_MOBILE_SEARCH(R.bool.feature_api_mobile_search),
+    ADD_COMMENTS(R.bool.feature_add_comments);
 
     private final int resourceId;
 

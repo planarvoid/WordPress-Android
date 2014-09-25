@@ -7,6 +7,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.RichNotificationPresenter;
@@ -18,7 +19,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.MemoryReporter;
@@ -169,8 +169,8 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    public LruCache<TrackUrn, WaveformData> provideWaveformCache() {
-        return new LruCache<TrackUrn, WaveformData>(DEFAULT_WAVEFORM_CACHE_SIZE);
+    public LruCache<Urn, WaveformData> provideWaveformCache() {
+        return new LruCache<>(DEFAULT_WAVEFORM_CACHE_SIZE);
     }
 
     @Singleton

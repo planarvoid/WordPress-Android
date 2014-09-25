@@ -5,12 +5,12 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.playback.service.PlaybackProgressInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -25,7 +25,7 @@ import java.util.Map;
 @Singleton
 public class PlaySessionStateProvider {
 
-    private final Map<TrackUrn, PlaybackProgress> progressMap = Maps.newHashMap();
+    private final Map<Urn, PlaybackProgress> progressMap = Maps.newHashMap();
     private final Func1<StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<StateTransition, Boolean>() {
         @Override
         public Boolean call(StateTransition stateTransition) {
@@ -36,7 +36,7 @@ public class PlaySessionStateProvider {
     private final PlayQueueManager playQueueManager;
 
     private StateTransition lastStateTransition = StateTransition.DEFAULT;
-    private TrackUrn currentPlayingUrn; // the track that is currently loaded in the playback service
+    private Urn currentPlayingUrn; // the track that is currently loaded in the playback service
 
     @Inject
     public PlaySessionStateProvider(EventBus eventBus, PlayQueueManager playQueueManager) {
@@ -59,7 +59,7 @@ public class PlaySessionStateProvider {
         return isPlayingTrack(track.getUrn());
     }
 
-    public boolean isPlayingTrack(TrackUrn trackUrn) {
+    public boolean isPlayingTrack(Urn trackUrn) {
         return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
     }
 
@@ -76,12 +76,12 @@ public class PlaySessionStateProvider {
         return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
     }
 
-    public PlaybackProgress getLastProgressByUrn(TrackUrn trackUrn) {
+    public PlaybackProgress getLastProgressByUrn(Urn trackUrn) {
         final PlaybackProgress playbackProgress = progressMap.get(trackUrn);
         return playbackProgress == null ? PlaybackProgress.empty() : playbackProgress;
     }
 
-    public boolean hasCurrentProgress(TrackUrn trackUrn) {
+    public boolean hasCurrentProgress(Urn trackUrn) {
         return progressMap.containsKey(trackUrn);
     }
 

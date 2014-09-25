@@ -9,10 +9,6 @@ import rx.android.Pager;
 
 public class RxTestHelper {
 
-    public static <CollT extends Iterable<?>> Observable<Page<CollT>> singlePage(Observable<CollT> source) {
-        return source.lift(pagedWith(endlessPagerFrom(Observable.<CollT>empty())));
-    }
-
     public static <CollT extends Iterable<?>> OperatorPaged.LegacyPager<CollT> endlessPagerFrom(final Observable<CollT> observable) {
         return new OperatorPaged.LegacyPager<CollT>() {
             @Override

@@ -2,16 +2,16 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 final class TrackPageData {
     private final int positionInPlayQueue;
-    private final TrackUrn trackUrn;
+    private final Urn trackUrn;
     private final PropertySet properties;
 
-    TrackPageData(int positionInPlayQueue, @NotNull TrackUrn trackUrn, PropertySet properties) {
+    TrackPageData(int positionInPlayQueue, @NotNull Urn trackUrn, PropertySet properties) {
         this.positionInPlayQueue = positionInPlayQueue;
         this.trackUrn = trackUrn;
         this.properties = properties;
@@ -21,7 +21,7 @@ final class TrackPageData {
         return properties;
     }
 
-    public TrackUrn getTrackUrn() {
+    public Urn getTrackUrn() {
         return trackUrn;
     }
 

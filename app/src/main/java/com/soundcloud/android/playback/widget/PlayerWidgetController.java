@@ -7,6 +7,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -14,7 +15,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -80,8 +80,8 @@ public class PlayerWidgetController {
     }
 
     private void updatePlayableInformation(Func1<PropertySet, PropertySet> updateFunc) {
-        TrackUrn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        if (TrackUrn.NOT_SET.equals(currentTrackUrn)) {
+        Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        if (Urn.NOT_SET.equals(currentTrackUrn)) {
             presenter.reset(context);
         } else {
             loadTrackWithAdMeta(currentTrackUrn, playQueueManager.getCurrentMetaData())
@@ -90,7 +90,7 @@ public class PlayerWidgetController {
         }
     }
 
-    private Observable<PropertySet> loadTrackWithAdMeta(TrackUrn urn, PropertySet metaData) {
+    private Observable<PropertySet> loadTrackWithAdMeta(Urn urn, PropertySet metaData) {
         return trackOperations.track(urn)
                 .map(mergeMetaData(metaData));
     }

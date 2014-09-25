@@ -77,7 +77,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
 
     public static AddToPlaylistDialogFragment from(PropertySet track, String originScreen) {
         Bundle b = new Bundle();
-        b.putLong(KEY_TRACK_ID, track.get(TrackProperty.URN).numericId);
+        b.putLong(KEY_TRACK_ID, track.get(TrackProperty.URN).getNumericId());
         b.putString(KEY_TRACK_TITLE, track.get(PlayableProperty.TITLE));
         b.putString(KEY_ORIGIN_SCREEN, originScreen);
 

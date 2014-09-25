@@ -7,8 +7,7 @@ import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.annotation.TargetApi;
@@ -36,7 +35,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         setPlaybackStatus(false);
         setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
         setCurrentUsername(ScTextUtils.EMPTY_STRING);
-        linkButtonsWidget(context, TrackUrn.NOT_SET, UserUrn.NOT_SET, false);
+        linkButtonsWidget(context, Urn.NOT_SET, Urn.NOT_SET, false);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -44,12 +43,12 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         super(parcel);
     }
 
-    /* package */ void linkButtonsWidget(Context context, TrackUrn trackUrn, UserUrn userUrn, boolean userLike) {
+    /* package */ void linkButtonsWidget(Context context, Urn trackUrn, Urn userUrn, boolean userLike) {
         linkPlayerControls(context);
 
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context,
                 PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
-        if (!trackUrn.equals(TrackUrn.NOT_SET)) {
+        if (!trackUrn.equals(Urn.NOT_SET)) {
 
             final Intent userProfile = ProfileActivity.getIntent(context, userUrn);
             setOnClickPendingIntent(R.id.user_txt, PendingIntent.getActivity(context,
@@ -62,10 +61,10 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         }
     }
 
-    private Intent createLaunchIntent(Context context, TrackUrn trackUrn) {
+    private Intent createLaunchIntent(Context context, Urn trackUrn) {
         return new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, !trackUrn.equals(TrackUrn.NOT_SET));
+                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, !trackUrn.equals(Urn.NOT_SET));
     }
 
     private void linkPlayerControls(Context context) {

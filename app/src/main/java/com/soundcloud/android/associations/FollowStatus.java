@@ -6,11 +6,11 @@ import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.users.UserUrn;
 
 import android.content.AsyncQueryHandler;
 import android.content.Context;
@@ -80,8 +80,8 @@ import java.util.WeakHashMap;
         syncStateManager.removeChangeListener(followingCollectionState);
     }
 
-    public boolean isFollowing(UserUrn urn) {
-        return followings.contains(urn.numericId);
+    public boolean isFollowing(Urn urn) {
+        return followings.contains(urn.getNumericId());
     }
 
     public boolean isFollowing(PublicApiUser user) {

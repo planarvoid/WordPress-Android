@@ -18,7 +18,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -60,8 +60,8 @@ public class ExploreTracksFragmentTest {
         Observable<SuggestedTracksCollection> observable = withSubscription(subscription, just(new SuggestedTracksCollection()));
         when(exploreTracksOperations.pager()).thenReturn(RxTestHelper.<SuggestedTracksCollection>pagerWithSinglePage());
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
-        when(playbackOperations.playTrackWithRecommendations(any(TrackUrn.class), any(PlaySessionSource.class)))
-                .thenReturn(Observable.<List<TrackUrn>>empty());
+        when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<List<Urn>>empty());
         fragment = new ExploreTracksFragment(adapter, playbackOperations, exploreTracksOperations,
                 pullToRefreshController, listViewController, new Provider<ExpandPlayerSubscriber>() {
             @Override

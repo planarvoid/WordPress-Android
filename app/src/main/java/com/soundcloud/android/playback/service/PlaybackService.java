@@ -18,7 +18,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -331,7 +331,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void onProgressEvent(long position, long duration) {
         final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-        final TrackUrn trackUrn = checkNotNull(currentTrack, "Current track is null.").get(TrackProperty.URN);
+        final Urn trackUrn = checkNotNull(currentTrack, "Current track is null.").get(TrackProperty.URN);
         final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, trackUrn);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
     }
@@ -438,8 +438,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return streamPlayer.isPlayerPlaying();
     }
 
-    private TrackUrn getCurrentTrackUrn() {
-        return currentTrack == null ? TrackUrn.NOT_SET : currentTrack.get(TrackProperty.URN);
+    private Urn getCurrentTrackUrn() {
+        return currentTrack == null ? Urn.NOT_SET : currentTrack.get(TrackProperty.URN);
     }
 
     private static final class DelayedStopHandler extends Handler {

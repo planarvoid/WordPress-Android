@@ -22,6 +22,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -29,7 +30,6 @@ import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -231,7 +231,7 @@ public class FollowingOperations {
         return followStatus.getFollowedUserIds();
     }
 
-    public boolean isFollowing(UserUrn urn) {
+    public boolean isFollowing(Urn urn) {
         return followStatus.isFollowing(urn);
     }
 
@@ -288,10 +288,10 @@ public class FollowingOperations {
 
     private final class ToggleFollowOperator implements Observable.Operator<Boolean, UserAssociation> {
 
-        private final UserUrn userUrn;
+        private final Urn userUrn;
         private final boolean successState;
 
-        ToggleFollowOperator(UserUrn userUrn, boolean successState) {
+        ToggleFollowOperator(Urn userUrn, boolean successState) {
             this.userUrn = userUrn;
             this.successState = successState;
         }

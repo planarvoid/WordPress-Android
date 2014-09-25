@@ -110,7 +110,8 @@ public class EventLoggerUrlBuilder {
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md#android
         builder.appendQueryParameter(ACTION, event.isPlayEvent() ? "play" : "stop");
         builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
-        builder.appendQueryParameter(SOUND, event.getTrackUrn().toString());
+        // EventLogger v0 requires us to pass URNs in the legacy format
+        builder.appendQueryParameter(SOUND, "soundcloud:sounds:" + event.getTrackUrn().getNumericId());
 
         final String trackPolicy = event.getTrackPolicy();
         if (trackPolicy != null && !event.isAd()) {

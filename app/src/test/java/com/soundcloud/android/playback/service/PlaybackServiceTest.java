@@ -6,7 +6,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -19,9 +18,9 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -156,7 +155,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
@@ -182,7 +181,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void shouldForwardPlayerStateTransitionToAnalyticsController() {
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
@@ -207,7 +206,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onProgressPublishesAProgressEvent() throws Exception {
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         playbackService.onCreate();
         playbackService.openCurrent(track, false);
@@ -224,8 +223,8 @@ public class PlaybackServiceTest {
     public void openCurrentWithStreamableTrackCallsPlayOnStreamPlayer() throws Exception {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
         playbackService.openCurrent(track, false);
 
@@ -238,7 +237,7 @@ public class PlaybackServiceTest {
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(trackOperations.track(any(TrackUrn.class))).thenReturn(Observable.just(track));
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
 
         playbackService.openCurrent();
 
@@ -276,7 +275,7 @@ public class PlaybackServiceTest {
         when(playbackNotificationController.playingNotification()).thenReturn(Observable.just(Mockito.mock(Notification.class)));
         playbackService.openCurrent(track, false);
 
-        final TrackUrn trackUrn2 = Urn.forTrack(456);
+        final Urn trackUrn2 = Urn.forTrack(456);
         final PropertySet track2 = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.URN, trackUrn2);
         playbackService.stop();
         playbackService.openCurrent(track2, false);
@@ -303,7 +302,7 @@ public class PlaybackServiceTest {
         return broadcastReceivers;
     }
     
-    private TrackUrn getTrackUrn() {
+    private Urn getTrackUrn() {
         return track.get(TrackProperty.URN);
     }
 }

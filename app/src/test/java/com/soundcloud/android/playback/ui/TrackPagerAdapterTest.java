@@ -32,7 +32,6 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,10 +52,10 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPagerAdapterTest {
 
-    private static final TrackUrn TRACK1_URN = Urn.forTrack(123L);
-    private static final TrackUrn TRACK2_URN = Urn.forTrack(234L);
-    private static final TrackUrn AD_URN = Urn.forTrack(235L);
-    private static final TrackUrn MONETIZABLE_TRACK_URN = Urn.forTrack(456L);
+    private static final Urn TRACK1_URN = Urn.forTrack(123L);
+    private static final Urn TRACK2_URN = Urn.forTrack(234L);
+    private static final Urn AD_URN = Urn.forTrack(235L);
+    private static final Urn MONETIZABLE_TRACK_URN = Urn.forTrack(456L);
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
@@ -446,18 +445,18 @@ public class TrackPagerAdapterTest {
         return getPageView(0, AD_URN);
     }
 
-    private View getPageView(int position, TrackUrn trackUrn) {
+    private View getPageView(int position, Urn trackUrn) {
         setupGetCurrentViewPreconditions(position, trackUrn);
         return (View) adapter.instantiateItem(container, position);
     }
 
-    private void setupGetCurrentViewPreconditions(int position, TrackUrn trackUrn) {
+    private void setupGetCurrentViewPreconditions(int position, Urn trackUrn) {
         track.put(TrackProperty.URN, trackUrn);
         when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
         when(trackOperations.track(trackUrn)).thenReturn(Observable.just(track));
     }
 
-    private void setCurrentTrackState(int position, TrackUrn trackUrn, boolean isCurrentTrack) {
+    private void setCurrentTrackState(int position, Urn trackUrn, boolean isCurrentTrack) {
         if (isCurrentTrack) {
             when(playQueueManager.getCurrentPosition()).thenReturn(position);
         }

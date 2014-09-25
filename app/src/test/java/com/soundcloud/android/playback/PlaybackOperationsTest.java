@@ -30,7 +30,6 @@ import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -53,7 +52,7 @@ public class PlaybackOperationsTest {
 
     private static final String EXPLORE_VERSION = "explore-version";
     private static final Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
-    public static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    public static final Urn TRACK_URN = Urn.forTrack(123L);
 
     private PlaybackOperations playbackOperations;
 
@@ -66,7 +65,7 @@ public class PlaybackOperationsTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlaybackToastViewController playbackToastViewController;
     @Mock private AdsOperations adsOperations;
-    private TestObserver<List<TrackUrn>> observer;
+    private TestObserver<List<Urn>> observer;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -77,12 +76,12 @@ public class PlaybackOperationsTest {
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        observer = new TestObserver<List<TrackUrn>>();
+        observer = new TestObserver<List<Urn>>();
     }
 
     @Test
      public void playTrackSetsPlayQueueOnPlayQueueManagerFromInitialTrack() {
-        TrackUrn track1 = track.getUrn();
+        Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
@@ -90,7 +89,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackOpensCurrentTrackThroughService() {
-        TrackUrn track1 = track.getUrn();
+        Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkLastStartedServiceForPlayCurrentAction();
@@ -99,7 +98,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
-        TrackUrn track1 = track.getUrn();
+        Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN));
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -111,7 +110,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
 
-        TrackUrn track1 = track.getUrn();
+        Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO)).subscribe();
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -156,11 +155,11 @@ public class PlaybackOperationsTest {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        final List<Urn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         playbackOperations
                 .playTracks(Observable.from(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -174,11 +173,11 @@ public class PlaybackOperationsTest {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        final List<Urn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
         playbackOperations
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe();
@@ -191,7 +190,7 @@ public class PlaybackOperationsTest {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final List<TrackUrn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        final List<Urn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
@@ -199,7 +198,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.EXPLORE_TRENDING_MUSIC.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         playbackOperations
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -526,7 +525,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromIdsShuffledSetsPlayQueueOnPlayQueueManagerWithGivenTrackIdList() {
-        final List<TrackUrn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
         playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
 
         ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
@@ -545,7 +544,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromIdsShuffledOpensCurrentTrackThroughPlaybackService() {
-        final List<TrackUrn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
 
         playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
 
@@ -554,7 +553,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTracksWithTrackListContainsTracksOpensCurrentTrackThroughPlaybackService() {
-        final Observable<TrackUrn> tracks = Observable.just(Urn.forTrack(123L));
+        final Observable<Urn> tracks = Observable.just(Urn.forTrack(123L));
         playbackOperations
                 .playTracks(tracks, TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
@@ -563,7 +562,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTracksWithEmptyTrackListDoesNotOpenCurrentTrackThroughPlaybackService() {
-        Observable<TrackUrn> tracks = Observable.empty();
+        Observable<Urn> tracks = Observable.empty();
         playbackOperations
                 .playTracks(tracks, TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
@@ -572,7 +571,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterShouldRemoveDuplicates() throws Exception {
-        List<TrackUrn> playables = createTracksUrn(1L, 2L, 3L, 2L, 1L);
+        List<Urn> playables = createTracksUrn(1L, 2L, 3L, 2L, 1L);
 
         playbackOperations.playTracks(playables, 4, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
@@ -581,7 +580,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterSetsPlayQueueOnPlayQueueManagerFromListOfTracks() throws Exception {
-        List<TrackUrn> playables = createTracksUrn(1L, 2L);
+        List<Urn> playables = createTracksUrn(1L, 2L);
 
         playbackOperations.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
@@ -590,7 +589,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterOpensCurrentTrackThroughPlaybackService() throws Exception {
-        List<TrackUrn> playables = createTracksUrn(1L, 2L);
+        List<Urn> playables = createTracksUrn(1L, 2L);
 
         playbackOperations.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
@@ -599,11 +598,11 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterShouldFallBackToPositionZeroIfInitialItemNotFound()  {
-        final List<TrackUrn> playables = createTracksUrn(1L, 2L);
-        final List<TrackUrn> ids = createTracksUrn(6L, 7L);
+        final List<Urn> playables = createTracksUrn(1L, 2L);
+        final List<Urn> ids = createTracksUrn(6L, 7L);
 
         when(trackStorage.getTracksForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.just(ids));
-        TrackUrn initialTrack = playables.get(1);
+        Urn initialTrack = playables.get(1);
         playbackOperations
                 .playTracksFromUri(Content.ME_LIKES.uri, 1, initialTrack, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
@@ -673,7 +672,7 @@ public class PlaybackOperationsTest {
     public void showUnskippableToastWhenAdIsPlayingOnPlayTrack() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
-        TrackUrn track1 = track.getUrn();
+        Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
         expectUnskippableException();
@@ -684,7 +683,7 @@ public class PlaybackOperationsTest {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
-        TrackUrn track1 = track.getUrn();
+        Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkSetNewPlayQueueArgs(0, playSessionSource, track.getId());
@@ -693,11 +692,11 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayFromAdapter() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final List<TrackUrn> tracks = createTracksUrn(1L);
-        final List<TrackUrn> trackUrns = createTracksUrn(1L);
+        final List<Urn> tracks = createTracksUrn(1L);
+        final List<Urn> trackUrns = createTracksUrn(1L);
         when(trackStorage.getTracksForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.just(trackUrns));
 
-        TrackUrn initialTrack = tracks.get(0);
+        Urn initialTrack = tracks.get(0);
         playbackOperations
                 .playTracksFromUri(Content.ME_LIKES.uri, 0, initialTrack, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe(observer);
@@ -708,7 +707,7 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayFromShuffledIds() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final List<TrackUrn> trackUrns = createTracksUrn(1L);
+        final List<Urn> trackUrns = createTracksUrn(1L);
 
         playbackOperations.playTracksShuffled(trackUrns, new PlaySessionSource(Screen.YOUR_LIKES)).subscribe(observer);
 
@@ -721,7 +720,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTracksUrn(123L)));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().numericId, playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
 
         playbackOperations
                 .playTracks(Observable.just(TRACK_URN), TRACK_URN, 0, playSessionSource)

@@ -22,7 +22,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -45,7 +44,7 @@ import android.net.Uri;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackNotificationControllerTest {
 
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
     private PlaybackNotificationController controller;
     private TestEventBus eventBus = new TestEventBus();
 

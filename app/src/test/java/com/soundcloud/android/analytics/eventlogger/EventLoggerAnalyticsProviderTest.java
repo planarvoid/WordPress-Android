@@ -21,7 +21,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Mock private EventTracker eventTracker;
     @Mock private EventLoggerUrlBuilder eventLoggerUrlBuilder;
 
-    private UserUrn userUrn = Urn.forUser(123L);
+    private Urn userUrn = Urn.forUser(123L);
 
     @Before
     public void setUp() throws Exception {

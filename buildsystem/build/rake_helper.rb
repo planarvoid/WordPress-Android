@@ -213,7 +213,7 @@ module Build
           when 'beta'
             android_store_publisher.deploy_to_beta
           when 'release'
-            android_store_publisher.deploy_to_production
+            android_store_publisher.deploy_to_beta
           else
             raise 'Unsupported build type'
         end

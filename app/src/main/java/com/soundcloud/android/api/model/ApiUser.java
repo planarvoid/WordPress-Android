@@ -2,7 +2,6 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.users.UserUrn;
 
 import android.os.Parcel;
 
@@ -14,11 +13,6 @@ public class ApiUser extends ScModel {
 
     public ApiUser(String urn) {
         super(urn);
-    }
-
-    @Override
-    public UserUrn getUrn() {
-        return (UserUrn) super.getUrn();
     }
 
     public String getUsername() {

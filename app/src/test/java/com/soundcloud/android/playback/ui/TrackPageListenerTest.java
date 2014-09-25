@@ -20,8 +20,6 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -35,7 +33,7 @@ import android.content.Intent;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPageListenerTest {
 
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private SoundAssociationOperations soundAssociationOperations;
@@ -55,7 +53,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void onToggleLikeTogglesLikeViaAssociationOperations() {
-        when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -65,7 +63,7 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeEmitsLikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("screen");
-        when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -76,7 +74,7 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeEmitsUnlikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("screen");
-        when(soundAssociationOperations.toggleLike(any(TrackUrn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 
@@ -86,7 +84,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void onGotoUserEmitsEventToClosePlayer() {
-        UserUrn userUrn = Urn.forUser(42L);
+        Urn userUrn = Urn.forUser(42L);
 
         listener.onGotoUser(Robolectric.application, userUrn);
 
@@ -120,7 +118,7 @@ public class TrackPageListenerTest {
 
     @Test
     public void shouldStartProfileActivityOnGotoUserAfterPlayerUICollapsed() {
-        UserUrn userUrn = Urn.forUser(42L);
+        Urn userUrn = Urn.forUser(42L);
 
         listener.onGotoUser(Robolectric.application, userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
@@ -128,7 +126,7 @@ public class TrackPageListenerTest {
         final Intent nextStartedActivity = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
         expect(nextStartedActivity).not.toBeNull();
         expect(nextStartedActivity.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
-        expect(nextStartedActivity.getExtras().get("userUrn")).toEqual(UserUrn.forUser(42L));
+        expect(nextStartedActivity.getExtras().get("userUrn")).toEqual(userUrn);
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {

@@ -1,4 +1,5 @@
 source "https://rubygems.org"
+source 'http://gems.int.s-cloud.net/'
 
 gem 'rest-client',  '1.6.7'
 gem 'version',      '1.0.0'

@@ -6,9 +6,9 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.DefaultActivityLifeCycle;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
@@ -25,12 +25,12 @@ public class AdPlayerController extends DefaultActivityLifeCycle {
     private final AdsOperations adsOperations;
 
     private Subscription subscription = Subscriptions.empty();
-    private TrackUrn adHasBeenSeen = TrackUrn.NOT_SET;
+    private Urn lastSeenAdTrack = Urn.NOT_SET;
 
     private final Func1<State, Boolean> isNewAudioAd = new Func1<State, Boolean>() {
         @Override
         public Boolean call(State state) {
-            return state.isAudioAd && !adHasBeenSeen.equals(state.trackUrn);
+            return state.isAudioAd && !lastSeenAdTrack.equals(state.trackUrn);
         }
     };
 
@@ -39,9 +39,9 @@ public class AdPlayerController extends DefaultActivityLifeCycle {
         @Override
         public void call(State state) {
             if (isPlayerExpandedWithAd(state)) {
-                adHasBeenSeen = state.trackUrn;
+                lastSeenAdTrack = state.trackUrn;
             } else if (!isDifferentTrack(state)) {
-                adHasBeenSeen = TrackUrn.NOT_SET;
+                lastSeenAdTrack = Urn.NOT_SET;
             }
         }
 
@@ -50,7 +50,7 @@ public class AdPlayerController extends DefaultActivityLifeCycle {
         }
 
         private boolean isDifferentTrack(State state) {
-            return adHasBeenSeen.equals(state.trackUrn);
+            return lastSeenAdTrack.equals(state.trackUrn);
         }
     };
 
@@ -91,16 +91,16 @@ public class AdPlayerController extends DefaultActivityLifeCycle {
         public void onNext(State event) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
             eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
-            adHasBeenSeen = event.trackUrn;
+            lastSeenAdTrack = event.trackUrn;
         }
     }
 
     private static class State {
         private final boolean isAudioAd;
-        private final TrackUrn trackUrn;
+        private final Urn trackUrn;
         private final int playerUIEventKind;
 
-        public State(boolean isAudioAd, TrackUrn trackUrn, int playerUIEventKind) {
+        public State(boolean isAudioAd, Urn trackUrn, int playerUIEventKind) {
             this.isAudioAd = isAudioAd;
             this.trackUrn = trackUrn;
             this.playerUIEventKind = playerUIEventKind;

@@ -13,13 +13,13 @@ import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackUrn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
 
@@ -47,7 +47,7 @@ public class CommentsOperationsTest {
 
     @Test
     public void shouldRetrieveCommentsForGivenTrack() {
-        TrackUrn track = Urn.forTrack(123L);
+        Urn track = Urn.forTrack(123L);
         operations.comments(track).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -72,5 +72,20 @@ public class CommentsOperationsTest {
         operations.pager().next();
 
         expect(observer.getOnNextEvents()).toNumber(1);
+    }
+
+    @Test
+    public void addsComment() throws Exception {
+        when(httpClient.<PublicApiComment>fetchModels(argThat(
+                isPublicApiRequestTo("POST", "/tracks/123/comments")
+                        .withContent(new CommentsOperations.CommentHolder("some comment text", 2001L))
+        ))).thenReturn(Observable.just(comment));
+
+        TestSubscriber<PublicApiComment> subscriber = new TestSubscriber<>();
+        operations.addComment(Urn.forTrack(123L), "some comment text", 2001L).subscribe(subscriber);
+
+        expect(subscriber.getOnNextEvents()).toContainExactly(comment);
+        subscriber.assertTerminalEvent();
+        subscriber.assertNoErrors();
     }
 }

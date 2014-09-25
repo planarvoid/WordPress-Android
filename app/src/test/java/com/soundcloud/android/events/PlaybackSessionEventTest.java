@@ -9,8 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +20,8 @@ public class PlaybackSessionEventTest {
 
     private static final int DURATION = 1000;
     private static final long PROGRESS = 12345L;
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
-    private static final UserUrn USER_URN = Urn.forUser(1L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn USER_URN = Urn.forUser(1L);
     private static final String PROTOCOL = "hls";
     private static final PropertySet TRACK_DATA = PropertySet.from(
             TrackProperty.URN.bind(TRACK_URN),

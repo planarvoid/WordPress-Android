@@ -1,9 +1,9 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.UserStorage;

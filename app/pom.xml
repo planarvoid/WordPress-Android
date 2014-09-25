@@ -413,6 +413,13 @@
             <artifactId>rebound</artifactId>
             <version>0.3.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.cocosw</groupId>
+            <artifactId>undobar</artifactId>
+            <version>1.4</version>
+            <type>aar</type>
+        </dependency>
+
         <!-- Android dependencies, don't change the order! -->
         <dependency>
             <groupId>com.android.support</groupId>

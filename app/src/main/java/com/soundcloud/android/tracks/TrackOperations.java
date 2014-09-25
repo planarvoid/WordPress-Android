@@ -3,6 +3,7 @@ package com.soundcloud.android.tracks;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.PropertySet;
@@ -47,11 +48,11 @@ public class TrackOperations {
         this.syncInitiator = syncInitiator;
     }
 
-    public Observable<PropertySet> track(final TrackUrn trackUrn) {
+    public Observable<PropertySet> track(final Urn trackUrn) {
         return trackFromStorage(trackUrn).toList().mergeMap(syncIfEmpty(trackUrn));
     }
 
-    Observable<PropertySet> fullTrackWithUpdate(final TrackUrn trackUrn) {
+    Observable<PropertySet> fullTrackWithUpdate(final Urn trackUrn) {
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
                 syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))
@@ -59,7 +60,7 @@ public class TrackOperations {
         );
     }
 
-    private Func1<List<PropertySet>, Observable<PropertySet>> syncIfEmpty(final TrackUrn trackUrn) {
+    private Func1<List<PropertySet>, Observable<PropertySet>> syncIfEmpty(final Urn trackUrn) {
         return new Func1<List<PropertySet>, Observable<PropertySet>>() {
             @Override
             public Observable<PropertySet> call(List<PropertySet> propertySets) {
@@ -69,15 +70,15 @@ public class TrackOperations {
         };
     }
 
-    private Observable<PropertySet> trackFromStorage(TrackUrn trackUrn) {
+    private Observable<PropertySet> trackFromStorage(Urn trackUrn) {
         return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
     }
 
-    private Observable<PropertySet> fullTrackFromStorage(TrackUrn trackUrn) {
+    private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
         return trackFromStorage(trackUrn).zipWith(trackStorage.trackDetails(trackUrn), mergePropertySets);
     }
 
-    private Observable<PropertySet> syncThenLoadTrack(final TrackUrn trackUrn, final Observable<PropertySet> loadObservable) {
+    private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {
         return syncInitiator.syncTrack(trackUrn)
                 .mergeMap(new Func1<Boolean, Observable<PropertySet>>() {
                     @Override

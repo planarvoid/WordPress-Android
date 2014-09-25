@@ -15,8 +15,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.playlists.PlaylistUrn;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -163,11 +161,11 @@ public class SoundStreamFragment extends DefaultFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final PropertySet item = adapter.getItem(position);
         final Urn playableUrn = item.get(PlayableProperty.URN);
-        if (playableUrn instanceof TrackUrn) {
+        if (playableUrn.isTrack()) {
             playbackOperations
-                    .playTracks(operations.trackUrnsForPlayback(), (TrackUrn) playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .playTracks(operations.trackUrnsForPlayback(), playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
-        } else if (playableUrn instanceof PlaylistUrn) {
+        } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(getActivity(), playableUrn, Screen.SIDE_MENU_STREAM);
         }
     }

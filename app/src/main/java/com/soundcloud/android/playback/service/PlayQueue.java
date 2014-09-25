@@ -7,7 +7,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -24,7 +24,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return new PlayQueue(Collections.<PlayQueueItem>emptyList());
     }
 
-    public static PlayQueue fromTrackUrnList(List<TrackUrn> trackUrns, PlaySessionSource playSessionSource) {
+    public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
         return new PlayQueue(getPlayQueueItemsFromIds(trackUrns, playSessionSource));
     }
 
@@ -36,11 +36,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         this.playQueueItems = playQueueItems;
     }
 
-    public void addTrack(TrackUrn trackUrn, String source, String sourceVersion) {
+    public void addTrack(Urn trackUrn, String source, String sourceVersion) {
         playQueueItems.add(PlayQueueItem.fromTrack(trackUrn, source, sourceVersion));
     }
 
-    public void insertTrack(int position, TrackUrn trackUrn, PropertySet metaData, boolean shouldPersist) {
+    public void insertTrack(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
         checkArgument(position >= 0 && position <= size(), String.format("Cannot insert track at position:%d, size:%d", position, playQueueItems.size()));
         // TODO : Proper source + version?
         playQueueItems.add(position, PlayQueueItem.fromTrack(trackUrn, ScTextUtils.EMPTY_STRING, ScTextUtils.EMPTY_STRING, metaData, shouldPersist));
@@ -75,13 +75,13 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return !playQueueItems.isEmpty();
     }
 
-    public TrackUrn getUrn(int position) {
-        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : TrackUrn.NOT_SET;
+    public Urn getUrn(int position) {
+        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn() : Urn.NOT_SET;
     }
 
     @Deprecated
     public long getTrackId(int position) {
-        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().numericId : Consts.NOT_SET;
+        return position >= 0 && position < size() ? playQueueItems.get(position).getTrackUrn().getNumericId() : Consts.NOT_SET;
     }
 
     public PropertySet getMetaData(int position) {
@@ -112,26 +112,26 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         List<Long> trackIds = Lists.transform(playQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {
-                return input.getTrackUrn().numericId;
+                return input.getTrackUrn().getNumericId();
             }
         });
         return trackIds;
     }
 
-    List<TrackUrn> getTrackUrns() {
-        List<TrackUrn> trackUrns = Lists.transform(playQueueItems, new Function<PlayQueueItem, TrackUrn>() {
+    List<Urn> getTrackUrns() {
+        List<Urn> trackUrns = Lists.transform(playQueueItems, new Function<PlayQueueItem, Urn>() {
             @Override
-            public TrackUrn apply(PlayQueueItem input) {
+            public Urn apply(PlayQueueItem input) {
                 return input.getTrackUrn();
             }
         });
         return trackUrns;
     }
 
-    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<TrackUrn> trackIds, final PlaySessionSource playSessionSource) {
-        return Lists.newArrayList(Lists.transform(trackIds, new Function<TrackUrn, PlayQueueItem>() {
+    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Urn> trackIds, final PlaySessionSource playSessionSource) {
+        return Lists.newArrayList(Lists.transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
-            public PlayQueueItem apply(TrackUrn track) {
+            public PlayQueueItem apply(Urn track) {
                 return PlayQueueItem.fromTrack(track, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion(), PropertySet.create(), true);
             }
         }));

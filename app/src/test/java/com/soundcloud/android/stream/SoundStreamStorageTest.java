@@ -11,11 +11,10 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.WhereBuilder;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -190,7 +189,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackRepost(trackTwo, testFixtures().insertUser(), TIMESTAMP - 1);
         testFixtures().insertPlaylistPost(testFixtures().insertPlaylist(), TIMESTAMP - 2);
 
-        TestObserver<TrackUrn> observer = new TestObserver<TrackUrn>();
+        TestObserver<Urn> observer = new TestObserver<Urn>();
         storage.trackUrns().subscribe(observer);
         expect(observer.getOnNextEvents()).toContainExactly(trackOne.getUrn(), trackTwo.getUrn());
     }

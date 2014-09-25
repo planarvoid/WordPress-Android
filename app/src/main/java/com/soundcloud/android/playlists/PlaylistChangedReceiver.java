@@ -1,9 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.api.legacy.model.Playable;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
+import com.soundcloud.android.collections.ScBaseAdapter;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

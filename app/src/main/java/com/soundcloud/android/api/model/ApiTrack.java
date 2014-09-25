@@ -5,7 +5,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.legacy.model.TrackStats;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.tracks.TrackUrn;
 
 import android.os.Parcel;
 
@@ -53,11 +52,6 @@ public class ApiTrack extends ScModel {
 
     public ApiTrack(String urn) {
         super(urn);
-    }
-
-    @Override
-    public TrackUrn getUrn() {
-        return (TrackUrn) super.getUrn();
     }
 
     public String getTitle() {

@@ -4,9 +4,9 @@ import static rx.android.observables.AndroidObservable.fromFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.view.GridViewCompat;
 import rx.Observable;
 import rx.android.RxFragmentObserver;

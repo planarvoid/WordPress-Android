@@ -6,13 +6,11 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
@@ -24,14 +22,12 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
@@ -53,21 +49,21 @@ public class PlaylistResultsFragmentTest {
     private AbsListView content;
     private TestEventBus eventBus = new TestEventBus();
 
-    @InjectMocks
-    private PlaylistResultsFragment fragment;
+    @InjectMocks private PlaylistResultsFragment fragment;
 
     @Mock private PlaylistDiscoveryOperations operations;
     @Mock private ListViewController listViewController;
-    @Mock private PagingItemAdapter<ApiPlaylist> adapter;
-    @Mock private ScModelManager modelManager;
+    @Mock private EndlessAdapter<ApiPlaylist> adapter;
     @Mock private EmptyView emptyView;
     @Mock private Subscription subscription;
-    @Captor private ArgumentCaptor<Page<ModelCollection<ApiPlaylist>>> pageCaptor;
+    @Mock private PlaylistDiscoveryOperations.PlaylistPager pager;
 
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        Observable<Page<ModelCollection<ApiPlaylist>>> observable = TestObservables.emptyObservable(subscription);
+        Observable<ModelCollection<ApiPlaylist>> observable = TestObservables.emptyObservable(subscription);
+        when(operations.pager(anyString())).thenReturn(pager);
+        when(pager.page(observable)).thenReturn(observable);
         when(operations.playlistsForTag(anyString())).thenReturn(observable);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         createFragment();
@@ -78,13 +74,13 @@ public class PlaylistResultsFragmentTest {
         ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
         ApiPlaylist playlist = new ApiPlaylist();
         collection.setCollection(Lists.newArrayList(playlist));
-        when(operations.playlistsForTag("selected tag")).thenReturn(
-                RxTestHelper.singlePage(Observable.<ModelCollection<ApiPlaylist>>from(collection)));
+        final Observable<ModelCollection<ApiPlaylist>> observable = Observable.just(collection);
+        when(pager.page(observable)).thenReturn(observable);
+        when(operations.playlistsForTag("selected tag")).thenReturn(observable);
 
         fragment.onCreate(null);
 
-        verify(adapter).onNext(pageCaptor.capture());
-        expect(pageCaptor.getValue().getPagedCollection()).toBe(collection);
+        verify(adapter).onNext(collection);
     }
 
     @Test

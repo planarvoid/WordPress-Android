@@ -16,7 +16,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -60,8 +59,8 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
     private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
-        private final LruCache<TrackUrn, ReplaySubject<PropertySet>> trackObservableCache =
-            new LruCache<TrackUrn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
+        private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
+            new LruCache<Urn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
     
     private final Map<View, TrackPageData> trackByViews = new HashMap<View, TrackPageData>(TRACKVIEW_POOL_SIZE);
 
@@ -75,7 +74,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     private final Action1<PlayableUpdatedEvent> invalidateTrackCacheAction = new Action1<PlayableUpdatedEvent>() {
         @Override
         public void call(PlayableUpdatedEvent playableUpdatedEvent) {
-            trackObservableCache.remove((TrackUrn) playableUpdatedEvent.getUrn());
+            trackObservableCache.remove(playableUpdatedEvent.getUrn());
         }
     };
 
@@ -171,7 +170,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         container.removeView(view);
 
         if (getItemViewTypeFromObject(view) == TYPE_TRACK_VIEW) {
-            final TrackUrn trackUrn = trackByViews.get(view).getTrackUrn();
+            final Urn trackUrn = trackByViews.get(view).getTrackUrn();
             trackPageRecycler.recyclePage(trackUrn, view);
             if (!playQueueManager.isCurrentTrack(trackUrn)) {
                 trackPagePresenter.onBackground(view);
@@ -189,7 +188,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     private View instantiateTrackView(int position) {
         View view;
         final TrackPageData trackPageData = currentData.get(position);
-        TrackUrn urn = trackPageData.getTrackUrn();
+        Urn urn = trackPageData.getTrackUrn();
 
         if (trackPageRecycler.hasExistingPage(urn)){
             view = trackPageRecycler.removePageByUrn(urn);
@@ -247,7 +246,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         return trackObservable;
     }
 
-    private Observable<PropertySet> getAdObservable(TrackUrn urn, final PropertySet audioAd) {
+    private Observable<PropertySet> getAdObservable(Urn urn, final PropertySet audioAd) {
         // merge together audio ad track data and track data from the upcoming monetizable track
         return Observable.zip(getTrackObservable(urn), getTrackObservable(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN)),
                 new Func2<PropertySet, PropertySet, PropertySet>() {
@@ -287,7 +286,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
             final View trackView = entry.getKey();
             if (getItemViewTypeFromObject(trackView) == TYPE_TRACK_VIEW) {
-                TrackUrn urn = entry.getValue().getTrackUrn();
+                Urn urn = entry.getValue().getTrackUrn();
                 trackPagePresenter.onPageChange(trackView);
                 updateProgress(trackPagePresenter, trackView, urn);
             }
@@ -316,7 +315,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         return currentData.size();
     }
 
-    private Observable<PropertySet> getTrackObservable(TrackUrn urn) {
+    private Observable<PropertySet> getTrackObservable(Urn urn) {
         ReplaySubject<PropertySet> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
@@ -338,7 +337,7 @@ public class TrackPagerAdapter extends PagerAdapter {
                 || trackPageRecycler.isPageForUrn(trackPage, urn);
     }
 
-    private void updateProgress(PlayerPagePresenter presenter, View trackView, TrackUrn urn) {
+    private void updateProgress(PlayerPagePresenter presenter, View trackView, Urn urn) {
         presenter.setProgress(trackView, playSessionStateProvider.getLastProgressByUrn(urn));
     }
 
@@ -353,7 +352,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
         @Override
         public void onNext(PropertySet track) {
-            TrackUrn trackUrn = track.get(TrackProperty.URN);
+            Urn trackUrn = track.get(TrackProperty.URN);
             if (isTrackRelatedToView(trackPage, trackUrn)) {
                 presenter.bindItemView(trackPage, track, playQueueManager.isCurrentTrack(trackUrn),
                         isForeground, viewVisibilityProvider);

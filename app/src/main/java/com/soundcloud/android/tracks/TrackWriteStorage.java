@@ -92,7 +92,7 @@ public class TrackWriteStorage {
 
     private ContentValues buildPolicyContentValues(PolicyInfo policyEntry) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Sounds._ID, policyEntry.getTrackUrn().numericId)
+                .put(TableColumns.Sounds._ID, policyEntry.getTrackUrn().getNumericId())
                 .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .put(TableColumns.Sounds.POLICY, policyEntry.getPolicy())
                 .put(TableColumns.Sounds.MONETIZABLE, policyEntry.isMonetizable())

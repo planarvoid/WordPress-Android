@@ -12,7 +12,7 @@ import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import org.hamcrest.Matchers;
 
 import android.content.ContentValues;
@@ -56,9 +56,9 @@ public class DatabaseFixtures {
         return id;
     }
 
-    public long insertDescription(TrackUrn trackUrn, String description) {
+    public long insertDescription(Urn trackUrn, String description) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Sounds._ID, trackUrn.numericId);
+        cv.put(TableColumns.Sounds._ID, trackUrn.getNumericId());
         cv.put(TableColumns.Sounds.DESCRIPTION, description);
         return insertInto(Table.SOUNDS, cv);
     }

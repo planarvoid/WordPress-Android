@@ -1,6 +1,6 @@
 package com.soundcloud.android.waveform;
 
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -13,16 +13,16 @@ public class WaveformOperations {
 
     public static final int DEFAULT_WAVEFORM_CACHE_SIZE = 20;
 
-    private final LruCache<TrackUrn, WaveformData> waveformCache;
+    private final LruCache<Urn, WaveformData> waveformCache;
     private final WaveformFetcher waveformFetcher;
 
     @Inject
-    public WaveformOperations(LruCache<TrackUrn, WaveformData> waveformCache, WaveformFetcher waveformFetcher) {
+    public WaveformOperations(LruCache<Urn, WaveformData> waveformCache, WaveformFetcher waveformFetcher) {
         this.waveformCache = waveformCache;
         this.waveformFetcher = waveformFetcher;
     }
 
-    public Observable<WaveformResult> waveformDataFor(final TrackUrn trackUrn, final String waveformUrl) {
+    public Observable<WaveformResult> waveformDataFor(final Urn trackUrn, final String waveformUrl) {
         final WaveformData cachedWaveform = waveformCache.get(trackUrn);
         if (cachedWaveform == null) {
             return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {

@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
@@ -15,9 +14,8 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +28,8 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackSessionAnalyticsControllerTest {
 
-    private static final TrackUrn TRACK_URN = Urn.forTrack(1L);
-    private static final UserUrn USER_URN = Urn.forUser(2L);
+    private static final Urn TRACK_URN = Urn.forTrack(1L);
+    private static final Urn USER_URN = Urn.forUser(2L);
     private static final long PROGRESS = 123L;
     private static final int DURATION = 456;
 
@@ -58,7 +56,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     @Test
     public void stateChangeEventDoesNotPublishEventWithInvalidTrackUrn() throws Exception {
-        analyticsController.onStateTransition(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TrackUrn.NOT_SET));
+        analyticsController.onStateTransition(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, Urn.NOT_SET));
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
     }
 
@@ -162,7 +160,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     // the player does not send stop events when skipping, so we have to materialize these
     @Test
     public void shouldPublishStopEventWhenUserSkipsBetweenTracksManually() {
-        final TrackUrn nextTrack = Urn.forTrack(456L);
+        final Urn nextTrack = Urn.forTrack(456L);
         when(trackOperations.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
 
         publishPlayingEventForTrack(TRACK_URN);
@@ -177,7 +175,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Test
     public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
         PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
-        final TrackUrn nextTrack = Urn.forTrack(456L);
+        final Urn nextTrack = Urn.forTrack(456L);
         when(trackOperations.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
 
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
@@ -199,7 +197,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         return publishPlayingEventForTrack(TRACK_URN);
     }
 
-    protected Playa.StateTransition publishPlayingEventForTrack(TrackUrn trackUrn) {
+    protected Playa.StateTransition publishPlayingEventForTrack(Urn trackUrn) {
         final Playa.StateTransition startEvent = new Playa.StateTransition(
                 Playa.PlayaState.PLAYING, Playa.Reason.NONE, trackUrn, PROGRESS, DURATION);
         startEvent.addExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");

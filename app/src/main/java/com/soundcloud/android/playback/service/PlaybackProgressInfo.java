@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.tracks.TrackUrn;
+
+import com.soundcloud.android.model.Urn;
 
 public class PlaybackProgressInfo {
     private long trackId;
@@ -20,8 +21,8 @@ public class PlaybackProgressInfo {
         return time;
     }
 
-    public boolean shouldResumeTrack(TrackUrn trackUrn) {
-        return getTrackId() == trackUrn.numericId && time > 0;
+    public boolean shouldResumeTrack(Urn trackUrn) {
+        return getTrackId() == trackUrn.getNumericId() && time > 0;
     }
 
     @Override

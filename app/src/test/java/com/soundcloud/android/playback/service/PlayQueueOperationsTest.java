@@ -210,7 +210,7 @@ public class PlayQueueOperationsTest {
         ModelCollection returnCollection = new ModelCollection();
 
         final ApiRequestTo expectedRequest = isMobileApiRequestTo("POST", APIEndpoints.POLICIES.path());
-        expectedRequest.withContent(Lists.newArrayList("soundcloud:sounds:123"));
+        expectedRequest.withContent(Lists.newArrayList("soundcloud:tracks:123"));
 
         when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
         when(trackWriteStorage.storePoliciesAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());

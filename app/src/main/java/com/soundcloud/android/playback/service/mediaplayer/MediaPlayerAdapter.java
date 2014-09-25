@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -118,7 +118,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     private String getStreamUrlAppendedId(PropertySet track){
         final String streamUrl = track.get(TrackProperty.STREAM_URL);
-        final String trackId = String.valueOf(track.get(TrackProperty.URN).numericId);
+        final String trackId = String.valueOf(track.get(TrackProperty.URN).getNumericId());
         return Uri.parse(streamUrl).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY, trackId).build().toString();
     }
 
@@ -370,8 +370,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         }
     }
 
-    private TrackUrn getTrackUrn() {
-        return track == null ? TrackUrn.NOT_SET : track.get(TrackProperty.URN);
+    private Urn getTrackUrn() {
+        return track == null ? Urn.NOT_SET : track.get(TrackProperty.URN);
     }
 
     boolean isInErrorState(){

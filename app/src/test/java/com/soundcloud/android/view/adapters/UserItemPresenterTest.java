@@ -12,9 +12,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -109,7 +108,7 @@ public class UserItemPresenterTest {
 
     @Test
     public void followButtonShouldBeHiddenWhenLookingAtOwnUserCell() {
-        when(accountOperations.isLoggedInUser(any(UserUrn.class))).thenReturn(true);
+        when(accountOperations.isLoggedInUser(any(Urn.class))).thenReturn(true);
 
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 

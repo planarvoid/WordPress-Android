@@ -10,8 +10,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -24,9 +22,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -55,7 +53,7 @@ public class EventLoggerUrlBuilderTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private DeviceHelper deviceHelper;
 
-    private UserUrn userUrn = Urn.forUser(123L);
+    private Urn userUrn = Urn.forUser(123L);
     private EventLoggerUrlBuilder eventLoggerUrlBuilder;
 
     @Before
@@ -197,7 +195,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&action=play"
                 + "&ts=321"
                 + "&duration=" + audioAdTrack.get(PlayableProperty.DURATION)
-                + "&sound=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
+                + "&sound=" + "soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId()
                 + "&user=" + userUrn.toEncodedString()
                 + "&trigger=manual"
                 + "&page_name=origin"
@@ -228,7 +226,7 @@ public class EventLoggerUrlBuilderTest {
 
     @Test
     public void createImpressionUrlForCompanionDisplayToAudioAd() throws CreateModelException, UnsupportedEncodingException {
-        TrackUrn audioAdTrackUrn = Urn.forTrack(123L);
+        Urn audioAdTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(audioAdTrackUrn)
                 .put(AdProperty.ARTWORK, Uri.parse("http://artwork.org/image.pmg?a=b&c=d"));
         final String url = eventLoggerUrlBuilder.buildForVisualAdImpression(
@@ -249,9 +247,9 @@ public class EventLoggerUrlBuilderTest {
 
     @Test
     public void createAudioAdCompanionDisplayClickUrl() throws UnsupportedEncodingException {
-        final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
+        final Urn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(monetizedTrackUrn);
-        final TrackUrn audioAdTrackUrn = Urn.forTrack(456);
+        final Urn audioAdTrackUrn = Urn.forTrack(456);
         final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromAudioAdCompanionDisplayClick(audioAd, audioAdTrackUrn, 1000L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
                 + "client_id=123"
@@ -268,9 +266,9 @@ public class EventLoggerUrlBuilderTest {
 
     @Test
     public void createAudioAdSkippedClickUrl() throws UnsupportedEncodingException {
-        final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
+        final Urn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(monetizedTrackUrn);
-        final TrackUrn audioAdTrackUrn = Urn.forTrack(456);
+        final Urn audioAdTrackUrn = Urn.forTrack(456);
         final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromSkipAudioAdClick(audioAd, audioAdTrackUrn, 1000L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
                 + "client_id=123"
@@ -288,7 +286,7 @@ public class EventLoggerUrlBuilderTest {
     // https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#clicks
     @Test
     public void createAudioAdFinishedClickUrl() throws UnsupportedEncodingException, CreateModelException {
-        final TrackUrn monetizedTrackUrn = Urn.forTrack(123L);
+        final Urn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(monetizedTrackUrn);
         final PlaybackSessionEvent stopEvent = TestEvents.playbackSessionStopEvent();
         final String url = eventLoggerUrlBuilder.buildForAdFinished(stopEvent.withAudioAd(audioAd));

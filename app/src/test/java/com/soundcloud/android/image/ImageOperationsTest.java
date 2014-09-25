@@ -90,7 +90,7 @@ public class ImageOperationsTest {
     final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
 
     final private static String RESOLVER_URL_LARGE = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-    final private static Urn URN = Urn.parse("soundcloud:tracks:1");
+    final private static Urn URN = new Urn("soundcloud:tracks:1");
 
     private final Scheduler graphicsScheduler = Schedulers.immediate();
 
@@ -300,7 +300,7 @@ public class ImageOperationsTest {
     @Test
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(placeholderCache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
@@ -312,7 +312,7 @@ public class ImageOperationsTest {
     @Test
     public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
-        when(placeholderCache.get(eq("soundcloud:sounds:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
+        when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(Callable.class))).thenReturn(transitionDrawable);
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL_LARGE), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));

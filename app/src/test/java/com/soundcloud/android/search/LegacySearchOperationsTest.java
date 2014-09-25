@@ -37,9 +37,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SearchOperationsTest {
+public class LegacySearchOperationsTest {
 
-    @InjectMocks private SearchOperations searchOperations;
+    @InjectMocks private LegacySearchOperations searchOperations;
 
     @Mock
     private RxHttpClient rxHttpClient;
@@ -62,7 +62,7 @@ public class SearchOperationsTest {
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_ALL.path())
+                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_ALL.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -72,7 +72,7 @@ public class SearchOperationsTest {
         searchOperations.getTrackSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_TRACKS.path())
+                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_TRACKS.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -82,7 +82,7 @@ public class SearchOperationsTest {
         searchOperations.getPlaylistSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_PLAYLISTS.path())
+                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_PLAYLISTS.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -92,7 +92,7 @@ public class SearchOperationsTest {
         searchOperations.getUserSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.SEARCH_USERS.path())
+                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_USERS.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }

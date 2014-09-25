@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
@@ -16,7 +15,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import rx.Observable;
-import rx.android.OperatorPaged;
+import rx.android.Pager;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -61,7 +60,6 @@ class PlaylistDiscoveryOperations {
         this.playlistWriteStorage = playlistWriteStorage;
     }
 
-
     Observable<List<String>> recentPlaylistTags() {
         return tagStorage.getRecentTagsAsync();
     }
@@ -91,7 +89,7 @@ class PlaylistDiscoveryOperations {
         return rxHttpClient.<ModelCollection<String>>fetchModels(request).doOnNext(cachePopularTags).map(collectionToList);
     }
 
-    Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> playlistsForTag(final String tag) {
+    Observable<ModelCollection<ApiPlaylist>> playlistsForTag(final String tag) {
         final APIRequest<ModelCollection<ApiPlaylist>> request =
                 createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParameters("tag", tag)
@@ -104,7 +102,11 @@ class PlaylistDiscoveryOperations {
         });
     }
 
-    private Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> getPlaylistResultsNextPage(String query, String nextHref) {
+    PlaylistPager pager(String tag) {
+        return new PlaylistPager(tag);
+    }
+
+    private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsNextPage(String query, String nextHref) {
         final SoundCloudAPIRequest.RequestBuilder<ModelCollection<ApiPlaylist>> builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPage(query, builder.build());
     }
@@ -116,25 +118,10 @@ class PlaylistDiscoveryOperations {
                 });
     }
 
-    private Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> getPlaylistResultsPage(
+    private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsPage(
             String query, APIRequest<ModelCollection<ApiPlaylist>> request) {
         Observable<ModelCollection<ApiPlaylist>> source = rxHttpClient.fetchModels(request);
-        source = source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
-        return source.lift(pagedWith(discoveryResultsPager(query)));
-    }
-
-    private OperatorPaged.LegacyPager<ModelCollection<ApiPlaylist>> discoveryResultsPager(final String query) {
-        return new OperatorPaged.LegacyPager<ModelCollection<ApiPlaylist>>() {
-            @Override
-            public Observable<OperatorPaged.Page<ModelCollection<ApiPlaylist>>> call(ModelCollection<ApiPlaylist> collection) {
-                final Optional<Link> nextLink = collection.getNextLink();
-                if (nextLink.isPresent()) {
-                    return getPlaylistResultsNextPage(query, nextLink.get().getHref());
-                } else {
-                    return OperatorPaged.emptyObservable();
-                }
-            }
-        };
+        return source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
     }
 
     private Func1<ModelCollection<ApiPlaylist>, ModelCollection<ApiPlaylist>> withSearchTag(final String searchTag) {
@@ -155,4 +142,22 @@ class PlaylistDiscoveryOperations {
         return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
+    class PlaylistPager extends Pager<ModelCollection<ApiPlaylist>> {
+
+        private final String query;
+
+        PlaylistPager(String query) {
+            this.query = query;
+        }
+
+        @Override
+        public Observable<ModelCollection<ApiPlaylist>> call(ModelCollection<ApiPlaylist> collection) {
+            final Optional<Link> nextLink = collection.getNextLink();
+            if (nextLink.isPresent()) {
+                return getPlaylistResultsNextPage(query, nextLink.get().getHref());
+            } else {
+                return Pager.finish();
+            }
+        }
+    }
 }

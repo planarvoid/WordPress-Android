@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 import rx.functions.Action0;
@@ -95,7 +95,7 @@ public class LikesListFragment extends ScListFragment {
                 .observeOn(mainThread()).subscribe(new LikedIdsSubscriber());
     }
 
-    private void updateShuffleHeader(@NotNull final List<TrackUrn> likedTracks) {
+    private void updateShuffleHeader(@NotNull final List<Urn> likedTracks) {
         View shuffleButton = getView().findViewById(R.id.shuffle_btn);
         if (likedTracks.size() <= 1) {
             shuffleButton.setVisibility(View.GONE);
@@ -127,9 +127,9 @@ public class LikesListFragment extends ScListFragment {
         }
     }
 
-    private class LikedIdsSubscriber extends DefaultSubscriber<List<TrackUrn>> {
+    private class LikedIdsSubscriber extends DefaultSubscriber<List<Urn>> {
         @Override
-        public void onNext(List<TrackUrn> tracks) {
+        public void onNext(List<Urn> tracks) {
             if (isAdded()) {
                 updateShuffleHeader(tracks);
             }

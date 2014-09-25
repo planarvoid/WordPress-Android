@@ -1,8 +1,8 @@
 package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.EmptyViewDelegate;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.EmptyViewDelegate;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;

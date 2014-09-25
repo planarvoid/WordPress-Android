@@ -5,8 +5,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,8 +38,8 @@ public class PlaybackSessionEvent {
     private static final int EVENT_KIND_STOP = 1;
 
     private final int kind, duration;
-    private final TrackUrn trackUrn;
-    private final UserUrn userUrn;
+    private final Urn trackUrn;
+    private final Urn userUrn;
     private final String protocol;
 
     private final TrackSourceInfo trackSourceInfo;
@@ -51,17 +50,17 @@ public class PlaybackSessionEvent {
     // extra meta data that might not always be present goes here
     private final SparseArray<Object> extraAttributes = new SparseArray<Object>();
 
-    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, protocol, trackSourceInfo, progress, timestamp);
     }
 
-    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, long progress) {
         return forPlay(trackData, userUrn, protocol, trackSourceInfo, progress, System.currentTimeMillis());
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
                                                int stopReason, long progress, long timestamp) {
         final PlaybackSessionEvent playbackSessionEvent =
@@ -71,14 +70,14 @@ public class PlaybackSessionEvent {
         return playbackSessionEvent;
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull UserUrn userUrn,
+    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
                                                int stopReason, long progress) {
         return forStop(trackData, userUrn, protocol, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
     }
 
     // Use this constructor for an ordinary audio playback event
-    private PlaybackSessionEvent(int eventKind, PropertySet track, UserUrn userUrn,
+    private PlaybackSessionEvent(int eventKind, PropertySet track, Urn userUrn,
                                  String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
         this.trackUrn = track.get(TrackProperty.URN);
         this.duration = track.get(PlayableProperty.DURATION);
@@ -109,7 +108,7 @@ public class PlaybackSessionEvent {
         return kind;
     }
 
-    public TrackUrn getTrackUrn() {
+    public Urn getTrackUrn() {
         return trackUrn;
     }
 
@@ -126,7 +125,7 @@ public class PlaybackSessionEvent {
         return !isPlayEvent();
     }
 
-    public UserUrn getUserUrn() {
+    public Urn getUserUrn() {
         return userUrn;
     }
 
@@ -135,7 +134,7 @@ public class PlaybackSessionEvent {
     }
 
     public boolean isPlayingOwnPlaylist() {
-        return trackSourceInfo.getPlaylistOwnerId() == userUrn.numericId;
+        return trackSourceInfo.getPlaylistOwnerId() == userUrn.getNumericId();
     }
 
     public int getDuration() {

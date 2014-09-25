@@ -14,7 +14,6 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
@@ -49,8 +48,8 @@ class SoundStreamStorage {
                         ActivityView.CREATED_AT,
                         ActivityView.TYPE,
                         ActivityView.USER_USERNAME,
-                        exists(soundAssociationQuery(LIKE, userUrn.numericId)).as(SoundView.USER_LIKE),
-                        exists(soundAssociationQuery(REPOST, userUrn.numericId)).as(SoundView.USER_REPOST)
+                        exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
+                        exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)
                 )
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereLt(ActivityView.CREATED_AT, timestamp)
@@ -63,7 +62,7 @@ class SoundStreamStorage {
         return scheduler.scheduleQuery(query).map(new StreamItemMapper());
     }
 
-    public Observable<TrackUrn> trackUrns() {
+    public Observable<Urn> trackUrns() {
         Query query = Query.from(Table.ACTIVITY_VIEW.name)
                 .select(ActivityView.SOUND_ID)
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
@@ -79,9 +78,9 @@ class SoundStreamStorage {
                 .whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
     }
 
-    private static final class TrackUrnMapper extends RxResultMapper<TrackUrn> {
+    private static final class TrackUrnMapper extends RxResultMapper<Urn> {
         @Override
-        public TrackUrn map(CursorReader cursorReader) {
+        public Urn map(CursorReader cursorReader) {
             return Urn.forTrack(cursorReader.getLong(ActivityView.SOUND_ID));
         }
     }

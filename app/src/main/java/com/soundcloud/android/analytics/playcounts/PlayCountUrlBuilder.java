@@ -24,7 +24,7 @@ class PlayCountUrlBuilder {
     }
 
     String buildUrl(PlaybackSessionEvent playbackSessionEvent) {
-        final String trackId = Long.toString(playbackSessionEvent.getTrackUrn().numericId);
+        final String trackId = Long.toString(playbackSessionEvent.getTrackUrn().getNumericId());
         final Uri.Builder builder = Uri.parse(PUBLIC_API_BASE_URI + APIEndpoints.LOG_PLAY.unencodedPath(trackId))
                 .buildUpon()
                 .appendQueryParameter("client_id", httpProperties.getClientId());

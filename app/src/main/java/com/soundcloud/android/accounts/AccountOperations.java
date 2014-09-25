@@ -22,7 +22,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.users.UserUrn;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Token;
 import dagger.Lazy;
@@ -48,7 +47,8 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class AccountOperations extends ScheduledOperations {
 
-    private static final int NOT_SET = -1;
+    public static final Urn ANONYMOUS_USER_URN = Urn.forUser(Consts.NOT_SET);
+
     private static final String TOKEN_TYPE = "access_token";
     @VisibleForTesting
     static final long EMAIL_CONFIRMATION_REMIND_PERIOD = TimeUnit.DAYS.toMillis(7);
@@ -63,7 +63,7 @@ public class AccountOperations extends ScheduledOperations {
 
     @Deprecated
     private volatile PublicApiUser loggedInUser;
-    private volatile UserUrn loggedInUserUrn;
+    private volatile Urn loggedInUserUrn;
 
     public enum AccountInfoKeys {
         USERNAME("currentUsername"),
@@ -131,20 +131,20 @@ public class AccountOperations extends ScheduledOperations {
         return loggedInUser == null ? getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
     }
 
-    public UserUrn getLoggedInUserUrn() {
+    public Urn getLoggedInUserUrn() {
         if (loggedInUserUrn == null){
             loggedInUserUrn = Urn.forUser(getLoggedInUserId());
         }
         return loggedInUserUrn;
     }
 
-    public boolean isLoggedInUser(UserUrn user) {
+    public boolean isLoggedInUser(Urn user) {
         return user.equals(getLoggedInUserUrn());
     }
 
     public void loadLoggedInUser() {
         final long id = getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
-        if (id != AccountOperations.NOT_SET) {
+        if (id != Consts.NOT_SET) {
             fireAndForget(userStorage.getUserAsync(id).doOnNext(new Action1<PublicApiUser>() {
                 @Override
                 public void call(PublicApiUser user) {
@@ -174,7 +174,7 @@ public class AccountOperations extends ScheduledOperations {
 
     //TODO: now that this class is a singleton, we should probably cache the current account?
     public boolean isUserLoggedIn() {
-        return !getLoggedInUserUrn().equals(UserUrn.NOT_SET);
+        return !getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
     }
 
     public void triggerLoginFlow(Activity currentActivityContext) {
@@ -259,7 +259,7 @@ public class AccountOperations extends ScheduledOperations {
     //TODO Should have a consistent anonymous user id Uri forUser(long id). ClientUri.forUser() is related with this issue
     private long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
-        return data == null ? NOT_SET : Long.parseLong(data);
+        return data == null ? Consts.NOT_SET : Long.parseLong(data);
     }
 
     //TODO this seems wrong to me, should we not differentiate between no data existing and a false value existing?

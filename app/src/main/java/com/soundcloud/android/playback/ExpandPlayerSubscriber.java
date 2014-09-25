@@ -5,10 +5,10 @@ import static com.soundcloud.android.playback.PlaybackOperations.UnSkippablePeri
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackUrn;
 
 import android.os.Handler;
 import android.os.Message;
@@ -16,7 +16,7 @@ import android.os.Message;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ExpandPlayerSubscriber extends DefaultSubscriber<List<TrackUrn>> {
+public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     public static final int EXPAND_DELAY_MILLIS = 100;
     private final EventBus eventBus;
     private final PlaybackToastViewController playbackToastViewController;

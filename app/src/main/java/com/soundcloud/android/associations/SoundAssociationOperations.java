@@ -17,11 +17,9 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
-import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import org.apache.http.HttpStatus;
@@ -69,7 +67,7 @@ public class SoundAssociationOperations {
     // LIKING / UN-LIKING
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Observable<List<TrackUrn>> getLikedTracks() {
+    public Observable<List<Urn>> getLikedTracks() {
         return soundAssocStorage.getLikesTrackUrnsAsync();
     }
 
@@ -248,8 +246,8 @@ public class SoundAssociationOperations {
 
     private Observable<? extends Playable> resolveLegacyModel(final Urn urn) {
         return urn.isTrack()
-                ? trackStorage.getTrackAsync(urn.numericId)
-                : legacyPlaylistOperations.loadPlaylist((PlaylistUrn) urn);
+                ? trackStorage.getTrackAsync(urn.getNumericId())
+                : legacyPlaylistOperations.loadPlaylist(urn);
     }
 
     private void logPlayable(String action, final Playable playable) {

@@ -6,7 +6,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -32,17 +31,17 @@ public class PlaylistStorage extends ScheduledOperations {
     }
 
 
-    public Observable<TrackUrn> trackUrns(final PlaylistUrn playlistUrn) {
+    public Observable<Urn> trackUrns(final Urn playlistUrn) {
         Query query = Query.from(Table.PLAYLIST_TRACKS.name)
                 .select(TableColumns.PlaylistTracks.TRACK_ID)
-                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.numericId)
+                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
                 .order(TableColumns.PlaylistTracks.POSITION, Query.ORDER_ASC);
         return schedule(Observable.from(database.query(query)).map(new TrackUrnMapper()));
     }
 
-    private static final class TrackUrnMapper extends RxResultMapper<TrackUrn> {
+    private static final class TrackUrnMapper extends RxResultMapper<Urn> {
         @Override
-        public TrackUrn map(CursorReader cursorReader) {
+        public Urn map(CursorReader cursorReader) {
             return Urn.forTrack(cursorReader.getLong(TableColumns.PlaylistTracks.TRACK_ID));
         }
     }

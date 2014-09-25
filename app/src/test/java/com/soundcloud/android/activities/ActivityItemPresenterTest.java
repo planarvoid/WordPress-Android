@@ -3,7 +3,7 @@ package com.soundcloud.android.activities;
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -42,7 +42,7 @@ public class ActivityItemPresenterTest {
         final Date oneHourAgo = new Date(System.currentTimeMillis() - 60 * 60 * 1000);
         final List<PropertySet> propertySets = Arrays.asList(PropertySet.from(
                 ActivityProperty.TYPE.bind(ActivityProperty.TYPE_FOLLOWER),
-                ActivityProperty.USER_URN.bind(UserUrn.forUser(123L)),
+                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
                 ActivityProperty.USER_NAME.bind("follower"),
                 ActivityProperty.DATE.bind(oneHourAgo)
         ));
@@ -59,7 +59,7 @@ public class ActivityItemPresenterTest {
         final List<PropertySet> propertySets = Arrays.asList(PropertySet.from(
                 ActivityProperty.TYPE.bind(ActivityProperty.TYPE_LIKE),
                 ActivityProperty.USER_NAME.bind("User name"),
-                ActivityProperty.USER_URN.bind(UserUrn.forUser(123L)),
+                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
                 ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
                 ActivityProperty.SOUND_TITLE.bind("Sound title")
         ));
@@ -76,7 +76,7 @@ public class ActivityItemPresenterTest {
         final List<PropertySet> propertySets = Arrays.asList(PropertySet.from(
                 ActivityProperty.TYPE.bind(ActivityProperty.TYPE_REPOST),
                 ActivityProperty.USER_NAME.bind("User name"),
-                ActivityProperty.USER_URN.bind(UserUrn.forUser(123L)),
+                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
                 ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
                 ActivityProperty.SOUND_TITLE.bind("Sound title")
         ));
@@ -93,7 +93,7 @@ public class ActivityItemPresenterTest {
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
         final List<PropertySet> propertySets = Arrays.asList(PropertySet.from(
                 ActivityProperty.TYPE.bind(ActivityProperty.TYPE_COMMENT),
-                ActivityProperty.USER_URN.bind(UserUrn.forUser(123L)),
+                ActivityProperty.USER_URN.bind(Urn.forUser(123L)),
                 ActivityProperty.USER_NAME.bind("User name"),
                 ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
                 ActivityProperty.SOUND_TITLE.bind("Sound title")

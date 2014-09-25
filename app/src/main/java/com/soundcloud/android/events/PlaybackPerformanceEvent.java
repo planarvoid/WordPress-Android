@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.users.UserUrn;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 
 public final class PlaybackPerformanceEvent {
@@ -51,10 +51,10 @@ public final class PlaybackPerformanceEvent {
     private final PlayerType playerType;
     private final String cdnHost;
     private final ConnectionType connectionType;
-    private final UserUrn urn;
+    private final Urn urn;
 
     private PlaybackPerformanceEvent(int metric, long value, PlaybackProtocol protocol, PlayerType playerType,
-                ConnectionType connectionType, String cdnHost, UserUrn urn) {
+                ConnectionType connectionType, String cdnHost, Urn urn) {
         this.metric = metric;
         this.metricValue = value;
         this.timestamp = System.currentTimeMillis();
@@ -66,27 +66,27 @@ public final class PlaybackPerformanceEvent {
     }
 
     public static PlaybackPerformanceEvent timeToPlay(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, UserUrn urn) {
+                                                      ConnectionType connectionType, String cdnHost, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, cdnHost, urn);
     }
 
     public static PlaybackPerformanceEvent timeToPlaylist(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                          ConnectionType connectionType, String cdnHost, UserUrn urn) {
+                                                          ConnectionType connectionType, String cdnHost, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAYLIST, value, protocol, playerType, connectionType, cdnHost, urn);
     }
 
     public static PlaybackPerformanceEvent timeToBuffer(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                        ConnectionType connectionType, String cdnHost, UserUrn urn) {
+                                                        ConnectionType connectionType, String cdnHost, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_TIME_TO_BUFFER, value, protocol, playerType, connectionType, cdnHost ,urn);
     }
 
     public static PlaybackPerformanceEvent timeToSeek(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, UserUrn urn) {
+                                                      ConnectionType connectionType, String cdnHost, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_TIME_TO_SEEK, value, protocol, playerType, connectionType, cdnHost, urn);
     }
 
     public static PlaybackPerformanceEvent fragmentDownloadRate(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                                ConnectionType connectionType, String cdnHost, UserUrn urn) {
+                                                                ConnectionType connectionType, String cdnHost, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_FRAGMENT_DOWNLOAD_RATE, value, protocol, playerType, connectionType, cdnHost, urn);
     }
 
@@ -118,7 +118,7 @@ public final class PlaybackPerformanceEvent {
         return connectionType;
     }
 
-    public UserUrn getUserUrn() {
+    public Urn getUserUrn() {
         return urn;
     }
 

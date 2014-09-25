@@ -32,7 +32,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.android.OperatorPaged;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -121,10 +120,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> resultCaptor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(resultCaptor.capture());
-
-        expect(resultCaptor.getValue().getPagedCollection()).toBe(collection);
+        verify(observer).onNext(collection);
     }
 
     @Test
@@ -151,12 +147,15 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> resultCaptor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
+        ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
+        expect(apiPlaylist.getTags()).toContainExactly("electronic", "tag1", "tag2", "tag3");
+    }
+
+    private ApiPlaylist captureFirstApiPlaylist() {
+        ArgumentCaptor<ModelCollection> resultCaptor = ArgumentCaptor.forClass(ModelCollection.class);
         verify(observer).onNext(resultCaptor.capture());
 
-        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
-                resultCaptor.getValue().getPagedCollection()).get(0);
-        expect(apiPlaylist.getTags()).toContainExactly("electronic", "tag1", "tag2", "tag3");
+        return (ApiPlaylist) resultCaptor.getValue().getCollection().get(0);
     }
 
     @Test
@@ -165,11 +164,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("tag2").subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> resultCaptor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(resultCaptor.capture());
-
-        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
-                resultCaptor.getValue().getPagedCollection()).get(0);
+        ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
         expect(apiPlaylist.getTags()).toContainExactly("tag2", "tag1", "tag3");
     }
 
@@ -179,11 +174,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("Tag2").subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> resultCaptor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(resultCaptor.capture());
-
-        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
-                resultCaptor.getValue().getPagedCollection()).get(0);
+        ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
         expect(apiPlaylist.getTags()).toContainExactly("Tag2", "tag1", "tag3");
     }
 
@@ -193,11 +184,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("ag2").subscribe(observer);
 
-        ArgumentCaptor<OperatorPaged.Page> resultCaptor = ArgumentCaptor.forClass(OperatorPaged.Page.class);
-        verify(observer).onNext(resultCaptor.capture());
-
-        ApiPlaylist apiPlaylist = (ApiPlaylist) Lists.newArrayList(
-                resultCaptor.getValue().getPagedCollection()).get(0);
+        ApiPlaylist apiPlaylist = captureFirstApiPlaylist();
         expect(apiPlaylist.getTags()).toContainExactly("ag2", "tag1", "tag2", "tag3");
     }
 

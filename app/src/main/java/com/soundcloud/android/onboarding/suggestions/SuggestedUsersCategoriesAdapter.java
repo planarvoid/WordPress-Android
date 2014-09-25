@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.collections.SingleLineCollectionTextView;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 

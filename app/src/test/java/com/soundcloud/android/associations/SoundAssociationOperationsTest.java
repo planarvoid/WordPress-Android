@@ -25,13 +25,11 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
-import com.soundcloud.android.playlists.PlaylistUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.tracks.TrackUrn;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,8 +58,8 @@ public class SoundAssociationOperationsTest {
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
     @Captor private ArgumentCaptor<PlayableUpdatedEvent> eventCaptor;
 
-    private final TrackUrn trackUrn = Urn.forTrack(123L);
-    private final PlaylistUrn playlistUrn = Urn.forPlaylist(124L);
+    private final Urn trackUrn = Urn.forTrack(123L);
+    private final Urn playlistUrn = Urn.forPlaylist(124L);
     private PublicApiTrack track;
     private PublicApiPlaylist playlist;
     private SoundAssociation trackLike;
@@ -102,8 +100,8 @@ public class SoundAssociationOperationsTest {
 
     @Test
     public void shouldObtainIdsOfLikedTracksFromLocalStorage() {
-        final List<TrackUrn> idsListFromStorage = TestHelper.createTracksUrn(1L, 2L, 3L);
-        when(storage.getLikesTrackUrnsAsync()).thenReturn(rx.Observable.<List<TrackUrn>>from(idsListFromStorage));
+        final List<Urn> idsListFromStorage = TestHelper.createTracksUrn(1L, 2L, 3L);
+        when(storage.getLikesTrackUrnsAsync()).thenReturn(rx.Observable.<List<Urn>>from(idsListFromStorage));
 
         operations.getLikedTracks().subscribe(observer);
 

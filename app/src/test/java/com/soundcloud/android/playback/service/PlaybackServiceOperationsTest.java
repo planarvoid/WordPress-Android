@@ -53,6 +53,6 @@ public class PlaybackServiceOperationsTest {
 
         expect(playbackServiceOperations
                 .buildHLSUrlForTrack(Urn.forTrack(123L)))
-                .toEqual("https://somehost/path/tracks/soundcloud:sounds:123/streams/hls?oauth_token=access");
+                .toEqual("https://somehost/path/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access");
     }
 }

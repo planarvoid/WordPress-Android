@@ -3,13 +3,13 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -137,7 +137,7 @@ public class AdsController {
     private final class PlayQueueSubscriber extends DefaultSubscriber<Object> {
         @Override
         public void onNext(Object event) {
-            final TrackUrn nextTrackUrn = playQueueManager.getNextTrackUrn();
+            final Urn nextTrackUrn = playQueueManager.getNextTrackUrn();
             currentObservable = trackOperations.track(nextTrackUrn)
                     .filter(IS_MONETIZABLE)
                     .mergeMap(fetchAudioAd)
@@ -148,9 +148,9 @@ public class AdsController {
 
     private final class AudioAdSubscriber extends DefaultSubscriber<AudioAd> {
         private final int intendedPosition;
-        private final TrackUrn monetizableTrack;
+        private final Urn monetizableTrack;
 
-        AudioAdSubscriber(int intendedPosition, TrackUrn monetizableTrack) {
+        AudioAdSubscriber(int intendedPosition, Urn monetizableTrack) {
             this.intendedPosition = intendedPosition;
             this.monetizableTrack = monetizableTrack;
         }

@@ -121,7 +121,7 @@ public class SuggestionsAdapterTest {
         Urn urn = adapter.getUrn(0);
 
         expect(urn.isTrack()).toBeTrue();
-        expect(urn.numericId).toEqual(1L);
+        expect(urn.getNumericId()).toEqual(1L);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class SuggestionsAdapterTest {
         Urn urn = adapter.getUrn(0);
 
         expect(urn.isUser()).toBeTrue();
-        expect(urn.numericId).toEqual(1L);
+        expect(urn.getNumericId()).toEqual(1L);
     }
 
     @Test

@@ -1,7 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.ui.LeaveBehindController.*;
+import static com.soundcloud.android.playback.ui.LeaveBehindController.Factory;
+import static com.soundcloud.android.playback.ui.LeaveBehindController.LeaveBehindListener;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -22,7 +23,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackUrn;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -41,7 +41,7 @@ import android.view.ViewGroup;
 public class TrackPagePresenterTest {
 
     private static final int DURATION = 123456;
-    private static final TrackUrn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private Resources resources;
     @Mock private WaveformOperations waveformOperations;
@@ -143,38 +143,38 @@ public class TrackPagePresenterTest {
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET, 10, 20), true, true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET, 10, 20), true, true);
         verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithCurrentTrackDoesNotResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true, true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), true, true);
 
         verify(waveformViewController, never()).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), true, true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), true, true);
         verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false, true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false, true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), false, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TrackUrn.NOT_SET,  10, 20), false, true);
+        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), false, true);
 
         verify(waveformViewController).setProgress(PlaybackProgress.empty());
     }
@@ -261,6 +261,12 @@ public class TrackPagePresenterTest {
     public void setProgressSetsProgressOnArtworkController() {
         presenter.setProgress(trackView, playbackProgress);
         verify(artworkController).setProgress(playbackProgress);
+    }
+
+    @Test
+    public void setProgressSetsProgressOnMenuController() {
+        presenter.setProgress(trackView, playbackProgress);
+        verify(trackMenuController).setProgress(playbackProgress);
     }
 
     @Test
