@@ -72,6 +72,7 @@ public final class Urn implements Parcelable {
 
     public Urn(String content) {
         this.content = content.replaceFirst("soundcloud:sounds:", "soundcloud:tracks:");
+        // since we access this part so frequently, we're pre-caching it for faster access later on
         this.numericId = parseNumericId();
     }
 

@@ -33,6 +33,11 @@ public class UrnTest {
     }
 
     @Test
+    public void shouldNotValidateUnknownUrnAsSoundCloudUrn() {
+        expect(Urn.isSoundCloudUrn("adswizz:ads:1234")).toBeFalse();
+    }
+
+    @Test
     public void shouldParseUserUrns() throws Exception {
         Urn urn = new Urn("soundcloud:users:123");
         expect(urn.isUser()).toBeTrue();
@@ -77,6 +82,12 @@ public class UrnTest {
     public void shouldAllowUrnsWithNegativeOneIds() {
         final Urn urn = new Urn("soundcloud:tracks:-1");
         expect(urn.getNumericId()).toEqual(-1L);
+    }
+
+    @Test
+    public void shouldParseUnknownUrnsForForwardsCompatibility() {
+        Urn urn = new Urn("adswizz:ad:ABCDEF");
+        expect(urn.getNumericId()).toBe(-1L);
     }
 
     @Test
