@@ -16,6 +16,10 @@ public enum APIEndpoints {
     EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
     EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
+    SEARCH_TRACKS("/search/tracks"),
+    SEARCH_USERS("/search/users"),
+    SEARCH_PLAYLISTS("/search/playlists"),
+    SEARCH_ALL("/search/universal"),
     PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
     RELATED_TRACKS("/tracks/%s/related"),
@@ -33,10 +37,10 @@ public enum APIEndpoints {
     MY_PLAYLIST_LIKES("/e1/me/playlist_likes"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
-    SEARCH_ALL("/search"),
-    SEARCH_TRACKS("/search/sounds"),
-    SEARCH_PLAYLISTS("/search/sets"),
-    SEARCH_USERS("/search/people"),
+    LEGACY_SEARCH_ALL("/search"),
+    LEGACY_SEARCH_TRACKS("/search/sounds"),
+    LEGACY_SEARCH_PLAYLISTS("/search/sets"),
+    LEGACY_SEARCH_USERS("/search/people"),
     TRACK_COMMENTS("/tracks/%s/comments");
 
     private final String path;

@@ -79,19 +79,19 @@ class LegacySearchOperations {
     }
 
     public Observable<Page<SearchResultsCollection>> getAllSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_ALL, query);
+        return getSearchResults(APIEndpoints.LEGACY_SEARCH_ALL, query);
     }
 
     public Observable<Page<SearchResultsCollection>> getTrackSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_TRACKS, query);
+        return getSearchResults(APIEndpoints.LEGACY_SEARCH_TRACKS, query);
     }
 
     public Observable<Page<SearchResultsCollection>> getPlaylistSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_PLAYLISTS, query);
+        return getSearchResults(APIEndpoints.LEGACY_SEARCH_PLAYLISTS, query);
     }
 
     public Observable<Page<SearchResultsCollection>> getUserSearchResults(String query) {
-        return getSearchResults(APIEndpoints.SEARCH_USERS, query);
+        return getSearchResults(APIEndpoints.LEGACY_SEARCH_USERS, query);
     }
 
     private Observable<Page<SearchResultsCollection>> getSearchResults(APIEndpoints apiEndpoint, @Nullable String query) {
