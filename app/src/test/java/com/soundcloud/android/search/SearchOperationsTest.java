@@ -28,7 +28,7 @@ public class SearchOperationsTest {
     @Before
     public void setUp() {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        operations = new SearchOperations(rxHttpClient, null, null);
+        operations = new SearchOperations(rxHttpClient);
     }
 
     @Test

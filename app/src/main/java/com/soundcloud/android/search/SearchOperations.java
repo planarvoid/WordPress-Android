@@ -8,17 +8,14 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.propeller.PropertySet;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.Pager;
@@ -28,6 +25,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+// we never serialize search operations
+@SuppressFBWarnings("SE_BAD_FIELD_INNER_CLASS")
 class SearchOperations {
 
     static final int TYPE_ALL = 0;
@@ -46,41 +45,11 @@ class SearchOperations {
         }
     };
 
-    private static final Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>> FILTER_UNKOWN_RESOURCES =
-            new Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>>() {
-                @Override
-                public ModelCollection<PublicApiResource> call(ModelCollection<PublicApiResource> unfilteredResult) {
-                    List<PublicApiResource> filteredList = new ArrayList<>(Consts.LIST_PAGE_SIZE);
-                    for (PublicApiResource resource : unfilteredResult) {
-                        if (!(resource instanceof UnknownResource)) {
-                            filteredList.add(resource);
-                        }
-                    }
-                    return new ModelCollection<>(filteredList);
-                }
-            };
-
-    private final Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>> cacheResources = new Func1<ModelCollection<PublicApiResource>, ModelCollection<PublicApiResource>>() {
-        @Override
-        public ModelCollection<PublicApiResource> call(ModelCollection<PublicApiResource> results) {
-            List<PublicApiResource> cachedResults = new ArrayList<>(results.getCollection().size());
-            for (PublicApiResource resource : results) {
-                PublicApiResource cachedResource = modelManager.cache(resource, PublicApiResource.CacheUpdateMode.FULL);
-                cachedResults.add(cachedResource);
-            }
-            return new ModelCollection<>(cachedResults);
-        }
-    };
-
-    private final ScModelManager modelManager;
     private final RxHttpClient rxHttpClient;
-    private final BulkStorage bulkStorage;
 
     @Inject
-    public SearchOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage, ScModelManager modelManager) {
+    public SearchOperations(RxHttpClient rxHttpClient) {
         this.rxHttpClient = rxHttpClient;
-        this.bulkStorage = bulkStorage;
-        this.modelManager = modelManager;
     }
 
     SearchResultPager pager(int searchType) {

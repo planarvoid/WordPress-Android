@@ -3,20 +3,15 @@ package com.soundcloud.android.search;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -155,51 +150,6 @@ public class SearchResultsFragment extends DefaultFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//        PublicApiResource item = adapter.getItem(position);
-//        Context context = getActivity();
-//        if (item instanceof PublicApiTrack) {
-//            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
-//            final List<Urn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
-//            final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
-//            playbackOperations
-//                    .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()))
-//                    .subscribe(subscriberProvider.get());
-//        } else if (item instanceof PublicApiPlaylist) {
-//            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
-//            Playable playableAtPosition = ((PlayableHolder) adapter.getItems().get(position)).getPlayable();
-//            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playableAtPosition).getUrn(), getTrackingScreen());
-//        } else if (item instanceof PublicApiUser) {
-//            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
-//            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
-//        }
+        // TODO: bring it back!
     }
-
-    private List<Urn> toTrackUrn(List<? extends PlayableHolder> filter) {
-        return Lists.transform(filter, new Function<PlayableHolder, Urn>() {
-            @Override
-            public Urn apply(PlayableHolder input) {
-                return ((PublicApiTrack) input.getPlayable()).getUrn();
-            }
-        });
-    }
-
-    private List<? extends PlayableHolder> filterPlayables(List<? extends ScModel> data) {
-        return Lists.newArrayList((Iterable<? extends PlayableHolder>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE));
-    }
-
-    private Screen getTrackingScreen() {
-        switch(searchType) {
-            case SearchOperations.TYPE_ALL:
-                return Screen.SEARCH_EVERYTHING;
-            case SearchOperations.TYPE_TRACKS:
-                return Screen.SEARCH_TRACKS;
-            case SearchOperations.TYPE_PLAYLISTS:
-                return Screen.SEARCH_PLAYLISTS;
-            case SearchOperations.TYPE_USERS:
-                return Screen.SEARCH_USERS;
-            default:
-                throw new IllegalArgumentException("Query type not valid");
-        }
-    }
-
 }
