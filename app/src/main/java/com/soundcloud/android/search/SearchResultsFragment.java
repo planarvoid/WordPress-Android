@@ -3,15 +3,11 @@ package com.soundcloud.android.search;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -39,14 +35,6 @@ import java.util.List;
 public class SearchResultsFragment extends DefaultFragment
         implements ReactiveListComponent<ConnectableObservable<List<PropertySet>>> {
 
-    private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
-        @Override
-        public boolean apply(ScModel input) {
-            return input instanceof PlayableHolder &&
-                    ((PlayableHolder) input).getPlayable() instanceof PublicApiTrack;
-        }
-    };
-
     static final String EXTRA_QUERY = "query";
     static final String EXTRA_TYPE = "type";
 
@@ -60,7 +48,6 @@ public class SearchResultsFragment extends DefaultFragment
     private int searchType;
     private ConnectableObservable<List<PropertySet>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
-    private Subscription playEventSubscription = Subscriptions.empty();
     private SearchOperations.SearchResultPager pager;
 
 
@@ -87,6 +74,7 @@ public class SearchResultsFragment extends DefaultFragment
 
     private void addLifeCycleComponents() {
         addLifeCycleComponent(listViewController);
+        addLifeCycleComponent(adapter);
     }
 
     @Override
@@ -140,12 +128,6 @@ public class SearchResultsFragment extends DefaultFragment
     public void onResume() {
         super.onResume();
         adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPause() {
-        playEventSubscription.unsubscribe();
-        super.onPause();
     }
 
     @Override

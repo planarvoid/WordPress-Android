@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.FragmentLifeCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -12,13 +13,18 @@ import com.soundcloud.android.view.adapters.TrackChangedSubscriber;
 import com.soundcloud.android.view.adapters.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.View;
+
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends EndlessAdapter<PropertySet> {
+class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;
@@ -72,7 +78,8 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> {
         return 3;
     }
 
-    void onViewCreated() {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
                 // TODO: this is not gonna work because of the different Urn types
@@ -80,7 +87,53 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> {
         );
     }
 
-    void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         eventSubscriptions.unsubscribe();
+    }
+
+    @Override
+    public void onBind(Fragment owner) {
+        /* no-op */
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle bundle) {
+        /* no-op */
+    }
+
+    @Override
+    public void onStart() {
+        /* no-op */
+    }
+
+    @Override
+    public void onResume() {
+        /* no-op */
+    }
+
+    @Override
+    public void onPause() {
+        /* no-op */
+    }
+
+    @Override
+    public void onStop() {
+        /* no-op */
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        /* no-op */
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle bundle) {
+        /* no-op */
+    }
+
+    @Override
+    public void onDestroy() {
+        /* no-op */
     }
 }
