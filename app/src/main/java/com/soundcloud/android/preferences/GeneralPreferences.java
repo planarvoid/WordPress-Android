@@ -80,7 +80,7 @@ public class GeneralPreferences {
                 });
     }
 
-    @SuppressWarnings({"PMD.ExcessiveMethodLength"})
+    @SuppressWarnings({"PMD.ExcessiveMethodLength", "PMD.CyclomaticComplexity"})
     private void setupListeners(final SettingsActivity activity) {
         activity.findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
