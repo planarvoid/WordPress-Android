@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_dev_settings">
+
+        <ListPreference
+                android:key="@string/key_dev_recording_type"
+                android:title="@string/pref_dev_record_type"
+                android:summary="@string/pref_dev_record_type_desc"
+                android:defaultValue="compressed"
+                android:entries="@array/pref_dev_record_type_entries"
+                android:entryValues="@array/pref_dev_record_type_values" />
+
+        <Preference
+                android:key="@string/key_dev_clear_notifications"
+                android:title="@string/pref_dev_clear_notification"
+                android:summary="@string/pref_dev_clear_notification_summary" />
+
+        <Preference
+                android:key="@string/key_dev_rewind_notifications"
+                android:title="@string/pref_dev_rewind_notification"
+                android:summary="@string/pref_dev_rewind_notification_summary" />
+
+        <Preference
+                android:key="@string/key_dev_sync_now"
+                android:title="@string/pref_dev_sync_now"
+                android:summary="@string/pref_dev_sync_now_summary" />
+
+        <Preference
+                android:key="@string/key_dev_crash"
+                android:title="@string/pref_dev_crash"
+                android:summary="@string/pref_dev_crash_summary" />
+
+        <Preference
+                android:key="@string/key_dev_clear_recordings"
+                android:title="@string/pref_dev_clear_recordings"
+                android:summary="@string/pref_dev_clear_recordings_summary" />
+
+        <EditTextPreference
+                android:key="@string/key_dev_http_proxy"
+                android:title="@string/pref_dev_http_proxy"
+                android:summary="@string/pref_dev_http_proxy_summary" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

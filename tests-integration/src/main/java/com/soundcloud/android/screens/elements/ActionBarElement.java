@@ -4,6 +4,7 @@ package com.soundcloud.android.screens.elements;
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
+import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.WhoToFollowScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
@@ -63,6 +64,11 @@ public class ActionBarElement extends Element {
     public WhoToFollowScreen clickWhoToFollowOverflowButton() {
         testDriver.clickOnActionBarItem(R.id.action_who_to_follow);
         return new WhoToFollowScreen(testDriver);
+    }
+
+    public SettingsScreen clickSettingsOverflowButton() {
+        testDriver.clickOnActionBarItem(R.id.action_settings);
+        return new SettingsScreen(testDriver);
     }
 
     public SearchResultsScreen doSearch(String query) {

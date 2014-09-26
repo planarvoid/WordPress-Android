@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
+
+    <!-- General settings -->
+    <string name="key_account_sync">accountSyncSettings</string>
+    <string name="key_notifications">notificationSettings</string>
+    <string name="key_logout">logout</string>
+    <string name="key_analytics_enabled">analytics_enabled</string>
+    <string name="key_report_crashes">acra.enable</string>
+    <string name="key_wireless">wireless</string>
+    <string name="key_clear_image_cache">clearCache</string>
+    <string name="key_stream_cache_size">streamCacheSize</string>
+    <string name="key_clear_stream_cache">clearStreamCache</string>
+    <string name="key_help">help</string>
+    <string name="key_legal">legal</string>
+    <string name="key_version">version</string>
+
+    <!-- Account settings -->
+    <string name="key_sync_wifi_only">syncWifiOnly</string>
+    <string name="key_sync_sounds">syncMySounds</string>
+    <string name="key_sync_favorites">syncMyFavorites</string>
+    <string name="key_sync_followings">syncMyFollowings</string>
+    <string name="key_sync_followers">syncMyFollowers</string>
+
+    <!-- Notification settings -->
+    <string name="key_notifications_wifi_only">notificationsWifiOnly</string>
+    <string name="key_notifications_frequency">notificationsFrequency</string>
+    <string name="key_notifications_incoming">notificationsIncoming</string>
+    <string name="key_notifications_favoritings">notificationsFavoritings</string>
+    <string name="key_notifications_comments">notificationsComments</string>
+    <string name="key_notifications_reposts">notificationsReposts</string>
+    <string name="key_notifications_followers">notificationsFollowers</string>
+
+    <!-- Extra settings -->
+    <string name="key_force_skippy">forceSkippy</string>
+
+    <!-- Subscription settings -->
+    <string name="key_subscription_buy">buySubscription</string>
+
+    <!-- Dev settings -->
+    <string name="key_dev_recording_type">dev.defaultRecordingType</string>
+    <string name="key_dev_clear_notifications">dev.clearNotifications</string>
+    <string name="key_dev_rewind_notifications">dev.rewindNotifications</string>
+    <string name="key_dev_sync_now">dev.syncNow</string>
+    <string name="key_dev_crash">dev.crash</string>
+    <string name="key_dev_clear_recordings">dev.clearRecordings</string>
+    <string name="key_dev_http_proxy">dev.http.proxy</string>
+
+</resources>

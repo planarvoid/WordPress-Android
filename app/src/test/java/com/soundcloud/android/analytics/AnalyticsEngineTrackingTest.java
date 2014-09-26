@@ -11,7 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
@@ -22,10 +21,11 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.preferences.GeneralPreferences;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -144,7 +144,7 @@ public class AnalyticsEngineTrackingTest {
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
 
         when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderThree));
-        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingsActivity.ANALYTICS_ENABLED);
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, GeneralPreferences.ANALYTICS_ENABLED);
 
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
 

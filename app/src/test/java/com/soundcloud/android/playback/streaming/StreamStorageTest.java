@@ -6,7 +6,7 @@ import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.preferences.GeneralPreferences;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -101,13 +101,13 @@ public class StreamStorageTest {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DefaultTestRunner.application);
         Editor editor = sharedPreferences.edit();
 
-        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 0).apply();
+        editor.putInt(GeneralPreferences.STREAM_CACHE_SIZE, 0).apply();
         expect(storage.calculateUsableSpace()).toBe(0L);
 
-        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 33).apply();
+        editor.putInt(GeneralPreferences.STREAM_CACHE_SIZE, 33).apply();
         expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
 
-        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 100).apply();
+        editor.putInt(GeneralPreferences.STREAM_CACHE_SIZE, 100).apply();
         expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
     }
 

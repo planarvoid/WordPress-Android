@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_subscriptions_header">
+
+        <Preference
+                android:key="@string/key_subscription_buy"
+                android:title="@string/pref_subscription_buy_title"
+                android:summary="@string/pref_subscription_buy_summary">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.soundcloud.android"
+                android:targetClass="com.soundcloud.android.payments.PaymentsActivity" />
+        </Preference>
+
+    </PreferenceCategory>
+</PreferenceScreen>

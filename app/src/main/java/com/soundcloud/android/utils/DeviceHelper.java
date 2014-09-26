@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.R;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -55,6 +56,11 @@ public class DeviceHelper {
     public String getAppVersion() {
         PackageInfo packageInfo = getPackageInfo();
         return packageInfo != null ? packageInfo.versionName : UNKNOWN_VERSION;
+    }
+
+    public String getUserVisibleVersion() {
+        PackageInfo packageInfo = getPackageInfo();
+        return packageInfo != null ? packageInfo.versionName : context.getString(R.string.unavailable);
     }
 
     public int getAppVersionCode() {

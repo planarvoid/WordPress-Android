@@ -1,36 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
-                android:title="@string/pref_sync_wifi_only"
-                android:summary="@string/pref_sync_wifi_only_description"
-                android:key="syncWifiOnly"
-                android:defaultValue="false"/>
+            android:key="@string/key_sync_wifi_only"
+            android:title="@string/pref_sync_wifi_only"
+            android:summary="@string/pref_sync_wifi_only_description"
+            android:defaultValue="false" />
     <PreferenceCategory android:title="@string/pref_sync_toggles">
         <CheckBoxPreference
+                android:key="@string/key_sync_sounds"
                 android:title="@string/pref_sync_my_sounds"
                 android:summary="@string/pref_sync_my_sounds_description"
-                android:key="syncMySounds"
-                android:defaultValue="true"/>
+                android:defaultValue="true" />
 
         <CheckBoxPreference
+                android:key="@string/key_sync_favorites"
                 android:title="@string/pref_sync_my_likes"
                 android:summary="@string/pref_sync_my_likes_description"
-                android:key="syncMyFavorites"
-                android:defaultValue="true"/>
+                android:defaultValue="true" />
         <CheckBoxPreference
+                android:key="@string/key_sync_followings"
                 android:title="@string/pref_sync_my_following"
                 android:summary="@string/pref_sync_my_following_description"
-                android:key="syncMyFollowings"
-                android:defaultValue="true"/>
+                android:defaultValue="true" />
 
         <CheckBoxPreference
+                android:key="@string/key_sync_followers"
                 android:title="@string/pref_sync_my_followers"
                 android:summary="@string/pref_sync_my_followers_description"
-                android:key="syncMyFollowers"
-                android:defaultValue="true"/>
+                android:defaultValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>

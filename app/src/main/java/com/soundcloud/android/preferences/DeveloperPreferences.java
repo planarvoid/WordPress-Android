@@ -26,8 +26,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class DeveloperPreferences {
-    public static final String PREF_KEY = "dev-settings";
 
+    // TODO: Currently these constants must match the values in settings_keys.xml - refactor!
     public static final String DEV_CLEAR_NOTIFICATIONS = "dev.clearNotifications";
     public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
     public static final String DEV_SYNC_NOW = "dev.syncNow";
@@ -37,7 +37,6 @@ public class DeveloperPreferences {
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
 
-
     private final SoundCloudApplication application;
 
     @Inject
@@ -46,6 +45,11 @@ public class DeveloperPreferences {
     }
 
     public void setup(final PreferenceActivity activity) {
+        activity.addPreferencesFromResource(R.xml.settings_dev);
+        setupListeners(activity);
+    }
+
+    private void setupListeners(final PreferenceActivity activity) {
         activity.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override

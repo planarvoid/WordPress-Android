@@ -276,6 +276,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".creators.upload.LocationPickerActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
+
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
@@ -301,13 +303,12 @@
         <activity android:label="@string/title_notification_settings" android:name=".preferences.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="@string/title_about" android:name=".preferences.AboutActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="@string/title_legal" android:name=".preferences.LegalActivity" android:theme="@style/Theme.SoundCloud"/>
-
-        <!-- settings -->
-
-        <activity android:name=".creators.upload.LocationPickerActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
-
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
+
+        <!-- payments -->
+
+        <activity android:name=".payments.PaymentsActivity" android:label="@string/title_subscribe" />
 
         <!-- for testing purposes -->
 

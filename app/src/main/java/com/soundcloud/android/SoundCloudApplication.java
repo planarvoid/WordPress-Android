@@ -25,7 +25,7 @@ import com.soundcloud.android.playback.service.PlaybackServiceModule;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
-import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.preferences.GeneralPreferences;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
@@ -309,7 +309,7 @@ public class SoundCloudApplication extends Application {
 
     boolean isReportingCrashes() {
         return ApplicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(SettingsActivity.CRASH_REPORTING_ENABLED, false);
+                sharedPreferences.getBoolean(GeneralPreferences.CRASH_REPORTING_ENABLED, false);
     }
 
 }

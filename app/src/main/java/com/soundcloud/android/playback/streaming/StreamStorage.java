@@ -4,7 +4,7 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.preferences.GeneralPreferences;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
@@ -372,7 +372,7 @@ public class StreamStorage {
 
         int percentageOfExternal = PreferenceManager
                 .getDefaultSharedPreferences(mContext)
-                .getInt(SettingsActivity.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
+                .getInt(GeneralPreferences.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
 
         if (percentageOfExternal < 0) {
             percentageOfExternal = 0;

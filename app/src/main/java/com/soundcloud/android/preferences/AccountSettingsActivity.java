@@ -14,7 +14,7 @@ public class AccountSettingsActivity extends ScSettingsActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.account_settings);
+        addPreferencesFromResource(R.xml.settings_account);
     }
 
     @Override

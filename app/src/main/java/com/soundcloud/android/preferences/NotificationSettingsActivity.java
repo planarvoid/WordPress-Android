@@ -29,7 +29,7 @@ public class NotificationSettingsActivity extends ScSettingsActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
-        addPreferencesFromResource(R.xml.notifications_settings);
+        addPreferencesFromResource(R.xml.settings_notifications);
 
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
             if (getPreferenceScreen().getPreference(i) instanceof PreferenceCategory) {
