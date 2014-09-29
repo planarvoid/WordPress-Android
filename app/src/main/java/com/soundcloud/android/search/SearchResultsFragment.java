@@ -5,9 +5,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.main.DefaultFragment;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -91,7 +89,7 @@ public class SearchResultsFragment extends DefaultFragment
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
         final String query = getArguments().getString(EXTRA_QUERY);
-        final Observable<ModelCollection<PropertySetSource>> observable = searchOperations.getSearchResult(query, searchType);
+        final Observable<SearchResult> observable = searchOperations.getSearchResult(query, searchType);
         return pager
                 .page(observable).map(SearchOperations.TO_PROPERTY_SET)
                 .observeOn(mainThread()).replay();

@@ -51,4 +51,16 @@ public class UniversalSearchResult implements PropertySetSource {
     public void setTrack(ApiTrack track) {
         this.track = track;
     }
+
+    public boolean isUser() {
+        return user != null;
+    }
+
+    public boolean isPlaylist() {
+        return playlist != null;
+    }
+
+    public boolean isTrack() {
+        return track != null;
+    }
 }
