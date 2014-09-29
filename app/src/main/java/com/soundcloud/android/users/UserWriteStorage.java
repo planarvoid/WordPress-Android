@@ -10,6 +10,7 @@ import rx.Observable;
 
 import android.content.ContentValues;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class UserWriteStorage {
 
     private final DatabaseScheduler scheduler;
 
+    @Inject
     public UserWriteStorage(DatabaseScheduler databaseScheduler) {
         this.scheduler = databaseScheduler;
     }
