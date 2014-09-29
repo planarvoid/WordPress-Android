@@ -130,7 +130,7 @@ class SearchOperations {
         return getSearchResultObservable(searchType, builder);
     }
 
-    Observable<SearchResult> getSearchResult(Link link, int searchType) {
+    private Observable<SearchResult> getSearchResult(Link link, int searchType) {
         final SearchConfig config = configForType(searchType);
         config.path = link.getHref();
         final RequestBuilder<?> builder = createSearchRequestBuilder(config);
@@ -153,31 +153,30 @@ class SearchOperations {
         }
     }
 
-    private <T extends PropertySetSource> SearchConfig<T> configForType(int searchType) {
+    private SearchConfig configForType(int searchType) {
         switch (searchType) {
             case TYPE_ALL:
-                return new SearchConfig<>(APIEndpoints.SEARCH_ALL.path(), new TypeToken<ModelCollection<UniversalSearchResult>>() {
+                return new SearchConfig(APIEndpoints.SEARCH_ALL.path(), new TypeToken<ModelCollection<UniversalSearchResult>>() {
                 });
             case TYPE_TRACKS:
-                return new SearchConfig<>(APIEndpoints.SEARCH_TRACKS.path(), new TypeToken<ModelCollection<ApiTrack>>() {
+                return new SearchConfig(APIEndpoints.SEARCH_TRACKS.path(), new TypeToken<ModelCollection<ApiTrack>>() {
                 });
             case TYPE_PLAYLISTS:
-                return new SearchConfig<>(APIEndpoints.SEARCH_PLAYLISTS.path(), new TypeToken<ModelCollection<ApiPlaylist>>() {
+                return new SearchConfig(APIEndpoints.SEARCH_PLAYLISTS.path(), new TypeToken<ModelCollection<ApiPlaylist>>() {
                 });
             case TYPE_USERS:
-                return new SearchConfig<>(APIEndpoints.SEARCH_USERS.path(), new TypeToken<ModelCollection<ApiUser>>() {
+                return new SearchConfig(APIEndpoints.SEARCH_USERS.path(), new TypeToken<ModelCollection<ApiUser>>() {
                 });
             default:
                 throw new IllegalStateException("Unknown search type");
         }
     }
 
-    private <T>
-    RequestBuilder<T> createSearchRequestBuilder(SearchConfig config) {
-        return RequestBuilder.<T>get(config.path)
+    private RequestBuilder createSearchRequestBuilder(SearchConfig config) {
+        return RequestBuilder.get(config.path)
                 .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
                 .forPrivateAPI(1)
-                .forResource(config.apiUserClass);
+                .forResource(config.typeToken);
     }
 
     class SearchResultPager extends Pager<SearchResult> {
@@ -198,14 +197,14 @@ class SearchOperations {
         }
     }
 
-    static class SearchConfig<T extends PropertySetSource> {
+    static class SearchConfig {
 
-        private final TypeToken apiUserClass;
+        private final TypeToken typeToken;
         private String path;
 
-        public SearchConfig(String path, TypeToken apiUserClass) {
+        public SearchConfig(String path, TypeToken typeToken) {
             this.path = path;
-            this.apiUserClass = apiUserClass;
+            this.typeToken = typeToken;
         }
     }
 }
