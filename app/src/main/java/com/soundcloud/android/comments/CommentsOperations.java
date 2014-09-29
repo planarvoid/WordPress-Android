@@ -50,12 +50,12 @@ class CommentsOperations {
         return pager;
     }
 
-    Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long position) {
+    Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long timestamp) {
 
         final APIRequest request = RequestBuilder.<PublicApiComment>post(APIEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .forPublicAPI()
                 .forResource(TypeToken.of(PublicApiComment.class))
-                .withContent(new CommentHolder(commentText, position))
+                .withContent(new CommentHolder(commentText, timestamp))
                 .build();
 
         return httpClient.fetchModels(request);
@@ -77,8 +77,9 @@ class CommentsOperations {
 
     @VisibleForTesting
     static class CommentsCollection extends CollectionHolder<PublicApiComment> {
-        @SuppressWarnings("unused") // Jackson calls this
+        @SuppressWarnings("unused")
         CommentsCollection() {
+            // Jackson calls this
         }
 
         CommentsCollection(List<PublicApiComment> comments, String nextHref) {
@@ -100,7 +101,7 @@ class CommentsOperations {
 
     public static class CommentHolder {
         @JsonProperty
-        final Map<String,String> comment;
+        final Map<String, String> comment;
 
         public CommentHolder(String body, long timestamp) {
             comment = Maps.newHashMapWithExpectedSize(2);

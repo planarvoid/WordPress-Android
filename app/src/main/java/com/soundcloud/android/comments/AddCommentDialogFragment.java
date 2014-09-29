@@ -38,18 +38,18 @@ import java.util.concurrent.TimeUnit;
 
 public class AddCommentDialogFragment extends BaseDialogFragment {
 
-    private static final String KEY_TRACK = "TRACK";
-    private static final String KEY_POSITION = "POSITION";
-    private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
+    private static final String EXTRA_TRACK = "track";
+    private static final String EXTRA_POSITION = "position";
+    private static final String EXTRA_ORIGIN_SCREEN = "origin";
 
     @Inject CommentsOperations commentsOperations;
     @Inject EventBus eventBus;
 
     public static AddCommentDialogFragment create(PropertySet track, PlaybackProgress lastProgress, String originScreen) {
         Bundle b = new Bundle();
-        b.putParcelable(KEY_TRACK, track);
-        b.putLong(KEY_POSITION, lastProgress.getPosition());
-        b.putString(KEY_ORIGIN_SCREEN, originScreen);
+        b.putParcelable(EXTRA_TRACK, track);
+        b.putLong(EXTRA_POSITION, lastProgress.getPosition());
+        b.putString(EXTRA_ORIGIN_SCREEN, originScreen);
         AddCommentDialogFragment fragment = new AddCommentDialogFragment();
         fragment.setArguments(b);
         return fragment;
@@ -61,10 +61,10 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
 
     @Override
     protected Builder build(Builder builder) {
-        final PropertySet track = getArguments().getParcelable(KEY_TRACK);
+        final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_comment_at, null);
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
-        final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(KEY_POSITION), TimeUnit.MILLISECONDS);
+        final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
         input.setHint(getString(R.string.comment_at, timeFormatted));
 
         builder.setView(dialogView);
@@ -89,9 +89,9 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
     }
 
     private void onAddComment(String commentText){
-        final PropertySet track = getArguments().getParcelable(KEY_TRACK);
+        final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
         final Urn trackUrn = track.get(TrackProperty.URN);
-        final long position = getArguments().getLong(KEY_POSITION);
+        final long position = getArguments().getLong(EXTRA_POSITION);
 
         final FragmentActivity activity = getActivity();
         bindActivity(
@@ -99,7 +99,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
                 commentsOperations.addComment(trackUrn, commentText, position)
         ).subscribe(new CommentAddedSubscriber(activity, track, eventBus));
 
-        final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
+        final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
         eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId()));
     }
 
@@ -117,7 +117,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
         }
 
         @Override
-        public void onNext(PublicApiComment playlist) {
+        public void onNext(PublicApiComment comment) {
             new UndoBar(activity)
                     .message(R.string.your_comment_has_been_posted)
                     .style(createViewCommentBarStyle())
