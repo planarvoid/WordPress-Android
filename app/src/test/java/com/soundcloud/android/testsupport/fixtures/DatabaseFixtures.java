@@ -2,17 +2,16 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.model.Urn;
 import org.hamcrest.Matchers;
 
 import android.content.ContentValues;
@@ -37,7 +36,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, track.getId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
-        cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getId());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
@@ -73,7 +72,7 @@ public class DatabaseFixtures {
     public long insertPlaylist(ApiPlaylist playlist) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, playlist.getId());
-        cv.put(TableColumns.Sounds._TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
         cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
         cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
@@ -115,7 +114,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
         cv.put(TableColumns.CollectionItems.USER_ID, userId);
-        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, CollectionStorage.CollectionItemTypes.LIKE);
         return insertInto(Table.COLLECTION_ITEMS, cv);
     }
@@ -124,7 +123,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "track");
         cv.put(TableColumns.Activities.USER_ID, track.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
@@ -135,7 +134,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "track-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
@@ -146,7 +145,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "track-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
@@ -157,7 +156,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist");
         cv.put(TableColumns.Activities.USER_ID, playlist.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
@@ -168,7 +167,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_PLAYLIST);
+        cv.put(TableColumns.Activities.SOUND_TYPE,TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
@@ -180,7 +179,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
         cv.put(TableColumns.Activities.SOUND_ID, comment.track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, Playable.DB_TYPE_TRACK);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Activities.TYPE, "comment");
         cv.put(TableColumns.Activities.USER_ID, comment.user.getId());
         cv.put(TableColumns.Activities.CREATED_AT, comment.getCreatedAt().getTime());
