@@ -24,7 +24,8 @@ release:
         tests: true
         profiles:
           - sign
-          - debug
+          - release
+          - soundcloud
           - phone-test
   hockey:
     enabled: false
