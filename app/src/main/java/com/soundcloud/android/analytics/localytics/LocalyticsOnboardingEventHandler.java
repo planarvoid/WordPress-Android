@@ -10,7 +10,7 @@ import com.soundcloud.android.utils.Log;
 import java.util.Map;
 
 public class LocalyticsOnboardingEventHandler {
-    private static final String TAG = "LocalyticsOnboardingEventHandler";
+    private static final String TAG = "LocalyticsOnboardingEH";
     private final LocalyticsSession localyticsSession;
 
     LocalyticsOnboardingEventHandler(LocalyticsSession localyticsSession) {
