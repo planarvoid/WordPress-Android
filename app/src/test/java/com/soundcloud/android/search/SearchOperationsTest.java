@@ -14,6 +14,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -37,7 +39,8 @@ public class SearchOperationsTest {
     @Mock private RxHttpClient rxHttpClient;
     @Mock private Observer<SearchResult> observer;
     @Mock private UserWriteStorage userStorage;
-    @Mock private PlaylistWriteStorage playlistStorage;
+    @Mock private PlaylistWriteStorage playlistWriteStorage;
+    @Mock private PlaylistStorage playlistStorage;
     @Mock private TrackWriteStorage trackStorage;
 
     private ApiTrack track;
@@ -53,9 +56,9 @@ public class SearchOperationsTest {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         when(userStorage.storeUsersAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
         when(trackStorage.storeTracksAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
-        when(playlistStorage.storePlaylistsAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
+        when(playlistWriteStorage.storePlaylistsAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
 
-        operations = new SearchOperations(rxHttpClient, userStorage, playlistStorage, trackStorage);
+        operations = new SearchOperations(rxHttpClient, userStorage, playlistWriteStorage, playlistStorage, trackStorage);
     }
 
     @Test
@@ -113,7 +116,7 @@ public class SearchOperationsTest {
 
         operations.getSearchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
-        verify(playlistStorage).storePlaylistsAsync(playlists);
+        verify(playlistWriteStorage).storePlaylistsAsync(playlists);
     }
 
     @Test
@@ -136,8 +139,18 @@ public class SearchOperationsTest {
         operations.getSearchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
         verify(trackStorage).storeTracksAsync(Lists.newArrayList(track));
-        verify(playlistStorage).storePlaylistsAsync(Lists.newArrayList(playlist));
+        verify(playlistWriteStorage).storePlaylistsAsync(Lists.newArrayList(playlist));
         verify(userStorage).storeUsersAsync(Lists.newArrayList(user));
+    }
+
+    @Test
+    public void shouldBackFillLikesForPlaylists() {
+        final Observable<ModelCollection<ApiPlaylist>> observable = getPlaylistCollectionObservable(Arrays.asList(playlist));
+        when(rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(any(APIRequest.class))).thenReturn(observable);
+
+        operations.getSearchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
+
+        verify(playlistStorage).backFillLikesStatus(Arrays.asList(playlist.toPropertySet()));
     }
 
     private Observable<ModelCollection<UniversalSearchResult>> getUniversalCollectionObservable(List<UniversalSearchResult> results) {

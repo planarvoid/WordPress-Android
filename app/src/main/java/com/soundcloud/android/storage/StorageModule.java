@@ -6,6 +6,7 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import dagger.Module;
 import dagger.Provides;
+import rx.Scheduler;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -38,5 +39,10 @@ public class StorageModule {
     @Provides
     public DatabaseScheduler provideDatabaseScheduler(PropellerDatabase database) {
         return new DatabaseScheduler(database, ScSchedulers.STORAGE_SCHEDULER);
+    }
+
+    @Provides
+    public Scheduler provideDatabaseScheduler() {
+        return ScSchedulers.STORAGE_SCHEDULER;
     }
 }

@@ -14,10 +14,10 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.users.UserWriteStorage;
-import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
 import rx.android.Pager;
@@ -36,17 +36,6 @@ class SearchOperations {
     static final int TYPE_PLAYLISTS = 2;
     static final int TYPE_USERS = 3;
 
-    static final Func1<SearchResult, List<PropertySet>> TO_PROPERTY_SET = new Func1<SearchResult, List<PropertySet>>() {
-        @Override
-        public List<PropertySet> call(SearchResult searchResults) {
-            List<PropertySet> propertyResults = new ArrayList<>();
-            for (PropertySetSource result : searchResults.items) {
-                propertyResults.add(result.toPropertySet());
-            }
-            return propertyResults;
-        }
-    };
-
     private static final Func1<ModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT = new Func1<ModelCollection<? extends PropertySetSource>, SearchResult>() {
         @Override
         public SearchResult call(ModelCollection<? extends PropertySetSource> propertySetSources) {
@@ -64,7 +53,7 @@ class SearchOperations {
     private final Action1<ModelCollection<ApiPlaylist>> cachePlaylists = new Action1<ModelCollection<ApiPlaylist>>() {
         @Override
         public void call(ModelCollection<ApiPlaylist> playlistsResult) {
-            fireAndForget(playlistStorage.storePlaylistsAsync(playlistsResult.getCollection()));
+            fireAndForget(playlistWriteStorage.storePlaylistsAsync(playlistsResult.getCollection()));
         }
     };
 
@@ -72,6 +61,13 @@ class SearchOperations {
         @Override
         public void call(ModelCollection<ApiUser> userResult) {
             fireAndForget(userStorage.storeUsersAsync(userResult.getCollection()));
+        }
+    };
+
+    private final Action1<SearchResult> backFillPlaylistLike = new Action1<SearchResult>() {
+        @Override
+        public void call(SearchResult searchResult) {
+            playlistStorage.backFillLikesStatus(searchResult.items);
         }
     };
 
@@ -96,7 +92,7 @@ class SearchOperations {
                 fireAndForget(userStorage.storeUsersAsync(users));
             }
             if (!playlists.isEmpty()) {
-                fireAndForget(playlistStorage.storePlaylistsAsync(playlists));
+                fireAndForget(playlistWriteStorage.storePlaylistsAsync(playlists));
             }
             if (!tracks.isEmpty()) {
                 fireAndForget(trackStorage.storeTracksAsync(tracks));
@@ -106,16 +102,19 @@ class SearchOperations {
 
     private final RxHttpClient rxHttpClient;
     private final UserWriteStorage userStorage;
-    private final PlaylistWriteStorage playlistStorage;
+    private final PlaylistWriteStorage playlistWriteStorage;
+    private final PlaylistStorage playlistStorage;
     private final TrackWriteStorage trackStorage;
 
 
     @Inject
-    public SearchOperations(RxHttpClient rxHttpClient, UserWriteStorage userStorage, PlaylistWriteStorage playlistStorage, TrackWriteStorage trackStorage) {
+    public SearchOperations(RxHttpClient rxHttpClient, UserWriteStorage userStorage, PlaylistWriteStorage playlistWriteStorage,
+                            PlaylistStorage playlistStorage, TrackWriteStorage trackStorage) {
         this.rxHttpClient = rxHttpClient;
         this.userStorage = userStorage;
-        this.playlistStorage = playlistStorage;
+        this.playlistWriteStorage = playlistWriteStorage;
         this.trackStorage = trackStorage;
+        this.playlistStorage = playlistStorage;
     }
 
     SearchResultPager pager(int searchType) {
@@ -145,7 +144,10 @@ class SearchOperations {
             case TYPE_TRACKS:
                 return rxHttpClient.<ModelCollection<ApiTrack>>fetchModels(builder.build()).doOnNext(cacheTracks).map(TO_SEARCH_RESULT);
             case TYPE_PLAYLISTS:
-                return rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(builder.build()).doOnNext(cachePlaylists).map(TO_SEARCH_RESULT);
+                return rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(builder.build())
+                        .doOnNext(cachePlaylists)
+                        .map(TO_SEARCH_RESULT)
+                        .doOnNext(backFillPlaylistLike);
             case TYPE_USERS:
                 return rxHttpClient.<ModelCollection<ApiUser>>fetchModels(builder.build()).doOnNext(cacheUsers).map(TO_SEARCH_RESULT);
             default:

@@ -15,6 +15,7 @@ import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -81,7 +82,7 @@ public class SearchResultsFragment extends DefaultFragment
 
         searchType = getArguments().getInt(EXTRA_TYPE);
         pager = searchOperations.pager(searchType);
-        listViewController.setAdapter(adapter, pager, SearchOperations.TO_PROPERTY_SET);
+        listViewController.setAdapter(adapter, pager);
 
         connectObservable(buildObservable());
     }
@@ -91,7 +92,12 @@ public class SearchResultsFragment extends DefaultFragment
         final String query = getArguments().getString(EXTRA_QUERY);
         final Observable<SearchResult> observable = searchOperations.getSearchResult(query, searchType);
         return pager
-                .page(observable).map(SearchOperations.TO_PROPERTY_SET)
+                .page(observable).map(new Func1<SearchResult, List<PropertySet>>() {
+                    @Override
+                    public List<PropertySet> call(SearchResult searchResult) {
+                        return searchResult.items;
+                    }
+                })
                 .observeOn(mainThread()).replay();
     }
 
