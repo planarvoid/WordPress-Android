@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PaymentScreen;
 import com.soundcloud.android.screens.SettingsScreen;
@@ -21,6 +22,7 @@ public class PaymentsTest extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
+        setDependsOn(Feature.PAYMENTS);
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
