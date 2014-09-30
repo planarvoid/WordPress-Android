@@ -50,6 +50,7 @@ public class NavigationDrawerFragmentTest {
         fragment = new NavigationDrawerFragment(imageOperations, accountOperations, eventBus);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setView(view);
+        Robolectric.shadowOf(fragment).setAttached(true);
         when(activity.findViewById(R.id.drawer_layout)).thenReturn(drawerLayout);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
 

@@ -9,7 +9,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -32,9 +31,7 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class NavigationDrawerFragment extends NavigationFragment {
 
-    @Nullable
     private ActionBarDrawerToggle drawerToggle;
-    @Nullable
     private DrawerLayout drawerLayout;
 
     private Subscription subscription = Subscriptions.empty();
@@ -51,6 +48,8 @@ public class NavigationDrawerFragment extends NavigationFragment {
         this.eventBus = eventBus;
     }
 
+    // View initialization needs to be here since the fragment relies on views owned by the activity. We should just
+    // rewrite this guy to not be a fragment, as this is really backwards.
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -63,6 +62,51 @@ public class NavigationDrawerFragment extends NavigationFragment {
         subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerExpansionSubscriber());
     }
 
+    private DrawerLayout setupDrawerLayout() {
+        DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerShadow(R.drawable.shadow_right, GravityCompat.START);
+        setupDrawerToggle(drawerLayout);
+        return drawerLayout;
+    }
+
+    private void setupDrawerToggle(final DrawerLayout drawerLayout) {
+        drawerToggle = new ActionBarDrawerToggle(
+                getActivity(),                    /* host Activity */
+                drawerLayout,                    /* DrawerLayout object */
+                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
+                R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
+                R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
+        ) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                if (!isAttached()) {
+                    return;
+                }
+                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                if (!isAttached()) {
+                    return;
+                }
+                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_DRAWER.get());
+            }
+        };
+
+        // Defer code dependent on restoration of previous instance state.
+        drawerLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                drawerToggle.syncState();
+            }
+        });
+        drawerLayout.setDrawerListener(drawerToggle);
+    }
+
     @Override
     public void onDestroyView() {
         subscription.unsubscribe();
@@ -73,17 +117,19 @@ public class NavigationDrawerFragment extends NavigationFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Forward the new configuration the drawer toggle component.
-        if (drawerToggle != null) {
+        if (isAttached()) {
             drawerToggle.onConfigurationChanged(newConfig);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle != null && drawerToggle.onOptionsItemSelected(item)) {
-            return true;
+        if (isAttached()) {
+            if (drawerToggle.onOptionsItemSelected(item)) {
+                return true;
+            }
+            closeDrawer();
         }
-        closeDrawer();
         return super.onOptionsItemSelected(item);
     }
 
@@ -103,11 +149,11 @@ public class NavigationDrawerFragment extends NavigationFragment {
     }
 
     public boolean isDrawerOpen() {
-        return drawerLayout != null && drawerLayout.isDrawerOpen(getView());
+        return isAttached() && drawerLayout.isDrawerOpen(getView());
     }
 
     public void closeDrawer() {
-        if (drawerLayout != null && isDrawerOpen()) {
+        if (isDrawerOpen()) {
             drawerLayout.closeDrawer(getView());
         }
     }
@@ -131,13 +177,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
         actionBar.setHomeButtonEnabled(true);
     }
 
-    private DrawerLayout setupDrawerLayout() {
-        DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
-        drawerLayout.setDrawerShadow(R.drawable.shadow_right, GravityCompat.START);
-        setupDrawerToggle(drawerLayout);
-        return drawerLayout;
-    }
-
     /**
      * Per the navigation drawer design guidelines, updates the action bar to show the global app
      * 'context', rather than just what's in the current screen.
@@ -148,57 +187,19 @@ public class NavigationDrawerFragment extends NavigationFragment {
         actionBar.setTitle(R.string.app_name);
     }
 
-    private void setupDrawerToggle(final DrawerLayout drawerLayout) {
-        drawerToggle = new ActionBarDrawerToggle(
-                getActivity(),                    /* host Activity */
-                drawerLayout,                    /* DrawerLayout object */
-                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
-                R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
-                R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
-        ) {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                if (!isAdded()) {
-                    return;
-                }
-                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                if (!isAdded()) {
-                    return;
-                }
-                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_DRAWER.get());
-            }
-        };
-
-        // Defer code dependent on restoration of previous instance state.
-        drawerLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                drawerToggle.syncState();
-            }
-        });
-        drawerLayout.setDrawerListener(drawerToggle);
-    }
-
-    private void setDrawerLockMode(int lockMode) {
-        if (drawerLayout != null) {
-            drawerLayout.setDrawerLockMode(lockMode);
-        }
+    private boolean isAttached() {
+        return isAdded() && drawerLayout != null;
     }
 
     private final class PlayerExpansionSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         @Override
         public void onNext(PlayerUIEvent event) {
-            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
-                setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
-                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            if (isAttached()) {
+                if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                } else if (event.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                }
             }
         }
     }
