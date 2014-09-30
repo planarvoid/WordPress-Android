@@ -107,7 +107,7 @@
             <properties>
                 <build.type>release</build.type>
                 <build.debuggable>false</build.debuggable>
-                <keystore.location>${project.basedir}/../app/soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
                 <build.proguard.skip>false</build.proguard.skip>
             </properties>
