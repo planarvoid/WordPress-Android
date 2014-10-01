@@ -34,7 +34,9 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
     @Override
     public void setUp() throws Exception {
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
+
         super.setUp();
+        setSkipOnReleaseBuild();
 
         playMonetizablePlaylist();
     }
