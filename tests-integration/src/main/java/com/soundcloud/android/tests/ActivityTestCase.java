@@ -26,6 +26,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected Waiter waiter;
 
     private Feature dependency;
+    private boolean skipOnReleaseBuild;
 
     protected Han solo;
 
@@ -116,8 +117,12 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         this.dependency = dependency;
     }
 
+    protected void setSkipOnReleaseBuild() {
+        skipOnReleaseBuild = applicationProperties.isReleaseBuild();
+    }
+
     protected boolean shouldSkip() {
-        return dependency != null && getFeatureFlags().isDisabled(dependency);
+        return skipOnReleaseBuild || (dependency != null && getFeatureFlags().isDisabled(dependency));
     }
 
     private FeatureFlags getFeatureFlags() {
