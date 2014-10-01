@@ -78,12 +78,6 @@ public class PlayerWithAds extends ActivityTestCase<MainActivity> {
         assertThat(adTrackTitle, is(not(equalTo(playerElement.getTrackTitle()))));
     }
 
-    public void testFinishAdShouldShowLeaveBehind() {
-        swipeToAd();
-        playerElement.waitForLeaveBehind();
-        assertThat(playerElement.leaveBehind(), is(visible()));
-    }
-
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
         swipeToAd();
         playerElement.clickArtwork();
