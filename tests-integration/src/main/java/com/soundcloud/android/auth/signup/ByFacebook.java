@@ -15,7 +15,6 @@ public class ByFacebook extends SignUpTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        setSkipOnReleaseBuild();
     }
 
     public void testUserFollowSingleSuccess() throws Exception {

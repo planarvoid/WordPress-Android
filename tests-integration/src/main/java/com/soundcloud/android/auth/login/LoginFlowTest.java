@@ -34,8 +34,6 @@ public class LoginFlowTest extends LoginTestCase {
 
         menuScreen      = new MenuScreen(solo);
         waiter          = new Waiter(solo);
-
-        setSkipOnReleaseBuild();
     }
 
     /*
