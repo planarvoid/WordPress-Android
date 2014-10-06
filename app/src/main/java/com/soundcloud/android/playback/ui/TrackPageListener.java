@@ -38,7 +38,7 @@ class TrackPageListener extends PageListener {
 
     public void onToggleLike(boolean isLike, Urn trackUrn) {
         fireAndForget(associationOperations.toggleLike(trackUrn, isLike));
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(), trackUrn));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(), trackUrn));
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {
@@ -47,7 +47,7 @@ class TrackPageListener extends PageListener {
                 .subscribe(startProfileActivity(activityContext, userUrn));
 
         requestPlayerCollapse();
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN));
     }
 
     public void onScrub(int newScrubState) {

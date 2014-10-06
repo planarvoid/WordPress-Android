@@ -29,7 +29,7 @@ public class EventTracker {
         this.handlerFactory = handlerFactory;
     }
 
-    public void trackEvent(TrackingEvent event) {
+    public void trackEvent(TrackingRecord event) {
         Log.d(TAG, "New tracking event: " + event.toString());
         createHandlerIfNecessary();
 

@@ -166,7 +166,7 @@ public class ProfileActivity extends ScActivity implements
                     @Override
                     public void onClick(View v) {
                         toggleFollowing(user);
-                        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
+                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleFollow(toggleFollow.isChecked(),
                                 Screen.USER_HEADER.get(), user.getId()));
                     }
                 });

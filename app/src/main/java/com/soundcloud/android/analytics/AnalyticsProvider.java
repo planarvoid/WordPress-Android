@@ -7,9 +7,8 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 
 /**
  * Implementations of this interface will be sending information to a specific analytics provider
@@ -40,13 +39,6 @@ public interface AnalyticsProvider {
     void handleScreenEvent(String screenTag);
 
     /**
-     * Signals to the analytics provider that a playback event has occurred
-     *
-     * @param eventData what the playback event consisted of
-     */
-    void handlePlaybackSessionEvent(PlaybackSessionEvent eventData);
-
-    /**
      * Signals to the analytics provider that a playback performance event has occurred
      *
      * @param eventData what the playback performance event consisted of
@@ -68,13 +60,6 @@ public interface AnalyticsProvider {
     void handlePlayControlEvent(PlayControlEvent eventData);
 
     /**
-     * Signals to the analytics provider that a UI event has occurred
-     *
-     * @param event ui event information
-     */
-    void handleUIEvent(UIEvent event);
-
-    /**
      * Signals to the analytics provider that a onboarding event has occurred
      *
      * @param event onboarding event information
@@ -94,4 +79,6 @@ public interface AnalyticsProvider {
      * @param event visual ad event information
      */
     void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event);
+
+    void handleTrackingEvent(TrackingEvent event);
 }

@@ -7,9 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.TrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -27,7 +27,7 @@ public class PlayCountAnalyticsProviderTest {
 
     @Mock EventTracker eventTracker;
     @Mock PlayCountUrlBuilder urlBuilder;
-    @Captor ArgumentCaptor<TrackingEvent> trackingEventCaptor;
+    @Captor ArgumentCaptor<TrackingRecord> trackingEventCaptor;
 
     @Before
     public void setup() {
@@ -39,7 +39,7 @@ public class PlayCountAnalyticsProviderTest {
         PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(0);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
-        provider.handlePlaybackSessionEvent(sessionEvent);
+        provider.handleTrackingEvent(sessionEvent);
 
         verify(eventTracker).trackEvent(trackingEventCaptor.capture());
         expect(trackingEventCaptor.getValue().getBackend()).toEqual(PlayCountAnalyticsProvider.BACKEND_NAME);
@@ -51,7 +51,7 @@ public class PlayCountAnalyticsProviderTest {
     public void shouldNotTrackStopEventsAgainstPlayCounts() throws CreateModelException {
         PlaybackSessionEvent stopEvent = TestEvents.playbackSessionStopEvent();
 
-        provider.handlePlaybackSessionEvent(stopEvent);
+        provider.handleTrackingEvent(stopEvent);
 
         verifyZeroInteractions(eventTracker);
     }
@@ -61,7 +61,7 @@ public class PlayCountAnalyticsProviderTest {
         PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(0);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
-        provider.handlePlaybackSessionEvent(sessionEvent);
+        provider.handleTrackingEvent(sessionEvent);
 
         verify(eventTracker).flush(PlayCountAnalyticsProvider.BACKEND_NAME);
     }
@@ -71,9 +71,9 @@ public class PlayCountAnalyticsProviderTest {
         PlaybackSessionEvent sessionEvent = TestEvents.playbackSessionPlayEventWithProgress(1);
         when(urlBuilder.buildUrl(sessionEvent)).thenReturn("url");
 
-        provider.handlePlaybackSessionEvent(sessionEvent);
+        provider.handleTrackingEvent(sessionEvent);
 
-        verify(eventTracker, never()).trackEvent(any(TrackingEvent.class));
+        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
     }
 
     @Test

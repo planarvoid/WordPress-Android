@@ -11,7 +11,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 
 import android.content.Context;
 
@@ -48,15 +48,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     public void handleScreenEvent(String screenTag) {}
 
     @Override
-    public void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
-        if (event.isPlayEvent()) {
-            comScore.onUxActive();
-        } else if (event.isStopEvent()) {
-            comScore.onUxInactive();
-        }
-    }
-
-    @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {}
 
     @Override
@@ -66,9 +57,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     public void handlePlayControlEvent(PlayControlEvent eventData) {}
 
     @Override
-    public void handleUIEvent(UIEvent event) {}
-
-    @Override
     public void handleOnboardingEvent(OnboardingEvent event) {}
 
     @Override
@@ -76,4 +64,19 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
+
+    @Override
+    public void handleTrackingEvent(TrackingEvent event) {
+        if (event instanceof PlaybackSessionEvent) {
+            handlePlaybackSessionEvent((PlaybackSessionEvent) event);
+        }
+    }
+
+    private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
+        if (event.isPlayEvent()) {
+            comScore.onUxActive();
+        } else if (event.isStopEvent()) {
+            comScore.onUxInactive();
+        }
+    }
 }

@@ -9,15 +9,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,15 +128,14 @@ public class AnalyticsEngineEventFlushingTest {
     }
 
     @Test
-    public void shouldScheduleFlushesFromPlaybackEvents() throws CreateModelException {
-        PlaybackSessionEvent playEvent = TestEvents.playbackSessionPlayEvent();
-        eventBus.publish(EventQueue.PLAYBACK_SESSION, playEvent);
+    public void shouldScheduleFlushesFromTrackingEvents() throws CreateModelException {
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromUIEvents() {
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromComment("screen", 1L));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment("screen", 1L));
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

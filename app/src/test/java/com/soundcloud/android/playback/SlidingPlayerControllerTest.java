@@ -15,6 +15,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -223,7 +224,7 @@ public class SlidingPlayerControllerTest {
 
         controller.onPanelCollapsed(slidingPanel);
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE);
         expect(event.getKind()).toEqual(expected.getKind());
         expect(event.getAttributes()).toEqual(expected.getAttributes());
@@ -236,7 +237,7 @@ public class SlidingPlayerControllerTest {
 
         controller.onPanelExpanded(slidingPanel);
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expected = UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER);
         expect(event.getKind()).toEqual(expected.getKind());
         expect(event.getAttributes()).toEqual(expected.getAttributes());
@@ -359,7 +360,7 @@ public class SlidingPlayerControllerTest {
 
         controller.handleBackPressed();
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());

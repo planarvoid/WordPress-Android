@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.promoted;
 
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.TrackingEvent;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 
 import javax.inject.Inject;
@@ -50,21 +51,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
-        if (event.isAd()) {
-            trackAdPlayback(event);
-        }
-    }
-
-    private void trackAdPlayback(PlaybackSessionEvent event) {
-        if (event.isFirstPlay()) {
-            trackAllUrls(event.getTimeStamp(), event.getAudioAdImpressionUrls());
-        } else if (event.hasTrackFinished()) {
-            trackAllUrls(event.getTimeStamp(), event.getAudioAdFinishUrls());
-        }
-    }
-
-    @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
 
     }
@@ -77,24 +63,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handlePlayControlEvent(PlayControlEvent eventData) {
 
-    }
-
-    @Override
-    public void handleUIEvent(UIEvent event) {
-
-        List<String> urls;
-        switch (event.getKind()) {
-            case AUDIO_AD_CLICK:
-                urls = event.getAudioAdClickthroughUrls();
-                break;
-            case SKIP_AUDIO_AD_CLICK:
-                urls = event.getAudioAdSkipUrls();
-                break;
-            default:
-                return;
-        }
-
-        trackAllUrls(event.getTimestamp(), urls);
     }
 
     @Override
@@ -112,9 +80,44 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
         trackAllUrls(event.getTimeStamp(), event.getImpressionUrls());
     }
 
+    @Override
+    public void handleTrackingEvent(TrackingEvent event) {
+        if (event instanceof PlaybackSessionEvent) {
+            handlePlaybackSessionEvent((PlaybackSessionEvent) event);
+        } else if (event instanceof UIEvent) {
+            handleUIEvent((UIEvent) event);
+        }
+    }
+
+    private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
+        if (event.isAd()) {
+            if (event.isFirstPlay()) {
+                trackAllUrls(event.getTimeStamp(), event.getAudioAdImpressionUrls());
+            } else if (event.hasTrackFinished()) {
+                trackAllUrls(event.getTimeStamp(), event.getAudioAdFinishUrls());
+            }
+        }
+    }
+
+    private void handleUIEvent(UIEvent event) {
+        List<String> urls;
+        switch (event.getKind()) {
+            case UIEvent.KIND_AUDIO_AD_CLICK:
+                urls = event.getAudioAdClickthroughUrls();
+                break;
+            case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
+                urls = event.getAudioAdSkipUrls();
+                break;
+            default:
+                return;
+        }
+
+        trackAllUrls(event.getTimeStamp(), urls);
+    }
+
     private void trackAllUrls(long timeStamp, List<String> urls) {
         for (String url : urls) {
-            eventTracker.trackEvent(new TrackingEvent(timeStamp, BACKEND_NAME, url));
+            eventTracker.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
         }
     }
 }

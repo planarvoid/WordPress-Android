@@ -45,8 +45,8 @@ public class CommentAddedSubscriberTest {
     public void onUndoPublishesViewCommentTrackingEvent() throws Exception {
         commentAddedSubscriber.onUndo(null);
 
-        expect(eventBus.lastEventOn(EventQueue.UI_TRACKING).getKind()).toEqual(UIEvent.Kind.PLAYER_CLOSE);
-        expect(eventBus.lastEventOn(EventQueue.UI_TRACKING).getAttributes().get("method")).toEqual(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toEqual(UIEvent.KIND_PLAYER_CLOSE);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING).getAttributes().get("method")).toEqual(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT);
     }
 
     @Test

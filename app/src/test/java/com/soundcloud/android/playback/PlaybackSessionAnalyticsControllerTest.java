@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -57,14 +58,14 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Test
     public void stateChangeEventDoesNotPublishEventWithInvalidTrackUrn() throws Exception {
         analyticsController.onStateTransition(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, Urn.NOT_SET));
-        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_SESSION);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() throws Exception {
         Playa.StateTransition playEvent = publishPlayingEvent();
 
-        PlaybackSessionEvent playbackSessionEvent = eventBus.firstEventOn(EventQueue.PLAYBACK_SESSION);
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
     }
@@ -86,7 +87,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         Playa.StateTransition playEvent = publishPlayingEvent();
 
-        PlaybackSessionEvent playbackSessionEvent = eventBus.firstEventOn(EventQueue.PLAYBACK_SESSION);
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         // track properties
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
@@ -107,7 +108,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         publishPlayingEvent();
         publishStopEvent(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE);
 
-        PlaybackSessionEvent playbackSessionEvent = eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION);
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         expect(playbackSessionEvent.hasTrackFinished()).toBeTrue();
         // ad specific properties
@@ -166,9 +167,10 @@ public class PlaybackSessionAnalyticsControllerTest {
         publishPlayingEventForTrack(TRACK_URN);
         publishPlayingEventForTrack(nextTrack);
 
-        List<PlaybackSessionEvent> events = eventBus.eventsOn(EventQueue.PLAYBACK_SESSION);
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         expect(events).toNumber(3);
-        expect(events.get(1).isStopEvent()).toBeTrue();
+        expect(events.get(1)).toBeInstanceOf(PlaybackSessionEvent.class);
+        expect(((PlaybackSessionEvent) events.get(1)).isStopEvent()).toBeTrue();
         expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
     }
 
@@ -186,9 +188,10 @@ public class PlaybackSessionAnalyticsControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         publishPlayingEventForTrack(nextTrack);
 
-        List<PlaybackSessionEvent> events = eventBus.eventsOn(EventQueue.PLAYBACK_SESSION);
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         expect(events).toNumber(3);
-        expect(events.get(1).isStopEvent()).toBeTrue();
+        expect(events.get(1)).toBeInstanceOf(PlaybackSessionEvent.class);
+        expect(((PlaybackSessionEvent) events.get(1)).isStopEvent()).toBeTrue();
         expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
         expect(events.get(1).get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
     }
@@ -216,7 +219,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     }
 
     protected void verifyStopEvent(int stopReason) {
-        final PlaybackSessionEvent playbackSessionEvent = eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION);
+        final PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
         expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).toEqual(USER_URN.toString());
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);

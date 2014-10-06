@@ -265,7 +265,7 @@ public class PlayerWidgetControllerTest {
         controller.handleToggleLikeAction(true);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true, "origin_screen", WIDGET_TRACK_URN);
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }

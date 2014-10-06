@@ -10,9 +10,8 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.preferences.GeneralPreferences;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -89,10 +88,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private void subscribeEventQueues() {
         Log.d(this, "Subscribing to events");
         CompositeSubscription eventsSubscription = new CompositeSubscription();
-        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_SESSION, new PlaybackEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.TRACKING, new TrackingEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
-        eventsSubscription.add(eventBus.subscribe(EventQueue.UI_TRACKING, new UIEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
@@ -153,13 +151,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    private final class PlaybackEventSubscriber extends EventSubscriber<PlaybackSessionEvent> {
-        @Override
-        protected void handleEvent(AnalyticsProvider provider, PlaybackSessionEvent event) {
-            provider.handlePlaybackSessionEvent(event);
-        }
-    }
-
     private final class PlaybackPerformanceEventSubscriber extends EventSubscriber<PlaybackPerformanceEvent> {
         @Override
         protected void handleEvent(AnalyticsProvider provider, PlaybackPerformanceEvent event) {
@@ -171,13 +162,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, PlaybackErrorEvent event) {
             provider.handlePlaybackErrorEvent(event);
-        }
-    }
-
-    private final class UIEventSubscriber extends EventSubscriber<UIEvent> {
-        @Override
-        protected void handleEvent(AnalyticsProvider provider, UIEvent event) {
-            provider.handleUIEvent(event);
         }
     }
 
@@ -199,6 +183,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, PlayControlEvent event) {
             provider.handlePlayControlEvent(event);
+        }
+    }
+
+    private final class TrackingEventSubscriber extends EventSubscriber<TrackingEvent> {
+        @Override
+        protected void handleEvent(AnalyticsProvider provider, TrackingEvent event) {
+            provider.handleTrackingEvent(event);
         }
     }
 

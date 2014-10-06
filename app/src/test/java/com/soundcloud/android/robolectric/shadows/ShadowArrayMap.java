@@ -7,6 +7,7 @@ import android.support.v4.util.SimpleArrayMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Implements(SimpleArrayMap.class)
 public class ShadowArrayMap {
@@ -36,5 +37,20 @@ public class ShadowArrayMap {
     @Implementation
     public boolean isEmpty() {
         return map.isEmpty();
+    }
+
+    @Implementation
+    public Set keySet() {
+        return map.keySet();
+    }
+
+    @Implementation
+    public boolean equals(Object o) {
+        return o.equals(map);
+    }
+
+    @Implementation
+    public int hashCode() {
+        return map.hashCode();
     }
 }

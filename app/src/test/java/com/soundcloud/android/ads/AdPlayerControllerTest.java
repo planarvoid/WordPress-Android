@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -56,7 +57,7 @@ public class AdPlayerControllerTest {
 
         resumeFromBackground();
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY);
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
@@ -80,7 +81,7 @@ public class AdPlayerControllerTest {
         resumeFromBackground();
         resumeFromBackground();
 
-        eventBus.verifyNoEventsOn(EventQueue.UI_TRACKING);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test

@@ -91,7 +91,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     @Test
     public void shouldAlwaysOpenSessionWhenReceivingStopPlaybackEvent() throws Exception {
-        localyticsProvider.handlePlaybackSessionEvent(TestEvents.playbackSessionStopEvent());
+        localyticsProvider.handleTrackingEvent(TestEvents.playbackSessionStopEvent());
         verify(localyticsSession).open();
     }
 }

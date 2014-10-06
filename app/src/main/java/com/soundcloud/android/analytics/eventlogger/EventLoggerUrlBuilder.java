@@ -5,6 +5,7 @@ import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -172,18 +173,17 @@ public class EventLoggerUrlBuilder {
                 .build().toString();
     }
 
-    public String buildForClick(UIEvent event) {
-        final Uri.Builder builder = buildUriForPath("click", event.getTimestamp());
+    public String buildForClick(TrackingEvent event) {
+        final Uri.Builder builder = buildUriForPath("click", event.getTimeStamp());
 
-        final Map<String, String> eventAttributes = event.getAttributes();
         switch (event.getKind()) {
-            case AUDIO_AD_CLICK:
-                addCommonAudioAdParams(builder, eventAttributes);
+            case UIEvent.KIND_AUDIO_AD_CLICK:
+                addCommonAudioAdParams(builder, event);
                 builder.appendQueryParameter(CLICK_NAME, "clickthrough::companion_display");
-                builder.appendQueryParameter(CLICK_TARGET, eventAttributes.get("ad_click_url"));
+                builder.appendQueryParameter(CLICK_TARGET, event.get("ad_click_url"));
                 break;
-            case SKIP_AUDIO_AD_CLICK:
-                addCommonAudioAdParams(builder, eventAttributes);
+            case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
+                addCommonAudioAdParams(builder, event);
                 builder.appendQueryParameter(CLICK_NAME, "ad::skip");
                 break;
             default:
@@ -193,12 +193,12 @@ public class EventLoggerUrlBuilder {
         return builder.toString();
     }
 
-    private void addCommonAudioAdParams(Uri.Builder builder, Map<String, String> eventAttributes) {
-        builder.appendQueryParameter(AD_URN, eventAttributes.get("ad_urn"));
+    private void addCommonAudioAdParams(Uri.Builder builder, TrackingEvent event) {
+        builder.appendQueryParameter(AD_URN, event.get("ad_urn"));
         builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
-        builder.appendQueryParameter(MONETIZED_OBJECT, eventAttributes.get("ad_monetized_urn"));
-        builder.appendQueryParameter(CLICK_OBJECT, eventAttributes.get("ad_track_urn"));
-        builder.appendQueryParameter(EXTERNAL_MEDIA, eventAttributes.get("ad_image_url"));
+        builder.appendQueryParameter(MONETIZED_OBJECT, event.get("ad_monetized_urn"));
+        builder.appendQueryParameter(CLICK_OBJECT, event.get("ad_track_urn"));
+        builder.appendQueryParameter(EXTERNAL_MEDIA, event.get("ad_image_url"));
     }
 
     // This variant generates a click event from a playback event, as the spec requires this in some cases

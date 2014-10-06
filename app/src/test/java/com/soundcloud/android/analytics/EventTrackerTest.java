@@ -22,7 +22,7 @@ public class EventTrackerTest {
 
     @Mock TrackingHandlerFactory trackingHandlerFactory;
     @Mock TrackingHandler handler;
-    @Mock TrackingEvent event;
+    @Mock TrackingRecord event;
     @Mock Message message;
     @Mock Message flushMessage;
     @Mock Message finishMessage;

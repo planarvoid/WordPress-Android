@@ -38,19 +38,19 @@ class TrackingStorage {
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
-    InsertResult insertEvent(TrackingEvent eventObject) throws UnsupportedEncodingException {
+    InsertResult insertEvent(TrackingRecord eventObject) throws UnsupportedEncodingException {
         return propeller.insert(EVENTS_TABLE, createValuesFromEvent(eventObject), SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    List<TrackingEvent> getPendingEventsForBackend(String backend) {
+    List<TrackingRecord> getPendingEventsForBackend(String backend) {
         return getPendingEvents(backend);
     }
 
-    List<TrackingEvent> getPendingEvents() {
+    List<TrackingRecord> getPendingEvents() {
         return getPendingEvents(null);
     }
 
-    private List<TrackingEvent> getPendingEvents(@Nullable String backend) {
+    private List<TrackingRecord> getPendingEvents(@Nullable String backend) {
         final Query query = Query.from(EVENTS_TABLE);
         if (backend != null) {
             query.whereEq(TrackingDbHelper.TrackingColumns.BACKEND, backend);
@@ -59,10 +59,10 @@ class TrackingStorage {
             query.limit(FIXED_BATCH_SIZE);
         }
 
-        return propeller.query(query).toList(new ResultMapper<TrackingEvent>() {
+        return propeller.query(query).toList(new ResultMapper<TrackingRecord>() {
             @Override
-            public TrackingEvent map(CursorReader reader) {
-                return new TrackingEvent(
+            public TrackingRecord map(CursorReader reader) {
+                return new TrackingRecord(
                         reader.getInt(TrackingDbHelper.TrackingColumns._ID),
                         reader.getLong(TrackingDbHelper.TrackingColumns.TIMESTAMP),
                         reader.getString(TrackingDbHelper.TrackingColumns.BACKEND),
@@ -71,10 +71,10 @@ class TrackingStorage {
         });
     }
 
-    ChangeResult deleteEvents(List<TrackingEvent> submittedEvents) {
-        final List<String> idList = Lists.transform(submittedEvents, new Function<TrackingEvent, String>() {
+    ChangeResult deleteEvents(List<TrackingRecord> submittedEvents) {
+        final List<String> idList = Lists.transform(submittedEvents, new Function<TrackingRecord, String>() {
             @Override
-            public String apply(TrackingEvent input) {
+            public String apply(TrackingRecord input) {
                 return Long.toString(input.getId());
             }
         });
@@ -85,7 +85,7 @@ class TrackingStorage {
     }
 
 
-    private ContentValues createValuesFromEvent(TrackingEvent event) throws UnsupportedEncodingException {
+    private ContentValues createValuesFromEvent(TrackingRecord event) throws UnsupportedEncodingException {
         ContentValues values = new ContentValues();
         values.put(TrackingDbHelper.TrackingColumns.BACKEND, event.getBackend());
         values.put(TrackingDbHelper.TrackingColumns.TIMESTAMP, event.getTimeStamp());

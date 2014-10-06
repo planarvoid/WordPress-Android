@@ -111,7 +111,7 @@ public class PlayerWidgetController {
         fireAndForget(trackOperations.track(currentTrackUrn)
                 .flatMap(toggleLike(isLike))
                 .observeOn(AndroidSchedulers.mainThread()));
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(),
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(),
                 currentTrackUrn));
     }
 

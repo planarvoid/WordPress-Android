@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -96,7 +97,7 @@ public class TrackPageListenerTest {
     public void onGotoUserEmitsUIEventClosePlayer() {
         listener.onGotoUser(Robolectric.application, Urn.forUser(42L));
 
-        UIEvent event = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
@@ -130,7 +131,7 @@ public class TrackPageListenerTest {
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {
-        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        TrackingEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toEqual(expectedEvent.getKind());
         expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
     }

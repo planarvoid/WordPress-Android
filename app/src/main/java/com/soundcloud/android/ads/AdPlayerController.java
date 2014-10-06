@@ -90,7 +90,7 @@ public class AdPlayerController extends DefaultActivityLifeCycle {
         @Override
         public void onNext(State event) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
             lastSeenAdTrack = event.trackUrn;
         }
     }

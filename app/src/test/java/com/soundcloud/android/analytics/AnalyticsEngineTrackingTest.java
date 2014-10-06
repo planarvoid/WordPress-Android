@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,9 +19,8 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.preferences.GeneralPreferences;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -86,30 +86,19 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
+    public void shouldTrackTrackingEvent() {
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
+
+        verify(analyticsProviderOne, times(1)).handleTrackingEvent(isA(TrackingEvent.class));
+        verify(analyticsProviderTwo, times(1)).handleTrackingEvent(isA(TrackingEvent.class));
+    }
+
+    @Test
     public void shouldTrackScreenEvent() {
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
 
         verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
         verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
-    }
-
-    @Test
-    public void shouldTrackPlaybackEvent() throws CreateModelException {
-        PlaybackSessionEvent playbackSessionEvent = TestEvents.playbackSessionPlayEvent();
-
-        eventBus.publish(EventQueue.PLAYBACK_SESSION, playbackSessionEvent);
-
-        verify(analyticsProviderOne, times(1)).handlePlaybackSessionEvent(playbackSessionEvent);
-        verify(analyticsProviderTwo, times(1)).handlePlaybackSessionEvent(playbackSessionEvent);
-    }
-
-    @Test
-    public void shouldTrackUIEvent() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 0);
-        eventBus.publish(EventQueue.UI_TRACKING, uiEvent);
-
-        verify(analyticsProviderOne, times(1)).handleUIEvent(uiEvent);
-        verify(analyticsProviderTwo, times(1)).handleUIEvent(uiEvent);
     }
 
     @Test
@@ -169,25 +158,22 @@ public class AnalyticsEngineTrackingTest {
     @Test
     public void shouldIsolateProvidersExceptions() throws CreateModelException {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne).handleTrackingEvent(any(TrackingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handleUIEvent(any(UIEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
-        eventBus.publish(EventQueue.PLAYBACK_SESSION, TestEvents.playbackSessionPlayEvent());
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromToggleFollow(true, "screen", 0));
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         eventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
         eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(PlayControlEvent.SOURCE_WIDGET));
 
-        verify(analyticsProviderTwo).handlePlaybackSessionEvent(any(PlaybackSessionEvent.class));
+        verify(analyticsProviderTwo).handleTrackingEvent(any(TrackingEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handleScreenEvent(anyString());
-        verify(analyticsProviderTwo).handleUIEvent(any(UIEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
         verify(analyticsProviderTwo).handleSearchEvent(any(SearchEvent.class));
         verify(analyticsProviderTwo).handlePlayControlEvent(any(PlayControlEvent.class));

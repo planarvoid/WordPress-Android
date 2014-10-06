@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.playcounts;
 
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.TrackingEvent;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -12,7 +12,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 
 import javax.inject.Inject;
 
@@ -51,17 +51,6 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
-        // only track the first play
-        if (eventData.isFirstPlay()) {
-            final String url = urlBuilder.buildUrl(eventData);
-            final TrackingEvent event = new TrackingEvent(eventData.getTimeStamp(), BACKEND_NAME, url);
-            eventTracker.trackEvent(event);
-            eventTracker.flush(BACKEND_NAME);
-        }
-    }
-
-    @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
 
     }
@@ -77,11 +66,6 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleUIEvent(UIEvent event) {
-
-    }
-
-    @Override
     public void handleOnboardingEvent(OnboardingEvent event) {
 
     }
@@ -93,4 +77,21 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
+
+    @Override
+    public void handleTrackingEvent(TrackingEvent event) {
+        if (event instanceof PlaybackSessionEvent) {
+            handlePlaybackSessionEvent((PlaybackSessionEvent) event);
+        }
+    }
+
+    private void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
+        // only track the first play
+        if (eventData.isFirstPlay()) {
+            final String url = urlBuilder.buildUrl(eventData);
+            final TrackingRecord event = new TrackingRecord(eventData.getTimeStamp(), BACKEND_NAME, url);
+            eventTracker.trackEvent(event);
+            eventTracker.flush(BACKEND_NAME);
+        }
+    }
 }

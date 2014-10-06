@@ -16,7 +16,7 @@ public class TrackingApiConnectionFactoryTest {
 
     @Test
     public void shouldOpenConnectionToUrlSpecifiedInEvent() throws IOException {
-        TrackingEvent event = new TrackingEvent(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, "http://url");
+        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, "http://url");
 
         HttpURLConnection connection = factory.create(event);
 
@@ -25,7 +25,7 @@ public class TrackingApiConnectionFactoryTest {
 
     @Test
     public void shouldSetupConnectionForEventLogger() throws IOException {
-        TrackingEvent event = new TrackingEvent(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, "http://url");
+        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, "http://url");
 
         HttpURLConnection connection = factory.create(event);
 
@@ -34,7 +34,7 @@ public class TrackingApiConnectionFactoryTest {
 
     @Test
     public void promotedExpectsGETRequests() throws IOException {
-        TrackingEvent event = new TrackingEvent(1L, PromotedAnalyticsProvider.BACKEND_NAME, "http://url");
+        TrackingRecord event = new TrackingRecord(1L, PromotedAnalyticsProvider.BACKEND_NAME, "http://url");
 
         HttpURLConnection connection = factory.create(event);
 
@@ -43,7 +43,7 @@ public class TrackingApiConnectionFactoryTest {
 
     @Test
     public void shouldSetupConnectionForPlayCountsTrackingViaPublicApi() throws IOException {
-        TrackingEvent event = new TrackingEvent(1L, PlayCountAnalyticsProvider.BACKEND_NAME, "http://url");
+        TrackingRecord event = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, "http://url");
 
         HttpURLConnection connection = factory.create(event);
 

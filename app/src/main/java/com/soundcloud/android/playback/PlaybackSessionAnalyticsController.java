@@ -81,7 +81,7 @@ public class PlaybackSessionAnalyticsController {
     private void publishPlayEvent(final Playa.StateTransition stateTransition) {
         currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         if (currentTrackSourceInfo != null) {
-            trackObservable.map(stateTransitionToSessionPlayEvent(stateTransition)).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
+            trackObservable.map(stateTransitionToSessionPlayEvent(stateTransition)).subscribe(eventBus.queue(EventQueue.TRACKING));
         }
     }
 
@@ -106,7 +106,7 @@ public class PlaybackSessionAnalyticsController {
 
     private void publishStopEvent(final Playa.StateTransition stateTransition, final int stopReason) {
         if (lastPlayEventData != null && currentTrackSourceInfo != null) {
-            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition)).subscribe(eventBus.queue(EventQueue.PLAYBACK_SESSION));
+            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition)).subscribe(eventBus.queue(EventQueue.TRACKING));
             lastPlayEventData = null;
             lastPlayAudioAd = null;
         }

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.TrackingEvent;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -50,13 +50,13 @@ public class PromotedAnalyticsProviderTest {
         when(playbackEvent.getTimeStamp()).thenReturn(12345L);
         when(playbackEvent.getAudioAdImpressionUrls()).thenReturn(newArrayList("url1", "url2"));
 
-        analyticsProvider.handlePlaybackSessionEvent(playbackEvent);
+        analyticsProvider.handleTrackingEvent(playbackEvent);
 
-        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
-        final List<TrackingEvent> trackingEvents = captor.getAllValues();
-        final TrackingEvent event1 = trackingEvents.get(0);
-        final TrackingEvent event2 = trackingEvents.get(1);
+        final List<TrackingRecord> trackingRecords = captor.getAllValues();
+        final TrackingRecord event1 = trackingRecords.get(0);
+        final TrackingRecord event2 = trackingRecords.get(1);
 
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(12345L);
@@ -72,17 +72,17 @@ public class PromotedAnalyticsProviderTest {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(777), 10000);
 
-        analyticsProvider.handleUIEvent(event);
+        analyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
-        List<TrackingEvent> allValues = captor.getAllValues();
+        List<TrackingRecord> allValues = captor.getAllValues();
         expect(allValues.size()).toEqual(2);
 
-        TrackingEvent adEvent = allValues.get(0);
+        TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
         expect(adEvent.getUrl()).toEqual("click1");
 
         expect(allValues.get(1).getUrl()).toEqual("click2");
@@ -93,17 +93,17 @@ public class PromotedAnalyticsProviderTest {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
         UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), 10000);
 
-        analyticsProvider.handleUIEvent(event);
+        analyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
-        List<TrackingEvent> allValues = captor.getAllValues();
+        List<TrackingRecord> allValues = captor.getAllValues();
         expect(allValues.size()).toEqual(2);
 
-        TrackingEvent adEvent = allValues.get(0);
+        TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
         expect(adEvent.getUrl()).toEqual("skip1");
 
         expect(allValues.get(1).getUrl()).toEqual("skip2");
@@ -111,10 +111,10 @@ public class PromotedAnalyticsProviderTest {
 
     @Test
     public void doesNotTrackNavigationEvents() throws Exception {
-        analyticsProvider.handleUIEvent(UIEvent.fromExploreNav());
-        analyticsProvider.handleUIEvent(UIEvent.fromLikesNav());
-        analyticsProvider.handleUIEvent(UIEvent.fromPlaylistsNav());
-        analyticsProvider.handleUIEvent(UIEvent.fromProfileNav());
+        analyticsProvider.handleTrackingEvent(UIEvent.fromExploreNav());
+        analyticsProvider.handleTrackingEvent(UIEvent.fromLikesNav());
+        analyticsProvider.handleTrackingEvent(UIEvent.fromPlaylistsNav());
+        analyticsProvider.handleTrackingEvent(UIEvent.fromProfileNav());
 
         verifyZeroInteractions(eventTracker);
     }
@@ -124,15 +124,15 @@ public class PromotedAnalyticsProviderTest {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
 
-        analyticsProvider.handlePlaybackSessionEvent(event);
+        analyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
-        List<TrackingEvent> allValues = captor.getAllValues();
+        List<TrackingRecord> allValues = captor.getAllValues();
         expect(allValues.size()).toEqual(2);
 
-        TrackingEvent adEvent = allValues.get(0);
+        TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
         expect(adEvent.getUrl()).toEqual("finish1");
@@ -149,15 +149,15 @@ public class PromotedAnalyticsProviderTest {
 
         analyticsProvider.handleAudioAdCompanionImpression(impressionEvent);
 
-        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
-        final TrackingEvent event1 = captor.getAllValues().get(0);
+        final TrackingRecord event1 = captor.getAllValues().get(0);
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(333l);
         expect(event1.getUrl()).toEqual("visual1");
 
-        final TrackingEvent event2 = captor.getAllValues().get(1);
+        final TrackingRecord event2 = captor.getAllValues().get(1);
         expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event2.getTimeStamp()).toEqual(333l);
         expect(event2.getUrl()).toEqual("visual2");

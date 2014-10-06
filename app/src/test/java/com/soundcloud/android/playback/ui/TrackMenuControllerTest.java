@@ -188,7 +188,7 @@ public class TrackMenuControllerTest {
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {
-        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.UI_TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toEqual(expectedEvent.getKind());
         expect(uiEvent.getAttributes()).toEqual(expectedEvent.getAttributes());
     }

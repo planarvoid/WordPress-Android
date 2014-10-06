@@ -32,13 +32,13 @@ class TrackingApi {
     /**
      * @return a list of successfully submitted events
      */
-    List<TrackingEvent> pushToRemote(List<TrackingEvent> events) {
+    List<TrackingRecord> pushToRemote(List<TrackingRecord> events) {
         Log.d(EventTracker.TAG, "Pushing " + events.size() + " new tracking events");
 
-        List<TrackingEvent> successes = new ArrayList<TrackingEvent>(events.size());
+        List<TrackingRecord> successes = new ArrayList<TrackingRecord>(events.size());
         HttpURLConnection connection = null;
 
-        for (TrackingEvent event : events) {
+        for (TrackingRecord event : events) {
             try {
                 connection = connectionFactory.create(event);
                 connection.setConnectTimeout(CONNECT_TIMEOUT);

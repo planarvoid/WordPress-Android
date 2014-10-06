@@ -28,11 +28,16 @@ public abstract class TrackingEvent {
         return timeStamp;
     }
 
-    public void put(String key, @Nullable String value) {
+    public TrackingEvent put(String key, @Nullable String value) {
         attributes.put(key, value);
+        return this;
     }
 
     public String get(String key) {
         return attributes.get(key);
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 }

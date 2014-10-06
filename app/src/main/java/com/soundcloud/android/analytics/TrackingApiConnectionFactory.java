@@ -16,7 +16,7 @@ public class TrackingApiConnectionFactory {
         // for Dagger
     }
 
-    public HttpURLConnection create(TrackingEvent event) throws IOException {
+    public HttpURLConnection create(TrackingRecord event) throws IOException {
         final HttpURLConnection connection = (HttpURLConnection) new URL(event.getUrl()).openConnection();
 
         if (EventLoggerAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -32,5 +33,10 @@ public class TestEvents {
                 Urn.forUser(1), "hls", new TrackSourceInfo("screen", false),
                 previousPlayEvent, stopReason, 0, 1000L);
 
+    }
+
+    public static TrackingEvent unspecifiedTrackingEvent() {
+        return new TrackingEvent("test", 123L) {
+        };
     }
 }

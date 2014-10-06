@@ -18,10 +18,9 @@ public final class EventQueue {
     public static final Queue<CurrentPlayQueueTrackEvent> PLAY_QUEUE_TRACK = Queue.of(CurrentPlayQueueTrackEvent.class).replay().get();
 
     // tracking event queues
-    public static final Queue<UIEvent> UI_TRACKING = Queue.of(UIEvent.class).get();
+    public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).get();
     public static final Queue<String> SCREEN_ENTERED = Queue.of(String.class).name("ScreenEventQueue").get();
     public static final Queue<PlayControlEvent> PLAY_CONTROL = Queue.of(PlayControlEvent.class).get();
-    public static final Queue<PlaybackSessionEvent> PLAYBACK_SESSION = Queue.of(PlaybackSessionEvent.class).get();
     public static final Queue<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = Queue.of(PlaybackPerformanceEvent.class).get();
     public static final Queue<PlaybackErrorEvent> PLAYBACK_ERROR = Queue.of(PlaybackErrorEvent.class).get();
     public static final Queue<OnboardingEvent> ONBOARDING = Queue.of(OnboardingEvent.class).get();

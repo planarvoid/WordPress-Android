@@ -62,7 +62,7 @@ class AdPageListener extends PageListener {
 
         adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_CLICKED, true);
         // track this click
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn()));
     }
 
     public void onAboutAds(FragmentActivity activity) {

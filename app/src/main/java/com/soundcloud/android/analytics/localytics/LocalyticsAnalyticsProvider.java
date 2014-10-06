@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -109,7 +110,47 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
+    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
+
+    }
+
+    @Override
+    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
+
+    }
+
+    public void handlePlayControlEvent(PlayControlEvent event) {
+        tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
+    }
+
+    private void tagEvent(String tagName, Map<String, String> attributes) {
+        logAttributes(tagName, attributes);
+        session.tagEvent(tagName, attributes);
+    }
+
+    @Override
+    public void handleOnboardingEvent(OnboardingEvent event) {
+        onboardingEventHandler.handleEvent(event);
+    }
+
+    @Override
+    public void handleSearchEvent(SearchEvent event) {
+        searchEventHandler.handleEvent(event);
+    }
+
+    @Override
+    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
+
+    @Override
+    public void handleTrackingEvent(TrackingEvent event) {
+        if (event instanceof PlaybackSessionEvent) {
+            handlePlaybackSessionEvent((PlaybackSessionEvent) event);
+        } else if (event instanceof UIEvent) {
+            uiEventHandler.handleEvent((UIEvent) event);
+        }
+    }
+
+    private void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
         if (eventData.isStopEvent()) {
             openSession();
 
@@ -135,43 +176,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }
-
-    @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-
-    }
-
-    @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-
-    }
-
-    public void handlePlayControlEvent(PlayControlEvent event) {
-        tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
-    }
-
-    private void tagEvent(String tagName, Map<String, String> attributes) {
-        logAttributes(tagName, attributes);
-        session.tagEvent(tagName, attributes);
-    }
-
-    @Override
-    public void handleUIEvent(UIEvent event) {
-        uiEventHandler.handleEvent(event);
-    }
-
-    @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
-        onboardingEventHandler.handleEvent(event);
-    }
-
-    @Override
-    public void handleSearchEvent(SearchEvent event) {
-        searchEventHandler.handleEvent(event);
-    }
-
-    @Override
-    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
 
     @VisibleForTesting
     protected boolean isActivitySessionClosed() {

@@ -100,7 +100,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
         ).subscribe(new CommentAddedSubscriber(activity, track, eventBus));
 
         final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
-        eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId()));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId()));
     }
 
     @VisibleForTesting
@@ -141,7 +141,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
         public void onUndo(Parcelable parcelable) {
             subscribeToCollapsedEvent(activity);
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT));
         }
 
         private void subscribeToCollapsedEvent(Context context) {

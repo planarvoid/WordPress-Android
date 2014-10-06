@@ -48,7 +48,7 @@ class TrackingHandler extends Handler {
             case INSERT_TOKEN:
                 try {
                     Log.d(EventTracker.TAG, "Inserting event: " + msg.obj + "\nthread=" + Thread.currentThread());
-                    final InsertResult insertResult = storage.insertEvent((TrackingEvent) msg.obj);
+                    final InsertResult insertResult = storage.insertEvent((TrackingRecord) msg.obj);
                     if (!insertResult.success()) {
                         ErrorUtils.handleSilentException(
                                 EventTracker.TAG, new Exception("error inserting tracking event " + msg.obj, insertResult.getFailure()));
@@ -78,7 +78,7 @@ class TrackingHandler extends Handler {
 
         if (networkConnectionHelper.networkIsConnected()) {
             Log.d(EventTracker.TAG, "flushing tracking events (backend = " + backend + ")");
-            List<TrackingEvent> events = backend == null ? storage.getPendingEvents() : storage.getPendingEventsForBackend(backend);
+            List<TrackingRecord> events = backend == null ? storage.getPendingEvents() : storage.getPendingEventsForBackend(backend);
 
             if (!events.isEmpty()) {
                 submitEvents(events);
@@ -88,8 +88,8 @@ class TrackingHandler extends Handler {
         }
     }
 
-    private void submitEvents(List<TrackingEvent> events) {
-        final List<TrackingEvent> submitted = api.pushToRemote(events);
+    private void submitEvents(List<TrackingRecord> events) {
+        final List<TrackingRecord> submitted = api.pushToRemote(events);
         if (!submitted.isEmpty()) {
             ChangeResult result = storage.deleteEvents(submitted);
             final int rowsDeleted = result.getNumRowsAffected();

@@ -39,10 +39,10 @@ public class TrackingHandlerTest {
 
     @Test
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
-        final TrackingEvent event1 = Mockito.mock(TrackingEvent.class);
+        final TrackingRecord event1 = Mockito.mock(TrackingRecord.class);
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.INSERT_TOKEN, event1));
 
-        final TrackingEvent event2 = Mockito.mock(TrackingEvent.class);
+        final TrackingRecord event2 = Mockito.mock(TrackingRecord.class);
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.INSERT_TOKEN, event2));
 
         InOrder inOrder = Mockito.inOrder(storage);
@@ -59,14 +59,14 @@ public class TrackingHandlerTest {
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoLocalEvents() throws Exception {
-        when(storage.getPendingEvents()).thenReturn(Collections.<TrackingEvent>emptyList());
+        when(storage.getPendingEvents()).thenReturn(Collections.<TrackingRecord>emptyList());
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verifyZeroInteractions(api);
     }
 
     @Test
     public void shouldPushAllPendingEventsToApi() {
-        final List<TrackingEvent> events = buildEvents();
+        final List<TrackingRecord> events = buildEvents();
         when(storage.getPendingEvents()).thenReturn(events);
 
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
@@ -75,7 +75,7 @@ public class TrackingHandlerTest {
 
     @Test
     public void shouldPushPendingEventsForSpecificBackendToApi() {
-        final List<TrackingEvent> events = buildEvents();
+        final List<TrackingRecord> events = buildEvents();
         when(storage.getPendingEventsForBackend("backend")).thenReturn(events);
 
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN, "backend"));
@@ -85,9 +85,9 @@ public class TrackingHandlerTest {
 
     @Test
     public void shouldNotTryToDeleteEventsIfNoEventsPushed(){
-        final List<TrackingEvent> events = buildEvents();
+        final List<TrackingRecord> events = buildEvents();
         when(storage.getPendingEvents()).thenReturn(events);
-        when(api.pushToRemote(events)).thenReturn(Collections.<TrackingEvent>emptyList());
+        when(api.pushToRemote(events)).thenReturn(Collections.<TrackingRecord>emptyList());
 
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verify(storage, never()).deleteEvents(any(List.class));
@@ -95,18 +95,18 @@ public class TrackingHandlerTest {
 
     @Test
     public void shouldDeletePushedEvents() throws Exception {
-        final List<TrackingEvent> events = buildEvents();
+        final List<TrackingRecord> events = buildEvents();
         when(storage.getPendingEvents()).thenReturn(events);
-        final List<TrackingEvent> unpushedEvents = events.subList(0, 1);
+        final List<TrackingRecord> unpushedEvents = events.subList(0, 1);
         when(api.pushToRemote(events)).thenReturn(unpushedEvents);
 
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verify(storage).deleteEvents(unpushedEvents);
     }
 
-    private List<TrackingEvent> buildEvents() {
-        final TrackingEvent event1 = new TrackingEvent(1L, 1000L, "backend", "url1");
-        final TrackingEvent event2 = new TrackingEvent(2L, 2000L, "backend", "url2");
+    private List<TrackingRecord> buildEvents() {
+        final TrackingRecord event1 = new TrackingRecord(1L, 1000L, "backend", "url1");
+        final TrackingRecord event2 = new TrackingRecord(2L, 2000L, "backend", "url2");
         return Lists.newArrayList(event1, event2);
     }
 }

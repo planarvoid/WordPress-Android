@@ -21,7 +21,7 @@ import java.util.List;
 public class TrackingApiTest {
 
     private final String eventUrl = "http://some_url.com";
-    private final TrackingEvent event = new TrackingEvent(1L, 1000L, "backend", eventUrl);
+    private final TrackingRecord event = new TrackingRecord(1L, 1000L, "backend", eventUrl);
 
     private TrackingApi trackingApi;
 
@@ -38,7 +38,7 @@ public class TrackingApiTest {
     @Test
     public void shouldTreatEntire2xxTo4xxStatusRangeAsSuccessSoWeDoNotRetryClientErrors() throws Exception {
         final String badUrl = "http://some_bad_url.com";
-        TrackingEvent failedEvent = new TrackingEvent(2L, 1000L, "backend", badUrl);
+        TrackingRecord failedEvent = new TrackingRecord(2L, 1000L, "backend", badUrl);
 
         when(connection.getResponseCode()).thenReturn(200, 499, 500);
         when(badConnection.getResponseCode()).thenReturn(HttpStatus.SC_INTERNAL_SERVER_ERROR);
@@ -46,7 +46,7 @@ public class TrackingApiTest {
         when(connectionFactory.create(event)).thenReturn(connection);
         when(connectionFactory.create(failedEvent)).thenReturn(badConnection);
 
-        List<TrackingEvent> successes = trackingApi.pushToRemote(Lists.newArrayList(event, event, failedEvent));
+        List<TrackingRecord> successes = trackingApi.pushToRemote(Lists.newArrayList(event, event, failedEvent));
         expect(successes).toNumber(2);
         expect(successes.get(0).getId()).toEqual(1L);
         expect(successes.get(1).getId()).toEqual(1L);

@@ -43,7 +43,7 @@ public class LikesListFragment extends ScListFragment {
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
         public void call() {
-            eventBus.publish(EventQueue.UI_TRACKING, UIEvent.fromShuffleMyLikes());
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffleMyLikes());
         }
     };;
 
