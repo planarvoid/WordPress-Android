@@ -11,6 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.LeaveBehindController;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -20,7 +21,6 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -426,18 +426,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveform);
 
-        holder.playerOverlayControllers = new PlayerOverlayController[] {
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark)),
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
-        };
-
-        holder.artworkController = artworkControllerFactory.create(holder.artworkView);
-        holder.waveformController.addScrubListener(holder.artworkController);
-        holder.waveformController.addScrubListener(holder.timestamp);
-        holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
-        holder.menuController = trackMenuControllerFactory.create(holder.more);
-        holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
-        holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
 
         holder.leaveBehindController = leaveBehindControllerFactory.create(trackView, new LeaveBehindController.LeaveBehindListener() {
             @Override
@@ -452,6 +440,19 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 holder.waveformController.setExpanded();
             }
         });
+
+        holder.playerOverlayControllers = new PlayerOverlayController[] {
+                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark), holder.leaveBehindController),
+                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image), holder.leaveBehindController)
+        };
+
+        holder.artworkController = artworkControllerFactory.create(holder.artworkView);
+        holder.waveformController.addScrubListener(holder.artworkController);
+        holder.waveformController.addScrubListener(holder.timestamp);
+        holder.waveformController.addScrubListener(createScrubViewAnimations(holder));
+        holder.menuController = trackMenuControllerFactory.create(holder.more);
+        holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
+        holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);

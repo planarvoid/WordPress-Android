@@ -52,8 +52,8 @@ public class TrackPagePresenterTest {
     @Mock private WaveformViewController waveformViewController;
     @Mock private PlayerArtworkController.Factory artworkFactory;
     @Mock private PlayerArtworkController artworkController;
-    @Mock private PlayerOverlayController.Factory playerVisualStateControllerFactory;
-    @Mock private PlayerOverlayController playerVisualStateController;
+    @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
+    @Mock private PlayerOverlayController playerOverlayController;
     @Mock private Factory leaveBehindControllerFactory;
     @Mock private LeaveBehindController leaveBehindController;
     @Mock private SkipListener skipListener;
@@ -71,11 +71,11 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerVisualStateControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, featureFlags);
+                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, featureFlags);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
-        when(playerVisualStateControllerFactory.create(any(View.class))).thenReturn(playerVisualStateController);
+        when(playerOverlayControllerFactory.create(any(View.class), any(LeaveBehindController.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
         when(leaveBehindControllerFactory.create(any(View.class), any(LeaveBehindListener.class))).thenReturn(leaveBehindController);
         trackView = presenter.createItemView(container, skipListener);
