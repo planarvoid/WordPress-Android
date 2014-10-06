@@ -19,14 +19,6 @@ public class PlaySessionSource implements Parcelable {
     static final String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; //legacy
     static final String PREF_KEY_PLAYLIST_ID = "set_id"; //legacy
 
-    public enum DiscoverySource {
-        RECOMMENDER, EXPLORE;
-
-        public String value() {
-            return this.toString().toLowerCase(Locale.ENGLISH);
-        }
-    }
-
     private final String originScreen;
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn playlistOwnerUrn = Urn.NOT_SET;
@@ -146,5 +138,13 @@ public class PlaySessionSource implements Parcelable {
     @Override
     public int hashCode() {
         return Objects.hashCode(playlistUrn, playlistOwnerUrn, exploreVersion, originScreen);
+    }
+
+    public enum DiscoverySource {
+        RECOMMENDER, EXPLORE;
+
+        public String value() {
+            return this.toString().toLowerCase(Locale.ENGLISH);
+        }
     }
 }

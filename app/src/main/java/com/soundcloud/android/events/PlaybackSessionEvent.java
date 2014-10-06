@@ -33,8 +33,11 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
 
-    private int stopReason, duration;
-    private long progress, listenTime;
+    private final int duration;
+    private final long progress;
+
+    private int stopReason;
+    private long listenTime;
     private final TrackSourceInfo trackSourceInfo;
     private List<String> adCompanionImpressionUrls = Collections.emptyList();
     private List<String> adImpressionUrls = Collections.emptyList();
