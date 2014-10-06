@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -57,7 +58,7 @@ public class TabbedSearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Workaround for onPageSelected not being triggered on creation
-        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_EVERYTHING));
     }
 
     @Override
@@ -103,16 +104,16 @@ public class TabbedSearchFragment extends Fragment {
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
                 case SearchPagerAdapter.TAB_ALL:
-                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_EVERYTHING.get());
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_EVERYTHING));
                     break;
                 case SearchPagerAdapter.TAB_TRACKS:
-                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_TRACKS.get());
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_TRACKS));
                     break;
                 case SearchPagerAdapter.TAB_PLAYLISTS:
-                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLISTS.get());
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_PLAYLISTS));
                     break;
                 case SearchPagerAdapter.TAB_PEOPLE:
-                    eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_USERS.get());
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_USERS));
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");

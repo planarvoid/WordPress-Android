@@ -6,6 +6,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -93,7 +94,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_DRAWER.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_DRAWER));
             }
         };
 

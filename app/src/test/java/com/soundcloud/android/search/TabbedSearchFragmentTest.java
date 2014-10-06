@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -56,27 +58,31 @@ public class TabbedSearchFragmentTest {
     public void shouldTrackSearchAllScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(0);
-        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:everything");
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:everything");
     }
 
     @Test
     public void shouldTrackSearchTracksScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(1);
-        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:tracks");
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:tracks");
     }
 
     @Test
     public void shouldTrackSearchPlaylistsScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(2);
-        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:playlists");
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:playlists");
     }
 
     @Test
     public void shouldTrackSearchPeopleScreenOnPageSelected() throws Exception {
         TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(eventBus);
         listener.onPageSelected(3);
-        expect(eventBus.eventsOn(EventQueue.SCREEN_ENTERED)).toContainExactly("search:people");
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("search:people");
     }
 }

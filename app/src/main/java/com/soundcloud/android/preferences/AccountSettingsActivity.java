@@ -3,6 +3,7 @@ package com.soundcloud.android.preferences;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 
 import android.os.Bundle;
 
@@ -21,7 +22,7 @@ public class AccountSettingsActivity extends ScSettingsActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_ACCOUNT.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SETTINGS_ACCOUNT));
         }
     }
 

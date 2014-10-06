@@ -3,8 +3,6 @@ package com.soundcloud.android.analytics;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -94,14 +92,6 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackScreenEvent() {
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
-
-        verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen"));
-        verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen"));
-    }
-
-    @Test
     public void shouldTrackOnboardingEvent() {
         OnboardingEvent onboardingEvent = OnboardingEvent.authComplete();
         eventBus.publish(EventQueue.ONBOARDING, onboardingEvent);
@@ -130,16 +120,16 @@ public class AnalyticsEngineTrackingTest {
 
     @Test
     public void shouldUpdateProvidersOnSharedPreferenceChanged() {
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderThree));
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences, GeneralPreferences.ANALYTICS_ENABLED);
 
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
-        verify(analyticsProviderOne, times(1)).handleScreenEvent(eq("screen1"));
-        verify(analyticsProviderTwo, times(1)).handleScreenEvent(eq("screen1"));
-        verify(analyticsProviderThree, times(1)).handleScreenEvent(eq("screen2"));
+        verify(analyticsProviderOne, times(1)).handleTrackingEvent(isA(TrackingEvent.class));
+        verify(analyticsProviderTwo, times(1)).handleTrackingEvent(isA(TrackingEvent.class));
+        verify(analyticsProviderThree, times(1)).handleTrackingEvent(isA(TrackingEvent.class));
     }
 
     @Test
@@ -159,21 +149,18 @@ public class AnalyticsEngineTrackingTest {
     public void shouldIsolateProvidersExceptions() throws CreateModelException {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleTrackingEvent(any(TrackingEvent.class));
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handleScreenEvent(anyString());
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handlePlayControlEvent(any(PlayControlEvent.class));
 
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         eventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
         eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(PlayControlEvent.SOURCE_WIDGET));
 
         verify(analyticsProviderTwo).handleTrackingEvent(any(TrackingEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
-        verify(analyticsProviderTwo).handleScreenEvent(anyString());
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
         verify(analyticsProviderTwo).handleSearchEvent(any(SearchEvent.class));
         verify(analyticsProviderTwo).handlePlayControlEvent(any(PlayControlEvent.class));

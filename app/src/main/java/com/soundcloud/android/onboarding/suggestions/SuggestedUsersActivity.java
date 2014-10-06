@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
 
 import android.content.Intent;
@@ -29,7 +30,7 @@ public class SuggestedUsersActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_MAIN.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.ONBOARDING_MAIN));
         }
     }
 

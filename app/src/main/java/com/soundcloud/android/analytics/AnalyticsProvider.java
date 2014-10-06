@@ -32,13 +32,6 @@ public interface AnalyticsProvider {
     void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event);
 
     /**
-     * Signals to the analytics provider that a screen (Activity, Fragment or View) was being opened.
-     *
-     * @param screenTag the tag under which to track the screen
-     */
-    void handleScreenEvent(String screenTag);
-
-    /**
      * Signals to the analytics provider that a playback performance event has occurred
      *
      * @param eventData what the playback performance event consisted of

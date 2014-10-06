@@ -14,6 +14,7 @@ import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
@@ -149,18 +150,18 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         final int position = navigationFragment.getCurrentSelectedPosition();
         switch (NavigationFragment.NavItem.values()[position]) {
             case STREAM:
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_STREAM.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_STREAM));
                 break;
             case EXPLORE:
                 // Publish event for default page in the explore fragment
                 // Doesn't fire in onPageSelected() due to https://code.google.com/p/android/issues/detail?id=27526
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_GENRES.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_GENRES));
                 break;
             case LIKES:
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_LIKES.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_LIKES));
                 break;
             case PLAYLISTS:
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SIDE_MENU_PLAYLISTS.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_PLAYLISTS));
             default:
                 break; // the remaining content fragments are tracked individually
         }

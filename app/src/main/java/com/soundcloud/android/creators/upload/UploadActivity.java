@@ -12,6 +12,7 @@ import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
@@ -147,7 +148,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         super.onResume();
         connectionList.getAdapter().loadIfNecessary(this);
         if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.RECORD_UPLOAD.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.RECORD_UPLOAD));
         }
     }
 

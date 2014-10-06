@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
 
 import android.os.Bundle;
@@ -41,9 +42,9 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
         super.onResume();
         if (shouldTrackScreen()) {
             if (category.isFacebookCategory()) {
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_FACEBOOK.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.ONBOARDING_FACEBOOK));
             } else {
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.ONBOARDING_GENRE.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.ONBOARDING_GENRE));
             }
         }
     }

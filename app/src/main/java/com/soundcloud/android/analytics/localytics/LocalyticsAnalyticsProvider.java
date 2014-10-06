@@ -14,6 +14,7 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -22,6 +23,7 @@ import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -102,14 +104,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleScreenEvent(String screenTag) {
-        session.tagScreen(screenTag);
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("context", screenTag);
-        tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
-    }
-
-    @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
 
     }
@@ -147,7 +141,17 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             handlePlaybackSessionEvent((PlaybackSessionEvent) event);
         } else if (event instanceof UIEvent) {
             uiEventHandler.handleEvent((UIEvent) event);
+        } else if (event instanceof ScreenEvent) {
+            handleScreenEvent(event);
         }
+    }
+
+    private void handleScreenEvent(TrackingEvent event) {
+        final String screenTag = event.get(ScreenEvent.KEY_SCREEN);
+        session.tagScreen(screenTag);
+        Map<String, String> eventAttributes = new ArrayMap<>();
+        eventAttributes.put("context", screenTag);
+        tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {

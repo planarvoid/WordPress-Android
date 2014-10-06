@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
@@ -65,24 +67,24 @@ public class ExploreFragmentTest {
     public void shouldTrackGenresScreenOnPageSelected() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(0);
-        String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("explore:genres");
+        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("explore:genres");
     }
 
     @Test
     public void shouldTrackTrendingMusicScreenOnPageSelected() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(1);
-        String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("explore:trending_music");
+        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("explore:trending_music");
     }
 
     @Test
     public void shouldTrackTrendingAudioScreenOnPageSelected() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener(eventBus);
         explorePagerScreenListener.onPageSelected(2);
-        String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("explore:trending_audio");
+        TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("explore:trending_audio");
     }
 
     @Test(expected = IllegalArgumentException.class)

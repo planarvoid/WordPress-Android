@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
 
@@ -90,13 +91,13 @@ public class ExploreFragment extends Fragment {
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
                 case ExplorePagerAdapter.TAB_GENRES:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_GENRES.get());
+                    mEventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_GENRES));
                     break;
                 case ExplorePagerAdapter.TAB_TRENDING_MUSIC:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_TRENDING_MUSIC.get());
+                    mEventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
                     break;
                 case ExplorePagerAdapter.TAB_TRENDING_AUDIO:
-                    mEventBus.publish(EventQueue.SCREEN_ENTERED, Screen.EXPLORE_TRENDING_AUDIO.get());
+                    mEventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO));
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");

@@ -10,6 +10,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -83,7 +84,7 @@ public class PlaylistResultsFragment extends DefaultFragment
         this.pager = operations.pager(playlistTag);
         listViewController.setAdapter(adapter, pager);
 
-        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_PLAYLIST_DISCO.get());
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_PLAYLIST_DISCO));
         connectObservable(buildObservable());
     }
 

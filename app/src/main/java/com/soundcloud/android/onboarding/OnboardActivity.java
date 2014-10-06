@@ -17,6 +17,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
@@ -187,7 +188,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             @Override
             public void onClick(View v) {
                 setState(StartState.LOGIN);
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_LOG_IN.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_LOG_IN));
                 eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.logInPrompt());
             }
         });
@@ -195,7 +196,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_SIGN_UP.get());
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_SIGN_UP));
                 eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
                 if (!applicationProperties.isDevBuildRunningOnDevice() && SignupLog.shouldThrottleSignup()) {
@@ -279,7 +280,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     private void trackTourScreen() {
-        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.TOUR.get());
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.TOUR));
     }
 
     private LoginLayout getLogin() {
@@ -639,7 +640,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             SignupLog.writeNewSignupAsync();
             this.user = user;
             setState(StartState.SIGN_UP_DETAILS);
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_USER_DETAILS.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_USER_DETAILS));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
@@ -666,7 +667,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private void proposeTermsOfUse(SignupVia signupVia, Bundle params) {
         getAcceptTerms().setSignupParams(signupVia, params);
         setState(StartState.ACCEPT_TERMS);
-        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.AUTH_TERMS.get());
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_TERMS));
     }
 
     private SoundCloudApplication getApp() {

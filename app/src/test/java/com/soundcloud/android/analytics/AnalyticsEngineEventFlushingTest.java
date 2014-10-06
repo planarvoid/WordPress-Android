@@ -63,7 +63,7 @@ public class AnalyticsEngineEventFlushingTest {
     @Test
     public void shouldScheduleToFlushEventDataOnFirstTrackingEvent() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }
@@ -71,7 +71,7 @@ public class AnalyticsEngineEventFlushingTest {
     @Test
     public void flushActionShouldCallFlushOnAllProviders() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         verify(schedulerWorker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
         flushAction.getValue().call();
@@ -82,7 +82,7 @@ public class AnalyticsEngineEventFlushingTest {
     @Test
     public void successfulFlushShouldResetSubscription() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         verify(schedulerWorker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
         flushAction.getValue().call();
@@ -92,23 +92,23 @@ public class AnalyticsEngineEventFlushingTest {
     @Test
     public void shouldRescheduleFlushForTrackingEventAfterPreviousFlushFinished() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         InOrder inOrder = inOrder(schedulerWorker);
 
         inOrder.verify(schedulerWorker).schedule(flushAction.capture(), anyLong(), any(TimeUnit.class));
         flushAction.getValue().call(); // finishes the first flush
 
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen3");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         inOrder.verify(schedulerWorker).schedule(any(Action0.class), anyLong(), any(TimeUnit.class));
     }
 
     @Test
     public void shouldNotScheduleFlushIfFlushIsAlreadyScheduled() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen1");
-        eventBus.publish(EventQueue.SCREEN_ENTERED, "screen2");
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
+        eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         verify(schedulerWorker, times(1)).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
     }

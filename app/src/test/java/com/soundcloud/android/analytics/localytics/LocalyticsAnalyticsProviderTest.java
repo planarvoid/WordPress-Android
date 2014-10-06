@@ -8,6 +8,7 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -70,7 +71,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldTrackScreenWithGivenName() {
-        localyticsProvider.handleScreenEvent("main:explore");
+        localyticsProvider.handleTrackingEvent(ScreenEvent.create("main:explore"));
         verify(localyticsSession).tagScreen(eq("main:explore"));
     }
 
@@ -79,7 +80,7 @@ public class LocalyticsAnalyticsProviderTest {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("context", "main:explore");
 
-        localyticsProvider.handleScreenEvent("main:explore");
+        localyticsProvider.handleTrackingEvent(ScreenEvent.create("main:explore"));
 
         verify(localyticsSession).tagEvent(eq(LocalyticsEvents.PAGEVIEW), eq(attributes));
     }

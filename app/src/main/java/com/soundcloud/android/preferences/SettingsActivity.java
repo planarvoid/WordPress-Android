@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -57,7 +58,7 @@ public class SettingsActivity extends ScSettingsActivity {
         generalPreferences.updateClearCacheTitles(this);
         super.onResume();
         if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SETTINGS_MAIN.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SETTINGS_MAIN));
         }
     }
 

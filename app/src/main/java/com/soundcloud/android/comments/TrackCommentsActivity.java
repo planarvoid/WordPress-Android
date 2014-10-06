@@ -5,6 +5,7 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
@@ -96,7 +97,7 @@ public class TrackCommentsActivity extends ScActivity {
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, getCurrentScreen().get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getCurrentScreen()));
         }
     }
 

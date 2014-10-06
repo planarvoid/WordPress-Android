@@ -14,7 +14,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
@@ -135,7 +137,8 @@ public class PlaylistResultsFragmentTest {
         createFragment();
         fragment.onCreate(null);
 
-        expect(eventBus.lastEventOn(EventQueue.SCREEN_ENTERED)).toEqual(Screen.SEARCH_PLAYLIST_DISCO.get());
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual(Screen.SEARCH_PLAYLIST_DISCO.get());
     }
 
     private void createFragment() {

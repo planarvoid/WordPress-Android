@@ -7,6 +7,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.DefaultFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListViewController;
@@ -93,7 +94,7 @@ public class ExploreGenresFragment extends DefaultFragment
         int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
         ExploreGenre category = adapter.getItem(adjustedPosition);
 
-        eventBus.publish(EventQueue.SCREEN_ENTERED, (String) view.getTag());
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create((String) view.getTag()));
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         intent.putExtra(ExploreTracksFragment.SCREEN_TAG_EXTRA, view.getTag().toString());

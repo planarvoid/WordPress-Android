@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
@@ -101,8 +103,8 @@ public class ExploreGenresFragmentTest {
         when(listView.getTag()).thenReturn("screentag");
         fragment.onItemClick(listView, listView, 0,0);
 
-        final String screenTag = eventBus.firstEventOn(EventQueue.SCREEN_ENTERED);
-        expect(screenTag).toEqual("screentag");
+        final TrackingEvent event = eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.get(ScreenEvent.KEY_SCREEN)).toEqual("screentag");
     }
 
     private void mockCategoriesObservable(ExploreGenresSections categories) {

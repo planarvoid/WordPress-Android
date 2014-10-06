@@ -93,7 +93,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
-        eventsSubscription.add(eventBus.subscribe(EventQueue.SCREEN_ENTERED, new ScreenEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAY_CONTROL, new PlayControlSubscriber()));
@@ -127,13 +126,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, ActivityLifeCycleEvent event) {
             provider.handleActivityLifeCycleEvent(event);
-        }
-    }
-
-    private final class ScreenEventSubscriber extends EventSubscriber<String> {
-        @Override
-        protected void handleEvent(AnalyticsProvider provider, String event) {
-            provider.handleScreenEvent(event);
         }
     }
 

@@ -9,6 +9,7 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -62,7 +63,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.PLAYER_INFO.get());
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYER_INFO));
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
         loadTrack = trackOperations.fullTrackWithUpdate(getArguments().<Urn>getParcelable(EXTRA_URN))

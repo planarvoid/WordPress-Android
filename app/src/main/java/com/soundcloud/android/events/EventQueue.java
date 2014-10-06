@@ -19,7 +19,6 @@ public final class EventQueue {
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).get();
-    public static final Queue<String> SCREEN_ENTERED = Queue.of(String.class).name("ScreenEventQueue").get();
     public static final Queue<PlayControlEvent> PLAY_CONTROL = Queue.of(PlayControlEvent.class).get();
     public static final Queue<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = Queue.of(PlaybackPerformanceEvent.class).get();
     public static final Queue<PlaybackErrorEvent> PLAYBACK_ERROR = Queue.of(PlaybackErrorEvent.class).get();

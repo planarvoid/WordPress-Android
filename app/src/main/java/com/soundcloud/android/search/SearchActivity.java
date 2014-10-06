@@ -7,6 +7,7 @@ import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -54,7 +55,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
         @Override
         public void exitSearchMode() {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     };
@@ -165,7 +166,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
                 && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH)) {
             handleUri(intent);
         } else {
-            eventBus.publish(EventQueue.SCREEN_ENTERED, Screen.SEARCH_MAIN.get());
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
         }
     }
 

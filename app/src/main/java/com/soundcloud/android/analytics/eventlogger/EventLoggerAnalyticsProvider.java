@@ -45,10 +45,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleScreenEvent(String screenTag) {
-    }
-
-    @Override
     public void handleOnboardingEvent(OnboardingEvent event) {
     }
 

@@ -45,9 +45,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleScreenEvent(String screenTag) {}
-
-    @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {}
 
     @Override
