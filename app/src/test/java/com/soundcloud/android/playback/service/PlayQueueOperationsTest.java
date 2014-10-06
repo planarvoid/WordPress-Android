@@ -51,7 +51,7 @@ import java.util.List;
 public class PlayQueueOperationsTest {
 
     private static final String ORIGIN_PAGE = "origin:page";
-    private static final long SET_ID = 123L;
+    private static final long PLAYLIST_ID = 123L;
 
     private PlayQueueOperations playQueueOperations;
 
@@ -82,14 +82,14 @@ public class PlayQueueOperationsTest {
 
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
     }
 
     @Test
     public void shouldReturnLastPlaySessionSourceFromPreferences() throws Exception {
         PlaySessionSource playSessionSource = playQueueOperations.getLastStoredPlaySessionSource();
         expect(playSessionSource.getOriginScreen()).toEqual(ORIGIN_PAGE);
-        expect(playSessionSource.getPlaylistId()).toEqual(SET_ID);
+        expect(playSessionSource.getPlaylistUrn()).toEqual(Urn.forPlaylist(PLAYLIST_ID));
 
     }
 

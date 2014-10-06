@@ -33,7 +33,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -84,7 +83,7 @@ public class PlayQueueManagerTest {
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
         playSessionSource.setExploreVersion("1.0");
     }
 
@@ -199,7 +198,7 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
 
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        expect(trackSourceInfo.getPlaylistId()).toEqual(playlist.getId());
+        expect(trackSourceInfo.getPlaylistUrn()).toEqual(playlist.getUrn());
         expect(trackSourceInfo.getPlaylistPosition()).toEqual(1);
     }
 
@@ -776,24 +775,24 @@ public class PlayQueueManagerTest {
     public void clearAllClearsPlaylistId() {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L), playSessionSource), playSessionSource);
-        expect(playQueueManager.getPlaylistId()).not.toEqual((long) PublicApiPlaylist.NOT_SET);
+        expect(playQueueManager.getPlaylistUrn()).not.toEqual(Urn.NOT_SET);
         playQueueManager.clearAll();
-        expect(playQueueManager.getPlaylistId()).toEqual((long) PublicApiPlaylist.NOT_SET);
+        expect(playQueueManager.getPlaylistUrn()).toEqual(Urn.NOT_SET);
     }
 
     @Test
     public void shouldReturnWhetherPlaylistIdIsCurrentPlayQueue() {
         PublicApiPlaylist playlist = new PublicApiPlaylist(6L);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
-        expect(playQueueManager.isCurrentPlaylist(6L)).toBeTrue();
+        expect(playQueueManager.isCurrentPlaylist(playlist.getUrn())).toBeTrue();
     }
 
     @Test
     public void shouldReturnWhetherCurrentPlayQueueIsAPlaylist() {
         PublicApiPlaylist playlist = new PublicApiPlaylist(6L);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
 
         expect(playQueueManager.isPlaylist()).toBeTrue();

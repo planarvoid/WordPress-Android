@@ -70,12 +70,12 @@ public class PlaybackSessionAnalyticsControllerTest {
     }
 
     private void expectCommonAudioEventData(Playa.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
-        expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).toEqual(USER_URN.toString());
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).toEqual(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
-        expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
         expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
         expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
-        expect(playbackSessionEvent.getProtocol()).toEqual(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
     }
 
     @Test
@@ -91,8 +91,8 @@ public class PlaybackSessionAnalyticsControllerTest {
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
         // ad specific properties
-        expect(playbackSessionEvent.getAudioAdUrn()).toEqual(audioAd.get(AdProperty.AD_URN));
-        expect(playbackSessionEvent.getAudioAdMonetizedUrn()).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_MONETIZED_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
     }
 
     @Test
@@ -111,8 +111,8 @@ public class PlaybackSessionAnalyticsControllerTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         expect(playbackSessionEvent.hasTrackFinished()).toBeTrue();
         // ad specific properties
-        expect(playbackSessionEvent.getAudioAdUrn()).toEqual(audioAd.get(AdProperty.AD_URN));
-        expect(playbackSessionEvent.getAudioAdMonetizedUrn()).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_MONETIZED_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
     }
 
     @Test
@@ -169,7 +169,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         List<PlaybackSessionEvent> events = eventBus.eventsOn(EventQueue.PLAYBACK_SESSION);
         expect(events).toNumber(3);
         expect(events.get(1).isStopEvent()).toBeTrue();
-        expect(events.get(1).getTrackUrn()).toEqual(TRACK_URN);
+        expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
     }
 
     @Test
@@ -189,8 +189,8 @@ public class PlaybackSessionAnalyticsControllerTest {
         List<PlaybackSessionEvent> events = eventBus.eventsOn(EventQueue.PLAYBACK_SESSION);
         expect(events).toNumber(3);
         expect(events.get(1).isStopEvent()).toBeTrue();
-        expect(events.get(1).getTrackUrn()).toEqual(TRACK_URN);
-        expect(events.get(1).getAudioAdUrn()).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
+        expect(events.get(1).get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
     }
 
     protected Playa.StateTransition publishPlayingEvent() {
@@ -217,10 +217,10 @@ public class PlaybackSessionAnalyticsControllerTest {
 
     protected void verifyStopEvent(int stopReason) {
         final PlaybackSessionEvent playbackSessionEvent = eventBus.lastEventOn(EventQueue.PLAYBACK_SESSION);
-        expect(playbackSessionEvent.getTrackUrn()).toEqual(TRACK_URN);
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
+        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).toEqual(USER_URN.toString());
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeTrue();
-        expect(playbackSessionEvent.getUserUrn()).toEqual(USER_URN);
         expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
         expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
         expect(playbackSessionEvent.getStopReason()).toEqual(stopReason);

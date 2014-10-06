@@ -207,7 +207,7 @@ public class PlaybackOperations {
     }
 
     private boolean isCurrentPlaylist(PlaySessionSource playSessionSource) {
-        return playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistId());
+        return playQueueManager.isCurrentPlaylist(playSessionSource.getPlaylistUrn());
     }
 
     private boolean isPlaylist() {

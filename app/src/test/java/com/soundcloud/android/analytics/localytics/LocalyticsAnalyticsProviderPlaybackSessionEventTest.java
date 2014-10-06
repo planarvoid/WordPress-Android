@@ -56,7 +56,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         long startTime = System.currentTimeMillis();
         long stopTime = startTime + 1000L;
 
-        startEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, "hls", trackSourceInfo, startTime);
+        startEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, "hls", trackSourceInfo, 0, startTime);
         stopEvent = createStopEventWithStopTimeAndDuration(stopTime, DURATION);
     }
 
@@ -79,7 +79,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldContainAttributesForTrackBelongingToLoggedInUsersPlaylist() {
-        trackSourceInfo.setOriginPlaylist(123L, 0, 123L);
+        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 0, Urn.forUser(123L));
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");
@@ -88,7 +88,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Test
     public void playbackEventDataForStopEventShouldContainAttributesForTrackBelongingToOtherUsersPlaylist() {
-        trackSourceInfo.setOriginPlaylist(123L, 0, 456L);
+        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 0, Urn.forUser(456L));
         localyticsProvider.handlePlaybackSessionEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");

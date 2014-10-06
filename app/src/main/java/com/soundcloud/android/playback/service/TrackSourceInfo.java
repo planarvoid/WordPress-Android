@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 public class TrackSourceInfo {
@@ -12,8 +12,8 @@ public class TrackSourceInfo {
     private String source;
     private String sourceVersion;
 
-    private long playlistId = Consts.NOT_SET;
-    private long playlistOwnerId = Consts.NOT_SET;
+    private Urn playlistUrn = Urn.NOT_SET;
+    private Urn playlistOwnerUrn = Urn.NOT_SET;
     private int playlistPosition;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
@@ -26,11 +26,10 @@ public class TrackSourceInfo {
         this.sourceVersion = sourceVersion;
     }
 
-    @Deprecated // use URNs
-    public void setOriginPlaylist(long playlistId, int position, long playlistOwnerId) {
-        this.playlistId = playlistId;
+    public void setOriginPlaylist(Urn playlistUrn, int position, Urn playlistOwnerUrn) {
+        this.playlistUrn = playlistUrn;
         this.playlistPosition = position;
-        this.playlistOwnerId = playlistOwnerId;
+        this.playlistOwnerUrn = playlistOwnerUrn;
     }
 
     public boolean getIsUserTriggered() {
@@ -49,18 +48,16 @@ public class TrackSourceInfo {
         return sourceVersion;
     }
 
-    @Deprecated // use URNs
-    public long getPlaylistId() {
-        return playlistId;
+    public Urn getPlaylistUrn() {
+        return playlistUrn;
     }
 
     public int getPlaylistPosition() {
         return playlistPosition;
     }
 
-    @Deprecated // use URNs
-    public long getPlaylistOwnerId() {
-        return playlistOwnerId;
+    public Urn getPlaylistOwnerUrn() {
+        return playlistOwnerUrn;
     }
 
     public boolean hasSource() {
@@ -68,7 +65,7 @@ public class TrackSourceInfo {
     }
 
     public boolean isFromPlaylist() {
-        return playlistId > 0;
+        return playlistUrn != Urn.NOT_SET;
     }
 
     @Override
@@ -81,9 +78,9 @@ public class TrackSourceInfo {
             toStringHelper.add("source", source).add("sourceVersion", sourceVersion);
         }
         if (isFromPlaylist()) {
-            toStringHelper.add("playlistId", playlistId)
+            toStringHelper.add("playlistUrn", playlistUrn)
                     .add("playlistPos", playlistPosition)
-                    .add("playlistOwnerId", playlistOwnerId);
+                    .add("playlistOwnerUrn", playlistOwnerUrn);
         }
 
         return toStringHelper.toString();

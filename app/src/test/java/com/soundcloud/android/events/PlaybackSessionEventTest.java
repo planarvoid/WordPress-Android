@@ -2,14 +2,13 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,9 +98,9 @@ public class PlaybackSessionEventTest {
                 USER_URN, PROTOCOL, trackSourceInfo, PROGRESS, 1000L).withAudioAd(audioAd);
 
         expect(event.isAd()).toBeTrue();
-        expect(event.getAudioAdUrn()).toEqual("advertisement:123");
-        expect(event.getAudioAdMonetizedUrn()).toEqual(TRACK_URN.toString());
-        expect(event.getAudioAdArtworkUrl()).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
+        expect(event.get(PlaybackSessionEvent.KEY_AD_URN)).toEqual("advertisement:123");
+        expect(event.get(PlaybackSessionEvent.KEY_MONETIZED_URN)).toEqual(TRACK_URN.toString());
+        expect(event.get(PlaybackSessionEvent.KEY_AD_ARTWORK)).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
         expect(event.getAudioAdImpressionUrls()).toContain("adswizzUrl", "advertiserUrl");
         expect(event.getAudioAdCompanionImpressionUrls()).toContain("visual1", "visual2");
         expect(event.getAudioAdFinishUrls()).toContain("finish1", "finish2");

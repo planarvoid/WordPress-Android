@@ -16,6 +16,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
@@ -114,7 +115,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
             Map<String, String> eventAttributes = new HashMap<String, String>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
-            eventAttributes.put("track_id", String.valueOf(eventData.getTrackUrn().getNumericId()));
+            eventAttributes.put("track_id", String.valueOf(new Urn(eventData.get(PlaybackSessionEvent.KEY_TRACK_URN)).getNumericId()));
 
             final long duration = eventData.getDuration();
             eventAttributes.put("track_length_ms", String.valueOf(duration));
@@ -124,7 +125,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             eventAttributes.put("percent_listened", getPercentListenedBucket(eventData, duration));
 
             if (eventData.getTrackSourceInfo().isFromPlaylist()) {
-                eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistId()));
+                eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistUrn().getNumericId()));
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
             } else {
                 eventAttributes.put("set_owner", "none");

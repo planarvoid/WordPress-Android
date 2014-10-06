@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -27,8 +28,8 @@ public class PlaySessionSourceTest {
     public void shouldCreateEmptyPlaySessionSource() throws Exception {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         expect(playSessionSource.getOriginScreen()).toBe(ScTextUtils.EMPTY_STRING);
-        expect(playSessionSource.getPlaylistId()).toEqual(-1L);
-        expect(playSessionSource.getPlaylistOwnerId()).toEqual(-1L);
+        expect(playSessionSource.getPlaylistUrn()).toEqual(Urn.NOT_SET);
+        expect(playSessionSource.getPlaylistOwnerUrn()).toEqual(Urn.NOT_SET);
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
     }
@@ -37,8 +38,8 @@ public class PlaySessionSourceTest {
     public void shouldCreatePlaySessionSourceFromOriginPage() throws Exception {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
-        expect(playSessionSource.getPlaylistId()).toEqual(-1L);
-        expect(playSessionSource.getPlaylistOwnerId()).toEqual(-1L);
+        expect(playSessionSource.getPlaylistUrn()).toEqual(Urn.NOT_SET);
+        expect(playSessionSource.getPlaylistOwnerUrn()).toEqual(Urn.NOT_SET);
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
     }
@@ -47,11 +48,11 @@ public class PlaySessionSourceTest {
     public void shouldCreatePlaySessionSourceFromOriginPageAndSetId() throws Exception {
 
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
-        expect(playSessionSource.getPlaylistId()).toEqual(playlist.getId());
-        expect(playSessionSource.getPlaylistOwnerId()).toEqual(playlist.getUserId());
+        expect(playSessionSource.getPlaylistUrn()).toEqual(playlist.getUrn());
+        expect(playSessionSource.getPlaylistOwnerUrn()).toEqual(playlist.getUserUrn());
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
     }
@@ -61,8 +62,8 @@ public class PlaySessionSourceTest {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setExploreVersion(EXPLORE_TAG);
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
-        expect(playSessionSource.getPlaylistId()).toEqual(-1L);
-        expect(playSessionSource.getPlaylistOwnerId()).toEqual(-1L);
+        expect(playSessionSource.getPlaylistUrn()).toEqual(Urn.NOT_SET);
+        expect(playSessionSource.getPlaylistOwnerUrn()).toEqual(Urn.NOT_SET);
         expect(playSessionSource.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(playSessionSource.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }
@@ -71,11 +72,11 @@ public class PlaySessionSourceTest {
     public void shouldCreatePlaySessionSourceFromOriginPageTrackSourceInfoAndSetId() throws Exception {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setExploreVersion(EXPLORE_TAG);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
-        expect(playSessionSource.getPlaylistId()).toEqual(playlist.getId());
-        expect(playSessionSource.getPlaylistOwnerId()).toEqual(playlist.getUserId());
+        expect(playSessionSource.getPlaylistUrn()).toEqual(playlist.getUrn());
+        expect(playSessionSource.getPlaylistOwnerUrn()).toEqual(playlist.getUserUrn());
         expect(playSessionSource.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(playSessionSource.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }
@@ -84,15 +85,15 @@ public class PlaySessionSourceTest {
     public void shouldBeParcelable() throws Exception {
         PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
         original.setExploreVersion(EXPLORE_TAG);
-        original.setPlaylist(playlist.getId(), playlist.getUserId());
+        original.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         Parcel parcel = Parcel.obtain();
         original.writeToParcel(parcel, 0);
 
         PlaySessionSource copy = new PlaySessionSource(parcel);
         expect(copy.getOriginScreen()).toBe(ORIGIN_PAGE);
-        expect(copy.getPlaylistId()).toEqual(playlist.getId());
-        expect(copy.getPlaylistOwnerId()).toEqual(playlist.getUserId());
+        expect(copy.getPlaylistUrn()).toEqual(playlist.getUrn());
+        expect(copy.getPlaylistOwnerUrn()).toEqual(playlist.getUserUrn());
         expect(copy.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(copy.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }

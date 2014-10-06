@@ -4,10 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -24,13 +22,11 @@ public class PlayQueueTest {
     private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = PlayQueueItem.fromTrack(Urn.forTrack(2L), "source2", "version2");
 
     private PlaySessionSource playSessionSource;
-    private PublicApiPlaylist playlist;
 
     @Before
     public void setUp() throws Exception {
-        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(Urn.forPlaylist(123), Urn.forUser(456));
         playSessionSource.setExploreVersion("1.0");
     }
 

@@ -137,7 +137,7 @@ public class PlaylistFragmentTest {
         when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
         View layout = createFragmentView();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
-        playSessionSource.setPlaylist(playlist.getId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         getToggleButton(layout).performClick();
 
@@ -146,7 +146,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPauseState() throws Exception {
-        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlist.getUrn())).thenReturn(true);
         View layout = createFragmentView();
 
         getToggleButton(layout).performClick();
@@ -170,7 +170,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() throws Exception {
-        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlist.getUrn())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
@@ -182,7 +182,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldNotSetToggleToPlayStateWhenPlayingDifferentPlaylistOnResume() throws Exception {
-        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(false);
+        when(playQueueManager.isCurrentPlaylist(playlist.getUrn())).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
@@ -204,7 +204,7 @@ public class PlaylistFragmentTest {
         PublicApiUser user = new PublicApiUser();
         playlist.setUser(user);
         when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
-        when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId());
+        when(playQueueManager.getPlaylistUrn()).thenReturn(playlist.getUrn());
         View layout = createFragmentView();
 
         View usernameView = layout.findViewById(R.id.username);
@@ -371,7 +371,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackStateChanges() throws Exception {
-        when(playQueueManager.isCurrentPlaylist(playlist.getId())).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlist.getUrn())).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                 new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET));
 
@@ -385,7 +385,7 @@ public class PlaylistFragmentTest {
 
     @Test
     public void shouldSetPlayingStateWhenPlaybackMetaChanges() throws Exception {
-        when(playQueueManager.getPlaylistId()).thenReturn(0L);
+        when(playQueueManager.getPlaylistUrn()).thenReturn(Urn.forPlaylist(123));
         View layout = createFragmentView();
         fragment.onStart();
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.service;
 import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.SharedPreferences;
@@ -28,20 +28,20 @@ public class PlaySessionSource implements Parcelable {
     }
 
     private final String originScreen;
-    private long playlistId = Consts.NOT_SET;
-    private long playlistOwnerId = Consts.NOT_SET;
+    private Urn playlistUrn = Urn.NOT_SET;
+    private Urn playlistOwnerUrn = Urn.NOT_SET;
     private String exploreVersion;
 
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();
-        playlistId = in.readLong();
-        playlistOwnerId = in.readLong();
+        playlistUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        playlistOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
     }
 
     public PlaySessionSource(SharedPreferences sharedPreferences) {
         originScreen = sharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
-        playlistId = sharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, ScModel.NOT_SET);
+        playlistUrn = Urn.forPlaylist(sharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, Consts.NOT_SET));
     }
 
     private PlaySessionSource() {
@@ -60,20 +60,17 @@ public class PlaySessionSource implements Parcelable {
         return originScreen;
     }
 
-    @Deprecated // use URNs
-    public long getPlaylistId() {
-        return playlistId;
+    public Urn getPlaylistUrn() {
+        return playlistUrn;
     }
 
-    @Deprecated // use URNs
-    public long getPlaylistOwnerId() {
-        return playlistOwnerId;
+    public Urn getPlaylistOwnerUrn() {
+        return playlistOwnerUrn;
     }
 
-    @Deprecated // use URNs
-    public void setPlaylist(long playlistId, long playlistOwnerId) {
-        this.playlistId = playlistId;
-        this.playlistOwnerId = playlistOwnerId;
+    public void setPlaylist(Urn playlist, Urn playlistOwner) {
+        this.playlistUrn = playlist;
+        this.playlistOwnerUrn = playlistOwner;
     }
 
     public void setExploreVersion(String exploreVersion) {
@@ -93,7 +90,7 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public boolean isFromPlaylist() {
-        return playlistId != Consts.NOT_SET;
+        return playlistUrn != Urn.NOT_SET;
     }
 
     @Override
@@ -105,13 +102,13 @@ public class PlaySessionSource implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(originScreen);
         dest.writeString(exploreVersion);
-        dest.writeLong(playlistId);
-        dest.writeLong(playlistOwnerId);
+        dest.writeParcelable(playlistUrn, 0);
+        dest.writeParcelable(playlistOwnerUrn, 0);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
         editor.putString(PREF_KEY_ORIGIN_SCREEN_TAG, originScreen);
-        editor.putLong(PREF_KEY_PLAYLIST_ID, playlistId);
+        editor.putLong(PREF_KEY_PLAYLIST_ID, playlistUrn.getNumericId());
     }
 
     public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
@@ -140,18 +137,14 @@ public class PlaySessionSource implements Parcelable {
 
         PlaySessionSource that = (PlaySessionSource) o;
 
-        return Objects.equal(playlistId, that.playlistId)
-                && Objects.equal(playlistOwnerId, that.playlistOwnerId)
+        return Objects.equal(playlistUrn, that.playlistUrn)
+                && Objects.equal(playlistOwnerUrn, that.playlistOwnerUrn)
                 && Objects.equal(exploreVersion, that.exploreVersion)
                 && Objects.equal(originScreen, that.originScreen);
     }
 
     @Override
     public int hashCode() {
-        int result = originScreen.hashCode();
-        result = 31 * result + (int) (playlistId ^ (playlistId >>> 32));
-        result = 31 * result + (int) (playlistOwnerId ^ (playlistOwnerId >>> 32));
-        result = 31 * result + (exploreVersion != null ? exploreVersion.hashCode() : 0);
-        return result;
+        return Objects.hashCode(playlistUrn, playlistOwnerUrn, exploreVersion, originScreen);
     }
 }

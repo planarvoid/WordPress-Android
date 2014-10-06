@@ -4,6 +4,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.api.Token;
 
 import android.net.Uri;
@@ -23,8 +24,8 @@ class PlayCountUrlBuilder {
         this.accountOperations = accountOperations;
     }
 
-    String buildUrl(PlaybackSessionEvent playbackSessionEvent) {
-        final String trackId = Long.toString(playbackSessionEvent.getTrackUrn().getNumericId());
+    String buildUrl(PlaybackSessionEvent event) {
+        final long trackId = new Urn(event.get(PlaybackSessionEvent.KEY_TRACK_URN)).getNumericId();
         final Uri.Builder builder = Uri.parse(PUBLIC_API_BASE_URI + APIEndpoints.LOG_PLAY.unencodedPath(trackId))
                 .buildUpon()
                 .appendQueryParameter("client_id", httpProperties.getClientId());
@@ -34,7 +35,7 @@ class PlayCountUrlBuilder {
             builder.appendQueryParameter("oauth_token", token.access);
         }
 
-        final String policy = playbackSessionEvent.getTrackPolicy();
+        final String policy = event.get(PlaybackSessionEvent.KEY_POLICY);
         if (policy != null) {
             builder.appendQueryParameter("policy", policy);
         }

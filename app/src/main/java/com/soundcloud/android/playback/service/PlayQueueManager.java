@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -267,7 +266,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
         if (playSessionSource.isFromPlaylist()) {
-            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getCurrentPosition(), playSessionSource.getPlaylistOwnerId());
+            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistUrn(), getCurrentPosition(), playSessionSource.getPlaylistOwnerUrn());
         }
         return trackSourceInfo;
     }
@@ -280,18 +279,16 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.getSourceVersion(currentPosition);
     }
 
-    @Deprecated // use URNs
-    public long getPlaylistId() {
-        return playSessionSource.getPlaylistId();
+    public Urn getPlaylistUrn() {
+        return playSessionSource.getPlaylistUrn();
     }
 
     public boolean isPlaylist() {
-        return getPlaylistId() != Consts.NOT_SET;
+        return getPlaylistUrn() != Urn.NOT_SET;
     }
 
-    @Deprecated // use URNs
-    public boolean isCurrentPlaylist(long playlistId) {
-        return getPlaylistId() == playlistId;
+    public boolean isCurrentPlaylist(Urn playlistUrn) {
+        return getPlaylistUrn().equals(playlistUrn);
     }
 
     @Override

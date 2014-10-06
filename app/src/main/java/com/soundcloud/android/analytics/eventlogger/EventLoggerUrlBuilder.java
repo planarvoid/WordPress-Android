@@ -85,14 +85,12 @@ public class EventLoggerUrlBuilder {
 
     public String buildForAdImpression(PlaybackSessionEvent event) {
         final Uri.Builder builder = buildUriForPath("impression", event.getTimeStamp());
-        builder.appendQueryParameter(USER, event.getUserUrn().toString());
-
-        builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
+        builder.appendQueryParameter(USER, event.get(PlaybackSessionEvent.KEY_USER_URN));
+        builder.appendQueryParameter(AD_URN, event.get(PlaybackSessionEvent.KEY_AD_URN));
+        builder.appendQueryParameter(IMPRESSION_OBJECT, event.get(PlaybackSessionEvent.KEY_TRACK_URN));
+        builder.appendQueryParameter(MONETIZED_OBJECT, event.get(PlaybackSessionEvent.KEY_MONETIZED_URN));
         builder.appendQueryParameter(IMPRESSION_NAME, "audio_ad_impression");
-        builder.appendQueryParameter(IMPRESSION_OBJECT, event.getTrackUrn().toString());
         builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
-        builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
-
         return builder.toString();
     }
 
@@ -100,7 +98,7 @@ public class EventLoggerUrlBuilder {
         // add basic UI event params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/base-ui-event.md#android
         final Uri.Builder builder = buildUriForPath("audio", event.getTimeStamp());
-        builder.appendQueryParameter(USER, event.getUserUrn().toString());
+        builder.appendQueryParameter(USER, event.get(PlaybackSessionEvent.KEY_USER_URN));
         // add a/b experiment params
         for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
             builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
@@ -111,9 +109,9 @@ public class EventLoggerUrlBuilder {
         builder.appendQueryParameter(ACTION, event.isPlayEvent() ? "play" : "stop");
         builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
         // EventLogger v0 requires us to pass URNs in the legacy format
-        builder.appendQueryParameter(SOUND, "soundcloud:sounds:" + event.getTrackUrn().getNumericId());
+        builder.appendQueryParameter(SOUND, event.get(PlaybackSessionEvent.KEY_TRACK_URN).replaceFirst(":tracks:", ":sounds:"));
 
-        final String trackPolicy = event.getTrackPolicy();
+        final String trackPolicy = event.get(PlaybackSessionEvent.KEY_POLICY);
         if (trackPolicy != null && !event.isAd()) {
             builder.appendQueryParameter(POLICY, trackPolicy);
         }
@@ -126,7 +124,7 @@ public class EventLoggerUrlBuilder {
             builder.appendQueryParameter(TRIGGER, "auto");
         }
         builder.appendQueryParameter(PAGE_NAME, formatOriginUrl(trackSourceInfo.getOriginScreen()));
-        builder.appendQueryParameter(PROTOCOL, event.getProtocol());
+        builder.appendQueryParameter(PROTOCOL, event.get(PlaybackSessionEvent.KEY_PROTOCOL));
 
         if (trackSourceInfo.hasSource()) {
             builder.appendQueryParameter(SOURCE, trackSourceInfo.getSource());
@@ -134,7 +132,7 @@ public class EventLoggerUrlBuilder {
         }
 
         if (trackSourceInfo.isFromPlaylist()) {
-            builder.appendQueryParameter(PLAYLIST_ID, String.valueOf(trackSourceInfo.getPlaylistId()));
+            builder.appendQueryParameter(PLAYLIST_ID, String.valueOf(trackSourceInfo.getPlaylistUrn().getNumericId()));
             builder.appendQueryParameter(PLAYLIST_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 
@@ -142,8 +140,8 @@ public class EventLoggerUrlBuilder {
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#audio
         if (event.isAd()) {
             builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
-            builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
-            builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
+            builder.appendQueryParameter(AD_URN, event.get(PlaybackSessionEvent.KEY_AD_URN));
+            builder.appendQueryParameter(MONETIZED_OBJECT, event.get(PlaybackSessionEvent.KEY_MONETIZED_URN));
         }
 
         return builder.build().toString();
@@ -207,11 +205,11 @@ public class EventLoggerUrlBuilder {
     public String buildForAdFinished(PlaybackSessionEvent event) {
         final Uri.Builder builder = buildUriForPath("click", event.getTimeStamp());
 
-        builder.appendQueryParameter(AD_URN, event.getAudioAdUrn());
+        builder.appendQueryParameter(AD_URN, event.get(PlaybackSessionEvent.KEY_AD_URN));
         builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
-        builder.appendQueryParameter(MONETIZED_OBJECT, event.getAudioAdMonetizedUrn());
-        builder.appendQueryParameter(CLICK_OBJECT, event.getTrackUrn().toString());
-        builder.appendQueryParameter(EXTERNAL_MEDIA, event.getAudioAdArtworkUrl());
+        builder.appendQueryParameter(MONETIZED_OBJECT, event.get(PlaybackSessionEvent.KEY_MONETIZED_URN));
+        builder.appendQueryParameter(CLICK_OBJECT, event.get(PlaybackSessionEvent.KEY_TRACK_URN));
+        builder.appendQueryParameter(EXTERNAL_MEDIA, event.get(PlaybackSessionEvent.KEY_AD_ARTWORK));
         builder.appendQueryParameter(CLICK_NAME, "ad::finish");
 
         return builder.toString();

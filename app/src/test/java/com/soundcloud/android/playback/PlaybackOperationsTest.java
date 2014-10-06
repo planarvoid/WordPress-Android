@@ -159,7 +159,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         playbackOperations
                 .playTracks(Observable.from(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -177,7 +177,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
         playbackOperations
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe();
@@ -195,10 +195,10 @@ public class PlaybackOperationsTest {
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playQueueManager.isPlaylist()).thenReturn(true);
-        when(playQueueManager.getPlaylistId()).thenReturn(playlist.getId() + 1); // different Playlist Id
+        when(playQueueManager.getPlaylistUrn()).thenReturn(Urn.forPlaylist(1234)); // different Playlist Id
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.EXPLORE_TRENDING_MUSIC.get());
-        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         playbackOperations
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -225,16 +225,16 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndCurrentPlaylist()  {
-        final long playlistId = 456L;
-        final long playlistOwnerId = 789L;
+        final Urn playlistUrn = Urn.forPlaylist(456L);
+        final Urn playlistOwnerUrn = Urn.forUser(789L);
         final String screen = "origin_screen";
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
-        playSessionSource.setPlaylist(playlistId, playlistOwnerId);
+        playSessionSource.setPlaylist(playlistUrn, playlistOwnerUrn);
         when(playQueueManager.getScreenTag()).thenReturn(screen);
-        when(playQueueManager.getPlaylistId()).thenReturn(playlistId);
+        when(playQueueManager.getPlaylistUrn()).thenReturn(playlistUrn);
         when(playQueueManager.isPlaylist()).thenReturn(true);
         when(playQueueManager.isCurrentTrack(TRACK_URN)).thenReturn(true);
-        when(playQueueManager.isCurrentPlaylist(playlistId)).thenReturn(true);
+        when(playQueueManager.isCurrentPlaylist(playlistUrn)).thenReturn(true);
 
         playbackOperations
                 .playTracks(Observable.just(TRACK_URN), TRACK_URN, 1, playSessionSource)
@@ -720,7 +720,7 @@ public class PlaybackOperationsTest {
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTracksUrn(123L)));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        playSessionSource.setPlaylist(playlist.getUrn().getNumericId(), playlist.getUserId());
+        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         playbackOperations
                 .playTracks(Observable.just(TRACK_URN), TRACK_URN, 0, playSessionSource)

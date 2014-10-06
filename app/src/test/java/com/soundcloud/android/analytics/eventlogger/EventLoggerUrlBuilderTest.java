@@ -111,7 +111,7 @@ public class EventLoggerUrlBuilderTest {
     @Test
     public void createAudioEventUrlFromPlaylist() throws Exception {
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
-        when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
+        when(trackSourceInfo.getPlaylistUrn()).thenReturn(Urn.forPlaylist(123L));
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
@@ -161,7 +161,7 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
-        when(trackSourceInfo.getPlaylistId()).thenReturn(123L);
+        when(trackSourceInfo.getPlaylistUrn()).thenReturn(Urn.forPlaylist(123L));
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
                 PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
@@ -296,7 +296,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&ts=1000"
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&click_name=ad::finish"
-                + "&click_object=" + stopEvent.getTrackUrn().toEncodedString()
+                + "&click_object=" + URLEncoder.encode(stopEvent.get(PlaybackSessionEvent.KEY_TRACK_URN), "utf8")
                 + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
                 + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
                 + "&monetization_type=audio_ad")));
