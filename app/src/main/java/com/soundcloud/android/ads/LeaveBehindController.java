@@ -87,6 +87,7 @@ public class LeaveBehindController implements View.OnClickListener{
         adImage.setOnClickListener(this);
         leaveBehindClose = leaveBehind.findViewById(R.id.leave_behind_close);
         leaveBehindClose.setOnClickListener(this);
+        setInvisible();
     }
 
     public void show() {
