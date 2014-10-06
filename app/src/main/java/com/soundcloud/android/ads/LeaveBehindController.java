@@ -1,7 +1,6 @@
-package com.soundcloud.android.playback.ui;
+package com.soundcloud.android.ads;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -20,7 +19,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AccessorClassGeneration")
-class LeaveBehindController implements View.OnClickListener{
+public class LeaveBehindController implements View.OnClickListener{
 
     private final View trackView;
     private final ImageOperations imageOperations;
@@ -81,7 +80,7 @@ class LeaveBehindController implements View.OnClickListener{
         context.startActivity(intent);
     }
 
-    void initialize(PropertySet data) {
+    public void initialize(PropertySet data) {
         this.data = data;
         leaveBehind = getLeaveBehindView();
         adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
@@ -128,7 +127,7 @@ class LeaveBehindController implements View.OnClickListener{
         leaveBehindClose.setVisibility(View.GONE);
     }
 
-    void clear() {
+    public void clear() {
         resetMetaData();
         if (leaveBehind != null) {
             adImage.setImageDrawable(null);
@@ -148,7 +147,7 @@ class LeaveBehindController implements View.OnClickListener{
         return leaveBehind;
     }
 
-    static class Factory {
+    public static class Factory {
         private final ImageOperations imageOperations;
         private final Context context;
         private final DeviceHelper deviceHelper;
@@ -160,7 +159,7 @@ class LeaveBehindController implements View.OnClickListener{
             this.deviceHelper = deviceHelper;
         }
 
-        LeaveBehindController create(View trackView, LeaveBehindListener listener) {
+        public LeaveBehindController create(View trackView, LeaveBehindListener listener) {
             return new LeaveBehindController(trackView, listener, imageOperations, context, deviceHelper);
         }
     }

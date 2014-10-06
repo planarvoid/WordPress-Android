@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.ui;
+package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayer;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.ui.LeaveBehindController.Factory;
-import static com.soundcloud.android.playback.ui.LeaveBehindController.LeaveBehindListener;
+import static com.soundcloud.android.ads.LeaveBehindController.Factory;
+import static com.soundcloud.android.ads.LeaveBehindController.LeaveBehindListener;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.LeaveBehindController;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;

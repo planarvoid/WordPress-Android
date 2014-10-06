@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.LeaveBehindController;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProgress;
