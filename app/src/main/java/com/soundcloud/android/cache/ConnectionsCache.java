@@ -24,10 +24,10 @@ import java.util.WeakHashMap;
 
 public class ConnectionsCache implements DetachableResultReceiver.Receiver {
     @Nullable private Set<Connection> connections;
-    private DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
+    private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
 
     private static ConnectionsCache instance;
-    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
+    private final WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
     private AsyncQueryHandler asyncQueryHandler;
     private final Context context;
     private LocalCollection localCollection;
@@ -100,8 +100,8 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
 
     private class ConnectionsQueryHandler extends AsyncQueryHandler {
-        // Use weak reference to avoid memoey leak
-        private WeakReference<ConnectionsCache> connectionsCacheRef;
+        // Use weak reference to avoid memory leak
+        private final WeakReference<ConnectionsCache> connectionsCacheRef;
 
         public ConnectionsQueryHandler(Context context, ConnectionsCache connectionCache) {
             super(context.getContentResolver());

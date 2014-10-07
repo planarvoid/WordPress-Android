@@ -11,7 +11,7 @@ public class BatteryListener {
     private int batteryLevel;
     private boolean isPluggedIn;
 
-    private Context context;
+    private final Context context;
     private final BroadcastReceiver broadcastReceiver;
 
     public BatteryListener(Context context) {

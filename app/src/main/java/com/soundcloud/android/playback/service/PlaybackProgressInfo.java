@@ -4,8 +4,8 @@ package com.soundcloud.android.playback.service;
 import com.soundcloud.android.model.Urn;
 
 public class PlaybackProgressInfo {
-    private long trackId;
-    private long time;
+    private final long trackId;
+    private final long time;
 
     public PlaybackProgressInfo(long trackId, long time) {
         this.trackId = trackId;

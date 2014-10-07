@@ -21,10 +21,22 @@ import java.lang.ref.WeakReference;
 
 public class FullImageDialog extends Dialog {
 
-    private WeakReference<Activity> activityRef;
-    private Handler handler = new Handler();
+    private final WeakReference<Activity> activityRef;
+    private final Handler handler = new Handler();
 
-    private ImageOperations imageOperations;
+    private final ImageOperations imageOperations;
+    private final Runnable imageError = new Runnable() {
+        public void run() {
+            Activity activity = activityRef.get();
+            if (activity != null && !activity.isFinishing()) {
+                AndroidUtils.showToast(activity, R.string.image_load_error);
+            }
+            try {
+                dismiss();
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+    };
 
     public FullImageDialog(Activity context, final Urn resourceUrn, ImageOperations imageOperations) {
         super(context, R.style.Theme_FullImageDialog);
@@ -63,18 +75,6 @@ public class FullImageDialog extends Dialog {
         });
 
     }
-
-    private Runnable imageError = new Runnable() {
-        public void run() {
-            Activity activity = activityRef.get();
-            if (activity != null && !activity.isFinishing()) {
-                AndroidUtils.showToast(activity, R.string.image_load_error);
-            }
-            try {
-                dismiss();
-            } catch (IllegalArgumentException ignored) {}
-        }
-    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {

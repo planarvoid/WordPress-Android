@@ -30,16 +30,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StreamItem implements Parcelable {
+    public static final String TRACK_ID_KEY = "track_id";
+    public static final Parcelable.Creator<StreamItem> CREATOR = new Parcelable.Creator<StreamItem>() {
+        public StreamItem createFromParcel(Parcel in) {
+            try {
+                return new StreamItem(in);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public StreamItem[] newArray(int size) {
+            return new StreamItem[size];
+        }
+    };
+    private static final Pattern STREAM_PATTERN = Pattern.compile("/(\\d+)/stream(\\?secret_token=s-\\w+)?$");
     public final Index missingChunks = new Index();
     public final List<Integer> downloadedChunks =
             Collections.synchronizedList(new ArrayList<Integer>());
-
-    public static final String TRACK_ID_KEY = "track_id";
-
-    private final URL url;
     public final String urlHash;
     public final long trackId;
-
+    private final URL url;
     private boolean mUnavailable;  // http status 402, 404, 410
     private int mHttpErrorStatus;
     private long mContentLength;
@@ -47,10 +58,7 @@ public class StreamItem implements Parcelable {
     private String mEtag;  // audio content ETag
     private long mExpires; // expiration time of the redirect link
     private int mBitrate;
-
     private File mCachedFile;
-
-    private static final Pattern STREAM_PATTERN = Pattern.compile("/(\\d+)/stream(\\?secret_token=s-\\w+)?$");
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) {
@@ -78,6 +86,18 @@ public class StreamItem implements Parcelable {
         this(url);
         mContentLength = length;
         mEtag = etag;
+    }
+
+    public StreamItem(Parcel in) throws MalformedURLException {
+        Bundle data = in.readBundle(getClass().getClassLoader());
+        url = new URL(data.getString("url"));
+        trackId = getTrackId(url.toString());
+        urlHash = urlHash(url.toString());
+        mRedirectedUrl = new URL(data.getString("redirectedUrl"));
+        mEtag = data.getString("etag");
+        mUnavailable = data.getBoolean("unavailable");
+        mContentLength = data.getLong("contentLength");
+        mExpires = data.getLong("expires");
     }
 
     public StreamItem initializeFromStream(Stream s) {
@@ -167,7 +187,6 @@ public class StreamItem implements Parcelable {
         return IOUtils.md5(url);
     }
 
-
     public static long getTrackId(String url) {
         final Uri uri = Uri.parse(url);
         String id = uri.getQueryParameter(TRACK_ID_KEY);
@@ -205,6 +224,8 @@ public class StreamItem implements Parcelable {
         return sb.toString();
     }
 
+    // serialization support
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -221,8 +242,6 @@ public class StreamItem implements Parcelable {
     public int hashCode() {
         return url != null ? url.toString().hashCode() : 0;
     }
-
-    // serialization support
 
     public void toIndexFile(File f) throws IOException {
         mkdirs(f.getParentFile());
@@ -254,6 +273,25 @@ public class StreamItem implements Parcelable {
         return url;
     }
 
+    // parcelable support
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle data = new Bundle();
+        data.putString("url", url.toString());
+        data.putString("redirectedUrl", mRedirectedUrl.toString());
+        data.putString("etag", mEtag);
+        data.putBoolean("unavailable", mUnavailable);
+        data.putLong("contentLength", mContentLength);
+        data.putLong("expires", mExpires);
+        // TODO index + downloaded chunks
+        dest.writeBundle(data);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
     /* package */ void write(DataOutputStream dos) throws IOException {
         dos.writeUTF(url.toString());
         dos.writeLong(mContentLength);
@@ -279,50 +317,4 @@ public class StreamItem implements Parcelable {
         }
         return item;
     }
-
-
-    // parcelable support
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        Bundle data = new Bundle();
-        data.putString("url", url.toString());
-        data.putString("redirectedUrl", mRedirectedUrl.toString());
-        data.putString("etag", mEtag);
-        data.putBoolean("unavailable", mUnavailable);
-        data.putLong("contentLength", mContentLength);
-        data.putLong("expires", mExpires);
-        // TODO index + downloaded chunks
-        dest.writeBundle(data);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public StreamItem(Parcel in) throws MalformedURLException {
-        Bundle data = in.readBundle(getClass().getClassLoader());
-        url = new URL(data.getString("url"));
-        trackId = getTrackId(url.toString());
-        urlHash = urlHash(url.toString());
-        mRedirectedUrl = new URL(data.getString("redirectedUrl"));
-        mEtag = data.getString("etag");
-        mUnavailable = data.getBoolean("unavailable");
-        mContentLength = data.getLong("contentLength");
-        mExpires = data.getLong("expires");
-    }
-
-    public static final Parcelable.Creator<StreamItem> CREATOR = new Parcelable.Creator<StreamItem>() {
-        public StreamItem createFromParcel(Parcel in) {
-            try {
-                return new StreamItem(in);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public StreamItem[] newArray(int size) {
-            return new StreamItem[size];
-        }
-    };
 }

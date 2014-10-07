@@ -141,7 +141,7 @@ public class DeveloperPreferences {
 
     private static class DeleteRecordings implements Runnable {
         private final Context context;
-        private Handler handler = new Handler();
+        private final Handler handler = new Handler();
 
         private DeleteRecordings(Context context) {
             this.context = context;

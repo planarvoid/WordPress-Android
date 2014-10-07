@@ -268,7 +268,7 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     private class SyncStateQueryHandler extends AsyncQueryHandler {
-        private LocalCollection localCollection;
+        private final LocalCollection localCollection;
         private final LocalCollection.OnChangeListener listener;
 
         public SyncStateQueryHandler(@NotNull LocalCollection lc, LocalCollection.OnChangeListener listener) {

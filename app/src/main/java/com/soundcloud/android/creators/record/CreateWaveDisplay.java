@@ -24,35 +24,21 @@ public class CreateWaveDisplay extends TouchLayout {
     private static final int UI_ON_TRIM_STATE = 3;
 
     private static final long TRIM_REPORT_INTERVAL = 200;
+    private final int touchSlop;
+    private final TrimHandleView rightHandle, leftHandle;
+    private final Handler touchHandler = new TouchHandler(this);
     private long lastTrimAction;
-
     private int leftHandleTouchIndex;
     private int rightHandleTouchIndex;
     private boolean seekMode;
-
     private int mode;
-
     private boolean isEditing;
-
     private CreateWaveView waveformView;
-
     private Rect waveformRect;
-
     private long lastSeekX = -1;
-    private final int touchSlop;
-
-    private final TrimHandleView rightHandle, leftHandle;
     private Listener listener;
     private int waveformWidth, leftDragOffsetX, rightDragOffsetX;
     private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
-
-    public static interface Listener {
-        void onSeek(float pos);
-
-        void onAdjustTrimLeft(float newPos, long moveTimeMs);
-
-        void onAdjustTrimRight(float newPos, long moveTimeMs);
-    }
 
     public CreateWaveDisplay(Context context) {
         super(context);
@@ -64,20 +50,73 @@ public class CreateWaveDisplay extends TouchLayout {
         refreshWaveView();
     }
 
-    private CreateWaveView refreshWaveView() {
-        if (waveformView != null && waveformView.getParent() == this) {
-            removeView(waveformView);
-        }
-
-        waveformView = new CreateWaveView(getContext());
-        LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        viewParams.bottomMargin = (int) getResources().getDimension(R.dimen.create_wave_view_bottom_margin);
-        addView(waveformView, viewParams);
-        return waveformView;
-    }
-
     public void setTrimListener(Listener trimListener) {
         listener = trimListener;
+    }
+
+    public void gotoRecordMode() {
+        if (mode != MODE_REC) {
+            mode = MODE_REC;
+            waveformView.setMode(mode, true);
+        }
+    }
+
+    public void gotoPlaybackMode(boolean animate) {
+        if (mode != MODE_PLAYBACK) {
+            mode = MODE_PLAYBACK;
+            waveformView.setMode(mode, animate);
+        }
+    }
+
+    public void updateAmplitude(float maxAmplitude, boolean isRecording) {
+        waveformView.updateAmplitude(maxAmplitude, isRecording);
+    }
+
+    public void setProgress(float progress) {
+        waveformView.setPlaybackProgress(progress);
+    }
+
+    public void reset() {
+        mode = CreateWaveDisplay.MODE_REC;
+        waveformView.reset();
+    }
+
+    public void setIsEditing(boolean isEditing) {
+        if (this.isEditing != isEditing) {
+            this.isEditing = isEditing;
+            waveformView.setIsEditing(isEditing);
+            if (this.isEditing) {
+                setTrimHandles();
+                waveformView.setBackgroundColor(Color.BLACK);
+            } else {
+                if (leftHandle.getParent() == this) {
+                    removeView(leftHandle);
+                }
+                if (rightHandle.getParent() == this) {
+                    removeView(rightHandle);
+                }
+                //noinspection deprecation
+                waveformView.setBackgroundDrawable(null);
+            }
+        }
+    }
+
+    public void onSaveInstanceState(Bundle state) {
+        final String prepend = this.getClass().getSimpleName();
+        state.putInt(prepend + "_mode", mode);
+        state.putBoolean(prepend + "_inEditMode", isEditing);
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+        final String prepend = this.getClass().getSimpleName();
+        mode = state.getInt(prepend + "_mode", mode);
+        setIsEditing(state.getBoolean(prepend + "_inEditMode", isEditing));
+        waveformView.setMode(mode, false);
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        waveformView.onDestroy();
     }
 
     @Override
@@ -154,6 +193,37 @@ public class CreateWaveDisplay extends TouchLayout {
         processHandleUpFromPointer(input.actionIndex);
     }
 
+    protected void queueUnique(int what) {
+        if (!touchHandler.hasMessages(what)) {
+            touchHandler.sendEmptyMessage(what);
+        }
+    }
+
+    protected void queueTrim(int what) {
+        if (lastTrimAction == 0) {
+            queueUnique(what);
+        } else {
+            final long delay = Math.max(0, TRIM_REPORT_INTERVAL - System.currentTimeMillis() - lastTrimAction);
+
+            if (touchHandler.hasMessages(what)) {
+                touchHandler.removeMessages(what);
+            }
+            touchHandler.sendEmptyMessageDelayed(what, delay);
+        }
+    }
+
+    private CreateWaveView refreshWaveView() {
+        if (waveformView != null && waveformView.getParent() == this) {
+            removeView(waveformView);
+        }
+
+        waveformView = new CreateWaveView(getContext());
+        LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        viewParams.bottomMargin = (int) getResources().getDimension(R.dimen.create_wave_view_bottom_margin);
+        addView(waveformView, viewParams);
+        return waveformView;
+    }
+
     private void processHandleUpFromPointer(int pointerIndex) {
         if (leftHandleTouchIndex == pointerIndex) {
             newTrimActionLeft = null;
@@ -178,25 +248,6 @@ public class CreateWaveDisplay extends TouchLayout {
         if (x != lastSeekX) {
             lastSeekX = x;
             queueUnique(UI_UPDATE_SEEK);
-        }
-    }
-
-    protected void queueUnique(int what) {
-        if (!touchHandler.hasMessages(what)) {
-            touchHandler.sendEmptyMessage(what);
-        }
-    }
-
-    protected void queueTrim(int what) {
-        if (lastTrimAction == 0) {
-            queueUnique(what);
-        } else {
-            final long delay = Math.max(0, TRIM_REPORT_INTERVAL - System.currentTimeMillis() - lastTrimAction);
-
-            if (touchHandler.hasMessages(what)) {
-                touchHandler.removeMessages(what);
-            }
-            touchHandler.sendEmptyMessageDelayed(what, delay);
         }
     }
 
@@ -245,8 +296,31 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
+    private void setTrimHandles() {
+        float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
+        if (isEditing) {
+            leftHandle.update((int) (waveformWidth * trimWindow[0]));
+            if (leftHandle.getParent() != this) {
+                addView(leftHandle);
+            }
+
+            rightHandle.update((int) ((1.0d - trimWindow[1]) * waveformWidth));
+            if (rightHandle.getParent() != this) {
+                addView(rightHandle);
+            }
+        }
+    }
+
+    public static interface Listener {
+        void onSeek(float pos);
+
+        void onAdjustTrimLeft(float newPos, long moveTimeMs);
+
+        void onAdjustTrimRight(float newPos, long moveTimeMs);
+    }
+
     private static final class TouchHandler extends Handler {
-        private WeakReference<CreateWaveDisplay> viewRef;
+        private final WeakReference<CreateWaveDisplay> viewRef;
 
         private TouchHandler(CreateWaveDisplay view) {
             this.viewRef = new WeakReference<CreateWaveDisplay>(view);
@@ -307,89 +381,6 @@ public class CreateWaveDisplay extends TouchLayout {
             }
         }
     }
-
-    private final Handler touchHandler = new TouchHandler(this);
-
-    private void setTrimHandles() {
-        float[] trimWindow = SoundRecorder.getInstance(getContext()).getTrimWindow();
-        if (isEditing) {
-            leftHandle.update((int) (waveformWidth * trimWindow[0]));
-            if (leftHandle.getParent() != this) {
-                addView(leftHandle);
-            }
-
-            rightHandle.update((int) ((1.0d - trimWindow[1]) * waveformWidth));
-            if (rightHandle.getParent() != this) {
-                addView(rightHandle);
-            }
-        }
-    }
-
-    public void gotoRecordMode() {
-        if (mode != MODE_REC) {
-            mode = MODE_REC;
-            waveformView.setMode(mode, true);
-        }
-    }
-
-    public void gotoPlaybackMode(boolean animate) {
-        if (mode != MODE_PLAYBACK) {
-            mode = MODE_PLAYBACK;
-            waveformView.setMode(mode, animate);
-        }
-    }
-
-    public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-        waveformView.updateAmplitude(maxAmplitude, isRecording);
-    }
-
-    public void setProgress(float progress) {
-        waveformView.setPlaybackProgress(progress);
-    }
-
-    public void reset() {
-        mode = CreateWaveDisplay.MODE_REC;
-        waveformView.reset();
-    }
-
-    public void setIsEditing(boolean isEditing) {
-        if (this.isEditing != isEditing) {
-            this.isEditing = isEditing;
-            waveformView.setIsEditing(isEditing);
-            if (this.isEditing) {
-                setTrimHandles();
-                waveformView.setBackgroundColor(Color.BLACK);
-            } else {
-                if (leftHandle.getParent() == this) {
-                    removeView(leftHandle);
-                }
-                if (rightHandle.getParent() == this) {
-                    removeView(rightHandle);
-                }
-                //noinspection deprecation
-                waveformView.setBackgroundDrawable(null);
-            }
-        }
-    }
-
-    public void onSaveInstanceState(Bundle state) {
-        final String prepend = this.getClass().getSimpleName();
-        state.putInt(prepend + "_mode", mode);
-        state.putBoolean(prepend + "_inEditMode", isEditing);
-    }
-
-    public void onRestoreInstanceState(Bundle state) {
-        final String prepend = this.getClass().getSimpleName();
-        mode = state.getInt(prepend + "_mode", mode);
-        setIsEditing(state.getBoolean(prepend + "_inEditMode", isEditing));
-        waveformView.setMode(mode, false);
-    }
-
-    public void onDestroy() {
-        super.onDestroy();
-        waveformView.onDestroy();
-    }
-
 
     private class TrimAction {
         long timestamp;

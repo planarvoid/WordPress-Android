@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 class OAuth2Scheme implements AuthScheme {
     public HashMap<String, String> params;
     public HttpParams httpParams;
-    private CloudAPI api;
+    private final CloudAPI api;
 
     public static Pattern AUTHORIZATION_HEADER_PATTERN = Pattern.compile("^OAuth (\\w+)$");
 
@@ -148,7 +148,7 @@ class OAuth2Scheme implements AuthScheme {
     }
 
     static class Factory implements AuthSchemeFactory {
-        private CloudAPI api;
+        private final CloudAPI api;
 
         public Factory(CloudAPI api) {
             this.api = api;

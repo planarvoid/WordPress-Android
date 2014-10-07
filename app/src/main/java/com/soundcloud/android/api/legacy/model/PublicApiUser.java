@@ -40,7 +40,15 @@ import android.text.TextUtils;
 public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource {
     public static final int TYPE = 0;
     public static final String EXTRA = "user";
+    public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
+        public PublicApiUser createFromParcel(Parcel in) {
+            return new PublicApiUser(in);
+        }
 
+        public PublicApiUser[] newArray(int size) {
+            return new PublicApiUser[size];
+        }
+    };
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
     @Nullable @JsonView(Views.Mini.class) public String avatar_url;
@@ -48,16 +56,11 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Nullable @JsonView(Views.Mini.class) public String permalink_url;
     @Nullable public String full_name;
     @Nullable public String description;
-    @Nullable private String city;
-    @Nullable private String country;
-
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
-
     @Nullable public String website;
     @Nullable public String website_title;
     @Nullable public String myspace_name;
     @Nullable public String discogs_name;
-
     // counts
     public int track_count = NOT_SET;
     public int followers_count = NOT_SET;
@@ -65,12 +68,12 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     public int private_tracks_count = NOT_SET;
     @JsonProperty("public_likes_count")
     public int public_likes_count = NOT_SET;
-
     // internal fields
     @Nullable @JsonIgnore public String _list_avatar_uri;
     @JsonIgnore public boolean user_follower;  // is the user following the logged in user
     @JsonIgnore public boolean user_following; // is the user being followed by the logged in user
-
+    @Nullable private String city;
+    @Nullable private String country;
     @Nullable private Boolean primary_email_confirmed;
 
     public PublicApiUser() {
@@ -82,12 +85,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
 
     public PublicApiUser(String urn) {
         super(urn);
-    }
-
-    @Override
-    public void setId(long id) {
-        super.setId(id);
-        mURN = Urn.forUser(id);
     }
 
     public PublicApiUser(SuggestedUser suggestedUser) {
@@ -133,6 +130,12 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         avatar_url = user.getAvatarUrl();
     }
 
+    @Override
+    public void setId(long id) {
+        super.setId(id);
+        mURN = Urn.forUser(id);
+    }
+
     public PublicApiUser updateFromCursor(Cursor cursor) {
         setId(cursor.getLong(cursor.getColumnIndex(TableColumns.Users._ID)));
         permalink = cursor.getString(cursor.getColumnIndex(TableColumns.Users.PERMALINK));
@@ -173,16 +176,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         u.avatar_url = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_AVATAR_URL));
         return u;
     }
-
-    public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
-        public PublicApiUser createFromParcel(Parcel in) {
-            return new PublicApiUser(in);
-        }
-
-        public PublicApiUser[] newArray(int size) {
-            return new PublicApiUser[size];
-        }
-    };
 
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
@@ -331,14 +324,14 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return u;
     }
 
+    public boolean isPrimaryEmailConfirmed() {
+        return primary_email_confirmed == null || primary_email_confirmed;
+    }
+
     // setter for deserialization, we want it null if it doesn't exist and to keep it private
     @JsonProperty("primary_email_confirmed")
     public void setPrimaryEmailConfirmed(boolean val) {
         primary_email_confirmed = val;
-    }
-
-    public boolean isPrimaryEmailConfirmed() {
-        return primary_email_confirmed == null || primary_email_confirmed;
     }
 
     public Intent getViewIntent() {
@@ -402,12 +395,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
             propertySet.put(UserProperty.COUNTRY, country);
         }
         return propertySet;
-    }
-
-    public static interface DataKeys {
-        String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
-        String SEEN_CREATE_AUTOSAVE = "seenCreateAutoSave";
-
     }
 
     @Override
@@ -526,7 +513,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         }
     }
 
-
     @Override
     public void writeToParcel(Parcel out, int flags) {
         // TODO replace with generated file
@@ -553,5 +539,12 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         bundle.putInt("private_tracks_count", model.private_tracks_count);
         bundle.putLong("id", model.getId());
         out.writeBundle(bundle);
+    }
+
+
+    public static interface DataKeys {
+        String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
+        String SEEN_CREATE_AUTOSAVE = "seenCreateAutoSave";
+
     }
 }

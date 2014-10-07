@@ -122,8 +122,8 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
     }
 
     private static class TouchThread extends Thread {
-        private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
-        private WeakReference<TouchLayout> mLayoutRef;
+        private final ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<>(INPUT_QUEUE_SIZE);
+        private final WeakReference<TouchLayout> mLayoutRef;
         private boolean stopped = false;
 
         private TouchThread(TouchLayout touchLayout) {

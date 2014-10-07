@@ -28,24 +28,58 @@ import android.widget.TextView;
 
 public class UploadMonitorActivity extends TrackedActivity {
 
-    private static final int MAX = 100;
     public static final int BUTTON_BAR_CANCEL_ID = 0;
     public static final int BUTTON_BAR_RETRY_ID = 1;
     public static final String EXTRA_IN_TRANSFER_STATE = "transferState";
     public static final String EXTRA_PROGRESS = "progress";
+    private static final int MAX = 100;
+    private final Handler handler = new Handler();
     private Recording recording;
+    private final BroadcastReceiver uploadStatusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
+            if (!UploadMonitorActivity.this.recording.equals(recording)) {
+                return;
+            }
 
+            // update with latest broadcasted attributes
+            UploadMonitorActivity.this.recording = recording;
+
+            final String action = intent.getAction();
+            final int progress = intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0);
+            showUploading();
+
+            if (UploadService.PROCESSING_STARTED.equals(action)) {
+                setProcessProgress(-1);
+            } else if (UploadService.PROCESSING_PROGRESS.equals(action)) {
+                setProcessProgress(progress);
+            } else if (UploadService.PROCESSING_SUCCESS.equals(action)) {
+                setProcessProgress(MAX);
+            } else if (UploadService.PROCESSING_ERROR.equals(action)) {
+                onUploadFinished(false);
+            } else if (UploadService.TRANSFER_STARTED.equals(action)) {
+                setProcessProgress(MAX);
+                setTransferProgress(-1);
+            } else if (UploadService.TRANSFER_PROGRESS.equals(action)) {
+                setTransferProgress(progress);
+            } else if (UploadService.TRANSFER_SUCCESS.equals(action)) {
+                setTransferProgress(MAX);
+                onUploadFinished(true);
+            } else if (UploadService.TRANSFER_ERROR.equals(action)) {
+                onUploadFinished(false);
+            } else if (UploadService.TRANSFER_CANCELLED.equals(action) || UploadService.PROCESSING_CANCELED.equals(action)) {
+                finish();
+            }
+        }
+    };
     private ProgressBar processingProgress, transferProgress;
     private RelativeLayout uploadingLayout, finishedLayout;
     private ButtonBar buttonBar;
-
     private TextView processingProgressText, uploadingProgressText;
     private TextView trackTitle;
-
     private boolean transferState;
     private int progress;
-
-    private final Handler handler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,14 +149,6 @@ public class UploadMonitorActivity extends TrackedActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(uploadStatusListener);
-    }
-
-
-    @Override
     public void onSaveInstanceState(Bundle state) {
         state.putInt(EXTRA_PROGRESS, progress);
         state.putBoolean(EXTRA_IN_TRANSFER_STATE, transferState);
@@ -137,6 +163,13 @@ public class UploadMonitorActivity extends TrackedActivity {
                 setTransferProgress(state.getInt(EXTRA_PROGRESS));
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(uploadStatusListener);
     }
 
     private void setRecording(final Recording recording) {
@@ -168,45 +201,6 @@ public class UploadMonitorActivity extends TrackedActivity {
             finish();
         }
     }
-
-    private final BroadcastReceiver uploadStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-            if (!UploadMonitorActivity.this.recording.equals(recording)) {
-                return;
-            }
-
-            // update with latest broadcasted attributes
-            UploadMonitorActivity.this.recording = recording;
-
-            final String action = intent.getAction();
-            final int progress = intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0);
-            showUploading();
-
-            if (UploadService.PROCESSING_STARTED.equals(action)) {
-                setProcessProgress(-1);
-            } else if (UploadService.PROCESSING_PROGRESS.equals(action)) {
-                setProcessProgress(progress);
-            } else if (UploadService.PROCESSING_SUCCESS.equals(action)) {
-                setProcessProgress(MAX);
-            } else if (UploadService.PROCESSING_ERROR.equals(action)) {
-                onUploadFinished(false);
-            } else if (UploadService.TRANSFER_STARTED.equals(action)) {
-                setProcessProgress(MAX);
-                setTransferProgress(-1);
-            } else if (UploadService.TRANSFER_PROGRESS.equals(action)) {
-                setTransferProgress(progress);
-            } else if (UploadService.TRANSFER_SUCCESS.equals(action)) {
-                setTransferProgress(MAX);
-                onUploadFinished(true);
-            } else if (UploadService.TRANSFER_ERROR.equals(action)) {
-                onUploadFinished(false);
-            } else if (UploadService.TRANSFER_CANCELLED.equals(action) || UploadService.PROCESSING_CANCELED.equals(action)) {
-                finish();
-            }
-        }
-    };
 
     private void setProcessProgress(int progress) {
         this.progress = progress;

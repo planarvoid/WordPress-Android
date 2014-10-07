@@ -13,10 +13,17 @@ public class FadeFilter implements PlaybackFilter {
     public static final int FADE_TYPE_BOTH = 0;
     public static final int FADE_TYPE_BEGINNING = 1;
     public static final int FADE_TYPE_END = 2;
+    public static final Parcelable.Creator<FadeFilter> CREATOR = new Parcelable.Creator<FadeFilter>() {
+        public FadeFilter createFromParcel(Parcel in) {
+            return new FadeFilter(in.readInt(), in.readLong(), in.readInt());
+        }
 
+        public FadeFilter[] newArray(int size) {
+            return new FadeFilter[size];
+        }
+    };
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
-
     private final long fadeSize;
     private final int fadeType;
     private final int fadeExpCurve;
@@ -56,26 +63,6 @@ public class FadeFilter implements PlaybackFilter {
         return buffer;
     }
 
-    /**
-     * Apply the volume change
-     * @param buffer the audio data
-     * @param position where (byte offset) in relation to the total piece of audio does this buffer belong
-     * @param start where (byte offset) in the buffer to start the fade
-     * @param count how many bytes to process
-     * @param fadeOffset where (byte offset) the fade is positioned
-     * @param invert is this a reverse fade?
-     */
-    private void applyVolumeChangeToBuffer(ByteBuffer buffer, long position, int start, int count, long fadeOffset, boolean invert) {
-        start = Math.max(0, start - (start % 2)); //validate short
-        for (int i = start; i < start + count; i += 2) {
-            final double x = (position + i - fadeOffset) / ((double) fadeSize);
-            final double v = Math.pow(x, fadeExpCurve);
-            final short orig = buffer.getShort(i);
-            final short faded = (short) (orig * (invert ? 1 - v : v));
-            buffer.putShort(i, faded);
-        }
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -88,16 +75,6 @@ public class FadeFilter implements PlaybackFilter {
         dest.writeInt(fadeExpCurve);
     }
 
-    public static final Parcelable.Creator<FadeFilter> CREATOR = new Parcelable.Creator<FadeFilter>() {
-        public FadeFilter createFromParcel(Parcel in) {
-            return new FadeFilter(in.readInt(), in.readLong(), in.readInt());
-        }
-
-        public FadeFilter[] newArray(int size) {
-            return new FadeFilter[size];
-        }
-    };
-
     @Override
     public String toString() {
         return "FadeFilter{" +
@@ -105,5 +82,26 @@ public class FadeFilter implements PlaybackFilter {
                 ", fadeType=" + fadeType +
                 ", fadeExpCurve=" + fadeExpCurve +
                 '}';
+    }
+
+    /**
+     * Apply the volume change
+     *
+     * @param buffer     the audio data
+     * @param position   where (byte offset) in relation to the total piece of audio does this buffer belong
+     * @param start      where (byte offset) in the buffer to start the fade
+     * @param count      how many bytes to process
+     * @param fadeOffset where (byte offset) the fade is positioned
+     * @param invert     is this a reverse fade?
+     */
+    private void applyVolumeChangeToBuffer(ByteBuffer buffer, long position, int start, int count, long fadeOffset, boolean invert) {
+        start = Math.max(0, start - (start % 2)); //validate short
+        for (int i = start; i < start + count; i += 2) {
+            final double x = (position + i - fadeOffset) / ((double) fadeSize);
+            final double v = Math.pow(x, fadeExpCurve);
+            final short orig = buffer.getShort(i);
+            final short faded = (short) (orig * (invert ? 1 - v : v));
+            buffer.putShort(i, faded);
+        }
     }
 }

@@ -31,14 +31,14 @@ import java.util.WeakHashMap;
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private static FollowStatus instance;
 
-    private WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener> listeners =
+    private final WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener> listeners =
             new WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener>();
 
     private AsyncQueryHandler asyncQueryHandler;
     private long last_sync_success = -1;
     private LocalCollection followingCollectionState;
-    private HashMap<Long, Long> followedAtStamps = new HashMap<Long, Long>();
-    private HashMap<Long, Long> unFollowedAtStamps = new HashMap<Long, Long>();
+    private final HashMap<Long, Long> followedAtStamps = new HashMap<Long, Long>();
+    private final HashMap<Long, Long> unFollowedAtStamps = new HashMap<Long, Long>();
 
     private final Context context;
     private final SyncStateManager syncStateManager;

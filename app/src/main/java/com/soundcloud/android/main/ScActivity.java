@@ -51,35 +51,158 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
     protected static final int CONNECTIVITY_MSG = 0;
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
-
+    private final ActivityLifeCycleDispatcher.Builder<ScActivity> lifeCycleDispatcherBuilder;
+    private final Handler connHandler = new ConnectivityHandler(this);
+    private final DefaultSubscriber<CurrentUserChangedEvent> userEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
+        @Override
+        public void onNext(CurrentUserChangedEvent args) {
+            if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
+                finish();
+            }
+        }
+    };
     protected NetworkConnectivityListener connectivityListener;
+    @Inject protected AccountOperations accountOperations;
+    @Inject protected EventBus eventBus;
+    @Nullable
+    protected ActionBarController actionBarController;
+    @Inject ImageOperations imageOperations;
+    @Inject ActionBarController.Factory actionBarControllerFactory;
     private long currentUserId;
-
     private Boolean isConnected;
     private boolean isForeground;
     private boolean onCreateCalled;
     private boolean isConfigurationChange;
-
     private Subscription userEventSubscription = Subscriptions.empty();
-
-    @Inject ImageOperations imageOperations;
-    @Inject protected AccountOperations accountOperations;
-    @Inject protected EventBus eventBus;
-    @Inject ActionBarController.Factory actionBarControllerFactory;
-
-    @Nullable
-    protected ActionBarController actionBarController;
     private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
-    private final ActivityLifeCycleDispatcher.Builder<ScActivity> lifeCycleDispatcherBuilder;
     private ActivityLifeCycleDispatcher<ScActivity> lifeCycleDispatcher;
-
-    protected void addLifeCycleComponent(ActivityLifeCycle<ScActivity> lifeCycleComponent) {
-        lifeCycleDispatcherBuilder.add(lifeCycleComponent);
-    }
 
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         lifeCycleDispatcherBuilder = new ActivityLifeCycleDispatcher.Builder<>();
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(CharSequence title) {
+        getSupportActionBar().setTitle(title);
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        getSupportActionBar().setTitle(titleId);
+    }
+
+    @Nullable
+    public ActionBarController getActionBarController() {
+        return actionBarController;
+    }
+
+    public void restoreActionBar() {
+        /** no-op. Used in {@link com.soundcloud.android.main.MainActivity#restoreActionBar()} */
+    }
+
+    @Override
+    public boolean onSearchRequested() {
+        // just focus on the search tab, don't show default android search dialog
+        startActivity(new Intent(Actions.SEARCH).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        return false;
+    }
+
+    public SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
+
+    public boolean isForeground() {
+        return isForeground;
+    }
+
+    public boolean isConnected() {
+        if (isConnected == null) {
+            if (connectivityListener == null) {
+                isConnected = true;
+            } else {
+                // isConnected not set yet
+                NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
+                isConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
+            }
+        }
+        return isConnected;
+    }
+
+    public void showToast(int stringId) {
+        AndroidUtils.showToast(this, stringId);
+    }
+
+    public void safeShowDialog(int dialogId) {
+        if (!isFinishing()) {
+            try {
+                showDialog(dialogId);
+            } catch (WindowManager.BadTokenException ignored) {
+                // the !isFinishing() check should prevent these - but not always
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (actionBarController != null) {
+            actionBarController.onCreateOptionsMenu(menu);
+        }
+        return true;
+    }
+
+    @Override
+    public int getMenuResourceId() {
+        return R.menu.main;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (actionBarController != null) {
+            return actionBarController.onOptionsItemSelected(item);
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public long getCurrentUserId() {
+        if (currentUserId == 0) {
+            currentUserId = accountOperations.getLoggedInUserId();
+        }
+        return currentUserId;
+    }
+
+    @NotNull
+    @Override
+    public ActionBarActivity getActivity() {
+        return this;
+    }
+
+    /**
+     * For the search UI, we need to block out the UI completely. this might change as requirements to
+     * To be implemented
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        if (isTaskRoot()) {
+            // empty backstack and not a landing page, might be from a notification or deeplink
+            // just go to the home activity
+            startActivity(new Intent(this, MainActivity.class));
+        }
+        finish();
+        return true;
+    }
+
+    /**
+     * Convenience method to get the content id for usage in one-off fragments
+     */
+    public static int getContentHolderViewId() {
+        return R.id.container;
+    }
+
+    protected void addLifeCycleComponent(ActivityLifeCycle<ScActivity> lifeCycleComponent) {
+        lifeCycleDispatcherBuilder.add(lifeCycleComponent);
     }
 
     @Override
@@ -138,28 +261,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         lifeCycleDispatcher.onRestoreInstanceState(savedInstanceState);
     }
 
-    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
-    @Override
-    public void setTitle(CharSequence title) {
-        getSupportActionBar().setTitle(title);
-    }
-
-    @Override
-    public void setTitle(int titleId) {
-        getSupportActionBar().setTitle(titleId);
-    }
-
     protected ActionBarController createActionBarController() {
         return actionBarControllerFactory.create(this);
-    }
-
-    @Nullable
-    public ActionBarController getActionBarController() {
-        return actionBarController;
-    }
-
-    public void restoreActionBar() {
-        /** no-op. Used in {@link com.soundcloud.android.main.MainActivity#restoreActionBar()} */
     }
 
     @Override
@@ -218,17 +321,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         super.onPause();
     }
 
-    @Override
-    public boolean onSearchRequested() {
-        // just focus on the search tab, don't show default android search dialog
-        startActivity(new Intent(Actions.SEARCH).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        return false;
-    }
-
-    public SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getApplication();
-    }
-
     /**
      * @return true if the Activity didn't receive a create event before onResume, e.g. when returning from another
      * activity further up the task stack.
@@ -245,37 +337,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         return !isConfigurationChange() || isReallyResuming();
     }
 
-    public boolean isForeground() {
-        return isForeground;
-    }
-
-    public boolean isConnected() {
-        if (isConnected == null) {
-            if (connectivityListener == null) {
-                isConnected = true;
-            } else {
-                // isConnected not set yet
-                NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                isConnected = networkInfo == null || networkInfo.isConnectedOrConnecting();
-            }
-        }
-        return isConnected;
-    }
-
-    public void showToast(int stringId) {
-        AndroidUtils.showToast(this, stringId);
-    }
-
-    public void safeShowDialog(int dialogId) {
-        if (!isFinishing()) {
-            try {
-                showDialog(dialogId);
-            } catch (WindowManager.BadTokenException ignored) {
-                // the !isFinishing() check should prevent these - but not always
-            }
-        }
-    }
-
     protected void onDataConnectionChanged(boolean isConnected) {
         this.isConnected = isConnected;
     }
@@ -287,10 +348,10 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                 return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
                         .setMessage(R.string.error_loading_message).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
-                            }
-                        }).create();
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
+                                    }
+                                }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
                         .setMessage(R.string.menu_clear_user_desc)
@@ -305,63 +366,44 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)
                         .setMessage(R.string.dialog_transcoding_failed_message).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
-                            }
-                        }).setNegativeButton(
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                                    }
+                                }).setNegativeButton(
                                 R.string.visit_support, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(
-                                        new Intent(Intent.ACTION_VIEW,
-                                                Uri.parse(getString(R.string.authentication_support_uri))));
-                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
-                            }
-                        }).create();
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        startActivity(
+                                                new Intent(Intent.ACTION_VIEW,
+                                                        Uri.parse(getString(R.string.authentication_support_uri))));
+                                        removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
+                                    }
+                                }).create();
             case Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_processing_title)
                         .setMessage(R.string.dialog_transcoding_processing_message).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
-                            }
-                        }).create();
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
+                                    }
+                                }).create();
 
             default:
                 return super.onCreateDialog(which);
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (actionBarController != null) {
-            actionBarController.onCreateOptionsMenu(menu);
+    private void safeUnregisterReceiver(BroadcastReceiver receiver) {
+        try {
+            unregisterReceiver(receiver);
+        } catch (IllegalArgumentException e) {
+            // This should not happen if the receiver is registered/unregistered in complementary methods and
+            // the full lifecycle is respected, but it does.
+            ErrorUtils.handleSilentException("Couldnt unregister receiver", e);
         }
-        return true;
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.main;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (actionBarController != null) {
-            return actionBarController.onOptionsItemSelected(item);
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    public long getCurrentUserId() {
-        if (currentUserId == 0) {
-            currentUserId = accountOperations.getLoggedInUserId();
-        }
-        return currentUserId;
     }
 
     private static final class ConnectivityHandler extends Handler {
-        private WeakReference<ScActivity> contextRef;
+        private final WeakReference<ScActivity> contextRef;
 
         private ConnectivityHandler(ScActivity context) {
             this.contextRef = new WeakReference<ScActivity>(context);
@@ -384,55 +426,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                     }
                     break;
             }
-        }
-    }
-
-    private final Handler connHandler = new ConnectivityHandler(this);
-
-    @NotNull
-    @Override
-    public ActionBarActivity getActivity() {
-        return this;
-    }
-
-    private final DefaultSubscriber<CurrentUserChangedEvent> userEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
-        @Override
-        public void onNext(CurrentUserChangedEvent args) {
-            if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
-                finish();
-            }
-        }
-    };
-
-    /**
-     * For the search UI, we need to block out the UI completely. this might change as requirements to
-     * To be implemented
-     */
-    @Override
-    public boolean onSupportNavigateUp() {
-        if (isTaskRoot()) {
-            // empty backstack and not a landing page, might be from a notification or deeplink
-            // just go to the home activity
-            startActivity(new Intent(this, MainActivity.class));
-        }
-        finish();
-        return true;
-    }
-
-    /**
-     * Convenience method to get the content id for usage in one-off fragments
-     */
-    public static int getContentHolderViewId() {
-        return R.id.container;
-    }
-
-    private void safeUnregisterReceiver(BroadcastReceiver receiver) {
-        try {
-            unregisterReceiver(receiver);
-        } catch (IllegalArgumentException e) {
-            // This should not happen if the receiver is registered/unregistered in complementary methods and
-            // the full lifecycle is respected, but it does.
-            ErrorUtils.handleSilentException("Couldnt unregister receiver", e);
         }
     }
 }

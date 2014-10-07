@@ -14,16 +14,35 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class PlaybackStream implements Parcelable {
+    private final AudioConfig config;
     private long currentPos;
     private long startPos;
     private long endPos;
-
-    private final AudioConfig config;
     private @NotNull AudioReader playbackFile;
 
     private PlaybackFilter filter;
     private boolean optimize;
+    public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {
+        public PlaybackStream createFromParcel(Parcel in) {
+            File file = new File(in.readString());
 
+            try {
+                PlaybackStream ps = new PlaybackStream(AudioReader.guess(file));
+                ps.startPos = in.readLong();
+                ps.endPos = in.readLong();
+                ps.optimize = in.readInt() == 1;
+                ps.filter = in.readParcelable(getClass().getClassLoader());
+                ps.refreshTrimWindow();
+                return ps;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public PlaybackStream[] newArray(int size) {
+            return new PlaybackStream[size];
+        }
+    };
     private float[] trimWindow = new float[2];
 
     public PlaybackStream(@NotNull AudioReader audioReader) {
@@ -116,11 +135,6 @@ public class PlaybackStream implements Parcelable {
 
     public void initializePlayback(long atPosition) throws IOException {
         playbackFile.seek(atPosition);
-    }
-
-    private long getValidPosition(long currentPosition) {
-        return (currentPosition < startPos) ? startPos :
-                (currentPosition > endPos) ? endPos : currentPosition;
     }
 
     public void close() {
@@ -235,29 +249,12 @@ public class PlaybackStream implements Parcelable {
         return filter;
     }
 
-    public static final Parcelable.Creator<PlaybackStream> CREATOR = new Parcelable.Creator<PlaybackStream>() {
-        public PlaybackStream createFromParcel(Parcel in) {
-            File file = new File(in.readString());
-
-            try {
-                PlaybackStream ps = new PlaybackStream(AudioReader.guess(file));
-                ps.startPos = in.readLong();
-                ps.endPos = in.readLong();
-                ps.optimize = in.readInt() == 1;
-                ps.filter = in.readParcelable(getClass().getClassLoader());
-                ps.refreshTrimWindow();
-                return ps;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public PlaybackStream[] newArray(int size) {
-            return new PlaybackStream[size];
-        }
-    };
-
     public float[] getTrimWindow() {
         return trimWindow;
+    }
+
+    private long getValidPosition(long currentPosition) {
+        return (currentPosition < startPos) ? startPos :
+                (currentPosition > endPos) ? endPos : currentPosition;
     }
 }

@@ -67,7 +67,7 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     private Cursor cursor;
     private boolean dataValid;
     private List<Recording> recordingData;
-    private ChangeObserver changeObserver;
+    private final ChangeObserver changeObserver;
     private final ScActivity activity;
 
     @Inject PlaybackOperations playbackOperations;
@@ -332,11 +332,11 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     private class ChangeObserver extends ContentObserver {
-        private WeakReference<ScActivity> contextRef;
+        private final WeakReference<ScActivity> contextRef;
 
         public ChangeObserver(ScActivity activity) {
             super(new Handler());
-            contextRef = new WeakReference<ScActivity>(activity);
+            contextRef = new WeakReference<>(activity);
         }
 
         @Override

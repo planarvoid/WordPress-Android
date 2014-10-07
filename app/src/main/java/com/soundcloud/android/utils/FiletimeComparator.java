@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FiletimeComparator implements Comparator<File> {
-    private Map<File, Long> filetimes = new HashMap<File, Long>();
-    private boolean oldestFirst;
+    private final Map<File, Long> filetimes = new HashMap<File, Long>();
+    private final boolean oldestFirst;
 
     public FiletimeComparator(boolean oldestFirst) {
         this.oldestFirst = oldestFirst;

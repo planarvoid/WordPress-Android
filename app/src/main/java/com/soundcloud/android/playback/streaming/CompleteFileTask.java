@@ -16,11 +16,10 @@ import java.util.List;
 class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
     static final long MAX_MD5_CHECK_SIZE = 5 * 1024 * 1024; // don't md5 check files over 5MB
 
-    private long mContentLength;
-    private String mEtag;
-    private List<Integer> mIndexes;
-
-    private int mChunkSize;
+    private final long mContentLength;
+    private final String mEtag;
+    private final List<Integer> mIndexes;
+    private final int mChunkSize;
 
     public CompleteFileTask(long length, String etag, int chunkSize, List<Integer> indexes) {
         mIndexes = indexes;

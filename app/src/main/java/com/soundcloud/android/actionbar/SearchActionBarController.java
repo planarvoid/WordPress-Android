@@ -39,16 +39,10 @@ import java.lang.reflect.Field;
 
 public class SearchActionBarController extends ActionBarController {
 
-    private SuggestionsAdapter suggestionsAdapter;
-
-    private SearchView searchView;
-
     private final PublicCloudAPI publicApi;
     private final PlaybackOperations playbackOperations;
     private final SearchCallback searchCallback;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-
-
     private final SearchView.OnSuggestionListener mSuggestionListener = new SearchView.OnSuggestionListener() {
         @Override
         public boolean onSuggestionSelect(int position) {
@@ -69,6 +63,83 @@ public class SearchActionBarController extends ActionBarController {
             return true;
         }
     };
+    private SuggestionsAdapter suggestionsAdapter;
+    private final SearchView.OnQueryTextListener mQueryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            performSearch(query, false);
+            clearFocus();
+            searchView.setSuggestionsAdapter(null);
+            return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String s) {
+            if (searchView.getSuggestionsAdapter() == null) {
+                // This is nulled on search as a workaround to unwanted focus on some devices
+                searchView.setSuggestionsAdapter(suggestionsAdapter);
+            }
+            if (s.length() < 1) {
+                searchCallback.exitSearchMode();
+            }
+            return false;
+        }
+    };
+    private SearchView searchView;
+
+    SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
+                              SearchCallback searchCallback, PlaybackOperations playbackOperations,
+                              EventBus eventBus, Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+        super(owner, eventBus);
+        this.publicApi = publicCloudAPI;
+        this.searchCallback = searchCallback;
+        this.playbackOperations = playbackOperations;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+    }
+
+    public void onDestroy() {
+        // Suggestions adapter has to stop handler thread
+        if (suggestionsAdapter != null) {
+            suggestionsAdapter.onDestroy();
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu) {
+        ActionBar actionBar = owner.getActivity().getSupportActionBar();
+        configureSearchState(menu, actionBar);
+        if (!actionBar.isShowing()) {
+            searchView.clearFocus();
+        }
+    }
+
+    public String getQuery() {
+        if (isInitialised()) {
+            return searchView.getQuery().toString();
+        } else {
+            return ScTextUtils.EMPTY_STRING;
+        }
+    }
+
+    public void setQuery(String query) {
+        if (isInitialised()) {
+            searchView.setQuery(query, false);
+            searchView.setSuggestionsAdapter(null);
+            clearFocus();
+        }
+    }
+
+    public void clearQuery() {
+        if (isInitialised()) {
+            searchView.setQuery("", false);
+        }
+    }
+
+    public void clearFocus() {
+        if (isInitialised()) {
+            searchView.clearFocus();
+        }
+    }
 
     private void launchSuggestion(int position) {
         final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
@@ -120,40 +191,6 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    public interface SearchCallback {
-        void performTextSearch(String query);
-
-        void performTagSearch(String tag);
-
-        void exitSearchMode();
-    }
-
-    SearchActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI,
-                              SearchCallback searchCallback, PlaybackOperations playbackOperations,
-                              EventBus eventBus, Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
-        super(owner, eventBus);
-        this.publicApi = publicCloudAPI;
-        this.searchCallback = searchCallback;
-        this.playbackOperations = playbackOperations;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
-    }
-
-    public void onDestroy() {
-        // Suggestions adapter has to stop handler thread
-        if (suggestionsAdapter != null) {
-            suggestionsAdapter.onDestroy();
-        }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu) {
-        ActionBar actionBar = owner.getActivity().getSupportActionBar();
-        configureSearchState(menu, actionBar);
-        if (!actionBar.isShowing()) {
-            searchView.clearFocus();
-        }
-    }
-
     private void configureSearchState(Menu menu, ActionBar actionBar) {
         actionBar.setDisplayShowCustomEnabled(false);
         owner.getActivity().getMenuInflater().inflate(R.menu.search, menu);
@@ -178,43 +215,6 @@ public class SearchActionBarController extends ActionBarController {
 
         suggestionsAdapter = new SuggestionsAdapter(activity, publicApi, activity.getContentResolver());
         searchView.setSuggestionsAdapter(suggestionsAdapter);
-    }
-
-    private final SearchView.OnQueryTextListener mQueryTextListener = new SearchView.OnQueryTextListener() {
-        @Override
-        public boolean onQueryTextSubmit(String query) {
-            performSearch(query, false);
-            clearFocus();
-            searchView.setSuggestionsAdapter(null);
-            return true;
-        }
-
-        @Override
-        public boolean onQueryTextChange(String s) {
-            if (searchView.getSuggestionsAdapter() == null) {
-                // This is nulled on search as a workaround to unwanted focus on some devices
-                searchView.setSuggestionsAdapter(suggestionsAdapter);
-            }
-            if (s.length() < 1) {
-                searchCallback.exitSearchMode();
-            }
-            return false;
-        }
-    };
-
-    @VisibleForTesting
-    void performSearch(final String query, boolean viaShortcut) {
-        String trimmedQuery = query.trim();
-        boolean tagSearch = isTagSearch(trimmedQuery);
-
-        eventBus.publish(EventQueue.SEARCH,
-                SearchEvent.searchField(query, viaShortcut, tagSearch));
-
-        if (tagSearch) {
-            performTagSearch(trimmedQuery);
-        } else {
-            searchCallback.performTextSearch(trimmedQuery);
-        }
     }
 
     private boolean isTagSearch(String trimmedQuery) {
@@ -251,32 +251,27 @@ public class SearchActionBarController extends ActionBarController {
         return searchView != null;
     }
 
-    public String getQuery() {
-        if (isInitialised()) {
-            return searchView.getQuery().toString();
+    @VisibleForTesting
+    void performSearch(final String query, boolean viaShortcut) {
+        String trimmedQuery = query.trim();
+        boolean tagSearch = isTagSearch(trimmedQuery);
+
+        eventBus.publish(EventQueue.SEARCH,
+                SearchEvent.searchField(query, viaShortcut, tagSearch));
+
+        if (tagSearch) {
+            performTagSearch(trimmedQuery);
         } else {
-            return ScTextUtils.EMPTY_STRING;
+            searchCallback.performTextSearch(trimmedQuery);
         }
     }
 
-    public void setQuery(String query) {
-        if (isInitialised()) {
-            searchView.setQuery(query, false);
-            searchView.setSuggestionsAdapter(null);
-            clearFocus();
-        }
-    }
+    public interface SearchCallback {
+        void performTextSearch(String query);
 
-    public void clearQuery() {
-        if (isInitialised()) {
-            searchView.setQuery("", false);
-        }
-    }
+        void performTagSearch(String tag);
 
-    public void clearFocus() {
-        if (isInitialised()) {
-            searchView.clearFocus();
-        }
+        void exitSearchMode();
     }
 
     public static class Factory {

@@ -5,6 +5,15 @@ import android.os.Parcelable;
 
 public class Link implements Parcelable {
 
+    public static final Parcelable.Creator<Link> CREATOR = new Parcelable.Creator<Link>() {
+        public Link createFromParcel(Parcel in) {
+            return new Link(in);
+        }
+
+        public Link[] newArray(int size) {
+            return new Link[size];
+        }
+    };
     private String href;
 
     public Link() { /* deserialization */}
@@ -34,16 +43,6 @@ public class Link implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(href);
     }
-
-    public static final Parcelable.Creator<Link> CREATOR = new Parcelable.Creator<Link>() {
-        public Link createFromParcel(Parcel in) {
-            return new Link(in);
-        }
-
-        public Link[] newArray(int size) {
-            return new Link[size];
-        }
-    };
 
     @Override
     public boolean equals(Object o) {

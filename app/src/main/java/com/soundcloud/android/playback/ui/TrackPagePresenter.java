@@ -507,7 +507,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         Iterable<View> onClickViews;
         Iterable<ProgressAware> progressAwares;
 
-        private Predicate<View> presentInConfig = new Predicate<View>() {
+        private final Predicate<View> presentInConfig = new Predicate<View>() {
             @Override
             public boolean apply(@Nullable View v) {
                 return v != null;

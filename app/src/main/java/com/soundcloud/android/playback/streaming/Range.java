@@ -8,6 +8,15 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class Range implements Iterable<Integer>, Parcelable {
+    public static final Parcelable.Creator<Range> CREATOR = new Parcelable.Creator<Range>() {
+        public Range createFromParcel(Parcel in) {
+            return new Range(in);
+        }
+
+        public Range[] newArray(int size) {
+            return new Range[size];
+        }
+    };
     public final int start;
     public final int length;
 
@@ -21,6 +30,12 @@ public class Range implements Iterable<Integer>, Parcelable {
 
         this.start = start;
         this.length = length;
+    }
+
+    public Range(Parcel in) {
+        Bundle data = in.readBundle(getClass().getClassLoader());
+        start = data.getInt("location");
+        length = data.getInt("length");
     }
 
     public static Range from(int start, int length) {
@@ -100,22 +115,6 @@ public class Range implements Iterable<Integer>, Parcelable {
         data.putInt("length", length);
         dest.writeBundle(data);
     }
-
-    public Range(Parcel in) {
-        Bundle data = in.readBundle(getClass().getClassLoader());
-        start = data.getInt("location");
-        length = data.getInt("length");
-    }
-
-    public static final Parcelable.Creator<Range> CREATOR = new Parcelable.Creator<Range>() {
-        public Range createFromParcel(Parcel in) {
-            return new Range(in);
-        }
-
-        public Range[] newArray(int size) {
-            return new Range[size];
-        }
-    };
 
     @Override
     public Iterator<Integer> iterator() {

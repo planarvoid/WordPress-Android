@@ -74,7 +74,7 @@ public final class FileCache {
     }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
-        private boolean recurse;
+        private final boolean recurse;
 
         public DeleteCacheTask(boolean recurse) {
             this.recurse = recurse;

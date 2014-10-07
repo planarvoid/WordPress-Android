@@ -18,11 +18,12 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     private static final String androidns = "http://schemas.android.com/apk/res/android";
 
     private SeekBar seekBar;
-    private TextView splashText, valueText;
-    private Context context;
+    private TextView valueText;
+    private final Context context;
 
-    private String dialogMessage, suffix;
-    private int defaultValue, maxValue, value = 0;
+    private final String dialogMessage, suffix;
+    private final int defaultValue;
+    private int maxValue, value = 0;
 
     public SeekBarPreference(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -40,7 +41,7 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(6, 6, 6, 6);
 
-        splashText = new TextView(context);
+        TextView splashText = new TextView(context);
         if (dialogMessage != null) {
             splashText.setText(dialogMessage);
         }

@@ -79,7 +79,7 @@ public class LegacySearchResultsFragment extends DefaultFragment
     private int searchType;
     private ConnectableObservable<Page<SearchResultsCollection>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
-    private Subscription playEventSubscription = Subscriptions.empty();
+    private final Subscription playEventSubscription = Subscriptions.empty();
 
     public static LegacySearchResultsFragment newInstance(int type, String query) {
         LegacySearchResultsFragment fragment = new LegacySearchResultsFragment();

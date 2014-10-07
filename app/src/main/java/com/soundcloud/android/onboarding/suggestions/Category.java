@@ -17,10 +17,6 @@ import java.util.Set;
 public class Category extends ScModel {
 
     public static final String EXTRA = "category";
-
-    private static final String FACEBOOK_FRIENDS = "facebook_friends";
-    private static final String FACEBOOK_LIKES = "facebook_likes";
-
     public static final Predicate<Category> HAS_USERS_PREDICATE = new Predicate<Category>() {
         @Override
         public boolean apply(Category input) {
@@ -28,14 +24,19 @@ public class Category extends ScModel {
             return displayType == DisplayType.PROGRESS || displayType == DisplayType.ERROR || !input.getUsers().isEmpty();
         }
     };
+    public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
+        public Category createFromParcel(Parcel in) {
+            return new Category(in);
+        }
 
+        public Category[] newArray(int size) {
+            return new Category[size];
+        }
+    };
+    private static final String FACEBOOK_FRIENDS = "facebook_friends";
+    private static final String FACEBOOK_LIKES = "facebook_likes";
     private String mKey;
     private List<SuggestedUser> mUsers = Collections.emptyList();
-
-    public enum DisplayType {
-        DEFAULT, EMPTY, PROGRESS, ERROR;
-    }
-
     private DisplayType mDisplayType = DisplayType.DEFAULT;
 
     public Category() { /* for deserialization */ }
@@ -129,27 +130,6 @@ public class Category extends ScModel {
         return null;
     }
 
-    private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
-        List<SuggestedUser> resultSuggestedUsers = new ArrayList(userFollowings.size());
-        for (SuggestedUser user : mUsers) {
-            final boolean contains = userFollowings.contains(user.getId());
-            if ((isFollowing && contains) || (!isFollowing && !contains)) {
-                resultSuggestedUsers.add(user);
-            }
-        }
-        return resultSuggestedUsers;
-    }
-
-    public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
-        public Category createFromParcel(Parcel in) {
-            return new Category(in);
-        }
-
-        public Category[] newArray(int size) {
-            return new Category[size];
-        }
-    };
-
     @Override
     public String toString() {
         return "Category{" +
@@ -167,5 +147,20 @@ public class Category extends ScModel {
 
     public static final Category error() {
         return new Category(DisplayType.ERROR);
+    }
+
+    private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
+        List<SuggestedUser> resultSuggestedUsers = new ArrayList(userFollowings.size());
+        for (SuggestedUser user : mUsers) {
+            final boolean contains = userFollowings.contains(user.getId());
+            if ((isFollowing && contains) || (!isFollowing && !contains)) {
+                resultSuggestedUsers.add(user);
+            }
+        }
+        return resultSuggestedUsers;
+    }
+
+    public enum DisplayType {
+        DEFAULT, EMPTY, PROGRESS, ERROR;
     }
 }

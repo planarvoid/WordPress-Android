@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public class DetachableResultReceiver extends ResultReceiver {
 
     private Receiver receiver;
-    private ArrayList<PendingResult> pendingResults;
+    private final ArrayList<PendingResult> pendingResults;
     private class PendingResult {
         int resultCode;
         Bundle resultData;

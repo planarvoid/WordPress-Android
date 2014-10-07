@@ -23,7 +23,7 @@ import java.util.Map;
 public class NetworkConnectivityListener {
     private static final String TAG = "NetworkConnectivityListener";
 
-    private Map<Handler, Integer> handlers = new HashMap<Handler, Integer>();
+    private final Map<Handler, Integer> handlers = new HashMap<>();
     private @Nullable Context context;
 
     private State state;
@@ -40,7 +40,7 @@ public class NetworkConnectivityListener {
      */
     private NetworkInfo mOtherNetworkInfo;
 
-    private ConnectivityBroadcastReceiver mReceiver;
+    private final ConnectivityBroadcastReceiver mReceiver;
 
     public enum State {
         UNKNOWN,

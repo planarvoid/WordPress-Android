@@ -6,11 +6,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -37,18 +37,26 @@ public class PlaybackNotificationController {
     private final NotificationManager notificationManager;
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
-    private PlayQueueManager playQueueManager;
 
     private final int targetIconWidth;
     private final int targetIconHeight;
-
-    /** NOTE : this requires this class to be instantiated before the playback service or it will not receive the first
-     ** One way to fix this would be to make the queue a replay queue, but its currently not necessary */
+    private final Func1<PropertySet, Observable<Notification>> toNotification = new Func1<PropertySet, Observable<Notification>>() {
+        @Override
+        public Observable<Notification> call(final PropertySet propertySet) {
+            final Notification notification = presenter.createNotification(propertySet);
+            // TODO: put model creation back in presenter, that will fix the test back.
+            if (presenter.artworkCapable()) {
+                loadAndSetArtwork(propertySet.get(TrackProperty.URN), notification);
+            }
+            return Observable.just(notification);
+        }
+    };
+    /**
+     * NOTE : this requires this class to be instantiated before the playback service or it will not receive the first
+     * * One way to fix this would be to make the queue a replay queue, but its currently not necessary
+     */
     private PlayerLifeCycleEvent lastPlayerLifecycleEvent = PlayerLifeCycleEvent.forDestroyed();
-
     private Observable<Notification> notificationObservable;
-    private Subscription imageSubscription = Subscriptions.empty();
-
     private final Func1<CurrentPlayQueueTrackEvent, Observable<Notification>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<Notification>>() {
         @Override
         public Observable<Notification> call(CurrentPlayQueueTrackEvent playQueueEvent) {
@@ -61,40 +69,17 @@ public class PlaybackNotificationController {
             return notificationObservable;
         }
     };
-
-    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
-        return new Func1<PropertySet, PropertySet>() {
-            @Override
-            public PropertySet call(PropertySet propertySet) {
-                return propertySet.merge(metaData);
-            }
-        };
-    }
-
-    private final Func1<PropertySet, Observable<Notification>> toNotification = new Func1<PropertySet, Observable<Notification>>() {
-        @Override
-        public Observable<Notification> call(final PropertySet propertySet) {
-            final Notification notification = presenter.createNotification(propertySet);
-            // TODO: put model creation back in presenter, that will fix the test back.
-            if (presenter.artworkCapable()) {
-                loadAndSetArtwork(propertySet.get(TrackProperty.URN), notification);
-            }
-            return Observable.just(notification);
-        }
-    };
-
+    private Subscription imageSubscription = Subscriptions.empty();
 
     @Inject
     public PlaybackNotificationController(Resources resources, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
-                                          NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
-                                          PlayQueueManager playQueueManager) {
+                                          NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations) {
         this.resources = resources;
         this.trackOperations = trackOperations;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
-        this.playQueueManager = playQueueManager;
 
         this.targetIconWidth = resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
         this.targetIconHeight = resources.getDimensionPixelSize(R.dimen.notification_image_large_height);
@@ -115,12 +100,13 @@ public class PlaybackNotificationController {
         });
     }
 
-    Observable<Notification> playingNotification() {
-        return notificationObservable.map(presenter.updateToPlayingState());
-    }
-
-    boolean notifyIdleState() {
-        return presenter.updateToIdleState(notificationObservable, new PlaylistSubscriber());
+    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
+        return new Func1<PropertySet, PropertySet>() {
+            @Override
+            public PropertySet call(PropertySet propertySet) {
+                return propertySet.merge(metaData);
+            }
+        };
     }
 
     private ApiImageSize getApiImageSize() {
@@ -138,21 +124,29 @@ public class PlaybackNotificationController {
 
             imageSubscription = imageOperations.artwork(trackUrn, getApiImageSize(), targetIconWidth, targetIconHeight)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
-                @Override
-                public void onNext(Bitmap bitmap) {
-                    presenter.setIcon(notification, bitmap);
-                    if (lastPlayerLifecycleEvent.isServiceRunning()){
-                        notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
-                    }
-                }
-            });
+                        @Override
+                        public void onNext(Bitmap bitmap) {
+                            presenter.setIcon(notification, bitmap);
+                            if (lastPlayerLifecycleEvent.isServiceRunning()) {
+                                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+                            }
+                        }
+                    });
         }
+    }
+
+    Observable<Notification> playingNotification() {
+        return notificationObservable.map(presenter.updateToPlayingState());
+    }
+
+    boolean notifyIdleState() {
+        return presenter.updateToIdleState(notificationObservable, new PlaylistSubscriber());
     }
 
     private class PlaylistSubscriber extends DefaultSubscriber<Notification> {
         @Override
         public void onNext(Notification notification) {
-            if (lastPlayerLifecycleEvent.isServiceRunning()){
+            if (lastPlayerLifecycleEvent.isServiceRunning()) {
                 notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
             }
         }

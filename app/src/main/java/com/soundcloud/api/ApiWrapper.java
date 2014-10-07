@@ -88,24 +88,6 @@ import java.util.Arrays;
  */
 public class ApiWrapper implements CloudAPI, Serializable {
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
-
-    private static final long serialVersionUID = 3662083416905771921L;
-    private static final Token EMPTY_TOKEN = new Token(null, null);
-
-    /**
-     * The current environment, only live possible for now
-     */
-    public final Env env = Env.LIVE;
-
-    private Token token;
-    private final String clientId, clientSecret;
-    private final URI redirectUri;
-    transient private HttpClient httpClient;
-    transient private TokenListener listener;
-
-    private String defaultContentType;
-    private String defaultAcceptEncoding;
-
     public static final int BUFFER_SIZE = 8192;
     /**
      * Connection timeout
@@ -117,12 +99,29 @@ public class ApiWrapper implements CloudAPI, Serializable {
     public static final long KEEPALIVE_TIMEOUT = 20 * 1000;
     /* maximum number of connections allowed */
     public static final int MAX_TOTAL_CONNECTIONS = 10;
-
+    private static final long serialVersionUID = 3662083416905771921L;
+    private static final Token EMPTY_TOKEN = new Token(null, null);
+    private static final ThreadLocal<Request> defaultParams = new ThreadLocal<Request>() {
+        @Override
+        protected Request initialValue() {
+            return new Request();
+        }
+    };
+    /**
+     * The current environment, only live possible for now
+     */
+    public final Env env = Env.LIVE;
+    private final String clientId, clientSecret;
+    private final URI redirectUri;
     /**
      * debug request details to stderr
      */
     public boolean debugRequests;
-
+    private Token token;
+    transient private HttpClient httpClient;
+    transient private TokenListener listener;
+    private String defaultContentType;
+    private String defaultAcceptEncoding;
 
     /**
      * Constructs a new ApiWrapper instance.
@@ -158,7 +157,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
         return token;
     }
 
-
     @Override
     public Token authorizationCode(String code, String... scopes) throws IOException {
         if (code == null) {
@@ -173,7 +171,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
         token = requestToken(request);
         return token;
     }
-
 
     @Override
     public Token clientCredentials(String... scopes) throws IOException {
@@ -272,81 +269,13 @@ public class ApiWrapper implements CloudAPI, Serializable {
         return USER_AGENT;
     }
 
-    /**
-     * Request an OAuth2 token from SoundCloud
-     *
-     * @param request the token request
-     * @return the token
-     * @throws java.io.IOException                               network error
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException unauthorized
-     * @throws com.soundcloud.api.CloudAPI.ApiResponseException  http error
-     */
-    protected Token requestToken(Request request) throws IOException {
-        HttpResponse response = safeExecute(env.getSecureResourceHost(), request.buildRequest(HttpPost.class));
-        final int status = response.getStatusLine().getStatusCode();
-
-        String error;
-        try {
-            if (status == HttpStatus.SC_OK) {
-                final Token token = new Token(Http.getJSON(response));
-                if (listener != null) {
-                    listener.onTokenRefreshed(token);
-                }
-                return token;
-            } else {
-                error = Http.getJSON(response).getString("error");
-            }
-        } catch (IOException ignored) {
-            error = ignored.getMessage();
-        } catch (JSONException ignored) {
-            error = ignored.getMessage();
+    public URI getProxy() {
+        Object proxy = getHttpClient().getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY);
+        if (proxy instanceof HttpHost) {
+            return URI.create(((HttpHost) proxy).toURI());
+        } else {
+            return null;
         }
-        throw status == HttpStatus.SC_UNAUTHORIZED ?
-                new InvalidTokenException(status, error) :
-                new ApiResponseException(response, error);
-    }
-
-    /**
-     * @return the default HttpParams
-     * @see <a href="http://developer.android.com/reference/android/net/http/AndroidHttpClient.html#newInstance(java.lang.String, android.content.Context)">
-     * android.net.http.AndroidHttpClient#newInstance(String, Context)</a>
-     */
-    protected HttpParams getParams() {
-        final HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
-        HttpConnectionParams.setSocketBufferSize(params, BUFFER_SIZE);
-        ConnManagerParams.setMaxTotalConnections(params, MAX_TOTAL_CONNECTIONS);
-
-        // Turn off stale checking.  Our connections break all the time anyway,
-        // and it's not worth it to pay the penalty of checking every time.
-        HttpConnectionParams.setStaleCheckingEnabled(params, false);
-
-        // fix contributed by Bjorn Roche XXX check if still needed
-        params.setBooleanParameter("http.protocol.expect-continue", false);
-        params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRoute() {
-            @Override
-            public int getMaxForRoute(HttpRoute httpRoute) {
-                if (env.isApiHost(httpRoute.getTargetHost())) {
-                    // there will be a lot of concurrent request to the API host
-                    return MAX_TOTAL_CONNECTIONS;
-                } else {
-                    return ConnPerRouteBean.DEFAULT_MAX_CONNECTIONS_PER_ROUTE;
-                }
-            }
-        });
-        // apply system proxy settings
-        final String proxyHost = System.getProperty("http.proxyHost");
-        final String proxyPort = System.getProperty("http.proxyPort");
-        if (proxyHost != null) {
-            int port = 80;
-            try {
-                port = Integer.parseInt(proxyPort);
-            } catch (NumberFormatException ignored) {
-            }
-            params.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(proxyHost, port));
-        }
-        return params;
     }
 
     /**
@@ -367,34 +296,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
         getHttpClient().getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, host);
     }
 
-
-    public URI getProxy() {
-        Object proxy = getHttpClient().getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY);
-        if (proxy instanceof HttpHost) {
-            return URI.create(((HttpHost) proxy).toURI());
-        } else {
-            return null;
-        }
-    }
-
     public boolean isProxySet() {
         return getProxy() != null;
     }
-
-    /**
-     * @return SocketFactory used by the underlying HttpClient
-     */
-    protected SocketFactory getSocketFactory() {
-        return PlainSocketFactory.getSocketFactory();
-    }
-
-    /**
-     * @return SSL SocketFactory used by the underlying HttpClient
-     */
-    protected SSLSocketFactory getSSLSocketFactory() {
-        return SSLSocketFactory.getSocketFactory();
-    }
-
 
     /**
      * @return The HttpClient instance used to make the calls
@@ -632,6 +536,168 @@ public class ApiWrapper implements CloudAPI, Serializable {
         }
     }
 
+    /**
+     * serialize the wrapper to a File
+     *
+     * @param f target
+     * @throws java.io.IOException IO problems
+     */
+    public void toFile(File f) throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+        oos.writeObject(this);
+        oos.close();
+    }
+
+    public String getDefaultContentType() {
+        return (defaultContentType == null) ? DEFAULT_CONTENT_TYPE : defaultContentType;
+    }
+
+    public void setDefaultContentType(String contentType) {
+        defaultContentType = contentType;
+    }
+
+    public String getDefaultAcceptEncoding() {
+        return defaultAcceptEncoding;
+    }
+
+    public void setDefaultAcceptEncoding(String encoding) {
+        defaultAcceptEncoding = encoding;
+    }
+
+    /**
+     * Read wrapper from a file
+     *
+     * @param f the file
+     * @return the wrapper
+     * @throws IOException            IO problems
+     * @throws ClassNotFoundException class not found
+     */
+    public static ApiWrapper fromFile(File f) throws IOException, ClassNotFoundException {
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+        try {
+            return (ApiWrapper) ois.readObject();
+        } finally {
+            ois.close();
+        }
+    }
+
+    /**
+     * Creates an OAuth2 header for the given token
+     */
+    public static Header createOAuthHeader(Token token) {
+        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
+                (token == null || !token.valid() ? "invalidated" : token.access));
+    }
+
+    /**
+     * Adds a default parameter which will get added to all requests in this thread.
+     * Use this method carefully since it might lead to unexpected side-effects.
+     *
+     * @param name  the name of the parameter
+     * @param value the value of the parameter.
+     */
+    public static void setDefaultParameter(String name, String value) {
+        defaultParams.get().set(name, value);
+    }
+
+    /**
+     * Clears the default parameters.
+     */
+    public static void clearDefaultParameters() {
+        defaultParams.remove();
+    }
+
+    /**
+     * Request an OAuth2 token from SoundCloud
+     *
+     * @param request the token request
+     * @return the token
+     * @throws java.io.IOException                               network error
+     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException unauthorized
+     * @throws com.soundcloud.api.CloudAPI.ApiResponseException  http error
+     */
+    protected Token requestToken(Request request) throws IOException {
+        HttpResponse response = safeExecute(env.getSecureResourceHost(), request.buildRequest(HttpPost.class));
+        final int status = response.getStatusLine().getStatusCode();
+
+        String error;
+        try {
+            if (status == HttpStatus.SC_OK) {
+                final Token token = new Token(Http.getJSON(response));
+                if (listener != null) {
+                    listener.onTokenRefreshed(token);
+                }
+                return token;
+            } else {
+                error = Http.getJSON(response).getString("error");
+            }
+        } catch (IOException ignored) {
+            error = ignored.getMessage();
+        } catch (JSONException ignored) {
+            error = ignored.getMessage();
+        }
+        throw status == HttpStatus.SC_UNAUTHORIZED ?
+                new InvalidTokenException(status, error) :
+                new ApiResponseException(response, error);
+    }
+
+    /**
+     * @return the default HttpParams
+     * @see <a href="http://developer.android.com/reference/android/net/http/AndroidHttpClient.html#newInstance(java.lang.String, android.content.Context)">
+     * android.net.http.AndroidHttpClient#newInstance(String, Context)</a>
+     */
+    protected HttpParams getParams() {
+        final HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSocketBufferSize(params, BUFFER_SIZE);
+        ConnManagerParams.setMaxTotalConnections(params, MAX_TOTAL_CONNECTIONS);
+
+        // Turn off stale checking.  Our connections break all the time anyway,
+        // and it's not worth it to pay the penalty of checking every time.
+        HttpConnectionParams.setStaleCheckingEnabled(params, false);
+
+        // fix contributed by Bjorn Roche XXX check if still needed
+        params.setBooleanParameter("http.protocol.expect-continue", false);
+        params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRoute() {
+            @Override
+            public int getMaxForRoute(HttpRoute httpRoute) {
+                if (env.isApiHost(httpRoute.getTargetHost())) {
+                    // there will be a lot of concurrent request to the API host
+                    return MAX_TOTAL_CONNECTIONS;
+                } else {
+                    return ConnPerRouteBean.DEFAULT_MAX_CONNECTIONS_PER_ROUTE;
+                }
+            }
+        });
+        // apply system proxy settings
+        final String proxyHost = System.getProperty("http.proxyHost");
+        final String proxyPort = System.getProperty("http.proxyPort");
+        if (proxyHost != null) {
+            int port = 80;
+            try {
+                port = Integer.parseInt(proxyPort);
+            } catch (NumberFormatException ignored) {
+            }
+            params.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(proxyHost, port));
+        }
+        return params;
+    }
+
+    /**
+     * @return SocketFactory used by the underlying HttpClient
+     */
+    protected SocketFactory getSocketFactory() {
+        return PlainSocketFactory.getSocketFactory();
+    }
+
+    /**
+     * @return SSL SocketFactory used by the underlying HttpClient
+     */
+    protected SSLSocketFactory getSSLSocketFactory() {
+        return SSLSocketFactory.getSocketFactory();
+    }
+
     // This design existed when the library was brought in to the project. Changing
     // it does not seem worthwhile, since the reassignment is once during validation
     // of inputs.
@@ -671,76 +737,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
         } else {
             return null;
         }
-    }
-
-    /**
-     * serialize the wrapper to a File
-     *
-     * @param f target
-     * @throws java.io.IOException IO problems
-     */
-    public void toFile(File f) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-        oos.writeObject(this);
-        oos.close();
-    }
-
-
-    public String getDefaultContentType() {
-        return (defaultContentType == null) ? DEFAULT_CONTENT_TYPE : defaultContentType;
-    }
-
-    public void setDefaultContentType(String contentType) {
-        defaultContentType = contentType;
-    }
-
-    public String getDefaultAcceptEncoding() {
-        return defaultAcceptEncoding;
-    }
-
-    public void setDefaultAcceptEncoding(String encoding) {
-        defaultAcceptEncoding = encoding;
-    }
-
-
-    /* package */
-    static Request addScope(Request request, String[] scopes) {
-        if (scopes != null && scopes.length > 0) {
-            StringBuilder scope = new StringBuilder();
-            for (int i = 0; i < scopes.length; i++) {
-                scope.append(scopes[i]);
-                if (i < scopes.length - 1) {
-                    scope.append(" ");
-                }
-            }
-            request.add(SCOPE, scope.toString());
-        }
-        return request;
-    }
-
-    /**
-     * Read wrapper from a file
-     *
-     * @param f the file
-     * @return the wrapper
-     * @throws IOException            IO problems
-     * @throws ClassNotFoundException class not found
-     */
-    public static ApiWrapper fromFile(File f) throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-        try {
-            return (ApiWrapper) ois.readObject();
-        } finally {
-            ois.close();
-        }
-    }
-
-    /**
-     * Creates an OAuth2 header for the given token
-     */
-    public static Header createOAuthHeader(Token token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
-                (token == null || !token.valid() ? "invalidated" : token.access));
     }
 
     /**
@@ -800,28 +796,18 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 stateHandler, params);
     }
 
-    private static final ThreadLocal<Request> defaultParams = new ThreadLocal<Request>() {
-        @Override
-        protected Request initialValue() {
-            return new Request();
+    /* package */
+    static Request addScope(Request request, String[] scopes) {
+        if (scopes != null && scopes.length > 0) {
+            StringBuilder scope = new StringBuilder();
+            for (int i = 0; i < scopes.length; i++) {
+                scope.append(scopes[i]);
+                if (i < scopes.length - 1) {
+                    scope.append(" ");
+                }
+            }
+            request.add(SCOPE, scope.toString());
         }
-    };
-
-    /**
-     * Adds a default parameter which will get added to all requests in this thread.
-     * Use this method carefully since it might lead to unexpected side-effects.
-     *
-     * @param name  the name of the parameter
-     * @param value the value of the parameter.
-     */
-    public static void setDefaultParameter(String name, String value) {
-        defaultParams.get().set(name, value);
-    }
-
-    /**
-     * Clears the default parameters.
-     */
-    public static void clearDefaultParameters() {
-        defaultParams.remove();
+        return request;
     }
 }

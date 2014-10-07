@@ -9,8 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 class CountingMultipartEntity implements HttpEntity {
-    private HttpEntity delegate;
-    private Request.TransferProgressListener listener;
+    private final HttpEntity delegate;
+    private final Request.TransferProgressListener listener;
 
     public CountingMultipartEntity(HttpEntity delegate,
                                    Request.TransferProgressListener listener) {

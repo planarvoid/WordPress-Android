@@ -7,7 +7,7 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class Capitalizer implements TextWatcher {
-    private TextView text;
+    private final TextView text;
     public Capitalizer(TextView text) {
         this.text = text;
     }

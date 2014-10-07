@@ -12,8 +12,8 @@ import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PolicyInfo;
-import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackWriteStorage;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
@@ -35,18 +35,12 @@ public class PlayQueueOperations {
     private final PlayQueueStorage playQueueStorage;
     private final TrackWriteStorage trackWriteStorage;
     private final RxHttpClient rxHttpClient;
-
-    enum Keys {
-        PLAY_POSITION, SEEK_POSITION, TRACK_ID
-    }
-
     private final Action1<RecommendedTracksCollection> cacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
         @Override
         public void call(RecommendedTracksCollection collection) {
             fireAndForget(trackWriteStorage.storeTracksAsync(collection.getCollection()));
         }
     };
-
     private final Action1<ModelCollection<PolicyInfo>> storePolicies = new Action1<ModelCollection<PolicyInfo>>() {
         @Override
         public void call(ModelCollection<PolicyInfo> policies) {
@@ -97,7 +91,7 @@ public class PlayQueueOperations {
         return fireAndForget(playQueueStorage.storeAsync(playQueue));
     }
 
-    public void savePositionInfo(int position, Urn currentUrn, PlaySessionSource playSessionSource, long seekPosition){
+    public void savePositionInfo(int position, Urn currentUrn, PlaySessionSource playSessionSource, long seekPosition) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // TODO: migrate the preferences to store the URN, not the ID
@@ -129,7 +123,7 @@ public class PlayQueueOperations {
         return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
     }
 
-    public Observable<ModelCollection<PolicyInfo>> fetchAndStorePolicies(List<Urn> trackUrns){
+    public Observable<ModelCollection<PolicyInfo>> fetchAndStorePolicies(List<Urn> trackUrns) {
         final APIRequest<PolicyCollection> request = RequestBuilder.<PolicyCollection>post(APIEndpoints.POLICIES.path())
                 .withContent(transformUrnsToStrings(trackUrns))
                 .forPrivateAPI(1)
@@ -146,6 +140,10 @@ public class PlayQueueOperations {
                 return input.toString();
             }
         });
+    }
+
+    enum Keys {
+        PLAY_POSITION, SEEK_POSITION, TRACK_ID
     }
 
     public static class PolicyCollection extends ModelCollection<PolicyInfo> {

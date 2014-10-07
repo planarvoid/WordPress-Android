@@ -15,7 +15,7 @@ import android.widget.ToggleButton;
 public class CustomToggleButton extends ToggleButton {
 
     private class CustomToggleButtonDrawable extends StateListDrawable {
-        private Drawable background;
+        private final Drawable background;
 
         public CustomToggleButtonDrawable(Drawable background) {
             this.background = background;

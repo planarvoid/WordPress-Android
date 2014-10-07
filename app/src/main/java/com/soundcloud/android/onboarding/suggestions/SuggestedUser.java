@@ -10,10 +10,18 @@ import android.os.Parcelable;
 @Model
 public class SuggestedUser extends ScModel {
 
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public SuggestedUser createFromParcel(Parcel in) {
+            return new SuggestedUser(in);
+        }
+
+        public SuggestedUser[] newArray(int size) {
+            return new SuggestedUser[size];
+        }
+    };
     private String username;
     private String city;
     private String country;
-
     private String token;
 
     public SuggestedUser() {
@@ -71,16 +79,6 @@ public class SuggestedUser extends ScModel {
         dest.writeString(country);
         dest.writeString(token);
     }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public SuggestedUser createFromParcel(Parcel in) {
-            return new SuggestedUser(in);
-        }
-
-        public SuggestedUser[] newArray(int size) {
-            return new SuggestedUser[size];
-        }
-    };
 
     @Override
     public String toString() {

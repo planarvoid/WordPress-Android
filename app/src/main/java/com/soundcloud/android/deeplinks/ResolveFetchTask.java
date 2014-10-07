@@ -22,7 +22,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     private final ContentResolver contentResolver;
 
     private WeakReference<FetchModelTask.Listener<PublicApiResource>> listener;
-    private PublicCloudAPI api;
+    private final PublicCloudAPI api;
     private Uri unresolvedUrl;
 
     public ResolveFetchTask(PublicCloudAPI api, ContentResolver contentResolver) {

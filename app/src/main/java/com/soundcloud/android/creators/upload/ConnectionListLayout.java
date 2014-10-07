@@ -120,7 +120,7 @@ public class ConnectionListLayout extends LinearLayout {
     }
 
     public static class Adapter extends BaseAdapter {
-        private PublicCloudAPI api;
+        private final PublicCloudAPI api;
         private List<Connection> mConnections;
         private boolean mFailed;
 

@@ -37,16 +37,19 @@ public class UserAssociation extends Association implements UserHolder {
             return input.hasToken();
         }
     };
+    public static final Parcelable.Creator<UserAssociation> CREATOR = new Parcelable.Creator<UserAssociation>() {
+        public UserAssociation createFromParcel(Parcel in) {
+            return new UserAssociation(in);
+        }
 
-    private @NotNull PublicApiUser mUser;
+        public UserAssociation[] newArray(int size) {
+            return new UserAssociation[size];
+        }
+    };
+    private final @NotNull PublicApiUser mUser;
     private @Nullable Date mAddedAt;
     private @Nullable Date mRemovedAt;
-
     private @Nullable String mToken;
-
-    public enum LocalState {
-        NONE, PENDING_ADDITION, PENDING_REMOVAL
-    }
 
     public UserAssociation(Cursor cursor) {
         super(cursor);
@@ -160,6 +163,16 @@ public class UserAssociation extends Association implements UserHolder {
         setLocalSyncState(LocalState.NONE);
     }
 
+    public LocalState getLocalSyncState() {
+        if (mAddedAt != null) {
+            return LocalState.PENDING_ADDITION;
+        } else if (mRemovedAt != null) {
+            return LocalState.PENDING_REMOVAL;
+        } else {
+            return LocalState.NONE;
+        }
+    }
+
     private void setLocalSyncState(LocalState newState) {
         switch (newState) {
             case PENDING_ADDITION:
@@ -180,17 +193,6 @@ public class UserAssociation extends Association implements UserHolder {
                 break;
         }
     }
-
-    public LocalState getLocalSyncState() {
-        if (mAddedAt != null) {
-            return LocalState.PENDING_ADDITION;
-        } else if (mRemovedAt != null) {
-            return LocalState.PENDING_REMOVAL;
-        } else {
-            return LocalState.NONE;
-        }
-    }
-
 
     public boolean hasToken() {
         return ScTextUtils.isNotBlank(mToken);
@@ -232,18 +234,12 @@ public class UserAssociation extends Association implements UserHolder {
         return result;
     }
 
-    public static final Parcelable.Creator<UserAssociation> CREATOR = new Parcelable.Creator<UserAssociation>() {
-        public UserAssociation createFromParcel(Parcel in) {
-            return new UserAssociation(in);
-        }
-
-        public UserAssociation[] newArray(int size) {
-            return new UserAssociation[size];
-        }
-    };
-
     @Nullable
     private Date convertDirtyDate(long timestamp) {
         return (timestamp <= 0) ? null : new Date(timestamp);
+    }
+
+    public enum LocalState {
+        NONE, PENDING_ADDITION, PENDING_REMOVAL
     }
 }

@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference;
 
 class PlayerViewVisibilityProvider implements ViewVisibilityProvider {
 
-    private WeakReference<PlayerTrackPager> playerTrackPagerRef;
+    private final WeakReference<PlayerTrackPager> playerTrackPagerRef;
 
     public PlayerViewVisibilityProvider(PlayerTrackPager playerTrackPager) {
         this.playerTrackPagerRef = new WeakReference<>(playerTrackPager);

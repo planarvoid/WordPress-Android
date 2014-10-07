@@ -36,7 +36,7 @@ public class ExperimentOperations {
     private final ActiveExperiments activeExperiments;
     private final DeviceHelper deviceHelper;
 
-    private Action1 storeAssignment = new Action1<Assignment>() {
+    private final Action1 storeAssignment = new Action1<Assignment>() {
         @Override
         public void call(Assignment assignment) {
             experimentStorage.storeAssignment(assignment);

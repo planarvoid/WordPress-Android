@@ -24,9 +24,6 @@ import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Connection extends PublicApiResource implements Comparable<Connection>, Parcelable {
-    private boolean active = true;
-    private Service _service;
-
     public String type;
     public Date created_at;
     public String display_name;
@@ -34,6 +31,29 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
     @JsonProperty("post_favorite") public boolean post_like;
     public String service;
     public Uri uri;
+    public static Creator<Connection> CREATOR = new Creator<Connection>() {
+        @Override
+        public Connection createFromParcel(Parcel source) {
+            Connection connection = new Connection();
+            connection.setId(source.readLong());
+            connection.created_at = new Date(source.readLong());
+            connection.display_name = source.readString();
+            connection.post_publish = source.readInt() == 1;
+            connection.post_like = source.readInt() == 1;
+            connection.service = source.readString();
+            connection.type = source.readString();
+            String uri = source.readString();
+            connection.uri = uri == null ? null : Uri.parse(uri);
+            return connection;
+        }
+
+        @Override
+        public Connection[] newArray(int size) {
+            return new Connection[size];
+        }
+    };
+    private boolean active = true;
+    private Service _service;
 
     public Connection() {
     }
@@ -117,28 +137,6 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         dest.writeString(uri == null ? null : uri.toString());
     }
 
-    public static Creator<Connection> CREATOR = new Creator<Connection>() {
-        @Override
-        public Connection createFromParcel(Parcel source) {
-            Connection connection = new Connection();
-            connection.setId(source.readLong());
-            connection.created_at = new Date(source.readLong());
-            connection.display_name = source.readString();
-            connection.post_publish = source.readInt() == 1;
-            connection.post_like = source.readInt() == 1;
-            connection.service = source.readString();
-            connection.type = source.readString();
-            String uri = source.readString();
-            connection.uri = uri == null ? null : Uri.parse(uri);
-            return connection;
-        }
-
-        @Override
-        public Connection[] newArray(int size) {
-            return new Connection[size];
-        }
-    };
-
     @Override
     public String toString() {
         return "Connection{" +
@@ -152,46 +150,6 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
                 ", type='" + type + '\'' +
                 ", uri=" + uri +
                 '}';
-    }
-
-    public enum Service {
-        Facebook(R.drawable.service_facebook_profile, true, false, "facebook_profile", "facebook_page"),
-        Twitter(R.drawable.service_twitter, true, false, "twitter"),
-        Foursquare(R.drawable.service_foursquare, true, false, "foursquare"),
-        Tumblr(R.drawable.service_tumblr, true, false, "tumblr"),
-        Myspace(R.drawable.service_myspace, true, true, "myspace"),
-        Unknown(R.drawable.service_myspace, false, false, "unknown");
-
-        public final int resId;
-        public final String name;
-        public final String[] names;
-        public final boolean enabled, deprecated;
-
-
-        /**
-         * @param resId      icon resource
-         * @param enabled    service is enabled
-         * @param deprecated service is deprecated (no new connections possible)
-         * @param names      names used for this service
-         */
-        Service(int resId, boolean enabled, boolean deprecated, String... names) {
-            this.resId = resId;
-            this.names = names;
-            this.name = names[0];
-            this.enabled = enabled;
-            this.deprecated = deprecated;
-        }
-
-        static Service fromString(String s) {
-            for (Service svc : EnumSet.allOf(Service.class)) {
-                for (String n : svc.names) {
-                    if (s.equalsIgnoreCase(n)) {
-                        return svc;
-                    }
-                }
-            }
-            return Unknown;
-        }
     }
 
     public static List<Connection> addUnused(Set<Connection> connections) {
@@ -265,6 +223,46 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
     @Override
     public Uri toUri() {
         return Content.ME_CONNECTIONS.forId(getId());
+    }
+
+    public enum Service {
+        Facebook(R.drawable.service_facebook_profile, true, false, "facebook_profile", "facebook_page"),
+        Twitter(R.drawable.service_twitter, true, false, "twitter"),
+        Foursquare(R.drawable.service_foursquare, true, false, "foursquare"),
+        Tumblr(R.drawable.service_tumblr, true, false, "tumblr"),
+        Myspace(R.drawable.service_myspace, true, true, "myspace"),
+        Unknown(R.drawable.service_myspace, false, false, "unknown");
+
+        public final int resId;
+        public final String name;
+        public final String[] names;
+        public final boolean enabled, deprecated;
+
+
+        /**
+         * @param resId      icon resource
+         * @param enabled    service is enabled
+         * @param deprecated service is deprecated (no new connections possible)
+         * @param names      names used for this service
+         */
+        Service(int resId, boolean enabled, boolean deprecated, String... names) {
+            this.resId = resId;
+            this.names = names;
+            this.name = names[0];
+            this.enabled = enabled;
+            this.deprecated = deprecated;
+        }
+
+        static Service fromString(String s) {
+            for (Service svc : EnumSet.allOf(Service.class)) {
+                for (String n : svc.names) {
+                    if (s.equalsIgnoreCase(n)) {
+                        return svc;
+                    }
+                }
+            }
+            return Unknown;
+        }
     }
 
 }

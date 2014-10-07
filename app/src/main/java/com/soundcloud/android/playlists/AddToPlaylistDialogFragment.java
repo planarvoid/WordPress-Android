@@ -206,7 +206,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     }
 
     private static class MyPlaylistsAdapter extends BaseAdapter {
-        private Context context;
+        private final Context context;
         private Cursor cursor;
 
         public MyPlaylistsAdapter(Context c) {

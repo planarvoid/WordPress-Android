@@ -27,7 +27,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
     private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
     private final SoundCloudApplication app;
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
     private AuthTaskFragment fragment;
 
     public AuthTask(SoundCloudApplication application, UserStorage userStorage) {

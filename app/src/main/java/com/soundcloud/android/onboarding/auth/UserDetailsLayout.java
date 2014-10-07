@@ -33,14 +33,8 @@ import java.io.File;
 public class UserDetailsLayout extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
     private static final String BUNDLE_FILE = "BUNDLE_FILE";
-
-    public interface UserDetailsHandler {
-        void onSubmitDetails(String username, File avatarFile);
-
-        void onSkipDetails();
-
-        FragmentActivity getFragmentActivity();
-    }
+    @Nullable private UserDetailsHandler userDetailsHandler;
+    @Nullable private File avatarFile;
 
     public UserDetailsLayout(Context context) {
         super(context);
@@ -52,83 +46,6 @@ public class UserDetailsLayout extends RelativeLayout {
 
     public UserDetailsLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-    }
-
-    @Nullable private UserDetailsHandler userDetailsHandler;
-
-    @Nullable private File avatarFile;
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-
-        final EditText username = (EditText) findViewById(R.id.txt_username);
-        final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
-        final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
-        final Button skipButton = (Button) findViewById(R.id.btn_skip);
-        final Button saveButton = (Button) findViewById(R.id.btn_save);
-
-        username.setHint(R.string.authentication_add_info_username_hint);
-
-        username.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean done = actionId == EditorInfo.IME_ACTION_DONE;
-                boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
-                boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
-
-                if (done || pressedEnter && downAction) {
-                    return avatarFile == null && avatarText.performClick();
-                } else {
-                    return false;
-                }
-            }
-        });
-
-        skipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSkipDetails();
-                }
-            }
-        });
-
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSubmitDetails(username.getText().toString(), avatarFile);
-                }
-            }
-        });
-
-        avatarText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
-                ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(),
-                        OnboardActivity.DIALOG_PICK_IMAGE);
-
-            }
-        });
-
-        avatarView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), R.string.authentication_clear_image, Toast.LENGTH_LONG).show();
-            }
-        });
-
-        avatarView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                resetAvatarFile();
-                avatarView.setVisibility(View.GONE);
-                avatarText.setVisibility(View.VISIBLE);
-
-                return true;
-            }
-        });
     }
 
     public void setImage(final File file) {
@@ -216,12 +133,93 @@ public class UserDetailsLayout extends RelativeLayout {
         setImage((File) bundle.getSerializable(BUNDLE_FILE));
     }
 
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+
+        final EditText username = (EditText) findViewById(R.id.txt_username);
+        final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
+        final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
+        final Button skipButton = (Button) findViewById(R.id.btn_skip);
+        final Button saveButton = (Button) findViewById(R.id.btn_save);
+
+        username.setHint(R.string.authentication_add_info_username_hint);
+
+        username.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean done = actionId == EditorInfo.IME_ACTION_DONE;
+                boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
+                boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
+
+                if (done || pressedEnter && downAction) {
+                    return avatarFile == null && avatarText.performClick();
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getUserDetailsHandler() != null) {
+                    getUserDetailsHandler().onSkipDetails();
+                }
+            }
+        });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getUserDetailsHandler() != null) {
+                    getUserDetailsHandler().onSubmitDetails(username.getText().toString(), avatarFile);
+                }
+            }
+        });
+
+        avatarText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
+                ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(),
+                        OnboardActivity.DIALOG_PICK_IMAGE);
+
+            }
+        });
+
+        avatarView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), R.string.authentication_clear_image, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        avatarView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                resetAvatarFile();
+                avatarView.setVisibility(View.GONE);
+                avatarText.setVisibility(View.VISIBLE);
+
+                return true;
+            }
+        });
+    }
+
+    private void resetAvatarFile() {
+        avatarFile = null;
+    }
+
     @VisibleForTesting
     void setAvatarTemporaryFile(File file) {
         avatarFile = file;
     }
 
-    private void resetAvatarFile() {
-        avatarFile = null;
+    public interface UserDetailsHandler {
+        void onSubmitDetails(String username, File avatarFile);
+
+        void onSkipDetails();
+
+        FragmentActivity getFragmentActivity();
     }
 }

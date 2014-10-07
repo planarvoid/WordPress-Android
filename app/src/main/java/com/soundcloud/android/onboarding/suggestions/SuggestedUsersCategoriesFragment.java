@@ -29,22 +29,14 @@ import android.widget.ListView;
 public class SuggestedUsersCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     public final static String SHOW_FACEBOOK = "SHOW_FACEBOOK";
-
-    private enum DisplayMode {
-        LOADING, ERROR, CONTENT
-    }
-
-    private DisplayMode mMode = DisplayMode.LOADING;
-
     private static final String KEY_OBSERVABLE = "buckets_observable";
     private static final String FRAGMENT_TAG = "suggested_users_fragment";
     private static final String LOG_TAG = "suggested_users_frag";
-
+    private DisplayMode mMode = DisplayMode.LOADING;
     private SuggestedUsersCategoriesAdapter adapter;
     private SuggestedUsersOperations suggestedUserOps;
     private Subscription subscription;
     private Observer<CategoryGroup> observer;
-
     private ListView listView;
     private EmptyView emptyView;
 
@@ -122,6 +114,25 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         emptyView = null;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, "UNSUBSCRIBING");
+        subscription.unsubscribe();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        final Category item = adapter.getItem(position - listView.getHeaderViewsCount());
+        if (item.isError()) {
+            refresh();
+        } else {
+            final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
+            intent.putExtra(Category.EXTRA, item);
+            startActivity(intent);
+        }
+    }
+
     private Observable<CategoryGroup> createCategoriesObservable() {
         final Observable<CategoryGroup> categoryGroups = shouldShowFacebook() ?
                 suggestedUserOps.getCategoryGroups() : suggestedUserOps.getMusicAndSoundsSuggestions();
@@ -140,25 +151,6 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
         }
         subscription = observable.subscribe(observer);
         setDisplayMode(DisplayMode.LOADING);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(LOG_TAG, "UNSUBSCRIBING");
-        subscription.unsubscribe();
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Category item = adapter.getItem(position - listView.getHeaderViewsCount());
-        if (item.isError()) {
-            refresh();
-        } else {
-            final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
-            intent.putExtra(Category.EXTRA, item);
-            startActivity(intent);
-        }
     }
 
     private boolean shouldShowFacebook() {
@@ -185,6 +177,10 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
                 listView.setVisibility(View.GONE);
                 break;
         }
+    }
+
+    private enum DisplayMode {
+        LOADING, ERROR, CONTENT
     }
 
     private static final class CategoryGroupsObserver extends DefaultFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {

@@ -356,7 +356,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
 
     private static class SkippyException extends Exception {
-        private ErrorCategory errorCategory;
+        private final ErrorCategory errorCategory;
         private final int line;
         private final String sourceFile;
 

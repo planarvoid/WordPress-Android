@@ -54,7 +54,6 @@ public class PlaybackNotificationControllerTest {
     @Mock private ApplicationProperties applicationProperties;
     @Mock private PlaybackNotificationPresenter playbackNotificationPresenter;
     @Mock private NotificationManager notificationManager;
-    @Mock private PlayQueueManager playQueueManager;
     @Mock private Notification notification;
     @Mock private Bitmap bitmap;
     @Mock private Uri uri;
@@ -74,8 +73,8 @@ public class PlaybackNotificationControllerTest {
                 playbackNotificationPresenter,
                 notificationManager,
                 eventBus,
-                imageOperations,
-                playQueueManager);
+                imageOperations
+        );
     }
 
     @Test

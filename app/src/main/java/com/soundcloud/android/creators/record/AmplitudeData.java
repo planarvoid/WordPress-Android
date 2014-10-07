@@ -14,22 +14,32 @@ import java.util.Iterator;
 
 public class AmplitudeData implements Iterable<Float>, Parcelable {
     public static final String EXTENSION = "amp";
-    private static final int AVERAGE_RECORDING_TIME = 3 * 60; // 3 minutes
+    public static final Creator<AmplitudeData> CREATOR = new Creator<AmplitudeData>() {
+        @Override
+        public AmplitudeData createFromParcel(Parcel source) {
+            return new AmplitudeData(source);
+        }
 
+        @Override
+        public AmplitudeData[] newArray(int size) {
+            return new AmplitudeData[size];
+        }
+    };
+    private static final int AVERAGE_RECORDING_TIME = 3 * 60; // 3 minutes
+    private final int initialCapacity;
     private float[] data;
     private int pos;
-
-    private final int initialCapacity;
 
     public AmplitudeData() {
         this(AVERAGE_RECORDING_TIME * SoundRecorder.PIXELS_PER_SECOND);
     }
 
-    public AmplitudeData(int initialCapacity ) {
+    public AmplitudeData(int initialCapacity) {
         this.initialCapacity = initialCapacity;
         data = new float[initialCapacity];
 
     }
+
     public AmplitudeData(float[] data) {
         initialCapacity = pos = data.length;
         this.data = data;
@@ -46,27 +56,18 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     }
 
     public void add(float sample) {
-        ensureCapacity(pos+1);
+        ensureCapacity(pos + 1);
         data[pos++] = sample;
     }
 
     public void add(float... samples) {
-        ensureCapacity(pos+samples.length);
+        ensureCapacity(pos + samples.length);
         System.arraycopy(samples, 0, data, pos, samples.length);
         pos += samples.length;
     }
 
     public int size() {
         return pos;
-    }
-
-    private void ensureCapacity(int capacity) {
-        if (capacity > data.length) {
-            int newCap = Math.max(data.length << 1, capacity);
-            float[] tmp =  new float[newCap];
-            System.arraycopy(data, 0, tmp, 0, data.length);
-            data = tmp;
-        }
     }
 
     public float get(int index) {
@@ -78,7 +79,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     }
 
     public float last() {
-        return pos > 0 ? data[pos-1] : 0;
+        return pos > 0 ? data[pos - 1] : 0;
     }
 
     public void clear() {
@@ -136,18 +137,6 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         }
     }
 
-    public static final Creator<AmplitudeData> CREATOR = new Creator<AmplitudeData>() {
-        @Override
-        public AmplitudeData createFromParcel(Parcel source) {
-            return new AmplitudeData(source);
-        }
-
-        @Override
-        public AmplitudeData[] newArray(int size) {
-            return new AmplitudeData[size];
-        }
-    };
-
     public float[] get() {
         return data;
     }
@@ -190,5 +179,14 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     public void set(AmplitudeData adata) {
         data = adata.get();
         pos = adata.pos;
+    }
+
+    private void ensureCapacity(int capacity) {
+        if (capacity > data.length) {
+            int newCap = Math.max(data.length << 1, capacity);
+            float[] tmp = new float[newCap];
+            System.arraycopy(data, 0, tmp, 0, data.length);
+            data = tmp;
+        }
     }
 }

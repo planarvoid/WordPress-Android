@@ -121,11 +121,6 @@ public class FollowingOperations {
         }));
     }
 
-    private Observable<UserAssociation> removeFollowings(final List<PublicApiUser> users) {
-        updateLocalStatus(false, ScModel.getIdList(users));
-        return userAssociationStorage.unfollowList(users);
-    }
-
     public Observable<Boolean> toggleFollowing(PublicApiUser user) {
         if (followStatus.isFollowing(user)) {
             return removeFollowing(user);
@@ -160,19 +155,6 @@ public class FollowingOperations {
 
     }
 
-    @Nullable
-    private APIRequest<Void> createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
-        final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
-        final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
-        if (!tokens.isEmpty()) {
-            return SoundCloudAPIRequest.RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
-                    .forPublicAPI()
-                    .withContent(new BulkFollowingsHolder(tokens))
-                    .build();
-        }
-        return null;
-    }
-
     public Observable<Boolean> waitForActivities(final Context context) {
         return getFollowingsNeedingSync().toList().flatMap(new Func1<List<UserAssociation>, Observable<Collection<UserAssociation>>>() {
             @Override
@@ -185,6 +167,61 @@ public class FollowingOperations {
                 return fetchActivities(new PublicApi(context));
             }
         });
+    }
+
+    public Set<Long> getFollowedUserIds() {
+        return followStatus.getFollowedUserIds();
+    }
+
+    public boolean isFollowing(Urn urn) {
+        return followStatus.isFollowing(urn);
+    }
+
+    public void requestUserFollowings(FollowStatusChangedListener listener) {
+        followStatus.requestUserFollowings(listener);
+    }
+
+    public static void init() {
+        FollowStatus.get();
+    }
+
+    public static void clearState() {
+        FollowStatus.clearState();
+    }
+
+    public void updateLocalStatus(boolean shouldFollow, long... userIds) {
+        final boolean hadNoFollowings = followStatus.isEmpty();
+        // update followings ID cache
+        followStatus.toggleFollowing(userIds);
+        // make sure the cache reflects the new state of each following
+        for (long userId : userIds) {
+            final PublicApiUser cachedUser = modelManager.getCachedUser(userId);
+            if (cachedUser != null) {
+                cachedUser.user_following = shouldFollow;
+            }
+        }
+        // invalidate stream SyncState if necessary
+        if (hadNoFollowings && !followStatus.isEmpty()) {
+            fireAndForget(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM));
+        }
+    }
+
+    private Observable<UserAssociation> removeFollowings(final List<PublicApiUser> users) {
+        updateLocalStatus(false, ScModel.getIdList(users));
+        return userAssociationStorage.unfollowList(users);
+    }
+
+    @Nullable
+    private APIRequest<Void> createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
+        final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
+        final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
+        if (!tokens.isEmpty()) {
+            return SoundCloudAPIRequest.RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
+                    .forPublicAPI()
+                    .withContent(new BulkFollowingsHolder(tokens))
+                    .build();
+        }
+        return null;
     }
 
     //TODO: didn't have enough time porting this over, next time :)
@@ -227,56 +264,18 @@ public class FollowingOperations {
         });
     }
 
-    public Set<Long> getFollowedUserIds() {
-        return followStatus.getFollowedUserIds();
-    }
-
-    public boolean isFollowing(Urn urn) {
-        return followStatus.isFollowing(urn);
-    }
-
-    public void requestUserFollowings(FollowStatusChangedListener listener) {
-        followStatus.requestUserFollowings(listener);
-    }
-
-    public static void init() {
-        FollowStatus.get();
-    }
-
-    public static void clearState() {
-        FollowStatus.clearState();
-    }
-
-
-    public void updateLocalStatus(boolean shouldFollow, long... userIds) {
-        final boolean hadNoFollowings = followStatus.isEmpty();
-        // update followings ID cache
-        followStatus.toggleFollowing(userIds);
-        // make sure the cache reflects the new state of each following
-        for (long userId : userIds) {
-            final PublicApiUser cachedUser = modelManager.getCachedUser(userId);
-            if (cachedUser != null) {
-                cachedUser.user_following = shouldFollow;
-            }
-        }
-        // invalidate stream SyncState if necessary
-        if (hadNoFollowings && !followStatus.isEmpty()) {
-            fireAndForget(syncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM));
-        }
-    }
-
     public interface FollowStatusChangedListener {
         void onFollowChanged();
     }
 
     @VisibleForTesting
     public static class BulkFollowingsHolder {
+        @JsonProperty
+        Collection<String> tokens;
+
         public BulkFollowingsHolder(Collection<String> tokens) {
             this.tokens = tokens;
         }
-
-        @JsonProperty
-        Collection<String> tokens;
 
         @Override
         public String toString() {

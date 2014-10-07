@@ -30,7 +30,7 @@ public class TourLayout extends FrameLayout {
 
     private final int[] bitmapSize = new int[]{-1, -1};
 
-    private ImageView bgImageView;
+    private final ImageView bgImageView;
     private final int bgResId;
     private Handler loadHandler;
 

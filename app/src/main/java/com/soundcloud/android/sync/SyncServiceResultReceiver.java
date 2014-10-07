@@ -25,9 +25,9 @@ class SyncServiceResultReceiver extends ResultReceiver {
     public static final int NOTIFICATION_MAX = 100;
     private static final String NOT_PLUS = (NOTIFICATION_MAX - 1) + "+";
 
-    private SyncResult result;
-    private SoundCloudApplication app;
-    private Bundle extras;
+    private final SyncResult result;
+    private final SoundCloudApplication app;
+    private final Bundle extras;
 
     public SyncServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
         super(new Handler());

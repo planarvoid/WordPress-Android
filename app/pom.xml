@@ -651,6 +651,10 @@
                             <excludes>
                                 <exclude>com/soundcloud/android/**/R.java</exclude>
                             </excludes>
+                            <excludeRoots>
+                                <excludeRoot>gen-external-apklibs/com.soundcloud.android_skippy_535/src</excludeRoot>
+                                <excludeRoot>target/unpack/apklibs/com.soundcloud.android_skippy_apklib_535/src</excludeRoot>
+                            </excludeRoots>
                         </configuration>
                         <executions>
                             <execution>

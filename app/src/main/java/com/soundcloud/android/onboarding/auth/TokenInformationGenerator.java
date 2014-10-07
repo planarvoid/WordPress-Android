@@ -10,7 +10,7 @@ import java.io.IOException;
 public class TokenInformationGenerator {
 
     public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};
-    private PublicCloudAPI oldCloudAPI;
+    private final PublicCloudAPI oldCloudAPI;
 
     public interface TokenKeys {
         String CODE_EXTRA = "code";

@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.legacy.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import android.os.Parcel;
@@ -13,6 +12,17 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FoursquareVenue implements Parcelable {
+    @SuppressWarnings({"UnusedDeclaration"})
+    public static final Parcelable.Creator<FoursquareVenue> CREATOR
+            = new Parcelable.Creator<FoursquareVenue>() {
+        public FoursquareVenue createFromParcel(Parcel in) {
+            return new FoursquareVenue(in);
+        }
+
+        public FoursquareVenue[] newArray(int size) {
+            return new FoursquareVenue[size];
+        }
+    };
     public String id, name;
     public List<Category> categories;
 
@@ -75,20 +85,19 @@ public class FoursquareVenue implements Parcelable {
         dest.writeTypedList(categories);
     }
 
-    @SuppressWarnings({"UnusedDeclaration"})
-    public static final Parcelable.Creator<FoursquareVenue> CREATOR
-            = new Parcelable.Creator<FoursquareVenue>() {
-        public FoursquareVenue createFromParcel(Parcel in) {
-            return new FoursquareVenue(in);
-        }
-
-        public FoursquareVenue[] newArray(int size) {
-            return new FoursquareVenue[size];
-        }
-    };
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Category implements Parcelable {
+        @SuppressWarnings({"UnusedDeclaration"})
+        public static final Parcelable.Creator<Category> CREATOR
+                = new Parcelable.Creator<Category>() {
+            public Category createFromParcel(Parcel in) {
+                return new Category(in);
+            }
+
+            public Category[] newArray(int size) {
+                return new Category[size];
+            }
+        };
         public String id, name;
         public boolean primary;
         public URI icon;
@@ -126,17 +135,5 @@ public class FoursquareVenue implements Parcelable {
             dest.writeInt(primary ? 1 : 0);
             dest.writeString(icon.toString());
         }
-
-        @SuppressWarnings({"UnusedDeclaration"})
-        public static final Parcelable.Creator<Category> CREATOR
-                = new Parcelable.Creator<Category>() {
-            public Category createFromParcel(Parcel in) {
-                return new Category(in);
-            }
-
-            public Category[] newArray(int size) {
-                return new Category[size];
-            }
-        };
     }
 }

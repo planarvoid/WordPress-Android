@@ -11,8 +11,8 @@ import android.util.Log;
 class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
 
     @VisibleForTesting
-    static final int COMPLETION_TOLERANCE_MS = 3000;
-    private MediaPlayerAdapter mediaPlayerAdapter;
+    /* package */ static final int COMPLETION_TOLERANCE_MS = 3000;
+    private final MediaPlayerAdapter mediaPlayerAdapter;
 
     TrackCompletionListener(MediaPlayerAdapter mediaPlayerAdapter) {
         this.mediaPlayerAdapter = mediaPlayerAdapter;

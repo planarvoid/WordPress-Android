@@ -24,20 +24,11 @@ import android.widget.TextView;
 public class SignUpLayout extends AuthLayout {
     private static final String BUNDLE_EMAIL = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
+    private static final int MIN_PASSWORD_LENGTH = 6;
     private Button signUpButton;
-
     private boolean emailValid, passwordValid;
     private Drawable validDrawable, placeholderDrawable;
-
-    public interface SignUpHandler extends AuthHandler {
-        void onSignUp(String email, String password);
-
-        void onCancelSignUp();
-
-        void onShowTermsOfUse();
-
-        void onShowPrivacyPolicy();
-    }
+    @Nullable private SignUpHandler signUpHandler;
 
     public SignUpLayout(Context context) {
         super(context);
@@ -51,13 +42,36 @@ public class SignUpLayout extends AuthLayout {
         super(context, attrs, defStyle);
     }
 
-    private static final int MIN_PASSWORD_LENGTH = 6;
-
-    @Nullable private SignUpHandler signUpHandler;
-
-    @Override
-    AuthHandler getAuthHandler() {
+    @Nullable
+    public SignUpHandler getSignUpHandler() {
         return signUpHandler;
+    }
+
+    public void setSignUpHandler(@Nullable SignUpHandler mSignUpHandler) {
+        this.signUpHandler = mSignUpHandler;
+    }
+
+    public Bundle getStateBundle() {
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
+
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
+        bundle.putCharSequence(BUNDLE_PASSWORD, choosePasswordField.getText());
+        return bundle;
+    }
+
+    public void setState(@Nullable Bundle bundle) {
+        if (bundle == null) {
+            return;
+        }
+
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
+
+        emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
+        choosePasswordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
+        validateForm();
     }
 
     @Override
@@ -193,48 +207,29 @@ public class SignUpLayout extends AuthLayout {
         signUpButton.setEnabled(emailValid && passwordValid);
     }
 
+    @Override
+    AuthHandler getAuthHandler() {
+        return signUpHandler;
+    }
+
     static boolean checkPassword(CharSequence password) {
         return password != null && password.length() >= MIN_PASSWORD_LENGTH;
     }
 
-    @Nullable
-    public SignUpHandler getSignUpHandler() {
-        return signUpHandler;
-    }
+    public interface SignUpHandler extends AuthHandler {
+        void onSignUp(String email, String password);
 
-    public void setSignUpHandler(@Nullable SignUpHandler mSignUpHandler) {
-        this.signUpHandler = mSignUpHandler;
-    }
+        void onCancelSignUp();
 
-    public Bundle getStateBundle() {
-        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
-        EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
+        void onShowTermsOfUse();
 
-        Bundle bundle = new Bundle();
-        bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
-        bundle.putCharSequence(BUNDLE_PASSWORD, choosePasswordField.getText());
-        return bundle;
-    }
-
-    public void setState(@Nullable Bundle bundle) {
-        if (bundle == null) {
-            return;
-        }
-
-        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
-        EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
-
-        emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
-        choosePasswordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
-        validateForm();
+        void onShowPrivacyPolicy();
     }
 
     private abstract class InputValidator extends ScTextUtils.TextValidator {
         public InputValidator(TextView textView) {
             super(textView);
         }
-
-        abstract boolean validate(String text);
 
         @Override
         public void validate(TextView textView, String text) {
@@ -245,5 +240,7 @@ public class SignUpLayout extends AuthLayout {
             }
             validateForm();
         }
+
+        abstract boolean validate(String text);
     }
 }

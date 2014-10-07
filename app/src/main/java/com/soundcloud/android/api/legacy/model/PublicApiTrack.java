@@ -37,17 +37,23 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 @Deprecated
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PublicApiTrack extends Playable {
     public static final String EXTRA = "track";
     public static final String EXTRA_ID = "track_id";
+    public static final Parcelable.Creator<PublicApiTrack> CREATOR = new Parcelable.Creator<PublicApiTrack>() {
+        public PublicApiTrack createFromParcel(Parcel in) {
+            return new PublicApiTrack(in);
+        }
 
+        public PublicApiTrack[] newArray(int size) {
+            return new PublicApiTrack[size];
+        }
+    };
     private static final String TAG = "Track";
     private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
-
     // API fields
     @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
@@ -57,34 +63,25 @@ public class PublicApiTrack extends Playable {
     @JsonView(Views.Full.class) public String track_type;
     @JsonView(Views.Full.class) public String key_signature;
     @JsonView(Views.Full.class) public float bpm;
-
     @JsonView(Views.Full.class) public int playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
     @JsonView(Views.Full.class) public int comment_count = NOT_SET;
-
     @JsonView(Views.Full.class) public String original_format;
-
     @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String user_uri;
-
     @JsonView(Views.Full.class)
     public String waveform_url;
     @JsonView(Views.Mini.class) public String stream_url;
     @JsonView(Views.Full.class) public int user_playback_count = NOT_SET;
-
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public CreatedWith created_with;
-
     @JsonView(Views.Full.class) public String attachments_uri;
-
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String download_url;  // if track downloadable or current user = owner
-
     // only shown to owner of track
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT) public int downloads_remaining;
-
     @JsonView(Views.Full.class)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String secret_token;
@@ -124,6 +121,77 @@ public class PublicApiTrack extends Playable {
         }
     }
 
+    public PublicApiTrack() {
+        super();
+    }
+
+    public PublicApiTrack(long id) {
+        super(id);
+    }
+
+    public PublicApiTrack(Parcel in) {
+        Bundle b = in.readBundle(getClass().getClassLoader());
+        super.readFromBundle(b);
+
+        state = State.fromString(b.getString("state"));
+        commentable = b.getBoolean("commentable");
+        label = b.getParcelable("label");
+        isrc = b.getString("isrc");
+        video_url = b.getString("video_url");
+        track_type = b.getString("track_type");
+        key_signature = b.getString("key_signature");
+        bpm = b.getFloat("bpm");
+        playback_count = b.getInt("playback_count");
+        download_count = b.getInt("download_count");
+        comment_count = b.getInt("comment_count");
+        reposts_count = b.getInt("reposts_count");
+        shared_to_count = b.getInt("shared_to_count");
+        original_format = b.getString("original_format");
+        user_uri = b.getString("user_uri");
+        waveform_url = b.getString("waveform_url");
+        stream_url = b.getString("stream_url");
+        user_playback_count = b.getInt("user_playback_count");
+        user_like = b.getBoolean("user_like");
+        user_repost = b.getBoolean("user_repost");
+        created_with = b.getParcelable("created_with");
+        attachments_uri = b.getString("attachments_uri");
+        download_url = b.getString("download_url");
+        downloads_remaining = b.getInt("downloads_remaining");
+        secret_token = b.getString("secret_token");
+        secret_uri = b.getString("secret_uri");
+
+        local_user_playback_count = b.getInt("local_user_playback_count");
+        local_cached = b.getBoolean("local_cached");
+        last_playback_error = b.getInt("last_playback_error");
+    }
+
+    public PublicApiTrack(Cursor cursor) {
+        super(cursor);
+        state = State.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STATE)));
+        track_type = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TRACK_TYPE));
+
+        waveform_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.WAVEFORM_URL));
+
+        download_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOAD_URL));
+
+        stream_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STREAM_URL));
+        playback_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.PLAYBACK_COUNT);
+        download_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.DOWNLOAD_COUNT);
+        comment_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
+        shared_to_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
+        commentable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.COMMENTABLE)) == 1;
+        description = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DESCRIPTION));
+
+        final int localPlayCountIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_PLAY_COUNT);
+        if (localPlayCountIdx != -1) {
+            local_user_playback_count = cursor.getInt(localPlayCountIdx);
+        }
+        final int cachedIdx = cursor.getColumnIndex(TableColumns.SoundView.CACHED);
+        if (cachedIdx != -1) {
+            local_cached = cursor.getInt(cachedIdx) == 1;
+        }
+    }
+
     @Override
     public void setId(long id) {
         super.setId(id);
@@ -160,13 +228,6 @@ public class PublicApiTrack extends Playable {
                 return null;
             }
         }
-    }
-
-    /**
-     * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
-     */
-    public void setWaveformUrl(String waveformUrl) {
-        waveform_url = fixWaveform(waveformUrl);
     }
 
     public Uri toUri() {
@@ -248,135 +309,19 @@ public class PublicApiTrack extends Playable {
         return waveform_url;
     }
 
+    /**
+     * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
+     */
+    public void setWaveformUrl(String waveformUrl) {
+        waveform_url = fixWaveform(waveformUrl);
+    }
+
     public PropertySet toPropertySet() {
         return super.toPropertySet()
                 .put(TrackProperty.URN, Urn.forTrack(getId()))
                 .put(TrackProperty.PLAY_COUNT, playback_count)
                 .put(TrackProperty.COMMENTS_COUNT, comment_count)
                 .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class CreatedWith implements Parcelable {
-
-        @JsonView(Views.Full.class) public long id;
-        @JsonView(Views.Full.class) public String name;
-        @JsonView(Views.Full.class) public String uri;
-        @JsonView(Views.Full.class) public String permalink_url;
-        @JsonView(Views.Full.class) public String external_url;
-
-        public CreatedWith() {
-            super();
-        }
-
-        public CreatedWith(Parcel in) {
-            id = in.readLong();
-            name = in.readString();
-            uri = in.readString();
-            permalink_url = in.readString();
-            external_url = in.readString();
-
-        }
-
-        public boolean isEmpty() {
-            return TextUtils.isEmpty(name) || TextUtils.isEmpty(permalink_url);
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeLong(id);
-            dest.writeString(name);
-            dest.writeString(uri);
-            dest.writeString(permalink_url);
-            dest.writeString(external_url);
-        }
-
-        public static final Parcelable.Creator<CreatedWith> CREATOR = new Parcelable.Creator<CreatedWith>() {
-            public CreatedWith createFromParcel(Parcel in) {
-                return new CreatedWith(in);
-            }
-
-            public CreatedWith[] newArray(int size) {
-                return new CreatedWith[size];
-            }
-        };
-
-    }
-
-    public PublicApiTrack() {
-        super();
-    }
-
-    public PublicApiTrack(long id) {
-        super(id);
-    }
-
-    public PublicApiTrack(Parcel in) {
-        Bundle b = in.readBundle(getClass().getClassLoader());
-        super.readFromBundle(b);
-
-        state = State.fromString(b.getString("state"));
-        commentable = b.getBoolean("commentable");
-        label = b.getParcelable("label");
-        isrc = b.getString("isrc");
-        video_url = b.getString("video_url");
-        track_type = b.getString("track_type");
-        key_signature = b.getString("key_signature");
-        bpm = b.getFloat("bpm");
-        playback_count = b.getInt("playback_count");
-        download_count = b.getInt("download_count");
-        comment_count = b.getInt("comment_count");
-        reposts_count = b.getInt("reposts_count");
-        shared_to_count = b.getInt("shared_to_count");
-        original_format = b.getString("original_format");
-        user_uri = b.getString("user_uri");
-        waveform_url = b.getString("waveform_url");
-        stream_url = b.getString("stream_url");
-        user_playback_count = b.getInt("user_playback_count");
-        user_like = b.getBoolean("user_like");
-        user_repost = b.getBoolean("user_repost");
-        created_with = b.getParcelable("created_with");
-        attachments_uri = b.getString("attachments_uri");
-        download_url = b.getString("download_url");
-        downloads_remaining = b.getInt("downloads_remaining");
-        secret_token = b.getString("secret_token");
-        secret_uri = b.getString("secret_uri");
-
-        local_user_playback_count = b.getInt("local_user_playback_count");
-        local_cached = b.getBoolean("local_cached");
-        last_playback_error = b.getInt("last_playback_error");
-    }
-
-    public PublicApiTrack(Cursor cursor) {
-        super(cursor);
-        state = State.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STATE)));
-        track_type = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TRACK_TYPE));
-
-        waveform_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.WAVEFORM_URL));
-
-        download_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOAD_URL));
-
-        stream_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STREAM_URL));
-        playback_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.PLAYBACK_COUNT);
-        download_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.DOWNLOAD_COUNT);
-        comment_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
-        shared_to_count = ResolverHelper.getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
-        commentable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.COMMENTABLE)) == 1;
-        description = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DESCRIPTION));
-
-        final int localPlayCountIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_PLAY_COUNT);
-        if (localPlayCountIdx != -1) {
-            local_user_playback_count = cursor.getInt(localPlayCountIdx);
-        }
-        final int cachedIdx = cursor.getColumnIndex(TableColumns.SoundView.CACHED);
-        if (cachedIdx != -1) {
-            local_cached = cursor.getInt(cachedIdx) == 1;
-        }
     }
 
     public ContentValues buildContentValues() {
@@ -502,24 +447,10 @@ public class PublicApiTrack extends Playable {
         return sb.toString();
     }
 
-    private String getCCLink(String license) {
-        return "http://creativecommons.org/licenses/" + license + "/3.0";
-    }
-
     public int getEstimatedFileSize() {
         // 128kbps estimate
         return duration <= 0 ? 0 : ((128 * duration) / 8) * 1024;
     }
-
-    public static final Parcelable.Creator<PublicApiTrack> CREATOR = new Parcelable.Creator<PublicApiTrack>() {
-        public PublicApiTrack createFromParcel(Parcel in) {
-            return new PublicApiTrack(in);
-        }
-
-        public PublicApiTrack[] newArray(int size) {
-            return new PublicApiTrack[size];
-        }
-    };
 
     @Override
     public String toString() {
@@ -585,6 +516,27 @@ public class PublicApiTrack extends Playable {
         return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink + "/" : "") + permalink;
     }
 
+    @Override
+    public int getTypeId() {
+        return DB_TYPE_TRACK;
+    }
+
+    public String getStreamUrl() {
+        return stream_url;
+    }
+
+    protected static String fixWaveform(String input) {
+        if (input != null && !input.endsWith("_m.png")) {
+            return input.replace(".png", "_m.png");
+        } else {
+            return input;
+        }
+    }
+
+    private String getCCLink(String license) {
+        return "http://creativecommons.org/licenses/" + license + "/3.0";
+    }
+
     public enum State {
         UNDEFINED(""),
         FINISHED("finished"),
@@ -633,20 +585,54 @@ public class PublicApiTrack extends Playable {
         }
     }
 
-    @Override
-    public int getTypeId() {
-        return DB_TYPE_TRACK;
-    }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CreatedWith implements Parcelable {
 
-    public String getStreamUrl() {
-        return stream_url;
-    }
+        public static final Parcelable.Creator<CreatedWith> CREATOR = new Parcelable.Creator<CreatedWith>() {
+            public CreatedWith createFromParcel(Parcel in) {
+                return new CreatedWith(in);
+            }
 
-    protected static String fixWaveform(String input) {
-        if (input != null && !input.endsWith("_m.png")) {
-            return input.replace(".png", "_m.png");
-        } else {
-            return input;
+            public CreatedWith[] newArray(int size) {
+                return new CreatedWith[size];
+            }
+        };
+        @JsonView(Views.Full.class) public long id;
+        @JsonView(Views.Full.class) public String name;
+        @JsonView(Views.Full.class) public String uri;
+        @JsonView(Views.Full.class) public String permalink_url;
+        @JsonView(Views.Full.class) public String external_url;
+
+        public CreatedWith() {
+            super();
         }
+
+        public CreatedWith(Parcel in) {
+            id = in.readLong();
+            name = in.readString();
+            uri = in.readString();
+            permalink_url = in.readString();
+            external_url = in.readString();
+
+        }
+
+        public boolean isEmpty() {
+            return TextUtils.isEmpty(name) || TextUtils.isEmpty(permalink_url);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeLong(id);
+            dest.writeString(name);
+            dest.writeString(uri);
+            dest.writeString(permalink_url);
+            dest.writeString(external_url);
+        }
+
     }
 }

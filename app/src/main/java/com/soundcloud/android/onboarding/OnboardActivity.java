@@ -69,15 +69,10 @@ import java.util.List;
 
 public class OnboardActivity extends AbstractLoginActivity implements ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 
+    public static final int DIALOG_PICK_IMAGE = 1;
     private static final String FOREGROUND_TAG = "foreground";
     private static final String PARALLAX_TAG = "parallax";
     private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
-    public static final int DIALOG_PICK_IMAGE = 1;
-
-    protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
-    }
-
     private static final String BUNDLE_STATE = "BUNDLE_STATE";
     private static final String BUNDLE_USER = "BUNDLE_USER";
     private static final String BUNDLE_LOGIN = "BUNDLE_LOGIN";
@@ -88,24 +83,43 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
     private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
-
     private StartState lastAuthState;
-
     private StartState state = StartState.TOUR;
-
     private String lastGoogleAccountSelected;
     @Nullable private PublicApiUser user;
-
     private View tourBottomBar, tourLogo, overlayBg, overlayHolder;
-
     private List<TourLayout> tourPages;
-
     private ViewPager viewPager;
-
     @Nullable private LoginLayout login;
     @Nullable private SignUpLayout signUp;
     @Nullable private UserDetailsLayout userDetails;
     @Nullable private AcceptTermsLayout acceptTerms;
+    private final Animation.AnimationListener mHideScrollViewListener = new Animation.AnimationListener() {
+        @Override
+        public void onAnimationStart(Animation animation) {
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            overlayHolder.setVisibility(View.GONE);
+            if (login != null) {
+                hideView(OnboardActivity.this, getLogin(), false);
+            }
+            if (signUp != null) {
+                hideView(OnboardActivity.this, getSignUp(), false);
+            }
+            if (userDetails != null) {
+                hideView(OnboardActivity.this, getUserDetails(), false);
+            }
+            if (acceptTerms != null) {
+                hideView(OnboardActivity.this, getAcceptTerms(), false);
+            }
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+        }
+    };
     @Nullable private Bundle loginBundle, signUpBundle, userDetailsBundle, acceptTermsBundle;
 
     private PublicCloudAPI oldCloudAPI;
@@ -230,108 +244,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 }
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        for (TourLayout layout : tourPages) {
-            layout.recycle();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
-        outState.putSerializable(BUNDLE_STATE, getState());
-        outState.putParcelable(BUNDLE_USER, user);
-
-        if (login != null) {
-            outState.putBundle(BUNDLE_LOGIN, login.getStateBundle());
-        }
-        if (signUp != null) {
-            outState.putBundle(BUNDLE_SIGN_UP, signUp.getStateBundle());
-        }
-        if (userDetails != null) {
-            outState.putBundle(BUNDLE_SIGN_UP_DETAILS, userDetails.getStateBundle());
-        }
-        if (acceptTerms != null) {
-            outState.putBundle(BUNDLE_ACCEPT_TERMS, acceptTerms.getStateBundle());
-        }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        user = savedInstanceState.getParcelable(BUNDLE_USER);
-        lastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
-
-        loginBundle = savedInstanceState.getBundle(BUNDLE_LOGIN);
-        signUpBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
-        userDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
-        acceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
-
-        final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
-        setState(state, false);
-    }
-
-    private void trackTourScreen() {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.TOUR));
-    }
-
-    private LoginLayout getLogin() {
-        if (login == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
-
-            login = (LoginLayout) stub.inflate();
-            login.setLoginHandler(this);
-            login.setVisibility(View.GONE);
-            login.setState(loginBundle);
-        }
-
-        return login;
-    }
-
-    private SignUpLayout getSignUp() {
-        if (signUp == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
-
-            signUp = (SignUpLayout) stub.inflate();
-            signUp.setSignUpHandler(this);
-            signUp.setVisibility(View.GONE);
-            signUp.setState(signUpBundle);
-        }
-
-        return signUp;
-    }
-
-    private UserDetailsLayout getUserDetails() {
-        if (userDetails == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
-
-            userDetails = (UserDetailsLayout) stub.inflate();
-            userDetails.setUserDetailsHandler(this);
-            userDetails.setVisibility(View.GONE);
-            userDetails.setState(userDetailsBundle);
-        }
-
-        return userDetails;
-    }
-
-    private AcceptTermsLayout getAcceptTerms() {
-        if (acceptTerms == null) {
-            ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
-
-            acceptTerms = (AcceptTermsLayout) stub.inflate();
-            acceptTerms.setAcceptTermsHandler(this);
-            acceptTerms.setState(acceptTermsBundle);
-            acceptTerms.setVisibility(View.GONE);
-        }
-        return acceptTerms;
     }
 
     @Override
@@ -484,76 +396,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
     }
 
-    private void onHideOverlay(boolean animated) {
-        showView(this, tourBottomBar, animated);
-        showView(this, tourLogo, animated);
-        hideView(this, overlayBg, animated);
-
-        // show foreground views
-        for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) {
-                showView(this, view, false);
-            }
-        }
-
-        if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
-            hideView(this, overlayHolder, mHideScrollViewListener);
-        } else {
-            mHideScrollViewListener.onAnimationEnd(null);
-        }
-    }
-
-    private Animation.AnimationListener mHideScrollViewListener = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationStart(Animation animation) {
-        }
-
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            overlayHolder.setVisibility(View.GONE);
-            if (login != null) {
-                hideView(OnboardActivity.this, getLogin(), false);
-            }
-            if (signUp != null) {
-                hideView(OnboardActivity.this, getSignUp(), false);
-            }
-            if (userDetails != null) {
-                hideView(OnboardActivity.this, getUserDetails(), false);
-            }
-            if (acceptTerms != null) {
-                hideView(OnboardActivity.this, getAcceptTerms(), false);
-            }
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-        }
-    };
-
-    private void showOverlay(View overlay, boolean animated) {
-        hideView(this, tourBottomBar, animated);
-        hideView(this, tourLogo, animated);
-
-        // hide foreground views
-        for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) {
-                hideView(this, view, animated);
-            }
-        }
-        showView(this, overlayHolder, animated);
-        showView(this, overlayBg, animated);
-        showView(this, overlay, animated);
-    }
-
-    private TourLayout getCurrentTourLayout() {
-        return tourPages.get(viewPager.getCurrentItem());
-    }
-
-    private static boolean isForegroundView(View view) {
-        final Object tag = view.getTag();
-        return FOREGROUND_TAG.equals(tag) || PARALLAX_TAG.equals(tag);
-    }
-
     @Override
     public void onGooglePlusAuth() {
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
@@ -648,30 +490,73 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        switch (requestCode) {
+            case DIALOG_PICK_IMAGE:
+                ImageUtils.startTakeNewPictureIntent(this, getUserDetails().generateTempAvatarFile(),
+                        Consts.RequestCodes.GALLERY_IMAGE_TAKE);
+                break;
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+        switch (requestCode) {
+            case DIALOG_PICK_IMAGE:
+                ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        for (TourLayout layout : tourPages) {
+            layout.recycle();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
+        outState.putSerializable(BUNDLE_STATE, getState());
+        outState.putParcelable(BUNDLE_USER, user);
+
+        if (login != null) {
+            outState.putBundle(BUNDLE_LOGIN, login.getStateBundle());
+        }
+        if (signUp != null) {
+            outState.putBundle(BUNDLE_SIGN_UP, signUp.getStateBundle());
+        }
+        if (userDetails != null) {
+            outState.putBundle(BUNDLE_SIGN_UP_DETAILS, userDetails.getStateBundle());
+        }
+        if (acceptTerms != null) {
+            outState.putBundle(BUNDLE_ACCEPT_TERMS, acceptTerms.getStateBundle());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        user = savedInstanceState.getParcelable(BUNDLE_USER);
+        lastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
+
+        loginBundle = savedInstanceState.getBundle(BUNDLE_LOGIN);
+        signUpBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
+        userDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+        acceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
+
+        final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
+        setState(state, false);
+    }
+
+    @Override
     protected boolean wasAuthorizedViaSignupScreen() {
         return lastAuthState == StartState.SIGN_UP;
-    }
-
-    private void onGoogleAccountSelected(String name) {
-        // store the last account name in case we have to retry after startActivityForResult with G+ app
-        lastGoogleAccountSelected = name;
-        proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
-    }
-
-    /**
-     * Set signup params on accept terms view and change state
-     *
-     * @param signupVia
-     * @param params
-     */
-    private void proposeTermsOfUse(SignupVia signupVia, Bundle params) {
-        getAcceptTerms().setSignupParams(signupVia, params);
-        setState(StartState.ACCEPT_TERMS);
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_TERMS));
-    }
-
-    private SoundCloudApplication getApp() {
-        return ((SoundCloudApplication) getApplication());
     }
 
     @Override
@@ -738,22 +623,124 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
     }
 
-    @Override
-    public void onPositiveButtonClicked(int requestCode) {
-        switch (requestCode) {
-            case DIALOG_PICK_IMAGE:
-                ImageUtils.startTakeNewPictureIntent(this, getUserDetails().generateTempAvatarFile(),
-                        Consts.RequestCodes.GALLERY_IMAGE_TAKE);
-                break;
+    private void trackTourScreen() {
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.TOUR));
+    }
+
+    private LoginLayout getLogin() {
+        if (login == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
+
+            login = (LoginLayout) stub.inflate();
+            login.setLoginHandler(this);
+            login.setVisibility(View.GONE);
+            login.setState(loginBundle);
+        }
+
+        return login;
+    }
+
+    private SignUpLayout getSignUp() {
+        if (signUp == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
+
+            signUp = (SignUpLayout) stub.inflate();
+            signUp.setSignUpHandler(this);
+            signUp.setVisibility(View.GONE);
+            signUp.setState(signUpBundle);
+        }
+
+        return signUp;
+    }
+
+    private UserDetailsLayout getUserDetails() {
+        if (userDetails == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
+
+            userDetails = (UserDetailsLayout) stub.inflate();
+            userDetails.setUserDetailsHandler(this);
+            userDetails.setVisibility(View.GONE);
+            userDetails.setState(userDetailsBundle);
+        }
+
+        return userDetails;
+    }
+
+    private AcceptTermsLayout getAcceptTerms() {
+        if (acceptTerms == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
+
+            acceptTerms = (AcceptTermsLayout) stub.inflate();
+            acceptTerms.setAcceptTermsHandler(this);
+            acceptTerms.setState(acceptTermsBundle);
+            acceptTerms.setVisibility(View.GONE);
+        }
+        return acceptTerms;
+    }
+
+    private void onHideOverlay(boolean animated) {
+        showView(this, tourBottomBar, animated);
+        showView(this, tourLogo, animated);
+        hideView(this, overlayBg, animated);
+
+        // show foreground views
+        for (View view : allChildViewsOf(getCurrentTourLayout())) {
+            if (isForegroundView(view)) {
+                showView(this, view, false);
+            }
+        }
+
+        if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
+            hideView(this, overlayHolder, mHideScrollViewListener);
+        } else {
+            mHideScrollViewListener.onAnimationEnd(null);
         }
     }
 
-    @Override
-    public void onNegativeButtonClicked(int requestCode) {
-        switch (requestCode) {
-            case DIALOG_PICK_IMAGE:
-                ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+    private void showOverlay(View overlay, boolean animated) {
+        hideView(this, tourBottomBar, animated);
+        hideView(this, tourLogo, animated);
+
+        // hide foreground views
+        for (View view : allChildViewsOf(getCurrentTourLayout())) {
+            if (isForegroundView(view)) {
+                hideView(this, view, animated);
+            }
         }
+        showView(this, overlayHolder, animated);
+        showView(this, overlayBg, animated);
+        showView(this, overlay, animated);
+    }
+
+    private TourLayout getCurrentTourLayout() {
+        return tourPages.get(viewPager.getCurrentItem());
+    }
+
+    private static boolean isForegroundView(View view) {
+        final Object tag = view.getTag();
+        return FOREGROUND_TAG.equals(tag) || PARALLAX_TAG.equals(tag);
+    }
+
+    private void onGoogleAccountSelected(String name) {
+        // store the last account name in case we have to retry after startActivityForResult with G+ app
+        lastGoogleAccountSelected = name;
+        proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
+    }
+
+    /**
+     * Set signup params on accept terms view and change state
+     *
+     * @param signupVia
+     * @param params
+     */
+    private void proposeTermsOfUse(SignupVia signupVia, Bundle params) {
+        getAcceptTerms().setSignupParams(signupVia, params);
+        setState(StartState.ACCEPT_TERMS);
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_TERMS));
+    }
+
+    private SoundCloudApplication getApp() {
+        return ((SoundCloudApplication) getApplication());
     }
 
     private void onGoogleActivityResult(int resultCode) {
@@ -762,5 +749,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             final Bundle params = GooglePlusSignInTaskFragment.getParams(lastGoogleAccountSelected, RequestCodes.SIGNUP_VIA_GOOGLE);
             GooglePlusSignInTaskFragment.create(params).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
         }
+    }
+
+    protected enum StartState {
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
     }
 }

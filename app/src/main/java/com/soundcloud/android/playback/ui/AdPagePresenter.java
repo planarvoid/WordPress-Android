@@ -73,53 +73,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         bindItemView(view, new PlayerAd(propertySet, resources));
     }
 
-    private void bindItemView(View view, PlayerAd playerAd) {
-        final Holder holder = getViewHolder(view);
-        displayAdvertisement(playerAd, holder);
-        displayPreview(playerAd, holder);
-        styleLearnMoreButton(holder, playerAd);
-        setClickListener(this, holder.onClickViews);
-    }
-
-    private void styleLearnMoreButton(Holder holder, PlayerAd playerAd) {
-        holder.learnMore.setTextColor(getColorStates(
-                playerAd.getFocusedTextColor(),
-                playerAd.getPressedTextColor(),
-                playerAd.getDefaultTextColor()
-        ));
-        holder.learnMore.setBackground(getColorStates(
-                playerAd.getFocusedBackgroundColor(),
-                playerAd.getPressedBackgroundColor(),
-                playerAd.getDefaultBackgroundColor()
-        ));
-    }
-
-    private ColorStateList getColorStates(int focusedColor, int pressedColor, int defaultColor) {
-        return new ColorStateList(new int[][]{
-                new int[]{android.R.attr.state_focused},
-                new int[]{android.R.attr.state_pressed},
-                new int[]{},
-        }, new int[]{
-                focusedColor,
-                pressedColor,
-                defaultColor});
-    }
-
-    private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
-        holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
-        holder.footerAdTitle.setText(playerAd.getAdTitle());
-        imageOperations.displayAdInPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
-    }
-
-    private void displayPreview(PlayerAd playerAd, Holder holder) {
-        holder.previewTitle.setText(playerAd.getPreviewTitle());
-        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), getOptimizedImageSize(), holder.previewArtwork);
-    }
-
-    private ApiImageSize getOptimizedImageSize() {
-        return ApiImageSize.getListItemImageSize(context);
-    }
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -168,18 +121,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         }
     }
 
-    private void toggleSkip(Holder holder, boolean canSkip) {
-        holder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
-        holder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
-        holder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
-        setEnabled(canSkip, holder.skipDisableViews);
-    }
-
-    private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
-        String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ad_skip, formattedTime));
-    }
-
     @Override
     public void setPlayState(View adView, Playa.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final Holder holder = getViewHolder(adView);
@@ -219,12 +160,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         onPlayerSlide(trackView, 1);
     }
 
-    private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
-        for (View v : views) {
-            v.setOnClickListener(listener);
-        }
-    }
-
     @Override
     public void onPlayerSlide(View trackView, float slideOffset) {
         final Holder holder = getViewHolder(trackView);
@@ -234,6 +169,71 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     @Override
     public void clearLeaveBehind(View trackPage) {
 
+    }
+
+    private void bindItemView(View view, PlayerAd playerAd) {
+        final Holder holder = getViewHolder(view);
+        displayAdvertisement(playerAd, holder);
+        displayPreview(playerAd, holder);
+        styleLearnMoreButton(holder, playerAd);
+        setClickListener(this, holder.onClickViews);
+    }
+
+    private void styleLearnMoreButton(Holder holder, PlayerAd playerAd) {
+        holder.learnMore.setTextColor(getColorStates(
+                playerAd.getFocusedTextColor(),
+                playerAd.getPressedTextColor(),
+                playerAd.getDefaultTextColor()
+        ));
+        holder.learnMore.setBackground(getColorStates(
+                playerAd.getFocusedBackgroundColor(),
+                playerAd.getPressedBackgroundColor(),
+                playerAd.getDefaultBackgroundColor()
+        ));
+    }
+
+    private ColorStateList getColorStates(int focusedColor, int pressedColor, int defaultColor) {
+        return new ColorStateList(new int[][]{
+                new int[]{android.R.attr.state_focused},
+                new int[]{android.R.attr.state_pressed},
+                new int[]{},
+        }, new int[]{
+                focusedColor,
+                pressedColor,
+                defaultColor});
+    }
+
+    private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
+        holder.footerAdvertisement.setText(resources.getString(R.string.advertisement));
+        holder.footerAdTitle.setText(playerAd.getAdTitle());
+        imageOperations.displayAdInPlayer(playerAd.getArtwork(), holder.artworkView, resources.getDrawable(R.drawable.placeholder));
+    }
+
+    private void displayPreview(PlayerAd playerAd, Holder holder) {
+        holder.previewTitle.setText(playerAd.getPreviewTitle());
+        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), getOptimizedImageSize(), holder.previewArtwork);
+    }
+
+    private ApiImageSize getOptimizedImageSize() {
+        return ApiImageSize.getListItemImageSize(context);
+    }
+
+    private void toggleSkip(Holder holder, boolean canSkip) {
+        holder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
+        holder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+        holder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+        setEnabled(canSkip, holder.skipDisableViews);
+    }
+
+    private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
+        String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
+        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ad_skip, formattedTime));
+    }
+
+    private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
+        for (View v : views) {
+            v.setOnClickListener(listener);
+        }
     }
 
     private void setEnabled(boolean enabled, Iterable<View> views) {
@@ -270,12 +270,16 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         private final TextView footerAdTitle;
         private final TextView footerAdvertisement;
         private final ImageView previewArtwork;
-
+        private final PlayerOverlayController playerOverlayController;
+        private final Predicate<View> presentInConfig = new Predicate<View>() {
+            @Override
+            public boolean apply(@Nullable View v) {
+                return v != null;
+            }
+        };
         // View sets
         Iterable<View> skipDisableViews;
         Iterable<View> onClickViews;
-
-        private final PlayerOverlayController playerOverlayController;
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             artworkView = (ImageView) adView.findViewById(R.id.track_page_artwork);
@@ -303,13 +307,6 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
             populateViewSets();
         }
-
-        private Predicate<View> presentInConfig = new Predicate<View>() {
-            @Override
-            public boolean apply(@Nullable View v) {
-                return v != null;
-            }
-        };
 
         private void populateViewSets() {
             List<View> disableViews = Arrays.asList(previousButton, nextButton);

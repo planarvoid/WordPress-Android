@@ -30,25 +30,17 @@ import android.util.Log;
  */
 public class SoundRecorderService extends Service {
     private static final String TAG = SoundRecorderService.class.getSimpleName();
-
+    private static final int IDLE_DELAY = 30 * 1000;  // interval after which we stop the service when idle
+    private final IBinder binder = new LocalBinder<SoundRecorderService>() {
+        @Override
+        public SoundRecorderService getService() {
+            return SoundRecorderService.this;
+        }
+    };
     // recorder/player
     private SoundRecorder recorder;
-
     // state
     private int serviceStartId = -1;
-
-    // notifications
-    private PendingIntent recordPendingIntent;
-    private NotificationManager notificationManager;
-    private Notification recordNotification;
-
-    private LocalBroadcastManager broadcastManager;
-    private static final int IDLE_DELAY = 30 * 1000;  // interval after which we stop the service when idle
-
-    private long lastNotifiedTime;
-
-    private WakeLock wakeLock;
-
     private final Handler delayedStopHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -60,69 +52,12 @@ public class SoundRecorderService extends Service {
             }
         }
     };
-
-    private final IBinder binder = new LocalBinder<SoundRecorderService>() {
-        @Override
-        public SoundRecorderService getService() {
-            return SoundRecorderService.this;
-        }
-    };
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        serviceStartId = startId;
-        delayedStopHandler.removeCallbacksAndMessages(null);
-
-        // make sure the service will shut down on its own if it was
-        // just started but not bound to and nothing is playing
-        scheduleServiceShutdownCheck();
-        return START_STICKY;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Log.d(TAG, "create service started");
-
-        recorder = SoundRecorder.getInstance(this);
-
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
-        recorder = SoundRecorder.getInstance(this);
-        broadcastManager = LocalBroadcastManager.getInstance(this);
-        broadcastManager.registerReceiver(receiver, SoundRecorder.getIntentFilter());
-
-        // If the service was idle, but got killed before it stopped itself, the
-        // system will relaunch it. Make sure it gets stopped again in that case.
-        scheduleServiceShutdownCheck();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        broadcastManager.unregisterReceiver(receiver);
-        gotoIdleState(RECORD_NOTIFY_ID);
-        gotoIdleState(PLAYBACK_NOTIFY_ID);
-
-        releaseWakeLock();
-        wakeLock = null;
-    }
-
-    private void scheduleServiceShutdownCheck() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "scheduleServiceShutdownCheck()");
-        }
-        delayedStopHandler.removeCallbacksAndMessages(null);
-        delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
-    }
-
+    // notifications
+    private PendingIntent recordPendingIntent;
+    private NotificationManager notificationManager;
+    private Notification recordNotification;
+    private LocalBroadcastManager broadcastManager;
+    private long lastNotifiedTime;
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
 
@@ -177,7 +112,70 @@ public class SoundRecorderService extends Service {
             }
         }
     };
+    private WakeLock wakeLock;
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        serviceStartId = startId;
+        delayedStopHandler.removeCallbacksAndMessages(null);
+
+        // make sure the service will shut down on its own if it was
+        // just started but not bound to and nothing is playing
+        scheduleServiceShutdownCheck();
+        return START_STICKY;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "create service started");
+
+        recorder = SoundRecorder.getInstance(this);
+
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
+        recorder = SoundRecorder.getInstance(this);
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.registerReceiver(receiver, SoundRecorder.getIntentFilter());
+
+        // If the service was idle, but got killed before it stopped itself, the
+        // system will relaunch it. Make sure it gets stopped again in that case.
+        scheduleServiceShutdownCheck();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        broadcastManager.unregisterReceiver(receiver);
+        gotoIdleState(RECORD_NOTIFY_ID);
+        gotoIdleState(PLAYBACK_NOTIFY_ID);
+
+        releaseWakeLock();
+        wakeLock = null;
+    }
+
+    public static Notification createOngoingNotification(Context context, PendingIntent pendingIntent) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setContentIntent(pendingIntent);
+        builder.setOngoing(true);
+        return builder.build();
+    }
+
+    private void scheduleServiceShutdownCheck() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "scheduleServiceShutdownCheck()");
+        }
+        delayedStopHandler.removeCallbacksAndMessages(null);
+        delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
+    }
 
     private void gotoIdleState(int cancelNotificationId) {
         killNotification(cancelNotificationId);
@@ -237,22 +235,6 @@ public class SoundRecorderService extends Service {
         return notification;
     }
 
-    /* package */ void updateRecordTicker(Notification notification, long recordTime) {
-        notification.setLatestEventInfo(this,
-                getString(R.string.cloud_recorder_event_title),
-                getString(R.string.cloud_recorder_event_message, ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
-                recordPendingIntent);
-        notificationManager.notify(RECORD_NOTIFY_ID, notification);
-    }
-
-    public static Notification createOngoingNotification(Context context, PendingIntent pendingIntent) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.drawable.ic_notification_cloud);
-        builder.setContentIntent(pendingIntent);
-        builder.setOngoing(true);
-        return builder.build();
-    }
-
     private void acquireWakeLock() {
         if (wakeLock != null && !wakeLock.isHeld()) {
             wakeLock.acquire();
@@ -263,5 +245,13 @@ public class SoundRecorderService extends Service {
         if (wakeLock != null && wakeLock.isHeld()) {
             wakeLock.release();
         }
+    }
+
+    /* package */ void updateRecordTicker(Notification notification, long recordTime) {
+        notification.setLatestEventInfo(this,
+                getString(R.string.cloud_recorder_event_title),
+                getString(R.string.cloud_recorder_event_message, ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
+                recordPendingIntent);
+        notificationManager.notify(RECORD_NOTIFY_ID, notification);
     }
 }

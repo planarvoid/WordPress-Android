@@ -22,7 +22,7 @@ public class ScModelManager {
     private static final int LOW_MEM_REFERENCE = 16 * 1024 * 1024; // In bytes, used as a reference for calculations
     private static final int DEFAULT_CACHE_CAPACITY = 100;
 
-    private ContentResolver resolver;
+    private final ContentResolver resolver;
 
     private final ModelCache<PublicApiTrack> trackCache;
     private final ModelCache<PublicApiUser> userCache;

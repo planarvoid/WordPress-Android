@@ -8,10 +8,6 @@ import javax.annotation.Nullable;
 
 public class ListenableScrollView extends ScrollView {
 
-    public interface OnScrollListener {
-        void onScroll(int top, int oldTop);
-    }
-
     @Nullable
     private OnScrollListener listener;
 
@@ -37,5 +33,9 @@ public class ListenableScrollView extends ScrollView {
         if (listener != null) {
             listener.onScroll(t, oldt);
         }
+    }
+
+    public interface OnScrollListener {
+        void onScroll(int top, int oldTop);
     }
 }

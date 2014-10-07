@@ -21,15 +21,6 @@ import android.widget.TextView;
 public class LoginLayout extends AuthLayout {
     private static final String BUNDLE_EMAIL = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
-
-    public interface LoginHandler extends AuthHandler {
-        void onLogin(String email, String password);
-
-        void onCancelLogin();
-
-        void onRecover(String email);
-    }
-
     @Nullable private LoginHandler loginHandler;
 
     public LoginLayout(Context context) {
@@ -44,9 +35,34 @@ public class LoginLayout extends AuthLayout {
         super(context, attrs, defStyle);
     }
 
-    @Override
-    AuthHandler getAuthHandler() {
+    public LoginHandler getLoginHandler() {
         return loginHandler;
+    }
+
+    public void setLoginHandler(LoginHandler loginHandler) {
+        this.loginHandler = loginHandler;
+    }
+
+    public Bundle getStateBundle() {
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
+        bundle.putCharSequence(BUNDLE_PASSWORD, passwordField.getText());
+        return bundle;
+    }
+
+    public void setState(@Nullable Bundle bundle) {
+        if (bundle == null) {
+            return;
+        }
+
+        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
+        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+
+        emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
+        passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
     }
 
     @Override
@@ -122,33 +138,16 @@ public class LoginLayout extends AuthLayout {
                 }, true, false);
     }
 
-    public LoginHandler getLoginHandler() {
+    @Override
+    AuthHandler getAuthHandler() {
         return loginHandler;
     }
 
-    public void setLoginHandler(LoginHandler loginHandler) {
-        this.loginHandler = loginHandler;
-    }
+    public interface LoginHandler extends AuthHandler {
+        void onLogin(String email, String password);
 
-    public Bundle getStateBundle() {
-        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
-        EditText passwordField = (EditText) findViewById(R.id.txt_password);
+        void onCancelLogin();
 
-        Bundle bundle = new Bundle();
-        bundle.putCharSequence(BUNDLE_EMAIL, emailField.getText());
-        bundle.putCharSequence(BUNDLE_PASSWORD, passwordField.getText());
-        return bundle;
-    }
-
-    public void setState(@Nullable Bundle bundle) {
-        if (bundle == null) {
-            return;
-        }
-
-        EditText emailField = (EditText) findViewById(R.id.auto_txt_email_address);
-        EditText passwordField = (EditText) findViewById(R.id.txt_password);
-
-        emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
-        passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
+        void onRecover(String email);
     }
 }

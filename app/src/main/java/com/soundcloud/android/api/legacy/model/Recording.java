@@ -59,73 +59,52 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public static final String EXTRA = "recording";
     public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
     public static final String UPLOAD_TYPE = "recording";
+    public static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
+    public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
+    public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
+    public static final String PROCESSED_APPEND = "_processed";
+    public static final Parcelable.Creator<Recording> CREATOR = new Parcelable.Creator<Recording>() {
+        public Recording createFromParcel(Parcel in) {
+            return new Recording(in);
+        }
 
+        public Recording[] newArray(int size) {
+            return new Recording[size];
+        }
+    };
+    private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
+    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
+    private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
     // basic properties
     public long user_id;
-
     public String title;
-
     public String what_text;
     public String where_text;
-
     public long duration; // in msecs
-
     public boolean is_private;
     public String[] tags;
     public String description, genre;
-
     public double longitude;
     public double latitude;
-
     public String tip_key;
-
     // assets
     @NotNull
     public File audio_path;
     @Nullable public File artwork_path;
     @Nullable public File resized_artwork_path;
-
     // sharing
     public String four_square_venue_id; /* hex */
     public String service_ids;
     @Deprecated public String shared_emails;
     @Deprecated public String shared_ids;
-
-    // private message to another user
-    @Deprecated private PublicApiUser recipient;
     @Deprecated public String recipient_username;
     @Deprecated public long recipient_user_id;
-
     // status
     public boolean external_upload;
     public int upload_status;
-
+    // private message to another user
+    @Deprecated private PublicApiUser recipient;
     private PlaybackStream mPlaybackStream;
-
-    private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
-    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
-    private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
-
-    public static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
-    public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
-    public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-    public static final String PROCESSED_APPEND = "_processed";
-
-    public String getTitle(Resources r) {
-        return TextUtils.isEmpty(title) ? sharingNote(r) : title;
-    }
-
-    @Override
-    public Uri getBulkInsertUri() {
-        return Content.RECORDINGS.uri;
-    }
-
-    public static interface Status {
-        int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
-        int UPLOADING = 1; // currently uploading
-        int UPLOADED = 2; // successfully uploaded
-        int ERROR = 4; // network / api error
-    }
 
     public Recording() {
         // No-op constr for the Blueprint
@@ -180,6 +159,49 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         }
     }
 
+    public Recording(Parcel in) {
+
+        Bundle data = in.readBundle(getClass().getClassLoader());
+        setId(data.getLong("id"));
+        user_id = data.getLong("user_id");
+        longitude = data.getDouble("longitude");
+        latitude = data.getDouble("latitude");
+        what_text = data.getString("what_text");
+        where_text = data.getString("where_text");
+        description = data.getString("description");
+        genre = data.getString("genre");
+        audio_path = new File(data.getString("audio_path"));
+        if (data.containsKey("artwork_path")) {
+            artwork_path = new File(data.getString("artwork_path"));
+        }
+        if (data.containsKey("resized_artwork_path")) {
+            resized_artwork_path = new File(data.getString("resized_artwork_path"));
+        }
+        duration = data.getLong("duration");
+        four_square_venue_id = data.getString("four_square_venue_id");
+        shared_emails = data.getString("shared_emails");
+        shared_ids = data.getString("shared_ids");
+        recipient_user_id = data.getLong("recipient_user_id");
+        recipient_username = data.getString("recipient_username");
+        tip_key = data.getString("tip_key");
+        service_ids = data.getString("service_ids");
+        is_private = data.getBoolean("is_private", false);
+        external_upload = data.getBoolean("external_upload", false);
+        upload_status = data.getInt("upload_status");
+        if (!external_upload) {
+            mPlaybackStream = data.getParcelable("playback_stream");
+        }
+    }
+
+    public String getTitle(Resources r) {
+        return TextUtils.isEmpty(title) ? sharingNote(r) : title;
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.RECORDINGS.uri;
+    }
+
     public File getFile() {
         return audio_path;
     }
@@ -229,6 +251,11 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return mPlaybackStream;
     }
 
+    public void setPlaybackStream(PlaybackStream stream) {
+        duration = stream == null ? 0 : stream.getDuration();
+        mPlaybackStream = stream;
+    }
+
     public File generateImageFile(File imageDir) {
         return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
@@ -276,14 +303,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return audio_path.exists() || getEncodedFile().exists();
     }
 
-    @Deprecated
-    private void setRecipient(PublicApiUser recipient) {
-        this.recipient = recipient;
-        recipient_user_id = recipient.getId();
-        recipient_username = recipient.getDisplayName();
-        is_private = true;
-    }
-
     public ContentValues buildContentValues() {
         ContentValues cv = buildBaseContentValues();
         cv.put(TableColumns.Recordings.LONGITUDE, longitude);
@@ -304,24 +323,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         ContentValues cv = super.buildContentValues();
         addBaseContentValues(cv);
         return cv;
-    }
-
-    private void addBaseContentValues(ContentValues cv) {
-        final long currentUserId = SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId();
-        cv.put(TableColumns.Recordings.USER_ID, user_id > 0 ? user_id : currentUserId);
-        cv.put(TableColumns.Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-        cv.put(TableColumns.Recordings.PRIVATE_USER_ID, recipient_user_id);
-        cv.put(TableColumns.Recordings.TIMESTAMP, lastModified());
-        cv.put(TableColumns.Recordings.DURATION, duration);
-        cv.put(TableColumns.Recordings.EXTERNAL_UPLOAD, external_upload);
-        cv.put(TableColumns.Recordings.TIP_KEY, tip_key);
-        cv.put(TableColumns.Recordings.UPLOAD_STATUS, upload_status);
-        if (mPlaybackStream != null) {
-            cv.put(TableColumns.Recordings.TRIM_LEFT, mPlaybackStream.getStartPos());
-            cv.put(TableColumns.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
-            cv.put(TableColumns.Recordings.OPTIMIZE, mPlaybackStream.isOptimized() ? 1 : 0);
-            cv.put(TableColumns.Recordings.FADING, mPlaybackStream.isFading() ? 1 : 0);
-        }
     }
 
     public static boolean isAmplitudeFile(String filename) {
@@ -453,10 +454,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return data;
     }
 
-    private boolean isPublic() {
-        return !is_private && recipient_user_id <= 0;
-    }
-
     public Request getRequest(Resources resources, File file, Request.TransferProgressListener listener) {
         final Request request = new Request(Endpoints.TRACKS);
         final Map<String, ?> map = toParamsMap(resources);
@@ -526,11 +523,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return this;
     }
 
-    public void setPlaybackStream(PlaybackStream stream) {
-        duration = stream == null ? 0 : stream.getDuration();
-        mPlaybackStream = stream;
-    }
-
     public boolean hasArtwork() {
         return artwork_path != null && artwork_path.exists();
     }
@@ -546,33 +538,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     @Override
     public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
-    }
-
-    public static class RecordingFilter implements FilenameFilter {
-        private Recording toIgnore;
-
-        public RecordingFilter(@Nullable Recording ignore) {
-            toIgnore = ignore;
-        }
-
-        @Override
-        public boolean accept(File dir, String name) {
-            return (Recording.isRawFilename(name) || Recording.isEncodedFilename(name) || Recording.isAmplitudeFile(name)) &&
-                    (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
-        }
-    }
-
-    public static class RecordingWavFilter implements FilenameFilter {
-        private Recording toIgnore;
-
-        public RecordingWavFilter(@Nullable Recording ignore) {
-            toIgnore = ignore;
-        }
-
-        @Override
-        public boolean accept(File dir, String name) {
-            return Recording.isRawFilename(name) && (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
-        }
     }
 
     public static long getUserIdFromFile(File file) {
@@ -701,50 +666,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
                 '}';
     }
 
-    public static final Parcelable.Creator<Recording> CREATOR = new Parcelable.Creator<Recording>() {
-        public Recording createFromParcel(Parcel in) {
-            return new Recording(in);
-        }
-
-        public Recording[] newArray(int size) {
-            return new Recording[size];
-        }
-    };
-
-    public Recording(Parcel in) {
-
-        Bundle data = in.readBundle(getClass().getClassLoader());
-        setId(data.getLong("id"));
-        user_id = data.getLong("user_id");
-        longitude = data.getDouble("longitude");
-        latitude = data.getDouble("latitude");
-        what_text = data.getString("what_text");
-        where_text = data.getString("where_text");
-        description = data.getString("description");
-        genre = data.getString("genre");
-        audio_path = new File(data.getString("audio_path"));
-        if (data.containsKey("artwork_path")) {
-            artwork_path = new File(data.getString("artwork_path"));
-        }
-        if (data.containsKey("resized_artwork_path")) {
-            resized_artwork_path = new File(data.getString("resized_artwork_path"));
-        }
-        duration = data.getLong("duration");
-        four_square_venue_id = data.getString("four_square_venue_id");
-        shared_emails = data.getString("shared_emails");
-        shared_ids = data.getString("shared_ids");
-        recipient_user_id = data.getLong("recipient_user_id");
-        recipient_username = data.getString("recipient_username");
-        tip_key = data.getString("tip_key");
-        service_ids = data.getString("service_ids");
-        is_private = data.getBoolean("is_private", false);
-        external_upload = data.getBoolean("external_upload", false);
-        upload_status = data.getInt("upload_status");
-        if (!external_upload) {
-            mPlaybackStream = data.getParcelable("playback_stream");
-        }
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -783,6 +704,96 @@ public class Recording extends PublicApiResource implements Comparable<Recording
             data.putParcelable("playback_stream", mPlaybackStream);
         }
         out.writeBundle(data);
+    }
+
+    public static long trimWaveFiles(File directory, Recording ignore) {
+        return trimWaveFiles(directory, ignore, MAX_WAVE_CACHE);
+    }
+
+    public static long trimWaveFiles(File directory, Recording ignore, long maxCacheSize) {
+        final RecordingWavFilter filter = new RecordingWavFilter(ignore);
+        final long dirSize = IOUtils.getDirSize(directory);
+
+        long trimmed = 0;
+        final long toTrim = Math.max(0, dirSize - maxCacheSize);
+
+        if (toTrim > 0) {
+            final File[] list = IOUtils.nullSafeListFiles(directory, filter);
+            if (list.length > 0) {
+                Arrays.sort(list, new FiletimeComparator(true));
+                int i = 0;
+                while (trimmed < toTrim && i < list.length) {
+                    trimmed += list[i].length();
+                    list[i].delete();
+                    i++;
+                }
+            }
+        }
+        return trimmed;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    // Model citizen requires this name...
+    public boolean getIsPrivate() {
+        return is_private;
+    }
+
+    // Model citizen requires this name...
+    public void setIsPrivate(boolean isPrivate) {
+        this.is_private = isPrivate;
+    }
+
+    public long getUserId() {
+        return user_id;
+    }
+
+    public void setUserId(long userId) {
+        this.user_id = userId;
+    }
+
+    @Deprecated
+    private void setRecipient(PublicApiUser recipient) {
+        this.recipient = recipient;
+        recipient_user_id = recipient.getId();
+        recipient_username = recipient.getDisplayName();
+        is_private = true;
+    }
+
+    private void addBaseContentValues(ContentValues cv) {
+        final long currentUserId = SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId();
+        cv.put(TableColumns.Recordings.USER_ID, user_id > 0 ? user_id : currentUserId);
+        cv.put(TableColumns.Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
+        cv.put(TableColumns.Recordings.PRIVATE_USER_ID, recipient_user_id);
+        cv.put(TableColumns.Recordings.TIMESTAMP, lastModified());
+        cv.put(TableColumns.Recordings.DURATION, duration);
+        cv.put(TableColumns.Recordings.EXTERNAL_UPLOAD, external_upload);
+        cv.put(TableColumns.Recordings.TIP_KEY, tip_key);
+        cv.put(TableColumns.Recordings.UPLOAD_STATUS, upload_status);
+        if (mPlaybackStream != null) {
+            cv.put(TableColumns.Recordings.TRIM_LEFT, mPlaybackStream.getStartPos());
+            cv.put(TableColumns.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
+            cv.put(TableColumns.Recordings.OPTIMIZE, mPlaybackStream.isOptimized() ? 1 : 0);
+            cv.put(TableColumns.Recordings.FADING, mPlaybackStream.isFading() ? 1 : 0);
+        }
+    }
+
+    private boolean isPublic() {
+        return !is_private && recipient_user_id <= 0;
     }
 
     private String recordingDateString(Resources res) {
@@ -841,63 +852,37 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         }
     }
 
-    public static long trimWaveFiles(File directory, Recording ignore) {
-        return trimWaveFiles(directory, ignore, MAX_WAVE_CACHE);
+    public static interface Status {
+        int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
+        int UPLOADING = 1; // currently uploading
+        int UPLOADED = 2; // successfully uploaded
+        int ERROR = 4; // network / api error
     }
 
-    public static long trimWaveFiles(File directory, Recording ignore, long maxCacheSize) {
-        final RecordingWavFilter filter = new RecordingWavFilter(ignore);
-        final long dirSize = IOUtils.getDirSize(directory);
+    public static class RecordingFilter implements FilenameFilter {
+        private final Recording toIgnore;
 
-        long trimmed = 0;
-        final long toTrim = Math.max(0, dirSize - maxCacheSize);
-
-        if (toTrim > 0) {
-            final File[] list = IOUtils.nullSafeListFiles(directory, filter);
-            if (list.length > 0) {
-                Arrays.sort(list, new FiletimeComparator(true));
-                int i = 0;
-                while (trimmed < toTrim && i < list.length) {
-                    trimmed += list[i].length();
-                    list[i].delete();
-                    i++;
-                }
-            }
+        public RecordingFilter(@Nullable Recording ignore) {
+            toIgnore = ignore;
         }
-        return trimmed;
+
+        @Override
+        public boolean accept(File dir, String name) {
+            return (Recording.isRawFilename(name) || Recording.isEncodedFilename(name) || Recording.isAmplitudeFile(name)) &&
+                    (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
+        }
     }
 
-    public String getTitle() {
-        return title;
-    }
+    public static class RecordingWavFilter implements FilenameFilter {
+        private final Recording toIgnore;
 
-    public long getDuration() {
-        return duration;
-    }
+        public RecordingWavFilter(@Nullable Recording ignore) {
+            toIgnore = ignore;
+        }
 
-    // Model citizen requires this name...
-    public boolean getIsPrivate() {
-        return is_private;
-    }
-
-    public long getUserId() {
-        return user_id;
-    }
-
-    public void setUserId(long userId) {
-        this.user_id = userId;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
-
-    // Model citizen requires this name...
-    public void setIsPrivate(boolean isPrivate) {
-        this.is_private = isPrivate;
+        @Override
+        public boolean accept(File dir, String name) {
+            return Recording.isRawFilename(name) && (toIgnore == null || !toIgnore.audio_path.getName().equals(name));
+        }
     }
 }

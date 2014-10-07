@@ -18,7 +18,15 @@ import java.util.List;
 public class PlayQueueView implements Parcelable, Iterable<Long> {
     public static final String EXTRA = "PlayQueue";
     public static final PlayQueueView EMPTY = new PlayQueueView(Collections.<Long>emptyList(), -1);
+    public static final Parcelable.Creator<PlayQueueView> CREATOR = new Parcelable.Creator<PlayQueueView>() {
+        public PlayQueueView createFromParcel(Parcel in) {
+            return new PlayQueueView(in);
+        }
 
+        public PlayQueueView[] newArray(int size) {
+            return new PlayQueueView[size];
+        }
+    };
     private final List<Long> trackIds;
     private final FetchRecommendedState fetchState;
     private int position;
@@ -99,16 +107,6 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     public int describeContents() {
         return 0;
     }
-
-    public static final Parcelable.Creator<PlayQueueView> CREATOR = new Parcelable.Creator<PlayQueueView>() {
-        public PlayQueueView createFromParcel(Parcel in) {
-            return new PlayQueueView(in);
-        }
-
-        public PlayQueueView[] newArray(int size) {
-            return new PlayQueueView[size];
-        }
-    };
 
     @Override
     public String toString() {

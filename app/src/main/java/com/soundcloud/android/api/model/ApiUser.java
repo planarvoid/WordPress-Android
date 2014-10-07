@@ -10,6 +10,15 @@ import android.os.Parcel;
 
 public class ApiUser extends ScModel implements PropertySetSource {
 
+    public static Creator<ApiUser> CREATOR = new Creator<ApiUser>() {
+        public ApiUser createFromParcel(Parcel source) {
+            return new ApiUser(source);
+        }
+
+        public ApiUser[] newArray(int size) {
+            return new ApiUser[size];
+        }
+    };
     private String country;
     private int followersCount;
     private String username;
@@ -21,6 +30,12 @@ public class ApiUser extends ScModel implements PropertySetSource {
         super(urn);
     }
 
+    ApiUser(Parcel in) {
+        super(in);
+        this.username = in.readString();
+        this.avatarUrl = in.readString();
+    }
+
     public String getUsername() {
         return username;
     }
@@ -29,14 +44,14 @@ public class ApiUser extends ScModel implements PropertySetSource {
         this.username = username;
     }
 
-    @JsonProperty("avatar_url")
-    public void setAvatarUrl(String avatarUrl){
-        this.avatarUrl = avatarUrl;
-    }
-
     @Deprecated
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    @JsonProperty("avatar_url")
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public String getCountry() {
@@ -67,22 +82,6 @@ public class ApiUser extends ScModel implements PropertySetSource {
         dest.writeString(this.username);
         dest.writeString(this.avatarUrl);
     }
-
-    ApiUser(Parcel in) {
-        super(in);
-        this.username = in.readString();
-        this.avatarUrl = in.readString();
-    }
-
-    public static Creator<ApiUser> CREATOR = new Creator<ApiUser>() {
-        public ApiUser createFromParcel(Parcel source) {
-            return new ApiUser(source);
-        }
-
-        public ApiUser[] newArray(int size) {
-            return new ApiUser[size];
-        }
-    };
 
     @Override
     public PropertySet toPropertySet() {

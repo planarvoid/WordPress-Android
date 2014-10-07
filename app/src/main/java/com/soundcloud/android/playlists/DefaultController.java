@@ -13,7 +13,7 @@ import javax.inject.Inject;
 class DefaultController extends PlaylistDetailsController {
 
     private ListView listView;
-    private InlinePlaylistTracksAdapter adapter;
+    private final InlinePlaylistTracksAdapter adapter;
 
     @Inject
     DefaultController(InlinePlaylistTracksAdapter itemAdapter, EventBus eventBus) {

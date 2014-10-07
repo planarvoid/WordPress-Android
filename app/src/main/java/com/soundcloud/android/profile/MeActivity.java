@@ -1,15 +1,9 @@
 package com.soundcloud.android.profile;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 public class MeActivity extends ProfileActivity {
-
-    @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-    }
 
     @Override
     protected void handleIntent(Intent intent) {

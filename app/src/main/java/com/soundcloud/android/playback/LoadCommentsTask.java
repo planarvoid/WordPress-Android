@@ -20,7 +20,7 @@ import java.util.List;
 
 public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiComment>> {
 
-    private List<WeakReference<LoadCommentsListener>> mListenerRefs;
+    private final List<WeakReference<LoadCommentsListener>> mListenerRefs;
     private long mTrackId;
 
     public LoadCommentsTask(PublicCloudAPI api) {

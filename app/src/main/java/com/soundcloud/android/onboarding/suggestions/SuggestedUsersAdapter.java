@@ -20,7 +20,7 @@ import java.util.List;
 
 class SuggestedUsersAdapter extends BaseAdapter {
 
-    private ImageOperations imageOperations;
+    private final ImageOperations imageOperations;
 
     private final List<SuggestedUser> suggestedUsers;
 

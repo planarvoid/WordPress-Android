@@ -41,14 +41,12 @@ import java.util.Set;
  * @see <a href="https://github.com/soundcloud/search-suggest#setting-up-the-suggest-engine">search-suggest</a>
  */
 public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
+    public final static SearchSuggestions EMPTY = new SearchSuggestions();
     public String tx_id;
     public long query_time_in_millis;
     public String query;
     public int limit;
-
     public @NotNull List<Query> suggestions;
-
-    public final static SearchSuggestions EMPTY = new SearchSuggestions();
 
     public SearchSuggestions() {
         suggestions = new ArrayList<Query>();
@@ -101,26 +99,6 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         return cursor;
     }
 
-    //FIXME: this is a wild hack, but we need to pipe the highlight data through the cursor somehow.
-    //I don't think SuggestionsAdapter has to be a CursorAdapter to begin with, but should operate directly
-    //on SearchSuggestions
-    private String buildHighlightData(Query q) {
-        if (q.highlights == null || q.highlights.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder highlightData = new StringBuilder();
-        Iterator<Map<String, Integer>> iterator = q.highlights.iterator();
-        while (iterator.hasNext()) {
-            Map<String, Integer> highlight = iterator.next();
-            highlightData.append(highlight.get("pre") + "," + highlight.get("post"));
-            if (iterator.hasNext()) {
-                highlightData.append(";");
-            }
-        }
-        return highlightData.toString();
-    }
-
     public void add(Query q) {
         suggestions.add(q);
     }
@@ -153,6 +131,36 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
     public boolean isEmpty() {
         return size() == 0;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchSuggestions{" +
+                "query_time_in_millis=" + query_time_in_millis +
+                ", query='" + query + '\'' +
+                ", limit=" + limit +
+                ", suggestions=" + suggestions +
+                '}';
+    }
+
+    //FIXME: this is a wild hack, but we need to pipe the highlight data through the cursor somehow.
+    //I don't think SuggestionsAdapter has to be a CursorAdapter to begin with, but should operate directly
+    //on SearchSuggestions
+    private String buildHighlightData(Query q) {
+        if (q.highlights == null || q.highlights.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder highlightData = new StringBuilder();
+        Iterator<Map<String, Integer>> iterator = q.highlights.iterator();
+        while (iterator.hasNext()) {
+            Map<String, Integer> highlight = iterator.next();
+            highlightData.append(highlight.get("pre") + "," + highlight.get("post"));
+            if (iterator.hasNext()) {
+                highlightData.append(";");
+            }
+        }
+        return highlightData.toString();
     }
 
     private void fromLocalCursor(Cursor cursor) {
@@ -218,19 +226,6 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
             return contentProviderUri().toString();
         }
 
-        private Uri contentProviderUri() {
-            final Urn urn = getUrn();
-            if (urn.isTrack()) {
-                return Content.TRACK.forId(urn.getNumericId());
-            } else if (urn.isUser()) {
-                return Content.USER.forId(urn.getNumericId());
-            } else if (urn.isPlaylist()) {
-                return Content.PLAYLIST.forId(urn.getNumericId());
-            } else {
-                throw new IllegalStateException("Can't convert to content Uri: " + urn);
-            }
-        }
-
         public Urn getUrn() {
             return new Urn(Urn.SOUNDCLOUD_SCHEME + ":" + kind + "s:" + id);
         }
@@ -268,15 +263,18 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         public boolean isLocal() {
             return score == 0;
         }
-    }
 
-    @Override
-    public String toString() {
-        return "SearchSuggestions{" +
-                "query_time_in_millis=" + query_time_in_millis +
-                ", query='" + query + '\'' +
-                ", limit=" + limit +
-                ", suggestions=" + suggestions +
-                '}';
+        private Uri contentProviderUri() {
+            final Urn urn = getUrn();
+            if (urn.isTrack()) {
+                return Content.TRACK.forId(urn.getNumericId());
+            } else if (urn.isUser()) {
+                return Content.USER.forId(urn.getNumericId());
+            } else if (urn.isPlaylist()) {
+                return Content.PLAYLIST.forId(urn.getNumericId());
+            } else {
+                throw new IllegalStateException("Can't convert to content Uri: " + urn);
+            }
+        }
     }
 }

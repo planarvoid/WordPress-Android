@@ -18,6 +18,15 @@ import java.util.List;
 
 public class ApiTrack extends ScModel implements PropertySetSource {
 
+    public static Creator<ApiTrack> CREATOR = new Creator<ApiTrack>() {
+        public ApiTrack createFromParcel(Parcel source) {
+            return new ApiTrack(source);
+        }
+
+        public ApiTrack[] newArray(int size) {
+            return new ApiTrack[size];
+        }
+    };
     private String title;
     private String genre;
     private ApiUser user;
@@ -62,12 +71,24 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getGenre() {
         return genre;
     }
 
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
     public ApiUser getUser() {
         return user;
+    }
+
+    public void setUser(ApiUser user) {
+        this.user = user;
     }
 
     public String getUserName() {
@@ -78,77 +99,20 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         return commentable;
     }
 
-    public int getDuration() {
-        return duration;
-    }
-
-    public String getStreamUrl() {
-        return streamUrl;
-    }
-
-    public String getWaveformUrl() {
-        return waveformUrl;
-    }
-
-    @Deprecated
-    public String getArtworkUrl() {
-        return artworkUrl;
-    }
-
-    public String getPermalinkUrl() {
-        return permalinkUrl;
-    }
-
-    public TrackStats getStats() {
-        return stats;
-    }
-
-    public List<String> getUserTags() {
-        return userTags;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public Sharing getSharing() {
-        return sharing;
-    }
-
-    public boolean isMonetizable() {
-        return monetizable;
-    }
-
-    public String getPolicy() {
-        return policy;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setStats(TrackStats stats) {
-        this.stats = stats;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public void setUser(ApiUser user) {
-        this.user = user;
-    }
-
     public void setCommentable(boolean commentable) {
         this.commentable = commentable;
     }
 
-    public void setSharing(Sharing sharing) {
-        this.sharing = sharing;
+    public int getDuration() {
+        return duration;
     }
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public String getStreamUrl() {
+        return streamUrl;
     }
 
     @JsonProperty("stream_url")
@@ -156,19 +120,18 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         this.streamUrl = streamUrl;
     }
 
+    public String getWaveformUrl() {
+        return waveformUrl;
+    }
+
     @JsonProperty("waveform_url")
     public void setWaveformUrl(String waveformUrl) {
         this.waveformUrl = waveformUrl;
     }
 
-    @JsonProperty("permalink_url")
-    public void setPermalinkUrl(String permalinkUrl) {
-        this.permalinkUrl = permalinkUrl;
-    }
-
-    @JsonProperty("user_tags")
-    public void setUserTags(List<String> userTags) {
-        this.userTags = userTags;
+    @Deprecated
+    public String getArtworkUrl() {
+        return artworkUrl;
     }
 
     @JsonProperty("artwork_url")
@@ -176,14 +139,34 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         this.artworkUrl = mArtworkUrl;
     }
 
-    @JsonProperty("monetizable")
-    public void setMonetizable(boolean monetizable) {
-        this.monetizable = monetizable;
+    public String getPermalinkUrl() {
+        return permalinkUrl;
     }
 
-    @JsonProperty("policy")
-    public void setPolicy(String policy) {
-        this.policy = policy;
+    @JsonProperty("permalink_url")
+    public void setPermalinkUrl(String permalinkUrl) {
+        this.permalinkUrl = permalinkUrl;
+    }
+
+    public TrackStats getStats() {
+        return stats;
+    }
+
+    public void setStats(TrackStats stats) {
+        this.stats = stats;
+    }
+
+    public List<String> getUserTags() {
+        return userTags;
+    }
+
+    @JsonProperty("user_tags")
+    public void setUserTags(List<String> userTags) {
+        this.userTags = userTags;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
     @JsonProperty("created_at")
@@ -191,6 +174,31 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         this.createdAt = createdAt;
     }
 
+    public Sharing getSharing() {
+        return sharing;
+    }
+
+    public void setSharing(Sharing sharing) {
+        this.sharing = sharing;
+    }
+
+    public boolean isMonetizable() {
+        return monetizable;
+    }
+
+    @JsonProperty("monetizable")
+    public void setMonetizable(boolean monetizable) {
+        this.monetizable = monetizable;
+    }
+
+    public String getPolicy() {
+        return policy;
+    }
+
+    @JsonProperty("policy")
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
 
     @JsonProperty("_embedded")
     public void setRelatedResources(RelatedResources relatedResources) {
@@ -221,31 +229,8 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         dest.writeString(this.policy);
     }
 
-    public static Creator<ApiTrack> CREATOR = new Creator<ApiTrack>() {
-        public ApiTrack createFromParcel(Parcel source) {
-            return new ApiTrack(source);
-        }
-
-        public ApiTrack[] newArray(int size) {
-            return new ApiTrack[size];
-        }
-    };
-
     public Boolean isPrivate() {
         return getSharing() != Sharing.PUBLIC;
-    }
-
-    private static class RelatedResources {
-        private ApiUser user;
-        private TrackStats stats;
-
-        void setUser(ApiUser user) {
-            this.user = user;
-        }
-
-        void setStats(TrackStats stats) {
-            this.stats = stats;
-        }
     }
 
     @Override
@@ -288,5 +273,18 @@ public class ApiTrack extends ScModel implements PropertySetSource {
                 TrackProperty.CREATOR_NAME.bind(getUserName()),
                 TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET)
         );
+    }
+
+    private static class RelatedResources {
+        private ApiUser user;
+        private TrackStats stats;
+
+        void setUser(ApiUser user) {
+            this.user = user;
+        }
+
+        void setStats(TrackStats stats) {
+            this.stats = stats;
+        }
     }
 }

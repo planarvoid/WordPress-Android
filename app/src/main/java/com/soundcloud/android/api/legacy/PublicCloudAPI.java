@@ -95,8 +95,8 @@ public interface PublicCloudAPI extends CloudAPI {
     }
 
     class UnexpectedResponseException extends IOException {
-        private Request request;
-        private StatusLine statusLine;
+        private final Request request;
+        private final StatusLine statusLine;
 
         public UnexpectedResponseException(Request request, StatusLine statusLine) {
             this.request = request;

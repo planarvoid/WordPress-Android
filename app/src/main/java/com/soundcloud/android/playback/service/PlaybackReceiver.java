@@ -19,7 +19,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     private static final long DEFAULT_SEEK_POSITION = 0L;
 
-    private PlaybackService playbackService;
+    private final PlaybackService playbackService;
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;

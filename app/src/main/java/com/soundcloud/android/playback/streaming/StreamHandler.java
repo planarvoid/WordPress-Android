@@ -13,9 +13,9 @@ import java.io.IOException;
 
 // request pipeline
 class StreamHandler extends Handler {
-    final private Handler mHandler;
-    final private int mMaxRetries;
-    private WifiManager.WifiLock mWifiLock;
+    private final Handler mHandler;
+    private final int mMaxRetries;
+    private final WifiManager.WifiLock mWifiLock;
 
     public StreamHandler(Context context, Looper looper, Handler handler, int maxRetries) {
         super(looper);

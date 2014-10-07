@@ -59,7 +59,7 @@ public class WaveformView extends FrameLayout {
     private final FixedWidthView dragView;
     private final ListenableHorizontalScrollView dragViewHolder;
 
-    private SpringSystem springSystem = SpringSystem.create();
+    private final SpringSystem springSystem = SpringSystem.create();
     private Spring springY;
     private ObjectAnimator leftWaveformScaler;
     private ObjectAnimator rightWaveformScaler;

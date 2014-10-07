@@ -52,14 +52,77 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     public static final int REQUEST_UPLOAD_SOUND = 1;
 
     private static final int MSG_ANIMATE_OUT_SAVE_MESSAGE = 0;
+    private final Handler animateHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_ANIMATE_OUT_SAVE_MESSAGE:
+                    hideSavedMessage();
+                    break;
+            }
+        }
+
+    };
     private static final long SAVE_MSG_DISPLAY_TIME = 3000; //ms
+    private final BroadcastReceiver statusListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
+            String action = intent.getAction();
+            if (SoundRecorder.RECORD_STARTED.equals(action)) {
+                updateUi(CreateState.RECORD);
+
+            } else if (SoundRecorder.RECORD_SAMPLE.equals(action)) {
+                if (currentState == CreateState.IDLE_RECORD || currentState == CreateState.RECORD) {
+                    waveDisplay.updateAmplitude(intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f), currentState == CreateState.RECORD);
+                }
+            } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
+                chrono.setDurationOnly(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
+                updateTimeRemaining(intent.getLongExtra(SoundRecorder.EXTRA_TIME_REMAINING, 0l));
+            } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
+                onRecordingError(getString(R.string.error_recording_message));
+            } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
+                // has the time run out?
+                if (intent.getLongExtra(SoundRecorder.EXTRA_TIME_REMAINING, -1) == 0) {
+                    AndroidUtils.showToast(RecordActivity.this, R.string.record_storage_is_full);
+                }
+
+                updateUi(CreateState.IDLE_PLAYBACK);
+
+            } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
+                updateUi((currentState == CreateState.EDIT || currentState == CreateState.EDIT_PLAYBACK) ?
+                        CreateState.EDIT_PLAYBACK : CreateState.PLAYBACK);
+
+            } else if (SoundRecorder.PLAYBACK_PROGRESS.equals(action)) {
+                setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
+                        intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
+
+            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
+                    SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
+                    SoundRecorder.PLAYBACK_ERROR.equals(action)) {
+
+                if (currentState == CreateState.PLAYBACK ||
+                        currentState == CreateState.EDIT_PLAYBACK) {
+                    updateUi(currentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK);
+                }
+            } else if (Intent.ACTION_MEDIA_MOUNTED.equals(action) || Intent.ACTION_MEDIA_REMOVED.equals(action)) {
+                // for messaging and action button activation
+                if (currentState == CreateState.IDLE_RECORD) {
+                    updateUi(CreateState.IDLE_RECORD);
+                }
+
+            } else if (SoundRecorder.WAVEFORM_GENERATED.equals(action)) {
+                // we are now free to play back
+                if (currentState == CreateState.GENERATING_WAVEFORM) {
+                    updateUi(CreateState.IDLE_PLAYBACK);
+                }
+            }
+        }
+    };
     private SoundRecorder recorder;
-
     private CreateState lastState, currentState;
     private TextView txtInstructions;
     private RecordMessageView txtRecordMessage;
-
     private ChronometerView chrono;
     private ViewGroup editControls, gaugeHolder, savedMessageLayout;
     private ImageButton actionButton;
@@ -67,101 +130,10 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     private ImageButton playButton, editButton, playEditButton;
     private ToggleButton toggleOptimize, toggleFade;
     private String recordErrorMessage;
-
     private ButtonBar buttonBar;
     private boolean active, hasEditControlGroup, seenSavedMessage;
     private List<Recording> unsavedRecordings;
-
     private ProgressBar generatingWaveformProgressBar;
-
-    private static enum Dialogs {
-        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
-    }
-
-    public enum CreateState {
-        GENERATING_WAVEFORM,
-        IDLE_RECORD,
-        RECORD,
-        IDLE_PLAYBACK,
-        PLAYBACK,
-        EDIT,
-        EDIT_PLAYBACK;
-
-        public boolean isEdit() {
-            return this == EDIT || this == EDIT_PLAYBACK;
-        }
-
-    }
-
-    static interface MenuItems {
-
-        int RESET = 1;
-        int DELETE = 2;
-        int SAVE = 3;
-    }
-
-    @Override
-    protected void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        setContentView(R.layout.sc_create);
-        recorder = SoundRecorder.getInstance(this);
-        txtInstructions = (TextView) findViewById(R.id.txt_instructions);
-        txtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
-
-        chrono = (ChronometerView) findViewById(R.id.chronometer);
-        chrono.setVisibility(View.INVISIBLE);
-
-        editControls = (ViewGroup) findViewById(R.id.edit_controls);
-        hasEditControlGroup = editControls != null;
-
-        actionButton = setupActionButton();
-
-        buttonBar = setupButtonBar();
-        editButton = setupEditButton();
-        playButton = setupPlaybutton(R.id.btn_play);
-        playEditButton = setupPlaybutton(R.id.btn_play_edit);
-        toggleFade = (ToggleButton) findViewById(R.id.toggle_fade);
-        toggleOptimize = (ToggleButton) findViewById(R.id.toggle_optimize);
-
-        waveDisplay = new CreateWaveDisplay(this);
-        waveDisplay.setTrimListener(this);
-
-        gaugeHolder = ((ViewGroup) findViewById(R.id.gauge_holder));
-        gaugeHolder.addView(waveDisplay);
-
-        savedMessageLayout = (ViewGroup) findViewById(R.id.saved_message_layout);
-        updateUi(CreateState.IDLE_RECORD, false);
-        handleIntent();
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-        handleIntent();
-        super.onNewIntent(intent);
-    }
-
-    private void handleIntent() {
-        final Intent intent = getIntent();
-        if (Actions.RECORD_START.equals(intent.getAction())) {
-            if (!recorder.isRecording()) {
-                reset();
-                startRecording();
-            }
-            // don't want to receive the RECORD_START action on config changes, so set it as a normal record intent
-            intent.setAction(Actions.RECORD);
-        } else if (Actions.RECORD_STOP.equals(intent.getAction())) {
-            if (recorder.isRecording()) {
-                recorder.stopRecording();
-            }
-            intent.setAction(Actions.RECORD);
-        } else {
-            if (intent.getBooleanExtra("reset", false) && !recorder.isActive()) {
-                intent.removeExtra("reset");
-                reset();
-            }
-        }
-    }
 
     @Override
     public void onStart() {
@@ -189,14 +161,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         }
         if (shouldTrackScreen()) {
             trackScreen();
-        }
-    }
-
-    private void trackScreen() {
-        if (currentState.isEdit()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.RECORD_EDIT));
-        } else {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.RECORD_MAIN));
         }
     }
 
@@ -256,6 +220,95 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         configurePlaybackInfo();
     }
 
+    public SoundRecorder getRecorder() {
+        return recorder;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentState.isEdit()) {
+            updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public Dialog onCreateDialog(int which) {
+        if (which == Dialogs.UNSAVED_RECORDING.ordinal()) {
+            return createUnsavedRecordingDialog();
+        } else {
+            throw new IllegalArgumentException("Unexpected dialog request code " + which);
+        }
+    }
+
+    @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        switch (Dialogs.values()[requestCode]) {
+            case DISCARD_RECORDING:
+            case DELETE_RECORDING:
+                reset(true);
+                break;
+
+            case REVERT_RECORDING:
+                recorder.revertFile();
+                updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
+                break;
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        finish();
+        return true;
+    }
+
+    @Override
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        setContentView(R.layout.sc_create);
+        recorder = SoundRecorder.getInstance(this);
+        txtInstructions = (TextView) findViewById(R.id.txt_instructions);
+        txtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
+
+        chrono = (ChronometerView) findViewById(R.id.chronometer);
+        chrono.setVisibility(View.INVISIBLE);
+
+        editControls = (ViewGroup) findViewById(R.id.edit_controls);
+        hasEditControlGroup = editControls != null;
+
+        actionButton = setupActionButton();
+
+        buttonBar = setupButtonBar();
+        editButton = setupEditButton();
+        playButton = setupPlaybutton(R.id.btn_play);
+        playEditButton = setupPlaybutton(R.id.btn_play_edit);
+        toggleFade = (ToggleButton) findViewById(R.id.toggle_fade);
+        toggleOptimize = (ToggleButton) findViewById(R.id.toggle_optimize);
+
+        waveDisplay = new CreateWaveDisplay(this);
+        waveDisplay.setTrimListener(this);
+
+        gaugeHolder = ((ViewGroup) findViewById(R.id.gauge_holder));
+        gaugeHolder.addView(waveDisplay);
+
+        savedMessageLayout = (ViewGroup) findViewById(R.id.saved_message_layout);
+        updateUi(CreateState.IDLE_RECORD, false);
+        handleIntent();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent();
+        super.onNewIntent(intent);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -278,6 +331,35 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         }
     }
 
+    private void handleIntent() {
+        final Intent intent = getIntent();
+        if (Actions.RECORD_START.equals(intent.getAction())) {
+            if (!recorder.isRecording()) {
+                reset();
+                startRecording();
+            }
+            // don't want to receive the RECORD_START action on config changes, so set it as a normal record intent
+            intent.setAction(Actions.RECORD);
+        } else if (Actions.RECORD_STOP.equals(intent.getAction())) {
+            if (recorder.isRecording()) {
+                recorder.stopRecording();
+            }
+            intent.setAction(Actions.RECORD);
+        } else {
+            if (intent.getBooleanExtra("reset", false) && !recorder.isActive()) {
+                intent.removeExtra("reset");
+                reset();
+            }
+        }
+    }
+
+    private void trackScreen() {
+        if (currentState.isEdit()) {
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.RECORD_EDIT));
+        } else {
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.RECORD_MAIN));
+        }
+    }
 
     private void onRecordingError(String message) {
         recordErrorMessage = message;
@@ -395,21 +477,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                 recorder.toggleOptimize();
             }
         });
-    }
-
-    /* package */ void reset() {
-        reset(false);
-    }
-
-    /* package */ void reset(boolean deleteRecording) {
-        seenSavedMessage = false;
-        recorder.reset(deleteRecording);
-        waveDisplay.reset();
-        updateUi(CreateState.IDLE_RECORD);
-    }
-
-    public SoundRecorder getRecorder() {
-        return recorder;
     }
 
     private void configureInitialState(Intent intent) {
@@ -686,7 +753,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         }
     }
 
-
     private void hideEditControls() {
         if (hasEditControlGroup) {
             // portrait
@@ -822,111 +888,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         }
     }
 
-    private Handler animateHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_ANIMATE_OUT_SAVE_MESSAGE:
-                    hideSavedMessage();
-                    break;
-            }
-        }
-
-    };
-
-    private final BroadcastReceiver statusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            String action = intent.getAction();
-            if (SoundRecorder.RECORD_STARTED.equals(action)) {
-                updateUi(CreateState.RECORD);
-
-            } else if (SoundRecorder.RECORD_SAMPLE.equals(action)) {
-                if (currentState == CreateState.IDLE_RECORD || currentState == CreateState.RECORD) {
-                    waveDisplay.updateAmplitude(intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f), currentState == CreateState.RECORD);
-                }
-            } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
-                chrono.setDurationOnly(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
-                updateTimeRemaining(intent.getLongExtra(SoundRecorder.EXTRA_TIME_REMAINING, 0l));
-            } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
-                onRecordingError(getString(R.string.error_recording_message));
-            } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
-                // has the time run out?
-                if (intent.getLongExtra(SoundRecorder.EXTRA_TIME_REMAINING, -1) == 0) {
-                    AndroidUtils.showToast(RecordActivity.this, R.string.record_storage_is_full);
-                }
-
-                updateUi(CreateState.IDLE_PLAYBACK);
-
-            } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
-                updateUi((currentState == CreateState.EDIT || currentState == CreateState.EDIT_PLAYBACK) ?
-                        CreateState.EDIT_PLAYBACK : CreateState.PLAYBACK);
-
-            } else if (SoundRecorder.PLAYBACK_PROGRESS.equals(action)) {
-                setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
-                        intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
-
-            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
-                    SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
-                    SoundRecorder.PLAYBACK_ERROR.equals(action)) {
-
-                if (currentState == CreateState.PLAYBACK ||
-                        currentState == CreateState.EDIT_PLAYBACK) {
-                    updateUi(currentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK);
-                }
-            } else if (Intent.ACTION_MEDIA_MOUNTED.equals(action) || Intent.ACTION_MEDIA_REMOVED.equals(action)) {
-                // for messaging and action button activation
-                if (currentState == CreateState.IDLE_RECORD) {
-                    updateUi(CreateState.IDLE_RECORD);
-                }
-
-            } else if (SoundRecorder.WAVEFORM_GENERATED.equals(action)) {
-                // we are now free to play back
-                if (currentState == CreateState.GENERATING_WAVEFORM) {
-                    updateUi(CreateState.IDLE_PLAYBACK);
-                }
-            }
-        }
-    };
-
-    @Override
-    public void onBackPressed() {
-        if (currentState.isEdit()) {
-            updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public Dialog onCreateDialog(int which) {
-        if (which == Dialogs.UNSAVED_RECORDING.ordinal()) {
-            return createUnsavedRecordingDialog();
-        } else {
-            throw new IllegalArgumentException("Unexpected dialog request code " + which);
-        }
-    }
-
-    @Override
-    public void onPositiveButtonClicked(int requestCode) {
-        switch (Dialogs.values()[requestCode]) {
-            case DISCARD_RECORDING:
-            case DELETE_RECORDING:
-                reset(true);
-                break;
-
-            case REVERT_RECORDING:
-                recorder.revertFile();
-                updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
-                break;
-        }
-    }
-
-    @Override
-    public void onNegativeButtonClicked(int requestCode) {
-    }
-
     private void showDeleteRecordingDialog() {
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setRequestCode(Dialogs.DELETE_RECORDING.ordinal())
@@ -1000,14 +961,44 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         unsavedRecordings = null;
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        finish();
-        return true;
+    /* package */ void reset() {
+        reset(false);
+    }
+
+    /* package */ void reset(boolean deleteRecording) {
+        seenSavedMessage = false;
+        recorder.reset(deleteRecording);
+        waveDisplay.reset();
+        updateUi(CreateState.IDLE_RECORD);
     }
 
     /* package, for testing */ CreateState getState() {
         return currentState;
+    }
+
+    private static enum Dialogs {
+        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
+    }
+
+    public enum CreateState {
+        GENERATING_WAVEFORM,
+        IDLE_RECORD,
+        RECORD,
+        IDLE_PLAYBACK,
+        PLAYBACK,
+        EDIT,
+        EDIT_PLAYBACK;
+
+        public boolean isEdit() {
+            return this == EDIT || this == EDIT_PLAYBACK;
+        }
+
+    }
+
+    static interface MenuItems {
+
+        int RESET = 1;
+        int DELETE = 2;
+        int SAVE = 3;
     }
 }

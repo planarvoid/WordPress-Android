@@ -15,10 +15,17 @@ import java.util.Locale;
 public class PlaySessionSource implements Parcelable {
 
     public static final PlaySessionSource EMPTY = new PlaySessionSource();
+    public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
+        public PlaySessionSource createFromParcel(Parcel in) {
+            return new PlaySessionSource(in);
+        }
 
+        public PlaySessionSource[] newArray(int size) {
+            return new PlaySessionSource[size];
+        }
+    };
     static final String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; //legacy
     static final String PREF_KEY_PLAYLIST_ID = "set_id"; //legacy
-
     private final String originScreen;
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn playlistOwnerUrn = Urn.NOT_SET;
@@ -102,16 +109,6 @@ public class PlaySessionSource implements Parcelable {
         editor.putString(PREF_KEY_ORIGIN_SCREEN_TAG, originScreen);
         editor.putLong(PREF_KEY_PLAYLIST_ID, playlistUrn.getNumericId());
     }
-
-    public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
-        public PlaySessionSource createFromParcel(Parcel in) {
-            return new PlaySessionSource(in);
-        }
-
-        public PlaySessionSource[] newArray(int size) {
-            return new PlaySessionSource[size];
-        }
-    };
 
     public static void clearPreferenceKeys(SharedPreferences.Editor editor) {
         editor.remove(PREF_KEY_ORIGIN_SCREEN_TAG);

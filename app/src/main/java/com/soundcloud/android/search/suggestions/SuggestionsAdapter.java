@@ -70,7 +70,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private static final int MAX_LOCAL = 5;
     private static final int MAX_REMOTE = 5;
 
-    private ImageOperations mImageOperations;
+    private final ImageOperations mImageOperations;
 
     public static final String LOCAL = "_local";
     public static final String HIGHLIGHTS = "_highlights";
@@ -86,9 +86,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     };
 
     //FIXME: ported this over to use static handler classes, but why not use AsyncTask instead?
-    private SuggestionsHandler mSuggestionsHandler;
-    private Handler mNewSuggestionsHandler = new Handler();
-    private HandlerThread mSuggestionsHandlerThread;
+    private final SuggestionsHandler mSuggestionsHandler;
+    private final Handler mNewSuggestionsHandler = new Handler();
+    private final HandlerThread mSuggestionsHandlerThread;
     private String mCurrentConstraint;
     private Pattern mCurrentPattern;
 

@@ -40,11 +40,6 @@ public class ExploreFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle state) {
-        super.onCreate(state);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.explore_fragment, container, false);
     }

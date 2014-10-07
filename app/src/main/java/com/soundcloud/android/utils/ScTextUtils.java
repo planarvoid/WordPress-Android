@@ -264,8 +264,8 @@ public class ScTextUtils {
     }
 
     public static class ClickSpan extends ClickableSpan {
-        private OnClickListener listener;
-        private boolean underline;
+        private final OnClickListener listener;
+        private final boolean underline;
 
         public ClickSpan(OnClickListener listener, boolean underline) {
             this.listener = listener;
@@ -291,7 +291,7 @@ public class ScTextUtils {
     }
 
     public static abstract class TextValidator implements TextWatcher {
-        private TextView textView;
+        private final TextView textView;
 
         public TextValidator(TextView textView) {
             this.textView = textView;

@@ -1,8 +1,8 @@
 package com.soundcloud.android.waveform;
 
 public class WaveformResult {
-    private WaveformData waveformData;
-    private Source source;
+    private final WaveformData waveformData;
+    private final Source source;
 
     private static enum Source {
         CACHE, NETWORK, ERROR

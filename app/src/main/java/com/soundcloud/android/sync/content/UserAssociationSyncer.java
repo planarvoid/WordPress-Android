@@ -226,8 +226,8 @@ public class UserAssociationSyncer extends SyncStrategy {
     protected static class BulkFollowSubscriber extends SuccessSubscriber {
 
         private final FollowingOperations followingOperations;
-        private UserAssociationStorage userAssociationStorage;
-        private Collection<UserAssociation> userAssociations;
+        private final UserAssociationStorage userAssociationStorage;
+        private final Collection<UserAssociation> userAssociations;
 
         public BulkFollowSubscriber(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
             this.userAssociations = userAssociations;

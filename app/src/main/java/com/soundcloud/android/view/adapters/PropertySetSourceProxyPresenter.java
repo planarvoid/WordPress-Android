@@ -16,7 +16,7 @@ import java.util.List;
 @Deprecated
 public class PropertySetSourceProxyPresenter implements CellPresenter<PublicApiResource> {
     private final CellPresenter<PropertySet> wrappedCellPresenter;
-    private FollowingOperations followingOperations;
+    private final FollowingOperations followingOperations;
 
     public PropertySetSourceProxyPresenter(CellPresenter<PropertySet> cellPresenter,
                                            FollowingOperations followingOperations) {

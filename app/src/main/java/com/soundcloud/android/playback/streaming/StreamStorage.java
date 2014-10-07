@@ -50,8 +50,8 @@ public class StreamStorage {
     private Context mContext;
     private File mBaseDir, mCompleteDir, mIncompleteDir;
 
-    private Map<String, StreamItem> mItems = new HashMap<String, StreamItem>();
-    private Set<String> mConvertingUrls = new HashSet<String>();
+    private final Map<String, StreamItem> mItems = new HashMap<>();
+    private final Set<String> mConvertingUrls = new HashSet<>();
 
     private final int mCleanupInterval;
     private ApplicationProperties mApplicationProperties;

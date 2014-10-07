@@ -32,6 +32,9 @@ public class StreamLoader {
     static final int MAX_RETRIES = 3;
     static final Object PRELOAD_TOKEN = new Object();
 
+    private static final int LOW_PRIO = 0;
+    private static final int HI_PRIO = 1;
+
     private final NetworkConnectivityListener connectivityListener;
     private final NetworkConnectionHelper connectivityHelper;
     private final BatteryListener mBatteryListener;
@@ -53,15 +56,13 @@ public class StreamLoader {
     private final Handler mResultHandler;
     private final Handler mConnHandler;
 
-    private HandlerThread mDataThread;
-    private HandlerThread mResultThread;
-    private HandlerThread mHeadThread;
+    private final HandlerThread mDataThread;
+    private final HandlerThread mResultThread;
+    private final HandlerThread mHeadThread;
 
     private boolean mForceOnline; /* for testing */
 
-    static final int LOW_PRIO = 0;
-    static final int HI_PRIO = 1;
-    private PublicCloudAPI mOldCloudAPI;
+    private final PublicCloudAPI mOldCloudAPI;
 
     public StreamLoader(Context context, final StreamStorage storage) {
         mContext = context;
@@ -310,11 +311,11 @@ public class StreamLoader {
 
     private static final class ResultHandler extends Handler {
 
-        private WeakReference<StreamLoader> mLoaderRef;
+        private final WeakReference<StreamLoader> mLoaderRef;
 
         ResultHandler(StreamLoader loader, Looper looper) {
             super(looper);
-            this.mLoaderRef = new WeakReference<StreamLoader>(loader);
+            this.mLoaderRef = new WeakReference<>(loader);
         }
 
         @Override
@@ -375,11 +376,11 @@ public class StreamLoader {
     }
 
     private static final class ConnectivityHandler extends Handler {
-        private WeakReference<StreamLoader> mLoaderRef;
+        private final WeakReference<StreamLoader> mLoaderRef;
 
         ConnectivityHandler(StreamLoader loader, Looper looper) {
             super(looper);
-            this.mLoaderRef = new WeakReference<StreamLoader>(loader);
+            this.mLoaderRef = new WeakReference<>(loader);
         }
 
         @Override

@@ -11,29 +11,12 @@ import javax.inject.Inject;
 
 class SoundCloudTokenOperations {
 
-    private enum TokenDataKeys {
-        ACCESS_TOKEN("access_token"),
-        REFRESH_TOKEN("refresh_token"),
-        SCOPE("scope"),
-        EXPIRES_IN("expires_in");
-
-        private String key;
-
-        private TokenDataKeys(String key) {
-            this.key = key;
-        }
-
-        public String key() {
-            return key;
-        }
-    }
-
     private final AccountManager accountManager;
-
 
     public SoundCloudTokenOperations(Context context) {
         this(AccountManager.get(context));
     }
+
 
     @Inject
     public SoundCloudTokenOperations(AccountManager accountManager) {
@@ -74,5 +57,22 @@ class SoundCloudTokenOperations {
 
     private String getSoundCloudRefreshToken(Account account) {
         return accountManager.peekAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key());
+    }
+
+    private enum TokenDataKeys {
+        ACCESS_TOKEN("access_token"),
+        REFRESH_TOKEN("refresh_token"),
+        SCOPE("scope"),
+        EXPIRES_IN("expires_in");
+
+        private String key;
+
+        private TokenDataKeys(String key) {
+            this.key = key;
+        }
+
+        public String key() {
+            return key;
+        }
     }
 }

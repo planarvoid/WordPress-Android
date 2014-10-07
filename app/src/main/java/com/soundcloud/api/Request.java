@@ -579,7 +579,7 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     /* package */ static class ByteBufferBody extends AbstractContentBody {
-        private ByteBuffer buffer;
+        private final ByteBuffer buffer;
 
         public ByteBufferBody(ByteBuffer buffer) {
             super("application/octet-stream");

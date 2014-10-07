@@ -40,43 +40,19 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private final SparseArray<Section> listPositionsToSections;
     private final FollowingOperations followingOperations;
+    private final DefaultSubscriber<UserAssociation> mNotifyWhenDoneObserver = new DefaultSubscriber<UserAssociation>() {
+        @Override
+        public void onCompleted() {
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+            notifyDataSetChanged();
+        }
+    };
     private EnumSet<Section> activeSections;
-
-    public enum Section {
-        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
-        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music, true),
-        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, false);
-
-        public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
-
-        public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
-        private final String key;
-        private final int labelResId;
-        private final boolean showLoading;
-        private String label;
-
-        Section(String key, int labelId, boolean showLoading) {
-            this.key = key;
-            this.labelResId = labelId;
-            this.showLoading = showLoading;
-        }
-
-        String getLabel(Resources resources) {
-            if (label == null) {
-                label = resources.getString(labelResId);
-            }
-            return label;
-        }
-
-        static Section fromKey(String key) {
-            for (Section section : values()) {
-                if (section.key.equals(key)) {
-                    return section;
-                }
-            }
-            return SPEECH_AND_SOUNDS;
-        }
-    }
 
     public SuggestedUsersCategoriesAdapter() {
         this(Section.ALL_SECTIONS);
@@ -94,7 +70,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         this.activeSections = activeSections;
     }
 
-    public void setActiveSections(EnumSet<Section> activeSections){
+    public void setActiveSections(EnumSet<Section> activeSections) {
         this.activeSections = activeSections;
     }
 
@@ -155,10 +131,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         return !getItem(position).isProgressOrEmpty();
     }
 
-    protected SparseArray<Section> getListPositionsToSectionsMap() {
-        return listPositionsToSections;
-    }
-
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -208,6 +180,10 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         return view;
     }
 
+    protected SparseArray<Section> getListPositionsToSectionsMap() {
+        return listPositionsToSections;
+    }
+
     private ItemViewHolder getContentItemViewHolder(View convertView) {
         ItemViewHolder viewHolder = getItemViewHolder(convertView);
         viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
@@ -246,6 +222,16 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         viewHolder.genreSubtitle.setDisplayItems(getSubtextUsers(category));
     }
 
+    private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
+        Section section = listPositionsToSections.get(position);
+        if (section != null) {
+            viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
+            viewHolder.sectionHeader.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.sectionHeader.setVisibility(View.GONE);
+        }
+    }
+
     /* package */ List<String> getSubtextUsers(Category category) {
         final Set<Long> followedUserIds = followingOperations.getFollowedUserIds();
         final List<SuggestedUser> followedUsers = category.getFollowedUsers(followedUserIds);
@@ -259,28 +245,41 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     }
 
-    private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
-        Section section = listPositionsToSections.get(position);
-        if (section != null) {
-            viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
-            viewHolder.sectionHeader.setVisibility(View.VISIBLE);
-        } else {
-            viewHolder.sectionHeader.setVisibility(View.GONE);
+    public enum Section {
+        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
+        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music, true),
+        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, false);
+
+        public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
+
+        public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
+        private final String key;
+        private final int labelResId;
+        private final boolean showLoading;
+        private String label;
+
+        Section(String key, int labelId, boolean showLoading) {
+            this.key = key;
+            this.labelResId = labelId;
+            this.showLoading = showLoading;
+        }
+
+        String getLabel(Resources resources) {
+            if (label == null) {
+                label = resources.getString(labelResId);
+            }
+            return label;
+        }
+
+        static Section fromKey(String key) {
+            for (Section section : values()) {
+                if (section.key.equals(key)) {
+                    return section;
+                }
+            }
+            return SPEECH_AND_SOUNDS;
         }
     }
-
-    private final DefaultSubscriber<UserAssociation> mNotifyWhenDoneObserver = new DefaultSubscriber<UserAssociation>() {
-        @Override
-        public void onCompleted() {
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            super.onError(e);
-            notifyDataSetChanged();
-        }
-    };
 
     private static class ItemViewHolder {
         public TextView genreTitle, sectionHeader, emptyMessage;

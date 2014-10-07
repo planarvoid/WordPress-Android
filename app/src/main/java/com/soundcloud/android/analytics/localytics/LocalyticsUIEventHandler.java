@@ -11,7 +11,7 @@ class LocalyticsUIEventHandler {
 
     public static final String TAG = "LocalyticsUIHandler";
 
-    private LocalyticsSession localyticsSession;
+    private final LocalyticsSession localyticsSession;
 
     LocalyticsUIEventHandler(LocalyticsSession localyticsSession) {
         this.localyticsSession = localyticsSession;

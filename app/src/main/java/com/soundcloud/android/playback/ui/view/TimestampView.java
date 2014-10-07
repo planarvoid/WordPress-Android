@@ -59,7 +59,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private AnimatorSet timestampAnimator;
     private AnimatorSet bufferingAnimationSet;
 
-    private SimpleSpringListener springListener = new SimpleSpringListener() {
+    private final SimpleSpringListener springListener = new SimpleSpringListener() {
         @Override
         public void onSpringUpdate(Spring spring) {
             float value = (float) spring.getCurrentValue();

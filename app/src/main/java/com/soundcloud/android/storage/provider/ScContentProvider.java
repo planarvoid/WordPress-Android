@@ -39,22 +39,21 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
-
 @SuppressWarnings({"PMD.ExcessiveClassLength"})
 public class ScContentProvider extends ContentProvider {
-    private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final int PLAYABLE_CACHE_CEILING = 5000;
-
-    public static interface Parameter {
-        String RANDOM = "random";
-        String CACHED = "cached";
-        String LIMIT = "limit";
-        String OFFSET = "offset";
-        String IDS_ONLY = "idsOnly";
-        String TYPE_IDS_ONLY = "typeIdsOnly";
-    }
-
+    private static final String TAG = ScContentProvider.class.getSimpleName();
+    private static String selectAssociationsAndActivities =
+            "SELECT 1 FROM CollectionItems WHERE "
+                    + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (%s,"
+                    + CollectionStorage.CollectionItemTypes.LIKE + " ," + CollectionStorage.CollectionItemTypes.REPOST + ") "
+                    + " AND " + TableColumns.CollectionItems.USER_ID + " = %s"
+                    + " AND  " + TableColumns.CollectionItems.ITEM_ID + " =  " + TableColumns.Sounds._ID
+                    + " AND  " + TableColumns.CollectionItems.RESOURCE_TYPE + " =  %s"
+                    + ")"
+                    + " UNION SELECT DISTINCT " + TableColumns.Activities.SOUND_ID + " FROM " + Table.ACTIVITIES.name
+                    + " WHERE " + TableColumns.Activities.SOUND_TYPE + " = %s";
     private DatabaseManager databaseManager;
 
     public ScContentProvider() {
@@ -85,6 +84,245 @@ public class ScContentProvider extends ContentProvider {
                 return doQuery(uri, columns, selection, selectionArgs, sortOrder);
             }
         }, null);
+    }
+
+    @Override
+    public Uri insert(final Uri uri, final ContentValues values) {
+        return safeExecute(new DbOperation<Uri>() {
+            @Override
+            public Uri execute() {
+                return doInsert(uri, values);
+            }
+        }, null);
+    }
+
+    @Override
+    public int delete(final Uri uri, final String where, final String[] whereArgs) {
+        return safeExecute(new DbOperation<Integer>() {
+            @Override
+            public Integer execute() {
+                return doDelete(uri, where, whereArgs);
+            }
+        }, 0);
+    }
+
+    @Override
+    public int update(final Uri uri, final ContentValues values, final String where, final String[] whereArgs) {
+        return safeExecute(new DbOperation<Integer>() {
+            @Override
+            public Integer execute() {
+                return doUpdate(uri, values, where, whereArgs);
+            }
+        }, 0);
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        if (values == null || values.length == 0) {
+            return 0;
+        }
+
+        SQLiteDatabase db = databaseManager.getWritableDatabase();
+        String[] extraCV = null;
+        boolean recreateTable = false;
+        boolean deleteUri = false;
+
+        final Content content = Content.match(uri);
+        final Table table;
+        switch (content) {
+            case TRACKS:
+            case USERS:
+            case RECORDINGS:
+            case SOUNDS:
+            case PLAYLISTS:
+                content.table.upsert(db, values);
+                getContext().getContentResolver().notifyChange(uri, null, false);
+                return values.length;
+
+            case COMMENTS:
+            case ME_SOUND_STREAM:
+            case ME_ACTIVITIES:
+                table = content.table;
+                break;
+
+            case ME_SOUNDS:
+                table = Table.COLLECTION_ITEMS;
+                break;
+
+            case ME_FOLLOWINGS:
+            case ME_FOLLOWERS:
+                table = Table.USER_ASSOCIATIONS;
+                extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
+                break;
+
+            case ME_LIKES:
+            case ME_REPOSTS:
+                table = Table.COLLECTION_ITEMS;
+                extraCV = new String[]{TableColumns.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
+                break;
+
+            case PLAYLIST_TRACKS:
+                deleteUri = true; // clean out table first
+                table = Table.PLAYLIST_TRACKS;
+                extraCV = new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID, uri.getPathSegments().get(1)};
+                break;
+
+            case ME_SHORTCUTS:
+                recreateTable = true;
+                table = content.table;
+                break;
+
+            default:
+                table = content.table;
+        }
+
+        if (table == null) {
+            throw new IllegalArgumentException("No table for URI " + uri);
+        }
+
+        db.beginTransaction();
+        try {
+            boolean failed = false;
+
+            if (recreateTable) {
+                db.delete(table.name, null, null);
+            }
+
+            if (deleteUri) {
+                delete(uri, null, null);
+            }
+
+            for (ContentValues v : values) {
+                if (v != null) {
+                    if (extraCV != null) {
+                        v.put(extraCV[0], extraCV[1]);
+                    }
+                    log("bulkInsert: " + v);
+                    if (db.insertWithOnConflict(table.name, null, v, SQLiteDatabase.CONFLICT_REPLACE) < 0) {
+                        Log.w(TAG, "replace returned failure");
+                        failed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (content == Content.ME_SHORTCUTS) {
+                db.execSQL("INSERT OR IGNORE INTO " + Table.USERS.name + " (_id, username, avatar_url, permalink_url) " +
+                        " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'following'");
+                db.execSQL("INSERT OR IGNORE INTO " + Table.SOUNDS.name + " (_id, title, artwork_url, permalink_url, _type) " +
+                        " SELECT id, text, icon_url, permalink_url, 0 FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
+            }
+
+            if (!failed) {
+                db.setTransactionSuccessful();
+            }
+        } finally {
+            // We had crashes on Samsung devices where the transaction was not open at this point.
+            // Let's keep this in and see if this fixes it.
+            // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f1439fabb27481b264056
+            // Otherwise, feel free to remove again.
+            if (db.inTransaction()) {
+                db.endTransaction();
+            }
+        }
+        getContext().getContentResolver().notifyChange(uri, null, false);
+        return values.length;
+    }
+
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        switch (Content.match(uri)) {
+            case ME_SHORTCUTS_ICON:
+                List<String> segments = uri.getPathSegments();
+                long suggestId = Long.parseLong(segments.get(segments.size() - 1));
+
+                Cursor c = query(Content.ME_SHORTCUT.forId(suggestId), null, null, null, null);
+                try {
+                    if (c != null && c.moveToFirst()) {
+                        String url = c.getString(c.getColumnIndex(TableColumns.Suggestions.ICON_URL));
+                        if (url != null) {
+                            final String listUrl = ApiImageSize.getSearchSuggestionsListItemImageSize(getContext()).formatUri(url);
+                            final File iconFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(listUrl));
+                            if (!iconFile.exists()) {
+                                HttpUtils.fetchUriToFile(listUrl, iconFile, false);
+                            }
+                            return ParcelFileDescriptor.open(iconFile, ParcelFileDescriptor.MODE_READ_ONLY);
+                        } else {
+                            throw new FileNotFoundException();
+                        }
+                    } else {
+                        throw new FileNotFoundException();
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
+                    }
+                }
+            default:
+                return super.openFile(uri, mode);
+        }
+    }
+
+    @Override
+    public String getType(Uri uri) {
+        switch (Content.match(uri)) {
+            case ANDROID_SEARCH_SUGGEST:
+            case ANDROID_SEARCH_SUGGEST_PATH:
+                return SearchManager.SUGGEST_MIME_TYPE;
+
+            case USER:
+                return "vnd.soundcloud/user";
+
+            case TRACK:
+                return "vnd.soundcloud.playable/track";
+
+            case PLAYLIST:
+                return "vnd.soundcloud.playable/playlist";
+
+            case SEARCH_ITEM:
+                return "vnd.soundcloud/search_item";
+
+
+            case RECORDING:
+            case RECORDINGS:
+                return "vnd.soundcloud/recording";
+
+            default:
+                return null;
+        }
+    }
+
+    public static void enableSyncing(Account account, long pollFrequency) {
+        ContentResolver.setIsSyncable(account, AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+        ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
+    }
+
+    public static void disableSyncing(Account account) {
+        ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
+        ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
+    }
+
+    // XXX ghetto, use prepared statements
+    public static String[] formatWithUser(String[] columns, long userId) {
+        for (int i = 0; i < columns.length; i++) {
+            columns[i] = columns[i].replace("$$$", String.valueOf(userId));
+        }
+        return columns;
+    }
+
+    public static String[] getUserViewColumns(Table table) {
+        return new String[]{
+                table + ".*",
+                "EXISTS (SELECT 1 FROM " + Table.USER_ASSOCIATIONS + ", " + Table.USERS.name
+                        + " WHERE " + TableColumns.Users._ID + " = " + TableColumns.UserAssociations.TARGET_ID
+                        + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + FOLLOWING
+                        + " AND " + TableColumns.UserAssociations.OWNER_ID + " = $$$) AS " + TableColumns.Users.USER_FOLLOWING,
+                "EXISTS (SELECT 1 FROM " + Table.USER_ASSOCIATIONS + ", " + Table.USERS.name
+                        + " WHERE " + TableColumns.Users._ID + " = " + TableColumns.UserAssociations.TARGET_ID
+                        + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + FOLLOWER
+                        + " AND " + TableColumns.UserAssociations.OWNER_ID + " = $$$) AS " + TableColumns.Users.USER_FOLLOWER
+        };
     }
 
     private Cursor doQuery(final Uri uri,
@@ -366,16 +604,6 @@ public class ScContentProvider extends ContentProvider {
                 + "'");
     }
 
-    @Override
-    public Uri insert(final Uri uri, final ContentValues values) {
-        return safeExecute(new DbOperation<Uri>() {
-            @Override
-            public Uri execute() {
-                return doInsert(uri, values);
-            }
-        }, null);
-    }
-
     private Uri doInsert(final Uri uri, final ContentValues values) {
         final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         long id;
@@ -465,16 +693,6 @@ public class ScContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-    }
-
-    @Override
-    public int delete(final Uri uri, final String where, final String[] whereArgs) {
-        return safeExecute(new DbOperation<Integer>() {
-            @Override
-            public Integer execute() {
-                return doDelete(uri, where, whereArgs);
-            }
-        }, 0);
     }
 
     private int doDelete(Uri uri, String where, String[] whereArgs) {
@@ -571,16 +789,6 @@ public class ScContentProvider extends ContentProvider {
         count = db.delete(content.table.name, where, whereArgs);
         getContext().getContentResolver().notifyChange(uri, null, false);
         return count;
-    }
-
-    @Override
-    public int update(final Uri uri, final ContentValues values, final String where, final String[] whereArgs) {
-        return safeExecute(new DbOperation<Integer>() {
-            @Override
-            public Integer execute() {
-                return doUpdate(uri, values, where, whereArgs);
-            }
-        }, 0);
     }
 
     private int doUpdate(Uri uri, ContentValues values, String where, String[] whereArgs) {
@@ -710,213 +918,6 @@ public class ScContentProvider extends ContentProvider {
         return count;
     }
 
-    @Override
-    public int bulkInsert(Uri uri, ContentValues[] values) {
-        if (values == null || values.length == 0) {
-            return 0;
-        }
-
-        SQLiteDatabase db = databaseManager.getWritableDatabase();
-        String[] extraCV = null;
-        boolean recreateTable = false;
-        boolean deleteUri = false;
-
-        final Content content = Content.match(uri);
-        final Table table;
-        switch (content) {
-            case TRACKS:
-            case USERS:
-            case RECORDINGS:
-            case SOUNDS:
-            case PLAYLISTS:
-                content.table.upsert(db, values);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return values.length;
-
-            case COMMENTS:
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
-                table = content.table;
-                break;
-
-            case ME_SOUNDS:
-                table = Table.COLLECTION_ITEMS;
-                break;
-
-            case ME_FOLLOWINGS:
-            case ME_FOLLOWERS:
-                table = Table.USER_ASSOCIATIONS;
-                extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
-                break;
-
-            case ME_LIKES:
-            case ME_REPOSTS:
-                table = Table.COLLECTION_ITEMS;
-                extraCV = new String[]{TableColumns.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
-                break;
-
-            case PLAYLIST_TRACKS:
-                deleteUri = true; // clean out table first
-                table = Table.PLAYLIST_TRACKS;
-                extraCV = new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID, uri.getPathSegments().get(1)};
-                break;
-
-            case ME_SHORTCUTS:
-                recreateTable = true;
-                table = content.table;
-                break;
-
-            default:
-                table = content.table;
-        }
-
-        if (table == null) {
-            throw new IllegalArgumentException("No table for URI " + uri);
-        }
-
-        db.beginTransaction();
-        try {
-            boolean failed = false;
-
-            if (recreateTable) {
-                db.delete(table.name, null, null);
-            }
-
-            if (deleteUri) {
-                delete(uri, null, null);
-            }
-
-            for (ContentValues v : values) {
-                if (v != null) {
-                    if (extraCV != null) {
-                        v.put(extraCV[0], extraCV[1]);
-                    }
-                    log("bulkInsert: " + v);
-                    if (db.insertWithOnConflict(table.name, null, v, SQLiteDatabase.CONFLICT_REPLACE) < 0) {
-                        Log.w(TAG, "replace returned failure");
-                        failed = true;
-                        break;
-                    }
-                }
-            }
-
-            if (content == Content.ME_SHORTCUTS) {
-                db.execSQL("INSERT OR IGNORE INTO " + Table.USERS.name + " (_id, username, avatar_url, permalink_url) " +
-                        " SELECT id, text, icon_url, permalink_url FROM " + Table.SUGGESTIONS.name + " where kind = 'following'");
-                db.execSQL("INSERT OR IGNORE INTO " + Table.SOUNDS.name + " (_id, title, artwork_url, permalink_url, _type) " +
-                        " SELECT id, text, icon_url, permalink_url, 0 FROM " + Table.SUGGESTIONS.name + " where kind = 'like'");
-            }
-
-            if (!failed) {
-                db.setTransactionSuccessful();
-            }
-        } finally {
-            // We had crashes on Samsung devices where the transaction was not open at this point.
-            // Let's keep this in and see if this fixes it.
-            // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f1439fabb27481b264056
-            // Otherwise, feel free to remove again.
-            if (db.inTransaction()) {
-                db.endTransaction();
-            }
-        }
-        getContext().getContentResolver().notifyChange(uri, null, false);
-        return values.length;
-    }
-
-    @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        switch (Content.match(uri)) {
-            case ME_SHORTCUTS_ICON:
-                List<String> segments = uri.getPathSegments();
-                long suggestId = Long.parseLong(segments.get(segments.size() - 1));
-
-                Cursor c = query(Content.ME_SHORTCUT.forId(suggestId), null, null, null, null);
-                try {
-                    if (c != null && c.moveToFirst()) {
-                        String url = c.getString(c.getColumnIndex(TableColumns.Suggestions.ICON_URL));
-                        if (url != null) {
-                            final String listUrl = ApiImageSize.getSearchSuggestionsListItemImageSize(getContext()).formatUri(url);
-                            final File iconFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(listUrl));
-                            if (!iconFile.exists()) {
-                                HttpUtils.fetchUriToFile(listUrl, iconFile, false);
-                            }
-                            return ParcelFileDescriptor.open(iconFile, ParcelFileDescriptor.MODE_READ_ONLY);
-                        } else {
-                            throw new FileNotFoundException();
-                        }
-                    } else {
-                        throw new FileNotFoundException();
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
-                    }
-                }
-            default:
-                return super.openFile(uri, mode);
-        }
-    }
-
-    static String makeCollectionSort(Uri uri, @Nullable String sortCol) {
-        StringBuilder b = new StringBuilder();
-        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
-            b.append("RANDOM()");
-        } else {
-            b.append(TextUtils.isEmpty(sortCol) ? TableColumns.CollectionItems.POSITION : sortCol);
-        }
-        return b.toString();
-    }
-
-    static String makeActivitiesSort(Uri uri, String sortCol) {
-        StringBuilder b = new StringBuilder();
-        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
-            b.append("RANDOM()");
-        } else {
-            b.append(sortCol == null ? TableColumns.ActivityView.CREATED_AT + " DESC" : sortCol);
-        }
-        return b.toString();
-    }
-
-    // TODO, move this logic out of here and into Storage classes
-    static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
-        qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID + " = " + userId);
-        for (int i = 0; i < collectionType.length; i++) {
-            qb.appendWhere((i == 0 ? " AND " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TYPE + " IN (" : ", ")
-                    + collectionType[i]
-                    + (i == collectionType.length - 1 ? ")" : ""));
-        }
-        return qb;
-    }
-
-    @Override
-    public String getType(Uri uri) {
-        switch (Content.match(uri)) {
-            case ANDROID_SEARCH_SUGGEST:
-            case ANDROID_SEARCH_SUGGEST_PATH:
-                return SearchManager.SUGGEST_MIME_TYPE;
-
-            case USER:
-                return "vnd.soundcloud/user";
-
-            case TRACK:
-                return "vnd.soundcloud.playable/track";
-
-            case PLAYLIST:
-                return "vnd.soundcloud.playable/playlist";
-
-            case SEARCH_ITEM:
-                return "vnd.soundcloud/search_item";
-
-
-            case RECORDING:
-            case RECORDINGS:
-                return "vnd.soundcloud/recording";
-
-            default:
-                return null;
-        }
-    }
-
     /**
      * Suggest tracks and users based on partial user input.
      *
@@ -964,25 +965,6 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
-    public static void enableSyncing(Account account, long pollFrequency) {
-        ContentResolver.setIsSyncable(account, AUTHORITY, 1);
-        ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
-        ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), pollFrequency);
-    }
-
-    public static void disableSyncing(Account account) {
-        ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
-        ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
-    }
-
-    // XXX ghetto, use prepared statements
-    public static String[] formatWithUser(String[] columns, long userId) {
-        for (int i = 0; i < columns.length; i++) {
-            columns[i] = columns[i].replace("$$$", String.valueOf(userId));
-        }
-        return columns;
-    }
-
     private static String[] getSoundViewColumns(Table table) {
         return getSoundViewColumns(table, table.id, table.type);
     }
@@ -1006,39 +988,10 @@ public class ScContentProvider extends ContentProvider {
         };
     }
 
-    public static String[] getUserViewColumns(Table table) {
-        return new String[]{
-                table + ".*",
-                "EXISTS (SELECT 1 FROM " + Table.USER_ASSOCIATIONS + ", " + Table.USERS.name
-                        + " WHERE " + TableColumns.Users._ID + " = " + TableColumns.UserAssociations.TARGET_ID
-                        + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + FOLLOWING
-                        + " AND " + TableColumns.UserAssociations.OWNER_ID + " = $$$) AS " + TableColumns.Users.USER_FOLLOWING,
-                "EXISTS (SELECT 1 FROM " + Table.USER_ASSOCIATIONS + ", " + Table.USERS.name
-                        + " WHERE " + TableColumns.Users._ID + " = " + TableColumns.UserAssociations.TARGET_ID
-                        + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + FOLLOWER
-                        + " AND " + TableColumns.UserAssociations.OWNER_ID + " = $$$) AS " + TableColumns.Users.USER_FOLLOWER
-        };
-    }
-
-    private static String selectAssociationsAndActivities =
-            "SELECT 1 FROM CollectionItems WHERE "
-                    + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (%s,"
-                    + CollectionStorage.CollectionItemTypes.LIKE + " ," + CollectionStorage.CollectionItemTypes.REPOST + ") "
-                    + " AND " + TableColumns.CollectionItems.USER_ID + " = %s"
-                    + " AND  " + TableColumns.CollectionItems.ITEM_ID + " =  " + TableColumns.Sounds._ID
-                    + " AND  " + TableColumns.CollectionItems.RESOURCE_TYPE + " =  %s"
-                    + ")"
-                    + " UNION SELECT DISTINCT " + TableColumns.Activities.SOUND_ID + " FROM " + Table.ACTIVITIES.name
-                    + " WHERE " + TableColumns.Activities.SOUND_TYPE + " = %s";
-
     private static void log(String message) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
         }
-    }
-
-    private static interface DbOperation<V> {
-        V execute();
     }
 
     private static int getCountFromTable(SQLiteDatabase db, Table table) {
@@ -1067,5 +1020,49 @@ public class ScContentProvider extends ContentProvider {
             ErrorUtils.handleSilentException(msg, e);
             return def;
         }
+    }
+
+    static String makeCollectionSort(Uri uri, @Nullable String sortCol) {
+        StringBuilder b = new StringBuilder();
+        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+            b.append("RANDOM()");
+        } else {
+            b.append(TextUtils.isEmpty(sortCol) ? TableColumns.CollectionItems.POSITION : sortCol);
+        }
+        return b.toString();
+    }
+
+    static String makeActivitiesSort(Uri uri, String sortCol) {
+        StringBuilder b = new StringBuilder();
+        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+            b.append("RANDOM()");
+        } else {
+            b.append(sortCol == null ? TableColumns.ActivityView.CREATED_AT + " DESC" : sortCol);
+        }
+        return b.toString();
+    }
+
+    // TODO, move this logic out of here and into Storage classes
+    static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
+        qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID + " = " + userId);
+        for (int i = 0; i < collectionType.length; i++) {
+            qb.appendWhere((i == 0 ? " AND " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TYPE + " IN (" : ", ")
+                    + collectionType[i]
+                    + (i == collectionType.length - 1 ? ")" : ""));
+        }
+        return qb;
+    }
+
+    public static interface Parameter {
+        String RANDOM = "random";
+        String CACHED = "cached";
+        String LIMIT = "limit";
+        String OFFSET = "offset";
+        String IDS_ONLY = "idsOnly";
+        String TYPE_IDS_ONLY = "typeIdsOnly";
+    }
+
+    private static interface DbOperation<V> {
+        V execute();
     }
 }

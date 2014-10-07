@@ -273,8 +273,8 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         private final Uri contentUri;
         private @Nullable String[] projection;
         private @Nullable String order;
-        private StringBuilder selection;
-        private List<String> selectionArgs;
+        private final StringBuilder selection;
+        private final List<String> selectionArgs;
         private int limit;
 
         public QueryBuilder(Uri contentUri) {

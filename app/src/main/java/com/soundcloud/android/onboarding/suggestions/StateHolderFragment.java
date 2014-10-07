@@ -11,6 +11,13 @@ import java.util.HashMap;
 
 public final class StateHolderFragment extends Fragment {
 
+    private final HashMap<String, Object> data;
+
+    public StateHolderFragment() {
+        setRetainInstance(true);
+        data = new HashMap<String, Object>();
+    }
+
     public static StateHolderFragment obtain(@NotNull final FragmentManager fragmentManager,
                                              @NotNull final String hostFragmentTag) {
         final String stateTag = hostFragmentTag + "_state";
@@ -20,13 +27,6 @@ public final class StateHolderFragment extends Fragment {
             fragmentManager.beginTransaction().add(fragment, stateTag).commit();
         }
         return fragment;
-    }
-
-    private final HashMap<String, Object> data;
-
-    public StateHolderFragment() {
-        setRetainInstance(true);
-        data = new HashMap<String, Object>();
     }
 
     public <T> void put(String key, T value) {

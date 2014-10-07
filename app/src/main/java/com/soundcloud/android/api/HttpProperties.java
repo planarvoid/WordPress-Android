@@ -18,27 +18,9 @@ public class HttpProperties {
 
     private static final String HTTPS_API_URL_FORMAT = "http://%s";
     private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
-
-    public enum Parameter {
-        OAUTH_PARAMETER("oauth_token");
-
-        private final String parameter;
-
-        private Parameter(String parameter) {
-            this.parameter = parameter;
-        }
-
-        @Override
-        public String toString() {
-            return parameter;
-        }
-
-    }
-
     private static final long[] PRODUCTION =
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
-
     private final String apiMobileBaseUriPath;
     private final String httpsApiHost;
 
@@ -65,7 +47,6 @@ public class HttpProperties {
     public String getClientSecret() {
         return deobfuscate(PRODUCTION);
     }
-
 
     public String getClientId() {
         return CLIENT_ID;
@@ -124,5 +105,21 @@ public class HttpProperties {
         // string was not a multiple of eight bytes long.
         final int i = decoded.indexOf(0);
         return -1 == i ? decoded : decoded.substring(0, i);
+    }
+
+    public enum Parameter {
+        OAUTH_PARAMETER("oauth_token");
+
+        private final String parameter;
+
+        private Parameter(String parameter) {
+            this.parameter = parameter;
+        }
+
+        @Override
+        public String toString() {
+            return parameter;
+        }
+
     }
 }

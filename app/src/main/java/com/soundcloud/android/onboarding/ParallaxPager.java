@@ -19,17 +19,7 @@ import java.util.Set;
 
 public class ParallaxPager extends SafeViewPager {
 
-    class ParallaxInfo {
-        public final View view;
-        public final int page;
-
-        ParallaxInfo(View view, int page) {
-            this.view = view;
-            this.page = page;
-        }
-    }
-
-    private List<ParallaxInfo> parallaxViews = new ArrayList<ParallaxInfo>();
+    private final List<ParallaxInfo> parallaxViews = new ArrayList<ParallaxInfo>();
 
     public ParallaxPager(Context context) {
         super(context);
@@ -37,21 +27,6 @@ public class ParallaxPager extends SafeViewPager {
 
     public ParallaxPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    @Override
-    @TargetApi(11)
-    protected void onPageScrolled(int position, float offset, int offsetPixels) {
-        super.onPageScrolled(position, offset, offsetPixels);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            for (ParallaxInfo info : parallaxViews) {
-                float targetX = info.page * getWidth();
-                float actualX = position * getWidth() + offsetPixels;
-
-                info.view.setTranslationX(targetX - actualX);
-            }
-        }
     }
 
     @Override
@@ -99,5 +74,30 @@ public class ParallaxPager extends SafeViewPager {
         };
 
         super.setAdapter(adapterWrapper);
+    }
+
+    @Override
+    @TargetApi(11)
+    protected void onPageScrolled(int position, float offset, int offsetPixels) {
+        super.onPageScrolled(position, offset, offsetPixels);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            for (ParallaxInfo info : parallaxViews) {
+                float targetX = info.page * getWidth();
+                float actualX = position * getWidth() + offsetPixels;
+
+                info.view.setTranslationX(targetX - actualX);
+            }
+        }
+    }
+
+    class ParallaxInfo {
+        public final View view;
+        public final int page;
+
+        ParallaxInfo(View view, int page) {
+            this.view = view;
+            this.page = page;
+        }
     }
 }

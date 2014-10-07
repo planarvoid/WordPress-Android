@@ -8,6 +8,16 @@ import android.os.Parcelable;
 
 public class TrackSharingActivity extends TrackActivity implements PlayableHolder {
 
+    public static final Parcelable.Creator<TrackSharingActivity> CREATOR = new Parcelable.Creator<TrackSharingActivity>() {
+        public TrackSharingActivity createFromParcel(Parcel in) {
+            return new TrackSharingActivity(in);
+        }
+
+        public TrackSharingActivity[] newArray(int size) {
+            return new TrackSharingActivity[size];
+        }
+    };
+
     public TrackSharingActivity() {
         super();
     }
@@ -30,16 +40,6 @@ public class TrackSharingActivity extends TrackActivity implements PlayableHolde
         super.writeToParcel(dest, flags);
         dest.writeParcelable(track, 0);
     }
-
-    public static final Parcelable.Creator<TrackSharingActivity> CREATOR = new Parcelable.Creator<TrackSharingActivity>() {
-        public TrackSharingActivity createFromParcel(Parcel in) {
-            return new TrackSharingActivity(in);
-        }
-
-        public TrackSharingActivity[] newArray(int size) {
-            return new TrackSharingActivity[size];
-        }
-    };
 
     @Override
     public boolean equals(Object o) {

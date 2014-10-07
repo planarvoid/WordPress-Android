@@ -14,7 +14,7 @@ import android.util.Log;
 import java.io.IOException;
 
 public class DeleteRegIdTask extends AsyncApiTask<String, Void, Boolean> {
-    private PowerManager.WakeLock lock;
+    private final PowerManager.WakeLock lock;
 
     public DeleteRegIdTask(PublicCloudAPI api, PowerManager.WakeLock wakeLock) {
         super(api);

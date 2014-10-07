@@ -67,18 +67,15 @@ public class ProfileActivity extends ScActivity implements
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_USER = "user";
-
-    /* package */ @Nullable PublicApiUser user;
-
-    private TextView username, followerCount, followerMessage, location;
-    private ToggleButton toggleFollow;
-    private ImageView userImage;
-    private FetchUserTask loadUserTask;
+    private final BroadcastReceiver recordListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            supportInvalidateOptionsMenu();
+        }
+    };
     protected ViewPager pager;
     protected SlidingTabLayout indicator;
-    private UserInfoFragment userInfoFragment;
-    private int initialOtherFollowers;
-
+    /* package */ @Nullable PublicApiUser user;
     @Inject ImageOperations imageOperations;
     @Inject PublicCloudAPI oldCloudAPI;
     @Inject FollowingOperations followingOperations;
@@ -86,6 +83,18 @@ public class ProfileActivity extends ScActivity implements
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
+    private TextView username, followerCount, followerMessage, location;
+    private ToggleButton toggleFollow;
+    private ImageView userImage;
+    private FetchUserTask loadUserTask;
+    private UserInfoFragment userInfoFragment;
+    private int initialOtherFollowers;
+
+    public ProfileActivity() {
+        addLifeCycleComponent(playerController);
+        addLifeCycleComponent(adPlayerController);
+        presenter.attach(this);
+    }
 
     @Deprecated
     public static boolean startFromPlayable(Context context, Playable playable) {
@@ -100,12 +109,6 @@ public class ProfileActivity extends ScActivity implements
 
     public static Intent getIntent(Context context, Urn userUrn) {
         return new Intent(context, ProfileActivity.class).putExtra(EXTRA_USER_URN, userUrn);
-    }
-
-    public ProfileActivity() {
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
-        presenter.attach(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -181,33 +184,6 @@ public class ProfileActivity extends ScActivity implements
     }
 
     @Override
-    protected void setContentView() {
-        presenter.setBaseLayoutWithContent(R.layout.profile_content);
-    }
-
-    protected void handleIntent(Intent intent) {
-        if (intent.hasExtra(EXTRA_USER)) {
-            loadUserByObject((PublicApiUser) intent.getParcelableExtra(EXTRA_USER));
-        } else if (intent.hasExtra(EXTRA_USER_ID)) {
-            loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
-        } else if (intent.hasExtra(EXTRA_USER_URN)) {
-            Urn urn = intent.getParcelableExtra(EXTRA_USER_URN);
-            loadUserById(urn.getNumericId());
-        } else if (intent.getData() == null || !loadUserByUri(intent.getData())) {
-            loadYou();
-        }
-
-        if (!isLoggedInUser()) {
-            followingOperations.requestUserFollowings(this);
-        }
-
-        if (intent.hasExtra(Tab.EXTRA)) {
-            pager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
-            intent.removeExtra(Tab.EXTRA);
-        }
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
 
@@ -244,12 +220,6 @@ public class ProfileActivity extends ScActivity implements
     }
 
     @Override
-    protected void onDataConnectionChanged(boolean isConnected) {
-        super.onDataConnectionChanged(isConnected);
-        // TODO : reload avatar
-    }
-
-    @Override
     public void onPageScrolled(int i, float v, int i2) {
     }
 
@@ -261,6 +231,114 @@ public class ProfileActivity extends ScActivity implements
 
     @Override
     public void onPageScrollStateChanged(int i) {
+    }
+
+    @Override
+    public void onFollowChanged() {
+        toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
+        setFollowersMessage();
+    }
+
+    @Override
+    public void onSuccess(PublicApiUser user) {
+        user.last_updated = System.currentTimeMillis();
+        setUser(user);
+
+        // update user locally and ensure 1 instance
+        this.user = SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
+
+        // TODO: move to a *Operations class to decouple from storage layer
+        fireAndForget(userStorage.storeAsync(this.user));
+        userInfoFragment.onSuccess(this.user);
+    }
+
+    @Override
+    public void onError(Object context) {
+        userInfoFragment.onError();
+    }
+
+    public PublicApiUser getUser() {
+        return user;
+    }
+
+    private void setUser(final PublicApiUser user) {
+        if (user == null || user.getId() < 0) {
+            return;
+        }
+        this.user = user;
+
+        // Initial count prevents fluctuations from being reflected in followers message
+        initialOtherFollowers = user.followers_count;
+        if (followingOperations.isFollowing(this.user.getUrn())) {
+            initialOtherFollowers--;
+        }
+
+        if (!isEmpty(user.username)) {
+            username.setText(user.username);
+        }
+
+        if (followerCount != null) {
+            if (user.followers_count <= 0) {
+                followerCount.setVisibility(View.GONE);
+            } else {
+                followerCount.setVisibility(View.VISIBLE);
+                followerCount.setText(ScTextUtils.formatNumberWithCommas(user.followers_count));
+            }
+        }
+
+        setFollowersMessage();
+
+        if (location != null) {
+            if (ScTextUtils.isBlank(user.getLocation())) {
+                location.setVisibility(View.GONE);
+            } else {
+                location.setVisibility(View.VISIBLE);
+                location.setText(String.valueOf(user.getLocation()));
+            }
+        }
+
+        imageOperations.displayWithPlaceholder(this.user.getUrn(),
+                ApiImageSize.getFullImageSize(getResources()),
+                userImage);
+
+        supportInvalidateOptionsMenu();
+    }
+
+    @Override
+    protected void setContentView() {
+        presenter.setBaseLayoutWithContent(R.layout.profile_content);
+    }
+
+    protected void handleIntent(Intent intent) {
+        if (intent.hasExtra(EXTRA_USER)) {
+            loadUserByObject((PublicApiUser) intent.getParcelableExtra(EXTRA_USER));
+        } else if (intent.hasExtra(EXTRA_USER_ID)) {
+            loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
+        } else if (intent.hasExtra(EXTRA_USER_URN)) {
+            Urn urn = intent.getParcelableExtra(EXTRA_USER_URN);
+            loadUserById(urn.getNumericId());
+        } else if (intent.getData() == null || !loadUserByUri(intent.getData())) {
+            loadYou();
+        }
+
+        if (!isLoggedInUser()) {
+            followingOperations.requestUserFollowings(this);
+        }
+
+        if (intent.hasExtra(Tab.EXTRA)) {
+            pager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
+            intent.removeExtra(Tab.EXTRA);
+        }
+    }
+
+    @Override @SuppressWarnings("PMD.UselessOverridingMethod")
+    protected void onDataConnectionChanged(boolean isConnected) {
+        super.onDataConnectionChanged(isConnected);
+        // TODO : reload avatar
+    }
+
+    protected boolean isLoggedInUser() {
+        return user != null && user.getId() == getCurrentUserId();
     }
 
     private void loadYou() {
@@ -308,82 +386,11 @@ public class ProfileActivity extends ScActivity implements
         }
     }
 
-    @Override
-    public void onFollowChanged() {
-        toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
-        setFollowersMessage();
-    }
-
-    protected boolean isLoggedInUser() {
-        return user != null && user.getId() == getCurrentUserId();
-    }
-
     private void toggleFollowing(PublicApiUser user) {
         followingOperations.toggleFollowing(user)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ToggleFollowSubscriber(toggleFollow));
         setFollowersMessage();
-    }
-
-    @Override
-    public void onSuccess(PublicApiUser user) {
-        user.last_updated = System.currentTimeMillis();
-        setUser(user);
-
-        // update user locally and ensure 1 instance
-        this.user = SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
-
-        // TODO: move to a *Operations class to decouple from storage layer
-        fireAndForget(userStorage.storeAsync(this.user));
-        userInfoFragment.onSuccess(this.user);
-    }
-
-    @Override
-    public void onError(Object context) {
-        userInfoFragment.onError();
-    }
-
-    private void setUser(final PublicApiUser user) {
-        if (user == null || user.getId() < 0) {
-            return;
-        }
-        this.user = user;
-
-        // Initial count prevents fluctuations from being reflected in followers message
-        initialOtherFollowers = user.followers_count;
-        if (followingOperations.isFollowing(this.user.getUrn())) {
-            initialOtherFollowers--;
-        }
-
-        if (!isEmpty(user.username)) {
-            username.setText(user.username);
-        }
-
-        if (followerCount != null) {
-            if (user.followers_count <= 0) {
-                followerCount.setVisibility(View.GONE);
-            } else {
-                followerCount.setVisibility(View.VISIBLE);
-                followerCount.setText(ScTextUtils.formatNumberWithCommas(user.followers_count));
-            }
-        }
-
-        setFollowersMessage();
-
-        if (location != null) {
-            if (ScTextUtils.isBlank(user.getLocation())) {
-                location.setVisibility(View.GONE);
-            } else {
-                location.setVisibility(View.VISIBLE);
-                location.setText(String.valueOf(user.getLocation()));
-            }
-        }
-
-        imageOperations.displayWithPlaceholder(this.user.getUrn(),
-                ApiImageSize.getFullImageSize(getResources()),
-                userImage);
-
-        supportInvalidateOptionsMenu();
     }
 
     private void setFollowersMessage() {
@@ -405,10 +412,6 @@ public class ProfileActivity extends ScActivity implements
         }
     }
 
-    public PublicApiUser getUser() {
-        return user;
-    }
-
     private Configuration toConfiguration() {
         Configuration c = new Configuration();
         c.loadUserTask = loadUserTask;
@@ -425,20 +428,6 @@ public class ProfileActivity extends ScActivity implements
         }
         pager.setCurrentItem(c.pagerIndex);
     }
-
-    private static class Configuration {
-        FetchUserTask loadUserTask;
-        PublicApiUser user;
-        int pagerIndex;
-    }
-
-    private final BroadcastReceiver recordListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            supportInvalidateOptionsMenu();
-        }
-    };
-
 
     public enum Tab {
         details(Actions.YOUR_INFO, Screen.USER_INFO, Screen.YOUR_INFO, Content.USER, Content.ME, R.string.tab_title_user_info),
@@ -486,6 +475,12 @@ public class ProfileActivity extends ScActivity implements
         public static String getTitle(Resources resources, int position, boolean isYou) {
             return resources.getString(Tab.values()[position].userTitle);
         }
+    }
+
+    private static class Configuration {
+        FetchUserTask loadUserTask;
+        PublicApiUser user;
+        int pagerIndex;
     }
 
     class UserFragmentAdapter extends FragmentPagerAdapter {

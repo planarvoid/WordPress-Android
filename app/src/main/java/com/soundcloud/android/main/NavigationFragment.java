@@ -38,47 +38,15 @@ public class NavigationFragment extends Fragment {
     @VisibleForTesting
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
-
-    @Inject ImageOperations imageOperations;
-    @Inject AccountOperations accountOperations;
-
-    private NavigationCallbacks callbacks;
-
-    private ListView listView;
-
-    private int currentSelectedPosition = NavItem.STREAM.ordinal();
-
-    private ProfileViewHolder profileViewHolder;
-
-    public enum NavItem {
-        PROFILE(R.string.side_menu_profile, NO_IMAGE),
-        STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
-        EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
-        LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
-        PLAYLISTS(R.string.side_menu_playlists, R.drawable.nav_playlists_states);
-
-        private final int textId;
-        private final int imageId;
-
-        private NavItem(int textId, int imageId) {
-            this.textId = textId;
-            this.imageId = imageId;
-        }
-    }
-
-    /**
-     * Callbacks interface that all activities using this fragment must implement.
-     */
-    public static interface NavigationCallbacks {
-
-        void onSmoothSelectItem(int position, boolean setTitle);
-
-        void onSelectItem(int position, boolean setTitle);
-    }
-
     // normal rows (below profile)
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
+    @Inject ImageOperations imageOperations;
+    @Inject AccountOperations accountOperations;
+    private NavigationCallbacks callbacks;
+    private ListView listView;
+    private int currentSelectedPosition = NavItem.STREAM.ordinal();
+    private ProfileViewHolder profileViewHolder;
 
     public NavigationFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -105,17 +73,6 @@ public class NavigationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-    }
-
-    protected void configureLocalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setHomeButtonEnabled(false);
-    }
-
-    @VisibleForTesting
-    int getCurrentSelectedPosition() {
-        return currentSelectedPosition;
     }
 
     public boolean handleIntent(Intent intent) {
@@ -183,6 +140,49 @@ public class NavigationFragment extends Fragment {
         }
     }
 
+    public void updateProfileItem(PublicApiUser user) {
+        profileViewHolder.username.setText(user.getUsername());
+        int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
+        profileViewHolder.followers.setText(getResources().getQuantityString(
+                R.plurals.number_of_followers, followersCount, followersCount));
+
+        imageOperations.displayWithPlaceholder(user.getUrn(),
+                ApiImageSize.getFullImageSize(getResources()),
+                profileViewHolder.imageView);
+    }
+
+    protected void configureLocalContextActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setHomeButtonEnabled(false);
+    }
+
+    protected void selectItem(int position) {
+        adjustSelectionForProfile(position);
+
+        if (callbacks != null) {
+            callbacks.onSelectItem(position, shouldSetActionBarTitle());
+        }
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
+    protected void smoothSelectItem(int position) {
+        adjustSelectionForProfile(position);
+
+        if (callbacks != null) {
+            callbacks.onSmoothSelectItem(position, shouldSetActionBarTitle());
+        }
+        getActivity().supportInvalidateOptionsMenu();
+    }
+
+    protected boolean shouldSetActionBarTitle() {
+        return true;
+    }
+
+    protected ActionBar getActionBar() {
+        return ((ActionBarActivity) getActivity()).getSupportActionBar();
+    }
+
     private ListView setupListView(LayoutInflater inflater, ViewGroup container) {
         ListView listView = (ListView) inflater.inflate(R.layout.fragment_navigation_listview, container, false);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -222,35 +222,6 @@ public class NavigationFragment extends Fragment {
         return view;
     }
 
-    public void updateProfileItem(PublicApiUser user) {
-        profileViewHolder.username.setText(user.getUsername());
-        int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
-        profileViewHolder.followers.setText(getResources().getQuantityString(
-                R.plurals.number_of_followers, followersCount, followersCount));
-
-        imageOperations.displayWithPlaceholder(user.getUrn(),
-                ApiImageSize.getFullImageSize(getResources()),
-                profileViewHolder.imageView);
-    }
-
-    protected void selectItem(int position) {
-        adjustSelectionForProfile(position);
-
-        if (callbacks != null) {
-            callbacks.onSelectItem(position, shouldSetActionBarTitle());
-        }
-        getActivity().supportInvalidateOptionsMenu();
-    }
-
-    protected void smoothSelectItem(int position) {
-        adjustSelectionForProfile(position);
-
-        if (callbacks != null) {
-            callbacks.onSmoothSelectItem(position, shouldSetActionBarTitle());
-        }
-        getActivity().supportInvalidateOptionsMenu();
-    }
-
     private void adjustSelectionForProfile(int position) {
         // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
         // index. Remove this workaround when the user browser has become a fragment too
@@ -259,12 +230,35 @@ public class NavigationFragment extends Fragment {
         }
     }
 
-    protected boolean shouldSetActionBarTitle() {
-        return true;
+    @VisibleForTesting
+    int getCurrentSelectedPosition() {
+        return currentSelectedPosition;
     }
 
-    protected ActionBar getActionBar() {
-        return ((ActionBarActivity) getActivity()).getSupportActionBar();
+    public enum NavItem {
+        PROFILE(R.string.side_menu_profile, NO_IMAGE),
+        STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
+        EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
+        LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
+        PLAYLISTS(R.string.side_menu_playlists, R.drawable.nav_playlists_states);
+
+        private final int textId;
+        private final int imageId;
+
+        private NavItem(int textId, int imageId) {
+            this.textId = textId;
+            this.imageId = imageId;
+        }
+    }
+
+    /**
+     * Callbacks interface that all activities using this fragment must implement.
+     */
+    public static interface NavigationCallbacks {
+
+        void onSmoothSelectItem(int position, boolean setTitle);
+
+        void onSelectItem(int position, boolean setTitle);
     }
 
     private static class ProfileViewHolder {

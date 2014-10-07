@@ -70,7 +70,7 @@ public class StreamProxy {
     private boolean mIsRunning;
     private Thread mThread;
 
-    private ReplaySubject<Integer> mPortSubject = ReplaySubject.create();
+    private final ReplaySubject<Integer> mPortSubject = ReplaySubject.create();
 
     private static String userAgent;
 

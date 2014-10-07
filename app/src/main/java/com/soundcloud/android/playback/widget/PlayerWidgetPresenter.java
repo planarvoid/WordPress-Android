@@ -15,7 +15,7 @@ class PlayerWidgetPresenter {
 
     private static final ComponentName PLAYER_WIDGET_PROVIDER = new ComponentName("com.soundcloud.android",
             PlayerAppWidgetProvider.class.getCanonicalName());
-    private AppWidgetManager appWidgetManager;
+    private final AppWidgetManager appWidgetManager;
     private WidgetTrack widgetTrack;
 
     @Inject

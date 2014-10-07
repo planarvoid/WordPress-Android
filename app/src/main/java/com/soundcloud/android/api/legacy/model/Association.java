@@ -23,28 +23,9 @@ import java.util.Date;
 
 public abstract class Association extends PublicApiResource implements PlayableHolder, Refreshable, RelatesToUser, Creation {
 
-    public enum Type {
-        TRACK(CollectionStorage.CollectionItemTypes.TRACK),
-        TRACK_REPOST(CollectionStorage.CollectionItemTypes.REPOST),
-        TRACK_LIKE(CollectionStorage.CollectionItemTypes.LIKE),
-        PLAYLIST(CollectionStorage.CollectionItemTypes.PLAYLIST),
-        PLAYLIST_REPOST(CollectionStorage.CollectionItemTypes.REPOST),
-        PLAYLIST_LIKE(CollectionStorage.CollectionItemTypes.LIKE),
-        FOLLOWING(CollectionStorage.CollectionItemTypes.FOLLOWING),
-        FOLLOWER(CollectionStorage.CollectionItemTypes.FOLLOWER);
-
-        Type(int collectionType) {
-            this.collectionType = collectionType;
-        }
-
-        public final int collectionType;
-    }
-
-
     public @Nullable PublicApiUser owner;
     public int associationType;
     public Date created_at;
-
     protected CharSequence mElapsedTime;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
@@ -136,10 +117,6 @@ public abstract class Association extends PublicApiResource implements PlayableH
         return Content.COLLECTION_ITEMS.uri;
     }
 
-    protected abstract int getResourceType();
-
-    protected abstract long getItemId();
-
     @Override
     public abstract long getListItemId();
 
@@ -159,5 +136,25 @@ public abstract class Association extends PublicApiResource implements PlayableH
             return true;
         }
         return refreshableResource.isIncomplete();
+    }
+
+    protected abstract int getResourceType();
+
+    protected abstract long getItemId();
+
+    public enum Type {
+        TRACK(CollectionStorage.CollectionItemTypes.TRACK),
+        TRACK_REPOST(CollectionStorage.CollectionItemTypes.REPOST),
+        TRACK_LIKE(CollectionStorage.CollectionItemTypes.LIKE),
+        PLAYLIST(CollectionStorage.CollectionItemTypes.PLAYLIST),
+        PLAYLIST_REPOST(CollectionStorage.CollectionItemTypes.REPOST),
+        PLAYLIST_LIKE(CollectionStorage.CollectionItemTypes.LIKE),
+        FOLLOWING(CollectionStorage.CollectionItemTypes.FOLLOWING),
+        FOLLOWER(CollectionStorage.CollectionItemTypes.FOLLOWER);
+        public final int collectionType;
+
+        Type(int collectionType) {
+            this.collectionType = collectionType;
+        }
     }
 }
