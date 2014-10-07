@@ -61,6 +61,10 @@ public class ApiAudioAd implements PropertySetSource {
         return apiLeaveBehind;
     }
 
+    public boolean hasApiLeaveBehind() {
+        return apiLeaveBehind != null;
+    }
+
     @VisibleForTesting
     /* package */ List<String> getTrackingImpressionUrls() {
         return trackingImpressionUrls;

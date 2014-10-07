@@ -11,7 +11,7 @@ import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 import java.util.Collections;
 
 @Blueprint(ApiAudioAd.class)
-public class AudioAdBlueprint {
+public class ApiAudioAdBlueprint {
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override

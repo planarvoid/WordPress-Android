@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.APIRequest;
 import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 
 import java.util.Map;
@@ -144,5 +146,27 @@ public class AdsOperationsTest {
         expect(playQueue.getUrn(0)).toEqual(noInterstitial.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
         expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind().toPropertySet());
+    }
+
+    @Test
+    public void applyAdInsertsAudioAdWithNoLeaveBehindWhenNoInterstitialOrLeaveBehindIsAvailable() throws Exception {
+        final ApiAudioAd apiAudioAd = Mockito.mock(ApiAudioAd.class);
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+
+        when(apiAudioAd.hasApiLeaveBehind()).thenReturn(false);
+        when(apiAudioAd.toPropertySet()).thenReturn(PropertySet.create());
+        when(apiAudioAd.getApiTrack()).thenReturn(apiTrack);
+        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(apiAudioAd, null));
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(apiTrack.getUrn());
+        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+        expect(playQueue.getMetaData(1)).toBeEmpty();
     }
 }

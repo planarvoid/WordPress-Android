@@ -75,12 +75,22 @@ public class AdsOperations {
         }
     }
 
-    public void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
+    private void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
         PropertySet adMetaData = apiAudioAd
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
 
         final int newMonetizablePosition = currentMonetizablePosition + 1;
+        if (apiAudioAd.hasApiLeaveBehind()){
+            insertAudioAdWithLeaveBehind(apiAudioAd, currentMonetizablePosition, adMetaData, newMonetizablePosition);
+        } else {
+            playQueueManager.performPlayQueueUpdateOperations(
+                    new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
+            );
+        }
+    }
+
+    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, int currentMonetizablePosition, PropertySet adMetaData, int newMonetizablePosition) {
         playQueueManager.performPlayQueueUpdateOperations(
                 new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false),
                 new PlayQueueManager.MergeMetadataOperation(newMonetizablePosition, apiAudioAd.getApiLeaveBehind().toPropertySet())
