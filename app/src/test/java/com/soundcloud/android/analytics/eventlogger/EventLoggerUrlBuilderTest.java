@@ -11,7 +11,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -209,7 +209,7 @@ public class EventLoggerUrlBuilderTest {
     public void createImpressionUrlForAudioAdPlaybackEvent() throws CreateModelException, UnsupportedEncodingException {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
-        final String url = eventLoggerUrlBuilder.buildForAdImpression(
+        final String url = eventLoggerUrlBuilder.buildForAudioAdImpression(
                 PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L).withAudioAd(audioAd));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
@@ -230,7 +230,7 @@ public class EventLoggerUrlBuilderTest {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(audioAdTrackUrn)
                 .put(AdProperty.ARTWORK, Uri.parse("http://artwork.org/image.pmg?a=b&c=d"));
         final String url = eventLoggerUrlBuilder.buildForVisualAdImpression(
-                new AudioAdCompanionImpressionEvent(audioAd, audioAdTrackUrn, userUrn, 321L));
+                new VisualAdImpressionEvent(audioAd, audioAdTrackUrn, userUrn, 321L));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"

@@ -2,7 +2,8 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -17,43 +18,45 @@ import rx.subjects.Subject;
 
 import javax.inject.Inject;
 
-public class AdCompanionImpressionController {
+public class VisualAdImpressionController {
     private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
     private final AdsOperations adsOperations;
-    private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleEventQueue;
-    private final Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentPlayQueueTrackEventQueue;
+    private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
+    private final Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentTrackQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
 
-    private final Func1<State, AudioAdCompanionImpressionEvent> toCompanionImpressionEvent = new Func1<State, AudioAdCompanionImpressionEvent>() {
+    private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
         @Override
-        public AudioAdCompanionImpressionEvent call(State state) {
-            return new AudioAdCompanionImpressionEvent(playQueueManager.getCurrentMetaData(), state.currentTrackUrn, accountOperations.getLoggedInUserUrn());
+        public VisualAdImpressionEvent call(State state) {
+            return new VisualAdImpressionEvent(playQueueManager.getCurrentMetaData(), state.currentTrackUrn,
+                    accountOperations.getLoggedInUserUrn());
         }
     };
 
-    private final Action1<AudioAdCompanionImpressionEvent> lockCurrentCompanionImpression = new Action1<AudioAdCompanionImpressionEvent>() {
+    private final Action1<TrackingEvent> lockCurrentImpression = new Action1<TrackingEvent>() {
         @Override
-        public void call(AudioAdCompanionImpressionEvent audioAdCompanionImpressionEvent) {
-            currentCompanionImpressionEventEmitted = true;
+        public void call(TrackingEvent event) {
+            impressionEventEmitted = true;
         }
     };
 
-    private final Action1<CurrentPlayQueueTrackEvent> unlockCurrentCompanionImpression = new Action1<CurrentPlayQueueTrackEvent>() {
+    private final Action1<CurrentPlayQueueTrackEvent> unlockCurrentImpression = new Action1<CurrentPlayQueueTrackEvent>() {
         @Override
         public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
-            currentCompanionImpressionEventEmitted = false;
+            impressionEventEmitted = false;
         }
     };
 
-    private final Func1<State, Boolean> newCompanionIsVisible = new Func1<State, Boolean>() {
+    private final Func1<State, Boolean> isAdVisible = new Func1<State, Boolean>() {
         @Override
         public Boolean call(State state) {
-            return !currentCompanionImpressionEventEmitted && state.currentTrackIsAnAudioAd && state.playerIsExpanding && state.isAppInForeground;
+            return !impressionEventEmitted && state.currentTrackIsAnAudioAd && state.playerIsExpanding && state.isAppInForeground;
         }
     };
 
-    private final Func3<ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State> combineFunction = new Func3<ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State>() {
+    private final Func3<ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State> combineFunction =
+            new Func3<ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State>() {
         @Override
         public State call(ActivityLifeCycleEvent event, CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent, PlayerUIEvent playerUIEvent) {
             return new State(
@@ -64,28 +67,29 @@ public class AdCompanionImpressionController {
         }
     };
 
-    private boolean currentCompanionImpressionEventEmitted;
+    private boolean impressionEventEmitted;
 
     @Inject
-    public AdCompanionImpressionController(final EventBus eventBus, final PlayQueueManager playQueueManager, final AccountOperations accountOperations, AdsOperations adsOperations) {
+    public VisualAdImpressionController(EventBus eventBus, PlayQueueManager playQueueManager,
+                                        AccountOperations accountOperations, AdsOperations adsOperations) {
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
         this.adsOperations = adsOperations;
-        this.activityLifeCycleEventQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        this.currentPlayQueueTrackEventQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
+        this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
+        this.currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
     }
 
-    public Observable<AudioAdCompanionImpressionEvent> companionImpressionEvent() {
+    public Observable<TrackingEvent> trackImpression() {
         return Observable
                 .combineLatest(
-                        activityLifeCycleEventQueue,
-                        currentPlayQueueTrackEventQueue.doOnNext(unlockCurrentCompanionImpression),
+                        activityLifeCycleQueue,
+                        currentTrackQueue.doOnNext(unlockCurrentImpression),
                         playerUIEventQueue,
                         combineFunction)
-                .filter(newCompanionIsVisible)
-                .map(toCompanionImpressionEvent)
-                .doOnNext(lockCurrentCompanionImpression);
+                .filter(isAdVisible)
+                .map(toTrackingEvent)
+                .doOnNext(lockCurrentImpression);
     }
 
     private static final class State {

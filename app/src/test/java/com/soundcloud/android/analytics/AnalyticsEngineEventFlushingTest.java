@@ -9,9 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -25,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action0;
@@ -46,18 +43,16 @@ public class AnalyticsEngineEventFlushingTest {
     @Mock private Scheduler scheduler;
     @Mock private Scheduler.Worker schedulerWorker;
     @Mock private Subscription flushSubscription;
-    @Mock private AdCompanionImpressionController adCompanionImpressionController;
     @Mock private AnalyticsProviderFactory analyticsProviderFactory;
     @Captor private ArgumentCaptor<Action0> flushAction;
 
     @Before
     public void setUp() throws Exception {
-        when(adCompanionImpressionController.companionImpressionEvent()).thenReturn(Observable.<AudioAdCompanionImpressionEvent>empty());
         when(scheduler.createWorker()).thenReturn(schedulerWorker);
         when(schedulerWorker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(flushSubscription);
 
         when(analyticsProviderFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne, analyticsProviderTwo));
-        new AnalyticsEngine(eventBus, sharedPreferences, scheduler, adCompanionImpressionController, analyticsProviderFactory);
+        new AnalyticsEngine(eventBus, sharedPreferences, scheduler, analyticsProviderFactory);
     }
 
     @Test

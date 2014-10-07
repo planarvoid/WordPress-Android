@@ -4,7 +4,6 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -63,9 +62,6 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
     public void handleSearchEvent(SearchEvent searchEvent) {
 
     }
-
-    @Override
-    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {

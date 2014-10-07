@@ -11,7 +11,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -143,11 +143,11 @@ public class PromotedAnalyticsProviderTest {
     @Test
     public void tracksAudioAdCompanionImpressions() {
         final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(999));
-        AudioAdCompanionImpressionEvent impressionEvent = new AudioAdCompanionImpressionEvent(
+        VisualAdImpressionEvent impressionEvent = new VisualAdImpressionEvent(
                 audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), 333
         );
 
-        analyticsProvider.handleAudioAdCompanionImpression(impressionEvent);
+        analyticsProvider.handleTrackingEvent(impressionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());

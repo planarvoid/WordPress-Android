@@ -3,17 +3,17 @@ package com.soundcloud.android.ads;
 import static com.pivotallabs.greatexpectations.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class AdCompanionImpressionControllerTest {
+public class VisualAdImpressionControllerTest {
     private final CurrentPlayQueueTrackEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L));
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();
@@ -38,8 +38,8 @@ public class AdCompanionImpressionControllerTest {
     @Mock private AdsOperations adsOperations;
     private TestEventBus eventBus;
 
-    private AdCompanionImpressionController controller;
-    private TestObserver<AudioAdCompanionImpressionEvent> observer;
+    private VisualAdImpressionController controller;
+    private TestObserver<TrackingEvent> observer;
 
     private Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentTrackQueue;
     private Subject<PlayerUIEvent, PlayerUIEvent> playerUiQueue;
@@ -48,7 +48,7 @@ public class AdCompanionImpressionControllerTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        controller = new AdCompanionImpressionController(eventBus, playQueueManager, accountOperations, adsOperations);
+        controller = new VisualAdImpressionController(eventBus, playQueueManager, accountOperations, adsOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
@@ -57,7 +57,7 @@ public class AdCompanionImpressionControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
 
-        controller.companionImpressionEvent().subscribe(observer);
+        controller.trackImpression().subscribe(observer);
     }
 
     @Test

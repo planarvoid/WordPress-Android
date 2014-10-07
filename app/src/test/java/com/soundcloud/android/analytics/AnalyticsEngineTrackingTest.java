@@ -10,9 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ads.AdCompanionImpressionController;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -28,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
@@ -51,12 +48,10 @@ public class AnalyticsEngineTrackingTest {
     @Mock private AnalyticsProvider analyticsProviderThree;
     @Mock private Scheduler scheduler;
     @Mock private Scheduler.Worker worker;
-    @Mock private AdCompanionImpressionController adCompanionImpressionController;
     @Mock private AnalyticsProviderFactory providersFactory;
 
     @Before
     public void setUp() throws Exception {
-        when(adCompanionImpressionController.companionImpressionEvent()).thenReturn(Observable.<AudioAdCompanionImpressionEvent>empty());
         when(scheduler.createWorker()).thenReturn(worker);
         when(worker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(Subscriptions.empty());
         when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne, analyticsProviderTwo));
@@ -154,8 +149,7 @@ public class AnalyticsEngineTrackingTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, scheduler,
-                adCompanionImpressionController, providersFactory);
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, scheduler, providersFactory);
     }
 
 }

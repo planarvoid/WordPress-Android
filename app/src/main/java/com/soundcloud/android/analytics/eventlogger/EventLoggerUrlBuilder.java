@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -72,19 +72,19 @@ public class EventLoggerUrlBuilder {
         this.deviceHelper = deviceHelper;
     }
 
-    public String buildForVisualAdImpression(AudioAdCompanionImpressionEvent event) {
+    public String buildForVisualAdImpression(TrackingEvent event) {
         return buildUriForPath("impression", event.getTimeStamp())
-                .appendQueryParameter(USER, event.getUserUrn().toString())
-                .appendQueryParameter(AD_URN, event.getAdsWizzUrn())
+                .appendQueryParameter(USER, event.get(VisualAdImpressionEvent.KEY_USER_URN))
+                .appendQueryParameter(AD_URN, event.get(VisualAdImpressionEvent.KEY_AD_URN))
+                .appendQueryParameter(IMPRESSION_OBJECT, event.get(VisualAdImpressionEvent.KEY_AD_TRACK_URN))
+                .appendQueryParameter(MONETIZED_OBJECT, event.get(VisualAdImpressionEvent.KEY_MONETIZABLE_TRACK_URN))
+                .appendQueryParameter(EXTERNAL_MEDIA, event.get(VisualAdImpressionEvent.KEY_AD_ARTWORK_URL))
                 .appendQueryParameter(IMPRESSION_NAME, "companion_display")
-                .appendQueryParameter(IMPRESSION_OBJECT, event.getTrackUrn().toString())
                 .appendQueryParameter(MONETIZATION_TYPE, "audio_ad")
-                .appendQueryParameter(MONETIZED_OBJECT, event.getMonetizedTrackUrn().toString())
-                .appendQueryParameter(EXTERNAL_MEDIA, event.getExternalMediaUrn().toString())
                 .toString();
     }
 
-    public String buildForAdImpression(PlaybackSessionEvent event) {
+    public String buildForAudioAdImpression(TrackingEvent event) {
         final Uri.Builder builder = buildUriForPath("impression", event.getTimeStamp());
         builder.appendQueryParameter(USER, event.get(PlaybackSessionEvent.KEY_USER_URN));
         builder.appendQueryParameter(AD_URN, event.get(PlaybackSessionEvent.KEY_AD_URN));

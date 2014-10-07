@@ -51,7 +51,7 @@ public class EventLoggerAnalyticsProviderTest {
         when(event.isAd()).thenReturn(true);
         when(event.isFirstPlay()).thenReturn(true);
         when(event.getTimeStamp()).thenReturn(12345L);
-        when(eventLoggerUrlBuilder.buildForAdImpression(event)).thenReturn("adUrl");
+        when(eventLoggerUrlBuilder.buildForAudioAdImpression(event)).thenReturn("adUrl");
         when(eventLoggerUrlBuilder.buildForAudioEvent(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

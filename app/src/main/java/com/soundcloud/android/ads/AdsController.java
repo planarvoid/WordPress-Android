@@ -29,6 +29,7 @@ public class AdsController {
     public static final int SKIP_DELAY_SECS = 3;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final VisualAdImpressionController visualAdImpressionController;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
     private final Scheduler scheduler;
@@ -100,15 +101,21 @@ public class AdsController {
     };
 
     @Inject
-    public AdsController(EventBus eventBus, AdsOperations adsOperations, PlayQueueManager playQueueManager,
+    public AdsController(EventBus eventBus, AdsOperations adsOperations,
+                         VisualAdImpressionController visualAdImpressionController,
+                         PlayQueueManager playQueueManager,
                          TrackOperations trackOperations) {
-        this(eventBus, adsOperations, playQueueManager, trackOperations, AndroidSchedulers.mainThread());
+        this(eventBus, adsOperations, visualAdImpressionController,
+                playQueueManager, trackOperations, AndroidSchedulers.mainThread());
     }
 
-    public AdsController(EventBus eventBus, AdsOperations adsOperations, PlayQueueManager playQueueManager,
+    public AdsController(EventBus eventBus, AdsOperations adsOperations,
+                         VisualAdImpressionController visualAdImpressionController,
+                         PlayQueueManager playQueueManager,
                          TrackOperations trackOperations, Scheduler scheduler) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.visualAdImpressionController = visualAdImpressionController;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.scheduler = scheduler;
@@ -132,6 +139,8 @@ public class AdsController {
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .subscribe(new LeaveBehindSubscriber());
+
+        visualAdImpressionController.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<Object> {
