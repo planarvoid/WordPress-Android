@@ -54,6 +54,7 @@ public class AdsControllerTest {
     @Mock private TrackOperations trackOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private VisualAdImpressionController visualAdImpressionController;
+    @Mock private LeaveBehindImpressionController leaveBehindImpressionController;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestScheduler scheduler = Schedulers.test();
@@ -63,8 +64,9 @@ public class AdsControllerTest {
     @Before
     public void setUp() throws Exception {
         when(visualAdImpressionController.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
+        when(leaveBehindImpressionController.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
 
-        adsController = new AdsController(eventBus, adsOperations, visualAdImpressionController,
+        adsController = new AdsController(eventBus, adsOperations, visualAdImpressionController, leaveBehindImpressionController,
                 playQueueManager, trackOperations, scheduler);
         audioAd = ModelFixtures.create(AudioAd.class);
     }
@@ -337,6 +339,16 @@ public class AdsControllerTest {
     public void shouldPublishTrackingEventWhenVisualAdControllerEmitsEvent() {
         TrackingEvent trackingEvent = TestEvents.unspecifiedTrackingEvent();
         when(visualAdImpressionController.trackImpression()).thenReturn(Observable.just(trackingEvent));
+
+        adsController.subscribe();
+
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toEqual(trackingEvent);
+    }
+
+    @Test
+    public void shouldPublishTrackingEventWhenLeaveBehindControllerEmitsEvent() {
+        TrackingEvent trackingEvent = TestEvents.unspecifiedTrackingEvent();
+        when(leaveBehindImpressionController.trackImpression()).thenReturn(Observable.just(trackingEvent));
 
         adsController.subscribe();
 
