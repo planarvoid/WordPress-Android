@@ -50,7 +50,7 @@ public class LeaveBehindController implements View.OnClickListener{
         void onLeaveBehindHidden();
     }
 
-    private LeaveBehindController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
+    LeaveBehindController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
         this.listener = listener;
         this.imageOperations = imageOperations;

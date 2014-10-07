@@ -431,12 +431,14 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             @Override
             public void onLeaveBehindShown() {
                 setOverlayPlayState(holder, false);
+                setTextBackgrounds(holder, false);
                 holder.waveformController.setCollapsed();
             }
 
             @Override
             public void onLeaveBehindHidden() {
                 setOverlayPlayState(holder, true);
+                setTextBackgrounds(holder, true);
                 holder.waveformController.setExpanded();
             }
         });
