@@ -42,6 +42,7 @@ public final class UIEvent extends TrackingEvent {
     private static final String TYPE_TRACK = "track";
     private static final String TYPE_PLAYLIST = "playlist";
     private static final String TYPE_UNKNOWN = "unknown";
+    private static final String KEY_PAGE = "page";
 
     private final Map<String, List<String>> promotedTrackingUrls;
 
@@ -116,27 +117,27 @@ public final class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromProfileNav() {
-        return new UIEvent(KIND_NAVIGATION).put("page", "you");
+        return new UIEvent(KIND_NAVIGATION).put(KEY_PAGE, "you");
     }
 
     public static UIEvent fromStreamNav() {
-        return new UIEvent(KIND_NAVIGATION).put("page", "stream");
+        return new UIEvent(KIND_NAVIGATION).put(KEY_PAGE, "stream");
     }
 
     public static UIEvent fromExploreNav() {
-        return new UIEvent(KIND_NAVIGATION).put("page", "explore");
+        return new UIEvent(KIND_NAVIGATION).put(KEY_PAGE, "explore");
     }
 
     public static UIEvent fromLikesNav() {
-        return new UIEvent(KIND_NAVIGATION).put("page", "collection_likes");
+        return new UIEvent(KIND_NAVIGATION).put(KEY_PAGE, "collection_likes");
     }
 
     public static UIEvent fromPlaylistsNav() {
-        return new UIEvent(KIND_NAVIGATION).put("page", "collection_playlists");
+        return new UIEvent(KIND_NAVIGATION).put(KEY_PAGE, "collection_playlists");
     }
 
     public static UIEvent fromSearchAction() {
-        return new UIEvent(KIND_NAVIGATION).put("page", "search");
+        return new UIEvent(KIND_NAVIGATION).put(KEY_PAGE, "search");
     }
 
     @VisibleForTesting
