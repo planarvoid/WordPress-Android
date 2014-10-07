@@ -105,11 +105,17 @@ public class LeaveBehindController implements View.OnClickListener{
     }
 
     private boolean shouldDisplayLeaveBehind() {
+        if (data == null) {
+            return false;
+        }
+
         final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        return isPortrait
-                && data != null
-                && data.getOrElse(LeaveBehindProperty.META_AD_COMPLETED, false)
+        final boolean adCompleteButNotClicked =
+                data.getOrElse(LeaveBehindProperty.META_AD_COMPLETED, false)
                 && !data.getOrElse(LeaveBehindProperty.META_AD_CLICKED, false);
+        final boolean isInterstitial = data.getOrElse(LeaveBehindProperty.IS_INTERSTITIAL, false);
+
+        return isPortrait && (adCompleteButNotClicked || isInterstitial);
     }
 
     private void setVisible() {

@@ -38,7 +38,7 @@ public class AdsController {
     private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
 
-    private Observable<AudioAd> currentObservable;
+    private Observable<ApiAdsForTrack> currentObservable;
     private Subscription audioAdSubscription = Subscriptions.empty();
     private Subscription skipAdSubscription = Subscriptions.empty();
 
@@ -73,9 +73,9 @@ public class AdsController {
         }
     };
 
-    private final Func1<PropertySet, Observable<AudioAd>> fetchAudioAd = new Func1<PropertySet, Observable<AudioAd>>() {
+    private final Func1<PropertySet, Observable<ApiAdsForTrack>> fetchAudioAd = new Func1<PropertySet, Observable<ApiAdsForTrack>>() {
         @Override
-        public Observable<AudioAd> call(PropertySet propertySet) {
+        public Observable<ApiAdsForTrack> call(PropertySet propertySet) {
             return adsOperations.audioAd(propertySet.get(TrackProperty.URN));
         }
     };
@@ -169,7 +169,7 @@ public class AdsController {
         }
     }
 
-    private final class AudioAdSubscriber extends DefaultSubscriber<AudioAd> {
+    private final class AudioAdSubscriber extends DefaultSubscriber<ApiAdsForTrack> {
         private final int intendedPosition;
         private final Urn monetizableTrack;
 
@@ -179,14 +179,14 @@ public class AdsController {
         }
 
         @Override
-        public void onNext(AudioAd audioAd) {
+        public void onNext(ApiAdsForTrack apiAdsForTrack) {
             /*
              * We're checking if we're still at the intended position before we try to insert the ad in the play queue.
              * This is a temporary work-around for a race condition where unsubscribe doesn't happen immediately and
              * we attempt to put an ad in the queue twice. Matthias, please help!
              */
             if (playQueueManager.getCurrentPosition() == intendedPosition) {
-                adsOperations.insertAudioAd(monetizableTrack, audioAd);
+                adsOperations.applyAdToTrack(monetizableTrack, apiAdsForTrack);
             }
         }
     }

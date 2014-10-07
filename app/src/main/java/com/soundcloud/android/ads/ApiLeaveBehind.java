@@ -9,7 +9,7 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class LeaveBehind implements PropertySetSource {
+public class ApiLeaveBehind implements PropertySetSource {
 
     private final String urn;
     private final String imageUrl;
@@ -18,7 +18,7 @@ public class LeaveBehind implements PropertySetSource {
     private final List<String> trackingClickUrls;
 
     @JsonCreator
-    public LeaveBehind(
+    public ApiLeaveBehind(
             @JsonProperty("urn") String urn,
             @JsonProperty("image_url") String imageUrl,
             @JsonProperty("clickthrough_url") String clickthroughUrl,

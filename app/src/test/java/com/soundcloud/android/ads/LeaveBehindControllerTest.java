@@ -177,6 +177,15 @@ public class LeaveBehindControllerTest {
     }
 
     @Test
+    public void showsInterstitials() {
+        final PropertySet properties = leaveBehindForPlayer().put(LeaveBehindProperty.IS_INTERSTITIAL, true);
+        initializeAndShow(properties);
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        expect(getLeaveBehind()).toBeVisible();
+    }
+
+    @Test
     public void doesNotShowTheLeaveIfAlreadyShown() {
         initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
         controller.show();

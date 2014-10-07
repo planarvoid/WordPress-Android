@@ -451,12 +451,12 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
     }
 
-    public static class MergeMetatdataOperation implements QueueUpdateOperation {
+    public static class MergeMetadataOperation implements QueueUpdateOperation {
 
         private final int position;
         private final PropertySet metadata;
 
-        public MergeMetatdataOperation(int position, PropertySet metadata) {
+        public MergeMetadataOperation(int position, PropertySet metadata) {
             this.position = position;
             this.metadata = metadata;
         }

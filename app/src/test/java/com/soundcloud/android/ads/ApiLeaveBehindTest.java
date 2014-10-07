@@ -10,13 +10,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LeaveBehindTest {
+public class ApiLeaveBehindTest {
 
     @Test
     public void shouldResolveToPropertySet() throws CreateModelException {
-        LeaveBehind leaveBehind = ModelFixtures.create(LeaveBehind.class);
+        ApiLeaveBehind apiLeaveBehind = ModelFixtures.create(ApiLeaveBehind.class);
 
-        final PropertySet propertySet = leaveBehind.toPropertySet();
+        final PropertySet propertySet = apiLeaveBehind.toPropertySet();
 
         expect(propertySet.contains(LeaveBehindProperty.LEAVE_BEHIND_URN)).toBeTrue();
         expect(propertySet.contains(LeaveBehindProperty.IMAGE_URL)).toBeTrue();

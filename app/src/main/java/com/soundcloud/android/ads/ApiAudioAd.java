@@ -11,35 +11,35 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class AudioAd implements PropertySetSource {
+public class ApiAudioAd implements PropertySetSource {
 
     private final String urn;
     private final ApiTrack apiTrack;
 
     private final VisualAd visualAd;
 
-    private final LeaveBehind leaveBehind;
+    private final ApiLeaveBehind apiLeaveBehind;
     private final List<String> trackingImpressionUrls;
 
     private final List<String> trackingFinishUrls;
     private final List<String> trackingSkipUrls;
     @JsonCreator
-    public AudioAd(@JsonProperty("urn") String urn,
-                   @JsonProperty("track") ApiTrack apiTrack,
-                   @JsonProperty("_embedded") RelatedResources relatedResources,
-                   @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
-                   @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
-                   @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls) {
-        this(urn, apiTrack, relatedResources.visualAd, relatedResources.leaveBehind, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
+    public ApiAudioAd(@JsonProperty("urn") String urn,
+                      @JsonProperty("track") ApiTrack apiTrack,
+                      @JsonProperty("_embedded") RelatedResources relatedResources,
+                      @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
+                      @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
+                      @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls) {
+        this(urn, apiTrack, relatedResources.visualAd, relatedResources.apiLeaveBehind, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
     }
 
     @VisibleForTesting
-    public AudioAd(String urn, ApiTrack apiTrack, VisualAd visualAd, LeaveBehind leaveBehind, List<String> trackingImpressionUrls,
-                   List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
+    public ApiAudioAd(String urn, ApiTrack apiTrack, VisualAd visualAd, ApiLeaveBehind apiLeaveBehind, List<String> trackingImpressionUrls,
+                      List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
         this.urn = urn;
         this.apiTrack = apiTrack;
         this.visualAd = visualAd;
-        this.leaveBehind = leaveBehind;
+        this.apiLeaveBehind = apiLeaveBehind;
         this.trackingImpressionUrls = trackingImpressionUrls;
         this.trackingFinishUrls = trackingFinishUrls;
         this.trackingSkipUrls = trackingSkipUrls;
@@ -57,8 +57,8 @@ public class AudioAd implements PropertySetSource {
         return visualAd;
     }
 
-    public LeaveBehind getLeaveBehind() {
-        return leaveBehind;
+    public ApiLeaveBehind getApiLeaveBehind() {
+        return apiLeaveBehind;
     }
 
     @VisibleForTesting
@@ -80,12 +80,12 @@ public class AudioAd implements PropertySetSource {
 
         private final VisualAd visualAd;
 
-        private final LeaveBehind leaveBehind;
+        private final ApiLeaveBehind apiLeaveBehind;
 
         @JsonCreator
-        private RelatedResources(@JsonProperty("visual_ad") VisualAd visualAd, @JsonProperty("leave_behind") LeaveBehind leaveBehind) {
+        private RelatedResources(@JsonProperty("visual_ad") VisualAd visualAd, @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
             this.visualAd = visualAd;
-            this.leaveBehind = leaveBehind;
+            this.apiLeaveBehind = apiLeaveBehind;
         }
 
     }
@@ -115,7 +115,7 @@ public class AudioAd implements PropertySetSource {
                 "urn='" + urn + '\'' +
                 ", apiTrack=" + apiTrack +
                 ", visualAd=" + visualAd +
-                ", leaveBehind=" + leaveBehind +
+                ", leaveBehind=" + apiLeaveBehind +
                 ", trackingImpressionUrls=" + trackingImpressionUrls +
                 ", trackingFinishUrls=" + trackingFinishUrls +
                 ", trackingSkipUrls=" + trackingSkipUrls +

@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class MergeMetatdataOperationTest {
+public class MergeMetadataOperationTest {
     private PlayQueue playQueue;
     private PlaySessionSource playSessionSource;
 
@@ -25,7 +25,7 @@ public class MergeMetatdataOperationTest {
     public void operationShouldInsertAtTheGivenPosition() throws Exception {
         final PropertySet metadata = PropertySet.create()
                 .put(TrackProperty.DESCRIPTION, "New description");
-        new PlayQueueManager.MergeMetatdataOperation(1, metadata).execute(playQueue);
+        new PlayQueueManager.MergeMetadataOperation(1, metadata).execute(playQueue);
         expect(playQueue.getMetaData(1).get(TrackProperty.DESCRIPTION)).toEqual("New description");
     }
 }

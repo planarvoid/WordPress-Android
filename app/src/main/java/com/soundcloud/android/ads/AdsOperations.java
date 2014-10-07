@@ -12,6 +12,8 @@ import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -22,55 +24,66 @@ import javax.inject.Inject;
 
 public class AdsOperations {
 
-    public static final String UNIQUE_ID_HEADER = "SC-UDID";
+    private static final String UNIQUE_ID_HEADER = "SC-UDID";
     private final RxHttpClient rxHttpClient;
     private final TrackWriteStorage trackWriteStorage;
     private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
+    private final FeatureFlags featureFlags;
     private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
         @Override
         public boolean apply(PropertySet input) {
             return input.contains(AdProperty.AD_URN);
         }
     };
+    private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
+        @Override
+        public void call(ApiAdsForTrack apiAdsForTrack) {
+            if (apiAdsForTrack.hasAudioAd()) {
+                fireAndForget(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack()));
+            }
+        }
+    };
 
     @Inject
-    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper, PlayQueueManager playQueueManager) {
+    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper, PlayQueueManager playQueueManager, FeatureFlags featureFlags) {
         this.rxHttpClient = rxHttpClient;
         this.trackWriteStorage = trackWriteStorage;
         this.deviceHelper = deviceHelper;
         this.playQueueManager = playQueueManager;
+        this.featureFlags = featureFlags;
     }
 
-    private final Action1<AudioAd> cacheAudioAdTrack = new Action1<AudioAd>() {
-        @Override
-        public void call(AudioAd audioAd) {
-            fireAndForget(trackWriteStorage.storeTrackAsync(audioAd.getApiTrack()));
-        }
-    };
-
-    public Observable<AudioAd> audioAd(Urn sourceUrn) {
+    public Observable<ApiAdsForTrack> audioAd(Urn sourceUrn) {
         final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
-        final APIRequest<AudioAd> request = SoundCloudAPIRequest.RequestBuilder.<AudioAd>get(endpoint)
+        final APIRequest<ApiAdsForTrack> request = SoundCloudAPIRequest.RequestBuilder.<ApiAdsForTrack>get(endpoint)
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(AudioAd.class))
+                .forResource(TypeToken.of(ApiAdsForTrack.class))
                 .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
                 .build();
 
-        return rxHttpClient.<AudioAd>fetchModels(request).doOnNext(cacheAudioAdTrack);
+        return rxHttpClient.<ApiAdsForTrack>fetchModels(request).doOnNext(cacheAudioAdTrack);
     }
 
-    public void insertAudioAd(Urn monetizableTrack, AudioAd audioAd){
-        PropertySet adMetaData = audioAd
+    public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
+        final int currentMonetizablePosition = playQueueManager.getPositionForUrn(monetizableTrack);
+        checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
+        if (ads.hasInterstitialAd() && featureFlags.isEnabled(Feature.INTERSTITIAL)) {
+            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition);
+        } else if (ads.hasAudioAd()) {
+            insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
+        }
+    }
+
+    public void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
+        PropertySet adMetaData = apiAudioAd
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
 
-        final int insertPosition = playQueueManager.getPositionForUrn(monetizableTrack);
-        checkState(insertPosition != -1, "Failed to find the monetizable track");
-        final int monetizablePosition = insertPosition + 1;
+        final int newMonetizablePosition = currentMonetizablePosition + 1;
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.InsertOperation(insertPosition, audioAd.getApiTrack().getUrn(), adMetaData, false),
-                new PlayQueueManager.MergeMetatdataOperation(monetizablePosition, audioAd.getLeaveBehind().toPropertySet())
+                new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false),
+                new PlayQueueManager.MergeMetadataOperation(newMonetizablePosition, apiAudioAd.getApiLeaveBehind().toPropertySet())
         );
     }
 
@@ -98,4 +111,13 @@ public class AdsOperations {
         final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
         return playQueueManager.getMetaDataAt(monetizableTrackPosition);
     }
+
+    private void applyInterstitialAd(ApiLeaveBehind interstitial, int currentMonetizablePosition) {
+        PropertySet interstitialPropertySet = interstitial.toPropertySet();
+        interstitialPropertySet.put(LeaveBehindProperty.IS_INTERSTITIAL, true);
+        playQueueManager.performPlayQueueUpdateOperations(
+                new PlayQueueManager.MergeMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
+        );
+    }
+
 }

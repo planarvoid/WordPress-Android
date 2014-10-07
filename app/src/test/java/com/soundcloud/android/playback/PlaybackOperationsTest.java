@@ -76,7 +76,7 @@ public class PlaybackOperationsTest {
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        observer = new TestObserver<>();
+        observer = new TestObserver<List<Urn>>();
     }
 
     @Test
