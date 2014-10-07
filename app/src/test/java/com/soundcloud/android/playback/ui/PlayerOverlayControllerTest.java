@@ -29,7 +29,7 @@ public class PlayerOverlayControllerTest {
     @Before
     public void setUp() throws Exception {
         controller = new PlayerOverlayController(overlay, overlayAnimator, playStateProvider, leaveBehindController);
-        when(leaveBehindController.isDisabled()).thenReturn(true);
+        when(leaveBehindController.isNotVisible()).thenReturn(true);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldNotHideTheOverlayOnPlayingStateWhenLeaveBehindDisplayed() {
-        when(leaveBehindController.isDisabled()).thenReturn(false);
+        when(leaveBehindController.isNotVisible()).thenReturn(false);
 
         controller.showPlayingState();
 
@@ -92,7 +92,7 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldNotHideTheOverlayWhileExpandingWhenLeaveBehindDisplayed() {
-        when(leaveBehindController.isDisabled()).thenReturn(false);
+        when(leaveBehindController.isNotVisible()).thenReturn(false);
 
         controller.setAlphaFromCollapse(0);
 

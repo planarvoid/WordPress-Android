@@ -127,7 +127,7 @@ public class LeaveBehindController implements View.OnClickListener{
         leaveBehindClose.setVisibility(View.GONE);
     }
 
-    public boolean isDisabled() {
+    public boolean isNotVisible() {
         return adImage == null || adImage.getVisibility() == View.GONE;
     }
 

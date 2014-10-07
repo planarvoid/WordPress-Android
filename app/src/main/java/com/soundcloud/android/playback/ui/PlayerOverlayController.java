@@ -72,7 +72,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     }
 
     private boolean isLeaveBehindDisabled() {
-        return leaveBehindController == null || leaveBehindController.isDisabled();
+        return leaveBehindController == null || leaveBehindController.isNotVisible();
     }
 
     public static class Factory {
