@@ -56,6 +56,7 @@ public class VisualAdImpressionControllerTest {
 
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(42L));
 
         controller.trackImpression().subscribe(observer);
     }
