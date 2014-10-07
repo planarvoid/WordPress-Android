@@ -15,7 +15,16 @@ public final class PlayControlEvent extends TrackingEvent {
 
     private static final String ATTRIBUTE_LOCATION = "location";
     private static final String ATTRIBUTE_ACTION = "action";
-    private static final String ATTRIBUTE_TAB_OR_SWIPE = "tap or swipe";
+    private static final String ATTRIBUTE_TAP_OR_SWIPE = "tap or swipe";
+
+    private static final String ACTION_SKIP = "skip";
+    private static final String ACTION_PREV = "prev";
+    private static final String ACTION_PAUSE = "pause";
+    private static final String ACTION_PLAY = "play";
+    private static final String ACTION_CLOSE = "close";
+    private static final String ACTION_SCRUB = "scrub";
+    private static final String SKIP_TYPE_SWIPE = "swipe";
+    private static final String SKIP_TYPE_TAP = "tap";
 
     protected PlayControlEvent() {
         super(KIND_DEFAULT, Consts.NOT_SET);
@@ -36,15 +45,15 @@ public final class PlayControlEvent extends TrackingEvent {
 
     private static PlayControlEvent swipe(boolean isExpanded, boolean isSkip) {
         return new PlayControlEvent()
-                .put(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
-                .put(ATTRIBUTE_TAB_OR_SWIPE, "swipe")
+                .put(ATTRIBUTE_ACTION, isSkip ? ACTION_SKIP : ACTION_PREV)
+                .put(ATTRIBUTE_TAP_OR_SWIPE, SKIP_TYPE_SWIPE)
                 .put(ATTRIBUTE_LOCATION, getSourcePlayerFrom(isExpanded));
     }
 
     public static PlayControlEvent skipAd() {
         return new PlayControlEvent()
                 .put(ATTRIBUTE_ACTION, "skip_ad_button")
-                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_TAP_OR_SWIPE, SKIP_TYPE_TAP)
                 .put(ATTRIBUTE_LOCATION, SOURCE_FULL_PLAYER);
     }
 
@@ -54,15 +63,15 @@ public final class PlayControlEvent extends TrackingEvent {
 
     public static PlayControlEvent toggle(String source, boolean isPlaying) {
         return new PlayControlEvent()
-                .put(ATTRIBUTE_ACTION, isPlaying ? "pause" : "play")
-                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_ACTION, isPlaying ? ACTION_PAUSE : ACTION_PLAY)
+                .put(ATTRIBUTE_TAP_OR_SWIPE, SKIP_TYPE_TAP)
                 .put(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent close(String source) {
         return new PlayControlEvent()
-                .put(ATTRIBUTE_ACTION, "close")
-                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_ACTION, ACTION_CLOSE)
+                .put(ATTRIBUTE_TAP_OR_SWIPE, SKIP_TYPE_TAP)
                 .put(ATTRIBUTE_LOCATION, source);
     }
 
@@ -84,14 +93,14 @@ public final class PlayControlEvent extends TrackingEvent {
 
     private static PlayControlEvent tap(String source, boolean isSkip) {
         return new PlayControlEvent()
-                .put(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
-                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_ACTION, isSkip ? ACTION_SKIP : ACTION_PREV)
+                .put(ATTRIBUTE_TAP_OR_SWIPE, SKIP_TYPE_TAP)
                 .put(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent scrub(String source) {
         return new PlayControlEvent()
-                .put(ATTRIBUTE_ACTION, "scrub")
+                .put(ATTRIBUTE_ACTION, ACTION_SCRUB)
                 .put(ATTRIBUTE_LOCATION, source);
     }
 

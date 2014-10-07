@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.analytics.Screen;
 
-public class ScreenEvent extends TrackingEvent {
+public final class ScreenEvent extends TrackingEvent {
 
     public static final String KEY_SCREEN = "screen";
 

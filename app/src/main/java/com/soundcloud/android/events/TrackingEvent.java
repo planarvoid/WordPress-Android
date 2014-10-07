@@ -7,7 +7,7 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Map;
 
-public abstract class TrackingEvent {
+public class TrackingEvent {
 
     public static final String KIND_DEFAULT = "default";
 
