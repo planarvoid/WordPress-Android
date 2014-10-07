@@ -18,6 +18,8 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -55,6 +57,7 @@ public class AdsControllerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private VisualAdImpressionController visualAdImpressionController;
     @Mock private LeaveBehindImpressionController leaveBehindImpressionController;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestScheduler scheduler = Schedulers.test();
@@ -67,7 +70,7 @@ public class AdsControllerTest {
         when(leaveBehindImpressionController.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
 
         adsController = new AdsController(eventBus, adsOperations, visualAdImpressionController, leaveBehindImpressionController,
-                playQueueManager, trackOperations, scheduler);
+                playQueueManager, trackOperations, featureFlags, scheduler);
         audioAd = ModelFixtures.create(AudioAd.class);
     }
 
@@ -347,6 +350,7 @@ public class AdsControllerTest {
 
     @Test
     public void shouldPublishTrackingEventWhenLeaveBehindControllerEmitsEvent() {
+        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         TrackingEvent trackingEvent = TestEvents.unspecifiedTrackingEvent();
         when(leaveBehindImpressionController.trackImpression()).thenReturn(Observable.just(trackingEvent));
 

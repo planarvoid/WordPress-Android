@@ -6,6 +6,8 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -33,6 +35,7 @@ public class AdsController {
     private final LeaveBehindImpressionController leaveBehindImpressionController;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
+    private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
 
     private Observable<AudioAd> currentObservable;
@@ -106,22 +109,25 @@ public class AdsController {
                          VisualAdImpressionController visualAdImpressionController,
                          LeaveBehindImpressionController leaveBehindImpressionController,
                          PlayQueueManager playQueueManager,
-                         TrackOperations trackOperations) {
+                         TrackOperations trackOperations,
+                         FeatureFlags featureFlags) {
         this(eventBus, adsOperations, visualAdImpressionController, leaveBehindImpressionController,
-                playQueueManager, trackOperations, AndroidSchedulers.mainThread());
+                playQueueManager, trackOperations, featureFlags, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionController visualAdImpressionController,
                          LeaveBehindImpressionController leaveBehindImpressionController,
                          PlayQueueManager playQueueManager,
-                         TrackOperations trackOperations, Scheduler scheduler) {
+                         TrackOperations trackOperations,
+                         FeatureFlags featureFlags, Scheduler scheduler) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.visualAdImpressionController = visualAdImpressionController;
         this.leaveBehindImpressionController = leaveBehindImpressionController;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
+        this.featureFlags = featureFlags;
         this.scheduler = scheduler;
     }
 
@@ -145,7 +151,10 @@ public class AdsController {
                 .subscribe(new LeaveBehindSubscriber());
 
         visualAdImpressionController.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
-        leaveBehindImpressionController.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
+
+        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
+            leaveBehindImpressionController.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
+        }
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<Object> {
