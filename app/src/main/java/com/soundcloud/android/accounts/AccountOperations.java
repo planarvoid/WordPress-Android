@@ -194,7 +194,7 @@ public class AccountOperations extends ScheduledOperations {
         boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
-            if (account.name.equals(user.getUsername())) {
+            if (account.name.equals(user.getPermalink())) {
                 accountexists = true; // same username, do not replace account
             } else {
                 accountManager.removeAccount(account, null, null);
@@ -202,7 +202,7 @@ public class AccountOperations extends ScheduledOperations {
         }
 
         if (!accountexists) {
-            account = new Account(user.getUsername(), context.getString(R.string.account_type));
+            account = new Account(user.getPermalink(), context.getString(R.string.account_type));
             accountexists = accountManager.addAccountExplicitly(account, null, null);
         }
 

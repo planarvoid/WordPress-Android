@@ -308,6 +308,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return permalink;
     }
 
+    public final void setPermalink(@Nullable String permalink) {
+        this.permalink = permalink;
+    }
+
     public String getDisplayName() {
         if (!TextUtils.isEmpty(username)) {
             return username;

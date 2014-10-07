@@ -28,6 +28,14 @@ public class PublicApiUserBlueprint {
     };
 
     @Default
+    FieldCallback permalink = new FieldCallback() {
+        @Override
+        public Object get(Object referenceModel) {
+            return "user" + ((PublicApiUser) referenceModel).getId();
+        }
+    };
+
+    @Default
     String avatarUrl = "http://i1.sndcdn.com/avatars-000001552142-pbw8yd-large.jpg?142a848";
 
     @Default
