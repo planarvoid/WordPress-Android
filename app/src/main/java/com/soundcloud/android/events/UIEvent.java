@@ -27,6 +27,21 @@ public final class UIEvent extends TrackingEvent {
 
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
+    private static final String KEY_METHOD = "method";
+    private static final String KEY_CONTEXT = "context";
+    private static final String KEY_USER_ID = "user_id";
+    private static final String KEY_RESOURCES_TYPE = "resource";
+    private static final String KEY_RESOURCE_ID = "resource_id";
+    private static final String KEY_IS_NEW_PLAYLIST = "is_new_playlist";
+    private static final String KEY_TRACK_ID = "track_id";
+    private static final String KEY_AD_CLICK_URL = "ad_click_url";
+    private static final String KEY_AD_URN = "ad_urn";
+    private static final String KEY_AD_MONETIZED_URN = "ad_monetized_urn";
+    private static final String KEY_AD_IMAGE_URL = "ad_image_url";
+    private static final String KEY_AD_TRACK_URN = "ad_track_urn";
+    private static final String TYPE_TRACK = "track";
+    private static final String TYPE_PLAYLIST = "playlist";
+    private static final String TYPE_UNKNOWN = "unknown";
 
     private final Map<String, List<String>> promotedTrackingUrls;
 
@@ -48,52 +63,52 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromPlayerOpen(String method) {
         return new UIEvent(KIND_PLAYER_OPEN)
-                .put("method", method);
+                .put(KEY_METHOD, method);
     }
 
     public static UIEvent fromPlayerClose(String method) {
         return new UIEvent(KIND_PLAYER_CLOSE)
-                .put("method", method);
+                .put(KEY_METHOD, method);
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
-                .put("context", screenTag)
-                .put("user_id", String.valueOf(userId));
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_USER_ID, String.valueOf(userId));
     }
 
     public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
-                .put("context", screenTag)
-                .put("resource", getPlayableType(resourceUrn))
-                .put("resource_id", String.valueOf(resourceUrn.getNumericId()));
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
+                .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost, String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
-                .put("context", screenTag)
-                .put("resource", getPlayableType(resourceUrn))
-                .put("resource_id", String.valueOf(resourceUrn.getNumericId()));
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
+                .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
         return new UIEvent(KIND_ADD_TO_PLAYLIST)
-                .put("context", screenTag)
-                .put("is_new_playlist", isNewPlaylist ? "yes" : "no")
-                .put("track_id", String.valueOf(trackId));
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_IS_NEW_PLAYLIST, isNewPlaylist ? "yes" : "no")
+                .put(KEY_TRACK_ID, String.valueOf(trackId));
     }
 
     public static UIEvent fromComment(String screenTag, long trackId) {
         return new UIEvent(KIND_COMMENT)
-                .put("context", screenTag)
-                .put("track_id", String.valueOf(trackId));
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_TRACK_ID, String.valueOf(trackId));
     }
 
     public static UIEvent fromShare(String screenTag, @NotNull Urn resourceUrn) {
         return new UIEvent(KIND_SHARE)
-                .put("context", screenTag)
-                .put("resource", getPlayableType(resourceUrn))
-                .put("resource_id", String.valueOf(resourceUrn.getNumericId()));
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
+                .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromShuffleMyLikes() {
@@ -127,7 +142,7 @@ public final class UIEvent extends TrackingEvent {
     @VisibleForTesting
     public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, Urn audioAdTrack, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack)
-                .put("ad_click_url", audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
+                .put(KEY_AD_CLICK_URL, audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
                 .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.get(AdProperty.AUDIO_AD_CLICKTHROUGH_URLS));
     }
 
@@ -138,10 +153,10 @@ public final class UIEvent extends TrackingEvent {
     }
 
     private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, Urn audioAdTrack) {
-        return event.put("ad_urn", audioAd.get(AdProperty.AD_URN))
-                .put("ad_monetized_urn", audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
-                .put("ad_image_url", audioAd.get(AdProperty.ARTWORK).toString())
-                .put("ad_track_urn", audioAdTrack.toString());
+        return event.put(KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
+                .put(KEY_AD_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
+                .put(KEY_AD_IMAGE_URL, audioAd.get(AdProperty.ARTWORK).toString())
+                .put(KEY_AD_TRACK_URN, audioAdTrack.toString());
     }
 
     public static UIEvent fromAudioAdClick(PropertySet audioAd, Urn audioAdTrack) {
@@ -154,11 +169,11 @@ public final class UIEvent extends TrackingEvent {
 
     private static String getPlayableType(Urn resourceUrn) {
         if (resourceUrn.isTrack()) {
-            return "track";
+            return TYPE_TRACK;
         } else if (resourceUrn.isPlaylist()) {
-            return "playlist";
+            return TYPE_PLAYLIST;
         } else {
-            return "unknown";
+            return TYPE_UNKNOWN;
         }
     }
 
