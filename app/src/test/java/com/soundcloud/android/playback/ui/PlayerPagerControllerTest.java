@@ -21,6 +21,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -117,7 +118,7 @@ public class PlayerPagerControllerTest {
         verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
         skipListenerArgumentCaptor.getValue().onNext();
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
@@ -128,7 +129,7 @@ public class PlayerPagerControllerTest {
         verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
         skipListenerArgumentCaptor.getValue().onPrevious();
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 

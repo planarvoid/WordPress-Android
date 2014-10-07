@@ -4,7 +4,6 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -44,13 +43,6 @@ public interface AnalyticsProvider {
      * @param eventData what the playback error event consisted of
      */
     void handlePlaybackErrorEvent(PlaybackErrorEvent eventData);
-
-    /**
-     * Signals to the analytics provider that a play control event has occurred
-     *
-     * @param eventData what the play control event consisted of
-     */
-    void handlePlayControlEvent(PlayControlEvent eventData);
 
     /**
      * Signals to the analytics provider that a onboarding event has occurred

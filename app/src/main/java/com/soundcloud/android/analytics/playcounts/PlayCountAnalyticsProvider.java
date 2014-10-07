@@ -7,7 +7,6 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdCompanionImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -52,11 +51,6 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-
-    }
-
-    @Override
-    public void handlePlayControlEvent(PlayControlEvent eventData) {
 
     }
 

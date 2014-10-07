@@ -88,7 +88,7 @@ public class LocalyticsAnalyticsProviderTest {
     @Test
     public void shouldTrackPlayControlEvent() {
         PlayControlEvent event = PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER);
-        localyticsProvider.handlePlayControlEvent(event);
+        localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq(LocalyticsEvents.PLAY_CONTROLS), eq(event.getAttributes()));
     }

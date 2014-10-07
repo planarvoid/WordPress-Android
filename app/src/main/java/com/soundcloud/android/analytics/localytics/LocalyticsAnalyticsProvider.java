@@ -113,10 +113,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     }
 
-    public void handlePlayControlEvent(PlayControlEvent event) {
-        tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
-    }
-
     private void tagEvent(String tagName, Map<String, String> attributes) {
         logAttributes(tagName, attributes);
         session.tagEvent(tagName, attributes);
@@ -133,7 +129,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {}
+    public void handleAudioAdCompanionImpression(AudioAdCompanionImpressionEvent event) {
+    }
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
@@ -143,7 +140,13 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             uiEventHandler.handleEvent((UIEvent) event);
         } else if (event instanceof ScreenEvent) {
             handleScreenEvent(event);
+        } else if (event instanceof PlayControlEvent) {
+            handlePlayControlEvent(event);
         }
+    }
+
+    private void handlePlayControlEvent(TrackingEvent event) {
+        tagEvent(LocalyticsEvents.PLAY_CONTROLS, event.getAttributes());
     }
 
     private void handleScreenEvent(TrackingEvent event) {

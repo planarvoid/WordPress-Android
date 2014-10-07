@@ -23,16 +23,16 @@ public class PlaybackActionController {
 
     public void handleAction(String action, String source) {
         if (PlaybackAction.PREVIOUS.equals(action)) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(source));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(source));
             playbackOperations.previousTrack();
         } else if (PlaybackAction.NEXT.equals(action)) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(source));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skip(source));
             playbackOperations.nextTrack();
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.toggle(source, playSessionStateProvider.isPlaying()));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.toggle(source, playSessionStateProvider.isPlaying()));
             playbackOperations.togglePlayback();
         } else if (PlaybackAction.CLOSE.equals(action)) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.close(source));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.close(source));
             playbackOperations.stopService();
         }
     }

@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -65,7 +66,7 @@ public class PlayerPagerScrollListenerTest {
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.swipeSkip(true));
     }
 
@@ -75,7 +76,7 @@ public class PlayerPagerScrollListenerTest {
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.swipeSkip(false));
     }
 
@@ -85,7 +86,7 @@ public class PlayerPagerScrollListenerTest {
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.swipePrevious(true));
     }
 
@@ -95,7 +96,7 @@ public class PlayerPagerScrollListenerTest {
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.swipePrevious(false));
     }
 

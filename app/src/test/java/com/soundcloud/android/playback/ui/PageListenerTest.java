@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -39,7 +40,7 @@ public class PageListenerTest {
 
         listener.onFooterTogglePlay();
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FOOTER_PLAYER));
     }
 
@@ -49,7 +50,7 @@ public class PageListenerTest {
 
         listener.onFooterTogglePlay();
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FOOTER_PLAYER));
     }
 
@@ -65,7 +66,7 @@ public class PageListenerTest {
 
         listener.onTogglePlay();
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
@@ -75,7 +76,7 @@ public class PageListenerTest {
 
         listener.onTogglePlay();
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 

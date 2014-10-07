@@ -77,9 +77,9 @@ class PlaybackReceiver extends BroadcastReceiver {
         String source = intent.getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE);
 
         if (Actions.PLAY_ACTION.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(source));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.play(source));
         } else if (Actions.PAUSE_ACTION.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(source));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.pause(source));
         }
     }
 

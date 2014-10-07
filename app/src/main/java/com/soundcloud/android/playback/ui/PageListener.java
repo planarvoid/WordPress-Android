@@ -44,9 +44,9 @@ public class PageListener {
 
     private void trackTogglePlay(String location) {
         if (playSessionStateProvider.isPlaying()) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.pause(location));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.pause(location));
         } else {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.play(location));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.play(location));
         }
     }
 

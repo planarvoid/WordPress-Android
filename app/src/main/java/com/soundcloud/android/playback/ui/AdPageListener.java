@@ -42,17 +42,17 @@ class AdPageListener extends PageListener {
 
     public void onNext() {
         playbackOperations.nextTrack();
-        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
+        eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onPrevious() {
         playbackOperations.previousTrack();
-        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
+        eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onSkipAd() {
         playbackOperations.nextTrack();
-        eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.skipAd());
+        eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skipAd());
     }
 
     public void onClickThrough() {

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -43,7 +43,7 @@ public class PlaybackActionControllerTest {
     public void shouldTrackPreviousEventWithSource() {
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getAttributes().get("action")).toEqual("prev");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -66,7 +66,7 @@ public class PlaybackActionControllerTest {
     public void closeActionCallsTracksCloseEventWithSource() throws Exception {
         controller.handleAction(PlaybackAction.CLOSE, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getAttributes().get("action")).toEqual("close");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -75,7 +75,7 @@ public class PlaybackActionControllerTest {
     public void shouldTrackSkipEventWithSource() {
         controller.handleAction(PlaybackAction.NEXT, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getAttributes().get("action")).toEqual("skip");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -92,7 +92,7 @@ public class PlaybackActionControllerTest {
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getAttributes().get("action")).toEqual("play");
         expect(event.getAttributes().get("location")).toEqual("source");
     }
@@ -102,7 +102,7 @@ public class PlaybackActionControllerTest {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getAttributes().get("action")).toEqual("pause");
         expect(event.getAttributes().get("location")).toEqual("source");
     }

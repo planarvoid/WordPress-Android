@@ -1,9 +1,9 @@
 package com.soundcloud.android.events;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.soundcloud.android.Consts;
+import org.jetbrains.annotations.Nullable;
 
-public final class PlayControlEvent {
+public final class PlayControlEvent extends TrackingEvent {
 
     public static final String EXTRA_EVENT_SOURCE = "play_event_source";
 
@@ -17,14 +17,8 @@ public final class PlayControlEvent {
     private static final String ATTRIBUTE_ACTION = "action";
     private static final String ATTRIBUTE_TAB_OR_SWIPE = "tap or swipe";
 
-    private final Map<String, String> attributes;
-
-    private PlayControlEvent() {
-        attributes = new HashMap<String, String>();
-    }
-
-    public Map<String, String> getAttributes() {
-        return attributes;
+    protected PlayControlEvent() {
+        super(KIND_DEFAULT, Consts.NOT_SET);
     }
 
     @Override
@@ -42,16 +36,16 @@ public final class PlayControlEvent {
 
     private static PlayControlEvent swipe(boolean isExpanded, boolean isSkip) {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
-                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "swipe")
-                .putAttribute(ATTRIBUTE_LOCATION, getSourcePlayerFrom(isExpanded));
+                .put(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
+                .put(ATTRIBUTE_TAB_OR_SWIPE, "swipe")
+                .put(ATTRIBUTE_LOCATION, getSourcePlayerFrom(isExpanded));
     }
 
     public static PlayControlEvent skipAd() {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, "skip_ad_button")
-                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
-                .putAttribute(ATTRIBUTE_LOCATION, SOURCE_FULL_PLAYER);
+                .put(ATTRIBUTE_ACTION, "skip_ad_button")
+                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_LOCATION, SOURCE_FULL_PLAYER);
     }
 
     private static String getSourcePlayerFrom(boolean isExpanded) {
@@ -60,16 +54,16 @@ public final class PlayControlEvent {
 
     public static PlayControlEvent toggle(String source, boolean isPlaying) {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, isPlaying ? "pause" : "play")
-                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
-                .putAttribute(ATTRIBUTE_LOCATION, source);
+                .put(ATTRIBUTE_ACTION, isPlaying ? "pause" : "play")
+                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent close(String source) {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, "close")
-                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
-                .putAttribute(ATTRIBUTE_LOCATION, source);
+                .put(ATTRIBUTE_ACTION, "close")
+                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent play(String source) {
@@ -90,41 +84,19 @@ public final class PlayControlEvent {
 
     private static PlayControlEvent tap(String source, boolean isSkip) {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
-                .putAttribute(ATTRIBUTE_TAB_OR_SWIPE, "tap")
-                .putAttribute(ATTRIBUTE_LOCATION, source);
+                .put(ATTRIBUTE_ACTION, isSkip ? "skip" : "prev")
+                .put(ATTRIBUTE_TAB_OR_SWIPE, "tap")
+                .put(ATTRIBUTE_LOCATION, source);
     }
 
     public static PlayControlEvent scrub(String source) {
         return new PlayControlEvent()
-                .putAttribute(ATTRIBUTE_ACTION, "scrub")
-                .putAttribute(ATTRIBUTE_LOCATION, source);
-    }
-
-    private PlayControlEvent putAttribute(String key, String value) {
-        attributes.put(key, value);
-        return this;
+                .put(ATTRIBUTE_ACTION, "scrub")
+                .put(ATTRIBUTE_LOCATION, source);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        PlayControlEvent that = (PlayControlEvent) o;
-        if (!attributes.equals(that.attributes)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return attributes.hashCode();
+    public PlayControlEvent put(String key, @Nullable String value) {
+        return (PlayControlEvent) super.put(key, value);
     }
 }

@@ -107,14 +107,14 @@ public class TrackPageListenerTest {
     public void onScrubbingShouldEmitPlayerControlScrubEvent() {
         listener.onScrub(ScrubController.SCRUB_STATE_SCRUBBING);
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event).toEqual(PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test
     public void onScrubbingCancelledShouldNotEmitPlayerControlScrubEvent() {
         listener.onScrub(ScrubController.SCRUB_STATE_CANCELLED);
-        eventBus.verifyNoEventsOn(EventQueue.PLAY_CONTROL);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test

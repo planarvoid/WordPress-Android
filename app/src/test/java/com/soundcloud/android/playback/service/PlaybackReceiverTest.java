@@ -6,11 +6,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -21,27 +21,21 @@ import org.mockito.Mock;
 import android.content.Intent;
 import android.media.AudioManager;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class PlaybackReceiverTest {
 
     private PlaybackReceiver playbackReceiver;
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private PlaybackService playbackService;
-    @Mock
-    private PlayQueueView playQueue;
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private PlayQueueManager playQueueManager;
-    @Mock
-    private PlaySessionSource playSessionSource;
+    @Mock private PlaybackService playbackService;
+    @Mock private PlayQueueView playQueue;
+    @Mock private AccountOperations accountOperations;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaySessionSource playSessionSource;
 
     @Before
     public void setup() {
-        SoundCloudApplication.sModelManager.clear();
         playbackReceiver = new PlaybackReceiver.Factory().create(playbackService, accountOperations, playQueueManager, eventBus);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn("screen_tag");
@@ -136,18 +130,18 @@ public class PlaybackReceiverTest {
     public void shouldTrackPlayEventWithSource() {
         setupTrackingTest(PlaybackService.Actions.PLAY_ACTION, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event.getAttributes().get("action")).toEqual("play");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get("action")).toEqual("play");
+        expect(event.get("location")).toEqual("source");
     }
 
     @Test
     public void shouldTrackPauseEventWithSource() {
         setupTrackingTest(PlaybackService.Actions.PAUSE_ACTION, "source");
 
-        PlayControlEvent event = eventBus.lastEventOn(EventQueue.PLAY_CONTROL);
-        expect(event.getAttributes().get("action")).toEqual("pause");
-        expect(event.getAttributes().get("location")).toEqual("source");
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.get("action")).toEqual("pause");
+        expect(event.get("location")).toEqual("source");
     }
 
     private void setupTrackingTest(String action, String source) {

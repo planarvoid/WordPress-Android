@@ -91,7 +91,7 @@ public class AdPageListenerTest {
         listener.onNext();
 
         PlayControlEvent expectedEvent = PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER);
-        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expectedEvent);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toEqual(expectedEvent);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class AdPageListenerTest {
         listener.onPrevious();
 
         PlayControlEvent expectedEvent = PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER);
-        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expectedEvent);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toEqual(expectedEvent);
     }
 
     @Test
@@ -107,6 +107,6 @@ public class AdPageListenerTest {
         listener.onSkipAd();
 
         PlayControlEvent expectedEvent = PlayControlEvent.skipAd();
-        expect(eventBus.lastEventOn(EventQueue.PLAY_CONTROL)).toEqual(expectedEvent);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toEqual(expectedEvent);
     }
 }

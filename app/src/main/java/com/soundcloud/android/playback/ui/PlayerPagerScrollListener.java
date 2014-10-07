@@ -62,7 +62,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
             final boolean isExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
             final PlayControlEvent trackEvent = isSwipeNext() ?
                     PlayControlEvent.swipeSkip(isExpanded) : PlayControlEvent.swipePrevious(isExpanded);
-            eventBus.publish(EventQueue.PLAY_CONTROL, trackEvent);
+            eventBus.publish(EventQueue.TRACKING, trackEvent);
         }
     };
 

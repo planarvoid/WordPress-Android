@@ -52,7 +52,7 @@ class TrackPageListener extends PageListener {
 
     public void onScrub(int newScrubState) {
         if (newScrubState == ScrubController.SCRUB_STATE_SCRUBBING) {
-            eventBus.publish(EventQueue.PLAY_CONTROL, PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
         }
     }
 
