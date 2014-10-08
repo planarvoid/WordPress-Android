@@ -96,6 +96,13 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void returnNoPreviousIfPQIsEmpty() {
+        PlayQueue playQueue = PlayQueue.empty();
+
+        expect(playQueue.hasPreviousTrack(1)).toBeFalse();
+    }
+
+    @Test
     public void hasNextTrackIsTrueIfNotAtEnd() {
         expect(createPlayQueue(createTracksUrn(1L, 2L)).hasNextTrack(0)).toBeTrue();
     }

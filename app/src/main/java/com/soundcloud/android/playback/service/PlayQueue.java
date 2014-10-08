@@ -51,7 +51,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public boolean hasPreviousTrack(int position) {
-        return position > 0;
+        return position > 0 && !playQueueItems.isEmpty();
     }
 
     public boolean hasNextTrack(int position) {

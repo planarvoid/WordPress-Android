@@ -240,11 +240,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
-        currentPosition = playQueueOperations.getLastStoredPlayPosition();
         if (playQueueObservable != null) {
             playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
                 public void onNext(PlayQueue savedQueue) {
+                    currentPosition = playQueueOperations.getLastStoredPlayPosition();
                     setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
                 }
             });

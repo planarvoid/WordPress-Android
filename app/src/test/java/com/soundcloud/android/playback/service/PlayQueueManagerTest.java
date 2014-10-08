@@ -612,6 +612,32 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldNotSetCurrentPositionIfPQIsNotLoaded() {
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
+        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+        when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
+
+        playQueueManager.loadPlayQueueAsync();
+
+        expect(playQueueManager.getCurrentPosition()).toBe(0);
+    }
+
+    @Test
+    public void shouldSetCurrentPositionIfPQIsNotLoaded() {
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
+        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+        when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
+
+
+        playQueueManager.loadPlayQueueAsync();
+
+        expect(playQueueManager.getCurrentPosition()).toBe(2);
+    }
+
+    @Test
     public void shouldReloadPlayQueueFromLocalStorage() {
         PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
