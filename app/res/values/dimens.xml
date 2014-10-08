@@ -12,9 +12,6 @@
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
 
-    <dimen name="activity_icon_width">40dip</dimen>
-    <dimen name="activity_icon_height">40dip</dimen>
-
     <dimen name="list_item_padding_left">16dip</dimen>
     <dimen name="list_item_padding_top">12dip</dimen>
     <dimen name="list_item_padding_right">16dip</dimen>
@@ -28,8 +25,6 @@
 
     <dimen name="comment_panel_main_size">14sp</dimen>
     <dimen name="comment_panel_created_at_size">12sp</dimen>
-
-    <dimen name="list_text_margin_left">5dip</dimen>
 
     <!-- can't change one of these without change them all -->
     <!-- end of can't change one of these without change them all -->
@@ -96,9 +91,6 @@
     <dimen name="stats_view_separator_width">1dp</dimen>
 
     <dimen name="stats_view_item_text_size">12sp</dimen>
-
-    <dimen name="list_playlist_track_count_bg_corner_radius">3dp</dimen>
-    <dimen name="list_playlist_track_count_dimension">25dp</dimen>
 
     <dimen name="header_icon_size">70dp</dimen>
     <dimen name="playlist_page_icon_size">80dp</dimen>

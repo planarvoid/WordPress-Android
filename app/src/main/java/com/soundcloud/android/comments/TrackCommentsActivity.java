@@ -3,24 +3,20 @@ package com.soundcloud.android.comments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.propeller.PropertySet;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.widget.ImageView;
@@ -58,13 +54,7 @@ public class TrackCommentsActivity extends ScActivity {
 
     private void attachCommentsFragment(PropertySet commentedTrack) {
         final Urn trackUrn = commentedTrack.get(TrackProperty.URN);
-        Fragment fragment;
-        if (featureFlags.isEnabled(Feature.COMMENTS_REDESIGN)) {
-            fragment = CommentsFragment.create(trackUrn);
-        } else {
-            final Uri contentUri = Content.TRACK_COMMENTS.forId(trackUrn.getNumericId());
-            fragment = ScListFragment.newInstance(contentUri, getCurrentScreen());
-        }
+        final Fragment fragment= CommentsFragment.create(trackUrn);
         getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();
     }
 

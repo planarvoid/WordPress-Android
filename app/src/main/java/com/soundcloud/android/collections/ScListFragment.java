@@ -16,7 +16,6 @@ import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
@@ -605,9 +604,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                     break;
                 case USER_SOUNDS:
                     adapter = new PostsAdapter(contentUri, getRelatedUsername());
-                    break;
-                case TRACK_COMMENTS:
-                    adapter = new CommentAdapter(contentUri, imageOperations);
                     break;
                 case ME_PLAYLISTS:
                 case USER_PLAYLISTS:

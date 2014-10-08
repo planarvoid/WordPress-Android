@@ -36,7 +36,7 @@
 
             <TextView
                     android:id="@+id/title_txt"
-                    style="@style/txt_widget_clickable"
+                    style="@style/Widget.TextView.Clickable"
                     android:text="@string/widget_touch_to_open"
                     android:clickable="true"
                     android:focusable="true"
@@ -52,7 +52,7 @@
 
             <TextView
                     android:id="@+id/by_txt"
-                    style="@style/txt_widget_secondary"
+                    style="@style/Widget.TextView.Secondary"
                     android:visibility="gone"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
 
             <TextView
                     android:id="@+id/user_txt"
-                    style="@style/txt_widget_clickable"
+                    style="@style/Widget.TextView.Clickable"
                     android:visibility="gone"
                     android:singleLine="true"
                     android:ellipsize="end"

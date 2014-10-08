@@ -12,7 +12,6 @@
 
     <!-- Feature flags -->
     <bool name="feature_leave_behind">false</bool>
-    <bool name="feature_comments_redesign">true</bool>
     <bool name="feature_payments">false</bool>
     <bool name="feature_api_mobile_search">false</bool>
     <bool name="feature_interstitial">false</bool>
