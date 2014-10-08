@@ -198,7 +198,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (intent != null) {
             boolean hasAccount = accountOperations.isUserLoggedIn();
             if (hasAccount && playQueueManager.shouldReloadQueue()) {
-                playQueueManager.loadPlayQueue();
+                playQueueManager.loadPlayQueueAsync();
             }
             playbackReceiver.onReceive(this, intent);
         }

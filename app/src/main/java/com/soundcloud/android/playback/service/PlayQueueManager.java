@@ -236,7 +236,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return playQueue.shouldPersistTrackAt(currentPosition) ? currentTrackProgress : 0;
     }
 
-    public void loadPlayQueue() {
+    public void loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();

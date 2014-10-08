@@ -595,7 +595,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldHaveNoPlayProgressInfoWhenPlaybackOperationsHasReturnsNoObservable() {
-        playQueueManager.loadPlayQueue();
+        playQueueManager.loadPlayQueueAsync();
         expect(playQueueManager.getPlayProgressInfo()).toBeNull();
     }
 
@@ -605,7 +605,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
-        playQueueManager.loadPlayQueue();
+        playQueueManager.loadPlayQueueAsync();
         PlaybackProgressInfo resumeInfo = playQueueManager.getPlayProgressInfo();
         expect(resumeInfo.getTrackId()).toEqual(456L);
         expect(resumeInfo.getTime()).toEqual(400L);
@@ -618,7 +618,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
-        playQueueManager.loadPlayQueue();
+        playQueueManager.loadPlayQueueAsync();
 
         expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
     }
@@ -641,7 +641,7 @@ public class PlayQueueManagerTest {
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueue.isEmpty()).thenReturn(false);
-        playQueueManager.loadPlayQueue();
+        playQueueManager.loadPlayQueueAsync();
         verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));
     }
 
