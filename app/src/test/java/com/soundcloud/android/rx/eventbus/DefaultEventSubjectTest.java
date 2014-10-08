@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rx.Observer;
-import rx.exceptions.OnErrorNotImplementedException;
 
 @RunWith(RobolectricTestRunner.class)
 public class DefaultEventSubjectTest {
@@ -53,15 +52,5 @@ public class DefaultEventSubjectTest {
         subject.subscribe(observer1);
         subject.onError(new Exception());
         verifyZeroInteractions(observer1);
-    }
-
-    @Test(expected = OnErrorNotImplementedException.class)
-    public void shouldRethrowRuntimeExceptions() {
-        subject.onError(new RuntimeException());
-    }
-
-    @Test(expected = OnErrorNotImplementedException.class)
-    public void shouldRethrowFatalErrors() {
-        subject.onError(new StackOverflowError());
     }
 }
