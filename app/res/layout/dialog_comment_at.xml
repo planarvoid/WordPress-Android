@@ -4,6 +4,6 @@
              android:layout_height="wrap_content"
              android:tag="add_comment_dialog">
     <EditText android:id="@android:id/edit"
-              android:hint="@string/comment_on"
-              style="@style/DialogInput"/>
+              style="@style/DialogInput"
+              android:inputType="textMultiLine|textCapSentences" />
 </FrameLayout>
