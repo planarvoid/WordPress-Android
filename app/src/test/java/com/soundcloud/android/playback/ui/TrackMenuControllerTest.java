@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -178,10 +176,26 @@ public class TrackMenuControllerTest {
     }
 
     @Test
-    public void setProgressSetsProgressOnPopupMenuWrapperItem() {
+    public void setProgressSetsCommentTimeInMenu() {
         controller.setProgress(new PlaybackProgress(20000, 40000));
 
         verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
+    }
+
+    @Test
+    public void displayScrubPositionSetsCommentTimeInMenu() {
+        controller.setProgress(new PlaybackProgress(20000, 40000));
+
+        controller.displayScrubPosition(0.75f);
+
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:30");
+    }
+
+    @Test
+    public void displayScrubPositionSetsCommentTimeInMenuWithoutPlayback() {
+        controller.displayScrubPosition(0.5f);
+
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:10");
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {

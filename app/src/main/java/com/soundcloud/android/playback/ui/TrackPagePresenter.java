@@ -426,7 +426,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveform);
 
-
         holder.leaveBehindController = leaveBehindControllerFactory.create(trackView, new LeaveBehindController.LeaveBehindListener() {
             @Override
             public void onLeaveBehindShown() {
@@ -459,6 +458,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
         }
+        holder.waveformController.addScrubListener(holder.menuController);
 
         holder.more.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -45,10 +45,10 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
     @Inject CommentsOperations commentsOperations;
     @Inject EventBus eventBus;
 
-    public static AddCommentDialogFragment create(PropertySet track, PlaybackProgress lastProgress, String originScreen) {
+    public static AddCommentDialogFragment create(PropertySet track, long position, String originScreen) {
         Bundle b = new Bundle();
         b.putParcelable(EXTRA_TRACK, track);
-        b.putLong(EXTRA_POSITION, lastProgress.getPosition());
+        b.putLong(EXTRA_POSITION, position);
         b.putString(EXTRA_ORIGIN_SCREEN, originScreen);
         AddCommentDialogFragment fragment = new AddCommentDialogFragment();
         fragment.setArguments(b);

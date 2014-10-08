@@ -54,7 +54,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
-                PlayableProperty.DURATION.bind(123456),
+                PlayableProperty.DURATION.bind(20000),
                 PlayableProperty.IS_LIKED.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
                 PlayableProperty.REPOSTS_COUNT.bind(1),

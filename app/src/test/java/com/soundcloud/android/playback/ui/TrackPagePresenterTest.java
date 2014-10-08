@@ -41,7 +41,7 @@ import android.view.ViewGroup;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPagePresenterTest {
 
-    private static final int DURATION = 123456;
+    private static final int DURATION = 20000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private Resources resources;

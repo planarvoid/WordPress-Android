@@ -11,6 +11,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
+import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -27,7 +28,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener {
+public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener, ScrubController.OnScrubListener {
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
@@ -44,6 +45,8 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
 
     @Nullable private PlayerTrack track;
     @Nullable private PlaybackProgress lastProgress;
+
+    private long commentPosition;
 
     private TrackMenuController(PlayQueueManager playQueueManager,
                                 SoundAssociationOperations associationOperations,
@@ -62,7 +65,26 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     @Override
     public void setProgress(PlaybackProgress progress) {
         lastProgress = progress;
-        final String timestamp = ScTextUtils.formatTimestamp(progress.getPosition(), TimeUnit.MILLISECONDS);
+        updateCommentPosition(lastProgress.getPosition());
+    }
+
+    @Override
+    public void scrubStateChanged(int newScrubState) {
+        // We only care about position
+    }
+
+    @Override
+    public void displayScrubPosition(float scrubPosition) {
+        if (lastProgress != null && !lastProgress.isEmpty()) {
+            updateCommentPosition((long) (scrubPosition * lastProgress.getDuration()));
+        } else if (track != null) {
+            updateCommentPosition((long) (scrubPosition * track.getDuration()));
+        }
+    }
+
+    private void updateCommentPosition(long position) {
+        commentPosition = position;
+        final String timestamp = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);
         popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
     }
 
@@ -99,7 +121,7 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     }
 
     private void handleComment() {
-        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(), lastProgress, playQueueManager.getScreenTag());
+        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(), commentPosition, playQueueManager.getScreenTag());
         fragment.show(activity.getSupportFragmentManager(), ADD_COMMENT_DIALOG_TAG);
     }
 
