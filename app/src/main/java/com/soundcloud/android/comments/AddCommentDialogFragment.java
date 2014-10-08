@@ -14,7 +14,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -29,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -65,7 +65,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_comment_at, null);
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
         final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
-        input.setHint(getString(R.string.comment_at, timeFormatted));
+        configureCommentInputField(input, timeFormatted);
 
         builder.setView(dialogView);
         builder.setTitle(getString(R.string.comment_on, track.get(TrackProperty.TITLE)));
@@ -86,6 +86,18 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
             }
         });
         return builder;
+    }
+
+    private void configureCommentInputField(EditText input, String timeFormatted) {
+        input.setHint(getString(R.string.comment_at, timeFormatted));
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
     }
 
     private void onAddComment(String commentText){
