@@ -51,7 +51,6 @@ public class TrackMenuControllerTest {
     @Mock private SoundAssociationOperations soundAssociationOps;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    @Mock private FeatureFlags featureFlags;
 
     private MockObservable<PropertySet> repostObservable;
     private TestEventBus eventBus = new TestEventBus();
@@ -62,14 +61,12 @@ public class TrackMenuControllerTest {
         privateTrack = new PlayerTrack(TestPropertySets.expectedPrivateTrackForPlayer());
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus, featureFlags)
+        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
                 .create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
         when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
-        when(featureFlags.isDisabled(Feature.ADD_COMMENTS)).thenReturn(false);
-        when(featureFlags.isEnabled(Feature.ADD_COMMENTS)).thenReturn(true);
     }
 
     @Test

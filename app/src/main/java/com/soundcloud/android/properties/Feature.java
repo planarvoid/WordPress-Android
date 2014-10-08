@@ -9,7 +9,6 @@ public enum Feature {
     COMMENTS_REDESIGN(R.bool.feature_comments_redesign),
     PAYMENTS(R.bool.feature_payments),
     API_MOBILE_SEARCH(R.bool.feature_api_mobile_search),
-    ADD_COMMENTS(R.bool.feature_add_comments),
     INTERSTITIAL(R.bool.feature_interstitial);
 
     private final int resourceId;

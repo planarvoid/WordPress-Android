@@ -14,7 +14,6 @@ public interface PopupMenuWrapper {
     void setItemVisible(int itemId, boolean visible);
     void setItemEnabled(int itemId, boolean enabled);
     void setItemText(int itemId, String text);
-    void removeItem(int itemId);
 
     void dismiss();
 

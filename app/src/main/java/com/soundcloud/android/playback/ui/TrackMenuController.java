@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -42,7 +41,6 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
     private final String commentAtUnformatted;
 
     @Nullable private PlayerTrack track;
@@ -52,13 +50,12 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
                                 SoundAssociationOperations associationOperations,
                                 FragmentActivity context,
                                 PopupMenuWrapper popupMenuWrapper,
-                                EventBus eventBus, FeatureFlags featureFlags) {
+                                EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         this.commentAtUnformatted = activity.getString(R.string.comment_at);
         setupMenu();
     }
@@ -66,19 +63,13 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     @Override
     public void setProgress(PlaybackProgress progress) {
         lastProgress = progress;
-        if (featureFlags.isEnabled(Feature.ADD_COMMENTS)) {
-            final String timestamp = ScTextUtils.formatTimestamp(progress.getPosition(), TimeUnit.MILLISECONDS);
-            popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
-        }
+        final String timestamp = ScTextUtils.formatTimestamp(progress.getPosition(), TimeUnit.MILLISECONDS);
+        popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
     }
 
     private void setupMenu() {
         popupMenuWrapper.inflate(R.menu.player_page_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
-
-        if (featureFlags.isDisabled(Feature.ADD_COMMENTS)) {
-            popupMenuWrapper.removeItem(R.id.comment);
-        }
     }
 
     @Override
@@ -181,24 +172,22 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
         private final SoundAssociationOperations associationOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
-        private final FeatureFlags featureFlags;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
                 SoundAssociationOperations associationOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                EventBus eventBus, FeatureFlags featureFlags) {
+                EventBus eventBus) {
             this.playQueueManager = playQueueManager;
             this.associationOperations = associationOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.eventBus = eventBus;
-            this.featureFlags = featureFlags;
         }
 
         TrackMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
             return new TrackMenuController(playQueueManager, associationOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus, featureFlags);
+                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
         }
     }
 

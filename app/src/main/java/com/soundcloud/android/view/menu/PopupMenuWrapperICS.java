@@ -56,11 +56,6 @@ public class PopupMenuWrapperICS implements PopupMenuWrapper {
     }
 
     @Override
-    public void removeItem(int itemId) {
-        popupMenu.getMenu().removeItem(itemId);
-    }
-
-    @Override
     public void dismiss() {
         popupMenu.dismiss();
     }
