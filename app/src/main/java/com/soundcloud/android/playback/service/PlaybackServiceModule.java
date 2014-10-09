@@ -17,7 +17,7 @@ public class PlaybackServiceModule {
     @Provides
     public StreamPlaya.PlayerSwitcherInfo providePlayerSwitcherInfo(ApplicationProperties applicationProperties){
         if (applicationProperties.isReleaseBuild()){
-            return new StreamPlaya.PlayerSwitcherInfo(9, 1);
+            return new StreamPlaya.PlayerSwitcherInfo(7, 1);
         } else {
             return new StreamPlaya.PlayerSwitcherInfo(5, 1);
         }
