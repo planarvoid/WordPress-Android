@@ -159,16 +159,10 @@ public class SearchOperationsTest {
     }
 
     private List<UniversalSearchResult> getUniversalSearchResultList(ApiUser user, ApiTrack track, ApiPlaylist playlist) {
-        UniversalSearchResult userResult = new UniversalSearchResult();
-        userResult.setUser(user);
-
-        UniversalSearchResult playlistResult = new UniversalSearchResult();
-        playlistResult.setPlaylist(playlist);
-
-        UniversalSearchResult trackResult = new UniversalSearchResult();
-        trackResult.setTrack(track);
-
-        return Lists.newArrayList(userResult, playlistResult, trackResult);
+        return Lists.newArrayList(
+                UniversalSearchResult.forUser(user),
+                UniversalSearchResult.forPlaylist(playlist),
+                UniversalSearchResult.forTrack(track));
     }
 
     private Observable<ModelCollection<ApiTrack>> getTrackCollectionObservable(List<ApiTrack> tracks) {

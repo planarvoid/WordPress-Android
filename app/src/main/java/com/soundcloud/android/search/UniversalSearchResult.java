@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -8,11 +10,30 @@ import com.soundcloud.propeller.PropertySet;
 
 public class UniversalSearchResult implements PropertySetSource {
 
-    private ApiUser user;
-    private ApiPlaylist playlist;
-    private ApiTrack track;
+    private final ApiUser user;
+    private final ApiPlaylist playlist;
+    private final ApiTrack track;
 
-    UniversalSearchResult() { /* for Deserialization */ }
+    @JsonCreator
+    UniversalSearchResult(@JsonProperty("user") ApiUser user,
+                          @JsonProperty("playlist") ApiPlaylist playlist,
+                          @JsonProperty("track") ApiTrack track) {
+        this.user = user;
+        this.playlist = playlist;
+        this.track = track;
+    }
+
+    static UniversalSearchResult forTrack(ApiTrack track) {
+        return new UniversalSearchResult(null, null, track);
+    }
+
+    static UniversalSearchResult forPlaylist(ApiPlaylist playlist) {
+        return new UniversalSearchResult(null, playlist, null);
+    }
+
+    static UniversalSearchResult forUser(ApiUser user) {
+        return new UniversalSearchResult(user, null, null);
+    }
 
     @Override
     public PropertySet toPropertySet() {
@@ -32,24 +53,12 @@ public class UniversalSearchResult implements PropertySetSource {
         return user;
     }
 
-    public void setUser(ApiUser user) {
-        this.user = user;
-    }
-
     public ApiPlaylist getPlaylist() {
         return playlist;
     }
 
-    public void setPlaylist(ApiPlaylist playlist) {
-        this.playlist = playlist;
-    }
-
     public ApiTrack getTrack() {
         return track;
-    }
-
-    public void setTrack(ApiTrack track) {
-        this.track = track;
     }
 
     public boolean isUser() {

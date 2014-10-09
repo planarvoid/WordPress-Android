@@ -19,9 +19,8 @@ public class UniversalSearchResultTest {
 
     @Test
     public void shouldConvertWrappedApiUserToPropertySet() {
-        final UniversalSearchResult searchResult = new UniversalSearchResult();
         final ApiUser user = ModelFixtures.create(ApiUser.class);
-        searchResult.setUser(user);
+        final UniversalSearchResult searchResult = UniversalSearchResult.forUser(user);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
@@ -30,9 +29,8 @@ public class UniversalSearchResultTest {
 
     @Test
     public void shouldConvertWrappedApiTrackToPropertySet() {
-        final UniversalSearchResult searchResult = new UniversalSearchResult();
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        searchResult.setTrack(track);
+        final UniversalSearchResult searchResult = UniversalSearchResult.forTrack(track);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
@@ -41,9 +39,8 @@ public class UniversalSearchResultTest {
 
     @Test
     public void shouldConvertWrappedApiPlaylistToPropertySet() {
-        final UniversalSearchResult searchResult = new UniversalSearchResult();
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        searchResult.setPlaylist(playlist);
+        final UniversalSearchResult searchResult = UniversalSearchResult.forPlaylist(playlist);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
