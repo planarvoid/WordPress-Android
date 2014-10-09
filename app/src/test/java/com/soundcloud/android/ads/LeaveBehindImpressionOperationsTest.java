@@ -3,12 +3,10 @@ package com.soundcloud.android.ads;
 import static com.pivotallabs.greatexpectations.Expect.expect;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -25,7 +23,6 @@ public class LeaveBehindImpressionOperationsTest {
 
     private final LeaveBehindEvent LEAVE_BEHIND_SHOWN = LeaveBehindEvent.shown();
     private final LeaveBehindEvent LEAVE_BEHIND_HIDDEN = LeaveBehindEvent.hidden();
-    private final CurrentPlayQueueTrackEvent CURRENT_TRACK_CHANGED = CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L));
     private final PlayerUIEvent PLAYER_EXPANDED = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED = PlayerUIEvent.fromPlayerCollapsed();
     private final ActivityLifeCycleEvent ACTIVITY_RESUMED = ActivityLifeCycleEvent.forOnResume(Activity.class);
