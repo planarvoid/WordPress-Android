@@ -10,14 +10,12 @@ release:
           - sign
           - soundcloud
           - release
-      unittest: &defaults_unittests
+      unittests: &defaults_unittests
         phase: test
         project: app
         tests: true
         profiles:
-          - sign
           - release
-          - phone-test
       phone_test:
         phase: install
         project: tests-integration
