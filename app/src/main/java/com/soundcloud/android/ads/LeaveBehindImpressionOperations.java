@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.events.LeaveBehindImpressionEvent;
@@ -11,14 +10,13 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func4;
+import rx.functions.Func3;
 import rx.subjects.Subject;
 
 import javax.inject.Inject;
 
 public class LeaveBehindImpressionOperations {
     private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
-    private final Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentTrackQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
     private final Subject<LeaveBehindEvent, LeaveBehindEvent> leaveBehindEventQueue;
 
@@ -36,10 +34,12 @@ public class LeaveBehindImpressionOperations {
         }
     };
 
-    private final Action1<CurrentPlayQueueTrackEvent> unlockCurrentImpression = new Action1<CurrentPlayQueueTrackEvent>() {
+    private final Action1<LeaveBehindEvent> unlockCurrentImpression = new Action1<LeaveBehindEvent>() {
         @Override
-        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
-            impressionEventEmitted = false;
+        public void call(LeaveBehindEvent event) {
+            if (event.getKind() == LeaveBehindEvent.HIDDEN) {
+                impressionEventEmitted = false;
+            }
         }
     };
 
@@ -50,12 +50,11 @@ public class LeaveBehindImpressionOperations {
         }
     };
 
-    private final Func4<LeaveBehindEvent, ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State> combineFunction =
-            new Func4<LeaveBehindEvent, ActivityLifeCycleEvent, CurrentPlayQueueTrackEvent, PlayerUIEvent, State>() {
+    private final Func3<LeaveBehindEvent, ActivityLifeCycleEvent, PlayerUIEvent, State> combineFunction =
+            new Func3<LeaveBehindEvent, ActivityLifeCycleEvent, PlayerUIEvent, State>() {
                 @Override
                 public State call(LeaveBehindEvent leaveBehindEvent,
                                   ActivityLifeCycleEvent event,
-                                  CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent,
                                   PlayerUIEvent playerUIEvent) {
                     return new State(
                             leaveBehindEvent.getKind() == LeaveBehindEvent.SHOWN,
@@ -64,12 +63,11 @@ public class LeaveBehindImpressionOperations {
                 }
             };
 
-    private boolean impressionEventEmitted;
+    private boolean impressionEventEmitted = false;
 
     @Inject
     public LeaveBehindImpressionOperations(EventBus eventBus) {
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        this.currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
         this.leaveBehindEventQueue = eventBus.queue(EventQueue.LEAVE_BEHIND);
     }
@@ -77,9 +75,8 @@ public class LeaveBehindImpressionOperations {
     public Observable<TrackingEvent> trackImpression() {
         return Observable
                 .combineLatest(
-                        leaveBehindEventQueue,
+                        leaveBehindEventQueue.doOnNext(unlockCurrentImpression),
                         activityLifeCycleQueue,
-                        currentTrackQueue.doOnNext(unlockCurrentImpression),
                         playerUIEventQueue,
                         combineFunction)
                 .filter(isLeaveBehindVisible)

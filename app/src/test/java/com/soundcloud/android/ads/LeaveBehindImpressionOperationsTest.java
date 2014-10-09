@@ -38,7 +38,6 @@ public class LeaveBehindImpressionOperationsTest {
     private TestObserver<TrackingEvent> observer;
 
     private Subject<LeaveBehindEvent, LeaveBehindEvent> leaveBehindEventQueue;
-    private Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentTrackQueue;
     private Subject<PlayerUIEvent, PlayerUIEvent> playerUiQueue;
     private Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activitiesLifeCycleQueue;
 
@@ -49,7 +48,6 @@ public class LeaveBehindImpressionOperationsTest {
 
         leaveBehindEventQueue = eventBus.queue(EventQueue.LEAVE_BEHIND);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
 
         observer = new TestObserver<>();
@@ -58,21 +56,19 @@ public class LeaveBehindImpressionOperationsTest {
     }
 
     @Test
-    public void shouldEmitImpressionWhenLeaveBehindIsShownAndAppIsForegroundAndPlayerIsExpanded() {
+    public void emitImpressionWhenLeaveBehindIsShownAndAppIsForegroundAndPlayerIsExpanded() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         playerUiQueue.onNext(PLAYER_EXPANDED);
-        currentTrackQueue.onNext(CURRENT_TRACK_CHANGED);
 
         expect(observer.getOnNextEvents()).toNumber(1);
     }
 
     @Test
-    public void shouldEmitImpressionOnlyOnce() {
-        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
+    public void doNotRepeatImpressionWhenActivityLifeCycleStateChange() {
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         playerUiQueue.onNext(PLAYER_EXPANDED);
-        currentTrackQueue.onNext(CURRENT_TRACK_CHANGED);
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
 
         activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSED);
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
@@ -81,31 +77,63 @@ public class LeaveBehindImpressionOperationsTest {
     }
 
     @Test
-    public void shouldNotEmitImpressionWhenLeaveBehindIsHidden() {
+    public void doNotRepeatImpressionWhenExpendedStateChange() {
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
+        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        playerUiQueue.onNext(PLAYER_EXPANDED);
+
+        playerUiQueue.onNext(PLAYER_COLLAPSED);
+        playerUiQueue.onNext(PLAYER_EXPANDED);
+
+        expect(observer.getOnNextEvents().size()).toEqual(1);
+    }
+
+    @Test
+    public void emit2ImpressionsWhenTheLeaveBehindIsShowTwice() {
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
+        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        playerUiQueue.onNext(PLAYER_EXPANDED);
+
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_HIDDEN);
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
+
+        expect(observer.getOnNextEvents().size()).toEqual(2);
+    }
+
+    @Test
+    public void doNotRepeatImpressionWhenLeaveBehindWhenLeaveBehindShownStatesWithoutHidden() {
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
+        activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
+        playerUiQueue.onNext(PLAYER_EXPANDED);
+
+        leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
+
+        expect(observer.getOnNextEvents().size()).toEqual(1);
+    }
+
+    @Test
+    public void doNotEmitImpressionWhenLeaveBehindIsHidden() {
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_HIDDEN);
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         playerUiQueue.onNext(PLAYER_EXPANDED);
-        currentTrackQueue.onNext(CURRENT_TRACK_CHANGED);
 
         expect(observer.getOnNextEvents()).toBeEmpty();
     }
 
     @Test
-    public void shouldNotEmitImpressionWhenTheAppIsInBackground() {
+    public void doNotEmitImpressionWhenTheAppIsInBackground() {
         activitiesLifeCycleQueue.onNext(ACTIVITY_PAUSED);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
         playerUiQueue.onNext(PLAYER_EXPANDED);
-        currentTrackQueue.onNext(CURRENT_TRACK_CHANGED);
 
         expect(observer.getOnNextEvents()).toBeEmpty();
     }
 
     @Test
-    public void shouldNotEmitImpressionWhenThePlayerIsCollapsed() {
+    public void doNotEmitImpressionWhenThePlayerIsCollapsed() {
         playerUiQueue.onNext(PLAYER_COLLAPSED);
         activitiesLifeCycleQueue.onNext(ACTIVITY_RESUMED);
         leaveBehindEventQueue.onNext(LEAVE_BEHIND_SHOWN);
-        currentTrackQueue.onNext(CURRENT_TRACK_CHANGED);
 
         expect(observer.getOnNextEvents()).toBeEmpty();
     }
