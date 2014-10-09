@@ -292,17 +292,17 @@
         </activity>
 
         <!-- settings -->
-        <activity android:label="@string/title_settings" android:name=".preferences.SettingsActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity" android:theme="@style/Theme.SoundCloud"/>
 
-        <activity android:label="@string/title_settings" android:name=".preferences.AccountSettingsActivity" android:theme="@style/Theme.SoundCloud">
+        <activity android:label="@string/title_settings" android:name=".settings.AccountSettingsActivity" android:theme="@style/Theme.SoundCloud">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:label="@string/title_notification_settings" android:name=".preferences.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="@string/title_about" android:name=".preferences.AboutActivity" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="@string/title_legal" android:name=".preferences.LegalActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_about" android:name=".settings.AboutActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 

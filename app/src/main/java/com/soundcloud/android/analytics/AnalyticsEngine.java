@@ -9,7 +9,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.preferences.GeneralPreferences;
+import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -94,7 +94,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @Override
     public final void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (GeneralPreferences.ANALYTICS_ENABLED.equals(key)) {
+        if (GeneralSettings.ANALYTICS_ENABLED.equals(key)) {
             analyticsProviders = analyticsProviderFactory.getProviders();
         }
     }

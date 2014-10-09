@@ -1,4 +1,4 @@
-package com.soundcloud.android.preferences;
+package com.soundcloud.android.settings;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class DeveloperPreferences {
+public class DeveloperSettings {
 
     // TODO: Currently these constants must match the values in settings_keys.xml - refactor!
     public static final String DEV_CLEAR_NOTIFICATIONS = "dev.clearNotifications";
@@ -40,7 +40,7 @@ public class DeveloperPreferences {
     private final SoundCloudApplication application;
 
     @Inject
-    public DeveloperPreferences(SoundCloudApplication application) {
+    public DeveloperSettings(SoundCloudApplication application) {
         this.application = application;
     }
 

@@ -8,7 +8,7 @@ import com.soundcloud.android.creators.upload.UploadMonitorActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.preferences.AccountSettingsActivity;
+import com.soundcloud.android.settings.AccountSettingsActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchActivity;

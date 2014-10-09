@@ -1,4 +1,4 @@
-package com.soundcloud.android.preferences;
+package com.soundcloud.android.settings;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
@@ -17,14 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import android.content.Intent;
-import android.preference.PreferenceScreen;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SettingsActivityTest {
 
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private GeneralPreferences generalPreferences;
-    @Mock private DeveloperPreferences developerPreferences;
+    @Mock private GeneralSettings generalSettings;
+    @Mock private DeveloperSettings developerSettings;
     @Mock private FeatureFlags featureFlags;
 
     @InjectMocks private SettingsActivity activity;
@@ -32,21 +30,21 @@ public class SettingsActivityTest {
     @Test
     public void setupGeneralPreferencesOnAnyBuild() {
         activity.onCreate(null);
-        verify(generalPreferences).setup(activity);
+        verify(generalSettings).setup(activity);
     }
 
     @Test
     public void setsUpDeveloperPreferencesIfDebugBuild() {
         when(applicationProperties.isDebugBuild()).thenReturn(true);
         activity.onCreate(null);
-        verify(developerPreferences).setup(activity);
+        verify(developerSettings).setup(activity);
     }
 
     @Test
     public void doesNotSetUpDeveloperPreferencesIfNotDebugBuild() {
         when(applicationProperties.isDebugBuild()).thenReturn(false);
         activity.onCreate(null);
-        verify(developerPreferences, never()).setup(activity);
+        verify(developerSettings, never()).setup(activity);
     }
 
     @Test

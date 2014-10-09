@@ -1,4 +1,4 @@
-package com.soundcloud.android.preferences;
+package com.soundcloud.android.settings;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -28,8 +28,8 @@ public class SettingsActivity extends ScSettingsActivity {
     private ProgressDialog deleteDialog;
 
     @Inject ApplicationProperties applicationProperties;
-    @Inject GeneralPreferences generalPreferences;
-    @Inject DeveloperPreferences developerPreferences;
+    @Inject GeneralSettings generalSettings;
+    @Inject DeveloperSettings developerSettings;
     @Inject FeatureFlags featureFlags;
 
     public SettingsActivity() {}
@@ -42,20 +42,20 @@ public class SettingsActivity extends ScSettingsActivity {
             addPreferencesFromResource(R.xml.settings_subscriptions);
         }
 
-        generalPreferences.setup(this);
+        generalSettings.setup(this);
 
         if (!applicationProperties.isReleaseBuild()) {
             addPreferencesFromResource(R.xml.settings_extras);
         }
 
         if (applicationProperties.isDebugBuild()) {
-            developerPreferences.setup(this);
+            developerSettings.setup(this);
         }
     }
 
     @Override
     protected void onResume() {
-        generalPreferences.updateClearCacheTitles(this);
+        generalSettings.updateClearCacheTitles(this);
         super.onResume();
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SETTINGS_MAIN));

@@ -1,4 +1,4 @@
-package com.soundcloud.android.preferences;
+package com.soundcloud.android.settings;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;

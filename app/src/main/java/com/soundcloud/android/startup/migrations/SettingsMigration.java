@@ -1,7 +1,7 @@
 package com.soundcloud.android.startup.migrations;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.preferences.GeneralPreferences;
+import com.soundcloud.android.settings.GeneralSettings;
 
 import android.content.SharedPreferences;
 
@@ -22,8 +22,8 @@ class SettingsMigration implements Migration {
     @Override
     public void applyMigration() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(GeneralPreferences.ANALYTICS_ENABLED, sharedPreferences.getBoolean(GeneralPreferences.CRASH_REPORTING_ENABLED, true));
-        editor.putBoolean(GeneralPreferences.CRASH_REPORTING_ENABLED, sharedPreferences.getBoolean(CRASHLOGS_OLD_KEY, true));
+        editor.putBoolean(GeneralSettings.ANALYTICS_ENABLED, sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, true));
+        editor.putBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, sharedPreferences.getBoolean(CRASHLOGS_OLD_KEY, true));
         editor.apply();
     }
 

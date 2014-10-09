@@ -45,7 +45,7 @@
                 android:title="@string/pref_clear_cache"
                 android:summary="@string/pref_clear_cache_desc" />
 
-        <com.soundcloud.android.preferences.SeekBarPreference
+        <com.soundcloud.android.settings.SeekBarPreference
                 android:key="@string/key_stream_cache_size"
                 android:title="@string/pref_stream_cache_size"
                 android:summary="@string/pref_stream_cache_size_desc"

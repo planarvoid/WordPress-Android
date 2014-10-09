@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.preferences.DeveloperPreferences;
+import com.soundcloud.android.settings.DeveloperSettings;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.with.With;
@@ -111,7 +111,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndUploadRaw() throws Exception {
-        setRecordingType(DeveloperPreferences.DEV_RECORDING_TYPE_RAW);
+        setRecordingType(DeveloperSettings.DEV_RECORDING_TYPE_RAW);
         record(recordingTime);
 
         assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
@@ -198,7 +198,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordRawAndAppendAndUpload() throws Exception {
-        setRecordingType(DeveloperPreferences.DEV_RECORDING_TYPE_RAW);
+        setRecordingType(DeveloperSettings.DEV_RECORDING_TYPE_RAW);
 
         record(recordingTime);
         solo.sleep(1000);

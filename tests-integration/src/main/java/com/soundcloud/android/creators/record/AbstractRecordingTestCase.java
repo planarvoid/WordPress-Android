@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.upload.UploadService;
-import com.soundcloud.android.preferences.DeveloperPreferences;
+import com.soundcloud.android.settings.DeveloperSettings;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
@@ -300,9 +300,9 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
                 .getDefaultSharedPreferences(getInstrumentation().getTargetContext());
 
         if (type == null) {
-            prefs.edit().remove(DeveloperPreferences.DEV_RECORDING_TYPE).commit();
+            prefs.edit().remove(DeveloperSettings.DEV_RECORDING_TYPE).commit();
         } else {
-            prefs.edit().putString(DeveloperPreferences.DEV_RECORDING_TYPE, type).commit();
+            prefs.edit().putString(DeveloperSettings.DEV_RECORDING_TYPE, type).commit();
         }
     }
 

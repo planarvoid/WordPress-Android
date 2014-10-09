@@ -1,4 +1,4 @@
-package com.soundcloud.android.preferences;
+package com.soundcloud.android.settings;
 
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -26,7 +26,7 @@ import android.preference.PreferenceManager;
 import javax.inject.Inject;
 import java.io.File;
 
-public class GeneralPreferences {
+public class GeneralSettings {
 
     // TODO: Currently these constants must match the values in settings_keys.xml - refactor!
     public static final String LOGOUT = "logout";
@@ -52,7 +52,7 @@ public class GeneralPreferences {
     private final Context appContext;
 
     @Inject
-    public GeneralPreferences(Context appContext, Resources resources, DeviceHelper deviceHelper) {
+    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper) {
         this.appContext = appContext;
         this.resources = resources;
         this.deviceHelper = deviceHelper;
