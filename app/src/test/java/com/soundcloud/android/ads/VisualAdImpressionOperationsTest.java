@@ -25,7 +25,7 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class VisualAdImpressionControllerTest {
+public class VisualAdImpressionOperationsTest {
     private final CurrentPlayQueueTrackEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L));
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();
@@ -38,7 +38,7 @@ public class VisualAdImpressionControllerTest {
     @Mock private AdsOperations adsOperations;
     private TestEventBus eventBus;
 
-    private VisualAdImpressionController controller;
+    private VisualAdImpressionOperations controller;
     private TestObserver<TrackingEvent> observer;
 
     private Subject<CurrentPlayQueueTrackEvent, CurrentPlayQueueTrackEvent> currentTrackQueue;
@@ -48,7 +48,7 @@ public class VisualAdImpressionControllerTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        controller = new VisualAdImpressionController(eventBus, playQueueManager, accountOperations, adsOperations);
+        controller = new VisualAdImpressionOperations(eventBus, playQueueManager, accountOperations, adsOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.PLAY_QUEUE_TRACK);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);

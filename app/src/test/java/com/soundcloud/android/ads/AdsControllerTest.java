@@ -57,8 +57,8 @@ public class AdsControllerTest {
     @Mock private AdsOperations adsOperations;
     @Mock private TrackOperations trackOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private VisualAdImpressionController visualAdImpressionController;
-    @Mock private LeaveBehindImpressionController leaveBehindImpressionController;
+    @Mock private VisualAdImpressionOperations visualAdImpressionOperations;
+    @Mock private LeaveBehindImpressionOperations leaveBehindImpressionOperations;
     @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -69,10 +69,10 @@ public class AdsControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(visualAdImpressionController.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
-        when(leaveBehindImpressionController.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
+        when(visualAdImpressionOperations.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
+        when(leaveBehindImpressionOperations.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
 
-        adsController = new AdsController(eventBus, adsOperations, visualAdImpressionController, leaveBehindImpressionController,
+        adsController = new AdsController(eventBus, adsOperations, visualAdImpressionOperations, leaveBehindImpressionOperations,
                 playQueueManager, trackOperations, featureFlags, scheduler);
         apiAdsForTrack = ModelFixtures.create(ApiAdsForTrack.class);
     }
@@ -345,7 +345,7 @@ public class AdsControllerTest {
     @Test
     public void shouldPublishTrackingEventWhenVisualAdControllerEmitsEvent() {
         TrackingEvent trackingEvent = TestEvents.unspecifiedTrackingEvent();
-        when(visualAdImpressionController.trackImpression()).thenReturn(Observable.just(trackingEvent));
+        when(visualAdImpressionOperations.trackImpression()).thenReturn(Observable.just(trackingEvent));
 
         adsController.subscribe();
 
@@ -356,7 +356,7 @@ public class AdsControllerTest {
     public void shouldPublishTrackingEventWhenLeaveBehindControllerEmitsEvent() {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         TrackingEvent trackingEvent = TestEvents.unspecifiedTrackingEvent();
-        when(leaveBehindImpressionController.trackImpression()).thenReturn(Observable.just(trackingEvent));
+        when(leaveBehindImpressionOperations.trackImpression()).thenReturn(Observable.just(trackingEvent));
 
         adsController.subscribe();
 

@@ -21,7 +21,7 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LeaveBehindImpressionControllerTest {
+public class LeaveBehindImpressionOperationsTest {
 
     private final LeaveBehindEvent LEAVE_BEHIND_SHOWN = LeaveBehindEvent.shown();
     private final LeaveBehindEvent LEAVE_BEHIND_HIDDEN = LeaveBehindEvent.hidden();
@@ -34,7 +34,7 @@ public class LeaveBehindImpressionControllerTest {
     @Mock private Activity activity;
     private TestEventBus eventBus;
 
-    private LeaveBehindImpressionController controller;
+    private LeaveBehindImpressionOperations controller;
     private TestObserver<TrackingEvent> observer;
 
     private Subject<LeaveBehindEvent, LeaveBehindEvent> leaveBehindEventQueue;
@@ -45,7 +45,7 @@ public class LeaveBehindImpressionControllerTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        controller = new LeaveBehindImpressionController(eventBus);
+        controller = new LeaveBehindImpressionOperations(eventBus);
 
         leaveBehindEventQueue = eventBus.queue(EventQueue.LEAVE_BEHIND);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);

@@ -31,8 +31,8 @@ public class AdsController {
     public static final int SKIP_DELAY_SECS = 3;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
-    private final VisualAdImpressionController visualAdImpressionController;
-    private final LeaveBehindImpressionController leaveBehindImpressionController;
+    private final VisualAdImpressionOperations visualAdImpressionOperations;
+    private final LeaveBehindImpressionOperations leaveBehindImpressionOperations;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
     private final FeatureFlags featureFlags;
@@ -106,25 +106,25 @@ public class AdsController {
 
     @Inject
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
-                         VisualAdImpressionController visualAdImpressionController,
-                         LeaveBehindImpressionController leaveBehindImpressionController,
+                         VisualAdImpressionOperations visualAdImpressionOperations,
+                         LeaveBehindImpressionOperations leaveBehindImpressionOperations,
                          PlayQueueManager playQueueManager,
                          TrackOperations trackOperations,
                          FeatureFlags featureFlags) {
-        this(eventBus, adsOperations, visualAdImpressionController, leaveBehindImpressionController,
+        this(eventBus, adsOperations, visualAdImpressionOperations, leaveBehindImpressionOperations,
                 playQueueManager, trackOperations, featureFlags, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
-                         VisualAdImpressionController visualAdImpressionController,
-                         LeaveBehindImpressionController leaveBehindImpressionController,
+                         VisualAdImpressionOperations visualAdImpressionOperations,
+                         LeaveBehindImpressionOperations leaveBehindImpressionOperations,
                          PlayQueueManager playQueueManager,
                          TrackOperations trackOperations,
                          FeatureFlags featureFlags, Scheduler scheduler) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
-        this.visualAdImpressionController = visualAdImpressionController;
-        this.leaveBehindImpressionController = leaveBehindImpressionController;
+        this.visualAdImpressionOperations = visualAdImpressionOperations;
+        this.leaveBehindImpressionOperations = leaveBehindImpressionOperations;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.featureFlags = featureFlags;
@@ -150,10 +150,10 @@ public class AdsController {
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .subscribe(new LeaveBehindSubscriber());
 
-        visualAdImpressionController.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
+        visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
 
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
-            leaveBehindImpressionController.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
+            leaveBehindImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
         }
     }
 
