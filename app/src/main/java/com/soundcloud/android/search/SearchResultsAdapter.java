@@ -67,10 +67,7 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements Fragme
 
     private Urn getUrn(int position) {
         final PropertySet item = getItem(position);
-        if (item.contains(UserProperty.URN)) {
-            return item.get(UserProperty.URN);
-        }
-        return item.get(PlayableProperty.URN);
+        return item.getOrElse(UserProperty.URN, PlayableProperty.URN);
     }
 
     @Override
