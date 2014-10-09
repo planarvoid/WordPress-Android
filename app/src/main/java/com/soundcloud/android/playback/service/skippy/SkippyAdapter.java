@@ -8,19 +8,18 @@ import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -42,7 +41,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private static final String TAG = "SkippyAdapter";
     private static final long POSITION_START = 0L;
     private final SkippyFactory skippyFactory;
-    private int numberOfAttemptedPlaysBeforeDecoderError;
 
     private final EventBus eventBus;
     private final Skippy skippy;
@@ -66,7 +64,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
-        numberOfAttemptedPlaysBeforeDecoderError = 0;
     }
 
     public boolean init(Context context) {
@@ -117,7 +114,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             skippy.seek(fromPos);
             skippy.resume();
         } else {
-            numberOfAttemptedPlaysBeforeDecoderError++;
             currentStreamUrl = trackUrl;
 
             if (uninterrupted){
@@ -310,13 +306,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onErrorMessage(ErrorCategory category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
-        String errorMessage = errorMsg + "\n" + "currentNumberOfAttemptedPlaysBeforeDecoderError=" + numberOfAttemptedPlaysBeforeDecoderError;
 
-        ErrorUtils.handleSilentException(errorMessage, new SkippyException(category, line, sourceFile));
-
-        if(ErrorCategory.Category.GENERIC_DECODER.equals(category.getCategory())) {
-            numberOfAttemptedPlaysBeforeDecoderError = 0;
-        }
+        ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
 
         final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), getPlaybackProtocol(), cdn);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
@@ -327,10 +318,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         ErrorUtils.handleSilentException(message, throwable);
     }
 
-    @VisibleForTesting
-    public int getNumberOfAttemptedPlaysBeforeDecoderError(){
-        return numberOfAttemptedPlaysBeforeDecoderError;
-    }
 
     static class StateChangeHandler extends Handler {
 
