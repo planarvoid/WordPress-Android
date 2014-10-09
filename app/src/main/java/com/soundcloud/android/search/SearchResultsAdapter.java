@@ -79,7 +79,6 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements Fragme
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                // TODO: this is not gonna work because of the different Urn types
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
         );
     }
