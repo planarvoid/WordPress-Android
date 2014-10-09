@@ -4,6 +4,7 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.LeaveBehindImpressionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -72,7 +73,13 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
             handleUIEvent((UIEvent) event);
         } else if (event instanceof VisualAdImpressionEvent) {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
+        } else if (event instanceof LeaveBehindImpressionEvent) {
+            handleLeaveBehindImpression(((LeaveBehindImpressionEvent) event));
         }
+    }
+
+    private void handleLeaveBehindImpression(LeaveBehindImpressionEvent event) {
+        trackAllUrls(event.getTimeStamp(), event.getImpressionUrls());
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {

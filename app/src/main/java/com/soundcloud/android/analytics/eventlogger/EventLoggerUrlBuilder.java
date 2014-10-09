@@ -1,12 +1,13 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.events.LeaveBehindImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -80,6 +81,18 @@ public class EventLoggerUrlBuilder {
                 .appendQueryParameter(MONETIZED_OBJECT, event.get(VisualAdImpressionEvent.KEY_MONETIZABLE_TRACK_URN))
                 .appendQueryParameter(EXTERNAL_MEDIA, event.get(VisualAdImpressionEvent.KEY_AD_ARTWORK_URL))
                 .appendQueryParameter(IMPRESSION_NAME, "companion_display")
+                .appendQueryParameter(MONETIZATION_TYPE, "audio_ad")
+                .toString();
+    }
+
+    public String buildForLeaveBehindImpression(LeaveBehindImpressionEvent event) {
+        return buildUriForPath("impression", event.getTimeStamp())
+                .appendQueryParameter(USER, event.get(LeaveBehindImpressionEvent.KEY_USER_URN))
+                .appendQueryParameter(AD_URN, event.get(LeaveBehindImpressionEvent.KEY_AD_URN))
+                .appendQueryParameter(IMPRESSION_OBJECT, event.get(LeaveBehindImpressionEvent.KEY_AD_TRACK_URN))
+                .appendQueryParameter(MONETIZED_OBJECT, event.get(LeaveBehindImpressionEvent.KEY_MONETIZABLE_TRACK_URN))
+                .appendQueryParameter(EXTERNAL_MEDIA, event.get(LeaveBehindImpressionEvent.KEY_AD_ARTWORK_URL))
+                .appendQueryParameter(IMPRESSION_NAME, "leave_behind")
                 .appendQueryParameter(MONETIZATION_TYPE, "audio_ad")
                 .toString();
     }

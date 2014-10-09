@@ -11,6 +11,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.events.LeaveBehindImpressionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -239,6 +240,27 @@ public class EventLoggerUrlBuilderTest {
                 + "&user=" + userUrn.toEncodedString()
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
                 + "&impression_name=companion_display"
+                + "&impression_object=" + audioAdTrackUrn.toEncodedString()
+                + "&monetization_type=audio_ad"
+                + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()
+                + "&external_media=" + "http%3A%2F%2Fartwork.org%2Fimage.pmg%3Fa%3Db%26c%3Dd")));
+    }
+
+    @Test
+    public void createImpressionUrlForLeaveBehindDisplayToAudioAd() throws CreateModelException, UnsupportedEncodingException {
+        Urn audioAdTrackUrn = Urn.forTrack(123L);
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(audioAdTrackUrn)
+                .put(AdProperty.ARTWORK, Uri.parse("http://artwork.org/image.pmg?a=b&c=d"));
+        final String url = eventLoggerUrlBuilder.buildForLeaveBehindImpression(
+                new LeaveBehindImpressionEvent(audioAd, audioAdTrackUrn, userUrn, 321L));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&user=" + userUrn.toEncodedString()
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
+                + "&impression_name=leave_behind"
                 + "&impression_object=" + audioAdTrackUrn.toEncodedString()
                 + "&monetization_type=audio_ad"
                 + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()

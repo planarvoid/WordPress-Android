@@ -1,11 +1,13 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.events.LeaveBehindImpressionEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Action1;
@@ -19,11 +21,17 @@ public class LeaveBehindImpressionOperations {
     private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
     private final Subject<LeaveBehindEvent, LeaveBehindEvent> leaveBehindEventQueue;
+    private final PlayQueueManager playQueueManager;
+    private final AccountOperations accountOperations;
 
     private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
         @Override
         public LeaveBehindImpressionEvent call(State state) {
-            return new LeaveBehindImpressionEvent(System.currentTimeMillis());
+            return new LeaveBehindImpressionEvent(
+                    playQueueManager.getCurrentMetaData(),
+                    playQueueManager.getCurrentTrackUrn(),
+                    accountOperations.getLoggedInUserUrn(),
+                    System.currentTimeMillis());
         }
     };
 
@@ -66,7 +74,9 @@ public class LeaveBehindImpressionOperations {
     private boolean impressionEventEmitted = false;
 
     @Inject
-    public LeaveBehindImpressionOperations(EventBus eventBus) {
+    public LeaveBehindImpressionOperations(EventBus eventBus, PlayQueueManager playQueueManager, AccountOperations accountOperations) {
+        this.playQueueManager = playQueueManager;
+        this.accountOperations = accountOperations;
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
         this.leaveBehindEventQueue = eventBus.queue(EventQueue.LEAVE_BEHIND);

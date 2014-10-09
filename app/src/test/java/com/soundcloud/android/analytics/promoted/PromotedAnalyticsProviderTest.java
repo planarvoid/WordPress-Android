@@ -11,6 +11,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
+import com.soundcloud.android.events.LeaveBehindImpressionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -162,6 +163,30 @@ public class PromotedAnalyticsProviderTest {
         expect(event2.getTimeStamp()).toEqual(333l);
         expect(event2.getUrl()).toEqual("visual2");
     }
+
+    @Test
+    public void tracksLeaveBehindImpressions() {
+        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(999));
+        LeaveBehindImpressionEvent impressionEvent = new LeaveBehindImpressionEvent(
+                audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), 333
+        );
+
+        analyticsProvider.handleTrackingEvent(impressionEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
+        expect(event1.getTimeStamp()).toEqual(333l);
+        expect(event1.getUrl()).toEqual("leaveBehindTrackingUrl1");
+
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
+        expect(event2.getTimeStamp()).toEqual(333l);
+        expect(event2.getUrl()).toEqual("leaveBehindTrackingUrl2");
+    }
+
 
     @Test
     public void shouldForwardFlushCallToEventTracker() {

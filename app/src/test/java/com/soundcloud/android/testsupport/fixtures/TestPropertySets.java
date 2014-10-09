@@ -30,7 +30,8 @@ public abstract class TestPropertySets {
                 AdProperty.AUDIO_AD_FINISH_URLS.bind(newArrayList("finish1", "finish2")),
                 AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(newArrayList("click1", "click2")),
                 AdProperty.AUDIO_AD_SKIP_URLS.bind(newArrayList("skip1", "skip2")),
-                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(newArrayList("visual1", "visual2"))
+                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(newArrayList("visual1", "visual2")),
+                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("leaveBehindTrackingUrl1", "leaveBehindTrackingUrl2"))
         );
     }
 

@@ -1,14 +1,19 @@
 package com.soundcloud.android.ads;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +34,8 @@ public class LeaveBehindImpressionOperationsTest {
     private final ActivityLifeCycleEvent ACTIVITY_PAUSED = ActivityLifeCycleEvent.forOnPause(Activity.class);
 
     @Mock private Activity activity;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private AccountOperations accountOperations;
     private TestEventBus eventBus;
 
     private LeaveBehindImpressionOperations controller;
@@ -40,8 +47,11 @@ public class LeaveBehindImpressionOperationsTest {
 
     @Before
     public void setUp() throws Exception {
+        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         eventBus = new TestEventBus();
-        controller = new LeaveBehindImpressionOperations(eventBus);
+        controller = new LeaveBehindImpressionOperations(eventBus, playQueueManager, accountOperations);
 
         leaveBehindEventQueue = eventBus.queue(EventQueue.LEAVE_BEHIND);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
