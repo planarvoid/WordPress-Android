@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 
 import java.util.Map;
@@ -105,7 +106,27 @@ public class AdsOperationsTest {
     }
 
     @Test
-    public void insertAudioAdShould() throws Exception {
+    public void insertAudioAdShouldInsertAudioAd() throws Exception {
+        AudioAd audioAdWithoutLeaveBehind = Mockito.mock(AudioAd.class);
+        when(audioAdWithoutLeaveBehind.hasLeaveBehind()).thenReturn(false);
+        when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(audioAd.getApiTrack());
+        when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(audioAd.toPropertySet());
+
+        adsOperations.insertAudioAd(TRACK_URN, audioAdWithoutLeaveBehind);
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(audioAd.getApiTrack().getUrn());
+        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+    }
+
+    @Test
+    public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
         adsOperations.insertAudioAd(TRACK_URN, audioAd);
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);

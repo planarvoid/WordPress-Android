@@ -57,6 +57,10 @@ public class AudioAd implements PropertySetSource {
         return visualAd;
     }
 
+    public boolean hasLeaveBehind() {
+        return leaveBehind != null;
+    }
+
     public LeaveBehind getLeaveBehind() {
         return leaveBehind;
     }
