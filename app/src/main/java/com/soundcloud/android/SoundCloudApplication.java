@@ -309,7 +309,7 @@ public class SoundCloudApplication extends Application {
 
     boolean isReportingCrashes() {
         return ApplicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, false);
+                sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, true);
     }
 
 }
