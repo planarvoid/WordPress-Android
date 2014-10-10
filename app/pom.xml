@@ -111,7 +111,12 @@
             <plugin>
                 <groupId>com.crashlytics</groupId>
                 <artifactId>crashlytics-maven</artifactId>
-                <version>1.0.3</version>
+                <version>1.10.0</version>
+                <configuration>
+                    <androidManifestPath>${project.basedir}/AndroidManifest.xml</androidManifestPath>
+                    <androidAssetsPath>${project.basedir}/assets</androidAssetsPath>
+                    <androidResPath>${project.basedir}/res</androidResPath>
+                </configuration>
                 <executions>
                     <execution>
                         <id>GenerateResources</id>
@@ -265,7 +270,7 @@
         <dependency>
             <groupId>com.crashlytics.android</groupId>
             <artifactId>crashlytics</artifactId>
-            <version>[1.0.2,)</version>
+            <version>[1.1.11,)</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
