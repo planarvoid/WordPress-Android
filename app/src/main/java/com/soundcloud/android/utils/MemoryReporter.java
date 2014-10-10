@@ -5,14 +5,11 @@ import android.app.ActivityManager;
 import android.os.Build;
 import android.os.Debug;
 
-import javax.inject.Inject;
-
 public class MemoryReporter {
     private static final String LOG_TAG = "MEM";
     public static final ActivityManager.MemoryInfo MEMORY_INFO = new ActivityManager.MemoryInfo();
     private final ActivityManager activityManager;
 
-    @Inject
     public MemoryReporter(ActivityManager activityManager) {
         this.activityManager = activityManager;
     }

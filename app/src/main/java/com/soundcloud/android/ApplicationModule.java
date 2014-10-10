@@ -19,15 +19,12 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.MemoryReporter;
 import com.soundcloud.android.waveform.WaveformData;
 import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -93,11 +90,6 @@ public class ApplicationModule {
     @Provides
     public NotificationManager provideNotificationManager() {
         return (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
-    }
-
-    @Provides
-    public ActivityManager provideActivityManager() {
-        return (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
     }
 
     @Provides
@@ -171,16 +163,6 @@ public class ApplicationModule {
     @Provides
     public LruCache<Urn, WaveformData> provideWaveformCache() {
         return new LruCache<>(DEFAULT_WAVEFORM_CACHE_SIZE);
-    }
-
-    @Singleton
-    @Provides
-    public MemoryReporter provideMemoryReporter(ActivityManager activityManager) {
-        if (application.isReportingCrashes()) {
-            return new CrashlyticsMemoryReporter(activityManager);
-        } else {
-            return new MemoryReporter(activityManager);
-        }
     }
 
     @SuppressWarnings("unchecked")
