@@ -36,7 +36,7 @@ module Build
     if env == 'release'
       [version, build_number].compact.join("-")
     else
-      [version, build_number, (ci? ? env : 'local')].compact.join("-")
+      [version, build_number, env].compact.join("-")
     end
   end
 
@@ -54,7 +54,7 @@ module Build
   end
 
   def build_number
-    ENV['BUILD_NUMBER']
+    ENV['BUILD_NUMBER'] || 'local'
   end
 
   def run_command(command)
@@ -87,5 +87,4 @@ module Build
   def env
     Build::Configuration.build_env
   end
-
 end
