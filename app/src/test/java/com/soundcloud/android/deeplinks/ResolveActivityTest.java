@@ -16,6 +16,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.model.Urn;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Intent;
+import android.net.Uri;
 
 import java.util.List;
 
@@ -35,6 +37,26 @@ public class ResolveActivityTest {
     public void setUp() throws Exception {
         activity = new ResolveActivity(playbackOperations);
         when(playbackOperations.startPlaybackWithRecommendations(any(PublicApiTrack.class), any(Screen.class))).thenReturn(Observable.<List<Urn>>empty());
+    }
+
+    @Test
+    public void acceptsSoundCloudScheme() {
+        expect(ResolveActivity.accept(Uri.parse("soundcloud:something:123"), Robolectric.application.getResources())).toBeTrue();
+    }
+
+    @Test
+    public void doesNotAcceptOtherScheme() {
+        expect(ResolveActivity.accept(Uri.parse("dubstep:something:123"), Robolectric.application.getResources())).toBeFalse();
+    }
+
+    @Test
+    public void acceptsSoundCloudHost() {
+        expect(ResolveActivity.accept(Uri.parse("http://www.soundcloud.com"), Robolectric.application.getResources())).toBeTrue();
+    }
+
+    @Test
+    public void doesNotAcceptOtherHost() {
+        expect(ResolveActivity.accept(Uri.parse("http://www.asdf.com"), Robolectric.application.getResources())).toBeFalse();
     }
 
     @Test

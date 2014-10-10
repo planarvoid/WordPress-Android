@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.LikesListFragment;
+import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -59,11 +60,13 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject UserOperations userOperations;
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
+    @Inject InAppCampaignController inAppCampaignController;
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
+        addLifeCycleComponent(inAppCampaignController);
         presenter.attach(this);
     }
 
@@ -130,6 +133,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
             lastTitle = getSupportActionBar().getTitle();
         }
+        setIntent(intent);
     }
 
     @Override

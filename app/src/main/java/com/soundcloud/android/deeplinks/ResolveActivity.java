@@ -15,6 +15,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -23,6 +24,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +41,11 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
 
     public ResolveActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    public static boolean accept(Uri data, Resources resources) {
+        return Urn.SOUNDCLOUD_SCHEME.equalsIgnoreCase(data.getScheme())
+                || (data.getHost() != null && data.getHost().contains(resources.getString(R.string.host_name)));
     }
 
     @VisibleForTesting

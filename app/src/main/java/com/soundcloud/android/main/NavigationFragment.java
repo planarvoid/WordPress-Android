@@ -15,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -90,18 +91,21 @@ public class NavigationFragment extends Fragment {
             }
         }
 
-        if (intent.getData() != null) {
-            if (intent.getData().getLastPathSegment().equals("stream")) {
+        final Uri data = intent.getData();
+        if (data != null) {
+            if (data.getLastPathSegment().equals("stream")) {
                 selectItem(NavItem.STREAM.ordinal());
-            } else if (intent.getData().getLastPathSegment().equals("explore")) {
+                return true;
+            } else if (data.getLastPathSegment().equals("explore")) {
                 selectItem(NavItem.EXPLORE.ordinal());
-            } else {
+                return true;
+            } else if (ResolveActivity.accept(data, getResources())) {
                 // facebook deeplink, as they need to be routed through the launcher activity
                 startActivity(new Intent(getActivity(), ResolveActivity.class).setAction(Intent.ACTION_VIEW)
-                        .setData(intent.getData()));
+                        .setData(data));
                 getActivity().finish();
+                return true;
             }
-            return true;
         }
         return false;
     }
