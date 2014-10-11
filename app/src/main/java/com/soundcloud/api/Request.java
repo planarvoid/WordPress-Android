@@ -86,7 +86,7 @@ public class Request implements Iterable<NameValuePair> {
         }
 
         if (resource.contains("?")) {
-            String query = resource.substring(Math.min(resource.length(), resource.indexOf("?") + 1),
+            String query = resource.substring(Math.min(resource.length(), resource.indexOf('?') + 1),
                     resource.length());
             for (String s : query.split("&")) {
                 String[] kv = s.split("=", 2);
@@ -103,7 +103,7 @@ public class Request implements Iterable<NameValuePair> {
                     }
                 }
             }
-            this.resource = resource.substring(0, resource.indexOf("?"));
+            this.resource = resource.substring(0, resource.indexOf('?'));
         } else {
             this.resource = resource;
         }
@@ -692,11 +692,11 @@ public class Request implements Iterable<NameValuePair> {
             final String value = parameter.getValue();
             final String encodedValue = value != null ? encode(value, encoding) : "";
             if (result.length() > 0) {
-                result.append("&");
+                result.append('&');
             }
             result.append(encodedName);
             if (value != null) {
-                result.append("=");
+                result.append('=');
                 result.append(encodedValue);
             }
         }

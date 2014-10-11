@@ -214,12 +214,14 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(request.getMethod()).append(" ").append(request.getURI());
-        sb.append(";headers=");
+        StringBuilder sb = new StringBuilder(2000);
+        sb.append(request.getMethod())
+                .append(' ')
+                .append(request.getURI())
+                .append(";headers=");
         final Header[] headers = request.getAllHeaders();
         for (Header header : headers) {
-            sb.append(header.toString()).append(";");
+            sb.append(header.toString()).append(';');
         }
         sb.append("response=").append(response == null ? "NULL" : response.getStatusLine());
         return sb.toString();

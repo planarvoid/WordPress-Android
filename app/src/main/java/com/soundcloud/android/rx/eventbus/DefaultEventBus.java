@@ -81,9 +81,9 @@ public class DefaultEventBus implements EventBus {
     }
 
     private <T> void logEvent(Queue<T> queue, T event) {
-        final StringBuilder message = new StringBuilder();
-        message.append("Publishing to ").append(queue.name);
-        message.append(" [").append(event.toString()).append("]\n");
+        final StringBuilder message = new StringBuilder(5000);
+        message.append("Publishing to ").append(queue.name)
+                .append(" [").append(event.toString()).append("]\n");
         final List<Reference<Observer<?>>> observerRefs = loggedObservers.get(queue.id);
         if (observerRefs == null || observerRefs.isEmpty()) {
             message.append("No observers found.");

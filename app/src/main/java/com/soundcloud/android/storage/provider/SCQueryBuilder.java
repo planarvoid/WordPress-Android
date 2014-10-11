@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * This is a convience class that helps build SQL queries to be sent to
+ * This is a convenience class that helps build SQL queries to be sent to
  * {@link SQLiteDatabase} objects.
  *
  * Taken without modification from Android source tree (ICS,
@@ -222,8 +222,7 @@ public class SCQueryBuilder
         } else {
             query.append("* ");
         }
-        query.append("FROM ");
-        query.append(tables);
+        query.append("FROM ").append(tables);
         appendClause(query, " WHERE ", where);
         appendClause(query, " GROUP BY ", groupBy);
         appendClause(query, " HAVING ", having);

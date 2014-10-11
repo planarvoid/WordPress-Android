@@ -208,19 +208,18 @@ public class StreamItem implements Parcelable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("StreamItem");
-        sb.append("{url='").append(url).append('\'');
-        sb.append(", urlHash='").append(urlHash).append('\'');
-        sb.append(", unavailable=").append(mUnavailable);
-        sb.append(", mContentLength=").append(mContentLength);
-        sb.append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'');
-        sb.append(", mEtag='").append(mEtag).append('\'');
-        sb.append(", mExpires=").append(mExpires == 0 ? "" : new Date(mExpires));
-        sb.append(", chunksToDownload=").append(missingChunks);
-        sb.append(", httpStatus=").append(mHttpErrorStatus);
-        sb.append(", downloadedChunks=").append(downloadedChunks);
-        sb.append('}');
+        final StringBuilder sb = new StringBuilder(500)
+                .append("StreamItem{url='").append(url).append('\'')
+                .append(", urlHash='").append(urlHash).append('\'')
+                .append(", unavailable=").append(mUnavailable)
+                .append(", mContentLength=").append(mContentLength)
+                .append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'')
+                .append(", mEtag='").append(mEtag).append('\'')
+                .append(", mExpires=").append(mExpires == 0 ? "" : new Date(mExpires))
+                .append(", chunksToDownload=").append(missingChunks)
+                .append(", httpStatus=").append(mHttpErrorStatus)
+                .append(", downloadedChunks=").append(downloadedChunks)
+                .append('}');
         return sb.toString();
     }
 

@@ -24,7 +24,6 @@ import java.util.List;
 public class SingleLineCollectionTextView extends TextView {
 
     private List<String> displayItems;
-    private StringBuilder displayNamesBuilder;
 
     public SingleLineCollectionTextView(Context context) {
         super(context);
@@ -68,11 +67,7 @@ public class SingleLineCollectionTextView extends TextView {
         if (numItems == 1) {
             setText(displayItems.get(0));
         } else {
-            if (displayNamesBuilder == null) {
-                displayNamesBuilder = new StringBuilder(); // lazy init
-            } else {
-                displayNamesBuilder.setLength(0);
-            }
+            StringBuilder displayNamesBuilder = new StringBuilder(); // lazy init
 
             final Paint paint = getPaint();
             paint.setSubpixelText(true);
@@ -83,7 +78,7 @@ public class SingleLineCollectionTextView extends TextView {
                 if (paint.measureText(candidate) > maxWidth) {
                     // change to "xxx and 1 other"
                     displayNamesBuilder.append(displayItems.get(0));
-                    candidate = appendRemaining(1);
+                    candidate = appendRemaining(displayNamesBuilder, 1);
                 }
 
             } else if (numItems > 2) {
@@ -95,7 +90,7 @@ public class SingleLineCollectionTextView extends TextView {
                         displayNamesBuilder.setLength(0);
                         displayNamesBuilder.append(displayItems.get(i)).append(", ")
                                 .append(displayItems.get(j));
-                        candidate = appendRemaining(numItems - 2);
+                        candidate = appendRemaining(displayNamesBuilder, numItems - 2);
                         fits = paint.measureText(candidate) <= maxWidth;
                     }
                 }
@@ -105,7 +100,7 @@ public class SingleLineCollectionTextView extends TextView {
                     for (int i = 0; i < displayItems.size() && !fits; i++) {
                         displayNamesBuilder.setLength(0);
                         displayNamesBuilder.append(displayItems.get(i));
-                        candidate = appendRemaining(numItems - 1);
+                        candidate = appendRemaining(displayNamesBuilder, numItems - 1);
                         fits = paint.measureText(candidate) <= maxWidth;
                     }
                 }
@@ -115,8 +110,8 @@ public class SingleLineCollectionTextView extends TextView {
         }
     }
 
-    private String appendRemaining(int moreItems) {
-        displayNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreItems, moreItems));
+    private String appendRemaining(StringBuilder displayNamesBuilder, int moreItems) {
+        displayNamesBuilder.append(' ').append(getResources().getQuantityString(R.plurals.number_of_others, moreItems, moreItems));
         return displayNamesBuilder.toString();
     }
 

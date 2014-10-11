@@ -409,7 +409,7 @@ public class ScContentProvider extends ContentProvider {
                 but not 4 days before major release*/
                 if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
                     qb.setTables(Table.USER_ASSOCIATIONS.name);
-                    qb.appendWhere(Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + String.valueOf(userId));
+                    qb.appendWhere(Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId);
                     qb.appendWhere(" AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType);
                     _columns = new String[]{TableColumns.UserAssociations.TARGET_ID};
                     _sortOrder = makeCollectionSort(uri, sortOrder);
@@ -419,7 +419,7 @@ public class ScContentProvider extends ContentProvider {
                     if (_columns == null) {
                         _columns = formatWithUser(getUserViewColumns(Table.USER_ASSOCIATION_VIEW), userId);
                     }
-                    qb.appendWhere(Table.USER_ASSOCIATION_VIEW.name + "." + TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID + " = " + String.valueOf(userId));
+                    qb.appendWhere(Table.USER_ASSOCIATION_VIEW.name + "." + TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID + " = " + userId);
                     qb.appendWhere(" AND " + TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType);
 
                     _sortOrder = makeCollectionSort(uri, sortOrder != null ?
