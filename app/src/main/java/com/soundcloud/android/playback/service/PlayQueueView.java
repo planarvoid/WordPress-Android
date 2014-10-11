@@ -51,7 +51,9 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         in.readLongArray(trackIds);
 
         this.trackIds = Lists.newArrayListWithExpectedSize(trackIds.length);
-        for (long n : trackIds) this.trackIds.add(n);
+        for (long n : trackIds) {
+            this.trackIds.add(n);
+        }
         position = in.readInt();
         fetchState = FetchRecommendedState.valueOf(in.readString());
 

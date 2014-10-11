@@ -355,7 +355,9 @@ public class WavHeader {
     }
 
     private static void writeId(OutputStream out, String id) throws IOException {
-        for (int i = 0; i < id.length(); i++) out.write(id.charAt(i));
+        for (int i = 0; i < id.length(); i++) {
+            out.write(id.charAt(i));
+        }
     }
 
     private static void writeInt(OutputStream out, int val) throws IOException {

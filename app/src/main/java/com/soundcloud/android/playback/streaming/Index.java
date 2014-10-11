@@ -7,7 +7,9 @@ import java.util.Set;
 class Index extends BitSet implements Iterable<Integer> {
     public static Index create(int... pos) {
         Index idx = new Index();
-        for (int i : pos) idx.set(i);
+        for (int i : pos) {
+            idx.set(i);
+        }
         return idx;
     }
 
@@ -21,14 +23,18 @@ class Index extends BitSet implements Iterable<Integer> {
 
     public static Index fromSet(Set<Integer> set) {
         Index idx = new Index();
-        for (int i  : set) idx.set(i, true);
+        for (int i  : set) {
+            idx.set(i, true);
+        }
         return idx;
     }
 
     @Override
     public int size() {
         int size = 0;
-        for (Iterator it = iterator(); it.hasNext(); it.next()) size++;
+        for (Iterator it = iterator(); it.hasNext(); it.next()) {
+            size++;
+        }
         return size;
     }
 

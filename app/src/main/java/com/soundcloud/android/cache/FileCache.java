@@ -92,18 +92,20 @@ public final class FileCache {
         }
 
         private void deleteRecursively(File... dirs) {
-            for (File d : dirs)
+            for (File d : dirs) {
                 if (d.isDirectory()) {
                     IOUtils.deleteDir(d);
                 }
+            }
         }
 
         private void deletePlain(File... dirs) {
             List<File> allFiles = new ArrayList<File>();
-            for (File dir : dirs)
+            for (File dir : dirs) {
                 if (dir.isDirectory()) {
                     allFiles.addAll(Arrays.asList(IOUtils.nullSafeListFiles(dir, null)));
                 }
+            }
 
             for (int i = 0; i < allFiles.size(); i++) {
                 File f = allFiles.get(i);

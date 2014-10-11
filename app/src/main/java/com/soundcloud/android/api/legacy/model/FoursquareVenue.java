@@ -41,10 +41,11 @@ public class FoursquareVenue implements Parcelable {
         if (categories == null || categories.size() == 0) {
             return null;
         }
-        for (Category c : categories)
+        for (Category c : categories) {
             if (c.primary) {
                 return c;
             }
+        }
         return null;
     }
 

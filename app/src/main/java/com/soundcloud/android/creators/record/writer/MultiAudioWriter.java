@@ -92,7 +92,9 @@ public class MultiAudioWriter implements AudioWriter {
 
     @Override
     public void close() throws IOException {
-        for (AudioWriter w : writers) w.close();
+        for (AudioWriter w : writers) {
+            w.close();
+        }
     }
 
 }

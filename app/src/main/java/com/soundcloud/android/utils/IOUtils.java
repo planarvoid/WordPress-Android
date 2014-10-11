@@ -558,9 +558,13 @@ public final class IOUtils {
             } else if (errors.isTextual()) {
                 errorList.add(errors.asText());
             } else if (node.path("errors").isArray()) {
-                for (JsonNode n : node.path("errors")) errorList.add(n.path("error_message").asText());
+                for (JsonNode n : node.path("errors")) {
+                    errorList.add(n.path("error_message").asText());
+                }
             } else {
-                for (JsonNode s : errors) errorList.add(s.asText());
+                for (JsonNode s : errors) {
+                    errorList.add(s.asText());
+                }
             }
         } catch (JsonParseException e) {
             Log.e(TAG, "Error parsing json response: ", e);

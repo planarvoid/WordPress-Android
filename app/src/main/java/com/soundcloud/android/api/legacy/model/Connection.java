@@ -163,8 +163,12 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
             }
         }
 
-        for (Connection c : all) networks.remove(c.service());
-        for (Service t : networks) all.add(new Connection(t));
+        for (Connection c : all) {
+            networks.remove(c.service());
+        }
+        for (Service t : networks) {
+            all.add(new Connection(t));
+        }
         Collections.sort(all);
         return all;
     }

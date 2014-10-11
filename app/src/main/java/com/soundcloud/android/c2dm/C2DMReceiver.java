@@ -339,10 +339,11 @@ public class C2DMReceiver extends BroadcastReceiver {
                 return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, null);
             } else {
                 List<String> newUrls = new ArrayList<String>(_urls.length() - 1);
-                for (String u : urls)
+                for (String u : urls) {
                     if (!u.equals(url)) {
                         newUrls.add(u);
                     }
+                }
                 return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, TextUtils.join(",", newUrls));
             }
         } else {
