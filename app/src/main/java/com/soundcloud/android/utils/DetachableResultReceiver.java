@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Proxy {@link ResultReceiver} that offers a listener interface that can be
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 public class DetachableResultReceiver extends ResultReceiver {
 
     private Receiver receiver;
-    private final ArrayList<PendingResult> pendingResults;
+    private final List<PendingResult> pendingResults;
     private class PendingResult {
         int resultCode;
         Bundle resultData;
@@ -27,7 +28,7 @@ public class DetachableResultReceiver extends ResultReceiver {
 
     public DetachableResultReceiver(Handler handler) {
         super(handler);
-        pendingResults = new ArrayList<PendingResult>();
+        pendingResults = new ArrayList<>();
     }
 
     public void setReceiver(Receiver receiver) {

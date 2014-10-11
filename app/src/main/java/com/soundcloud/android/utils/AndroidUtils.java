@@ -162,12 +162,9 @@ public final class AndroidUtils {
 
     /**
      * Returns emails from the account manager paired and sorted by their frequency of usage
-     *
-     * @param context
-     * @return
      */
     public static String[] listEmails(Context context) {
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
         Account[] accounts = AccountManager.get(context).getAccounts();
         for (Account account : accounts) {
             if (ScTextUtils.isEmail(account.name)) {
@@ -186,8 +183,8 @@ public final class AndroidUtils {
     }
 
     /* package */
-    static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
-        TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(new MapValueComparator(map));
+    static String[] returnKeysSortedByValue(Map<String, Integer> map) {
+        TreeMap<String, Integer> sortedMap = new TreeMap<>(new MapValueComparator(map));
         sortedMap.putAll(map);
         return sortedMap.keySet().toArray(new String[map.size()]);
     }

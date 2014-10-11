@@ -20,11 +20,12 @@ import org.apache.http.util.CharArrayBuffer;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class OAuth2Scheme implements AuthScheme {
-    public HashMap<String, String> params;
+    public Map<String, String> params;
     public HttpParams httpParams;
     private final CloudAPI api;
 
@@ -33,7 +34,7 @@ class OAuth2Scheme implements AuthScheme {
     public OAuth2Scheme(CloudAPI api, HttpParams httpParams) {
         this.api = api;
         this.httpParams = httpParams;
-        this.params = new HashMap<String, String>();
+        this.params = new HashMap<>();
     }
 
     @Override
@@ -73,9 +74,7 @@ class OAuth2Scheme implements AuthScheme {
                     // we actually need to refresh it ourselves
                     try {
                         api.refreshToken();
-                    } catch (IOException e) {
-                        throw new AuthenticationException("Error refreshing token", e);
-                    } catch (IllegalStateException e) {
+                    } catch (IOException | IllegalStateException e) {
                         throw new AuthenticationException("Error refreshing token", e);
                     }
                 }
