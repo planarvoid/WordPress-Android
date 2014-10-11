@@ -12,7 +12,9 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FoursquareVenue implements Parcelable {
-    @SuppressWarnings({"UnusedDeclaration"})
+    private static final String UNUSED_DECLARATION = "UnusedDeclaration";
+    
+    @SuppressWarnings(UNUSED_DECLARATION)
     public static final Parcelable.Creator<FoursquareVenue> CREATOR
             = new Parcelable.Creator<FoursquareVenue>() {
         public FoursquareVenue createFromParcel(Parcel in) {
@@ -26,7 +28,7 @@ public class FoursquareVenue implements Parcelable {
     public String id, name;
     public List<Category> categories;
 
-    @SuppressWarnings({"UnusedDeclaration"})
+    @SuppressWarnings(UNUSED_DECLARATION)
     public FoursquareVenue() {
     }
 
@@ -88,7 +90,7 @@ public class FoursquareVenue implements Parcelable {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Category implements Parcelable {
-        @SuppressWarnings({"UnusedDeclaration"})
+        @SuppressWarnings(UNUSED_DECLARATION)
         public static final Parcelable.Creator<Category> CREATOR
                 = new Parcelable.Creator<Category>() {
             public Category createFromParcel(Parcel in) {
@@ -103,7 +105,7 @@ public class FoursquareVenue implements Parcelable {
         public boolean primary;
         public URI icon;
 
-        @SuppressWarnings({"UnusedDeclaration"})
+        @SuppressWarnings(UNUSED_DECLARATION)
         public Category() {
         }
 

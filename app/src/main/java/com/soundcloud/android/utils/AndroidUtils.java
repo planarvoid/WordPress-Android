@@ -125,21 +125,23 @@ public final class AndroidUtils {
 
     @SuppressWarnings("UnusedDeclaration")
     public static void logScreenSize(Context context) {
+        final String SCREEN_SIZE = "ScreenSize";
+        final String CURRENT_SCREEN_SIZE = "Current Screen Size : ";
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
             case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                Log.d("ScreenSize", "Current Screen Size : Small Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Small Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                Log.d("ScreenSize", "Current Screen Size : Normal Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Normal Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                Log.d("ScreenSize", "Current Screen Size : Large Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Large Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
-                Log.d("ScreenSize", "Current Screen Size : XLarge Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "XLarge Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_UNDEFINED:
-                Log.d("ScreenSize", "Current Screen Size : Undefined Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Undefined Screen");
                 break;
         }
     }

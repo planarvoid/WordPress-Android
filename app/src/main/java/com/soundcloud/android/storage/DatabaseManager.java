@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.Locale;
+
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"}) // We know
 public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
@@ -109,8 +111,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.PLAY_QUEUE.recreate(db);
             return true;
         } catch (SQLException e) {
-            ErrorUtils.handleSilentException("error during upgrade24 " +
-                    "(from " + oldVersion + ")", e);
+            handleUpgradeException(e, oldVersion, 24);
         }
         return false;
     }
@@ -120,8 +121,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.ACTIVITIES.recreate(database);
             return true;
         } catch (SQLException exception) {
-            ErrorUtils.handleSilentException("error during upgrade25 " +
-                    "(from " + oldVersion + ")", exception);
+            handleUpgradeException(exception, oldVersion, 25);
         }
         return false;
     }
@@ -132,8 +132,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SOUND_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
-            ErrorUtils.handleSilentException("error during upgrade26 " +
-                    "(from " + oldVersion + ")", exception);
+            handleUpgradeException(exception, oldVersion, 26);
         }
         return false;
     }
@@ -144,8 +143,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.SOUND_ASSOCIATION_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
-            ErrorUtils.handleSilentException("error during upgrade27 " +
-                    "(from " + oldVersion + ")", exception);
+            handleUpgradeException(exception, oldVersion, 27);
         }
         return false;
     }
@@ -158,8 +156,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.ACTIVITY_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
-            ErrorUtils.handleSilentException("error during upgrade28 " +
-                    "(from " + oldVersion + ")", exception);
+            handleUpgradeException(exception, oldVersion, 28);
         }
         return false;
     }
@@ -172,9 +169,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.ACTIVITY_VIEW.recreate(database);
             return true;
         } catch (SQLException exception) {
-            ErrorUtils.handleSilentException("error during upgrade29 " +
-                    "(from " + oldVersion + ")", exception);
+            handleUpgradeException(exception, oldVersion, 29);
         }
         return false;
+    }
+
+    private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
+        final String message =
+                String.format(Locale.US, "error during upgrade%d (from %d)", newVersion, oldVersion);
+        ErrorUtils.handleSilentException(message, exception);
     }
 }
