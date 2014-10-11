@@ -76,6 +76,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
     }
 
     // TODO: this is horrible, leftover from ScModelManager
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static <T extends ScModel> List<T> loadLocalContent(ContentResolver resolver,
                                                                 Class<T> resourceType,
                                                                 Uri localUri) {

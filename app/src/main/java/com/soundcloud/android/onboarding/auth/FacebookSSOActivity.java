@@ -483,7 +483,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
             super(api);
         }
 
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         protected Boolean doInBackground(FBToken... params) {
             if (params == null || params.length == 0) {
                 throw new IllegalArgumentException();

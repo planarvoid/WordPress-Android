@@ -36,7 +36,7 @@ public class UploadMonitorActivity extends TrackedActivity {
     private final Handler handler = new Handler();
     private Recording recording;
     private final BroadcastReceiver uploadStatusListener = new BroadcastReceiver() {
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void onReceive(Context context, Intent intent) {
             Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
             if (!UploadMonitorActivity.this.recording.equals(recording)) {

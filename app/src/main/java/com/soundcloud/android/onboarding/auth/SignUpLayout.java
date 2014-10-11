@@ -74,7 +74,7 @@ public class SignUpLayout extends AuthLayout {
         validateForm();
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onFinishInflate() {
         super.onFinishInflate();
 

@@ -65,7 +65,7 @@ public class LocationPickerActivity extends ListActivity {
     private String provider;
     private Location location;
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

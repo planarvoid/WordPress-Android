@@ -318,7 +318,7 @@ public class StreamLoader {
             this.mLoaderRef = new WeakReference<>(loader);
         }
 
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void handleMessage(Message msg) {
             final StreamLoader loader = mLoaderRef.get();
             if (loader == null) {

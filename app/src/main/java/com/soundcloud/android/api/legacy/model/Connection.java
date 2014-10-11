@@ -180,7 +180,7 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         return false;
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

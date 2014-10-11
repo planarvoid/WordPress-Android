@@ -146,6 +146,7 @@ public class StreamStorage {
      * @return if the data was set
      * @throws java.io.IOException IO error
      */
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean storeData(final String url, ByteBuffer data, final int chunkIndex) throws IOException {
         if (data == null) {
             throw new IllegalArgumentException("buffer is null");
@@ -392,6 +393,7 @@ public class StreamStorage {
         return result;
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private synchronized boolean cleanup(long usableSpace) {
         if (!mConvertingUrls.isEmpty()) {
 

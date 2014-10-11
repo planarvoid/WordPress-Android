@@ -196,7 +196,7 @@ public class StreamProxy {
         return builder.build();
     }
 
-    @VisibleForTesting
+    @VisibleForTesting @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected static HttpUriRequest readRequest(InputStream is) throws IOException, URISyntaxException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
         String line = reader.readLine();
@@ -273,6 +273,7 @@ public class StreamProxy {
         return startByte < 0 ? 0 : startByte; // we don't support final byte ranges (-100)
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void processRequest(HttpUriRequest request, Socket client) {
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             logRequest(request);
@@ -380,6 +381,7 @@ public class StreamProxy {
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void writeChunks(HttpUriRequest request, String streamUrl, String nextUrl, final long startByte,
                              SocketChannel channel,
                              Map<String, String> headers)

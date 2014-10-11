@@ -29,7 +29,7 @@ public class ParallaxPager extends SafeViewPager {
         super(context, attrs);
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void setAdapter(final PagerAdapter adapter) {
         PagerAdapter adapterWrapper = new PagerAdapter() {
             @Override

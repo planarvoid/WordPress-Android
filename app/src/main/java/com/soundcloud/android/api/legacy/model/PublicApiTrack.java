@@ -324,6 +324,7 @@ public class PublicApiTrack extends Playable {
                 .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
 

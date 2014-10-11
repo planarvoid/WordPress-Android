@@ -126,6 +126,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private ApplicationProperties applicationProperties;
     private EventBus eventBus;
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
@@ -331,6 +332,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         setState(state, true);
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void setState(StartState state, boolean animated) {
         this.state = state;
 

@@ -260,6 +260,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         clearData();
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void checkForStaleItems(@NotNull Context context, List<? extends ScModel> items) {
         if (items.isEmpty()) {
             return;

@@ -84,7 +84,7 @@ class OAuth2Scheme implements AuthScheme {
         }
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void processChallenge(Header header) throws MalformedChallengeException {
         if (header == null) {
             throw new IllegalArgumentException("Header may not be null");

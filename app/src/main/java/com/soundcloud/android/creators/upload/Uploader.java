@@ -76,6 +76,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     /**
      * @throws IllegalArgumentException
      */
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private boolean upload(int tries) {
         final File toUpload = upload.getUploadFile();
         if (toUpload == null || !toUpload.exists()) {

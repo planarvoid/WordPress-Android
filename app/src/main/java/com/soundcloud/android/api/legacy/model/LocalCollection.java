@@ -204,7 +204,7 @@ public class LocalCollection implements Identifiable, Persisted {
         return Content.COLLECTIONS.uri;
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -251,6 +251,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void setTouchMode(InputObject input) {
         if (mode == MODE_REC || input.actionIndex > 1) {
             return;
@@ -319,6 +320,7 @@ public class CreateWaveDisplay extends TouchLayout {
         void onAdjustTrimRight(float newPos, long moveTimeMs);
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static final class TouchHandler extends Handler {
         private final WeakReference<CreateWaveDisplay> viewRef;
 
@@ -326,7 +328,7 @@ public class CreateWaveDisplay extends TouchLayout {
             this.viewRef = new WeakReference<CreateWaveDisplay>(view);
         }
 
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void handleMessage(Message msg) {
             final CreateWaveDisplay view = viewRef.get();
             if (view == null) {

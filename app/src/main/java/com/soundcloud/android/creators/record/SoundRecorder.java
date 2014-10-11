@@ -215,9 +215,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     // Sets output file path, call directly after construction/reset.
-    public
-    @NotNull
-    Recording startRecording(@Nullable String tip_key) throws IOException {
+    @NotNull @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    public Recording startRecording(@Nullable String tip_key) throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(context.getString(R.string.record_insert_sd_card));
         } else if (!remainingTimeCalculator.isDiskSpaceAvailable()) {
@@ -626,6 +625,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             previewQueue.add(preview);
         }
 
+        @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void run() {
             synchronized (audioRecord) {
                 if (!audioFocusManager.requestMusicFocus(SoundRecorder.this, IAudioManager.FOCUS_GAIN)) {
@@ -780,7 +780,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             setPriority(Thread.MAX_PRIORITY);
         }
 
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void run() {
             synchronized (audioRecord) {
                 Log.d(TAG, "starting reader thread: state=" + state);

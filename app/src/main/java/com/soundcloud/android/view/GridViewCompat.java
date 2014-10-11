@@ -421,7 +421,7 @@ public class GridViewCompat extends GridView {
      * }
      * </pre>
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB) @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void setItemChecked(int position, boolean value) {
         if (!inCompatibleMode) {
             super.setItemChecked(position, value);
@@ -548,7 +548,7 @@ public class GridViewCompat extends GridView {
      *
      * </pre>
      */
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean performItemClick(View view, int position, long id) {
         if (!inCompatibleMode) {
             return super.performItemClick(view, position, id);

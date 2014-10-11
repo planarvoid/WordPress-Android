@@ -234,7 +234,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
      * @param contentUri
      * @return whether any items were added or removed
      */
-    @Deprecated
+    @Deprecated @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean syncToLocal(List<SoundAssociation> soundAssociations, Uri contentUri) {
         // get current local id and types for this uri
         Cursor c = resolver.query(contentUri,

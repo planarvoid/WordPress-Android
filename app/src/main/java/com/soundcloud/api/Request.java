@@ -441,7 +441,7 @@ public class Request implements Iterable<NameValuePair> {
      * @param <T>    the type of request to use
      * @return HTTP request, prepared to be executed
      */
-    @SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
+    @SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes") @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public <T extends HttpRequestBase> T buildRequest(Class<T> method) {
         try {
             T request = method.newInstance();

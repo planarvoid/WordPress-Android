@@ -169,6 +169,7 @@ public class SyncAdapterService extends Service {
         }
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
                                         UserStorage userStorage,

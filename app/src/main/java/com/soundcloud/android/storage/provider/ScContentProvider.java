@@ -116,7 +116,7 @@ public class ScContentProvider extends ContentProvider {
         }, 0);
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public int bulkInsert(Uri uri, ContentValues[] values) {
         if (values == null || values.length == 0) {
             return 0;
@@ -325,6 +325,7 @@ public class ScContentProvider extends ContentProvider {
         };
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private Cursor doQuery(final Uri uri,
                            final String[] columns,
                            final String selection,
@@ -695,6 +696,7 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private int doDelete(Uri uri, String where, String[] whereArgs) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         int count;

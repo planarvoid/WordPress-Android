@@ -61,7 +61,7 @@ public class SingleLineCollectionTextView extends TextView {
         }
     }
 
-    @VisibleForTesting
+    @VisibleForTesting @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void setTextFromCollection(float maxWidth) {
 
         final int numItems = displayItems.size();

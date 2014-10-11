@@ -101,6 +101,7 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         return true;
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private Boolean reassembleFile(File chunkFile, File completeFile) {
         FileOutputStream fos = null;
         RandomAccessFile raf = null;

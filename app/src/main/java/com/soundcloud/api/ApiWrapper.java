@@ -303,6 +303,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     /**
      * @return The HttpClient instance used to make the calls
      */
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public HttpClient getHttpClient() {
         if (httpClient == null) {
             final HttpParams params = getParams();

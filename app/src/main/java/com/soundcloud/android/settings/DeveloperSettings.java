@@ -49,7 +49,7 @@ public class DeveloperSettings {
         setupListeners(activity);
     }
 
-    @SuppressWarnings("PMD.CyclomaticComplexity")
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void setupListeners(final PreferenceActivity activity) {
         activity.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {

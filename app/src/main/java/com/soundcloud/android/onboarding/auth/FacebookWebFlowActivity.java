@@ -29,7 +29,7 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
     private PublicCloudAPI publicCloudAPI;
 
     //FIXME: way too long, break this method up
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
