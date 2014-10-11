@@ -10,6 +10,9 @@
     <rule ref="rulesets/java/codesize.xml">
         <!-- This was too strict, doesn't account for ctors, equals, hashCode, to String, etc. -->
         <exclude name="TooManyMethods"/>
+        <!-- One cyclomatic complexity check is enough -->
+        <exclude name="StdCyclomaticComplexity"/>
+        <exclude name="CyclomaticComplexity"/>
     </rule>
     <rule ref="rulesets/java/design.xml">
         <exclude name="TooFewBranchesForASwitchStatement"/>
