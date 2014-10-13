@@ -15,7 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
-class ImageOptionsFactory {
+final class ImageOptionsFactory {
 
     static final int DELAY_BEFORE_LOADING = 200;
 
@@ -149,4 +149,6 @@ class ImageOptionsFactory {
             imageView.setImageDrawable(tDrawable);
         }
     }
+
+    private ImageOptionsFactory() {}
 }

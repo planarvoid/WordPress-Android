@@ -8,7 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
-public class SyncConfig {
+public final class SyncConfig {
     private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
 
     public static final String PREF_SYNC_WIFI_ONLY          = "syncWifiOnly";
@@ -94,4 +94,6 @@ public class SyncConfig {
 
         return (System.currentTimeMillis() - lastAction) > max;
     }
+
+    private SyncConfig() {}
 }

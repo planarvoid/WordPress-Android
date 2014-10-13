@@ -57,7 +57,6 @@ public class LruCache<K, V> {
         }
     }
 
-    // TODO: Seems like the queue will contain V not Entry<K, V>
     private void cleanUpSoftMap() {
         Entry<K, V> entry = (Entry<K, V>) queue.poll();
         while (entry != null) {
@@ -69,7 +68,7 @@ public class LruCache<K, V> {
     public synchronized V put(K key, V value) {
         cleanUpSoftMap();
         lruMap.put(key, value);
-        Entry<K, V> entry = softmap.put(key, new Entry<K, V>(key, value, queue));
+        Entry<K, V> entry = softmap.put(key, new Entry<>(key, value, queue));
         return entry == null ? null : entry.get();
     }
 

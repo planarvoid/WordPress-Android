@@ -3,7 +3,7 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.SoundCloudApplication;
 import org.jetbrains.annotations.NotNull;
 
-public class Log {
+public final class Log {
 
     public static void d(@NotNull final String tag, @NotNull final String message) {
         if (android.util.Log.isLoggable(tag, android.util.Log.DEBUG)) {
@@ -73,4 +73,5 @@ public class Log {
         e(SoundCloudApplication.TAG, message);
     }
 
+    private Log() {}
 }

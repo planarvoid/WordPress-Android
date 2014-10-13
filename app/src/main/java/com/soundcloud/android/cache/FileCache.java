@@ -100,7 +100,7 @@ public final class FileCache {
         }
 
         private void deletePlain(File... dirs) {
-            List<File> allFiles = new ArrayList<File>();
+            List<File> allFiles = new ArrayList<>();
             for (File dir : dirs) {
                 if (dir.isDirectory()) {
                     allFiles.addAll(Arrays.asList(IOUtils.nullSafeListFiles(dir, null)));
@@ -116,4 +116,6 @@ public final class FileCache {
             }
         }
     }
+
+    private FileCache() {}
 }

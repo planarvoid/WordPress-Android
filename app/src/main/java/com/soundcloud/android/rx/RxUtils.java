@@ -2,7 +2,7 @@ package com.soundcloud.android.rx;
 
 import rx.Observer;
 
-public class RxUtils {
+public final class RxUtils {
 
     public static <T> void emitIterable(Observer<? super T> observer, Iterable<T> iterable) {
         for (T item : iterable){
@@ -10,4 +10,5 @@ public class RxUtils {
         }
     }
 
+    private RxUtils() {}
 }

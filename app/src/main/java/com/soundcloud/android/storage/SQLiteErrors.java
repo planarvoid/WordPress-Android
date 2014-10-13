@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SQLiteErrors {
+public final class SQLiteErrors {
     private static Pattern CODE = Pattern.compile(".* \\(code (\\d+)\\)\\Z");
 
     // taken from sqlite3.h
@@ -74,4 +74,6 @@ public class SQLiteErrors {
         }
         return null;
     }
+
+    private SQLiteErrors() {}
 }

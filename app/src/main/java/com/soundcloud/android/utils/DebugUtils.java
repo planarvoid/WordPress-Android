@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class DebugUtils {
+public final class DebugUtils {
 
     public static final String UTF_8_ENC = Charsets.UTF_8.displayName();
 
@@ -41,7 +41,7 @@ public class DebugUtils {
 
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
             for (String k : extras.keySet()) {
                 Object value = extras.get(k);
                 map.put(k, value);
@@ -194,4 +194,6 @@ public class DebugUtils {
         }
         return props.toString();
     }
+
+    private DebugUtils() {}
 }
