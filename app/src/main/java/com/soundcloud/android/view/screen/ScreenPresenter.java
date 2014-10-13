@@ -26,6 +26,10 @@ public class ScreenPresenter {
         return createLayout(R.layout.base);
     }
 
+    public View setBaseLayoutWithMargins() {
+        return createLayout(R.layout.base_with_margins);
+    }
+
     public View setBaseLayoutWithContent(int contentId) {
         View layout = setBaseLayout();
         addContent(contentId, layout);

@@ -56,6 +56,15 @@ public class ScreenPresenterTest {
     }
 
     @Test
+    public void shouldSetActivityLayoutOnSetBaseLayoutWithMargins() {
+        when(inflater.inflate(R.layout.base_with_margins, null)).thenReturn(layout);
+
+        presenter.setBaseLayoutWithMargins();
+
+        verify(activity).setContentView(layout);
+    }
+
+    @Test
     public void shouldSetActivityLayoutOnSetBaseDrawerLayout() {
         when(inflater.inflate(R.layout.base_with_drawer, null)).thenReturn(layout);
 

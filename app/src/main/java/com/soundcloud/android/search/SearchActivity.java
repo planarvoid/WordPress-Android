@@ -74,7 +74,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     @Override
     protected void setContentView() {
-        presenter.setBaseLayout();
+        presenter.setBaseLayoutWithMargins();
     }
 
     @Override
