@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
 
@@ -61,6 +62,7 @@ public class AudioAd implements PropertySetSource {
         return leaveBehind != null;
     }
 
+    @Nullable
     public LeaveBehind getLeaveBehind() {
         return leaveBehind;
     }
