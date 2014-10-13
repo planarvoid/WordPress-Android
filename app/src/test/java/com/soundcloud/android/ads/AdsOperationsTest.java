@@ -151,9 +151,10 @@ public class AdsOperationsTest {
     @Test
     public void insertAudioAdShouldInsertAudioAd() throws Exception {
         ApiAudioAd audioAdWithoutLeaveBehind = Mockito.mock(ApiAudioAd.class);
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         when(audioAdWithoutLeaveBehind.hasApiLeaveBehind()).thenReturn(false);
-        when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(audioAdWithoutLeaveBehind.getApiTrack());
-        when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(audioAdWithoutLeaveBehind.toPropertySet());
+        when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(apiTrack);
+        when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(PropertySet.create());
 
         adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(audioAdWithoutLeaveBehind, null));
 

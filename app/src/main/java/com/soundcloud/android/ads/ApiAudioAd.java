@@ -58,12 +58,12 @@ public class ApiAudioAd implements PropertySetSource {
         return visualAd;
     }
 
-    public boolean hasLeaveBehind() {
+    public boolean hasApiLeaveBehind() {
         return apiLeaveBehind != null;
     }
 
     @Nullable
-    public ApiLeaveBehind getLeaveBehind() {
+    public ApiLeaveBehind getApiLeaveBehind() {
         return apiLeaveBehind;
     }
 
