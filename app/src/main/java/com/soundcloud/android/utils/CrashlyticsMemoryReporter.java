@@ -4,11 +4,8 @@ import com.crashlytics.android.Crashlytics;
 
 import android.app.ActivityManager;
 
-import javax.inject.Inject;
-
 public class CrashlyticsMemoryReporter extends MemoryReporter {
 
-    @Inject
     public CrashlyticsMemoryReporter(ActivityManager activityManager) {
         super(activityManager);
     }

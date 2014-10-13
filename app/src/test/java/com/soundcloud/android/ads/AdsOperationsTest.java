@@ -149,6 +149,46 @@ public class AdsOperationsTest {
     }
 
     @Test
+    public void insertAudioAdShouldInsertAudioAd() throws Exception {
+        ApiAudioAd audioAdWithoutLeaveBehind = Mockito.mock(ApiAudioAd.class);
+        when(audioAdWithoutLeaveBehind.hasApiLeaveBehind()).thenReturn(false);
+        when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(audioAdWithoutLeaveBehind.getApiTrack());
+        when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(audioAdWithoutLeaveBehind.toPropertySet());
+
+        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(audioAdWithoutLeaveBehind, null));
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(audioAdWithoutLeaveBehind.getApiTrack().getUrn());
+        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+    }
+
+    @Test
+    public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
+        ApiAdsForTrack noInterstitial = new ApiAdsForTrack(ModelFixtures.create(ApiAudioAd.class), null);
+        adsOperations.applyAdToTrack(TRACK_URN, noInterstitial);
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+        value2.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(noInterstitial.audioAd().getApiTrack().getUrn());
+        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind().toPropertySet());
+    }
+
+    @Test
     public void applyAdInsertsAudioAdWithNoLeaveBehindWhenNoInterstitialOrLeaveBehindIsAvailable() throws Exception {
         final ApiAudioAd apiAudioAd = Mockito.mock(ApiAudioAd.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);

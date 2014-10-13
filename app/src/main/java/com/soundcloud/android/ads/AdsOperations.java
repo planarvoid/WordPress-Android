@@ -80,17 +80,21 @@ public class AdsOperations {
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
 
-        final int newMonetizablePosition = currentMonetizablePosition + 1;
-        if (apiAudioAd.hasApiLeaveBehind()){
-            insertAudioAdWithLeaveBehind(apiAudioAd, currentMonetizablePosition, adMetaData, newMonetizablePosition);
+        final int insertPosition = playQueueManager.getPositionForUrn(monetizableTrack);
+        checkState(insertPosition != -1, "Failed to find the monetizable track");
+
+
+        if (apiAudioAd.hasApiLeaveBehind()) {
+            insertAudioAdWithLeaveBehind(apiAudioAd, adMetaData, insertPosition);
         } else {
             playQueueManager.performPlayQueueUpdateOperations(
-                    new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
+                    new PlayQueueManager.InsertOperation(insertPosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
             );
         }
     }
 
-    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, int currentMonetizablePosition, PropertySet adMetaData, int newMonetizablePosition) {
+    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, PropertySet adMetaData, int currentMonetizablePosition) {
+        int newMonetizablePosition = currentMonetizablePosition + 1;
         playQueueManager.performPlayQueueUpdateOperations(
                 new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false),
                 new PlayQueueManager.MergeMetadataOperation(newMonetizablePosition, apiAudioAd.getApiLeaveBehind().toPropertySet())

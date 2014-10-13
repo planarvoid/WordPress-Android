@@ -24,7 +24,6 @@ import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -51,9 +50,6 @@ public class TestApplicationModule {
     public ScModelManager provideModelManager() {
         return new ScModelManager(application);
     }
-
-    @Provides
-    public ActivityManager provideActivityManager() { return (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE); }
 
     @Provides
     public SharedPreferences provideSharedPreferences() {
