@@ -5,6 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -24,13 +26,15 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
     private final AccountOperations accountOperations;
+    private final FeatureFlags featureFlags;
     @Nullable private OnToggleFollowListener toggleFollowListener;
 
     @Inject
     public UserItemPresenter(ImageOperations imageOperations,
-                             AccountOperations accountOperations) {
+                             AccountOperations accountOperations, FeatureFlags featureFlags) {
         this.imageOperations = imageOperations;
         this.accountOperations = accountOperations;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
 
     private void showFollowingStatus(final int position, View itemView, PropertySet user) {
         final ToggleButton toggleButton = (ToggleButton) itemView.findViewById(R.id.toggle_btn_follow);
-        if (accountOperations.isLoggedInUser(user.get(UserProperty.URN))) {
+        if (shouldHideToggleFollowButton(user)) {
             toggleButton.setVisibility(View.GONE);
         } else {
             final boolean isFollowing = user.contains(UserProperty.IS_FOLLOWED_BY_ME) && user.get(UserProperty.IS_FOLLOWED_BY_ME);
@@ -71,6 +75,10 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
                 }
             });
         }
+    }
+
+    private boolean shouldHideToggleFollowButton(PropertySet user) {
+        return featureFlags.isEnabled(Feature.API_MOBILE_SEARCH) || accountOperations.isLoggedInUser(user.get(UserProperty.URN));
     }
 
     private void setupFollowersCount(View itemView, PropertySet user) {

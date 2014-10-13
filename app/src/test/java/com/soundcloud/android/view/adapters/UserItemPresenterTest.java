@@ -12,6 +12,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -40,12 +42,14 @@ public class UserItemPresenterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private UserItemPresenter.OnToggleFollowListener toggleFollowListener;
+    @Mock private FeatureFlags featureFlags;
 
     private View itemView;
     private PropertySet propertySet;
 
     @Before
     public void setup() {
+        when(featureFlags.isEnabled(Feature.API_MOBILE_SEARCH)).thenReturn(false);
         propertySet = PropertySet.from(
                 UserProperty.URN.bind(Urn.forUser(2)),
                 UserProperty.USERNAME.bind("forss"),
@@ -112,7 +116,16 @@ public class UserItemPresenterTest {
 
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(followingButton().getVisibility()).toEqual(View.GONE);
+        expect(followingButton()).toBeGone();
+    }
+
+    @Test
+    public void followButtonShouldBeHiddenWhenApiSearchFeatureFlagIsOn() {
+        when(featureFlags.isEnabled(Feature.API_MOBILE_SEARCH)).thenReturn(true);
+
+        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+
+        expect(followingButton()).toBeGone();
     }
 
     @Test
@@ -120,7 +133,8 @@ public class UserItemPresenterTest {
         propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, true);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(followingButton().isChecked()).toBeTrue();
+        expect(followingButton()).toBeVisible();
+        expect(followingButton()).toBeChecked();
     }
     
     @Test
@@ -128,7 +142,8 @@ public class UserItemPresenterTest {
         propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, false);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
-        expect(followingButton().isChecked()).toBeFalse();
+        expect(followingButton()).toBeVisible();
+        expect(followingButton()).not.toBeChecked();
     }
 
     @Test
