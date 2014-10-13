@@ -13,8 +13,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import rx.Observer;
 
 import java.util.List;
 
@@ -23,17 +21,15 @@ public class UserWriteStorageTest extends StorageIntegrationTest {
 
     private UserWriteStorage storage;
 
-    @Mock Observer observer;
-
     @Before
     public void setup() {
-        storage = new UserWriteStorage(testScheduler());
+        storage = new UserWriteStorage(propeller());
     }
 
     @Test
     public void shouldStoreApiMobileUserCollection() {
         final List<ApiUser> apiUsers = ModelFixtures.create(ApiUser.class, 2);
-        storage.storeUsersAsync(apiUsers).subscribe(observer);
+        storage.storeUsers(apiUsers);
 
         expectUserInserted(apiUsers.get(0));
         expectUserInserted(apiUsers.get(0));

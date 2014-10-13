@@ -1,7 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
@@ -48,7 +46,7 @@ class PlaylistDiscoveryOperations {
     private final Action1<ModelCollection<ApiPlaylist>> preCachePlaylistResults = new Action1<ModelCollection<ApiPlaylist>>() {
         @Override
         public void call(ModelCollection<ApiPlaylist> collection) {
-            fireAndForget(playlistWriteStorage.storePlaylistsAsync(collection.getCollection()));
+            playlistWriteStorage.storePlaylists(collection.getCollection());
         }
     };
 

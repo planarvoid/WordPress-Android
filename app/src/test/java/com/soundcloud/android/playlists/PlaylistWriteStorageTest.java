@@ -14,8 +14,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import rx.Observer;
 
 import android.text.TextUtils;
 
@@ -26,21 +24,18 @@ import java.util.List;
 public class PlaylistWriteStorageTest extends StorageIntegrationTest {
 
     private PlaylistWriteStorage storage;
-
-    @Mock Observer observer;
+    private List<ApiPlaylist> playlists;
 
     @Before
     public void setup() {
-        storage = new PlaylistWriteStorage(testScheduler());
+        storage = new PlaylistWriteStorage(propeller());
+        playlists = ModelFixtures.create(ApiPlaylist.class, 2);
     }
 
     @Test
     public void shouldStoreApiMobilePlaylistCollection() {
-        final List<ApiPlaylist> apiPlaylists = ModelFixtures.create(ApiPlaylist.class, 2);
-        storage.storePlaylistsAsync(apiPlaylists).subscribe(observer);
-
-        expectPlaylistInserted(apiPlaylists.get(0));
-        expectPlaylistInserted(apiPlaylists.get(1));
+        storage.storePlaylists(playlists);
+        expectPlaylistsInserted(playlists);
     }
 
     @Test
@@ -48,7 +43,7 @@ public class PlaylistWriteStorageTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         playlist.setTitle("new title");
 
-        storage.storePlaylistsAsync(Arrays.asList(playlist)).subscribe(observer);
+        storage.storePlaylists(Arrays.asList(playlist));
 
         assertThat(select(from(Table.SOUNDS.name)), counts(1));
         expectPlaylistInserted(playlist);
@@ -56,11 +51,16 @@ public class PlaylistWriteStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreUsersFromApiMobilePlaylistCollection() {
-        final List<ApiPlaylist> apiPlaylists = ModelFixtures.create(ApiPlaylist.class, 2);
-        storage.storePlaylistsAsync(apiPlaylists).subscribe(observer);
+        storage.storePlaylists(playlists);
 
-        expectUserInserted(apiPlaylists.get(0).getUser());
-        expectUserInserted(apiPlaylists.get(1).getUser());
+        expectUserInserted(playlists.get(0).getUser());
+        expectUserInserted(playlists.get(1).getUser());
+    }
+
+    private void expectPlaylistsInserted(List<ApiPlaylist> playlists) {
+        for (ApiPlaylist playlist : playlists) {
+            expectPlaylistInserted(playlist);
+        }
     }
 
     private void expectPlaylistInserted(ApiPlaylist playlist) {

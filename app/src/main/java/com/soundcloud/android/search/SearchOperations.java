@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
@@ -46,21 +45,21 @@ class SearchOperations {
     private final Action1<ModelCollection<ApiTrack>> cacheTracks = new Action1<ModelCollection<ApiTrack>>() {
         @Override
         public void call(ModelCollection<ApiTrack> trackList) {
-            fireAndForget(trackStorage.storeTracksAsync(trackList.getCollection()));
+            trackStorage.storeTracks(trackList.getCollection());
         }
     };
 
     private final Action1<ModelCollection<ApiPlaylist>> cachePlaylists = new Action1<ModelCollection<ApiPlaylist>>() {
         @Override
         public void call(ModelCollection<ApiPlaylist> playlistsResult) {
-            fireAndForget(playlistWriteStorage.storePlaylistsAsync(playlistsResult.getCollection()));
+            playlistWriteStorage.storePlaylists(playlistsResult.getCollection());
         }
     };
 
     private final Action1<ModelCollection<ApiUser>> cacheUsers = new Action1<ModelCollection<ApiUser>>() {
         @Override
         public void call(ModelCollection<ApiUser> userResult) {
-            fireAndForget(userStorage.storeUsersAsync(userResult.getCollection()));
+            userStorage.storeUsers(userResult.getCollection());
         }
     };
 
@@ -89,13 +88,13 @@ class SearchOperations {
             }
 
             if (!users.isEmpty()) {
-                fireAndForget(userStorage.storeUsersAsync(users));
+                userStorage.storeUsers(users);
             }
             if (!playlists.isEmpty()) {
-                fireAndForget(playlistWriteStorage.storePlaylistsAsync(playlists));
+                playlistWriteStorage.storePlaylists(playlists);
             }
             if (!tracks.isEmpty()) {
-                fireAndForget(trackStorage.storeTracksAsync(tracks));
+                trackStorage.storeTracks(tracks);
             }
         }
     };

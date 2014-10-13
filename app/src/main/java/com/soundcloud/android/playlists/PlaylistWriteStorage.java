@@ -7,8 +7,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
-import rx.Observable;
 
 import android.content.ContentValues;
 import android.text.TextUtils;
@@ -18,15 +16,15 @@ import java.util.Collection;
 
 public class PlaylistWriteStorage {
 
-    private final DatabaseScheduler scheduler;
+    private final PropellerDatabase propeller;
 
     @Inject
-    public PlaylistWriteStorage(DatabaseScheduler scheduler) {
-        this.scheduler = scheduler;
+    public PlaylistWriteStorage(PropellerDatabase database) {
+        this.propeller = database;
     }
 
-    public Observable<TxnResult> storePlaylistsAsync(Collection<ApiPlaylist> playlists) {
-        return scheduler.scheduleTransaction(storePlaylistsTransaction(playlists));
+    public TxnResult storePlaylists(Collection<ApiPlaylist> playlists) {
+        return propeller.runTransaction(storePlaylistsTransaction(playlists));
     }
 
     private PropellerDatabase.Transaction storePlaylistsTransaction(final Collection<ApiPlaylist> playlists) {

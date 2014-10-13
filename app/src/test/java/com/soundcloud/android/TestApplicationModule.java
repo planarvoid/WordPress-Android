@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import dagger.Module;
 import dagger.Provides;
@@ -130,6 +131,11 @@ public class TestApplicationModule {
     @Provides
     public PlaybackNotificationController providePlaybackNotificationController() {
         return mock(PlaybackNotificationController.class);
+    }
+
+    @Provides
+    public TrackWriteStorage provideTrackWriteStorage() {
+        return mock(TrackWriteStorage.class);
     }
 
     @Provides

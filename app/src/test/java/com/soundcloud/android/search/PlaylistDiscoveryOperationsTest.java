@@ -22,7 +22,6 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +33,6 @@ import rx.Observable;
 import rx.Observer;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +49,6 @@ public class PlaylistDiscoveryOperationsTest {
     @Before
     public void setup() {
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        when(playlistWriteStorage.storePlaylistsAsync(any(Collection.class))).thenReturn(Observable.<TxnResult>empty());
     }
 
     @Test
@@ -129,7 +126,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        verify(playlistWriteStorage).storePlaylistsAsync(collection.getCollection());
+        verify(playlistWriteStorage).storePlaylists(collection.getCollection());
     }
 
     private ModelCollection<ApiPlaylist> buildPlaylistSummariesResponse() throws CreateModelException {

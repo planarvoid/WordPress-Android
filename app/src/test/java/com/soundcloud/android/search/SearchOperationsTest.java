@@ -20,7 +20,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.users.UserWriteStorage;
-import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,9 +53,6 @@ public class SearchOperationsTest {
         user = ModelFixtures.create(ApiUser.class);
 
         when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        when(userStorage.storeUsersAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
-        when(trackStorage.storeTracksAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
-        when(playlistWriteStorage.storePlaylistsAsync(any(List.class))).thenReturn(Observable.<TxnResult>empty());
 
         operations = new SearchOperations(rxHttpClient, userStorage, playlistWriteStorage, playlistStorage, trackStorage);
     }
@@ -105,7 +101,7 @@ public class SearchOperationsTest {
 
         operations.getSearchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
 
-        verify(userStorage).storeUsersAsync(userList);
+        verify(userStorage).storeUsers(userList);
     }
 
     @Test
@@ -116,7 +112,7 @@ public class SearchOperationsTest {
 
         operations.getSearchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
-        verify(playlistWriteStorage).storePlaylistsAsync(playlists);
+        verify(playlistWriteStorage).storePlaylists(playlists);
     }
 
     @Test
@@ -127,7 +123,7 @@ public class SearchOperationsTest {
 
         operations.getSearchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
 
-        verify(trackStorage).storeTracksAsync(trackList);
+        verify(trackStorage).storeTracks(trackList);
     }
 
     @Test
@@ -138,9 +134,9 @@ public class SearchOperationsTest {
 
         operations.getSearchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
-        verify(trackStorage).storeTracksAsync(Lists.newArrayList(track));
-        verify(playlistWriteStorage).storePlaylistsAsync(Lists.newArrayList(playlist));
-        verify(userStorage).storeUsersAsync(Lists.newArrayList(user));
+        verify(trackStorage).storeTracks(Lists.newArrayList(track));
+        verify(playlistWriteStorage).storePlaylists(Lists.newArrayList(playlist));
+        verify(userStorage).storeUsers(Lists.newArrayList(user));
     }
 
     @Test

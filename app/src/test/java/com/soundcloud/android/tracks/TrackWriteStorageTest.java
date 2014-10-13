@@ -16,66 +16,56 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
+import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackWriteStorageTest extends StorageIntegrationTest {
 
     private TrackWriteStorage storage;
+    private TestObserver<TxnResult> observer;
+    private ApiTrack track;
 
     @Before
     public void setup() {
-        storage = new TrackWriteStorage(testScheduler());
+        storage = new TrackWriteStorage(propeller(), Schedulers.immediate());
+        observer = new TestObserver<>();
+        track = ModelFixtures.create(ApiTrack.class);
     }
 
     @Test
-    public void shouldStoreTrackMetadataFromApiMobileTrack() throws CreateModelException {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-
+    public void shouldStoreTrackMetadataFromApiMobileTrack() {
         storage.storeTrackAsync(track).subscribe(observer);
-
         expectTrackInserted(track);
     }
 
     @Test
-    public void shouldStoreUserMetadataFromApiMobileTrack() throws CreateModelException {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-
+    public void shouldStoreUserMetadataFromApiMobileTrack() {
         storage.storeTrackAsync(track).subscribe(observer);
-
         expectUserInserted(track.getUser());
     }
 
     @Test
-    public void storingApiMobileTrackEmitsTransactionResult() throws CreateModelException {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-
+    public void storingApiMobileTrackEmitsTransactionResult() {
         storage.storeTrackAsync(track).subscribe(observer);
 
         assertThat(observer.getOnNextEvents().size(), is(1));
         assertThat(observer.getOnCompletedEvents().size(), is(1));
+
         TxnResult result = observer.getOnNextEvents().get(0);
         assertThat(result.success(), is(true));
         assertThat(((ChangeResult) result.getResults().get(0)).getNumRowsAffected(), is(1));
     }
 
     @Test
-    public void shouldStoreTrackMetadataFromListOfApiMobileTracks() throws CreateModelException {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        final List<ApiTrack> tracks = Arrays.asList(
-                ModelFixtures.create(ApiTrack.class),
-                ModelFixtures.create(ApiTrack.class));
+    public void shouldStoreTrackMetadataFromListOfApiMobileTracks() {
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
@@ -84,11 +74,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldStoreUserMetadataFromListOfApiMobileTracks() throws CreateModelException {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        final List<ApiTrack> tracks = Arrays.asList(
-                ModelFixtures.create(ApiTrack.class),
-                ModelFixtures.create(ApiTrack.class));
+    public void shouldStoreUserMetadataFromListOfApiMobileTracks() {
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
@@ -97,9 +84,28 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldStoreListOfPolicies() throws Exception {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        List<PolicyInfo> policies = new ArrayList<PolicyInfo>();
+    public void shouldSyncStoreTrackMetadataFromListOfApiMobileTrack() {
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+
+        storage.storeTracks(tracks);
+
+        expectTrackInserted(tracks.get(0));
+        expectTrackInserted(tracks.get(1));
+    }
+
+    @Test
+    public void shouldSyncStoreUserMetadataFromListOfApiMobileTracks() {
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+
+        storage.storeTracks(tracks);
+
+        expectUserInserted(tracks.get(0).getUser());
+        expectUserInserted(tracks.get(1).getUser());
+    }
+
+    @Test
+    public void shouldStoreListOfPolicies() {
+        List<PolicyInfo> policies = new ArrayList<>();
         policies.add(new PolicyInfo(Urn.forTrack(1L), true, "allowed"));
         policies.add(new PolicyInfo(Urn.forTrack(2L), false, "monetizable"));
         policies.add(new PolicyInfo(Urn.forTrack(3L), true, "something"));
@@ -113,25 +119,21 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void storingListOfApiMobileTracksEmitsTransactionResult() throws CreateModelException {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-        final List<ApiTrack> tracks = Arrays.asList(
-                ModelFixtures.create(ApiTrack.class),
-                ModelFixtures.create(ApiTrack.class));
+    public void storingListOfApiMobileTracksEmitsTransactionResult() {
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
         assertThat(observer.getOnNextEvents().size(), is(1));
         assertThat(observer.getOnCompletedEvents().size(), is(1));
+
         TxnResult result = observer.getOnNextEvents().get(0);
         assertThat(result.success(), is(true));
         assertThat(result.getResults().size(), is(4));
     }
 
     @Test
-    public void storingListOfPoliciesEmitsTransactionResult() throws Exception {
-        TestObserver<TxnResult> observer = new TestObserver<TxnResult>();
-
+    public void storingListOfPoliciesEmitsTransactionResult() {
         List<PolicyInfo> policies = new ArrayList<PolicyInfo>();
         policies.add(new PolicyInfo(Urn.forTrack(1L), true, "allowed"));
         policies.add(new PolicyInfo(Urn.forTrack(2L), false, "monetizable"));
@@ -140,6 +142,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         assertThat(observer.getOnNextEvents().size(), is(1));
         assertThat(observer.getOnCompletedEvents().size(), is(1));
+
         TxnResult result = observer.getOnNextEvents().get(0);
         assertThat(result.success(), is(true));
         assertThat(result.getResults().size(), is(2));
