@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
 
@@ -57,12 +58,13 @@ public class ApiAudioAd implements PropertySetSource {
         return visualAd;
     }
 
-    public ApiLeaveBehind getApiLeaveBehind() {
-        return apiLeaveBehind;
-    }
-
     public boolean hasApiLeaveBehind() {
         return apiLeaveBehind != null;
+    }
+
+    @Nullable
+    public ApiLeaveBehind getApiLeaveBehind() {
+        return apiLeaveBehind;
     }
 
     @VisibleForTesting

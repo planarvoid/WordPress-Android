@@ -36,6 +36,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -56,6 +57,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
 
@@ -71,6 +73,10 @@ public class SoundCloudApplication extends Application {
     @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
 
+    // These are not injected because we need them before Dagger initializes
+    private MemoryReporter memoryReporter;
+    private SharedPreferences sharedPreferences;
+
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
     @Inject ScModelManager modelManager;
@@ -78,7 +84,6 @@ public class SoundCloudApplication extends Application {
     @Inject AccountOperations accountOperations;
     @Inject ExperimentOperations experimentOperations;
     @Inject ApplicationProperties applicationProperties;
-    @Inject SharedPreferences sharedPreferences;
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
@@ -88,7 +93,6 @@ public class SoundCloudApplication extends Application {
     @Inject PlaybackNotificationController playbackNotificationController;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
-    @Inject MemoryReporter memoryReporter;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -109,10 +113,11 @@ public class SoundCloudApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        registerRxGlobalErrorHandler();
-
         instance = this;
 
+        initializePreInjectionObjects();
+        setUpCrashReportingIfNeeded();
+        registerRxGlobalErrorHandler();
         objectGraph.inject(this);
 
         // reroute to a static field for legacy code
@@ -127,10 +132,7 @@ public class SoundCloudApplication extends Application {
             setupStrictMode();
         }
 
-        if (isReportingCrashes()) {
-            Crashlytics.start(this);
-            ErrorUtils.setupOOMInterception(memoryReporter);
-        }
+
         memoryReporter.reportSystemMemoryStats();
 
         IOUtils.checkState(this);
@@ -154,6 +156,23 @@ public class SoundCloudApplication extends Application {
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
         adsController.subscribe();
+    }
+
+    private void initializePreInjectionObjects() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        if (isReportingCrashes(sharedPreferences)) {
+            memoryReporter = new CrashlyticsMemoryReporter(activityManager);
+        } else {
+            memoryReporter = new MemoryReporter(activityManager);
+        }
+    }
+
+    private void setUpCrashReportingIfNeeded() {
+        if (isReportingCrashes(sharedPreferences)) {
+            Crashlytics.start(this);
+            ErrorUtils.setupOOMInterception(memoryReporter);
+        }
     }
 
     private void registerRxGlobalErrorHandler() {
@@ -307,9 +326,9 @@ public class SoundCloudApplication extends Application {
         memoryReporter.reportMemoryTrim(level);
     }
 
-    boolean isReportingCrashes() {
+    private boolean isReportingCrashes(SharedPreferences sharedPreferences) {
         return ApplicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, false);
+                sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, true);
     }
 
 }
