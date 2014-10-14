@@ -1,10 +1,10 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.payments.PaymentsActivity;
+import com.soundcloud.android.payments.SubscribeActivity;
 import com.soundcloud.android.tests.Han;
 
 public class PaymentScreen extends Screen {
-    private static final Class ACTIVITY = PaymentsActivity.class;
+    private static final Class ACTIVITY = SubscribeActivity.class;
 
     public PaymentScreen(Han solo) {
         super(solo);

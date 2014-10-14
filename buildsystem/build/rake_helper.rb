@@ -103,12 +103,26 @@ module Build
 
       desc "builds the project, you can build different versions by setting environment variable (BUILD_ENV=beta rake build)"
       task :build do
+        update_manifest
         build
       end
 
       desc "tags the current version"
       task :tag do
         git.tag
+      end
+    end
+
+    def update_manifest
+      puts "Removing DEBUG_ONLY permissions from manifest" if Configuration.build_env != 'debug'
+      manifest_path = 'app/AndroidManifest.xml'
+
+      new_file = IO.readlines(manifest_path).map do |line|
+        line unless line.include?("DEBUG_ONLY")
+      end
+
+      File.open(manifest_path, 'w+') do |android_manifest_file|
+        android_manifest_file << new_file.join
       end
     end
 

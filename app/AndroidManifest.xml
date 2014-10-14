@@ -22,6 +22,9 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 
+    <!-- Do not remove the DEBUG_ONLY tag! The build system omits this permission for betas and releases. -->
+    <uses-permission android:name="com.android.vending.BILLING" /> <!-- DEBUG_ONLY -->
+
     <!-- allows non-flash, non-autofocus devices to use app -->
     <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -307,8 +310,7 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-
-        <activity android:label="@string/title_subscribe" android:name=".payments.PaymentsActivity"/>
+        <activity android:name=".payments.SubscribeActivity" android:label="@string/title_subscribe" />
 
         <!-- for testing purposes -->
 
