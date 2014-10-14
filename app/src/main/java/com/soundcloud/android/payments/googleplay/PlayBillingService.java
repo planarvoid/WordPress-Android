@@ -32,12 +32,9 @@ public class PlayBillingService {
     private final BillingServiceBinder binder;
     private final PlayResponseProcessor processor;
 
-    private Activity bindingActivity;
-    private IInAppBillingService iabService;
+    private final BehaviorSubject<ConnectionStatus> connectionSubject = BehaviorSubject.create();
 
-    private BehaviorSubject<ConnectionStatus> connectionSubject = BehaviorSubject.create();
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             log("Billing service connected");
@@ -52,6 +49,9 @@ public class PlayBillingService {
             connectionSubject.onNext(ConnectionStatus.DISCONNECTED);
         }
     };
+
+    private Activity bindingActivity;
+    private IInAppBillingService iabService;
 
     @Inject
     PlayBillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, PlayResponseProcessor processor) {

@@ -22,7 +22,7 @@ class SubscribeController {
     @InjectView(R.id.subscribe_price) TextView price;
     @InjectView(R.id.subscribe_buy) Button buyButton;
 
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private final CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
     SubscribeController(PaymentOperations paymentOperations) {
