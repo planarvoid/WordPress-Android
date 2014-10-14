@@ -80,15 +80,12 @@ public class AdsOperations {
                 .toPropertySet()
                 .put(AdProperty.MONETIZABLE_TRACK_URN, monetizableTrack);
 
-        final int insertPosition = playQueueManager.getPositionForUrn(monetizableTrack);
-        checkState(insertPosition != -1, "Failed to find the monetizable track");
-
 
         if (apiAudioAd.hasApiLeaveBehind()) {
-            insertAudioAdWithLeaveBehind(apiAudioAd, adMetaData, insertPosition);
+            insertAudioAdWithLeaveBehind(apiAudioAd, adMetaData, currentMonetizablePosition);
         } else {
             playQueueManager.performPlayQueueUpdateOperations(
-                    new PlayQueueManager.InsertOperation(insertPosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
+                    new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false)
             );
         }
     }
