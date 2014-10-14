@@ -116,6 +116,7 @@
                     <androidManifestPath>${project.basedir}/AndroidManifest.xml</androidManifestPath>
                     <androidAssetsPath>${project.basedir}/assets</androidAssetsPath>
                     <androidResPath>${project.basedir}/res</androidResPath>
+                    <mapping_location>${project.basedir}/target/proguard/mapping.txt</mapping_location>
                 </configuration>
                 <executions>
                     <execution>
