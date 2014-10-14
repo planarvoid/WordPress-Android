@@ -22,6 +22,7 @@ module Build
     end
 
     def create_release(tag_name, name, body)
+      puts tag_name
       authorized_connection.post("/repos/#{OWNER}/#{REPO}/releases", :body => {
         :tag_name => tag_name,
         :name     => name,
