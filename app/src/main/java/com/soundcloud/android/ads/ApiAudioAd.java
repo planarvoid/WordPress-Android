@@ -17,7 +17,7 @@ public class ApiAudioAd implements PropertySetSource {
     private final String urn;
     private final ApiTrack apiTrack;
 
-    private final VisualAd visualAd;
+    private final ApiVisualAdWithButton visualAd;
 
     private final ApiLeaveBehind apiLeaveBehind;
     private final List<String> trackingImpressionUrls;
@@ -35,7 +35,7 @@ public class ApiAudioAd implements PropertySetSource {
     }
 
     @VisibleForTesting
-    public ApiAudioAd(String urn, ApiTrack apiTrack, VisualAd visualAd, ApiLeaveBehind apiLeaveBehind, List<String> trackingImpressionUrls,
+    public ApiAudioAd(String urn, ApiTrack apiTrack, ApiVisualAdWithButton visualAd, ApiLeaveBehind apiLeaveBehind, List<String> trackingImpressionUrls,
                       List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
         this.urn = urn;
         this.apiTrack = apiTrack;
@@ -54,7 +54,7 @@ public class ApiAudioAd implements PropertySetSource {
         return apiTrack;
     }
 
-    public VisualAd getVisualAd() {
+    public ApiVisualAd getVisualAd() {
         return visualAd;
     }
 
@@ -84,12 +84,12 @@ public class ApiAudioAd implements PropertySetSource {
 
     private static class RelatedResources {
 
-        private final VisualAd visualAd;
+        private final ApiVisualAdWithButton visualAd;
 
         private final ApiLeaveBehind apiLeaveBehind;
 
         @JsonCreator
-        private RelatedResources(@JsonProperty("visual_ad") VisualAd visualAd, @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
+        private RelatedResources(@JsonProperty("visual_ad") ApiVisualAdWithButton visualAd, @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
             this.visualAd = visualAd;
             this.apiLeaveBehind = apiLeaveBehind;
         }

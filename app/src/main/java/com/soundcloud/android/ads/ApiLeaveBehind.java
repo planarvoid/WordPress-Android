@@ -9,13 +9,9 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class ApiLeaveBehind implements PropertySetSource {
+public class ApiLeaveBehind extends ApiVisualAd implements PropertySetSource {
 
     private final String urn;
-    private final String imageUrl;
-    private final String clickthroughUrl;
-    private final List<String> trackingImpressionUrls;
-    private final List<String> trackingClickUrls;
 
     @JsonCreator
     public ApiLeaveBehind(
@@ -24,41 +20,18 @@ public class ApiLeaveBehind implements PropertySetSource {
             @JsonProperty("clickthrough_url") String clickthroughUrl,
             @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
             @JsonProperty("tracking_click_urls") List<String> trackingClickUrls) {
+        super(imageUrl, clickthroughUrl, trackingImpressionUrls, trackingClickUrls);
         this.urn = urn;
-        this.imageUrl = imageUrl;
-        this.clickthroughUrl = clickthroughUrl;
-        this.trackingImpressionUrls = trackingImpressionUrls;
-        this.trackingClickUrls = trackingClickUrls;
     }
 
     public String getUrn() {
         return urn;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public String getClickthroughUrl() {
-        return clickthroughUrl;
-    }
-
-    public List<String> getTrackingImpressionUrls() {
-        return trackingImpressionUrls;
-    }
-
-    public List<String> getTrackingClickUrls() {
-        return trackingClickUrls;
-    }
-
     @Override
     public String toString() {
-        return "LeaveBehind{" +
+        return "ApiLeaveBehind{" +
                 "urn='" + urn + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", clickthroughUrl='" + clickthroughUrl + '\'' +
-                ", trackingImpressionUrls=" + trackingImpressionUrls +
-                ", trackingClickUrls=" + trackingClickUrls +
                 '}';
     }
 
@@ -68,7 +41,7 @@ public class ApiLeaveBehind implements PropertySetSource {
                 LeaveBehindProperty.LEAVE_BEHIND_URN.bind(urn),
                 LeaveBehindProperty.IMAGE_URL.bind(getImageUrl()),
                 LeaveBehindProperty.CLICK_THROUGH_URL.bind(Uri.parse(getClickthroughUrl())),
-                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(trackingImpressionUrls),
-                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(trackingClickUrls));
+                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(getTrackingImpressionUrls()),
+                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(getTrackingClickUrls()));
     }
 }

@@ -22,7 +22,7 @@ import com.soundcloud.android.testsupport.blueprints.RecordingBlueprint;
 import com.soundcloud.android.testsupport.blueprints.SuggestedUserBlueprint;
 import com.soundcloud.android.testsupport.blueprints.TrackStatsBlueprint;
 import com.soundcloud.android.testsupport.blueprints.UserUrnBlueprint;
-import com.soundcloud.android.testsupport.blueprints.VisualAdBlueprint;
+import com.soundcloud.android.testsupport.blueprints.VisualAdWithButtonBlueprint;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
@@ -52,7 +52,7 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(PublicApiCommentBlueprint.class);
             modelFactory.registerBlueprint(AffiliationActivityBlueprint.class);
             modelFactory.registerBlueprint(ApiAudioAdBlueprint.class);
-            modelFactory.registerBlueprint(VisualAdBlueprint.class);
+            modelFactory.registerBlueprint(VisualAdWithButtonBlueprint.class);
             modelFactory.registerBlueprint(AdsForTrackBlueprint.class);
             modelFactory.registerBlueprint(DisplayPropertiesBlueprint.class);
             modelFactory.registerBlueprint(LeaveBehindBlueprint.class);

@@ -5,25 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class VisualAd {
+public class ApiVisualAd {
 
     private final String imageUrl;
     private final String clickthroughUrl;
     private final List<String> trackingImpressionUrls;
     private final List<String> trackingClickUrls;
-    private final DisplayProperties displayProperties;
 
     @JsonCreator
-    public VisualAd(@JsonProperty("image_url") String imageUrl,
-                    @JsonProperty("clickthrough_url") String clickthroughUrl,
-                    @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
-                    @JsonProperty("tracking_click_urls") List<String> trackingClickUrls,
-                    @JsonProperty("display_properties") DisplayProperties displayProperties) {
+    public ApiVisualAd(@JsonProperty("image_url") String imageUrl,
+                       @JsonProperty("clickthrough_url") String clickthroughUrl,
+                       @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
+                       @JsonProperty("tracking_click_urls") List<String> trackingClickUrls) {
         this.imageUrl = imageUrl;
         this.clickthroughUrl = clickthroughUrl;
         this.trackingImpressionUrls = trackingImpressionUrls;
         this.trackingClickUrls = trackingClickUrls;
-        this.displayProperties = displayProperties;
     }
 
     public String getImageUrl() {
@@ -42,10 +39,6 @@ public class VisualAd {
         return trackingClickUrls;
     }
 
-    public DisplayProperties getDisplayProperties() {
-        return displayProperties;
-    }
-
     @Override
     public String toString() {
         return "VisualAd{" +
@@ -53,7 +46,6 @@ public class VisualAd {
                 ", clickthroughUrl='" + clickthroughUrl + '\'' +
                 ", trackingImpressionUrls=" + trackingImpressionUrls +
                 ", trackingClickUrls=" + trackingClickUrls +
-                ", displayProperties=" + displayProperties +
                 '}';
     }
 }
