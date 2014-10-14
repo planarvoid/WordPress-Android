@@ -42,7 +42,7 @@ public class WhoToFollowActivity extends ScActivity {
 
     @Override
     protected void setContentView() {
-        presenter.setBaseLayout();
+        presenter.setBaseLayoutWithMargins();
     }
 
     @Override
