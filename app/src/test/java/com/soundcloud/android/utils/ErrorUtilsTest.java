@@ -30,6 +30,16 @@ public class ErrorUtilsTest {
         verify(mockError).printStackTrace();
     }
 
+    @Test(expected = OnErrorNotImplementedException.class)
+    public void handleThrowableShouldRethrowJavaErrorsAsOnErrorNotImplemented() {
+        ErrorUtils.handleThrowable(new StackOverflowError(), ErrorUtilsTest.class);
+    }
+
+    @Test(expected = OnErrorNotImplementedException.class)
+    public void handleThrowableShouldRethrowJavaUncheckedExceptionsAsOnErrorNotImplemented() {
+        ErrorUtils.handleThrowable(new RuntimeException(), ErrorUtilsTest.class);
+    }
+
     @Test(expected = RuntimeException.class)
     public void handleThrowableShouldRethrowCauseFromOnErrorNotImplemented() {
         ErrorUtils.handleThrowable(new OnErrorNotImplementedException(new RuntimeException()), ErrorUtilsTest.class);
