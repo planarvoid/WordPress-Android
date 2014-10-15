@@ -4,7 +4,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIRequestException;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +51,7 @@ public class ErrorUtils {
     public static synchronized void handleThrowable(Throwable t, String context) {
         Log.e(ERROR_CONTEXT_TAG, context);
 
-        if (ApplicationProperties.shouldReportCrashes()) {
+        if (Crashlytics.getInstance().isInitialized()) {
             Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
         if (t instanceof OnErrorNotImplementedException) {
@@ -94,7 +93,7 @@ public class ErrorUtils {
     }
 
     public static void handleSilentException(Throwable e, @NotNull Map<String,String> customLogs){
-        if (ApplicationProperties.shouldReportCrashes()) {
+        if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             for (Map.Entry<String,String> entry : customLogs.entrySet()){
                 Crashlytics.setString(entry.getKey(), entry.getValue());
@@ -105,7 +104,7 @@ public class ErrorUtils {
 
     private static synchronized void handleSilentException(
             Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
-        if (ApplicationProperties.shouldReportCrashes()) {
+        if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
                 Crashlytics.setString(contextKey, contextValue);

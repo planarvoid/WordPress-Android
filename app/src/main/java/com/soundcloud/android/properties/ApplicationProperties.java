@@ -6,7 +6,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.R;
-import com.soundcloud.android.R.string;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.res.Resources;
@@ -37,7 +36,7 @@ public class ApplicationProperties {
     @Inject
     public ApplicationProperties(Resources resources){
         checkNotNull(resources, "Resources should not be null");
-        String buildType = resources.getString(string.build_type);
+        String buildType = resources.getString(R.string.build_type);
         checkArgument(ScTextUtils.isNotBlank(buildType), "Build type not found in application package resources");
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
         VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
@@ -89,7 +88,7 @@ public class ApplicationProperties {
                 add("isEmulator", IS_RUNNING_ON_EMULATOR).toString();
     }
 
-    public static boolean shouldReportCrashes(){
+    public boolean shouldReportCrashes(){
         return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !BuildType.DEBUG.equals(BUILD_TYPE) && BUILD_TYPE != null;
     }
 }

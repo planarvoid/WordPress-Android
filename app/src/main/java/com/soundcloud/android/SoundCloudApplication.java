@@ -25,12 +25,12 @@ import com.soundcloud.android.playback.service.PlaybackServiceModule;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -76,6 +76,7 @@ public class SoundCloudApplication extends Application {
     // These are not injected because we need them before Dagger initializes
     private MemoryReporter memoryReporter;
     private SharedPreferences sharedPreferences;
+    private ApplicationProperties applicationProperties;
 
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
@@ -83,7 +84,6 @@ public class SoundCloudApplication extends Application {
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
     @Inject ExperimentOperations experimentOperations;
-    @Inject ApplicationProperties applicationProperties;
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
@@ -159,9 +159,10 @@ public class SoundCloudApplication extends Application {
     }
 
     private void initializePreInjectionObjects() {
+        applicationProperties = new ApplicationProperties(getResources());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         final ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
-        if (isReportingCrashes(sharedPreferences)) {
+        if (isReportingCrashes()) {
             memoryReporter = new CrashlyticsMemoryReporter(activityManager);
         } else {
             memoryReporter = new MemoryReporter(activityManager);
@@ -169,7 +170,7 @@ public class SoundCloudApplication extends Application {
     }
 
     private void setUpCrashReportingIfNeeded() {
-        if (isReportingCrashes(sharedPreferences)) {
+        if (isReportingCrashes()) {
             Crashlytics.start(this);
             ErrorUtils.setupOOMInterception(memoryReporter);
         }
@@ -326,8 +327,8 @@ public class SoundCloudApplication extends Application {
         memoryReporter.reportMemoryTrim(level);
     }
 
-    private boolean isReportingCrashes(SharedPreferences sharedPreferences) {
-        return ApplicationProperties.shouldReportCrashes() &&
+    private boolean isReportingCrashes() {
+        return applicationProperties.shouldReportCrashes() &&
                 sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, true);
     }
 
