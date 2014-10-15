@@ -15,6 +15,7 @@ import android.net.Uri;
 
 import javax.inject.Singleton;
 
+@SuppressWarnings("deprecation")
 @Deprecated
 @Singleton
 public class ScModelManager {
@@ -36,17 +37,17 @@ public class ScModelManager {
         final int playlistCapacity;
         if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
             trackCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
-            userCapacity = Ints.saturatedCast((availableMemory * 20) / LOW_MEM_REFERENCE);
+            userCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
             playlistCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
         } else {
-            trackCapacity = DEFAULT_CACHE_CAPACITY * 4;
-            userCapacity = DEFAULT_CACHE_CAPACITY * 2;
+            trackCapacity = DEFAULT_CACHE_CAPACITY;
+            userCapacity = DEFAULT_CACHE_CAPACITY;
             playlistCapacity = DEFAULT_CACHE_CAPACITY;
         }
 
-        trackCache = new ModelCache<PublicApiTrack>(trackCapacity);
-        userCache = new ModelCache<PublicApiUser>(userCapacity);
-        playlistCache = new ModelCache<PublicApiPlaylist>(playlistCapacity);
+        trackCache = new ModelCache<>(trackCapacity);
+        userCache = new ModelCache<>(userCapacity);
+        playlistCache = new ModelCache<>(playlistCapacity);
 
         resolver = c.getContentResolver();
     }
@@ -126,7 +127,7 @@ public class ScModelManager {
     }
 
     public void removeFromCache(Uri uri) {
-        final ModelCache cacheFromUri = getCacheFromUri(uri);
+        final ModelCache<?> cacheFromUri = getCacheFromUri(uri);
         if (cacheFromUri != null) {
             cacheFromUri.remove(UriUtils.getLastSegmentAsLong(uri));
         }

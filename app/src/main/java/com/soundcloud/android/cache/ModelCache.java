@@ -4,11 +4,9 @@ import com.soundcloud.android.model.ScModel;
 
 public class ModelCache<V extends ScModel> extends LruCache<Long, V> {
     /**
-     * 2 level cache - LRU (bound to capacity) + softreference map (unbound)
-     *
      * @param capacity max capacity for the LRU cache
      */
-    public ModelCache(long capacity) {
+    public ModelCache(int capacity) {
         super(capacity);
     }
 

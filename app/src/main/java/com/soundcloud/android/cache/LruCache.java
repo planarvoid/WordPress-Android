@@ -1,7 +1,5 @@
 package com.soundcloud.android.cache;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,21 +24,14 @@ import java.util.Map;
  * </a>
  */
 public class LruCache<K, V> {
-    private final Map<K, V> lruMap;
-    private final Map<K, Entry<K, V>> softmap = new HashMap<>();
-
-    private ReferenceQueue<V> queue = new ReferenceQueue<>();
-
-    private long lruHits, softHits, requests, softRequests;
-
+    private final HashMap<K, V> lruMap;
+    private long lruHits, requests;
 
     /**
-     * 2 level cache - LRU (bound to capacity) + softreference map (unbound)
-     *
      * @param capacity max capacity for the LRU cache
      */
-    public LruCache(final long capacity) {
-        lruMap = new LinkedHashMap<K, V>(16, 0.75f, true) {
+    public LruCache(final int capacity) {
+        lruMap = new LinkedHashMap<K, V>(capacity, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > capacity;
@@ -48,74 +39,37 @@ public class LruCache<K, V> {
         };
     }
 
-    private static class Entry<K, V> extends SoftReference<V> {
-        K mKey;
-
-        public Entry(K key, V value, ReferenceQueue<V> queue) {
-            super(value, queue);
-            mKey = key;
-        }
-    }
-
-    private void cleanUpSoftMap() {
-        Entry<K, V> entry = (Entry<K, V>) queue.poll();
-        while (entry != null) {
-            softmap.remove(entry.mKey);
-            entry = (Entry<K, V>) queue.poll();
-        }
-    }
-
     public synchronized V put(K key, V value) {
-        cleanUpSoftMap();
-        lruMap.put(key, value);
-        Entry<K, V> entry = softmap.put(key, new Entry<>(key, value, queue));
-        return entry == null ? null : entry.get();
+        return lruMap.put(key, value);
     }
 
     public synchronized V get(K key) {
         requests++;
 
-        cleanUpSoftMap();
         V value = lruMap.get(key);
         if (value != null) {
             lruHits++;
             return value;
         }
-
-        softRequests++;
-
-        Entry<K, V> entry = softmap.get(key);
-        if (entry != null) {
-            V v = entry.get();
-            if (v != null) {
-                softHits++;
-            }
-            return v;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     public synchronized void clear() {
         lruMap.clear();
-        softmap.clear();
-        queue = new ReferenceQueue<>();
-        softHits = lruHits = requests = 0;
+        lruHits = requests = 0;
     }
 
-    public boolean containsKey(K key) {
+    public synchronized boolean containsKey(K key) {
         return lruMap.containsKey(key);
     }
 
-    public void remove(K key) {
+    public synchronized void remove(K key) {
         lruMap.remove(key);
-        softmap.remove(key);
     }
 
-    public String toString() {
-        return "LruCache{lru: " + lruMap.size() + " soft: " + softmap.size() +
+    public synchronized String toString() {
+        return "LruCache{lru: " + lruMap.size() +
                 " lru ratio: " + String.format("%.2f", lruHits / (double) (requests)) +
-                " soft ratio: " + String.format("%.2f", softHits / (double) (softRequests)) +
                 "}";
     }
 }

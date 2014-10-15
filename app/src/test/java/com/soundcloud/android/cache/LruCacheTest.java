@@ -8,29 +8,16 @@ import org.junit.Test;
 public class LruCacheTest {
     @Test
     public void testPut() {
-        LruCache<Integer, Integer> cache = new LruCache<Integer, Integer>(2);
+        LruCache<Integer, Integer> cache = new LruCache<>(2);
         Integer key = Integer.valueOf(1);
         Integer value = Integer.valueOf(3);
         cache.put(key, value);
-        assertEquals(value, cache.get(key));
-    }
-
-    @Test
-    public void testTracingInUsedObject() {
-        LruCache<Integer, Integer> cache = new LruCache<Integer, Integer>(2);
-        Integer key = Integer.valueOf(1);
-        Integer value = Integer.valueOf(3);
-        cache.put(key, value);
-        for (int i = 0; i < 3; ++i) {
-            cache.put(i + 10, i * i);
-        }
-        System.gc();
         assertEquals(value, cache.get(key));
     }
 
     @Test
     public void testLruAlgorithm() {
-        LruCache<Integer, Integer> cache = new LruCache<Integer, Integer>(2);
+        LruCache<Integer, Integer> cache = new LruCache<>(2);
         cache.put(0, Integer.valueOf(0));
         for (int i = 0; i < 3; ++i) {
             cache.put(i + 1, i * i);
@@ -60,7 +47,7 @@ public class LruCacheTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testConcurrentAccess() throws Exception {
-        LruCache<Integer, Integer> cache = new LruCache<Integer, Integer>(4);
+        LruCache<Integer, Integer> cache = new LruCache<>(4);
         cache.put(0, 0);
         cache.put(1, 1);
         Accessor accessor[] = new Accessor[4];
