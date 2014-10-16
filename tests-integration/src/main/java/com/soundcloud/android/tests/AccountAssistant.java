@@ -95,7 +95,7 @@ public final class AccountAssistant {
 
         for (int attempt = 0; application.getAccountOperations() == null && attempt < maxAttempt; attempt++) {
             try {
-                System.err.println("Waiting. Attempt:" + attempt);
+                Log.i(TAG, "Login: waiting for the application to be ready #" + attempt);
                 Thread.sleep(waitingTimeBetweenEachAttempt);
             } catch (InterruptedException e) {
                 e.printStackTrace();
