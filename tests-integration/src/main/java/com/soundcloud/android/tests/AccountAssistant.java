@@ -71,11 +71,9 @@ public final class AccountAssistant {
         try {
             Token token = getToken(apiWrapper, username, password);
             PublicApiUser user = getLoggedInUser(apiWrapper);
-            waitForAccountOperationsToBeInjected(context, INJECTION_TIMEOUT);
-            if (SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
+            if (waitForInjectionAddAccountAndEnableSync(context, token, user)) {
                 return getAccount(context);
             }
-
         } catch (IOException e) {
             throw new AssertionError("error logging in: " + e.getMessage());
         }
@@ -83,15 +81,20 @@ public final class AccountAssistant {
         return null;
     }
 
+    static boolean waitForInjectionAddAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
+        waitForAccountOperationsToBeInjected(context);
+        return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+    }
+
     // Dirty workaround :
     //      we wait on the integration tests thread for the application
     //      to perform injection in order to mutate the application.
     //
     // A real user can't face this race condition.
-    private static void waitForAccountOperationsToBeInjected(Context context, long maxTime) {
+    private static void waitForAccountOperationsToBeInjected(Context context) {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         final int waitingTimeBetweenEachAttempt = 200;
-        final int maxAttempt = (int) maxTime / waitingTimeBetweenEachAttempt;
+        final int maxAttempt = (int) INJECTION_TIMEOUT / waitingTimeBetweenEachAttempt;
 
         for (int attempt = 0; application.getAccountOperations() == null && attempt < maxAttempt; attempt++) {
             try {
