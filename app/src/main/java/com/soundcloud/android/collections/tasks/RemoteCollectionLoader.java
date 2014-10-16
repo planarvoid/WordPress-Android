@@ -13,10 +13,10 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.storage.TrackStorage;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.util.Log;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 

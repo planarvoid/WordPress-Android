@@ -5,6 +5,7 @@ import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AccessorClassGeneration")

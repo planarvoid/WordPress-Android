@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -20,7 +21,6 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
