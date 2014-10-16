@@ -111,22 +111,27 @@
     </style>
 
     <style name="PlayerTrackArtworkHolder">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
+        <item name="sfl_dominantMeasurement">height</item>
     </style>
 
     <style name="PlayerTrackArtwork">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="aspectRatioEnabled">true</item>
-        <item name="android:adjustViewBounds">true</item>
-        <item name="dominantMeasurement">height</item>
+        <item name="android:scaleType">centerCrop</item>
     </style>
 
     <style name="PlayerAdArtwork">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="PlayerTrackArtworkOverlay">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/artwork_overlay</item>
     </style>
 
     <style name="TimestampDivider">

@@ -32,10 +32,10 @@ public class AspectRatioImageView extends OptimisedImageView {
         super(context, attrs);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioImageView);
-        aspectRatio = a.getFloat(R.styleable.AspectRatioImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
-        aspectRatioEnabled = a.getBoolean(R.styleable.AspectRatioImageView_aspectRatioEnabled,
+        aspectRatio = a.getFloat(R.styleable.AspectRatioImageView_ariv_aspectRatio, DEFAULT_ASPECT_RATIO);
+        aspectRatioEnabled = a.getBoolean(R.styleable.AspectRatioImageView_ariv_aspectRatioEnabled,
                 DEFAULT_ASPECT_RATIO_ENABLED);
-        dominantMeasurement = a.getInt(R.styleable.AspectRatioImageView_dominantMeasurement,
+        dominantMeasurement = a.getInt(R.styleable.AspectRatioImageView_ariv_dominantMeasurement,
                 DEFAULT_DOMINANT_MEASUREMENT);
         a.recycle();
     }

@@ -42,9 +42,9 @@ public class PlayerArtworkLoaderTest {
         final Bitmap cachedBitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
 
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, listener, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
 
         verify(imageOperations).displayInPlayer(urn, ApiImageSize.getFullImageSize(Robolectric.application.getResources()),
-                wrappedImageView, listener, cachedBitmap, true);
+                wrappedImageView, cachedBitmap, true);
     }
 }

@@ -60,9 +60,9 @@
     <style name="LeaveBehindImage">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="aspectRatioEnabled">true</item>
-        <item name="dominantMeasurement">width</item>
-        <item name="aspectRatio">0.83</item>
+        <item name="ariv_aspectRatioEnabled">true</item>
+        <item name="ariv_dominantMeasurement">width</item>
+        <item name="ariv_aspectRatio">0.83</item>
     </style>
 
     <style name="LeaveBehindClose">
