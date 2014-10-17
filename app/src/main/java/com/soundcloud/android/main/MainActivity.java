@@ -21,6 +21,8 @@ import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamFragment;
@@ -61,12 +63,17 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject InAppCampaignController inAppCampaignController;
+    @Inject FeatureFlags featureFlags;
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponent(playerController);
         addLifeCycleComponent(adPlayerController);
-        addLifeCycleComponent(inAppCampaignController);
+
+        if (featureFlags.isEnabled(Feature.LOCALYTICS_PUSH)){
+            addLifeCycleComponent(inAppCampaignController);
+        }
+
         presenter.attach(this);
     }
 
