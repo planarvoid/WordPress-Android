@@ -251,7 +251,7 @@ public class ImageOperationsTest {
         when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
-        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap, true);
+        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, bitmap, true);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         verifyFullCacheOptions();
@@ -267,7 +267,7 @@ public class ImageOperationsTest {
         when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
-        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, imageListener, bitmap, false);
+        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, bitmap, false);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         expect(displayOptionsCaptor.getValue().getDelayBeforeLoading()).toEqual(DELAY_BEFORE_LOADING);

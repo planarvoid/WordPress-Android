@@ -50,8 +50,8 @@
     <style name="PlayerTrackArtwork">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="aspectRatioEnabled">true</item>
-        <item name="dominantMeasurement">width</item>
+        <item name="ariv_aspectRatioEnabled">true</item>
+        <item name="ariv_dominantMeasurement">width</item>
     </style>
 
     <style name="PlayerTitle" parent="PlayerTitleBase">

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -163,6 +162,6 @@ public class PlayerArtworkControllerTest {
         when(wrappedImageView.getContext()).thenReturn(Robolectric.application);
 
         playerArtworkController.loadArtwork(urn, true, viewVisibilityProvider);
-        verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), any(ImageListener.class), eq(true), same(viewVisibilityProvider));
+        verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), eq(true), same(viewVisibilityProvider));
     }
 }

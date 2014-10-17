@@ -14,14 +14,13 @@ import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.model.Urn;
 
-import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener, ImageListener {
+public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener {
     private final PlayerTrackArtworkView artworkView;
     private final ImageView wrappedImageView;
     private final ImageView imageOverlay;
@@ -92,24 +91,15 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     @Override
     public void onArtworkSizeChanged() {
-        configureBounds();
-    }
+        final int width = artworkView.getWidth();
+        final int imageViewWidth = wrappedImageView.getMeasuredWidth();
 
-    @Override
-    public void onLoadingStarted(String imageUri, View view) {
-        // no-op
-    }
+        if (width > 0 && imageViewWidth > 0) {
+            helper = new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width)));
+            progressController.setHelper(helper);
 
-    @Override
-    public void onLoadingFailed(String imageUri, View view, String failedReason) {
-        // no-op
+        }
     }
-
-    @Override
-    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        configureBounds();
-    }
-
 
     public void clear(){
         wrappedImageView.setImageDrawable(null);
@@ -117,7 +107,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     }
 
     public void loadArtwork(Urn urn, boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlay, this, isHighPriority, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
     }
 
     public void reset() {
@@ -130,7 +120,6 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         final int imageViewWidth = wrappedImageView.getMeasuredWidth();
 
         if (width > 0 && imageViewWidth > 0) {
-            imageHolder.getLayoutParams().width = imageViewWidth;
             helper = new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width)));
             progressController.setHelper(helper);
 

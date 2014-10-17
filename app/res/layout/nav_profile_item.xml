@@ -8,9 +8,9 @@
                                                         android:layout_width="match_parent"
                                                         android:layout_height="wrap_content"
                                                         android:scaleType="centerCrop"
-                                                        soundcloud:aspectRatioEnabled="true"
-                                                        soundcloud:aspectRatio=".55"
-                                                        soundcloud:dominantMeasurement="width"/>
+                                                        soundcloud:ariv_aspectRatioEnabled="true"
+                                                        soundcloud:ariv_aspectRatio=".55"
+                                                        soundcloud:ariv_dominantMeasurement="width"/>
 
     <com.soundcloud.android.view.CustomFontTextView android:id="@+id/username"
                                                     style="@style/BlackOverlayText.Regular"

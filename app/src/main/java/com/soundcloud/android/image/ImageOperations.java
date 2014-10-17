@@ -140,7 +140,7 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayInPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener, Bitmap placeholder, boolean isHighPriority) {
+    public void displayInPlayer(Urn urn, ApiImageSize apiImageSize, ImageView imageView, Bitmap placeholder, boolean isHighPriority) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable placeholderDrawable = placeholder != null ? new BitmapDrawable(placeholder) :
                 getPlaceholderDrawable(urn, imageAware);
@@ -149,7 +149,7 @@ public class ImageOperations {
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
                 ImageOptionsFactory.player(placeholderDrawable, isHighPriority),
-                new FallbackImageListener(imageListener, notFoundUris));
+                notFoundListener);
     }
 
     public void displayAdInPlayer(Uri uri, ImageView imageView, Drawable placeholderDrawable) {
