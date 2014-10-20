@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.ads.LeaveBehindController.Factory;
-import static com.soundcloud.android.ads.LeaveBehindController.LeaveBehindListener;
+import static com.soundcloud.android.ads.AdOverlayController.Factory;
+import static com.soundcloud.android.ads.AdOverlayController.LeaveBehindListener;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.LeaveBehindController;
+import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -55,7 +55,7 @@ public class TrackPagePresenterTest {
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private Factory leaveBehindControllerFactory;
-    @Mock private LeaveBehindController leaveBehindController;
+    @Mock private AdOverlayController adOverlayController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private FeatureFlags featureFlags;
@@ -75,9 +75,9 @@ public class TrackPagePresenterTest {
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
-        when(playerOverlayControllerFactory.create(any(View.class), any(LeaveBehindController.class))).thenReturn(playerOverlayController);
+        when(playerOverlayControllerFactory.create(any(View.class), any(AdOverlayController.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
-        when(leaveBehindControllerFactory.create(any(View.class), any(LeaveBehindListener.class))).thenReturn(leaveBehindController);
+        when(leaveBehindControllerFactory.create(any(View.class), any(LeaveBehindListener.class))).thenReturn(adOverlayController);
         trackView = presenter.createItemView(container, skipListener);
     }
 
@@ -455,7 +455,7 @@ public class TrackPagePresenterTest {
 
         presenter.setLeaveBehind(trackView, track);
 
-        verify(leaveBehindController).initialize(track);
+        verify(adOverlayController).initialize(track);
     }
 
     @Test
@@ -465,7 +465,7 @@ public class TrackPagePresenterTest {
 
         presenter.clearLeaveBehind(trackView);
 
-        verify(leaveBehindController).clear();
+        verify(adOverlayController).clear();
 
     }
 
@@ -478,7 +478,7 @@ public class TrackPagePresenterTest {
     public void onClickMoreButtonCallsDismissOnLeaveBehindController() {
         populateTrackPage();
         getHolder(trackView).more.performClick();
-        verify(leaveBehindController).clear();
+        verify(adOverlayController).clear();
     }
 
     @Test
@@ -486,7 +486,7 @@ public class TrackPagePresenterTest {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
 
-        verify(leaveBehindController).clear();
+        verify(adOverlayController).clear();
     }
 
     @Test
@@ -494,7 +494,7 @@ public class TrackPagePresenterTest {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, false);
 
-        verify(leaveBehindController, never()).show();
+        verify(adOverlayController, never()).show();
     }
 
     @Test
@@ -502,7 +502,7 @@ public class TrackPagePresenterTest {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
 
-        verify(leaveBehindController).show(true);
+        verify(adOverlayController).show(true);
     }
 
     @Test
@@ -510,7 +510,7 @@ public class TrackPagePresenterTest {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED), true, true);
 
-        verify(leaveBehindController).clear();
+        verify(adOverlayController).clear();
     }
 
     @Test

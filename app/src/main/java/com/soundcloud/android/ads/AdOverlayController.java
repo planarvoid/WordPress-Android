@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AccessorClassGeneration")
-public class LeaveBehindController implements AdOverlayPresenter.Listener {
+public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     private final View trackView;
     private final ImageOperations imageOperations;
@@ -54,7 +54,7 @@ public class LeaveBehindController implements AdOverlayPresenter.Listener {
         void onLeaveBehindHidden();
     }
 
-    LeaveBehindController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
+    AdOverlayController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
         this.listener = listener;
         this.imageOperations = imageOperations;
@@ -155,8 +155,8 @@ public class LeaveBehindController implements AdOverlayPresenter.Listener {
             this.deviceHelper = deviceHelper;
         }
 
-        public LeaveBehindController create(View trackView, LeaveBehindListener listener) {
-            return new LeaveBehindController(trackView, listener, imageOperations, context, deviceHelper);
+        public AdOverlayController create(View trackView, LeaveBehindListener listener) {
+            return new AdOverlayController(trackView, listener, imageOperations, context, deviceHelper);
         }
     }
 

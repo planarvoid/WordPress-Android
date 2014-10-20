@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.LeaveBehindController;
+import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -50,7 +50,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackMenuController.Factory trackMenuControllerFactory;
-    private final LeaveBehindController.Factory leaveBehindControllerFactory;
+    private final AdOverlayController.Factory leaveBehindControllerFactory;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
     private final FeatureFlags featureFlags;
 
@@ -60,7 +60,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackMenuController.Factory trackMenuControllerFactory,
-                              LeaveBehindController.Factory leaveBehindControllerFactory,
+                              AdOverlayController.Factory leaveBehindControllerFactory,
                               FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
@@ -145,7 +145,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     public void setLeaveBehind(View view, PropertySet track) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
-            getViewHolder(view).leaveBehindController.initialize(track);
+            getViewHolder(view).adOverlayController.initialize(track);
         }
     }
 
@@ -154,7 +154,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void clearLeaveBehind(TrackPageHolder viewHolder) {
-        viewHolder.leaveBehindController.clear();
+        viewHolder.adOverlayController.clear();
     }
 
     public View clearItemView(View view) {
@@ -194,7 +194,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private void configureLeaveBehind(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
-                holder.leaveBehindController.show(isForeground);
+                holder.adOverlayController.show(isForeground);
             } else if (stateTransition.isPaused() || stateTransition.wasError()) {
                 clearLeaveBehind(holder);
             }
@@ -323,14 +323,14 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     public void setCollapsed(View trackView) {
         onPlayerSlide(trackView, 0);
         getViewHolder(trackView).waveformController.setCollapsed();
-        getViewHolder(trackView).leaveBehindController.setCollapsed();
+        getViewHolder(trackView).adOverlayController.setCollapsed();
     }
 
     @Override
     public void setExpanded(View trackView) {
         onPlayerSlide(trackView, 1);
         getViewHolder(trackView).waveformController.setExpanded();
-        getViewHolder(trackView).leaveBehindController.setExpanded();
+        getViewHolder(trackView).adOverlayController.setExpanded();
     }
 
     @Override
@@ -428,7 +428,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveform);
 
-        holder.leaveBehindController = leaveBehindControllerFactory.create(trackView, new LeaveBehindController.LeaveBehindListener() {
+        holder.adOverlayController = leaveBehindControllerFactory.create(trackView, new AdOverlayController.LeaveBehindListener() {
             @Override
             public void onLeaveBehindShown() {
                 setOverlayPlayState(holder, false);
@@ -445,8 +445,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         });
 
         holder.playerOverlayControllers = new PlayerOverlayController[] {
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark), holder.leaveBehindController),
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image), holder.leaveBehindController)
+                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark), holder.adOverlayController),
+                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image), holder.adOverlayController)
         };
 
         holder.artworkController = artworkControllerFactory.create(holder.artworkView);
@@ -485,7 +485,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;
         PlayerOverlayController[] playerOverlayControllers;
-        LeaveBehindController leaveBehindController;
+        AdOverlayController adOverlayController;
         ToggleButton likeToggle;
         View more;
         View close;

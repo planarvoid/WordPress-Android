@@ -32,20 +32,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LeaveBehindControllerTest {
+public class AdOverlayControllerTest {
 
-    private LeaveBehindController controller;
+    private AdOverlayController controller;
 
     private View trackView;
     @Mock private ImageOperations imageOperations;
     @Mock private DeviceHelper deviceHelper;
-    @Mock private LeaveBehindController.LeaveBehindListener listener;
+    @Mock private AdOverlayController.LeaveBehindListener listener;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
     public void setUp() throws Exception {
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
-        LeaveBehindController.Factory factory = new LeaveBehindController.Factory(imageOperations,
+        AdOverlayController.Factory factory = new AdOverlayController.Factory(imageOperations,
                 Robolectric.application, deviceHelper);
         controller = factory.create(trackView, listener);
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);

@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ads.LeaveBehindController;
+import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -24,12 +24,12 @@ public class PlayerOverlayControllerTest {
     @Mock private OverlayAnimator overlayAnimator;
     @Mock private PlaySessionStateProvider playStateProvider;
     @Mock private View overlay;
-    @Mock private LeaveBehindController leaveBehindController;
+    @Mock private AdOverlayController adOverlayController;
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlayerOverlayController(overlay, overlayAnimator, playStateProvider, leaveBehindController);
-        when(leaveBehindController.isNotVisible()).thenReturn(true);
+        controller = new PlayerOverlayController(overlay, overlayAnimator, playStateProvider, adOverlayController);
+        when(adOverlayController.isNotVisible()).thenReturn(true);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldNotHideTheOverlayOnPlayingStateWhenLeaveBehindDisplayed() {
-        when(leaveBehindController.isNotVisible()).thenReturn(false);
+        when(adOverlayController.isNotVisible()).thenReturn(false);
 
         controller.showPlayingState();
 
@@ -92,7 +92,7 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldNotHideTheOverlayWhileExpandingWhenLeaveBehindDisplayed() {
-        when(leaveBehindController.isNotVisible()).thenReturn(false);
+        when(adOverlayController.isNotVisible()).thenReturn(false);
 
         controller.setAlphaFromCollapse(0);
 

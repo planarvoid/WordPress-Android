@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.ads.LeaveBehindController;
+import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 
@@ -13,7 +13,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
 
     private final OverlayAnimator overlayAnimator;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final LeaveBehindController leaveBehindController;
+    private final AdOverlayController adOverlayController;
     private final View overlay;
     private boolean isScrubbing;
     private float alphaFromCollapse;
@@ -21,11 +21,11 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     public PlayerOverlayController(View overlay,
                                    OverlayAnimator overlayAnimator,
                                    PlaySessionStateProvider playSessionStateProvider,
-                                   LeaveBehindController leaveBehindController) {
+                                   AdOverlayController adOverlayController) {
         this.overlay = overlay;
         this.overlayAnimator = overlayAnimator;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.leaveBehindController = leaveBehindController;
+        this.adOverlayController = adOverlayController;
     }
 
     public void showPlayingState(){
@@ -72,7 +72,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     }
 
     private boolean isLeaveBehindDisabled() {
-        return leaveBehindController == null || leaveBehindController.isNotVisible();
+        return adOverlayController == null || adOverlayController.isNotVisible();
     }
 
     public static class Factory {
@@ -89,8 +89,8 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
             return new PlayerOverlayController(overlay, overlayAnimatorProvider.get(), playSessionStateProvider, null);
         }
 
-        public PlayerOverlayController create(View overlay, LeaveBehindController leaveBehindController) {
-            return new PlayerOverlayController(overlay, overlayAnimatorProvider.get(), playSessionStateProvider, leaveBehindController);
+        public PlayerOverlayController create(View overlay, AdOverlayController adOverlayController) {
+            return new PlayerOverlayController(overlay, overlayAnimatorProvider.get(), playSessionStateProvider, adOverlayController);
         }
 
     }
