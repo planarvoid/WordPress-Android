@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -56,7 +56,7 @@ public class ExperimentOperationsTest {
     @Test
     public void shouldGetEmptyAssignmentIfNoAssignmentIsStored() throws Exception {
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
 
         operations.loadAssignment();
         Assignment assignment = operations.getAssignment();
@@ -68,7 +68,7 @@ public class ExperimentOperationsTest {
     public void shouldGetAssignmentIfAssigmentIsStored() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
 
         operations.loadAssignment();
         Assignment loadedAssignment = operations.getAssignment();
@@ -82,7 +82,7 @@ public class ExperimentOperationsTest {
         Observable<Assignment> observable = Observable.from(assignment);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
         when(activeExperiments.getRequestLayers()).thenReturn(new String[]{ "android-ui" });
-        when(rxHttpClient.<Assignment>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<Assignment>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         operations.loadAssignment();
 
@@ -93,7 +93,7 @@ public class ExperimentOperationsTest {
     public void shouldGenerateTrackingParametersMapForActiveExperiments() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(anyInt())).thenReturn(true);
 
         operations.loadAssignment();
@@ -111,7 +111,7 @@ public class ExperimentOperationsTest {
     public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(5)).thenReturn(true);
 
 

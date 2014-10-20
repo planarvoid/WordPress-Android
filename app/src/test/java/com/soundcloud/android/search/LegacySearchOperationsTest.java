@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import static rx.android.OperatorPaged.Page;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -53,7 +53,7 @@ public class LegacySearchOperationsTest {
 
     @Before
     public void setUp() {
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(bulkStorage.bulkInsertAsync(any(Iterable.class))).thenReturn(Observable.<Iterable>empty());
     }
 
@@ -62,7 +62,7 @@ public class LegacySearchOperationsTest {
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_ALL.path())
+                isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_SEARCH_ALL.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -72,7 +72,7 @@ public class LegacySearchOperationsTest {
         searchOperations.getTrackSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_TRACKS.path())
+                isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_SEARCH_TRACKS.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -82,7 +82,7 @@ public class LegacySearchOperationsTest {
         searchOperations.getPlaylistSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_PLAYLISTS.path())
+                isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_SEARCH_PLAYLISTS.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -92,7 +92,7 @@ public class LegacySearchOperationsTest {
         searchOperations.getUserSearchResults("any query").subscribe(observer);
 
         verify(rxHttpClient).fetchModels(argThat(
-                isPublicApiRequestTo("GET", APIEndpoints.LEGACY_SEARCH_USERS.path())
+                isPublicApiRequestTo("GET", ApiEndpoints.LEGACY_SEARCH_USERS.path())
                         .withQueryParam("q", "any query")
                         .withQueryParam("limit", "30")));
     }
@@ -106,7 +106,7 @@ public class LegacySearchOperationsTest {
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(
                 track, playlist, unknown, user));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
         PublicApiTrack cachedTrack = new PublicApiTrack();
         when(modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
 
@@ -122,7 +122,7 @@ public class LegacySearchOperationsTest {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
@@ -134,7 +134,7 @@ public class LegacySearchOperationsTest {
         final PublicApiTrack track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.<PublicApiResource>asList(track));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
@@ -146,7 +146,7 @@ public class LegacySearchOperationsTest {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
         PublicApiTrack cachedTrack = new PublicApiTrack();
         when(modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
 
@@ -164,7 +164,7 @@ public class LegacySearchOperationsTest {
         SearchResultsCollection collection = new SearchResultsCollection(results, "next-href");
 
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
@@ -179,7 +179,7 @@ public class LegacySearchOperationsTest {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "a NextHref");
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
         ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
@@ -192,7 +192,7 @@ public class LegacySearchOperationsTest {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "");
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
         ArgumentCaptor<OperatorPaged.Page> captor = ArgumentCaptor.forClass(Page.class);
@@ -206,11 +206,11 @@ public class LegacySearchOperationsTest {
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "http://soundcloud.com/next-href.json");
         Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
 
-        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<SearchResultsCollection>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
 
-        ArgumentCaptor<APIRequest> captor = ArgumentCaptor.forClass(APIRequest.class);
+        ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(rxHttpClient, times(2)).fetchModels(captor.capture());
         expect(captor.getAllValues().get(1).getEncodedPath()).toEqual("/next-href.json");
     }

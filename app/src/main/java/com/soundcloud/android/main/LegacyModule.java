@@ -5,6 +5,7 @@ import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.profile.MyTracksAdapter;
+import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
@@ -17,7 +18,8 @@ import dagger.Module;
                 ActivitiesAdapter.class,
                 SoundAdapter.class,
                 PostsAdapter.class,
-                MyTracksAdapter.class
+                MyTracksAdapter.class,
+                ApiSyncer.class
         }, includes = AssociationsModule.class)
 
 /**

@@ -15,5 +15,6 @@
     <bool name="feature_payments">false</bool>
     <bool name="feature_api_mobile_search">false</bool>
     <bool name="feature_interstitial">false</bool>
+    <bool name="feature_httpclient_refactor">false</bool>
     <bool name="feature_localytics_push">false</bool>
 </resources>

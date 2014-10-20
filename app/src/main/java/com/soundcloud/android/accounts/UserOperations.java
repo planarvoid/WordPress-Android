@@ -1,9 +1,7 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
-
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -26,8 +24,8 @@ public class UserOperations extends ScheduledOperations {
 
 
     public Observable<PublicApiUser> refreshCurrentUser() {
-        final APIRequest<PublicApiUser> request = RequestBuilder.<PublicApiUser>get(APIEndpoints.CURRENT_USER.path())
-                .forPublicAPI()
+        final ApiRequest<PublicApiUser> request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
+                .forPublicApi()
                 .forResource(PublicApiUser.class)
                 .build();
         return httpClient.<PublicApiUser>fetchModels(request).mergeMap(new Func1<PublicApiUser, Observable<PublicApiUser>>() {

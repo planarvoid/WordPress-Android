@@ -1,14 +1,14 @@
 package com.soundcloud.android.matchers;
 
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiRequest;
 import org.mockito.ArgumentMatcher;
 
 import android.net.Uri;
 
-public class ApiRequestToUrl extends ArgumentMatcher<APIRequest> {
+public class ApiRequestToUrl extends ArgumentMatcher<ApiRequest> {
 
     private final String expectedUri;
-    private APIRequest request;
+    private ApiRequest request;
 
     public ApiRequestToUrl(String expectedUri) {
         this.expectedUri = expectedUri;
@@ -16,8 +16,8 @@ public class ApiRequestToUrl extends ArgumentMatcher<APIRequest> {
 
     @Override
     public boolean matches(Object argument) {
-        if (argument instanceof APIRequest) {
-            this.request = (APIRequest) argument;
+        if (argument instanceof ApiRequest) {
+            this.request = (ApiRequest) argument;
             return Uri.parse(expectedUri).equals(request.getUri());
         }
         return false;

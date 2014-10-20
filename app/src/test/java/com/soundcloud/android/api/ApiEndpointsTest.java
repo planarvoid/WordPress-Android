@@ -7,17 +7,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class APIEndpointsTest {
+public class ApiEndpointsTest {
 
     @Test
     public void shouldResolvePathFromPathParameters() {
-        String resolvedPath = APIEndpoints.RELATED_TRACKS.path("1");
+        String resolvedPath = ApiEndpoints.RELATED_TRACKS.path("1");
         expect(resolvedPath).toEqual("/tracks/1/related");
     }
 
     @Test
     public void shouldPercentEncodePathParameters() {
-        String resolvedPath = APIEndpoints.RELATED_TRACKS.path("has space");
+        String resolvedPath = ApiEndpoints.RELATED_TRACKS.path("has space");
         expect(resolvedPath).toEqual("/tracks/has%20space/related");
     }
 

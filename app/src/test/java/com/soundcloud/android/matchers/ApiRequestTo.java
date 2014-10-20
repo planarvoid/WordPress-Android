@@ -2,20 +2,20 @@ package com.soundcloud.android.matchers;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiRequest;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ApiRequestTo extends ArgumentMatcher<APIRequest> {
+public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
 
     private final String expectedMethod, expectedPath;
     private final boolean isMobileApi;
     private Map<String, String> expectedQueryParams = new HashMap<String, String>();
     private boolean queryMatchError;
-    private APIRequest request;
+    private ApiRequest request;
     private Object content;
 
     public ApiRequestTo(String expectedMethod, String expectedPath, boolean isMobileApi) {
@@ -26,8 +26,8 @@ public class ApiRequestTo extends ArgumentMatcher<APIRequest> {
 
     @Override
     public boolean matches(Object argument) {
-        if (argument instanceof APIRequest) {
-            this.request = (APIRequest) argument;
+        if (argument instanceof ApiRequest) {
+            this.request = (ApiRequest) argument;
 
             boolean queryMatches;
             for (Map.Entry<String, String> param : expectedQueryParams.entrySet()) {

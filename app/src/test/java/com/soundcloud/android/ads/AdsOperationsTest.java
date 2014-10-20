@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
@@ -64,7 +64,7 @@ public class AdsOperationsTest {
 
     @Test
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
-        final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), TRACK_URN.toEncodedString());
+        final String endpoint = String.format(ApiEndpoints.AUDIO_AD.path(), TRACK_URN.toEncodedString());
         when(rxHttpClient.<ApiAdsForTrack>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(apiAdsForTrack));
         when(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
@@ -73,7 +73,7 @@ public class AdsOperationsTest {
 
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
-        when(rxHttpClient.<ApiAdsForTrack>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(apiAdsForTrack));
+        when(rxHttpClient.<ApiAdsForTrack>fetchModels(any(ApiRequest.class))).thenReturn(Observable.just(apiAdsForTrack));
         when(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
         adsOperations.audioAd(TRACK_URN).subscribe();
@@ -83,14 +83,14 @@ public class AdsOperationsTest {
 
     @Test
     public void audioAdRequestIncludesUniqueDeviceId() {
-        final ArgumentCaptor<APIRequest> captor = ArgumentCaptor.forClass(APIRequest.class);
+        final ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         when(rxHttpClient.<ApiAdsForTrack>fetchModels(captor.capture())).thenReturn(Observable.just(apiAdsForTrack));
         when(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
         when(deviceHelper.getUniqueDeviceID()).thenReturn("is google watching?");
 
         adsOperations.audioAd(TRACK_URN).subscribe();
 
-        final APIRequest apiRequest = captor.getValue();
+        final ApiRequest apiRequest = captor.getValue();
         Map<String, String> headers = apiRequest.getHeaders();
         expect(headers.containsKey("SC-UDID")).toBeTrue();
         expect(headers.get("SC-UDID")).toEqual("is google watching?");

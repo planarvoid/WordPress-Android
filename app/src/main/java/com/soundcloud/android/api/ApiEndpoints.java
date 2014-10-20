@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public enum APIEndpoints {
+public enum ApiEndpoints {
     // mobile API
     SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
     SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
@@ -45,7 +45,7 @@ public enum APIEndpoints {
 
     private final String path;
 
-    APIEndpoints(String path) {
+    ApiEndpoints(String path) {
         this.path = path;
     }
 

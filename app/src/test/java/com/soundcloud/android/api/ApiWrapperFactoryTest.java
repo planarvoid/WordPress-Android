@@ -1,13 +1,11 @@
 package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.SoundCloudRxHttpClient.WrapperFactory;
+
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.APIRequest;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.ApiWrapper;
@@ -18,22 +16,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
-public class WrapperFactoryTest {
+public class ApiWrapperFactoryTest {
 
-    private WrapperFactory wrapperFactory;
+    private ApiWrapperFactory wrapperFactory;
     @Mock
     private HttpProperties httpProperties;
     @Mock
     private AccountOperations accountOperations;
     @Mock
-    private APIRequest apiRequest;
+    private ApiRequest apiRequest;
     @Mock
     private ApplicationProperties applicationProperties;
 
     @Before
     public void setUp() {
         initMocks(this);
-        wrapperFactory = new WrapperFactory(Robolectric.application, httpProperties, accountOperations, applicationProperties);
+        wrapperFactory = new ApiWrapperFactory(Robolectric.application, httpProperties, accountOperations, applicationProperties);
     }
 
     @Test

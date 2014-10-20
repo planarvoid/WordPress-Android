@@ -3,22 +3,29 @@ package com.soundcloud.android.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertResolverNotified;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.activities.PlaylistActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
+import com.soundcloud.android.matchers.SoundCloudMatchers;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.api.CloudAPI;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -46,8 +53,9 @@ public class ApiSyncerTest {
     PlaylistStorage playlistStorage;
     long startTime;
 
-    @Mock
-    private EventBus eventBus;
+    @Mock private EventBus eventBus;
+    @Mock private ApiClient apiClient;
+    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void before() {
@@ -57,19 +65,16 @@ public class ApiSyncerTest {
         activitiesStorage = new ActivitiesStorage();
         playlistStorage = new PlaylistStorage();
         startTime = System.currentTimeMillis();
+        when(featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)).thenReturn(true);
     }
 
     @Test
     public void shouldSyncMe() throws Exception {
-        addPendingHttpResponse(getClass(), "me.json");
+        when(apiClient.fetchMappedResponse(argThat(SoundCloudMatchers.isPublicApiRequestTo("GET", "/me")))).thenReturn(new PublicApiUser(123L));
         expect(Content.ME).toBeEmpty();
         ApiSyncResult result = sync(Content.ME.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(startTime);
-
-        expect(Content.ME).toHaveCount(1);
-        expect(Content.USERS).toHaveCount(1);
-        expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
     }
 
@@ -111,7 +116,7 @@ public class ApiSyncerTest {
 
         // hard refresh
         addPendingHttpResponse(getClass(), "e1_stream_oldest.json");
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(), eventBus);
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(), eventBus, featureFlags, apiClient);
         ApiSyncResult result = syncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
         expect(result.success).toBeTrue();
@@ -385,7 +390,7 @@ public class ApiSyncerTest {
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(
-                Robolectric.application, Robolectric.application.getContentResolver(), eventBus);
+                Robolectric.application, Robolectric.application.getContentResolver(), eventBus, featureFlags, apiClient);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 }

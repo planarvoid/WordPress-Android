@@ -1,11 +1,10 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
-
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -122,7 +121,7 @@ class SearchOperations {
 
     Observable<SearchResult> getSearchResult(String query, int searchType) {
         final SearchConfig config = configForType(searchType);
-        final RequestBuilder<?> builder = createSearchRequestBuilder(config);
+        final ApiRequest.Builder<?> builder = createSearchRequestBuilder(config);
         builder.addQueryParameters("q", query);
 
         return getSearchResultObservable(searchType, builder);
@@ -131,12 +130,12 @@ class SearchOperations {
     private Observable<SearchResult> getSearchResult(Link link, int searchType) {
         final SearchConfig config = configForType(searchType);
         config.path = link.getHref();
-        final RequestBuilder<?> builder = createSearchRequestBuilder(config);
+        final ApiRequest.Builder<?> builder = createSearchRequestBuilder(config);
 
         return getSearchResultObservable(searchType, builder);
     }
 
-    private Observable<SearchResult> getSearchResultObservable(int searchType, RequestBuilder<?> builder) {
+    private Observable<SearchResult> getSearchResultObservable(int searchType, ApiRequest.Builder<?> builder) {
         switch (searchType) {
             case TYPE_ALL:
                 return rxHttpClient.<ModelCollection<UniversalSearchResult>>fetchModels(builder.build()).doOnNext(cacheUniversal).map(TO_SEARCH_RESULT);
@@ -157,26 +156,26 @@ class SearchOperations {
     private SearchConfig configForType(int searchType) {
         switch (searchType) {
             case TYPE_ALL:
-                return new SearchConfig(APIEndpoints.SEARCH_ALL.path(), new TypeToken<ModelCollection<UniversalSearchResult>>() {
+                return new SearchConfig(ApiEndpoints.SEARCH_ALL.path(), new TypeToken<ModelCollection<UniversalSearchResult>>() {
                 });
             case TYPE_TRACKS:
-                return new SearchConfig(APIEndpoints.SEARCH_TRACKS.path(), new TypeToken<ModelCollection<ApiTrack>>() {
+                return new SearchConfig(ApiEndpoints.SEARCH_TRACKS.path(), new TypeToken<ModelCollection<ApiTrack>>() {
                 });
             case TYPE_PLAYLISTS:
-                return new SearchConfig(APIEndpoints.SEARCH_PLAYLISTS.path(), new TypeToken<ModelCollection<ApiPlaylist>>() {
+                return new SearchConfig(ApiEndpoints.SEARCH_PLAYLISTS.path(), new TypeToken<ModelCollection<ApiPlaylist>>() {
                 });
             case TYPE_USERS:
-                return new SearchConfig(APIEndpoints.SEARCH_USERS.path(), new TypeToken<ModelCollection<ApiUser>>() {
+                return new SearchConfig(ApiEndpoints.SEARCH_USERS.path(), new TypeToken<ModelCollection<ApiUser>>() {
                 });
             default:
                 throw new IllegalStateException("Unknown search type");
         }
     }
 
-    private RequestBuilder createSearchRequestBuilder(SearchConfig config) {
-        return RequestBuilder.get(config.path)
+    private ApiRequest.Builder createSearchRequestBuilder(SearchConfig config) {
+        return ApiRequest.Builder.get(config.path)
                 .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
-                .forPrivateAPI(1)
+                .forPrivateApi(1)
                 .forResource(config.typeToken);
     }
 

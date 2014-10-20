@@ -2,6 +2,7 @@ package com.soundcloud.android.experiments;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -16,7 +17,6 @@ import android.content.Context;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 class ExperimentStorage extends ScheduledOperations {
 
@@ -41,7 +41,7 @@ class ExperimentStorage extends ScheduledOperations {
         try {
             String json = jsonTransformer.toJson(assignment);
             IOUtils.writeFileFromString(getAssignmentHandle(), json);
-        } catch (IOException e) {
+        } catch (ApiMapperException e) {
             ErrorUtils.handleThrowable(e, getClass());
         }
     }

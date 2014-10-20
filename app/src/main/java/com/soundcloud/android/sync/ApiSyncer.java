@@ -1,11 +1,16 @@
 package com.soundcloud.android.sync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -15,6 +20,8 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
@@ -41,6 +48,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.util.ArrayMap;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +60,7 @@ import java.util.Set;
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
  * <p/>
- * As a client, do not use this class directly, but use {@link SyncOperationsOld} instead.
+ * As a client, do not use this class directly, but use {@link com.soundcloud.android.sync.SyncInitiator} instead.
  * <p/>
  * TODO: make package level visible again after removing {@link com.soundcloud.android.collections.tasks.ActivitiesLoader}
  * TODO: Split this up into different syncers
@@ -60,24 +68,30 @@ import java.util.Set;
 public class ApiSyncer extends SyncStrategy {
 
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
-    private final ActivitiesStorage activitiesStorage;
 
-    private final SoundAssociationStorage soundAssociationStorage;
-    private final UserStorage userStorage;
-    private final AccountOperations accountOperations;
-    private final EventBus eventBus;
+    @Inject ActivitiesStorage activitiesStorage;
+    @Inject SoundAssociationStorage soundAssociationStorage;
+    @Inject UserStorage userStorage;
+    @Inject AccountOperations accountOperations;
+    @Inject EventBus eventBus;
+    @Inject FeatureFlags featureFlags;
+    @Inject ApiClient apiClient;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
-        this(context, resolver, SoundCloudApplication.fromContext(context).getEventBus());
+        super(context, resolver);
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    public ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus) {
+    @VisibleForTesting
+    ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, FeatureFlags featureFlags, ApiClient apiClient) {
         super(context, resolver);
         activitiesStorage = new ActivitiesStorage();
         soundAssociationStorage = new SoundAssociationStorage();
         userStorage = new UserStorage();
         this.eventBus = eventBus;
         accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
+        this.featureFlags = featureFlags;
+        this.apiClient = apiClient;
     }
 
     @NotNull
@@ -283,9 +297,25 @@ public class ApiSyncer extends SyncStrategy {
         }
     }
 
-    private ApiSyncResult syncMe(Content c) throws IOException {
+    private ApiSyncResult syncMe(Content c) {
         ApiSyncResult result = new ApiSyncResult(c.uri);
-        PublicApiUser user = new FetchUserTask(api).resolve(c.request());
+        PublicApiUser user;
+        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
+            ApiRequest<PublicApiUser> request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
+                    .forPublicApi()
+                    .forResource(PublicApiUser.class)
+                    .build();
+            try {
+                user = apiClient.fetchMappedResponse(request);
+                user.setUpdated();
+                SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
+            } catch (ApiMapperException e) {
+                e.printStackTrace();
+                user = null;
+            }
+        } else {
+            user = new FetchUserTask(api).resolve(c.request());
+        }
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
             userStorage.createOrUpdate(user);

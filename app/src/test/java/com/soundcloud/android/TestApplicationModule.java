@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import dagger.Module;
@@ -33,7 +34,7 @@ import android.content.res.Resources;
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
-@Module(injects = {SoundCloudApplication.class, TestApplication.class})
+@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class})
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.main.DefaultFragmentLifeCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.Nullable;
@@ -74,8 +74,8 @@ public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
 
         @Override
         public void onError(Throwable error) {
-            if (error instanceof APIRequestException) {
-                boolean commsError = ((APIRequestException) error).reason() == APIRequestException.APIErrorReason.NETWORK_COMM_ERROR;
+            if (error instanceof ApiRequestException) {
+                boolean commsError = ((ApiRequestException) error).reason() == ApiRequestException.Reason.NETWORK_ERROR;
                 updateEmptyViewStatus(commsError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
             } else {
                 updateEmptyViewStatus(EmptyView.Status.ERROR);

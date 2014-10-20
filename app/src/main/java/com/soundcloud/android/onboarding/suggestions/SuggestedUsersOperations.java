@@ -1,12 +1,10 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -37,16 +35,16 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
-        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
-                .forPrivateAPI(1)
+        ApiRequest<List<CategoryGroup>> request = ApiRequest.Builder.<List<CategoryGroup>>get(ApiEndpoints.SUGGESTED_USER_CATEGORIES.path())
+                .forPrivateApi(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
         return schedule(rxHttpClient.<CategoryGroup>fetchModels(request));
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
-        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
-                .forPrivateAPI(1)
+        ApiRequest<List<CategoryGroup>> request = ApiRequest.Builder.<List<CategoryGroup>>get(ApiEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
+                .forPrivateApi(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
         return schedule(rxHttpClient.<CategoryGroup>fetchModels(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));

@@ -4,10 +4,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -79,8 +78,8 @@ class PlaylistDiscoveryOperations {
     }
 
     private Observable<List<String>> fetchAndCachePopularTags() {
-        APIRequest<ModelCollection<String>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<String>>get(APIEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
-                .forPrivateAPI(1)
+        ApiRequest<ModelCollection<String>> request = ApiRequest.Builder.<ModelCollection<String>>get(ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
+                .forPrivateApi(1)
                 .forResource(new TypeToken<ModelCollection<String>>() {
                 })
                 .build();
@@ -88,8 +87,8 @@ class PlaylistDiscoveryOperations {
     }
 
     Observable<ModelCollection<ApiPlaylist>> playlistsForTag(final String tag) {
-        final APIRequest<ModelCollection<ApiPlaylist>> request =
-                createPlaylistResultsRequest(APIEndpoints.PLAYLIST_DISCOVERY.path())
+        final ApiRequest<ModelCollection<ApiPlaylist>> request =
+                createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParameters("tag", tag)
                         .build();
         return getPlaylistResultsPage(tag, request).finallyDo(new Action0() {
@@ -105,19 +104,19 @@ class PlaylistDiscoveryOperations {
     }
 
     private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsNextPage(String query, String nextHref) {
-        final SoundCloudAPIRequest.RequestBuilder<ModelCollection<ApiPlaylist>> builder = createPlaylistResultsRequest(nextHref);
+        final ApiRequest.Builder<ModelCollection<ApiPlaylist>> builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPage(query, builder.build());
     }
 
-    private SoundCloudAPIRequest.RequestBuilder<ModelCollection<ApiPlaylist>> createPlaylistResultsRequest(String url) {
-        return SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ApiPlaylist>>get(url)
-                .forPrivateAPI(1)
+    private ApiRequest.Builder<ModelCollection<ApiPlaylist>> createPlaylistResultsRequest(String url) {
+        return ApiRequest.Builder.<ModelCollection<ApiPlaylist>>get(url)
+                .forPrivateApi(1)
                 .forResource(new TypeToken<ModelCollection<ApiPlaylist>>() {
                 });
     }
 
     private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsPage(
-            String query, APIRequest<ModelCollection<ApiPlaylist>> request) {
+            String query, ApiRequest<ModelCollection<ApiPlaylist>> request) {
         Observable<ModelCollection<ApiPlaylist>> source = rxHttpClient.fetchModels(request);
         return source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
     }

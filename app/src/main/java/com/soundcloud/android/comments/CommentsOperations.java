@@ -1,14 +1,12 @@
 package com.soundcloud.android.comments;
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
@@ -52,8 +50,8 @@ class CommentsOperations {
 
     Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long timestamp) {
 
-        final APIRequest request = RequestBuilder.<PublicApiComment>post(APIEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
-                .forPublicAPI()
+        final ApiRequest request = ApiRequest.Builder.<PublicApiComment>post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+                .forPublicApi()
                 .forResource(TypeToken.of(PublicApiComment.class))
                 .withContent(new CommentHolder(commentText, timestamp))
                 .build();
@@ -62,16 +60,16 @@ class CommentsOperations {
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
-        final APIRequest request = apiRequest(APIEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest request = apiRequest(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .addQueryParameters("linked_partitioning", "1")
                 .addQueryParameters("limit", COMMENTS_PAGE_SIZE)
                 .build();
         return httpClient.fetchModels(request);
     }
 
-    private RequestBuilder apiRequest(String url) {
-        return RequestBuilder.<CommentsCollection>get(url)
-                .forPublicAPI()
+    private ApiRequest.Builder apiRequest(String url) {
+        return ApiRequest.Builder.<CommentsCollection>get(url)
+                .forPublicApi()
                 .forResource(TypeToken.of(CommentsCollection.class));
     }
 

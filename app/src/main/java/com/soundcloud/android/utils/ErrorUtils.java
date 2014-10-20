@@ -3,7 +3,7 @@ package com.soundcloud.android.utils;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.NotNull;
@@ -85,7 +85,7 @@ public class ErrorUtils {
     }
 
     private static boolean excludeFromReports(Throwable t) {
-        return t instanceof IOException || t instanceof APIRequestException || t instanceof SyncFailedException;
+        return t instanceof IOException || t instanceof ApiRequestException || t instanceof SyncFailedException;
     }
 
     public static void handleSilentException(String message, Throwable e) {

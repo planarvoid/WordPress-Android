@@ -5,11 +5,13 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import rx.Observable;
 import rx.android.Pager;
@@ -19,8 +21,10 @@ import javax.inject.Inject;
 
 class ExploreTracksOperations {
 
+    private final FeatureFlags featureFlags;
     private final RxHttpClient rxHttpClient;
     private final TrackWriteStorage trackWriteStorage;
+    private final ApiScheduler apiScheduler;
 
     private final Action1<SuggestedTracksCollection> cacheSuggestedTracks = new Action1<SuggestedTracksCollection>() {
         @Override
@@ -42,23 +46,30 @@ class ExploreTracksOperations {
     };
 
     @Inject
-    ExploreTracksOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage) {
+    ExploreTracksOperations(FeatureFlags featureFlags, RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage,
+                            ApiScheduler apiScheduler) {
+        this.featureFlags = featureFlags;
         this.rxHttpClient = rxHttpClient;
         this.trackWriteStorage = trackWriteStorage;
+        this.apiScheduler = apiScheduler;
     }
 
     public Observable<ExploreGenresSections> getCategories() {
-        APIRequest<ExploreGenresSections> request = SoundCloudAPIRequest.RequestBuilder.<ExploreGenresSections>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
-                .forPrivateAPI(1)
+        ApiRequest<ExploreGenresSections> request = ApiRequest.Builder.<ExploreGenresSections>get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(ExploreGenresSections.class)).build();
-        return rxHttpClient.fetchModels(request);
+        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
+            return apiScheduler.mappedResponse(request);
+        } else {
+            return rxHttpClient.fetchModels(request);
+        }
     }
 
     public Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
         if (category == ExploreGenre.POPULAR_MUSIC_CATEGORY) {
-            return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
+            return getSuggestedTracks(ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
         } else if (category == ExploreGenre.POPULAR_AUDIO_CATEGORY) {
-            return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path());
+            return getSuggestedTracks(ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path());
         } else {
             return getSuggestedTracks(category.getSuggestedTracksPath());
         }
@@ -69,11 +80,15 @@ class ExploreTracksOperations {
     }
 
     private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {
-        APIRequest<SuggestedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<SuggestedTracksCollection>get(endpoint)
+        ApiRequest<SuggestedTracksCollection> request = ApiRequest.Builder.<SuggestedTracksCollection>get(endpoint)
                 .addQueryParameters("limit", String.valueOf(Consts.CARD_PAGE_SIZE))
-                .forPrivateAPI(1)
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
-        return rxHttpClient.<SuggestedTracksCollection>fetchModels(request).doOnNext(cacheSuggestedTracks);
+        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
+            return apiScheduler.mappedResponse(request).doOnNext(cacheSuggestedTracks);
+        } else {
+            return rxHttpClient.<SuggestedTracksCollection>fetchModels(request).doOnNext(cacheSuggestedTracks);
+        }
     }
 }

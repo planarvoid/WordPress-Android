@@ -1,6 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static rx.android.OperatorPaged.LegacyPager;
 import static rx.android.OperatorPaged.Page;
@@ -8,8 +7,8 @@ import static rx.android.OperatorPaged.pagedWith;
 
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -79,39 +78,39 @@ class LegacySearchOperations {
     }
 
     public Observable<Page<SearchResultsCollection>> getAllSearchResults(String query) {
-        return getSearchResults(APIEndpoints.LEGACY_SEARCH_ALL, query);
+        return getSearchResults(ApiEndpoints.LEGACY_SEARCH_ALL, query);
     }
 
     public Observable<Page<SearchResultsCollection>> getTrackSearchResults(String query) {
-        return getSearchResults(APIEndpoints.LEGACY_SEARCH_TRACKS, query);
+        return getSearchResults(ApiEndpoints.LEGACY_SEARCH_TRACKS, query);
     }
 
     public Observable<Page<SearchResultsCollection>> getPlaylistSearchResults(String query) {
-        return getSearchResults(APIEndpoints.LEGACY_SEARCH_PLAYLISTS, query);
+        return getSearchResults(ApiEndpoints.LEGACY_SEARCH_PLAYLISTS, query);
     }
 
     public Observable<Page<SearchResultsCollection>> getUserSearchResults(String query) {
-        return getSearchResults(APIEndpoints.LEGACY_SEARCH_USERS, query);
+        return getSearchResults(ApiEndpoints.LEGACY_SEARCH_USERS, query);
     }
 
-    private Observable<Page<SearchResultsCollection>> getSearchResults(APIEndpoints apiEndpoint, @Nullable String query) {
-        final RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(apiEndpoint.path());
+    private Observable<Page<SearchResultsCollection>> getSearchResults(ApiEndpoints apiEndpoint, @Nullable String query) {
+        final ApiRequest.Builder<SearchResultsCollection> builder = createSearchRequestBuilder(apiEndpoint.path());
         return getPageObservable(builder.addQueryParameters("q", query).build());
     }
 
     private Observable<Page<SearchResultsCollection>> getSearchResults(String nextHref) {
-        final RequestBuilder<SearchResultsCollection> builder = createSearchRequestBuilder(nextHref);
+        final ApiRequest.Builder<SearchResultsCollection> builder = createSearchRequestBuilder(nextHref);
         return getPageObservable(builder.build());
     }
 
-    private RequestBuilder<SearchResultsCollection> createSearchRequestBuilder(String path) {
-        return RequestBuilder.<SearchResultsCollection>get(path)
+    private ApiRequest.Builder<SearchResultsCollection> createSearchRequestBuilder(String path) {
+        return ApiRequest.Builder.<SearchResultsCollection>get(path)
                 .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
-                .forPublicAPI()
+                .forPublicApi()
                 .forResource(TypeToken.of(SearchResultsCollection.class));
     }
 
-    private Observable<Page<SearchResultsCollection>> getPageObservable(APIRequest<SearchResultsCollection> request) {
+    private Observable<Page<SearchResultsCollection>> getPageObservable(ApiRequest<SearchResultsCollection> request) {
         Observable<SearchResultsCollection> source = rxHttpClient.<SearchResultsCollection>fetchModels(request)
                 .map(FILTER_UNKOWN_RESOURCES)
                 .map(cacheResources)

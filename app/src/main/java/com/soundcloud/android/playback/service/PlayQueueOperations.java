@@ -1,14 +1,13 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PolicyInfo;
@@ -115,18 +114,18 @@ public class PlayQueueOperations {
     }
 
     public Observable<RecommendedTracksCollection> getRelatedTracks(Urn urn) {
-        final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
-        final APIRequest<RecommendedTracksCollection> request = RequestBuilder.<RecommendedTracksCollection>get(endpoint)
-                .forPrivateAPI(1)
+        final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
+        final ApiRequest<RecommendedTracksCollection> request = ApiRequest.Builder.<RecommendedTracksCollection>get(endpoint)
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
         return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
     }
 
     public Observable<ModelCollection<PolicyInfo>> fetchAndStorePolicies(List<Urn> trackUrns) {
-        final APIRequest<PolicyCollection> request = RequestBuilder.<PolicyCollection>post(APIEndpoints.POLICIES.path())
+        final ApiRequest<PolicyCollection> request = ApiRequest.Builder.<PolicyCollection>post(ApiEndpoints.POLICIES.path())
                 .withContent(transformUrnsToStrings(trackUrns))
-                .forPrivateAPI(1)
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(PolicyCollection.class)).build();
 
         final Observable<ModelCollection<PolicyInfo>> mapObservable = rxHttpClient.fetchModels(request);

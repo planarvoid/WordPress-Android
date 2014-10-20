@@ -3,10 +3,9 @@ package com.soundcloud.android.onboarding;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 
 import javax.inject.Inject;
 
@@ -20,8 +19,8 @@ public class OnboardingOperations {
     }
 
     public void sendEmailOptIn() {
-        APIRequest<Void> request = SoundCloudAPIRequest.RequestBuilder.<Void>put(APIEndpoints.SUBSCRIPTIONS.path())
-                .forPrivateAPI(1)
+        ApiRequest<Void> request = ApiRequest.Builder.<Void>put(ApiEndpoints.SUBSCRIPTIONS.path())
+                .forPrivateApi(1)
                 .withContent(new EmailOptIn())
                 .build();
         fireAndForget(rxHttpClient.fetchResponse(request));

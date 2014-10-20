@@ -1,8 +1,10 @@
 package com.soundcloud.android.api.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 
 import javax.inject.Singleton;
@@ -20,13 +22,20 @@ public class JacksonJsonTransformer implements JsonTransformer {
     }
 
     @Override
-    public <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws Exception {
-        return objectMapper.readValue(json, typeFactory.constructType(classToTransformTo.getType()));
-
+    public <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws ApiMapperException {
+        try {
+            return objectMapper.readValue(json, typeFactory.constructType(classToTransformTo.getType()));
+        } catch (IOException e) {
+            throw new ApiMapperException(e);
+        }
     }
 
     @Override
-    public String toJson(Object source) throws IOException {
-        return objectMapper.writeValueAsString(source);
+    public String toJson(Object source) throws ApiMapperException {
+        try {
+            return objectMapper.writeValueAsString(source);
+        } catch (JsonProcessingException e) {
+            throw new ApiMapperException(e);
+        }
     }
 }

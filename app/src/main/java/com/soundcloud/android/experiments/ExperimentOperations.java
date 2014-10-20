@@ -5,10 +5,9 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DeviceHelper;
 import rx.functions.Action0;
@@ -81,10 +80,10 @@ public class ExperimentOperations {
             @Override
             public void call() {
                 Log.d(TAG, "Requesting assignments for device: " + deviceId);
-                APIRequest<Assignment> request =
-                        SoundCloudAPIRequest.RequestBuilder.<Assignment>get(APIEndpoints.EXPERIMENTS.path(deviceId))
+                ApiRequest<Assignment> request =
+                        ApiRequest.Builder.<Assignment>get(ApiEndpoints.EXPERIMENTS.path(deviceId))
                                 .addQueryParameters(PARAM_LAYERS, activeExperiments.getRequestLayers())
-                                .forPrivateAPI(1)
+                                .forPrivateApi(1)
                                 .forResource(TypeToken.of(Assignment.class))
                                 .build();
                 fireAndForget(rxHttpClient.<Assignment>fetchModels(request).doOnNext(storeAssignment));

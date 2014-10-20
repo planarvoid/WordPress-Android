@@ -9,11 +9,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
-import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.TempEndpoints;
@@ -138,15 +137,15 @@ public class FollowingOperations {
     }
 
     public Observable<Collection<UserAssociation>> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
-        final APIRequest<Void> apiRequest = createBulkFollowApiRequest(userAssociations);
+        final ApiRequest<Void> apiRequest = createBulkFollowApiRequest(userAssociations);
         if (apiRequest == null) {
             Log.d(LOG_TAG, "No api request, skipping bulk follow");
             return Observable.empty();
         } else {
             Log.d(LOG_TAG, "Executing bulk follow request: " + apiRequest);
-            return rxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
+            return rxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<ApiResponse, Observable<Collection<UserAssociation>>>() {
                 @Override
-                public Observable<Collection<UserAssociation>> call(APIResponse apiResponse) {
+                public Observable<Collection<UserAssociation>> call(ApiResponse apiResponse) {
                     Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);
                     return userAssociationStorage.setFollowingsAsSynced(userAssociations);
                 }
@@ -212,12 +211,12 @@ public class FollowingOperations {
     }
 
     @Nullable
-    private APIRequest<Void> createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
+    private ApiRequest<Void> createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
         final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
         final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
         if (!tokens.isEmpty()) {
-            return SoundCloudAPIRequest.RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
-                    .forPublicAPI()
+            return ApiRequest.Builder.<Void>post(ApiEndpoints.BULK_FOLLOW_USERS.path())
+                    .forPublicApi()
                     .withContent(new BulkFollowingsHolder(tokens))
                     .build();
         }

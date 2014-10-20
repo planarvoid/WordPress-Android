@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.content;
 
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -7,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.APIRequestException;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -237,7 +239,7 @@ public class UserAssociationSyncer extends SyncStrategy {
 
         @Override
         public void onError(Throwable e) {
-            if (e instanceof APIRequestException && ((APIRequestException) e).response().responseCodeisForbidden()) {
+            if (e instanceof ApiRequestException && ((ApiRequestException) e).reason() == NOT_ALLOWED) {
                 /*
                  Tokens were expired. Delete the user associations and followings from memory.
                  TODO : retry logic somehow

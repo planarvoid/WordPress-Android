@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -52,7 +52,7 @@ public class SearchOperationsTest {
         playlist = ModelFixtures.create(ApiPlaylist.class);
         user = ModelFixtures.create(ApiUser.class);
 
-        when(rxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
 
         operations = new SearchOperations(rxHttpClient, userStorage, playlistWriteStorage, playlistStorage, trackStorage);
     }
@@ -61,7 +61,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchAllEndpoint() {
         operations.getSearchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.SEARCH_ALL.path())
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -70,7 +70,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchTracksEndpoint() {
         operations.getSearchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.SEARCH_TRACKS.path())
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -79,7 +79,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchPlaylistsEndpoint() {
         operations.getSearchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.SEARCH_PLAYLISTS.path())
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -88,7 +88,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchUserEndpoint() {
         operations.getSearchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", APIEndpoints.SEARCH_USERS.path())
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -97,7 +97,7 @@ public class SearchOperationsTest {
     public void shouldCacheUserSearchResult() {
         List<ApiUser> userList = ModelFixtures.create(ApiUser.class, 2);
         final Observable<ModelCollection<ApiUser>> observable = getUserCollectionObservable(userList);
-        when(rxHttpClient.<ModelCollection<ApiUser>>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<ModelCollection<ApiUser>>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         operations.getSearchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
 
@@ -108,7 +108,7 @@ public class SearchOperationsTest {
     public void shouldCachePlaylistSearchResult() {
         List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
         final Observable<ModelCollection<ApiPlaylist>> observable = getPlaylistCollectionObservable(playlists);
-        when(rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         operations.getSearchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
@@ -119,7 +119,7 @@ public class SearchOperationsTest {
     public void shouldCacheTrackSearchResult() {
         List<ApiTrack> trackList = ModelFixtures.create(ApiTrack.class, 2);
         final Observable<ModelCollection<ApiTrack>> observable = getTrackCollectionObservable(trackList);
-        when(rxHttpClient.<ModelCollection<ApiTrack>>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<ModelCollection<ApiTrack>>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         operations.getSearchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
 
@@ -130,7 +130,7 @@ public class SearchOperationsTest {
     public void shouldCacheUniversalSearchResult() {
         List<UniversalSearchResult> results = getUniversalSearchResultList(user, track, playlist);
         final Observable<ModelCollection<UniversalSearchResult>> observable = getUniversalCollectionObservable(results);
-        when(rxHttpClient.<ModelCollection<UniversalSearchResult>>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<ModelCollection<UniversalSearchResult>>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         operations.getSearchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
@@ -142,7 +142,7 @@ public class SearchOperationsTest {
     @Test
     public void shouldBackFillLikesForPlaylists() {
         final Observable<ModelCollection<ApiPlaylist>> observable = getPlaylistCollectionObservable(Arrays.asList(playlist));
-        when(rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(any(APIRequest.class))).thenReturn(observable);
+        when(rxHttpClient.<ModelCollection<ApiPlaylist>>fetchModels(any(ApiRequest.class))).thenReturn(observable);
 
         operations.getSearchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 

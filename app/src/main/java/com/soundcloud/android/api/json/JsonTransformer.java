@@ -2,12 +2,11 @@ package com.soundcloud.android.api.json;
 
 
 import com.google.common.reflect.TypeToken;
-
-import java.io.IOException;
+import com.soundcloud.android.api.ApiMapperException;
 
 public interface JsonTransformer {
 
-    public <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws Exception;
+    <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws ApiMapperException;
 
-    public String toJson(Object source) throws IOException;
+    String toJson(Object source) throws ApiMapperException;
 }

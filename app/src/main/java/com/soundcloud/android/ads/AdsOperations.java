@@ -5,10 +5,9 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudAPIRequest;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -55,9 +54,9 @@ public class AdsOperations {
     }
 
     public Observable<ApiAdsForTrack> audioAd(Urn sourceUrn) {
-        final String endpoint = String.format(APIEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
-        final APIRequest<ApiAdsForTrack> request = SoundCloudAPIRequest.RequestBuilder.<ApiAdsForTrack>get(endpoint)
-                .forPrivateAPI(1)
+        final String endpoint = String.format(ApiEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
+        final ApiRequest<ApiAdsForTrack> request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiAdsForTrack.class))
                 .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
                 .build();

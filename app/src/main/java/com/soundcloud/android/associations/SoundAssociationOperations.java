@@ -1,11 +1,11 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.api.SoundCloudAPIRequest.RequestBuilder;
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 
-import com.soundcloud.android.api.APIEndpoints;
-import com.soundcloud.android.api.APIRequest;
-import com.soundcloud.android.api.APIRequestException;
-import com.soundcloud.android.api.APIResponse;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -22,7 +22,6 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
-import org.apache.http.HttpStatus;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -84,9 +83,9 @@ public class SoundAssociationOperations {
     private Observable<PropertySet> toggleLike(final Playable playable, final boolean addLike) {
         logPlayable(addLike ? "LIKE" : "UNLIKE", playable);
         return updateLikeState(playable, addLike)
-                .mergeMap(new Func1<SoundAssociation, Observable<APIResponse>>() {
+                .mergeMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
                     @Override
-                    public Observable<APIResponse> call(SoundAssociation soundAssociation) {
+                    public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
                         return httpClient.fetchResponse(buildRequestForLike(playable, addLike));
                     }
                 })
@@ -121,10 +120,9 @@ public class SoundAssociationOperations {
         return new Func1<Throwable, Observable<PropertySet>>() {
             @Override
             public Observable<PropertySet> call(Throwable throwable) {
-                if (throwable instanceof APIRequestException) {
-                    APIRequestException requestException = (APIRequestException) throwable;
-                    if (!wasAddRequest && requestException.response() != null
-                            && requestException.response().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                if (throwable instanceof ApiRequestException) {
+                    ApiRequestException requestException = (ApiRequestException) throwable;
+                    if (!wasAddRequest && requestException.reason() == NOT_FOUND) {
                         Log.d(TAG, "Unliking a track that was not liked on server. Already in correct state.");
                         return Observable.just(createPropertySetFromLike(playable));
                     }
@@ -149,11 +147,11 @@ public class SoundAssociationOperations {
                 PlayableProperty.LIKES_COUNT.bind(playable.likes_count));
     }
 
-    private APIRequest buildRequestForLike(final Playable playable, final boolean likeAdded) {
-        APIEndpoints endpoint = playable instanceof PublicApiTrack ? APIEndpoints.MY_TRACK_LIKES : APIEndpoints.MY_PLAYLIST_LIKES;
+    private ApiRequest buildRequestForLike(final Playable playable, final boolean likeAdded) {
+        ApiEndpoints endpoint = playable instanceof PublicApiTrack ? ApiEndpoints.MY_TRACK_LIKES : ApiEndpoints.MY_PLAYLIST_LIKES;
         final String path = endpoint.path() + "/" + playable.getId();
-        RequestBuilder builder = likeAdded ? RequestBuilder.put(path) : RequestBuilder.delete(path);
-        return builder.forPublicAPI().build();
+        ApiRequest.Builder builder = likeAdded ? ApiRequest.Builder.put(path) : ApiRequest.Builder.delete(path);
+        return builder.forPublicApi().build();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,9 +171,9 @@ public class SoundAssociationOperations {
     private Observable<PropertySet> toggleRepost(final Playable playable, final boolean addRepost) {
         logPlayable(addRepost ? "REPOST" : "UNPOST", playable);
         return updateRepostState(playable, addRepost)
-                .mergeMap(new Func1<SoundAssociation, Observable<APIResponse>>() {
+                .mergeMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
                     @Override
-                    public Observable<APIResponse> call(SoundAssociation soundAssociation) {
+                    public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
                         return httpClient.fetchResponse(buildRequestForRepost(playable, addRepost));
                     }
                 })
@@ -209,10 +207,9 @@ public class SoundAssociationOperations {
         return new Func1<Throwable, Observable<PropertySet>>() {
             @Override
             public Observable<PropertySet> call(Throwable throwable) {
-                if (throwable instanceof APIRequestException) {
-                    APIRequestException requestException = (APIRequestException) throwable;
-                    if (!wasAddRequest && requestException.response() != null
-                            && requestException.response().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                if (throwable instanceof ApiRequestException) {
+                    ApiRequestException requestException = (ApiRequestException) throwable;
+                    if (!wasAddRequest && requestException.reason() == NOT_FOUND) {
                         Log.d(TAG, "Unposting a track that was not reposted on server. Already in correct state.");
                         return Observable.just(createPropertySetFromRepost(playable));
                     }
@@ -237,11 +234,11 @@ public class SoundAssociationOperations {
                 PlayableProperty.REPOSTS_COUNT.bind(playable.reposts_count));
     }
 
-    private APIRequest buildRequestForRepost(final Playable playable, final boolean repostAdded) {
-        APIEndpoints endpoint = playable instanceof PublicApiTrack ? APIEndpoints.MY_TRACK_REPOSTS : APIEndpoints.MY_PLAYLIST_REPOSTS;
+    private ApiRequest buildRequestForRepost(final Playable playable, final boolean repostAdded) {
+        ApiEndpoints endpoint = playable instanceof PublicApiTrack ? ApiEndpoints.MY_TRACK_REPOSTS : ApiEndpoints.MY_PLAYLIST_REPOSTS;
         final String path = endpoint.path() + "/" + playable.getId();
-        RequestBuilder builder = repostAdded ? RequestBuilder.put(path) : RequestBuilder.delete(path);
-        return builder.forPublicAPI().build();
+        ApiRequest.Builder builder = repostAdded ? ApiRequest.Builder.put(path) : ApiRequest.Builder.delete(path);
+        return builder.forPublicApi().build();
     }
 
     private Observable<? extends Playable> resolveLegacyModel(final Urn urn) {
