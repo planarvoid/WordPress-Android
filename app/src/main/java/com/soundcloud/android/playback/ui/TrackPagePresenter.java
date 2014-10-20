@@ -194,7 +194,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private void configureLeaveBehind(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
-                holder.leaveBehindController.show();
+                holder.leaveBehindController.show(isForeground);
             } else if (stateTransition.isPaused() || stateTransition.wasError()) {
                 clearLeaveBehind(holder);
             }
@@ -323,12 +323,14 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     public void setCollapsed(View trackView) {
         onPlayerSlide(trackView, 0);
         getViewHolder(trackView).waveformController.setCollapsed();
+        getViewHolder(trackView).leaveBehindController.setCollapsed();
     }
 
     @Override
     public void setExpanded(View trackView) {
         onPlayerSlide(trackView, 1);
         getViewHolder(trackView).waveformController.setExpanded();
+        getViewHolder(trackView).leaveBehindController.setExpanded();
     }
 
     @Override

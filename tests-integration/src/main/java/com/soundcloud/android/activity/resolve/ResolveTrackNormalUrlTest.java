@@ -18,7 +18,7 @@ public class ResolveTrackNormalUrlTest extends ResolveBaseTest {
         final VisualPlayerElement playerElement = getPlayerElement();
         assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
         // make sure recommendations load
-        waiter.waitForNextTrack();
+        waiter.waitFiveSeconds();
 
         playerElement.swipeNext();
         assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(TRACK_NAME))));

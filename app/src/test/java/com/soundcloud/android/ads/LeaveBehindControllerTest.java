@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.interstitialForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
 import static org.mockito.Matchers.any;
@@ -177,9 +178,30 @@ public class LeaveBehindControllerTest {
     }
 
     @Test
-    public void showsInterstitials() {
-        final PropertySet properties = leaveBehindForPlayer().put(LeaveBehindProperty.IS_INTERSTITIAL, true);
+    public void doesNotShowInterstitialIfInBackground() {
+        final PropertySet properties = interstitialForPlayer();
         initializeAndShow(properties);
+
+        verifyZeroInteractions(imageOperations);
+        expectLeaveBehindToBeGone();
+    }
+
+    @Test
+    public void doesNotShowInterstitialIfCollapsed() {
+        final PropertySet properties = interstitialForPlayer();
+        initializeAndShow(properties);
+
+        verifyZeroInteractions(imageOperations);
+        expectLeaveBehindToBeGone();
+    }
+
+    @Test
+    public void showsInterstitials() {
+        final PropertySet properties = interstitialForPlayer();
+        controller.initialize(properties);
+        controller.setExpanded();
+        controller.show(true);
+
         captureImageListener().onLoadingComplete(null, null, null);
 
         expect(getLeaveBehind()).toBeVisible();

@@ -1,20 +1,25 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import com.google.common.collect.Lists;
+import com.soundcloud.android.ads.ApiAdWrapper;
+import com.soundcloud.android.ads.ApiAdsForTrack;
+import com.soundcloud.android.ads.ApiAudioAd;
+import com.soundcloud.android.ads.ApiInterstitial;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.experiments.AssignmentBlueprint;
-import com.soundcloud.android.testsupport.blueprints.AdsForTrackBlueprint;
 import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiAudioAdBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiUserBlueprint;
 import com.soundcloud.android.testsupport.blueprints.CategoryBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiCommentBlueprint;
 import com.soundcloud.android.testsupport.blueprints.DisplayPropertiesBlueprint;
+import com.soundcloud.android.testsupport.blueprints.InterstitialBlueprint;
 import com.soundcloud.android.testsupport.blueprints.LeaveBehindBlueprint;
 import com.soundcloud.android.testsupport.blueprints.PlaybackSessionEventBlueprint;
+import com.soundcloud.android.testsupport.blueprints.PublicApiCommentBlueprint;
 import com.soundcloud.android.testsupport.blueprints.PublicApiPlaylistBlueprint;
 import com.soundcloud.android.testsupport.blueprints.PublicApiTrackBlueprint;
 import com.soundcloud.android.testsupport.blueprints.PublicApiUserBlueprint;
@@ -53,9 +58,9 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(AffiliationActivityBlueprint.class);
             modelFactory.registerBlueprint(ApiAudioAdBlueprint.class);
             modelFactory.registerBlueprint(VisualAdWithButtonBlueprint.class);
-            modelFactory.registerBlueprint(AdsForTrackBlueprint.class);
             modelFactory.registerBlueprint(DisplayPropertiesBlueprint.class);
             modelFactory.registerBlueprint(LeaveBehindBlueprint.class);
+            modelFactory.registerBlueprint(InterstitialBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }
@@ -87,4 +92,5 @@ public class ModelFixtures {
         return userAssociations;
 
     }
+
 }

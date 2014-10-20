@@ -27,6 +27,7 @@ public enum ApiEndpoints {
     HLS_STREAM("/tracks/%s/streams/hls"),
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
+    ADS("/tracks/%s/ads"),
     AUDIO_AD("/tracks/%s/ads/audio"),
     POLICIES("/policies/tracks"),
     PRODUCTS("/products/google-play"),

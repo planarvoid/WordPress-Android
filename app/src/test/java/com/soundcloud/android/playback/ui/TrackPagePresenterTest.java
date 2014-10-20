@@ -502,7 +502,7 @@ public class TrackPagePresenterTest {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
 
-        verify(leaveBehindController).show();
+        verify(leaveBehindController).show(true);
     }
 
     @Test

@@ -28,7 +28,8 @@ public class Waiter {
     private static Han solo;
     private static final int TIMEOUT = 10 * 1000;
     private static final int NETWORK_TIMEOUT = 120 * 1000;
-    private static final int ELEMENT_TIMEOUT = 5 * 1000;
+    public static final int FIVE_SECONDS = 5 * 1000;
+    private static final int ELEMENT_TIMEOUT = FIVE_SECONDS;
     private static final int SMALL_TIMEOUT = 500;
 
     public Waiter(Han driver) {
@@ -91,8 +92,8 @@ public class Waiter {
         solo.sleep(SMALL_TIMEOUT);
     }
 
-    public void waitForNextTrack() {
-        solo.sleep(ELEMENT_TIMEOUT);
+    public void waitFiveSeconds() {
+        solo.sleep(FIVE_SECONDS);
     }
 
     private boolean waitForListContent() {

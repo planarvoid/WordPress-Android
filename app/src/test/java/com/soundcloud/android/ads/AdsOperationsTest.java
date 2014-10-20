@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.AdFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackWriteStorage;
@@ -42,7 +44,7 @@ public class AdsOperationsTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     private AdsOperations adsOperations;
-    private ApiAdsForTrack apiAdsForTrack;
+    private ApiAdsForTrack fullAdsForTrack;
 
     @Mock private RxHttpClient rxHttpClient;
     @Mock private TrackWriteStorage trackWriteStorage;
@@ -55,7 +57,7 @@ public class AdsOperationsTest {
     @Before
     public void setUp() throws Exception {
         adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage, deviceHelper, playQueueManager, featureFlags);
-        apiAdsForTrack = ModelFixtures.create(ApiAdsForTrack.class);
+        fullAdsForTrack = AdFixtures.fullAdsForTrack();
         playSessionSource = new PlaySessionSource("origin");
         playSessionSource.setExploreVersion("1.0");
 
@@ -64,31 +66,31 @@ public class AdsOperationsTest {
 
     @Test
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
-        final String endpoint = String.format(ApiEndpoints.AUDIO_AD.path(), TRACK_URN.toEncodedString());
-        when(rxHttpClient.<ApiAdsForTrack>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(apiAdsForTrack));
-        when(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
+        final String endpoint = String.format(ApiEndpoints.ADS.path(), TRACK_URN.toEncodedString());
+        when(rxHttpClient.<ApiAdsForTrack>fetchModels(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(fullAdsForTrack));
+        when(trackWriteStorage.storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
-        expect(adsOperations.audioAd(TRACK_URN).toBlocking().first()).toBe(apiAdsForTrack);
+        expect(adsOperations.ads(TRACK_URN).toBlocking().first()).toBe(fullAdsForTrack);
     }
 
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
-        when(rxHttpClient.<ApiAdsForTrack>fetchModels(any(ApiRequest.class))).thenReturn(Observable.just(apiAdsForTrack));
-        when(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
+        when(rxHttpClient.<ApiAdsForTrack>fetchModels(any(ApiRequest.class))).thenReturn(Observable.just(fullAdsForTrack));
+        when(trackWriteStorage.storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
-        adsOperations.audioAd(TRACK_URN).subscribe();
+        adsOperations.ads(TRACK_URN).subscribe();
 
-        verify(trackWriteStorage).storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack());
+        verify(trackWriteStorage).storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack());
     }
 
     @Test
     public void audioAdRequestIncludesUniqueDeviceId() {
         final ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
-        when(rxHttpClient.<ApiAdsForTrack>fetchModels(captor.capture())).thenReturn(Observable.just(apiAdsForTrack));
-        when(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
+        when(rxHttpClient.<ApiAdsForTrack>fetchModels(captor.capture())).thenReturn(Observable.just(fullAdsForTrack));
+        when(trackWriteStorage.storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
         when(deviceHelper.getUniqueDeviceID()).thenReturn("is google watching?");
 
-        adsOperations.audioAd(TRACK_URN).subscribe();
+        adsOperations.ads(TRACK_URN).subscribe();
 
         final ApiRequest apiRequest = captor.getValue();
         Map<String, String> headers = apiRequest.getHeaders();
@@ -111,8 +113,9 @@ public class AdsOperationsTest {
     }
 
     @Test
-    public void applyAdMergesInterstitialWhenInterstitialIsAvailable() throws Exception {
-        adsOperations.applyAdToTrack(TRACK_URN, apiAdsForTrack);
+    public void applyAdMergesInterstitialWhenNoAudioAdIsAvailable() throws Exception {
+        final ApiAdsForTrack adsWithOnlyInterstitial = AdFixtures.interstitial();
+        adsOperations.applyAdToTrack(TRACK_URN, adsWithOnlyInterstitial);
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
@@ -121,17 +124,14 @@ public class AdsOperationsTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
-        final PropertySet expectedPropertySet = apiAdsForTrack.audioAd().getApiLeaveBehind().toPropertySet();
-        expectedPropertySet.put(LeaveBehindProperty.IS_INTERSTITIAL, true);
-
         expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(0)).toEqual(expectedPropertySet);
+        expect(playQueue.getMetaData(0)).toEqual(adsWithOnlyInterstitial.interstitialAd().toPropertySet());
     }
 
     @Test
-    public void applyAdInsertsAudioAdWhenNoInterstitialIsAvailable() throws Exception {
-        ApiAdsForTrack noInterstitial = new ApiAdsForTrack(ModelFixtures.create(ApiAudioAd.class), null);
-        adsOperations.applyAdToTrack(TRACK_URN, noInterstitial);
+    public void applyAdInsertsAudioAdWhenOnlyAudioAdIsAvailable() throws Exception {
+        ApiAdsForTrack adsWithOnlyAudioAd = AdFixtures.audioAd();
+        adsOperations.applyAdToTrack(TRACK_URN, adsWithOnlyAudioAd);
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
@@ -143,9 +143,40 @@ public class AdsOperationsTest {
         value1.execute(playQueue);
         value2.execute(playQueue);
 
-        expect(playQueue.getUrn(0)).toEqual(noInterstitial.audioAd().getApiTrack().getUrn());
+        expect(playQueue.getUrn(0)).toEqual(adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind().toPropertySet());
+        expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getApiLeaveBehind().toPropertySet());
+    }
+
+    @Test
+    public void applyAdPrefersAudioAdWhenBothAreAvailable() throws Exception {
+        ApiAdsForTrack fullAdsForTrack = AdFixtures.fullAdsForTrack();
+        adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+        value2.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(fullAdsForTrack.audioAd().getApiTrack().getUrn());
+        expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
+        expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getApiLeaveBehind().toPropertySet());
+    }
+
+    @Test
+    public void applyAdIsNoOpIfNoAdsAvailable() throws Exception {
+        ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack();
+        adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
+
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+
+        verify(playQueueManager, never()).performPlayQueueUpdateOperations(any(PlayQueueManager.QueueUpdateOperation.class));
+        expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
     }
 
     @Test
@@ -156,7 +187,7 @@ public class AdsOperationsTest {
         when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(apiTrack);
         when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(PropertySet.create());
 
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(audioAdWithoutLeaveBehind, null));
+        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Lists.newArrayList(new ApiAdWrapper(audioAdWithoutLeaveBehind))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
@@ -171,7 +202,7 @@ public class AdsOperationsTest {
 
     @Test
     public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
-        ApiAdsForTrack noInterstitial = new ApiAdsForTrack(ModelFixtures.create(ApiAudioAd.class), null);
+        ApiAdsForTrack noInterstitial = new ApiAdsForTrack(Lists.newArrayList(new ApiAdWrapper(ModelFixtures.create(ApiAudioAd.class))));
         adsOperations.applyAdToTrack(TRACK_URN, noInterstitial);
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
@@ -197,7 +228,7 @@ public class AdsOperationsTest {
         when(apiAudioAd.hasApiLeaveBehind()).thenReturn(false);
         when(apiAudioAd.toPropertySet()).thenReturn(PropertySet.create());
         when(apiAudioAd.getApiTrack()).thenReturn(apiTrack);
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(apiAudioAd, null));
+        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Lists.newArrayList(new ApiAdWrapper(apiAudioAd))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());

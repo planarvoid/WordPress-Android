@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class VisualPlayerElement extends Element {
 
     public static final int MILISECONDS_UNTIL_AD_SKIPPABLE = (int) TimeUnit.SECONDS.toMillis(15L);
-    private static final int MILISECONDS_UNTIL_LEAVE_BEHIND =  (int) TimeUnit.SECONDS.toMillis(40L);
+    private static final int MILISECONDS_UNTIL_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
 
@@ -169,11 +169,15 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForAdToBeFetched() {
-        waiter.waitForNextTrack();
+        waiter.waitFiveSeconds();
     }
 
     public void waitForAdToBeSkippable() {
         solo.sleep(MILISECONDS_UNTIL_AD_SKIPPABLE);
+    }
+
+    public void waitForAdToBeDone() {
+        solo.sleep(MILISECONDS_UNTIL_AD_DONE);
     }
 
     public void waitForTrackToFinish(int firstTrackLengthInMiliSeconds) {
@@ -184,8 +188,8 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.skip_ad);
     }
 
-    public void waitForLeaveBehind() {
-        waiter.waitForElementToBeVisible(With.id(R.id.leave_behind_image), MILISECONDS_UNTIL_LEAVE_BEHIND);
+    public void waitForLeaveBehindToLoad() {
+        waiter.waitFiveSeconds();
     }
 
     public void waitForPlayButton() {

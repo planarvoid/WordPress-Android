@@ -76,7 +76,7 @@ public class AdsController {
     private final Func1<PropertySet, Observable<ApiAdsForTrack>> fetchAudioAd = new Func1<PropertySet, Observable<ApiAdsForTrack>>() {
         @Override
         public Observable<ApiAdsForTrack> call(PropertySet propertySet) {
-            return adsOperations.audioAd(propertySet.get(TrackProperty.URN));
+            return adsOperations.ads(propertySet.get(TrackProperty.URN));
         }
     };
 

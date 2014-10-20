@@ -53,8 +53,8 @@ public class AdsOperations {
         this.featureFlags = featureFlags;
     }
 
-    public Observable<ApiAdsForTrack> audioAd(Urn sourceUrn) {
-        final String endpoint = String.format(ApiEndpoints.AUDIO_AD.path(), sourceUrn.toEncodedString());
+    public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
+        final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         final ApiRequest<ApiAdsForTrack> request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiAdsForTrack.class))
@@ -67,10 +67,10 @@ public class AdsOperations {
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
         final int currentMonetizablePosition = playQueueManager.getPositionForUrn(monetizableTrack);
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
-        if (ads.hasInterstitialAd() && featureFlags.isEnabled(Feature.INTERSTITIAL)) {
-            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition);
-        } else if (ads.hasAudioAd()) {
+        if (ads.hasAudioAd()) {
             insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
+        } else if (ads.hasInterstitialAd() && featureFlags.isEnabled(Feature.INTERSTITIAL)) {
+            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition);
         }
     }
 
@@ -122,9 +122,8 @@ public class AdsOperations {
         return playQueueManager.getMetaDataAt(monetizableTrackPosition);
     }
 
-    private void applyInterstitialAd(ApiLeaveBehind interstitial, int currentMonetizablePosition) {
+    private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition) {
         PropertySet interstitialPropertySet = interstitial.toPropertySet();
-        interstitialPropertySet.put(LeaveBehindProperty.IS_INTERSTITIAL, true);
         playQueueManager.performPlayQueueUpdateOperations(
                 new PlayQueueManager.MergeMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
         );

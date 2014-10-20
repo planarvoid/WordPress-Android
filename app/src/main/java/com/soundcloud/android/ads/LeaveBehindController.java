@@ -44,6 +44,15 @@ public class LeaveBehindController implements View.OnClickListener{
         }
     };
     private View leaveBehindClose;
+    private boolean isExpanded;
+
+    public void setCollapsed() {
+        isExpanded = false;
+    }
+
+    public void setExpanded() {
+        isExpanded = true;
+    }
 
     public interface LeaveBehindListener {
         void onLeaveBehindShown();
@@ -91,7 +100,11 @@ public class LeaveBehindController implements View.OnClickListener{
     }
 
     public void show() {
-        if (shouldDisplayLeaveBehind()) {
+        show(false);
+    }
+
+    public void show(boolean isForeground) {
+        if (shouldDisplayLeaveBehind(isForeground)) {
             imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), adImage, imageListener);
             resetMetaData();
         }
@@ -104,18 +117,22 @@ public class LeaveBehindController implements View.OnClickListener{
         }
     }
 
-    private boolean shouldDisplayLeaveBehind() {
+    private boolean shouldDisplayLeaveBehind(boolean isForeground) {
         if (data == null) {
             return false;
         }
 
         final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        final boolean adCompleteButNotClicked =
-                data.getOrElse(LeaveBehindProperty.META_AD_COMPLETED, false)
+        final boolean isInterstitial = data.contains(InterstitialProperty.INTERSTITIAL_URN);
+        final boolean adCompleteButNotClicked = data.getOrElse(LeaveBehindProperty.META_AD_COMPLETED, false)
                 && !data.getOrElse(LeaveBehindProperty.META_AD_CLICKED, false);
-        final boolean isInterstitial = data.getOrElse(LeaveBehindProperty.IS_INTERSTITIAL, false);
 
-        return isPortrait && (adCompleteButNotClicked || isInterstitial);
+         if (isInterstitial){
+            return isExpanded && isForeground;
+        } else {
+             return isPortrait && adCompleteButNotClicked;
+        }
+
     }
 
     private void setVisible() {

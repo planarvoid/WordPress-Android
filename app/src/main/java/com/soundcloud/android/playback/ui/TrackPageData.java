@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
@@ -33,8 +34,10 @@ final class TrackPageData {
         return properties.contains(AdProperty.AD_URN);
     }
 
+    // todo : this should be hasAdOverlay, and we should rename the controller
     boolean hasLeaveBehind() {
-        return properties.contains(LeaveBehindProperty.LEAVE_BEHIND_URN);
+        return properties.contains(LeaveBehindProperty.LEAVE_BEHIND_URN)
+                || properties.contains(InterstitialProperty.INTERSTITIAL_URN);
     }
 
     @Override

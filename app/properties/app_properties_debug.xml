@@ -14,7 +14,7 @@
     <bool name="feature_leave_behind">true</bool>
     <bool name="feature_payments">true</bool>
     <bool name="feature_api_mobile_search">true</bool>
-    <bool name="feature_interstitial">false</bool>
+    <bool name="feature_interstitial">true</bool>
     <bool name="feature_httpclient_refactor">true</bool>
     <bool name="feature_localytics_push">true</bool>
 </resources>
