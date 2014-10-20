@@ -402,7 +402,7 @@ public class PlaylistFragmentTest {
 
     private View createFragmentView() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(PublicApiPlaylist.EXTRA_URN, playlist.getUrn());
+        bundle.putParcelable(PlaylistFragment.EXTRA_URN, playlist.getUrn());
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         fragment.onCreate(null);

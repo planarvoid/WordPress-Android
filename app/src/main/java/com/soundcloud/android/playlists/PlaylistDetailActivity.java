@@ -4,7 +4,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
@@ -25,6 +24,8 @@ public class PlaylistDetailActivity extends ScActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
 
+    public static final String EXTRA_URN = "urn";
+
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
@@ -36,7 +37,7 @@ public class PlaylistDetailActivity extends ScActivity {
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
-        return intent.putExtra(PublicApiPlaylist.EXTRA_URN, playlistUrn);
+        return intent.putExtra(EXTRA_URN, playlistUrn);
     }
 
     public PlaylistDetailActivity() {
@@ -57,9 +58,11 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     private void createFragmentForPlaylist() {
-        Bundle extras = getIntent().getExtras();
-        Log.d(LOG_TAG, "(Re-)creating fragment for " + extras.getParcelable(PublicApiPlaylist.EXTRA_URN));
-        Fragment fragment = PlaylistFragment.create(extras);
+        Urn urn = getIntent().getParcelableExtra(EXTRA_URN);
+        Screen screen = Screen.fromIntent(getIntent());
+        Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
+
+        Fragment fragment = PlaylistFragment.create(urn, screen);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 

@@ -7,11 +7,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Scheduler;
@@ -89,7 +88,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new UserEventSubscriber()));
-        eventsSubscription.add(eventBus.subscribe(EventQueue.SEARCH, new SearchEventSubscriber()));
     }
 
     @Override
@@ -147,13 +145,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         @Override
         protected void handleEvent(AnalyticsProvider provider, OnboardingEvent event) {
             provider.handleOnboardingEvent(event);
-        }
-    }
-
-    private final class SearchEventSubscriber extends EventSubscriber<SearchEvent> {
-        @Override
-        protected void handleEvent(AnalyticsProvider provider, SearchEvent event) {
-            provider.handleSearchEvent(event);
         }
     }
 

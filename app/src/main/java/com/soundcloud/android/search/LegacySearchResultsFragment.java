@@ -185,18 +185,18 @@ public class LegacySearchResultsFragment extends DefaultFragment
         PublicApiResource item = adapter.getItem(position);
         Context context = getActivity();
         if (item instanceof PublicApiTrack) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
             final List<Urn> trackUrns = toTrackUrn(filterPlayables(adapter.getItems()));
             final int adjustedPosition = filterPlayables(adapter.getItems().subList(0, position)).size();
             playbackOperations
                     .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(getTrackingScreen()))
                     .subscribe(subscriberProvider.get());
         } else if (item instanceof PublicApiPlaylist) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
             Playable playableAtPosition = ((PlayableHolder) adapter.getItems().get(position)).getPlayable();
-            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playableAtPosition).getUrn(), getTrackingScreen());
+            PlaylistDetailActivity.start(context, playableAtPosition.getUrn(), getTrackingScreen());
         } else if (item instanceof PublicApiUser) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.tapUserOnScreen(getTrackingScreen()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen()));
             context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, item));
         }
     }
@@ -205,7 +205,7 @@ public class LegacySearchResultsFragment extends DefaultFragment
         return Lists.transform(filter, new Function<PlayableHolder, Urn>() {
             @Override
             public Urn apply(PlayableHolder input) {
-                return ((PublicApiTrack) input.getPlayable()).getUrn();
+                return input.getPlayable().getUrn();
             }
         });
     }

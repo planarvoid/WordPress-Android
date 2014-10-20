@@ -5,7 +5,6 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 
 /**
@@ -50,12 +49,6 @@ public interface AnalyticsProvider {
      */
     void handleOnboardingEvent(OnboardingEvent event);
 
-    /**
-     * Signals to the analytics provider that a search event has occurred
-     *
-     * @param event search event information
-     */
-    void handleSearchEvent(SearchEvent event);
 
     void handleTrackingEvent(TrackingEvent event);
 }

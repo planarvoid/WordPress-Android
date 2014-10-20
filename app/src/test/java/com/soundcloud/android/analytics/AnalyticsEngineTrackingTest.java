@@ -14,12 +14,10 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -95,15 +93,6 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
-    public void shouldTrackSearchEvent() {
-        SearchEvent searchEvent = SearchEvent.searchSuggestion(Content.TRACK, true);
-        eventBus.publish(EventQueue.SEARCH, searchEvent);
-
-        verify(analyticsProviderOne, times(1)).handleSearchEvent(searchEvent);
-        verify(analyticsProviderTwo, times(1)).handleSearchEvent(searchEvent);
-    }
-
-    @Test
     public void shouldUpdateProvidersOnSharedPreferenceChanged() {
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
@@ -135,17 +124,14 @@ public class AnalyticsEngineTrackingTest {
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleTrackingEvent(any(TrackingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handleSearchEvent(any(SearchEvent.class));
 
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
-        eventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch("search"));
 
         verify(analyticsProviderTwo).handleTrackingEvent(any(TrackingEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
-        verify(analyticsProviderTwo).handleSearchEvent(any(SearchEvent.class));
     }
 
     private void initialiseAnalyticsEngine() {

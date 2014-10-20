@@ -22,5 +22,4 @@ public final class EventQueue {
     public static final Queue<PlaybackPerformanceEvent> PLAYBACK_PERFORMANCE = Queue.of(PlaybackPerformanceEvent.class).get();
     public static final Queue<PlaybackErrorEvent> PLAYBACK_ERROR = Queue.of(PlaybackErrorEvent.class).get();
     public static final Queue<OnboardingEvent> ONBOARDING = Queue.of(OnboardingEvent.class).get();
-    public static final Queue<SearchEvent> SEARCH = Queue.of(SearchEvent.class).get();
 }

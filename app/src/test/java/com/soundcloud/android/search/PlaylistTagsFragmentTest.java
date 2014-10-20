@@ -147,8 +147,8 @@ public class PlaylistTagsFragmentTest {
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.recent_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toEqual(SearchEvent.SEARCH_SUBMIT);
+        SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toEqual(SearchEvent.KIND_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("recent_tags");
         expect(event.getAttributes().get("content")).toEqual("recent1");
@@ -161,8 +161,8 @@ public class PlaylistTagsFragmentTest {
         ViewGroup tagFlowLayout = (ViewGroup) fragment.getView().findViewById(R.id.all_tags);
         tagFlowLayout.getChildAt(0).performClick();
 
-        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toEqual(SearchEvent.SEARCH_SUBMIT);
+        SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toEqual(SearchEvent.KIND_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("popular_tags");
         expect(event.getAttributes().get("content")).toEqual("popular1");

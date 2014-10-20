@@ -89,8 +89,8 @@ public class SearchActionBarControllerTest {
     @Test
     public void shouldPublishSearchEventForNormalSearchInSearchField() throws Exception {
         actionBarController.performSearch("query", false);
-        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
+        SearchEvent event = (SearchEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toBe(SearchEvent.KIND_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("normal");
         expect(event.getAttributes().get("location")).toEqual("search_field");
         expect(event.getAttributes().get("content")).toEqual("query");
@@ -99,8 +99,8 @@ public class SearchActionBarControllerTest {
     @Test
     public void shouldPublishSearchEventForNormalSearchViaShortcut() throws Exception {
         actionBarController.performSearch("query", true);
-        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
+        SearchEvent event = (SearchEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toBe(SearchEvent.KIND_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("normal");
         expect(event.getAttributes().get("location")).toEqual("search_suggestion");
         expect(event.getAttributes().get("content")).toEqual("query");
@@ -109,8 +109,8 @@ public class SearchActionBarControllerTest {
     @Test
     public void shouldPublishSearchEventForTagSearchViaSearchField() throws Exception {
         actionBarController.performSearch("#query", false);
-        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
+        SearchEvent event = (SearchEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toBe(SearchEvent.KIND_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("search_field");
         expect(event.getAttributes().get("content")).toEqual("#query");
@@ -119,8 +119,8 @@ public class SearchActionBarControllerTest {
     @Test
     public void shouldPublishSearchEventForTagSearchViaShortcut() throws Exception {
         actionBarController.performSearch("#query", true);
-        SearchEvent event = eventBus.firstEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toBe(SearchEvent.SEARCH_SUBMIT);
+        SearchEvent event = (SearchEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toBe(SearchEvent.KIND_SUBMIT);
         expect(event.getAttributes().get("type")).toEqual("tag");
         expect(event.getAttributes().get("location")).toEqual("search_suggestion");
         expect(event.getAttributes().get("content")).toEqual("#query");

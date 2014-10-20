@@ -29,21 +29,21 @@ public class LocalyticsAnalyticsProviderSearchTest {
     @Test
     public void shouldTrackSearchSuggestions() {
         SearchEvent event = SearchEvent.searchSuggestion(Content.TRACK, true);
-        provider.handleSearchEvent(event);
+        provider.handleTrackingEvent(event);
         verify(localyticsSession).tagEvent("Search suggestion", event.getAttributes());
     }
 
     @Test
     public void shouldTrackSearchSubmit() {
         SearchEvent event = SearchEvent.recentTagSearch("query");
-        provider.handleSearchEvent(event);
+        provider.handleTrackingEvent(event);
         verify(localyticsSession).tagEvent("Search submit", event.getAttributes());
     }
 
     @Test
     public void shouldTrackSearchResults() {
         SearchEvent event = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING);
-        provider.handleSearchEvent(event);
+        provider.handleTrackingEvent(event);
         verify(localyticsSession).tagEvent("Search results", event.getAttributes());
     }
 

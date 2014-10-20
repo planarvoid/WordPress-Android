@@ -13,13 +13,13 @@ class LocalyticsSearchEventHandler {
 
     public void handleEvent(SearchEvent event) {
         switch (event.getKind()) {
-            case SearchEvent.SEARCH_SUGGESTION:
+            case SearchEvent.KIND_SUGGESTION:
                 localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_SUGGESTION, event.getAttributes());
                 break;
-            case SearchEvent.SEARCH_SUBMIT:
+            case SearchEvent.KIND_SUBMIT:
                 localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_SUBMIT, event.getAttributes());
                 break;
-            case SearchEvent.SEARCH_RESULTS:
+            case SearchEvent.KIND_RESULTS:
                 localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_RESULTS, event.getAttributes());
                 break;
         }

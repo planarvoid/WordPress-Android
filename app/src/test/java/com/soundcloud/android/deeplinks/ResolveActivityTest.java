@@ -12,6 +12,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.model.Urn;
@@ -74,7 +75,7 @@ public class ResolveActivityTest {
 
         Intent expected = new Intent(Actions.PLAYLIST);
         Screen.DEEPLINK.addToIntent(expected);
-        expected.putExtra(PublicApiPlaylist.EXTRA_URN, playlist.getUrn());
+        expected.putExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getUrn());
         expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
 

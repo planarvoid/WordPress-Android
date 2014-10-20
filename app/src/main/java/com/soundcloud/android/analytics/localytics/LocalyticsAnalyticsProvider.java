@@ -112,19 +112,9 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     }
 
-    private void tagEvent(String tagName, Map<String, String> attributes) {
-        logAttributes(tagName, attributes);
-        session.tagEvent(tagName, attributes);
-    }
-
     @Override
     public void handleOnboardingEvent(OnboardingEvent event) {
         onboardingEventHandler.handleEvent(event);
-    }
-
-    @Override
-    public void handleSearchEvent(SearchEvent event) {
-        searchEventHandler.handleEvent(event);
     }
 
     @Override
@@ -137,6 +127,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             handleScreenEvent(event);
         } else if (event instanceof PlayControlEvent) {
             handlePlayControlEvent(event);
+        } else if (event instanceof SearchEvent) {
+            searchEventHandler.handleEvent((SearchEvent) event);
         }
     }
 
@@ -150,6 +142,11 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         Map<String, String> eventAttributes = new ArrayMap<>();
         eventAttributes.put("context", screenTag);
         tagEvent(LocalyticsEvents.PAGEVIEW, eventAttributes);
+    }
+
+    private void tagEvent(String tagName, Map<String, String> attributes) {
+        logAttributes(tagName, attributes);
+        session.tagEvent(tagName, attributes);
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {

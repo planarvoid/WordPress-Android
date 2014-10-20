@@ -125,6 +125,6 @@ public class PlaylistResultsFragment extends DefaultFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         ApiPlaylist playlist = adapter.getItem(position);
         PlaylistDetailActivity.start(getActivity(), new PublicApiPlaylist(playlist).getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
-        eventBus.publish(EventQueue.SEARCH, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
+        eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

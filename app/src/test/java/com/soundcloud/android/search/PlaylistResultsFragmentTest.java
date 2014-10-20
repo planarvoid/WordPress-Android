@@ -10,15 +10,14 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.playlists.PlaylistFragment;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -112,7 +111,7 @@ public class PlaylistResultsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
+        expect(intent.getParcelableExtra(PlaylistFragment.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 
@@ -126,8 +125,8 @@ public class PlaylistResultsFragmentTest {
 
         fragment.onItemClick(content, null, 0, 0);
 
-        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("playlist");
         expect(event.getAttributes().get("context")).toEqual("tags");
     }

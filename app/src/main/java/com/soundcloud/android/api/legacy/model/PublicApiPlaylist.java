@@ -36,9 +36,7 @@ import java.util.List;
 public class PublicApiPlaylist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
-    public static final String EXTRA_URN = "com.soundcloud.android.playlist_urn";
-    @Deprecated
-    public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
+    @Deprecated public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
     public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
 
     public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";

@@ -26,6 +26,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.CollectionStorage;
@@ -159,7 +160,7 @@ public class PostsAdapterTest {
         Intent startedActivity = application.getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
-        expect(startedActivity.getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toEqual(playlist.getUrn());
+        expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist.getUrn());
     }
 
     @Test

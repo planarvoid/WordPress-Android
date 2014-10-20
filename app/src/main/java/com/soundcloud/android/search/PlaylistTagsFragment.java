@@ -51,7 +51,7 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
     private final OnClickListener recentTagClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.recentTagSearch((String) v.getTag()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.recentTagSearch((String) v.getTag()));
             selectTag(v);
         }
     };
@@ -59,7 +59,7 @@ public class PlaylistTagsFragment extends DefaultFragment implements ListenableS
     private final OnClickListener popularTagClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            eventBus.publish(EventQueue.SEARCH, SearchEvent.popularTagSearch((String) v.getTag()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.popularTagSearch((String) v.getTag()));
             selectTag(v);
         }
     };

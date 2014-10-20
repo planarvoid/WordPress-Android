@@ -1,14 +1,28 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchOperations.*;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -36,6 +50,20 @@ public class SearchResultsFragment extends DefaultFragment
 
     static final String EXTRA_QUERY = "query";
     static final String EXTRA_TYPE = "type";
+
+    private static final Predicate<Urn> TRACK_PREDICATE = new Predicate<Urn>() {
+        @Override
+        public boolean apply(Urn input) {
+            return input.isTrack();
+        }
+    };
+
+    private final Function<PropertySet, Urn> toUrn = new Function<PropertySet, Urn>() {
+        @Override
+        public Urn apply(PropertySet input) {
+            return getUrn(input);
+        }
+    };
 
     @Inject SearchOperations searchOperations;
     @Inject PlaybackOperations playbackOperations;
@@ -66,9 +94,18 @@ public class SearchResultsFragment extends DefaultFragment
     }
 
     @VisibleForTesting
-    SearchResultsFragment(SearchOperations operations, ListViewController listViewController) {
+    SearchResultsFragment(SearchOperations operations,
+                          PlaybackOperations playbackOperations,
+                          ListViewController listViewController,
+                          SearchResultsAdapter adapter,
+                          Provider<ExpandPlayerSubscriber> subscriberProvider,
+                          EventBus eventBus) {
         this.searchOperations = operations;
+        this.playbackOperations = playbackOperations;
         this.listViewController = listViewController;
+        this.adapter = adapter;
+        this.subscriberProvider = subscriberProvider;
+        this.eventBus = eventBus;
     }
 
     private void addLifeCycleComponents() {
@@ -136,6 +173,47 @@ public class SearchResultsFragment extends DefaultFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // TODO: bring it back!
+        Urn urn = getUrn(adapter.getItem(position));
+        if (urn.isTrack()) {
+            final List<Urn> trackUrns = filterTracks(toUrn(adapter.getItems()));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
+            playbackOperations
+                    .playTracks(trackUrns, urn, trackUrns.indexOf(urn), new PlaySessionSource(getTrackingScreen()))
+                    .subscribe(subscriberProvider.get());
+        } else if (urn.isPlaylist()) {
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
+            PlaylistDetailActivity.start(getActivity(), urn, Screen.UNKNOWN);
+        } else if (urn.isUser()) {
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen()));
+            startActivity(ProfileActivity.getIntent(getActivity(), urn));
+        }
     }
+
+    private List<Urn> filterTracks(List<Urn> urns) {
+        return Lists.newArrayList(Iterables.filter(urns, TRACK_PREDICATE));
+    }
+
+    private List<Urn> toUrn(List<PropertySet> properties) {
+        return Lists.transform(properties, toUrn);
+    }
+
+    private Urn getUrn(PropertySet propertySet) {
+        return propertySet.getOrElse(UserProperty.URN, PlayableProperty.URN);
+    }
+
+    private Screen getTrackingScreen() {
+        switch (searchType) {
+            case TYPE_ALL:
+                return Screen.SEARCH_EVERYTHING;
+            case TYPE_TRACKS:
+                return Screen.SEARCH_TRACKS;
+            case TYPE_PLAYLISTS:
+                return Screen.SEARCH_PLAYLISTS;
+            case TYPE_USERS:
+                return Screen.SEARCH_USERS;
+            default:
+                throw new IllegalArgumentException("Query type not valid");
+        }
+    }
+
 }

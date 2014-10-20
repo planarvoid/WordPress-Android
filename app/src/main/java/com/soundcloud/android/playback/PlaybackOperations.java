@@ -75,7 +75,11 @@ public class PlaybackOperations {
     }
 
     public Observable<List<Urn>> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
-        return playTracksList(Observable.from(trackUrns).toList(), trackUrns.get(position), position, playSessionSource, false);
+        return playTracks(trackUrns, trackUrns.get(position), position, playSessionSource);
+    }
+
+    public Observable<List<Urn>> playTracks(List<Urn> trackUrns, Urn trackUrn, int position, PlaySessionSource playSessionSource) {
+        return playTracksList(Observable.from(trackUrns).toList(), trackUrn, position, playSessionSource, false);
     }
 
     public Observable<List<Urn>> playTracks(Observable<Urn> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {

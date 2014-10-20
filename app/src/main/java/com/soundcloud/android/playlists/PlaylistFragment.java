@@ -59,6 +59,8 @@ import java.util.concurrent.TimeUnit;
 @SuppressLint("ValidFragment")
 public class PlaylistFragment extends DefaultFragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
+    public static final String EXTRA_URN = "urn";
+
     @Inject PlaylistDetailsController controller;
     @Inject LegacyPlaylistOperations legacyPlaylistOperations;
     @Inject PlaylistOperations playlistOperations;
@@ -108,9 +110,12 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         }
     };
 
-    public static PlaylistFragment create(Bundle args) {
+    public static PlaylistFragment create(Urn playlistUrn, Screen screen) {
+        final Bundle bundle = new Bundle();
+        bundle.putParcelable(EXTRA_URN, playlistUrn);
+        screen.addToBundle(bundle);
         PlaylistFragment fragment = new PlaylistFragment();
-        fragment.setArguments(args);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -231,7 +236,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         if (playlist != null) {
             return playlist.getUrn();
         }
-        return getArguments().getParcelable(PublicApiPlaylist.EXTRA_URN);
+        return getArguments().getParcelable(EXTRA_URN);
     }
 
     private void configureInfoViews(View layout) {

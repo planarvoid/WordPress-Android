@@ -175,7 +175,7 @@ public class SearchActionBarController extends ActionBarController {
     private void trackSuggestion(int position, Uri itemUri) {
         final SearchEvent event = SearchEvent.searchSuggestion(
                 Content.match(itemUri), suggestionsAdapter.isLocalResult(position));
-        eventBus.publish(EventQueue.SEARCH, event);
+        eventBus.publish(EventQueue.TRACKING, event);
     }
 
     private void cachePlaceholderModel(int position, Uri itemUri) {
@@ -256,7 +256,7 @@ public class SearchActionBarController extends ActionBarController {
         String trimmedQuery = query.trim();
         boolean tagSearch = isTagSearch(trimmedQuery);
 
-        eventBus.publish(EventQueue.SEARCH,
+        eventBus.publish(EventQueue.TRACKING,
                 SearchEvent.searchField(query, viaShortcut, tagSearch));
 
         if (tagSearch) {

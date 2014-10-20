@@ -4,16 +4,15 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.LeaveBehindImpressionEvent;
-import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.LeaveBehindImpressionEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -57,11 +56,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleOnboardingEvent(OnboardingEvent event) {
-
-    }
-
-    @Override
-    public void handleSearchEvent(SearchEvent event) {
 
     }
 

@@ -23,6 +23,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -179,7 +180,7 @@ public class LegacySearchResultsFragmentTest {
 
         verify(activity).startActivity(intentCaptor.capture());
         expect(intentCaptor.getValue().getAction()).toBe(Actions.PLAYLIST);
-        expect(intentCaptor.getValue().getParcelableExtra(PublicApiPlaylist.EXTRA_URN)).toBe(playlist.getUrn());
+        expect(intentCaptor.getValue().getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toBe(playlist.getUrn());
     }
 
     @Test
@@ -191,8 +192,8 @@ public class LegacySearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_TRACKS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("track");
         expect(event.getAttributes().get("context")).toEqual("tracks");
     }
@@ -207,8 +208,8 @@ public class LegacySearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_PLAYLISTS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("playlist");
         expect(event.getAttributes().get("context")).toEqual("playlists");
     }
@@ -222,8 +223,8 @@ public class LegacySearchResultsFragmentTest {
         createWithArguments(buildSearchArgs("", LegacySearchResultsFragment.TYPE_USERS));
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        SearchEvent event = eventBus.lastEventOn(EventQueue.SEARCH);
-        expect(event.getKind()).toEqual(SearchEvent.SEARCH_RESULTS);
+        SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getKind()).toEqual(SearchEvent.KIND_RESULTS);
         expect(event.getAttributes().get("type")).toEqual("user");
         expect(event.getAttributes().get("context")).toEqual("people");
     }

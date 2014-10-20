@@ -1,32 +1,88 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.storage.provider.Content;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
-public final class SearchEvent {
+public final class SearchEvent extends TrackingEvent {
 
-    public static final int SEARCH_SUGGESTION = 0;
-    public static final int SEARCH_SUBMIT = 1;
-    public static final int SEARCH_RESULTS = 2;
+    private static final String KEY_TYPE = "type";
+    private static final String KEY_LOCATION = "location";
+    private static final String KEY_CONTEXT = "context";
+    private static final String KEY_CONTENT = "content";
 
-    private final int kind;
-    private final Map<String, String> attributes;
+    private static final String TYPE_TAG = "tag";
+    private static final String TYPE_NORMAL = "normal";
+    private static final String TYPE_TRACK = "track";
+    private static final String TYPE_PLAYLIST = "playlist";
+    private static final String TYPE_USER = "user";
 
-    private SearchEvent(int kind) {
-        this.kind = kind;
-        attributes = new HashMap<String, String>();
+    private static final String CONTEXT_PERSONAL = "personal";
+    private static final String CONTEXT_GLOBAL = "global";
+    private static final String CONTEXT_EVERYTHING = "everything";
+    private static final String CONTEXT_TRACKS = "tracks";
+    private static final String CONTEXT_PLAYLISTS = "playlists";
+    private static final String CONTEXT_PEOPLE = "people";
+    private static final String CONTEXT_TAGS = "tags";
+
+    private static final String LOCATION_RECENT_TAGS = "recent_tags";
+    private static final String LOCATION_POPULAR_TAGS = "popular_tags";
+    private static final String LOCATION_SUGGESTION = "search_suggestion";
+    private static final String LOCATION_FIELD = "search_field";
+
+    public static final String KIND_SUGGESTION = "suggestion";
+    public static final String KIND_SUBMIT = "submit";
+    public static final String KIND_RESULTS = "results";
+
+    public static SearchEvent searchSuggestion(Content itemKind, boolean localResult) {
+        return new SearchEvent(KIND_SUGGESTION)
+                .put(KEY_TYPE, itemKind.name().toLowerCase(Locale.US))
+                .put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL);
     }
 
-    public int getKind() {
-        return kind;
+    public static SearchEvent recentTagSearch(String tagQuery) {
+        return new SearchEvent(KIND_SUBMIT)
+                .put(KEY_TYPE, TYPE_TAG)
+                .put(KEY_LOCATION, LOCATION_RECENT_TAGS)
+                .put(KEY_CONTENT, tagQuery);
     }
 
-    public Map<String, String> getAttributes() {
-        return attributes;
+    public static SearchEvent popularTagSearch(String tagQuery) {
+        return new SearchEvent(KIND_SUBMIT)
+                .put(KEY_TYPE, TYPE_TAG)
+                .put(KEY_LOCATION, LOCATION_POPULAR_TAGS)
+                .put(KEY_CONTENT, tagQuery);
+    }
+
+    public static SearchEvent searchField(String query, boolean viaShortcut, boolean tagSearch) {
+        return new SearchEvent(KIND_SUBMIT)
+                .put(KEY_TYPE, tagSearch ? TYPE_TAG : TYPE_NORMAL)
+                .put(KEY_LOCATION, viaShortcut ? LOCATION_SUGGESTION : LOCATION_FIELD)
+                .put(KEY_CONTENT, query);
+    }
+
+    public static SearchEvent tapTrackOnScreen(Screen screen) {
+        return new SearchEvent(KIND_RESULTS)
+                .put(KEY_TYPE, TYPE_TRACK)
+                .put(KEY_CONTEXT, eventAttributeFromScreen(screen));
+    }
+
+    public static SearchEvent tapPlaylistOnScreen(Screen screen) {
+        return new SearchEvent(KIND_RESULTS)
+                .put(KEY_TYPE, TYPE_PLAYLIST)
+                .put(KEY_CONTEXT, eventAttributeFromScreen(screen));
+    }
+
+    public static SearchEvent tapUserOnScreen(Screen screen) {
+        return new SearchEvent(KIND_RESULTS)
+                .put(KEY_TYPE, TYPE_USER)
+                .put(KEY_CONTEXT, eventAttributeFromScreen(screen));
+    }
+
+    private SearchEvent(String kind) {
+        super(kind, Consts.NOT_SET);
     }
 
     @Override
@@ -34,70 +90,25 @@ public final class SearchEvent {
         return String.format("Search Event with type id %s and %s", kind, attributes.toString());
     }
 
-    public static SearchEvent searchSuggestion(Content itemKind, boolean localResult) {
-        return new SearchEvent(SEARCH_SUGGESTION)
-                .putAttribute("type", itemKind.name().toLowerCase(Locale.US))
-                .putAttribute("context", localResult ? "personal" : "global");
-    }
-
-    public static SearchEvent recentTagSearch(String tagQuery) {
-        return new SearchEvent(SEARCH_SUBMIT)
-                .putAttribute("type", "tag")
-                .putAttribute("location", "recent_tags")
-                .putAttribute("content", tagQuery);
-    }
-
-    public static SearchEvent popularTagSearch(String tagQuery) {
-        return new SearchEvent(SEARCH_SUBMIT)
-                .putAttribute("type", "tag")
-                .putAttribute("location", "popular_tags")
-                .putAttribute("content", tagQuery);
-    }
-
-    public static SearchEvent searchField(String query, boolean viaShortcut, boolean tagSearch) {
-        return new SearchEvent(SEARCH_SUBMIT)
-                .putAttribute("type", tagSearch ? "tag" : "normal")
-                .putAttribute("location", viaShortcut ? "search_suggestion" : "search_field")
-                .putAttribute("content", query);
-    }
-
-    public static SearchEvent tapTrackOnScreen(Screen screen) {
-        return new SearchEvent(SEARCH_RESULTS)
-                .putAttribute("type", "track")
-                .putAttribute("context", eventAttributeFromScreen(screen));
-    }
-
-    public static SearchEvent tapPlaylistOnScreen(Screen screen) {
-        return new SearchEvent(SEARCH_RESULTS)
-                .putAttribute("type", "playlist")
-                .putAttribute("context", eventAttributeFromScreen(screen));
-    }
-
-    public static SearchEvent tapUserOnScreen(Screen screen) {
-        return new SearchEvent(SEARCH_RESULTS)
-                .putAttribute("type", "user")
-                .putAttribute("context", eventAttributeFromScreen(screen));
-    }
-
     private static String eventAttributeFromScreen(Screen screen) {
         switch (screen) {
             case SEARCH_EVERYTHING:
-                return "everything";
+                return CONTEXT_EVERYTHING;
             case SEARCH_TRACKS:
-                return "tracks";
+                return CONTEXT_TRACKS;
             case SEARCH_PLAYLISTS:
-                return "playlists";
+                return CONTEXT_PLAYLISTS;
             case SEARCH_USERS:
-                return "people";
+                return CONTEXT_PEOPLE;
             case SEARCH_PLAYLIST_DISCO:
-                return "tags";
+                return CONTEXT_TAGS;
             default:
                 throw new IllegalStateException("Unexpected screen: " + screen);
         }
     }
 
-    private SearchEvent putAttribute(String key, String value) {
-        attributes.put(key, value);
-        return this;
+    @Override
+    public SearchEvent put(String key, String value) {
+        return (SearchEvent) super.put(key, value);
     }
 }
