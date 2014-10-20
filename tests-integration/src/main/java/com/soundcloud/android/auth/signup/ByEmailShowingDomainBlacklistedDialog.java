@@ -11,7 +11,10 @@ public class ByEmailShowingDomainBlacklistedDialog extends SignUpTestCase {
         super();
     }
 
-    public void testDomainBlacklistedSignup() throws Exception {
+    // Ignoring this test until failing because signups with the domain @0815.ru are not blocked on the server side now,
+    // due to a Sven issue - https://soundcloud.atlassian.net/browse/TSS-520
+    // When this issue is resolved we can re-activate this test and delete blacklistedEmail@0815.ru using Sonar
+    public void ignore_testDomainBlacklistedSignup() throws Exception {
         signUpScreen = homeScreen.clickSignUpButton();
 
         signUpScreen.typeEmail(generateEmail());
