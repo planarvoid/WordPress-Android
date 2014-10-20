@@ -7,15 +7,18 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
 class SubscribeController {
 
-    @Inject PaymentOperations paymentOperations;
+    private final Context context;
+    private final PaymentOperations paymentOperations;
 
     @InjectView(R.id.subscribe_title) TextView title;
     @InjectView(R.id.subscribe_description) TextView description;
@@ -25,7 +28,8 @@ class SubscribeController {
     private final CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    SubscribeController(PaymentOperations paymentOperations) {
+    SubscribeController(Context context, PaymentOperations paymentOperations) {
+        this.context = context;
         this.paymentOperations = paymentOperations;
     }
 
@@ -50,12 +54,26 @@ class SubscribeController {
         }
     }
 
-    private class DetailsSubscriber extends DefaultSubscriber<ProductDetails> {
+    /*
+     * TODO: All the error case handling will depend on the subscription flow designs
+     */
+    private class DetailsSubscriber extends DefaultSubscriber<ProductStatus> {
         @Override
-        public void onNext(ProductDetails details) {
-            title.setText(details.title);
-            description.setText(details.description);
-            price.setText(details.price);
+        public void onNext(ProductStatus result) {
+            if (result.isSuccess()) {
+                ProductDetails details = result.getDetails();
+                title.setText(details.title);
+                description.setText(details.description);
+                price.setText(details.price);
+            } else {
+                Toast.makeText(context, "No subscription available!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+            Toast.makeText(context, "Connection error!", Toast.LENGTH_SHORT).show();
         }
     }
 

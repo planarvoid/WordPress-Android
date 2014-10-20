@@ -1,11 +1,18 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.payments.googleplay.PlayBillingService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -16,9 +23,12 @@ import rx.Observable;
 
 import android.app.Activity;
 
+import java.util.ArrayList;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PaymentOperationsTest {
 
+    @Mock RxHttpClient rxHttpClient;
     @Mock PlayBillingService billingService;
     @Mock Activity activity;
 
@@ -26,7 +36,8 @@ public class PaymentOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        paymentOperations = new PaymentOperations(billingService);
+        paymentOperations = new PaymentOperations(rxHttpClient, billingService);
+        when(rxHttpClient.<AvailableProducts>fetchModels(any(ApiRequest.class))).thenReturn(availableProductsObservable());
     }
 
     @Test
@@ -42,12 +53,28 @@ public class PaymentOperationsTest {
     }
 
     @Test
+    public void fetchesProductIdFromProductsEndpoint() {
+        paymentOperations.queryProductDetails().subscribe();
+
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
+    }
+
+    @Test
+    public void returnsFailedStatusWhenNoProductsAreAvailable() {
+        when(rxHttpClient.<AvailableProducts>fetchModels(any(ApiRequest.class))).thenReturn(noProductsObservable());
+
+        ProductStatus result = paymentOperations.queryProductDetails().toBlocking().first();
+
+        expect(result.isSuccess()).toBeFalse();
+    }
+
+    @Test
     public void requestsProductDetailsForSubscriptionId() {
         when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
 
         paymentOperations.queryProductDetails().subscribe();
 
-        verify(billingService).getDetails(eq("consumer_subscription"));
+        verify(billingService).getDetails(eq("subscription_id"));
     }
 
     @Test
@@ -55,9 +82,19 @@ public class PaymentOperationsTest {
         ProductDetails details = new ProductDetails("id", "Subscription", "Blah", "$100");
         when(billingService.getDetails(anyString())).thenReturn(Observable.just(details));
 
-        ProductDetails result = paymentOperations.queryProductDetails().toBlocking().first();
+        ProductStatus result = paymentOperations.queryProductDetails().toBlocking().first();
 
-        expect(result).toBe(details);
+        expect(result.isSuccess()).toBeTrue();
+        expect(result.getDetails()).toBe(details);
+    }
+
+    private Observable<AvailableProducts> availableProductsObservable() {
+        AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("subscription_id")));
+        return Observable.just(products);
+    }
+
+    private Observable<AvailableProducts> noProductsObservable() {
+        return Observable.just(new AvailableProducts(new ArrayList<AvailableProducts.Product>()));
     }
 
 }

@@ -31,7 +31,7 @@ public class SubscribeControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SubscribeController(paymentOperations);
+        controller = new SubscribeController(Robolectric.application, paymentOperations);
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.payments_activity, null, false);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
@@ -67,7 +67,7 @@ public class SubscribeControllerTest {
     @Test
     public void queriesProductDetailsWhenBillingServiceIsConnected() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryProductDetails()).thenReturn(Observable.<ProductDetails>empty());
+        when(paymentOperations.queryProductDetails()).thenReturn(Observable.<ProductStatus>empty());
 
         controller.onCreate(activity);
 
@@ -78,7 +78,7 @@ public class SubscribeControllerTest {
     public void displaysProductDetailsWhenPaymentConnectionStatusIsReady() {
         ProductDetails details = new ProductDetails("id", "product title", "description", "$100");
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryProductDetails()).thenReturn(Observable.just(details));
+        when(paymentOperations.queryProductDetails()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
 
         controller.onCreate(activity);
 

@@ -1,5 +1,8 @@
 package com.soundcloud.android.payments;
 
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.payments.googleplay.PlayBillingService;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
@@ -12,17 +15,30 @@ import javax.inject.Inject;
 
 class PaymentOperations {
 
+    private final RxHttpClient rxHttpClient;
     private final PlayBillingService playBilling;
 
-    private final Func1<String, Observable<ProductDetails>> DETAILS_BY_ID = new Func1<String, Observable<ProductDetails>>() {
+    private final Func1<String, Observable<ProductStatus>> idToProduct = new Func1<String, Observable<ProductStatus>>() {
         @Override
-        public Observable<ProductDetails> call(String id) {
-            return queryProductDetails(id);
+        public Observable<ProductStatus> call(String id) {
+            return id == null ? Observable.just(ProductStatus.fromNoProduct())
+                    : queryProductDetails(id).map(ProductStatus.SUCCESS);
+        }
+    };
+
+    private static final Func1<AvailableProducts, String> PRODUCTS_TO_ID = new Func1<AvailableProducts, String>() {
+        @Override
+        public String call(AvailableProducts availableProducts) {
+            if (availableProducts.isEmpty()) {
+                return null;
+            }
+            return availableProducts.products.get(0).id;
         }
     };
 
     @Inject
-    PaymentOperations(PlayBillingService playBilling) {
+    PaymentOperations(RxHttpClient rxHttpClient, PlayBillingService playBilling) {
+        this.rxHttpClient = rxHttpClient;
         this.playBilling = playBilling;
     }
 
@@ -34,9 +50,9 @@ class PaymentOperations {
         playBilling.closeConnection();
     }
 
-    public Observable<ProductDetails> queryProductDetails() {
-        return querySubscriptionId()
-                .flatMap(DETAILS_BY_ID)
+    public Observable<ProductStatus> queryProductDetails() {
+        return getSubscriptionId()
+                .flatMap(idToProduct)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -45,9 +61,18 @@ class PaymentOperations {
                 .subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
-    private Observable<String> querySubscriptionId() {
-        // TODO: The SKU will eventually come from /products/google-play on api-mobile
-        return Observable.just("consumer_subscription");
+    private Observable<String> getSubscriptionId() {
+        return fetchAvailableProducts()
+                .map(PRODUCTS_TO_ID);
+    }
+
+    private Observable<AvailableProducts> fetchAvailableProducts() {
+        final ApiRequest<AvailableProducts> request =
+                ApiRequest.Builder.<AvailableProducts>get(ApiEndpoints.PRODUCTS.path())
+                        .forPrivateApi(1)
+                        .forResource(AvailableProducts.class)
+                        .build();
+        return rxHttpClient.fetchModels(request);
     }
 
 }
