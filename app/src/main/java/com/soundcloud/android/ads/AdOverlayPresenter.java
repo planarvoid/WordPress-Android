@@ -36,6 +36,8 @@ public abstract class AdOverlayPresenter {
         setInvisible();
     }
 
+    public abstract boolean isFullScreen();
+
     public static interface Listener {
         void onImageClick();
         void onCloseButtonClick();

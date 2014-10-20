@@ -15,4 +15,9 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     public boolean shouldDisplayOverlay(PropertySet data, boolean isExpanded, boolean isPortrait, boolean isForeground) {
         return isExpanded && isForeground;
     }
+
+    @Override
+    public boolean isFullScreen() {
+        return true;
+    }
 }

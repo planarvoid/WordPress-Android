@@ -70,4 +70,9 @@ public class InterstitialPresenterTest {
 
         expect(shouldDisplay).toBeTrue();
     }
+
+    @Test
+    public void isFullScreen() throws Exception {
+        expect(presenter.isFullScreen()).toBeTrue();
+    }
 }

@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -428,21 +429,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveform);
 
-        holder.adOverlayController = leaveBehindControllerFactory.create(trackView, new AdOverlayController.LeaveBehindListener() {
-            @Override
-            public void onLeaveBehindShown() {
-                setOverlayPlayState(holder, false);
-                setTextBackgrounds(holder, false);
-                holder.waveformController.setCollapsed();
-            }
-
-            @Override
-            public void onLeaveBehindHidden() {
-                setOverlayPlayState(holder, true);
-                setTextBackgrounds(holder, true);
-                holder.waveformController.setExpanded();
-            }
-        });
+        holder.adOverlayController = leaveBehindControllerFactory.create(trackView, createAdOverlayListener(holder));
 
         holder.playerOverlayControllers = new PlayerOverlayController[] {
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark), holder.adOverlayController),
@@ -472,6 +459,32 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         holder.populateViewSets();
         trackView.setTag(holder);
+    }
+
+    private AdOverlayController.AdOverlayListener createAdOverlayListener(final TrackPageHolder holder) {
+        return new AdOverlayController.AdOverlayListener() {
+            @Override
+            public void onAdOverlayShown(boolean fullscreen) {
+                setOverlayPlayState(holder, false);
+                setTextBackgrounds(holder, false);
+                holder.waveformController.setCollapsed();
+
+                if (fullscreen){
+                    AnimUtils.hideViews(holder.close, holder.more, holder.likeToggle);
+                }
+            }
+
+            @Override
+            public void onAdOverlayHidden(boolean fullscreen) {
+                setOverlayPlayState(holder, true);
+                setTextBackgrounds(holder, true);
+                holder.waveformController.setExpanded();
+
+                if (fullscreen){
+                    AnimUtils.showViews(holder.close, holder.more, holder.likeToggle);
+                }
+            }
+        };
     }
 
     static class TrackPageHolder {

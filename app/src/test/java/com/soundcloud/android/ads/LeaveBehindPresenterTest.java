@@ -77,5 +77,8 @@ public class LeaveBehindPresenterTest {
         expect(presenter.shouldDisplayOverlay(properties, true, true, true)).toBeTrue();
     }
 
-
+    @Test
+    public void isNotFullScreen() throws Exception {
+        expect(presenter.isFullScreen()).toBeFalse();
+    }
 }

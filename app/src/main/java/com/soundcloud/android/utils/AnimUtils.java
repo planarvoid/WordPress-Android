@@ -52,6 +52,18 @@ public final class AnimUtils {
         return animation;
     }
 
+    public static void hideViews(final View... views) {
+        for (View view : views){
+            hideView(view.getContext(), view, true);
+        }
+    }
+
+    public static void showViews(final View... views) {
+        for (View view : views) {
+            showView(view.getContext(), view, true);
+        }
+    }
+
     public static void hideView(Context context, final View view, boolean animated) {
         view.clearAnimation();
 

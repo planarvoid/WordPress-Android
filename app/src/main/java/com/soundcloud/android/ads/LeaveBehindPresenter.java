@@ -17,4 +17,9 @@ public class LeaveBehindPresenter extends AdOverlayPresenter {
                 && !data.getOrElse(LeaveBehindProperty.META_AD_CLICKED, false);
         return isPortrait && adCompleteButNotClicked;
     }
+
+    @Override
+    public boolean isFullScreen() {
+        return false;
+    }
 }

@@ -39,7 +39,7 @@ public class AdOverlayControllerTest {
     private View trackView;
     @Mock private ImageOperations imageOperations;
     @Mock private DeviceHelper deviceHelper;
-    @Mock private AdOverlayController.LeaveBehindListener listener;
+    @Mock private AdOverlayController.AdOverlayListener listener;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before

@@ -22,7 +22,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private final ImageOperations imageOperations;
     private final Context context;
     private final DeviceHelper deviceHelper;
-    private final LeaveBehindListener listener;
+    private final AdOverlayListener listener;
 
     private @Nullable PropertySet data;
 
@@ -49,12 +49,12 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         isExpanded = true;
     }
 
-    public interface LeaveBehindListener {
-        void onLeaveBehindShown();
-        void onLeaveBehindHidden();
+    public interface AdOverlayListener {
+        void onAdOverlayShown(boolean fullscreen);
+        void onAdOverlayHidden(boolean fullscreen);
     }
 
-    AdOverlayController(View trackView, LeaveBehindListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
+    AdOverlayController(View trackView, AdOverlayListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper) {
         this.trackView = trackView;
         this.listener = listener;
         this.imageOperations = imageOperations;
@@ -119,7 +119,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private void setVisible() {
         if (presenter != null) {
             presenter.setVisible();
-            listener.onLeaveBehindShown();
+            listener.onAdOverlayShown(presenter.isFullScreen());
         }
     }
 
@@ -136,10 +136,11 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     public void clear() {
         resetMetaData();
         if (presenter != null) {
+            final boolean fullScreen = presenter.isFullScreen();
             presenter.clear();
             presenter = null;
             data = null;
-            listener.onLeaveBehindHidden();
+            listener.onAdOverlayHidden(fullScreen);
         }
     }
 
@@ -155,7 +156,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
             this.deviceHelper = deviceHelper;
         }
 
-        public AdOverlayController create(View trackView, LeaveBehindListener listener) {
+        public AdOverlayController create(View trackView, AdOverlayListener listener) {
             return new AdOverlayController(trackView, listener, imageOperations, context, deviceHelper);
         }
     }

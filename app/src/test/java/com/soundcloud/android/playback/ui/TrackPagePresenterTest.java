@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.ads.AdOverlayController.Factory;
-import static com.soundcloud.android.ads.AdOverlayController.LeaveBehindListener;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -12,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
+import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -77,7 +77,7 @@ public class TrackPagePresenterTest {
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class), any(AdOverlayController.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
-        when(leaveBehindControllerFactory.create(any(View.class), any(LeaveBehindListener.class))).thenReturn(adOverlayController);
+        when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
         trackView = presenter.createItemView(container, skipListener);
     }
 
