@@ -56,7 +56,7 @@ public class ApiResponse {
     }
 
     public boolean hasResponseBody() {
-        return ScTextUtils.isNotBlank(responseBody.trim());
+        return ScTextUtils.isNotBlank(responseBody);
     }
 
     public int getStatusCode() {
