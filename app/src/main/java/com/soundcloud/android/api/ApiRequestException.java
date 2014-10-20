@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public class ApiRequestException extends Exception {
+public final class ApiRequestException extends Exception {
 
     private final ApiRequest request;
     private final Reason errorReason;

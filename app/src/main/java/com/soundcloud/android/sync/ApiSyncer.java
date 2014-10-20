@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
@@ -72,7 +71,6 @@ public class ApiSyncer extends SyncStrategy {
     @Inject ActivitiesStorage activitiesStorage;
     @Inject SoundAssociationStorage soundAssociationStorage;
     @Inject UserStorage userStorage;
-    @Inject AccountOperations accountOperations;
     @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
     @Inject ApiClient apiClient;
@@ -89,7 +87,6 @@ public class ApiSyncer extends SyncStrategy {
         soundAssociationStorage = new SoundAssociationStorage();
         userStorage = new UserStorage();
         this.eventBus = eventBus;
-        accountOperations = SoundCloudApplication.fromContext(context).getAccountOperations();
         this.featureFlags = featureFlags;
         this.apiClient = apiClient;
     }

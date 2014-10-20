@@ -1,6 +1,5 @@
 package com.soundcloud.android.api;
 
-import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
@@ -134,9 +133,7 @@ public class ApiRequest<ResourceType> {
         }
 
         public Builder<ResourceType> forResource(Class<ResourceType> clazz) {
-            if (!equal(clazz, null)) {
-                resourceType = TypeToken.of(clazz);
-            }
+            resourceType = TypeToken.of(clazz);
             return this;
         }
 

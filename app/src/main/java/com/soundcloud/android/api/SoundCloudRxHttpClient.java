@@ -178,8 +178,8 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             }
         });
 
-        for (String key : transformedParameters.keySet()) {
-            request.add(key, transformedParameters.get(key));
+        for (Map.Entry<String, String> entry : transformedParameters.entrySet()) {
+            request.add(entry.getKey(), entry.getValue());
         }
 
         request.setHeaders(apiRequest.getHeaders());

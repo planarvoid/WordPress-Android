@@ -17,6 +17,7 @@ class ApiWrapperFactory {
     private final AccountOperations accountOperations;
     private final ApplicationProperties applicationProperties;
 
+    @Deprecated
     public ApiWrapperFactory(Context context) {
         this(context, new HttpProperties(context.getResources()),
                 SoundCloudApplication.fromContext(context).getAccountOperations(),
