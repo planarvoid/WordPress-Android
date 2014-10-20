@@ -3,7 +3,7 @@ package com.soundcloud.android.payments;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
 
-class ProductStatus {
+final class ProductStatus {
 
     public static final Func1<ProductDetails, ProductStatus> SUCCESS = new Func1<ProductDetails, ProductStatus>() {
         @Override
