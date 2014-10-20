@@ -71,6 +71,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ViewStub
+            android:id="@+id/interstitial_stub"
+            android:inflatedId="@+id/interstitial"
+            android:layout_below="@id/player_close"
+            android:layout_above="@id/player_bottom_close"
+            android:layout="@layout/ad_interstitial"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     <RelativeLayout
             android:id="@+id/profile_link"
             android:layout_width="wrap_content"

@@ -33,7 +33,7 @@ public class LeaveBehind extends ActivityTestCase<MainActivity> {
     public void testFinishAdShouldShowLeaveBehind() {
         swipeToAd();
         playerElement.waitForAdToBeDone();
-        playerElement.waitForLeaveBehindToLoad();
+        playerElement.waitForAdOverlayToLoad();
         assertThat(playerElement.leaveBehind(), is(visible()));
     }
 

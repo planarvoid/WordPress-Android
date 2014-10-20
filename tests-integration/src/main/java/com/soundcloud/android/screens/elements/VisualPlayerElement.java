@@ -87,6 +87,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.leave_behind));
     }
 
+    public ViewElement interstitial() {
+        return solo.findElement(With.id(R.id.interstitial));
+    }
+
     public boolean isExpanded() {
         return !footerPlayer().isVisible();
     }
@@ -188,7 +192,7 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.skip_ad);
     }
 
-    public void waitForLeaveBehindToLoad() {
+    public void waitForAdOverlayToLoad() {
         waiter.waitFiveSeconds();
     }
 

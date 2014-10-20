@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -12,14 +11,12 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.View;
-import android.view.ViewStub;
-import android.widget.ImageView;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AccessorClassGeneration")
-public class LeaveBehindController implements View.OnClickListener{
+public class LeaveBehindController implements AdOverlayPresenter.Listener {
 
     private final View trackView;
     private final ImageOperations imageOperations;
@@ -29,8 +26,7 @@ public class LeaveBehindController implements View.OnClickListener{
 
     private @Nullable PropertySet data;
 
-    private View leaveBehind;
-    private ImageView adImage;
+    private AdOverlayPresenter presenter;
     private final ImageListener imageListener = new ImageListener() {
         @Override
         public void onLoadingStarted(String imageUri, View view) {}
@@ -43,7 +39,6 @@ public class LeaveBehindController implements View.OnClickListener{
             setVisible();
         }
     };
-    private View leaveBehindClose;
     private boolean isExpanded;
 
     public void setCollapsed() {
@@ -68,20 +63,16 @@ public class LeaveBehindController implements View.OnClickListener{
     }
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.leave_behind_close:
-                clear();
-                break;
-            case R.id.leave_behind_image:
-                startActivity(data.get(LeaveBehindProperty.CLICK_THROUGH_URL));
-                clear();
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected view ID: "
-                        + view.getContext().getResources().getResourceName(view.getId()));
-        }
+    public void onImageClick() {
+        startActivity(data.get(LeaveBehindProperty.CLICK_THROUGH_URL));
+        clear();
     }
+
+    @Override
+    public void onCloseButtonClick() {
+        clear();
+    }
+
 
     private void startActivity(Uri uri) {
         final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -91,11 +82,7 @@ public class LeaveBehindController implements View.OnClickListener{
 
     public void initialize(PropertySet data) {
         this.data = data;
-        leaveBehind = getLeaveBehindView();
-        adImage = (ImageView) leaveBehind.findViewById(R.id.leave_behind_image);
-        adImage.setOnClickListener(this);
-        leaveBehindClose = leaveBehind.findViewById(R.id.leave_behind_close);
-        leaveBehindClose.setOnClickListener(this);
+        presenter = AdOverlayPresenter.create(data, trackView, this);
         setInvisible();
     }
 
@@ -105,7 +92,7 @@ public class LeaveBehindController implements View.OnClickListener{
 
     public void show(boolean isForeground) {
         if (shouldDisplayLeaveBehind(isForeground)) {
-            imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), adImage, imageListener);
+            imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), presenter.getImageView(), imageListener);
             resetMetaData();
         }
     }
@@ -123,55 +110,37 @@ public class LeaveBehindController implements View.OnClickListener{
         }
 
         final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        final boolean isInterstitial = data.contains(InterstitialProperty.INTERSTITIAL_URN);
-        final boolean adCompleteButNotClicked = data.getOrElse(LeaveBehindProperty.META_AD_COMPLETED, false)
-                && !data.getOrElse(LeaveBehindProperty.META_AD_CLICKED, false);
 
-         if (isInterstitial){
-            return isExpanded && isForeground;
-        } else {
-             return isPortrait && adCompleteButNotClicked;
-        }
-
+        return presenter.shouldDisplayOverlay(data, isExpanded, isPortrait, isForeground);
     }
 
+
+
     private void setVisible() {
-        if (leaveBehind != null) {
-            leaveBehind.setClickable(true);
-            adImage.setVisibility(View.VISIBLE);
-            leaveBehindClose.setVisibility(View.VISIBLE);
+        if (presenter != null) {
+            presenter.setVisible();
             listener.onLeaveBehindShown();
         }
     }
 
     private void setInvisible() {
-        leaveBehind.setClickable(false);
-        adImage.setVisibility(View.GONE);
-        leaveBehindClose.setVisibility(View.GONE);
+        if (presenter != null) {
+            presenter.setInvisible();
+        }
     }
 
     public boolean isNotVisible() {
-        return adImage == null || adImage.getVisibility() == View.GONE;
+        return presenter == null || presenter.isNotVisible();
     }
 
     public void clear() {
         resetMetaData();
-        if (leaveBehind != null) {
-            adImage.setImageDrawable(null);
-            setInvisible();
-            leaveBehind = null;
+        if (presenter != null) {
+            presenter.clear();
+            presenter = null;
             data = null;
             listener.onLeaveBehindHidden();
         }
-    }
-
-    private View getLeaveBehindView() {
-        View leaveBehind = trackView.findViewById(R.id.leave_behind);
-        if (leaveBehind == null) {
-            ViewStub stub = (ViewStub) trackView.findViewById(R.id.leave_behind_stub);
-            leaveBehind = stub.inflate();
-        }
-        return leaveBehind;
     }
 
     public static class Factory {

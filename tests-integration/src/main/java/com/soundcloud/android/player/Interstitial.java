@@ -32,8 +32,8 @@ public class Interstitial extends ActivityTestCase<MainActivity> {
 
     public void testFinishAdShouldShowInterstitial() {
         playerElement.swipeNext(); // to monetizableTrack
-        playerElement.waitForLeaveBehindToLoad();
-        assertThat(playerElement.leaveBehind(), is(visible()));
+        playerElement.waitForAdOverlayToLoad();
+        assertThat(playerElement.interstitial(), is(visible()));
     }
 
     private void playInterstitialPlaylist() {

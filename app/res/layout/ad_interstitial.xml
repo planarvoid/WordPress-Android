@@ -9,10 +9,10 @@
               android:animateLayoutChanges="true">
 
     <FrameLayout
-        android:id="@+id/leave_behind_close"
+        android:id="@+id/interstitial_close"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/leave_behind_image"
+        android:layout_above="@+id/interstitial_image"
         android:visibility="gone">
 
         <Button
@@ -22,7 +22,7 @@
     </FrameLayout>
 
     <com.soundcloud.android.view.AspectRatioImageView
-        android:id="@+id/leave_behind_image"
+        android:id="@+id/interstitial_image"
         android:visibility="gone"
         style="@style/LeaveBehindImage"
         android:layout_alignParentBottom="true" />

@@ -1,16 +1,12 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.interstitialForPlayer;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -68,10 +64,9 @@ public class LeaveBehindControllerTest {
     @Test
     public void leaveBehindGoneOnLeaveBehindCloseClick() {
         initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
-        View close = trackView.findViewById(R.id.leave_behind_close);
         captureImageListener().onLoadingComplete(null, null, null);
 
-        close.performClick();
+        controller.onCloseButtonClick();
 
         expectLeaveBehindToBeGone();
     }
@@ -133,7 +128,7 @@ public class LeaveBehindControllerTest {
         controller.show();
         captureImageListener().onLoadingComplete(null, null, null);
 
-        getLeaveBehindImage().performClick();
+        controller.onImageClick();
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
@@ -146,73 +141,9 @@ public class LeaveBehindControllerTest {
         initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
         captureImageListener().onLoadingComplete(null, null, null);
 
-        getLeaveBehindImage().performClick();
+        controller.onImageClick();
 
         expectLeaveBehindToBeGone();
-    }
-
-    @Test
-    public void doesNotShowLeaveBehindWhenAdWasClicked() {
-        final PropertySet properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_CLICKED, true);
-        initializeAndShow(properties);
-
-        verifyZeroInteractions(imageOperations);
-        expectLeaveBehindToBeGone();
-    }
-
-    @Test
-    public void doesNotShowLeaveBehindWhenAdWasNotCompleted() {
-        final PropertySet properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_COMPLETED, false);
-        initializeAndShow(properties);
-
-        verifyZeroInteractions(imageOperations);
-        expectLeaveBehindToBeGone();
-    }
-
-    @Test
-    public void showsLeaveBehindWhenAdWasCompletedAndNotClicked() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
-        captureImageListener().onLoadingComplete(null, null, null);
-
-        expect(getLeaveBehind()).toBeVisible();
-    }
-
-    @Test
-    public void doesNotShowInterstitialIfInBackground() {
-        final PropertySet properties = interstitialForPlayer();
-        initializeAndShow(properties);
-
-        verifyZeroInteractions(imageOperations);
-        expectLeaveBehindToBeGone();
-    }
-
-    @Test
-    public void doesNotShowInterstitialIfCollapsed() {
-        final PropertySet properties = interstitialForPlayer();
-        initializeAndShow(properties);
-
-        verifyZeroInteractions(imageOperations);
-        expectLeaveBehindToBeGone();
-    }
-
-    @Test
-    public void showsInterstitials() {
-        final PropertySet properties = interstitialForPlayer();
-        controller.initialize(properties);
-        controller.setExpanded();
-        controller.show(true);
-
-        captureImageListener().onLoadingComplete(null, null, null);
-
-        expect(getLeaveBehind()).toBeVisible();
-    }
-
-    @Test
-    public void doesNotShowTheLeaveIfAlreadyShown() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
-        controller.show();
-
-        verify(imageOperations, times(1)).displayLeaveBehind(any(Uri.class), any(ImageView.class), any(ImageListener.class));
     }
 
     private ImageListener captureImageListener() {

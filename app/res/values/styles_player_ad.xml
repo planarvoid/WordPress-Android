@@ -65,7 +65,7 @@
         <item name="ariv_aspectRatio">0.83</item>
     </style>
 
-    <style name="LeaveBehindClose">
+    <style name="AdOverlayClose">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">0dp</item>
