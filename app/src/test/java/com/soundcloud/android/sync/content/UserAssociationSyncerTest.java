@@ -7,6 +7,7 @@ import static com.soundcloud.android.testsupport.TestHelper.addIdResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertFirstIdToBe;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -69,8 +71,6 @@ public class UserAssociationSyncerTest {
     private PublicApiUser user;
     @Mock
     private FollowingOperations followingOperations;
-    @Mock
-    private ApiRequestException apiRequestException;
     @Mock
     private ApiResponse apiResponse;
 
@@ -255,11 +255,10 @@ public class UserAssociationSyncerTest {
 
     @Test
     public void shouldDeleteAssociationsPushedThatReceiveForbiddenResponse() throws Exception {
+        ApiRequestException apiRequestException = ApiRequestException.notAllowed(mock(ApiRequest.class));
         List<UserAssociation> userAssociations = getDirtyUserAssociations();
 
         UserAssociationSyncer.BulkFollowSubscriber bulkFollowObserver = new UserAssociationSyncer.BulkFollowSubscriber(userAssociations, userAssociationStorage, followingOperations);
-        when(apiRequestException.reason()).thenReturn(ApiRequestException.Reason.NOT_ALLOWED);
-
         final ArrayList<PublicApiUser> users = Lists.newArrayList(userAssociations.get(0).getUser(), userAssociations.get(1).getUser(), userAssociations.get(2).getUser());
 
         bulkFollowObserver.onError(apiRequestException);
