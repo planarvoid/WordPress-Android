@@ -2,6 +2,7 @@ package com.soundcloud.android.payments;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
@@ -27,6 +28,8 @@ class SubscribeController {
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
+    private ProductDetails details;
+
     @Inject
     SubscribeController(Context context, PaymentOperations paymentOperations) {
         this.context = context;
@@ -44,11 +47,22 @@ class SubscribeController {
         paymentOperations.disconnect();
     }
 
+    @OnClick(R.id.subscribe_buy)
+    public void beginTransaction() {
+        subscription.add(paymentOperations.buy(details.id).subscribe(new TransactionSubscriber()));
+    }
+
+    private void displayProductDetails() {
+        title.setText(details.title);
+        description.setText(details.description);
+        price.setText(details.price);
+        buyButton.setVisibility(View.VISIBLE);
+    }
+
     private class ConnectionSubscriber extends DefaultSubscriber<ConnectionStatus> {
         @Override
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
-                buyButton.setVisibility(View.VISIBLE);
                 subscription.add(paymentOperations.queryProductDetails().subscribe(new DetailsSubscriber()));
             }
         }
@@ -61,10 +75,8 @@ class SubscribeController {
         @Override
         public void onNext(ProductStatus result) {
             if (result.isSuccess()) {
-                ProductDetails details = result.getDetails();
-                title.setText(details.title);
-                description.setText(details.description);
-                price.setText(details.price);
+                details = result.getDetails();
+                displayProductDetails();
             } else {
                 Toast.makeText(context, "No subscription available!", Toast.LENGTH_SHORT).show();
             }
@@ -74,6 +86,13 @@ class SubscribeController {
         public void onError(Throwable e) {
             super.onError(e);
             Toast.makeText(context, "Connection error!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class TransactionSubscriber extends DefaultSubscriber<String> {
+        @Override
+        public void onNext(String result) {
+            Toast.makeText(context, result, Toast.LENGTH_LONG).show();
         }
     }
 

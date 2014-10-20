@@ -30,6 +30,7 @@ public enum ApiEndpoints {
     AUDIO_AD("/tracks/%s/ads/audio"),
     POLICIES("/policies/tracks"),
     PRODUCTS("/products/google-play"),
+    CHECKOUT("/checkout"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

@@ -37,7 +37,10 @@ public class PaymentOperationsTest {
     @Before
     public void setUp() throws Exception {
         paymentOperations = new PaymentOperations(rxHttpClient, billingService);
-        when(rxHttpClient.<AvailableProducts>fetchModels(any(ApiRequest.class))).thenReturn(availableProductsObservable());
+        when(rxHttpClient.<AvailableProducts>fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
+                .thenReturn(availableProductsObservable());
+        when(rxHttpClient.<CheckoutResult>fetchModels(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path()))))
+                .thenReturn(checkoutResultObservable());
     }
 
     @Test
@@ -74,7 +77,7 @@ public class PaymentOperationsTest {
 
         paymentOperations.queryProductDetails().subscribe();
 
-        verify(billingService).getDetails(eq("subscription_id"));
+        verify(billingService).getDetails(eq("product_id"));
     }
 
     @Test
@@ -88,9 +91,27 @@ public class PaymentOperationsTest {
         expect(result.getDetails()).toBe(details);
     }
 
+    @Test
+    public void postsCheckoutStart() {
+        paymentOperations.buy("product_id").subscribe();
+
+        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())));
+    }
+
+    @Test
+    public void returnsCheckoutTokenFromCheckoutStart() {
+        String checkoutToken = paymentOperations.buy("product_id").toBlocking().first();
+
+        expect(checkoutToken).toEqual("token_123");
+    }
+
     private Observable<AvailableProducts> availableProductsObservable() {
-        AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("subscription_id")));
+        AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("product_id")));
         return Observable.just(products);
+    }
+
+    private Observable<CheckoutResult> checkoutResultObservable() {
+        return Observable.just(new CheckoutResult("token_123"));
     }
 
     private Observable<AvailableProducts> noProductsObservable() {

@@ -1,8 +1,10 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.payments.AvailableProducts.Product;
+
+import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.payments.googleplay.PlayBillingService;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
@@ -18,21 +20,12 @@ class PaymentOperations {
     private final RxHttpClient rxHttpClient;
     private final PlayBillingService playBilling;
 
-    private final Func1<String, Observable<ProductStatus>> idToProduct = new Func1<String, Observable<ProductStatus>>() {
+    private final Func1<Product, Observable<ProductStatus>> productToResult = new Func1<Product, Observable<ProductStatus>>() {
         @Override
-        public Observable<ProductStatus> call(String id) {
-            return id == null ? Observable.just(ProductStatus.fromNoProduct())
-                    : queryProductDetails(id).map(ProductStatus.SUCCESS);
-        }
-    };
-
-    private static final Func1<AvailableProducts, String> PRODUCTS_TO_ID = new Func1<AvailableProducts, String>() {
-        @Override
-        public String call(AvailableProducts availableProducts) {
-            if (availableProducts.isEmpty()) {
-                return null;
-            }
-            return availableProducts.products.get(0).id;
+        public Observable<ProductStatus> call(Product product) {
+            return product.isEmpty()
+                    ? Observable.just(ProductStatus.fromNoProduct())
+                    : queryProductDetails(product.id).map(ProductStatus.SUCCESS);
         }
     };
 
@@ -52,7 +45,19 @@ class PaymentOperations {
 
     public Observable<ProductStatus> queryProductDetails() {
         return getSubscriptionId()
-                .flatMap(idToProduct)
+                .flatMap(productToResult)
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Observable<String> buy(String id) {
+        final ApiRequest<CheckoutResult> request =
+                ApiRequest.Builder.<CheckoutResult>post(ApiEndpoints.CHECKOUT.path())
+                        .forPrivateApi(1)
+                        .forResource(CheckoutResult.class)
+                        .addQueryParameters("product_id", id)
+                        .build();
+        return rxHttpClient.<CheckoutResult>fetchModels(request)
+                .map(CheckoutResult.TOKEN)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -61,9 +66,9 @@ class PaymentOperations {
                 .subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
-    private Observable<String> getSubscriptionId() {
+    private Observable<Product> getSubscriptionId() {
         return fetchAvailableProducts()
-                .map(PRODUCTS_TO_ID);
+                .map(AvailableProducts.TO_PRODUCT);
     }
 
     private Observable<AvailableProducts> fetchAvailableProducts() {

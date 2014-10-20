@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayResponseProcessorTest {
 
-    private static final String PRODUCT_JSON = "{\"title\":\"subscription title\",\"price\":\"€4.75\",\"type\":\"subs\",\"description\":\"placeholder description\",\"price_amount_micros\":4750000,\"price_currency_code\":\"EUR\",\"productId\":\"consumer_subscription\"}";
+    private static final String PRODUCT_JSON = "{\"title\":\"subscription title\",\"price\":\"€4.75\",\"type\":\"subs\",\"description\":\"placeholder description\",\"price_amount_micros\":4750000,\"price_currency_code\":\"EUR\",\"productId\":\"product_id\"}";
 
     private PlayResponseProcessor processor;
 
@@ -25,7 +25,7 @@ public class PlayResponseProcessorTest {
     public void parsesProductDetailsFromJson() throws JSONException {
         ProductDetails details = processor.parseProduct(PRODUCT_JSON);
 
-        expect(details.id).toEqual("consumer_subscription");
+        expect(details.id).toEqual("product_id");
         expect(details.title).toEqual("subscription title");
         expect(details.description).toEqual("placeholder description");
         expect(details.price).toEqual("€4.75");
