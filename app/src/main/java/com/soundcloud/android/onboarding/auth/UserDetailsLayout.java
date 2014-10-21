@@ -133,7 +133,7 @@ public class UserDetailsLayout extends RelativeLayout {
         setImage((File) bundle.getSerializable(BUNDLE_FILE));
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onFinishInflate() {
         super.onFinishInflate();
 

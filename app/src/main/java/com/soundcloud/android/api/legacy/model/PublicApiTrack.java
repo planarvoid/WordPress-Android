@@ -324,6 +324,7 @@ public class PublicApiTrack extends Playable {
                 .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
 
@@ -395,7 +396,7 @@ public class PublicApiTrack extends Playable {
             str.append(key_signature).append("<br/>");
         }
         if (bpm != 0) {
-            str.append(" ");
+            str.append(' ');
             if (Math.floor(bpm) == bpm) {
                 str.append((int) bpm);
             } else {
@@ -423,8 +424,7 @@ public class PublicApiTrack extends Playable {
                     .append(created_with.permalink_url)
                     .append("\">")
                     .append(created_with.name)
-                    .append("</a>")
-                    .append("<br/>");
+                    .append("</a><br/>");
         }
 
         return str.toString();
@@ -436,11 +436,11 @@ public class PublicApiTrack extends Playable {
         if (license.startsWith("cc-")) {
             String cc = license.substring(3, license.length());
 
-            sb.append("Licensed under a Creative Commons License ");
-            sb.append('(').append("<a href='").append(getCCLink(cc)).append("'>")
+            sb.append("Licensed under a Creative Commons License (<a href='")
+                    .append(getCCLink(cc))
+                    .append("'>")
                     .append(cc.toUpperCase(Locale.US))
-                    .append("</a>")
-                    .append(')');
+                    .append("</a>)");
         } else if ("no-rights-reserved".equals(license)) {
             sb.append("No Rights Reserved");
         }

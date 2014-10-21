@@ -74,6 +74,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     public static final String LINKED_PARTITIONING = "linked_partitioning";
 
     private static final int API_LOOKUP_BATCH_SIZE = 200;
+    private static final String UNCHECKED = "unchecked";
 
     private static PublicApiWrapper instance;
     private ApplicationProperties applicationProperties;
@@ -213,19 +214,21 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(request.getMethod()).append(" ").append(request.getURI());
-        sb.append(";headers=");
+        StringBuilder sb = new StringBuilder(2000);
+        sb.append(request.getMethod())
+                .append(' ')
+                .append(request.getURI())
+                .append(";headers=");
         final Header[] headers = request.getAllHeaders();
         for (Header header : headers) {
-            sb.append(header.toString()).append(";");
+            sb.append(header.toString()).append(';');
         }
         sb.append("response=").append(response == null ? "NULL" : response.getStatusLine());
         return sb.toString();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> T read(Request request) throws NotFoundException, IOException {
         InputStream inputStream = getInputStream(get(request), request);
         try {
@@ -236,7 +239,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> T update(Request request) throws NotFoundException, IOException {
         InputStream inputStream = getInputStream(put(request), request);
         try {
@@ -247,7 +250,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> T create(Request request) throws IOException {
         InputStream inputStream = getInputStream(post(request), request);
         try {
@@ -258,7 +261,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     @NotNull
     public <T extends PublicApiResource> List<T> readList(Request request) throws IOException {
         JsonParser parser = null;
@@ -296,7 +299,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
         List<PublicApiResource> resources = new ArrayList<PublicApiResource>(ids.size());
         int i = 0;
@@ -345,7 +348,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> PublicApiResource.ResourceHolder<T> readCollection(Request req) throws IOException {
         InputStream inputStream = getInputStream(get(req), req);
         try {

@@ -163,8 +163,12 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
             }
         }
 
-        for (Connection c : all) networks.remove(c.service());
-        for (Service t : networks) all.add(new Connection(t));
+        for (Connection c : all) {
+            networks.remove(c.service());
+        }
+        for (Service t : networks) {
+            all.add(new Connection(t));
+        }
         Collections.sort(all);
         return all;
     }
@@ -180,7 +184,7 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         return false;
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -125,21 +125,23 @@ public final class AndroidUtils {
 
     @SuppressWarnings("UnusedDeclaration")
     public static void logScreenSize(Context context) {
+        final String SCREEN_SIZE = "ScreenSize";
+        final String CURRENT_SCREEN_SIZE = "Current Screen Size : ";
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
             case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                Log.d("ScreenSize", "Current Screen Size : Small Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Small Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                Log.d("ScreenSize", "Current Screen Size : Normal Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Normal Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                Log.d("ScreenSize", "Current Screen Size : Large Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Large Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
-                Log.d("ScreenSize", "Current Screen Size : XLarge Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "XLarge Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_UNDEFINED:
-                Log.d("ScreenSize", "Current Screen Size : Undefined Screen");
+                Log.d(SCREEN_SIZE, CURRENT_SCREEN_SIZE + "Undefined Screen");
                 break;
         }
     }
@@ -160,12 +162,9 @@ public final class AndroidUtils {
 
     /**
      * Returns emails from the account manager paired and sorted by their frequency of usage
-     *
-     * @param context
-     * @return
      */
     public static String[] listEmails(Context context) {
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
         Account[] accounts = AccountManager.get(context).getAccounts();
         for (Account account : accounts) {
             if (ScTextUtils.isEmail(account.name)) {
@@ -184,8 +183,8 @@ public final class AndroidUtils {
     }
 
     /* package */
-    static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
-        TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(new MapValueComparator(map));
+    static String[] returnKeysSortedByValue(Map<String, Integer> map) {
+        TreeMap<String, Integer> sortedMap = new TreeMap<>(new MapValueComparator(map));
         sortedMap.putAll(map);
         return sortedMap.keySet().toArray(new String[map.size()]);
     }

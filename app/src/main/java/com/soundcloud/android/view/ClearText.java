@@ -42,6 +42,7 @@ public class ClearText extends EditText{
         defaultDrawableListener = listener;
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void init(){
         String value = "";//any text you are pre-filling in the EditText
         setText(value);

@@ -14,17 +14,18 @@ import android.widget.AbsListView;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
+    private static final int PARALLAX_STEP_AMOUNT = -10;
 
     @VisibleForTesting
     static final String VIEW_FOREGROUND_TAG = "foreground";
 
     private final AbsListView.OnScrollListener onScrollListenerDelegate;
-    private final int parallaxStepAmount = -10;
 
-    private final HashMap<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<ViewGroup, Iterable<View>>();
-    private final HashMap<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<ParallaxImageView>>();
+    private final Map<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<>();
+    private final Map<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<>();
 
     public AbsListViewParallaxer(@Nullable AbsListView.OnScrollListener scrollListenerDelegate) {
         this.onScrollListenerDelegate = scrollListenerDelegate;
@@ -51,7 +52,7 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
 
     private void scrollChanged(AbsListView listView) {
         final int halfHeight = listView.getHeight() / 2;
-        final float parallaxStepScaled = listView.getResources().getDisplayMetrics().density * parallaxStepAmount;
+        final float parallaxStepScaled = listView.getResources().getDisplayMetrics().density * PARALLAX_STEP_AMOUNT;
 
         if (halfHeight > 0) {
             for (int i = 0; i < listView.getChildCount(); i++) {

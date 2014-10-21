@@ -15,12 +15,13 @@ import android.widget.TextView;
 
 import java.lang.ref.SoftReference;
 import java.util.Hashtable;
+import java.util.Map;
 
 public final class CustomFontLoader {
-    private static final Hashtable<String, SoftReference<Typeface>> fontCache;
+    private static final Map<String, SoftReference<Typeface>> fontCache;
 
     static {
-        fontCache = new Hashtable<String, SoftReference<Typeface>>();
+        fontCache = new Hashtable<>();
     }
 
     private CustomFontLoader() {
@@ -36,7 +37,7 @@ public final class CustomFontLoader {
             if (typeface == null) {
                 try {
                     typeface = Typeface.createFromAsset(context.getAssets(), path);
-                    fontCache.put(path, new SoftReference<Typeface>(typeface));
+                    fontCache.put(path, new SoftReference<>(typeface));
                 } catch (RuntimeException e) {
                     Log.e(SoundCloudApplication.TAG, "Encountered exception loading the font", e);
                 }

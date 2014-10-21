@@ -41,7 +41,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     private double longitude, latitude;
 
     // used for preloading foursquare venues
-    private ArrayList<FoursquareVenue> venues = new ArrayList<FoursquareVenue>();
+    private ArrayList<FoursquareVenue> venues = new ArrayList<>();
     private Location location;
 
     @SuppressWarnings("UnusedDeclaration")

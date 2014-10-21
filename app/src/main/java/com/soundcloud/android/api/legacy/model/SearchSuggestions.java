@@ -155,9 +155,12 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         Iterator<Map<String, Integer>> iterator = q.highlights.iterator();
         while (iterator.hasNext()) {
             Map<String, Integer> highlight = iterator.next();
-            highlightData.append(highlight.get("pre") + "," + highlight.get("post"));
+            highlightData
+                    .append(highlight.get("pre"))
+                    .append(',')
+                    .append(highlight.get("post"));
             if (iterator.hasNext()) {
-                highlightData.append(";");
+                highlightData.append(';');
             }
         }
         return highlightData.toString();

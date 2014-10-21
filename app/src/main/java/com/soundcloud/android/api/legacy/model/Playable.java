@@ -285,6 +285,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         mArtworkUri = b.getString("list_artwork_uri");
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
 

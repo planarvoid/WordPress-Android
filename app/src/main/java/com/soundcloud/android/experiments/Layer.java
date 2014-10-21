@@ -59,10 +59,10 @@ class Layer {
     @JsonIgnore
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(layerName).append('\n');
-        builder.append(experimentName).append(':').append(experimentId).append('\n');
-        builder.append(variantName).append(':').append(variantId).append('\n');
+        StringBuilder builder = new StringBuilder()
+                .append(layerName).append('\n')
+                .append(experimentName).append(':').append(experimentId).append('\n')
+                .append(variantName).append(':').append(variantId).append('\n');
         return builder.toString();
     }
 

@@ -28,8 +28,8 @@ class Assignment {
     @JsonIgnore
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Experiment assignment: ").append(layers.size()).append(" layer(s)").append('\n');
+        StringBuilder builder = new StringBuilder(500);
+        builder.append("Experiment assignment: ").append(layers.size()).append(" layer(s)\n");
         for (Layer layer : layers) {
             builder.append(layer);
         }

@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Urn;
 
 import android.view.View;
 
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 class TrackPageRecycler {
 
     private final Map<Urn, View> viewMap;
-    private final LinkedList<View> scrapViews;
+    private final Deque<View> scrapViews;
 
     TrackPageRecycler() {
         viewMap = new LinkedHashMap<>(TrackPagerAdapter.TRACKVIEW_POOL_SIZE);

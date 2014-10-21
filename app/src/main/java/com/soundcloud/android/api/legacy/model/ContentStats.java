@@ -13,8 +13,8 @@ import android.preference.PreferenceManager;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ContentStats {
-    private static Map<Content, Integer> sCounts = new HashMap<Content, Integer>();
+public final class ContentStats {
+    private static Map<Content, Integer> sCounts = new HashMap<>();
 
     private static final Content[] CONTENTS = new Content[] {
             Content.ME_SOUND_STREAM,
@@ -108,4 +108,6 @@ public class ContentStats {
             setLastNotifiedItem(context, c, Math.max(0, getLastNotifiedItem(context, c) - time));
         }
     }
+
+    private ContentStats() {}
 }

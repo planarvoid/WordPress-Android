@@ -26,10 +26,10 @@ import java.util.Map;
  * </a>
  */
 public class LruCache<K, V> {
-    private final HashMap<K, V> lruMap;
-    private final HashMap<K, Entry<K, V>> softmap = new HashMap<K, Entry<K, V>>();
+    private final Map<K, V> lruMap;
+    private final Map<K, Entry<K, V>> softmap = new HashMap<>();
 
-    private ReferenceQueue<V> queue = new ReferenceQueue<V>();
+    private ReferenceQueue<V> queue = new ReferenceQueue<>();
 
     private long lruHits, softHits, requests, softRequests;
 
@@ -68,7 +68,7 @@ public class LruCache<K, V> {
     public synchronized V put(K key, V value) {
         cleanUpSoftMap();
         lruMap.put(key, value);
-        Entry<K, V> entry = softmap.put(key, new Entry<K, V>(key, value, queue));
+        Entry<K, V> entry = softmap.put(key, new Entry<>(key, value, queue));
         return entry == null ? null : entry.get();
     }
 
@@ -99,7 +99,7 @@ public class LruCache<K, V> {
     public synchronized void clear() {
         lruMap.clear();
         softmap.clear();
-        queue = new ReferenceQueue<V>();
+        queue = new ReferenceQueue<>();
         softHits = lruHits = requests = 0;
     }
 

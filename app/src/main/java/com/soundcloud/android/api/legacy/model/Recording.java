@@ -542,7 +542,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
 
     public static long getUserIdFromFile(File file) {
         final String path = file.getName();
-        if (TextUtils.isEmpty(path) || !path.contains("_") || path.indexOf("_") + 1 >= path.length()) {
+        if (TextUtils.isEmpty(path) || !path.contains("_") || path.indexOf('_') + 1 >= path.length()) {
             return -1;
         } else {
             try {

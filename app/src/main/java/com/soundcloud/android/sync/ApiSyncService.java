@@ -39,9 +39,9 @@ public class ApiSyncService extends Service {
 
     private int activeTaskCount;
 
-    /* package */ final List<SyncIntent> syncIntents = new ArrayList<SyncIntent>();
-    /* package */ final LinkedList<CollectionSyncRequest> pendingRequests = new LinkedList<CollectionSyncRequest>();
-    /* package */ final List<CollectionSyncRequest> runningRequests = new ArrayList<CollectionSyncRequest>();
+    /* package */ final List<SyncIntent> syncIntents = new ArrayList<>();
+    /* package */ final LinkedList<CollectionSyncRequest> pendingRequests = new LinkedList<>();
+    /* package */ final List<CollectionSyncRequest> runningRequests = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -95,7 +95,7 @@ public class ApiSyncService extends Service {
     }
 
     /* package */ void onUriSyncResult(CollectionSyncRequest syncRequest){
-        for (SyncIntent syncIntent : new ArrayList<SyncIntent>(syncIntents)) {
+        for (SyncIntent syncIntent : new ArrayList<>(syncIntents)) {
 
             if (syncIntent.onUriResult(syncRequest)){
                 syncIntents.remove(syncIntent);

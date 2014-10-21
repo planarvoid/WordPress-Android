@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class DebugUtils {
+public final class DebugUtils {
 
     public static final String UTF_8_ENC = Charsets.UTF_8.displayName();
 
@@ -41,7 +41,7 @@ public class DebugUtils {
 
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
             for (String k : extras.keySet()) {
                 Object value = extras.get(k);
                 map.put(k, value);
@@ -134,7 +134,7 @@ public class DebugUtils {
 
     private static class PlaybackError extends Exception {
         private final NetworkInfo networkInfo;
-        private final StringBuilder buildProp;
+        private final String buildProp;
 
         PlaybackError(@Nullable IOException ioException, NetworkInfo info) {
             super(ioException);
@@ -144,11 +144,10 @@ public class DebugUtils {
 
         @Override
         public String getMessage() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(super.getMessage()).append(" ")
-                    .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
-                    .append(" ")
-                    .append("build.prop: ").append(buildProp);
+            StringBuilder sb = new StringBuilder(500);
+            sb.append(super.getMessage())
+                    .append(" networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
+                    .append(" build.prop: ").append(buildProp);
             return sb.toString();
         }
     }
@@ -166,16 +165,16 @@ public class DebugUtils {
 
         @Override
         public String getMessage() {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(500);
             sb.append(super.getMessage())
-                    .append(" ")
-                    .append("code: ").append(code).append(", extra: ").append(extra)
-                    .append("item: ").append(item);
+                    .append(" code: ").append(code)
+                    .append(", extra: ").append(extra)
+                    .append(", item: ").append(item);
             return sb.toString();
         }
     }
 
-    private static StringBuilder getBuildProp() {
+    private static String getBuildProp() {
         StringBuilder props = new StringBuilder();
         File f = new File("/system/build.prop");
         InputStream instream;
@@ -186,13 +185,15 @@ public class DebugUtils {
             while ((line = buffreader.readLine()) != null) {
                 if (line.contains("media.stagefright")) {
                     props.append(line);
-                    props.append(" ");
+                    props.append(' ');
                 }
             }
             instream.close();
         } catch (IOException e) {
             Log.w(TAG, e);
         }
-        return props;
+        return props.toString();
     }
+
+    private DebugUtils() {}
 }

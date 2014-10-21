@@ -77,6 +77,7 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     };
 
     public static final String EXTRA = "comment";
+    private static final String UNUSED = "unused";
 
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
     @JsonProperty @JsonView(Views.Mini.class) public long track_id;
@@ -175,12 +176,12 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     }
 
     @JsonIgnore
-    @SuppressWarnings("unused") // ModelCitizen needs this
+    @SuppressWarnings(UNUSED) // ModelCitizen needs this
     public PublicApiTrack getTrack() {
         return this.track;
     }
 
-    @SuppressWarnings("unused") // ModelCitizen needs this
+    @SuppressWarnings(UNUSED) // ModelCitizen needs this
     public void setTrack(PublicApiTrack track) {
         this.track = track;
     }
@@ -198,12 +199,12 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     }
 
     @JsonIgnore
-    @SuppressWarnings("unused") // ModelCitizen needs this
+    @SuppressWarnings(UNUSED) // ModelCitizen needs this
     public String getBody() {
         return this.body;
     }
 
-    @SuppressWarnings("unused") // ModelCitizen needs this
+    @SuppressWarnings(UNUSED) // ModelCitizen needs this
     public void setBody(String body) {
         this.body = body;
     }

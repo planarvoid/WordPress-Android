@@ -456,10 +456,11 @@ public class ProfileActivity extends ScActivity implements
         }
 
         public static int indexOf(String tag) {
-            for (int i = 0; i < values().length; i++)
+            for (int i = 0; i < values().length; i++) {
                 if (values()[i].tag.equalsIgnoreCase(tag)) {
                     return i;
                 }
+            }
             return -1;
         }
 

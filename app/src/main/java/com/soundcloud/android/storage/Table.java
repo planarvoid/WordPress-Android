@@ -214,21 +214,21 @@ public enum Table {
             }
             long id = v.getAsLong(BaseColumns._ID);
             List<Object> bindArgs = new ArrayList<Object>();
-            StringBuilder sb = new StringBuilder();
-            sb.append("INSERT OR REPLACE INTO ").append(name).append("(")
+            StringBuilder sb = new StringBuilder(5000);
+            sb.append("INSERT OR REPLACE INTO ").append(name).append('(')
                     .append(TextUtils.join(",", fields))
                     .append(") VALUES (");
             for (int i = 0; i < fields.length; i++) {
                 String f = fields[i];
                 if (v.containsKey(f)) {
-                    sb.append("?");
+                    sb.append('?');
                     bindArgs.add(v.get(f));
                 } else {
                     sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
                     bindArgs.add(id);
                 }
                 if (i < fields.length - 1) {
-                    sb.append(",");
+                    sb.append(',');
                 }
             }
             sb.append(");");
@@ -299,7 +299,7 @@ public enum Table {
         for (Table t : values()) {
             if (t.createString != null) {
                 sb.append(t.createString);
-                sb.append("\n");
+                sb.append('\n');
             }
         }
         return sb.toString();

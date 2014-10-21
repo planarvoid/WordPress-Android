@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class SignupLog {
+public final class SignupLog {
     protected static final int THROTTLE_WINDOW = 60 * 60 * 1000;
     protected static final int THROTTLE_AFTER_ATTEMPT = 5;
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
@@ -81,9 +81,7 @@ public class SignupLog {
             try {
                 in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
                 return (long[]) in.readObject();
-            } catch (IOException e) {
-                Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
             } finally {
                 IOUtils.close(in);
@@ -91,4 +89,6 @@ public class SignupLog {
         }
         return null;
     }
+
+    private SignupLog() {}
 }

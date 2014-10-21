@@ -26,7 +26,7 @@ public class ConnectActivity extends TrackedActivity {
 
     private WebView webView;
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.connect);

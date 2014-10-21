@@ -32,7 +32,7 @@ class PlaybackReceiver extends BroadcastReceiver {
         this.eventBus = eventBus;
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");

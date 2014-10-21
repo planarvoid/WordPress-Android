@@ -25,6 +25,7 @@ import java.util.List;
 class NotificationMessage {
     public final CharSequence title, message, ticker;
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public NotificationMessage(Resources res, Activities activities,
                                Activities likes,
                                Activities comments,

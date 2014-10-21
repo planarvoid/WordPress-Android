@@ -40,7 +40,7 @@ public class ResolverHelper {
         for (int i = 1; i < size; i++) {
             sb.append(",?");
         }
-        sb.append(")");
+        sb.append(')');
         return sb.toString();
     }
 

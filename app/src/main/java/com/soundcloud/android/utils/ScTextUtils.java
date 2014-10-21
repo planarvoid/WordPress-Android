@@ -205,6 +205,7 @@ public class ScTextUtils {
         return String.format(resources.getString(R.string.format_abbreviated_minutes), unit.toMinutes(time));
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public static String formatTimeElapsed(Resources r, double elapsedSeconds, boolean longerText) {
         if (elapsedSeconds < 60) {
             return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);

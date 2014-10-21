@@ -113,10 +113,11 @@ public class Token implements Serializable {
 
     public boolean scoped(String scope) {
         if (this.scope != null) {
-            for (String s : this.scope.split(" "))
+            for (String s : this.scope.split(" ")) {
                 if (scope.equals(s)) {
                     return true;
                 }
+            }
         }
         return false;
     }
@@ -145,7 +146,7 @@ public class Token implements Serializable {
                 '}';
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -303,6 +303,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     /**
      * @return The HttpClient instance used to make the calls
      */
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public HttpClient getHttpClient() {
         if (httpClient == null) {
             final HttpParams params = getParams();
@@ -398,7 +399,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 final String path = URI.create(location.getValue()).getPath();
                 if (path != null && path.contains("/")) {
                     try {
-                        final String id = path.substring(path.lastIndexOf("/") + 1);
+                        final String id = path.substring(path.lastIndexOf('/') + 1);
                         return Integer.parseInt(id);
                     } catch (NumberFormatException e) {
                         throw new ResolverException(e, resp);
@@ -803,7 +804,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
             for (int i = 0; i < scopes.length; i++) {
                 scope.append(scopes[i]);
                 if (i < scopes.length - 1) {
-                    scope.append(" ");
+                    scope.append(' ');
                 }
             }
             request.add(SCOPE, scope.toString());

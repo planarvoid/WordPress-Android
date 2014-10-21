@@ -177,6 +177,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return u;
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
         // account for partial objects, don't overwrite local full objects
@@ -420,6 +421,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return getId() <= 0;
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public PublicApiUser updateFrom(PublicApiUser user, CacheUpdateMode cacheUpdateMode) {
         this.setId(user.getId());
         this.username = user.username;

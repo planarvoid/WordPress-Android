@@ -116,7 +116,7 @@ public class ScContentProvider extends ContentProvider {
         }, 0);
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public int bulkInsert(Uri uri, ContentValues[] values) {
         if (values == null || values.length == 0) {
             return 0;
@@ -325,6 +325,7 @@ public class ScContentProvider extends ContentProvider {
         };
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private Cursor doQuery(final Uri uri,
                            final String[] columns,
                            final String selection,
@@ -408,7 +409,7 @@ public class ScContentProvider extends ContentProvider {
                 but not 4 days before major release*/
                 if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
                     qb.setTables(Table.USER_ASSOCIATIONS.name);
-                    qb.appendWhere(Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + String.valueOf(userId));
+                    qb.appendWhere(Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId);
                     qb.appendWhere(" AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType);
                     _columns = new String[]{TableColumns.UserAssociations.TARGET_ID};
                     _sortOrder = makeCollectionSort(uri, sortOrder);
@@ -418,7 +419,7 @@ public class ScContentProvider extends ContentProvider {
                     if (_columns == null) {
                         _columns = formatWithUser(getUserViewColumns(Table.USER_ASSOCIATION_VIEW), userId);
                     }
-                    qb.appendWhere(Table.USER_ASSOCIATION_VIEW.name + "." + TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID + " = " + String.valueOf(userId));
+                    qb.appendWhere(Table.USER_ASSOCIATION_VIEW.name + "." + TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID + " = " + userId);
                     qb.appendWhere(" AND " + TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType);
 
                     _sortOrder = makeCollectionSort(uri, sortOrder != null ?
@@ -695,6 +696,7 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private int doDelete(Uri uri, String where, String[] whereArgs) {
         final SQLiteDatabase db = databaseManager.getWritableDatabase();
         int count;

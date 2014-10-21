@@ -100,7 +100,7 @@ public class UploadService extends Service {
     };
     /* package */ static final String TAG = UploadService.class.getSimpleName();
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);

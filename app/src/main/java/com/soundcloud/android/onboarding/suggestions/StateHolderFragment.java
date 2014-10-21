@@ -8,14 +8,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public final class StateHolderFragment extends Fragment {
 
-    private final HashMap<String, Object> data;
+    private final Map<String, Object> data;
 
     public StateHolderFragment() {
         setRetainInstance(true);
-        data = new HashMap<String, Object>();
+        data = new HashMap<>();
     }
 
     public static StateHolderFragment obtain(@NotNull final FragmentManager fragmentManager,

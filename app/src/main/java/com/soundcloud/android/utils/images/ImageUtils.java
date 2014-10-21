@@ -50,6 +50,8 @@ import java.util.Locale;
 
 public final class ImageUtils {
     private static final String TAG = ImageUtils.class.getSimpleName();
+    private static final String ERROR = "error";
+
     public static final int DEFAULT_TRANSITION_DURATION = 200;
     public static final int RECOMMENDED_IMAGE_SIZE = 2048;
 
@@ -115,7 +117,7 @@ public final class ImageUtils {
                     return ExifInterface.ORIENTATION_UNDEFINED;
             }
         } catch (IOException e) {
-            Log.e(TAG, "error", e);
+            Log.e(TAG, ERROR, e);
             return -1;
         }
     }
@@ -168,9 +170,9 @@ public final class ImageUtils {
             return (m.isIdentity()) ? bitmap : Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
 
         } catch (IOException e) {
-            Log.e(TAG, "error", e);
+            Log.e(TAG, ERROR, e);
         } catch (OutOfMemoryError e) {
-            Log.e(TAG, "error", e);
+            Log.e(TAG, ERROR, e);
         }
         return null;
     }
@@ -192,7 +194,7 @@ public final class ImageUtils {
             return true;
 
         } catch (IOException e) {
-            Log.e(TAG, "error", e);
+            Log.e(TAG, ERROR, e);
             return false;
         }
     }

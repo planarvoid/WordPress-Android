@@ -65,7 +65,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     };
     private static final long SAVE_MSG_DISPLAY_TIME = 3000; //ms
     private final BroadcastReceiver statusListener = new BroadcastReceiver() {
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getAction();
@@ -479,6 +479,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         });
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void configureInitialState(Intent intent) {
         if (recorder == null || !active) {
             return;
@@ -551,6 +552,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         updateUi(newState, true);
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void updateUi(CreateState newState, boolean animate) {
         if (newState != null) {
             currentState = newState;

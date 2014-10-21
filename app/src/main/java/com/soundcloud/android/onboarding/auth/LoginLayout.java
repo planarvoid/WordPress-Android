@@ -65,7 +65,7 @@ public class LoginLayout extends AuthLayout {
         passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onFinishInflate() {
         super.onFinishInflate();
 

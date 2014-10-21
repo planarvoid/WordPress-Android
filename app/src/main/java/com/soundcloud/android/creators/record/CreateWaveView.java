@@ -398,6 +398,7 @@ public class CreateWaveView extends View {
         public DrawData() {
         }
 
+        @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void configure(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime,
                               boolean isZooming,
                               boolean isEditing, int height, int width) {

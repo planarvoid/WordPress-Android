@@ -121,6 +121,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         }
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private boolean maybeNotifyActivity(SoundCloudApplication app, Activities activities, Bundle extras) {
         if (!activities.isEmpty()) {
             ContentStats.updateCount(app, Content.ME_ACTIVITIES, activities.size());

@@ -321,16 +321,16 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public static String getDbPlaylistTypesForQuery() {
-        String types = "";
+        StringBuilder types = new StringBuilder(200);
         int i = 0;
         for (Type t : Type.PLAYLIST_TYPES) {
-            types += "'" + t.type + "'";
+            types.append('\'').append(t.type).append('\'');
             if (i < Type.PLAYLIST_TYPES.size() - 1) {
-                types += ",";
+                types.append(',');
             }
             i++;
         }
-        return types;
+        return types.toString();
     }
 
     public PropertySet toPropertySet() {

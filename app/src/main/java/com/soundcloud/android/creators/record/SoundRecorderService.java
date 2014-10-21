@@ -61,7 +61,7 @@ public class SoundRecorderService extends Service {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
 
-        @Override
+        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (Log.isLoggable(TAG, Log.DEBUG)) {

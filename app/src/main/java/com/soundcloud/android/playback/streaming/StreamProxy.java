@@ -196,7 +196,7 @@ public class StreamProxy {
         return builder.build();
     }
 
-    @VisibleForTesting
+    @VisibleForTesting @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected static HttpUriRequest readRequest(InputStream is) throws IOException, URISyntaxException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
         String line = reader.readLine();
@@ -273,6 +273,7 @@ public class StreamProxy {
         return startByte < 0 ? 0 : startByte; // we don't support final byte ranges (-100)
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void processRequest(HttpUriRequest request, Socket client) {
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             logRequest(request);
@@ -355,7 +356,7 @@ public class StreamProxy {
                 .append(startByte == 0 ? "200 OK" : "206 OK").append(CRLF);
 
         for (Map.Entry<String, String> e : headers.entrySet()) {
-            sb.append(e.getKey()).append(':').append(' ').append(e.getValue()).append(CRLF);
+            sb.append(e.getKey()).append(": ").append(e.getValue()).append(CRLF);
         }
         sb.append(CRLF);
 
@@ -366,13 +367,13 @@ public class StreamProxy {
     }
 
     private ByteBuffer getErrorHeader(int code, String message) {
-        StringBuilder sb = new StringBuilder()
-                .append("HTTP/1.1 ")
-                .append(code).append(' ').append(message).append(CRLF);
-
-        sb.append("Server: ").append(SERVER).append(CRLF)
-                .append("Date: ").append(DateUtils.formatDate(new Date())).append(CRLF)
-                .append(CRLF);
+        StringBuilder sb = new StringBuilder("HTTP/1.1 ")
+                .append(code)
+                .append(' ')
+                .append(message)
+                .append(CRLF + "Server: " + SERVER + CRLF + "Date: ")
+                .append(DateUtils.formatDate(new Date()))
+                .append(CRLF + CRLF);
 
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
             Log.d(LOG_TAG, "header:" + sb);
@@ -380,6 +381,7 @@ public class StreamProxy {
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void writeChunks(HttpUriRequest request, String streamUrl, String nextUrl, final long startByte,
                              SocketChannel channel,
                              Map<String, String> headers)

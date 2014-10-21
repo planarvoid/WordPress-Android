@@ -19,6 +19,7 @@ import android.database.Cursor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -37,8 +38,8 @@ import java.util.WeakHashMap;
     private AsyncQueryHandler asyncQueryHandler;
     private long last_sync_success = -1;
     private LocalCollection followingCollectionState;
-    private final HashMap<Long, Long> followedAtStamps = new HashMap<Long, Long>();
-    private final HashMap<Long, Long> unFollowedAtStamps = new HashMap<Long, Long>();
+    private final Map<Long, Long> followedAtStamps = new HashMap<>();
+    private final Map<Long, Long> unFollowedAtStamps = new HashMap<>();
 
     private final Context context;
     private final SyncStateManager syncStateManager;

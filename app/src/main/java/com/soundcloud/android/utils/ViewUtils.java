@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import java.util.Iterator;
 import java.util.Stack;
 
-public class ViewUtils {
+public final class ViewUtils {
 
     public static int dpToPx(Context context, int dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
@@ -44,7 +44,7 @@ public class ViewUtils {
 
     public static Iterable<View> allChildViewsOf(final ViewGroup viewGroup) {
         return new Iterable<View>() {
-            private Stack<View> views = new Stack<View>();
+            private Stack<View> views = new Stack<>();
 
             @Override
             public Iterator<View> iterator() {
@@ -83,4 +83,6 @@ public class ViewUtils {
             }
         };
     }
+
+    private ViewUtils() {}
 }

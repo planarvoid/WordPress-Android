@@ -68,6 +68,7 @@ public class PlaylistEngagementsController {
         });
     }
 
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void bindView(View rootView, OriginProvider originProvider) {
         context = rootView.getContext();
         this.originProvider = originProvider;

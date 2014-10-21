@@ -105,7 +105,7 @@ public class Stream implements Serializable {
     }
 
     private static long getExpires(String resource) {
-        String query = resource.substring(Math.min(resource.length(), resource.indexOf("?") + 1),
+        String query = resource.substring(Math.min(resource.length(), resource.indexOf('?') + 1),
                 resource.length());
         for (String s : query.split("&")) {
             String[] kv = s.split("=", 2);

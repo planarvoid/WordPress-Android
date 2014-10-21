@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UriUtils {
+public final class UriUtils {
     public static long getLastSegmentAsLong(Uri uri){
         try {
             return Long.parseLong(uri.getLastPathSegment());
@@ -26,8 +26,6 @@ public class UriUtils {
 
     /**
      * Remove query params from Uri
-     * @param contentUri
-     * @return
      */
     public static Uri clearQueryParams(Uri contentUri) {
         // could use clearQuery here but its min api 11
@@ -66,7 +64,7 @@ public class UriUtils {
             return Collections.emptySet();
         }
 
-        Set<String> names = new LinkedHashSet<String>();
+        Set<String> names = new LinkedHashSet<>();
         int start = 0;
         do {
             int next = query.indexOf('&', start);
@@ -86,4 +84,6 @@ public class UriUtils {
 
         return Collections.unmodifiableSet(names);
     }
+
+    private UriUtils() {}
 }

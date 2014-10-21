@@ -105,10 +105,11 @@ public class Activities extends CollectionHolder<Activity> {
     public Activities selectType(Class<? extends Activity>... types) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
-            for (Class<? extends Activity> type : types)
+            for (Class<? extends Activity> type : types) {
                 if (type.isAssignableFrom(e.getClass())) {
                     activities.add(e);
                 }
+            }
         }
         return new Activities(activities);
     }

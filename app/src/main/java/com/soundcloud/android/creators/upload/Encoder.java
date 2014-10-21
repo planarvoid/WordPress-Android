@@ -33,7 +33,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void run() {
         Log.d(TAG, "Encoder.run(" + recording + ")");
 

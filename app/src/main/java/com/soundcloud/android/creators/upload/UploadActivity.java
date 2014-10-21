@@ -241,7 +241,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         }
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK:
