@@ -8,9 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -46,6 +47,7 @@ public class AdsOperationsTest {
     private AdsOperations adsOperations;
     private ApiAdsForTrack fullAdsForTrack;
 
+    @Mock private ApiScheduler apiScheduler;
     @Mock private RxHttpClient rxHttpClient;
     @Mock private TrackWriteStorage trackWriteStorage;
     @Mock private DeviceHelper deviceHelper;
@@ -56,7 +58,7 @@ public class AdsOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage, deviceHelper, playQueueManager, featureFlags);
+        adsOperations = new AdsOperations(rxHttpClient, trackWriteStorage, deviceHelper, playQueueManager, featureFlags, apiScheduler);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         playSessionSource = new PlaySessionSource("origin");
         playSessionSource.setExploreVersion("1.0");
@@ -121,7 +123,7 @@ public class AdsOperationsTest {
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
         expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
@@ -139,7 +141,7 @@ public class AdsOperationsTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
         value2.execute(playQueue);
 
@@ -160,11 +162,9 @@ public class AdsOperationsTest {
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
 
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
-        value1.execute(playQueue);
-        value2.execute(playQueue);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        captor1.getValue().execute(playQueue);
+        captor2.getValue().execute(playQueue);
 
         expect(playQueue.getUrn(0)).toEqual(fullAdsForTrack.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
@@ -179,7 +179,7 @@ public class AdsOperationsTest {
         ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack();
         adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
 
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
 
         verify(playQueueManager, never()).performPlayQueueUpdateOperations(any(PlayQueueManager.QueueUpdateOperation.class));
         expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
@@ -193,13 +193,13 @@ public class AdsOperationsTest {
         when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(apiTrack);
         when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(PropertySet.create());
 
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Lists.newArrayList(new ApiAdWrapper(audioAdWithoutLeaveBehind))));
+        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(new ApiAdWrapper(audioAdWithoutLeaveBehind))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
         expect(playQueue.getUrn(0)).toEqual(audioAdWithoutLeaveBehind.getApiTrack().getUrn());
@@ -208,7 +208,7 @@ public class AdsOperationsTest {
 
     @Test
     public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
-        ApiAdsForTrack noInterstitial = new ApiAdsForTrack(Lists.newArrayList(new ApiAdWrapper(ModelFixtures.create(ApiAudioAd.class))));
+        ApiAdsForTrack noInterstitial = new ApiAdsForTrack(Arrays.asList(new ApiAdWrapper(ModelFixtures.create(ApiAudioAd.class))));
         adsOperations.applyAdToTrack(TRACK_URN, noInterstitial);
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
@@ -217,7 +217,7 @@ public class AdsOperationsTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
         value2.execute(playQueue);
 
@@ -237,13 +237,13 @@ public class AdsOperationsTest {
         when(apiAudioAd.hasApiLeaveBehind()).thenReturn(false);
         when(apiAudioAd.toPropertySet()).thenReturn(PropertySet.create());
         when(apiAudioAd.getApiTrack()).thenReturn(apiTrack);
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Lists.newArrayList(new ApiAdWrapper(apiAudioAd))));
+        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(new ApiAdWrapper(apiAudioAd))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Lists.newArrayList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
         value1.execute(playQueue);
 
         expect(playQueue.getUrn(0)).toEqual(apiTrack.getUrn());

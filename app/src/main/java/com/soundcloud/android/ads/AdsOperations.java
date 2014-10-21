@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
@@ -29,6 +30,7 @@ public class AdsOperations {
     private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
     private final FeatureFlags featureFlags;
+    private final ApiScheduler apiScheduler;
     private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
         @Override
         public boolean apply(PropertySet input) {
@@ -45,12 +47,14 @@ public class AdsOperations {
     };
 
     @Inject
-    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper, PlayQueueManager playQueueManager, FeatureFlags featureFlags) {
+    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper,
+                  PlayQueueManager playQueueManager, FeatureFlags featureFlags, ApiScheduler apiScheduler) {
         this.rxHttpClient = rxHttpClient;
         this.trackWriteStorage = trackWriteStorage;
         this.deviceHelper = deviceHelper;
         this.playQueueManager = playQueueManager;
         this.featureFlags = featureFlags;
+        this.apiScheduler = apiScheduler;
     }
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
@@ -61,7 +65,11 @@ public class AdsOperations {
                 .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
                 .build();
 
-        return rxHttpClient.<ApiAdsForTrack>fetchModels(request).doOnNext(cacheAudioAdTrack);
+        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
+            return apiScheduler.mappedResponse(request).doOnNext(cacheAudioAdTrack);
+        } else {
+            return rxHttpClient.<ApiAdsForTrack>fetchModels(request).doOnNext(cacheAudioAdTrack);
+        }
     }
 
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {

@@ -22,12 +22,12 @@ import com.soundcloud.android.tests.helpers.NavigationHelper;
 import com.soundcloud.android.tests.helpers.PlayerHelper;
 import com.soundcloud.android.tests.with.With;
 
-public class Player extends ActivityTestCase<MainActivity> {
+public class PlayerTest extends ActivityTestCase<MainActivity> {
 
     private VisualPlayerElement playerElement;
     private StreamScreen streamScreen;
 
-    public Player() {
+    public PlayerTest() {
         super(MainActivity.class);
     }
 

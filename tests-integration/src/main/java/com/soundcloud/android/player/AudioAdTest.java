@@ -20,14 +20,14 @@ import com.soundcloud.android.tests.with.With;
 
 import java.util.concurrent.TimeUnit;
 
-public class AudioAd extends ActivityTestCase<MainActivity> {
+public class AudioAdTest extends ActivityTestCase<MainActivity> {
 
     private static final int TRACK_BEFORE_AD_LENGTH_MILISECONDS = (int) TimeUnit.SECONDS.toMillis(10);
 
     private VisualPlayerElement playerElement;
     private PlaylistDetailsScreen playlistDetailsScreen;
 
-    public AudioAd() {
+    public AudioAdTest() {
         super(MainActivity.class);
     }
 

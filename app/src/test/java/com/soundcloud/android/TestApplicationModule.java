@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -150,6 +151,11 @@ public class TestApplicationModule {
     @Provides
     public AnalyticsProviderFactory provideAnalyticsProviderFactory() {
         return mock(AnalyticsProviderFactory.class);
+    }
+
+    @Provides
+    public ApiScheduler provideApiScheduler() {
+        return mock(ApiScheduler.class);
     }
 }
 

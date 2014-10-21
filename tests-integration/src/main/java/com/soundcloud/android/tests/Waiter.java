@@ -21,14 +21,15 @@ import android.widget.ProgressBar;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
     private static Han solo;
-    private static final int TIMEOUT = 10 * 1000;
-    private static final int NETWORK_TIMEOUT = 120 * 1000;
-    public static final int FIVE_SECONDS = 5 * 1000;
+    private static final int TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
+    private static final int NETWORK_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(2);
+    private static final int FIVE_SECONDS = (int) TimeUnit.SECONDS.toMillis(5);
     private static final int ELEMENT_TIMEOUT = FIVE_SECONDS;
     private static final int SMALL_TIMEOUT = 500;
 
