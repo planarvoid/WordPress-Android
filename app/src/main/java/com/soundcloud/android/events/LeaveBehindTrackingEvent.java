@@ -4,34 +4,41 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class LeaveBehindTrackingEvent extends TrackingEvent {
+public final class LeaveBehindTrackingEvent extends TrackingEvent {
     public static final String KIND_IMPRESSION = "impression";
     public static final String KIND_CLICK = "click";
 
     private final List<String> trackingUrls;
 
-    LeaveBehindTrackingEvent(long timeStamp, String kindImpression, PropertySet properties, Urn track, Urn user, List<String> trackingUrls, TrackSourceInfo trackSourceInfo) {
+    private LeaveBehindTrackingEvent(long timeStamp, String kindImpression, PropertySet properties, Urn track, Urn user, List<String> trackingUrls, @Nullable TrackSourceInfo trackSourceInfo) {
         super(kindImpression, timeStamp);
         this.trackingUrls = trackingUrls;
 
         put(AdTrackingKeys.KEY_USER_URN, user.toString());
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, track.toString());
 
-        put(AdTrackingKeys.KEY_AD_URN, properties.get(LeaveBehindProperty.AD_URN).toString());
+        put(AdTrackingKeys.KEY_AD_URN, properties.get(LeaveBehindProperty.AD_URN));
         put(AdTrackingKeys.KEY_AD_TRACK_URN, properties.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString());
 
-        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, properties.get(LeaveBehindProperty.IMAGE_URL).toString());
+        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, properties.get(LeaveBehindProperty.IMAGE_URL));
         put(AdTrackingKeys.KEY_CLICK_THROUGH_URN, properties.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
-        put(AdTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
+        put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNonNullOriginScreenValue(trackSourceInfo));
     }
 
+    private String getNonNullOriginScreenValue(@Nullable TrackSourceInfo trackSourceInfo) {
+        if (trackSourceInfo != null) {
+            return trackSourceInfo.getOriginScreen();
+        }
+        return ScTextUtils.EMPTY_STRING;
+    }
 
-
-    public static LeaveBehindTrackingEvent forClick(PropertySet adMetaData, Urn track, Urn user, TrackSourceInfo sourceInfo) {
+    public static LeaveBehindTrackingEvent forClick(PropertySet adMetaData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
         return forClick(System.currentTimeMillis(), adMetaData, track, user, sourceInfo);
     }
 
@@ -39,7 +46,7 @@ public class LeaveBehindTrackingEvent extends TrackingEvent {
         return trackingUrls;
     }
 
-    public static LeaveBehindTrackingEvent forImpression(PropertySet adMetaData, Urn track, Urn user, TrackSourceInfo sourceInfo) {
+    public static LeaveBehindTrackingEvent forImpression(PropertySet adMetaData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
         return forImpression(System.currentTimeMillis(), adMetaData, track, user, sourceInfo);
     }
 
