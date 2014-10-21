@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.payments.googleplay.PlayBillingResult;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -25,6 +26,7 @@ public class SubscribeControllerTest {
 
     @Mock Activity activity;
     @Mock PaymentOperations paymentOperations;
+    @Mock PlayBillingResult billingResult;
 
     private SubscribeController controller;
     private View contentView;
@@ -35,6 +37,7 @@ public class SubscribeControllerTest {
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.payments_activity, null, false);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
+        when(billingResult.isForRequest()).thenReturn(true);
     }
 
     @Test
@@ -56,35 +59,55 @@ public class SubscribeControllerTest {
     }
 
     @Test
+    public void sendsPlayBillingSuccessForVerification() {
+        when(billingResult.isOk()).thenReturn(true);
+        when(paymentOperations.verify(billingResult)).thenReturn(Observable.just(PurchaseStatus.VERIFYING));
+
+        controller.handleBillingResult(billingResult);
+
+        verify(paymentOperations).verify(billingResult);
+    }
+
+    @Test
+    public void cancelsTransactionForPlayBillingFailure() {
+        when(billingResult.isOk()).thenReturn(false);
+        when(paymentOperations.cancel(billingResult)).thenReturn(Observable.<Void>empty());
+
+        controller.handleBillingResult(billingResult);
+
+        verify(paymentOperations).cancel(billingResult);
+    }
+
+    @Test
     public void doesNotQueryProductDetailsIfBillingIsNotSupported() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.UNSUPPORTED));
 
         controller.onCreate(activity);
 
-        verify(paymentOperations, never()).queryProductDetails();
+        verify(paymentOperations, never()).queryProduct();
     }
 
     @Test
     public void queriesProductDetailsWhenBillingServiceIsConnected() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryProductDetails()).thenReturn(Observable.<ProductStatus>empty());
+        when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>empty());
 
         controller.onCreate(activity);
 
-        verify(paymentOperations).queryProductDetails();
+        verify(paymentOperations).queryProduct();
     }
 
     @Test
     public void displaysProductDetailsWhenPaymentConnectionStatusIsReady() {
         ProductDetails details = new ProductDetails("id", "product title", "description", "$100");
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryProductDetails()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
+        when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
 
         controller.onCreate(activity);
 
-        expect(getText(R.id.subscribe_title)).toEqual(details.title);
-        expect(getText(R.id.subscribe_description)).toEqual(details.description);
-        expect(getText(R.id.subscribe_price)).toEqual(details.price);
+        expect(getText(R.id.subscribe_title)).toEqual(details.getTitle());
+        expect(getText(R.id.subscribe_description)).toEqual(details.getDescription());
+        expect(getText(R.id.subscribe_price)).toEqual(details.getPrice());
     }
 
     private String getText(int id) {

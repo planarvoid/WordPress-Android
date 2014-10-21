@@ -1,9 +1,12 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.payments.googleplay.PlayBillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -47,15 +50,26 @@ class SubscribeController {
         paymentOperations.disconnect();
     }
 
+    public void handleBillingResult(PlayBillingResult result) {
+        if (result.isForRequest()) {
+            if (result.isOk()) {
+                subscription.add(paymentOperations.verify(result).subscribe(new VerifySubscriber()));
+            } else {
+                showText(R.string.payments_user_cancelled);
+                fireAndForget(paymentOperations.cancel(result));
+            }
+        }
+    }
+
     @OnClick(R.id.subscribe_buy)
     public void beginTransaction() {
-        subscription.add(paymentOperations.buy(details.id).subscribe(new TransactionSubscriber()));
+        subscription.add(paymentOperations.purchase(details.getId()).subscribe(new TransactionSubscriber()));
     }
 
     private void displayProductDetails() {
-        title.setText(details.title);
-        description.setText(details.description);
-        price.setText(details.price);
+        title.setText(details.getTitle());
+        description.setText(details.getDescription());
+        price.setText(details.getPrice());
         buyButton.setVisibility(View.VISIBLE);
     }
 
@@ -63,13 +77,13 @@ class SubscribeController {
         @Override
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
-                subscription.add(paymentOperations.queryProductDetails().subscribe(new DetailsSubscriber()));
+                subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
             }
         }
     }
 
     /*
-     * TODO: All the error case handling will depend on the subscription flow designs
+     * TODO: All the error case handling & messaging will depend on the subscription flow designs
      */
     private class DetailsSubscriber extends DefaultSubscriber<ProductStatus> {
         @Override
@@ -78,22 +92,49 @@ class SubscribeController {
                 details = result.getDetails();
                 displayProductDetails();
             } else {
-                Toast.makeText(context, "No subscription available!", Toast.LENGTH_SHORT).show();
+                showText(R.string.payments_none_available);
             }
         }
 
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            Toast.makeText(context, "Connection error!", Toast.LENGTH_SHORT).show();
+            showConnectionError();
         }
     }
 
     private class TransactionSubscriber extends DefaultSubscriber<String> {
         @Override
-        public void onNext(String result) {
-            Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+        public void onError(Throwable e) {
+            super.onError(e);
+            showConnectionError();
         }
+    }
+
+    private class VerifySubscriber extends DefaultSubscriber<PurchaseStatus> {
+        @Override
+        public void onNext(PurchaseStatus result) {
+            switch(result) {
+                case VERIFYING:
+                    showText(R.string.payments_verifying);
+                    break;
+                case FAILURE:
+                    showText(R.string.payments_verification_failed);
+                    break;
+                case SUCCESS:
+                    showText(R.string.payments_success);
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void showConnectionError() {
+        showText(R.string.payments_connection_error);
+    }
+
+    private void showText(int messageId) {
+        Toast.makeText(context, messageId, Toast.LENGTH_SHORT).show();
     }
 
 }

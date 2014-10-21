@@ -8,13 +8,17 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import org.json.JSONException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subjects.BehaviorSubject;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 
 public class PlayBillingService {
 
+    private static final int NO_FLAGS = 0;
     private static final int IAB_VERSION = 3;
     private static final String PRODUCT_TYPE = "subs";
 
@@ -37,14 +42,14 @@ public class PlayBillingService {
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            log("Billing service connected");
+            log("Service connected");
             iabService = binder.bind(service);
             connectionSubject.onNext(isSubsSupported() ? ConnectionStatus.READY : ConnectionStatus.UNSUPPORTED);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            log("Billing service disconnected");
+            log("Service disconnected");
             iabService = null;
             connectionSubject.onNext(ConnectionStatus.DISCONNECTED);
         }
@@ -75,6 +80,7 @@ public class PlayBillingService {
     public void closeConnection() {
         if (iabService != null) {
             bindingActivity.unbindService(serviceConnection);
+            log("Connection closed");
         }
         connectionSubject.onCompleted();
         bindingActivity = null;
@@ -86,7 +92,7 @@ public class PlayBillingService {
             public void call(Subscriber<? super ProductDetails> subscriber) {
                 try {
                     Bundle response = iabService.getSkuDetails(IAB_VERSION, deviceHelper.getPackageName(), PRODUCT_TYPE, getSkuBundle(id));
-                    logBillingResponse("getDetails", PlayBillingUtil.getResponseCodeFromBundle(response));
+                    logBillingResponse("getSkuDetails", PlayBillingUtil.getResponseCodeFromBundle(response));
 
                     if (response.containsKey(PlayBillingUtil.RESPONSE_GET_SKU_DETAILS_LIST)) {
                         ArrayList<String> responseList = response.getStringArrayList(PlayBillingUtil.RESPONSE_GET_SKU_DETAILS_LIST);
@@ -100,6 +106,22 @@ public class PlayBillingService {
                 }
             }
         });
+    }
+
+    public void startPurchase(final String id, final String purchaseUrn) {
+        try {
+            Bundle response = iabService.getBuyIntent(3, deviceHelper.getPackageName(), id, PRODUCT_TYPE, purchaseUrn);
+            int responseCode = PlayBillingUtil.getResponseCodeFromBundle(response);
+            logBillingResponse("getBuyIntent", responseCode);
+            if (responseCode == PlayBillingUtil.RESULT_OK) {
+                PendingIntent buyIntent = response.getParcelable(PlayBillingUtil.RESPONSE_BUY_INTENT);
+                bindingActivity.startIntentSenderForResult(buyIntent.getIntentSender(),
+                        PlayBillingResult.REQUEST_CODE, new Intent(), NO_FLAGS, NO_FLAGS, NO_FLAGS);
+            }
+        } catch (RemoteException | IntentSender.SendIntentException e) {
+            log("Failed to send purchase Intent");
+            ErrorUtils.handleSilentException(e);
+        }
     }
 
     private Bundle getSkuBundle(String sku) {
