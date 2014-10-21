@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.Screen;
@@ -23,6 +24,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -65,18 +67,21 @@ public class PlaybackOperationsTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlaybackToastViewController playbackToastViewController;
     @Mock private AdsOperations adsOperations;
+    @Mock private AccountOperations accountOperations;
     private TestObserver<List<Urn>> observer;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus, adsOperations);
+                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus, adsOperations, accountOperations);
         track = ModelFixtures.create(PublicApiTrack.class);
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        observer = new TestObserver<List<Urn>>();
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
+        observer = new TestObserver<>();
     }
 
     @Test

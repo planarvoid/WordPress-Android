@@ -4,9 +4,11 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,6 +18,12 @@ public class UIEventTest {
     private static final Urn TRACK_URN = Urn.forTrack(30L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(42L);
     private static final Urn USER_URN = Urn.forUser(2L);
+    private TrackSourceInfo trackSourceInfo;
+
+    @Before
+    public void setUp() throws Exception {
+        trackSourceInfo = new TrackSourceInfo("origin screen", true);
+    }
 
     @Test
     public void shouldCreateEventFromPlayerClose() {
@@ -224,27 +232,27 @@ public class UIEventTest {
     @Test
     public void shouldCreateEventFromAudioAdClick() {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
-        UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), 1000L);
+        UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_AUDIO_AD_CLICK);
         expect(uiEvent.getTimeStamp()).toEqual(1000L);
-        expect(uiEvent.get("ad_urn")).toEqual(audioAd.get(AdProperty.AD_URN));
-        expect(uiEvent.get("ad_monetized_urn")).toEqual(Urn.forTrack(123).toString());
-        expect(uiEvent.get("ad_track_urn")).toEqual(Urn.forTrack(456).toString());
-        expect(uiEvent.get("ad_click_url")).toEqual(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
-        expect(uiEvent.get("ad_image_url")).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(123).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URN)).toEqual(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
         expect(uiEvent.getAudioAdClickthroughUrls()).toContain("click1", "click2");
     }
 
     @Test
     public void shouldCreateEventFromSkipAudioAdClick() {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
-        UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), 1000L);
+        UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
         expect(uiEvent.getTimeStamp()).toEqual(1000L);
-        expect(uiEvent.get("ad_urn")).toEqual(audioAd.get(AdProperty.AD_URN));
-        expect(uiEvent.get("ad_monetized_urn")).toEqual(Urn.forTrack(123).toString());
-        expect(uiEvent.get("ad_track_urn")).toEqual(Urn.forTrack(456).toString());
-        expect(uiEvent.get("ad_image_url")).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(123).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
         expect(uiEvent.getAudioAdSkipUrls()).toContain("skip1", "skip2");
     }
 

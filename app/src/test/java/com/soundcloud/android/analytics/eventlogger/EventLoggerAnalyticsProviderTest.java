@@ -10,17 +10,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.TrackingRecord;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,10 +41,12 @@ public class EventLoggerAnalyticsProviderTest {
     @Mock private EventLoggerUrlBuilder eventLoggerUrlBuilder;
 
     private Urn userUrn = Urn.forUser(123L);
+    private TrackSourceInfo trackSourceInfo;
 
     @Before
     public void setUp() throws Exception {
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, eventLoggerUrlBuilder);
+        trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 
     @Test
@@ -107,7 +111,7 @@ public class EventLoggerAnalyticsProviderTest {
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
                 ConnectionType.FOUR_G, "uri", userUrn);
-        when(eventLoggerUrlBuilder.buildForAudioPerformanceEvent(event)).thenReturn("url");
+        when(eventLoggerUrlBuilder.build(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
@@ -121,7 +125,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format");
-        when(eventLoggerUrlBuilder.buildForAudioErrorEvent(event)).thenReturn("url");
+        when(eventLoggerUrlBuilder.build(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
 
@@ -134,10 +138,10 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackAudioAdRelatedUIEvents() {
-        UIEvent event1 = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456));
-        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), 1000);
-        when(eventLoggerUrlBuilder.buildForClick(event1)).thenReturn("url1");
-        when(eventLoggerUrlBuilder.buildForClick(event2)).thenReturn("url2");
+        UIEvent event1 = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo);
+        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
+        when(eventLoggerUrlBuilder.build(event1)).thenReturn("url1");
+        when(eventLoggerUrlBuilder.build(event2)).thenReturn("url2");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event1);
         eventLoggerAnalyticsProvider.handleTrackingEvent(event2);
@@ -151,6 +155,30 @@ public class EventLoggerAnalyticsProviderTest {
         expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimeStamp());
         expect(captor.getAllValues().get(1).getUrl()).toEqual("url2");
+    }
+
+    @Test
+    public void shouldTrackLeaveBehindImpressionTrackingEvents() {
+        TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
+        LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        when(eventLoggerUrlBuilder.build(event)).thenReturn("ForAudioAdImpression");
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        captor.getValue().getUrl().equals("ForAudioAdImpression");
+    }
+
+    @Test
+    public void shouldTrackLeaveBehindClickTrackingEvents() {
+        TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
+        LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        when(eventLoggerUrlBuilder.build(event)).thenReturn("ForAudioAdClick");
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        captor.getValue().getUrl().equals("ForAudioAdClick");
     }
 
     @Test

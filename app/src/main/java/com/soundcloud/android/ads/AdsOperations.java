@@ -91,9 +91,16 @@ public class AdsOperations {
 
     private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, PropertySet adMetaData, int currentMonetizablePosition) {
         int newMonetizablePosition = currentMonetizablePosition + 1;
+        final Urn audioAdTrack = apiAudioAd.getApiTrack().getUrn();
+        final PropertySet leaveBehindProperties = apiAudioAd
+                .getApiLeaveBehind()
+                .toPropertySet()
+                .put(LeaveBehindProperty.AD_URN, adMetaData.get(AdProperty.AD_URN))
+                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, audioAdTrack);
+
         playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.InsertOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), adMetaData, false),
-                new PlayQueueManager.MergeMetadataOperation(newMonetizablePosition, apiAudioAd.getApiLeaveBehind().toPropertySet())
+                new PlayQueueManager.InsertOperation(currentMonetizablePosition, audioAdTrack, adMetaData, false),
+                new PlayQueueManager.MergeMetadataOperation(newMonetizablePosition, leaveBehindProperties)
         );
     }
 

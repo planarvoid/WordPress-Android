@@ -11,11 +11,12 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.events.LeaveBehindImpressionEvent;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -34,6 +35,7 @@ public class PromotedAnalyticsProviderTest {
     private PromotedAnalyticsProvider analyticsProvider;
 
     @Mock private EventTracker eventTracker;
+    private TrackSourceInfo trackSourceInfo;
 
     private Urn userUrn = Urn.forUser(123L);
 
@@ -41,6 +43,7 @@ public class PromotedAnalyticsProviderTest {
     public void setUp() throws Exception {
         initMocks(this);
         analyticsProvider = new PromotedAnalyticsProvider(eventTracker);
+        trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 
     @Test
@@ -71,7 +74,7 @@ public class PromotedAnalyticsProviderTest {
     @Test
     public void tracksAdClickthroughs() throws Exception {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
-        UIEvent event = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(777), 10000);
+        UIEvent event = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(777), userUrn, trackSourceInfo, 10000);
 
         analyticsProvider.handleTrackingEvent(event);
 
@@ -92,7 +95,7 @@ public class PromotedAnalyticsProviderTest {
     @Test
     public void tracksAdSkips() throws Exception {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
-        UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), 10000);
+        UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), userUrn, trackSourceInfo, 10000);
 
         analyticsProvider.handleTrackingEvent(event);
 
@@ -145,7 +148,7 @@ public class PromotedAnalyticsProviderTest {
     public void tracksAudioAdCompanionImpressions() {
         final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(999));
         VisualAdImpressionEvent impressionEvent = new VisualAdImpressionEvent(
-                audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), 333
+                audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), trackSourceInfo, 333
         );
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
@@ -166,10 +169,9 @@ public class PromotedAnalyticsProviderTest {
 
     @Test
     public void tracksLeaveBehindImpressions() {
-        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(999));
-        LeaveBehindImpressionEvent impressionEvent = new LeaveBehindImpressionEvent(
-                audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), 333
-        );
+        final PropertySet audioAdMetadata = TestPropertySets.leaveBehindForPlayer();
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        LeaveBehindTrackingEvent impressionEvent = LeaveBehindTrackingEvent.forImpression(333, audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), sourceInfo);
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
 
@@ -179,12 +181,12 @@ public class PromotedAnalyticsProviderTest {
         final TrackingRecord event1 = captor.getAllValues().get(0);
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(333l);
-        expect(event1.getUrl()).toEqual("leaveBehindTrackingUrl1");
+        expect(event1.getUrl()).toEqual("leaveBehindTrackingImpressionUrl1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
         expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event2.getTimeStamp()).toEqual(333l);
-        expect(event2.getUrl()).toEqual("leaveBehindTrackingUrl2");
+        expect(event2.getUrl()).toEqual("leaveBehindTrackingImpressionUrl2");
     }
 
 

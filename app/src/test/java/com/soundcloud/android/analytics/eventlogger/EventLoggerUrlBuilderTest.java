@@ -11,7 +11,8 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.events.LeaveBehindImpressionEvent;
+import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -218,6 +219,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&anonymous_id=9876"
                 + "&ts=321"
                 + "&user=" + userUrn.toEncodedString()
+                + "&page_name=" + "origin"
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&impression_name=audio_ad_impression"
                 + "&impression_object=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
@@ -230,14 +232,15 @@ public class EventLoggerUrlBuilderTest {
         Urn audioAdTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(audioAdTrackUrn)
                 .put(AdProperty.ARTWORK, Uri.parse("http://artwork.org/image.pmg?a=b&c=d"));
-        final String url = eventLoggerUrlBuilder.buildForVisualAdImpression(
-                new VisualAdImpressionEvent(audioAd, audioAdTrackUrn, userUrn, 321L));
+        final String url = eventLoggerUrlBuilder.build(
+                new VisualAdImpressionEvent(audioAd, audioAdTrackUrn, userUrn, trackSourceInfo, 321L));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=321"
                 + "&user=" + userUrn.toEncodedString()
+                + "&page_name=" + "origin"
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
                 + "&impression_name=companion_display"
                 + "&impression_object=" + audioAdTrackUrn.toEncodedString()
@@ -247,24 +250,48 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
-    public void createImpressionUrlForLeaveBehindDisplayToAudioAd() throws CreateModelException, UnsupportedEncodingException {
-        Urn audioAdTrackUrn = Urn.forTrack(123L);
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(audioAdTrackUrn)
-                .put(AdProperty.ARTWORK, Uri.parse("http://artwork.org/image.pmg?a=b&c=d"));
-        final String url = eventLoggerUrlBuilder.buildForLeaveBehindImpression(
-                new LeaveBehindImpressionEvent(audioAd, audioAdTrackUrn, userUrn, 321L));
+    public void createUrlForLeaveBehindImpression() throws CreateModelException, UnsupportedEncodingException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final PropertySet leaveBehind = TestPropertySets.leaveBehindForPlayer();
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forImpression(321, leaveBehind, monetizedTrack, userUrn, sourceInfo);
+        final String url = eventLoggerUrlBuilder.build(event);
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=321"
                 + "&user=" + userUrn.toEncodedString()
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
+                + "&page_name=" + "page_source"
                 + "&impression_name=leave_behind"
-                + "&impression_object=" + audioAdTrackUrn.toEncodedString()
+                + "&impression_object=" + leaveBehind.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN)
+                + "&ad_urn=" + URLEncoder.encode(leaveBehind.get(LeaveBehindProperty.AD_URN), Charsets.UTF_8.displayName())
+                + "&monetized_object=" + monetizedTrack.toEncodedString()
                 + "&monetization_type=audio_ad"
-                + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()
-                + "&external_media=" + "http%3A%2F%2Fartwork.org%2Fimage.pmg%3Fa%3Db%26c%3Dd")));
+                + "&external_media=" + leaveBehind.get(LeaveBehindProperty.IMAGE_URL))));
+    }
+
+    @Test
+    public void createUrlForLeaveBehindClick() throws CreateModelException, UnsupportedEncodingException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final PropertySet leaveBehind = TestPropertySets.leaveBehindForPlayer();
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forClick(321, leaveBehind, monetizedTrack, userUrn, sourceInfo);
+        final String url = eventLoggerUrlBuilder.build(event);
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&user=" + userUrn.toEncodedString()
+                + "&page_name=" + "page_source"
+                + "&click_name=" + "clickthrough::leave_behind"
+                + "&click_object=" + leaveBehind.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN)
+                + "&click_target=" + leaveBehind.get(LeaveBehindProperty.CLICK_THROUGH_URL)
+                + "&ad_urn=" + URLEncoder.encode(leaveBehind.get(LeaveBehindProperty.AD_URN), Charsets.UTF_8.displayName())
+                + "&monetized_object=" + monetizedTrack.toEncodedString()
+                + "&monetization_type=audio_ad"
+                + "&external_media=" + leaveBehind.get(LeaveBehindProperty.IMAGE_URL))));
     }
 
     @Test
@@ -272,12 +299,14 @@ public class EventLoggerUrlBuilderTest {
         final Urn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(monetizedTrackUrn);
         final Urn audioAdTrackUrn = Urn.forTrack(456);
-        final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromAudioAdCompanionDisplayClick(audioAd, audioAdTrackUrn, 1000L));
+        final String url = eventLoggerUrlBuilder.build(UIEvent.fromAudioAdCompanionDisplayClick(audioAd, audioAdTrackUrn, userUrn, trackSourceInfo, 1000L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
                 + "client_id=123"
+                + "&user=" + userUrn.toEncodedString()
                 + "&anonymous_id=9876"
                 + "&ts=1000"
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&page_name=" + "origin"
                 + "&click_name=clickthrough::companion_display"
                 + "&click_object=" + audioAdTrackUrn.toEncodedString()
                 + "&click_target=" + audioAd.get(AdProperty.CLICK_THROUGH_LINK)
@@ -291,13 +320,15 @@ public class EventLoggerUrlBuilderTest {
         final Urn monetizedTrackUrn = Urn.forTrack(123L);
         final PropertySet audioAd = TestPropertySets.audioAdProperties(monetizedTrackUrn);
         final Urn audioAdTrackUrn = Urn.forTrack(456);
-        final String url = eventLoggerUrlBuilder.buildForClick(UIEvent.fromSkipAudioAdClick(audioAd, audioAdTrackUrn, 1000L));
+        final String url = eventLoggerUrlBuilder.build(UIEvent.fromSkipAudioAdClick(audioAd, audioAdTrackUrn, userUrn, trackSourceInfo, 1000L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=1000"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&user=" + userUrn.toEncodedString()
+                + "&page_name=" + "origin"
                 + "&click_name=ad::skip"
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&click_object=" + audioAdTrackUrn.toEncodedString()
                 + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
                 + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
@@ -316,6 +347,8 @@ public class EventLoggerUrlBuilderTest {
                 + "client_id=123"
                 + "&anonymous_id=9876"
                 + "&ts=1000"
+                + "&user=" + "soundcloud:users:1"
+                + "&page_name=" + "screen"
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
                 + "&click_name=ad::finish"
                 + "&click_object=" + URLEncoder.encode(stopEvent.get(PlaybackSessionEvent.KEY_TRACK_URN), "utf8")
@@ -328,35 +361,35 @@ public class EventLoggerUrlBuilderTest {
     public void createsPlaybackPerformanceUrlForPlayEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent =
                 PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, userUrn);
-        final String url = eventLoggerUrlBuilder.buildForAudioPerformanceEvent(playbackPerformanceEvent);
+        final String url = eventLoggerUrlBuilder.build(playbackPerformanceEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_performance?client_id=123&anonymous_id=9876&latency=1000&protocol=https&player_type=MediaPlayer&type=play&host=host.com&user=" + userUrn.toEncodedString() + "&connection_type=4g&ts=" + playbackPerformanceEvent.getTimeStamp())));
     }
 
     @Test
     public void createsPlaybackPerformanceUrlForBufferEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToBuffer(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, userUrn);
-        String url = eventLoggerUrlBuilder.buildForAudioPerformanceEvent(playbackPerformanceEvent);
+        String url = eventLoggerUrlBuilder.build(playbackPerformanceEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_performance?client_id=123&anonymous_id=9876&user=" + userUrn.toEncodedString() + "&protocol=https&player_type=MediaPlayer&latency=1000&host=host.com&connection_type=4g&type=buffer&ts=" + playbackPerformanceEvent.getTimeStamp())));
     }
 
     @Test
     public void createsPlaybackPerformanceUrlForPlaylistEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToPlaylist(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, userUrn);
-        final String url = eventLoggerUrlBuilder.buildForAudioPerformanceEvent(playbackPerformanceEvent);
+        final String url = eventLoggerUrlBuilder.build(playbackPerformanceEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_performance?client_id=123&anonymous_id=9876&user=" + userUrn.toEncodedString() + "&protocol=https&player_type=MediaPlayer&latency=1000&host=host.com&connection_type=4g&type=playlist&ts=" + playbackPerformanceEvent.getTimeStamp())));
     }
 
     @Test
     public void createsPlaybackPerformanceUrlForSeekEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.timeToSeek(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, userUrn);
-        final String url = eventLoggerUrlBuilder.buildForAudioPerformanceEvent(playbackPerformanceEvent);
+        final String url = eventLoggerUrlBuilder.build(playbackPerformanceEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_performance?client_id=123&anonymous_id=9876&user=" + userUrn.toEncodedString() + "&protocol=https&player_type=MediaPlayer&latency=1000&host=host.com&connection_type=4g&type=seek&ts=" + playbackPerformanceEvent.getTimeStamp())));
     }
 
     @Test
     public void createsPlaybackPerformanceUrlForFragmentDownloadRateEvent() throws Exception {
         PlaybackPerformanceEvent playbackPerformanceEvent = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, userUrn);
-        final String url = eventLoggerUrlBuilder.buildForAudioPerformanceEvent(playbackPerformanceEvent);
+        final String url = eventLoggerUrlBuilder.build(playbackPerformanceEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_performance?client_id=123&anonymous_id=9876&user=" + userUrn.toEncodedString() + "&protocol=https&player_type=MediaPlayer&latency=1000&host=host.com&connection_type=4g&type=fragmentRate&ts=" + playbackPerformanceEvent.getTimeStamp())));
     }
 
@@ -364,7 +397,7 @@ public class EventLoggerUrlBuilderTest {
     public void createsPlaybackErrorUrlForErrorEvent() throws Exception {
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
         PlaybackErrorEvent playbackErrorEvent = new PlaybackErrorEvent("category", PlaybackProtocol.HTTPS, "cdn-uri", PlaybackErrorEvent.BITRATE_128, PlaybackErrorEvent.FORMAT_MP3);
-        final String url = eventLoggerUrlBuilder.buildForAudioErrorEvent(playbackErrorEvent);
+        final String url = eventLoggerUrlBuilder.build(playbackErrorEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_error?client_id=123&anonymous_id=9876&protocol=https&os=SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)&bitrate=128&format=mp3&url=cdn-uri&errorCode=category&ts=" + playbackErrorEvent.getTimestamp())));
     }
 

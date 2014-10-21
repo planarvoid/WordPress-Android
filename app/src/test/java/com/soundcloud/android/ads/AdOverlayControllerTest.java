@@ -10,9 +10,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -37,18 +45,26 @@ public class AdOverlayControllerTest {
     private AdOverlayController controller;
 
     private View trackView;
+    private TestEventBus eventBus;
     @Mock private ImageOperations imageOperations;
     @Mock private DeviceHelper deviceHelper;
     @Mock private AdOverlayController.AdOverlayListener listener;
+    @Mock private PlayQueueManager playQueueManager;
+    @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
     public void setUp() throws Exception {
+        eventBus = new TestEventBus();
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
         AdOverlayController.Factory factory = new AdOverlayController.Factory(imageOperations,
-                Robolectric.application, deviceHelper);
+                Robolectric.application, deviceHelper, eventBus, playQueueManager, accountOperations);
         controller = factory.create(trackView, listener);
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
     }
 
     @Test
@@ -145,6 +161,18 @@ public class AdOverlayControllerTest {
 
         expectLeaveBehindToBeGone();
     }
+
+    @Test
+    public void onClickLeaveBehindImageSendTrackingEvent() {
+        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        controller.show();
+
+        controller.onImageClick();
+
+        expect(eventBus.eventsOn(EventQueue.TRACKING)).toNumber(1);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toBe(LeaveBehindTrackingEvent.KIND_CLICK);
+    }
+
 
     private ImageListener captureImageListener() {
         verify(imageOperations).displayLeaveBehind(any(Uri.class), any(ImageView.class), imageListenerCaptor.capture());

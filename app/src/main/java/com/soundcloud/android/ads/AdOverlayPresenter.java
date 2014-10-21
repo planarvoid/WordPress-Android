@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 
 import android.view.View;
@@ -11,7 +12,6 @@ public abstract class AdOverlayPresenter {
     private final View overlay;
     private final ImageView adImage;
     private final View leaveBehindClose;
-    private final Listener listener;
 
     public abstract boolean shouldDisplayOverlay(PropertySet data, boolean isExpanded, boolean isPortrait, boolean isForeground);
 
@@ -43,11 +43,11 @@ public abstract class AdOverlayPresenter {
         void onCloseButtonClick();
     }
 
-    public static AdOverlayPresenter create(PropertySet data, View trackView, Listener listener) {
+    public static AdOverlayPresenter create(PropertySet data, View trackView, Listener listener, EventBus eventBus) {
         if (isInterstitial(data)) {
             return new InterstitialPresenter(trackView, listener);
         } else {
-            return new LeaveBehindPresenter(trackView, listener);
+            return new LeaveBehindPresenter(trackView, listener, eventBus);
         }
     }
 
@@ -56,7 +56,6 @@ public abstract class AdOverlayPresenter {
     }
 
     protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int closeId, final Listener listener) {
-        this.listener = listener;
         this.overlay = getOverlayView(trackView, overlayId, overlayStubId);
 
         this.adImage = (ImageView) overlay.findViewById(adImageId);

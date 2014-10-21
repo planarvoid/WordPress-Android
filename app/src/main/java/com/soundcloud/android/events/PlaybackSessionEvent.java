@@ -26,9 +26,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final String KEY_USER_URN = "user_urn";
     public static final String KEY_PROTOCOL = "protocol";
     public static final String KEY_POLICY = "policy";
-    public static final String KEY_AD_URN = "ad_urn";
-    public static final String KEY_MONETIZED_URN = "monetized_urn";
-    public static final String KEY_AD_ARTWORK = "ad_artwork";
 
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
@@ -84,9 +81,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     // Use this constructor for an audio ad playback event
     public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
-        put(KEY_AD_URN, audioAd.get(AdProperty.AD_URN));
-        put(KEY_MONETIZED_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        put(KEY_AD_ARTWORK, audioAd.get(AdProperty.ARTWORK).toString());
+        put(AdTrackingKeys.KEY_USER_URN, get(KEY_USER_URN));
+        put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN));
+        put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
+        put(AdTrackingKeys.KEY_AD_TRACK_URN, get(KEY_TRACK_URN));
+        put(AdTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
         this.adImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS);
         this.adCompanionImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);
         this.adFinishedUrls = audioAd.get(AdProperty.AUDIO_AD_FINISH_URLS);
@@ -146,7 +146,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     public boolean isAd() {
-        return attributes.containsKey(KEY_AD_URN);
+        return attributes.containsKey(AdTrackingKeys.KEY_AD_URN);
     }
 
     public boolean isFirstPlay() {

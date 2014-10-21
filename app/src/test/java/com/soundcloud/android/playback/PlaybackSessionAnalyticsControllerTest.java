@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -92,8 +93,8 @@ public class PlaybackSessionAnalyticsControllerTest {
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
         // ad specific properties
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_MONETIZED_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
     }
 
     @Test
@@ -112,8 +113,8 @@ public class PlaybackSessionAnalyticsControllerTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         expect(playbackSessionEvent.hasTrackFinished()).toBeTrue();
         // ad specific properties
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
-        expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_MONETIZED_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
     }
 
     @Test
@@ -193,7 +194,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(events.get(1)).toBeInstanceOf(PlaybackSessionEvent.class);
         expect(((PlaybackSessionEvent) events.get(1)).isStopEvent()).toBeTrue();
         expect(events.get(1).get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
-        expect(events.get(1).get(PlaybackSessionEvent.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
+        expect(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
     }
 
     protected Playa.StateTransition publishPlayingEvent() {

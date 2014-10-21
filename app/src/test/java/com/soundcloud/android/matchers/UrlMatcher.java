@@ -50,6 +50,10 @@ public class UrlMatcher extends TypeSafeMatcher<String> {
         for (String key : expectedParams.keySet()) {
             final String actualParam = actualUri.getQueryParameter(key);
             final String expectedParam = expectedUri.getQueryParameter(key);
+            if (actualParam == null) {
+                this.failContext = key + " is missing" + "; expected " + key + "=" + expectedParam;
+                return false;
+            }
             if (!actualParam.equals(expectedParam)) {
                 this.failContext = key + "=" + actualParam + "; expected " + key + "=" + expectedParam;
                 return false;

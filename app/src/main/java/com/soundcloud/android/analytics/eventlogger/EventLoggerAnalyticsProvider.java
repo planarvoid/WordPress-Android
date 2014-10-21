@@ -5,7 +5,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.LeaveBehindImpressionEvent;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -52,20 +52,21 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         if (event instanceof PlaybackSessionEvent) {
             handlePlaybackSessionEvent((PlaybackSessionEvent) event);
         } else if (event instanceof UIEvent) {
-            handleUIEvent(event);
+            handleUIEvent((UIEvent) event);
         } else if (event instanceof VisualAdImpressionEvent) {
-            handleVisualAdImpression(event);
-        } else if (event instanceof LeaveBehindImpressionEvent) {
-            handleLeaveBehindImpression(((LeaveBehindImpressionEvent) event));
+            handleVisualAdImpression((VisualAdImpressionEvent) event);
+        } else if (event instanceof LeaveBehindTrackingEvent) {
+            handleLeaveBehindTracking((LeaveBehindTrackingEvent) event);
         }
     }
 
-    private void handleLeaveBehindImpression(LeaveBehindImpressionEvent event) {
-        trackEvent(event.getTimeStamp(), urlBuilder.buildForLeaveBehindImpression(event));
+    private void handleLeaveBehindTracking(LeaveBehindTrackingEvent event) {
+        final String url = urlBuilder.build(event);
+        trackEvent(event.getTimeStamp(), url);
     }
 
-    private void handleVisualAdImpression(TrackingEvent event) {
-        trackEvent(event.getTimeStamp(), urlBuilder.buildForVisualAdImpression(event));
+    private void handleVisualAdImpression(VisualAdImpressionEvent event) {
+        trackEvent(event.getTimeStamp(), urlBuilder.build(event));
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
@@ -79,20 +80,20 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         trackAudioPlayEvent(event);
     }
 
-    private void handleUIEvent(TrackingEvent event) {
+    private void handleUIEvent(UIEvent event) {
         if (UIEvent.KIND_AUDIO_AD_CLICK.equals(event.getKind()) || UIEvent.KIND_SKIP_AUDIO_AD_CLICK.equals(event.getKind())) {
-            trackEvent(event.getTimeStamp(), urlBuilder.buildForClick(event));
+            trackEvent(event.getTimeStamp(), urlBuilder.build(event));
         }
     }
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), urlBuilder.buildForAudioPerformanceEvent(eventData));
+        trackEvent(eventData.getTimeStamp(), urlBuilder.build(eventData));
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        trackEvent(eventData.getTimestamp(), urlBuilder.buildForAudioErrorEvent(eventData));
+        trackEvent(eventData.getTimestamp(), urlBuilder.build(eventData));
     }
 
     private void trackAudioAdImpression(PlaybackSessionEvent eventData) {

@@ -11,6 +11,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -47,8 +48,9 @@ public class LeaveBehindImpressionOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+        when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
+        when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         eventBus = new TestEventBus();
         controller = new LeaveBehindImpressionOperations(eventBus, playQueueManager, accountOperations);

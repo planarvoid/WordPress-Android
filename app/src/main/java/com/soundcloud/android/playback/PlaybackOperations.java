@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.Screen;
@@ -57,13 +58,15 @@ public class PlaybackOperations {
     private final PlaybackToastViewController playbackToastViewController;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final AccountOperations accountOperations;
+
 
     @Inject
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
                               PlaybackToastViewController playbackToastViewController, EventBus eventBus,
-                              AdsOperations adsOperations) {
+                              AdsOperations adsOperations, AccountOperations accountOperations) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
@@ -72,6 +75,7 @@ public class PlaybackOperations {
         this.playbackToastViewController = playbackToastViewController;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.accountOperations = accountOperations;
     }
 
     public Observable<List<Urn>> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
@@ -163,7 +167,7 @@ public class PlaybackOperations {
 
     private void publishSkipEventIfAudioAd() {
         if (adsOperations.isCurrentTrackAudioAd()) {
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getCurrentMetaData(), playQueueManager.getCurrentTrackUrn());
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(playQueueManager.getCurrentMetaData(), playQueueManager.getCurrentTrackUrn(), accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
             eventBus.publish(EventQueue.TRACKING, event);
         }
     }

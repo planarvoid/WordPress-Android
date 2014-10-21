@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -31,7 +32,7 @@ public class InterstitialPresenterTest {
     @Mock private View closeStub;
     @Mock private ImageView imageStub;
     @Mock private ViewStub overlayStub;
-
+    @Mock private EventBus eventBus;
 
     @Before
     public void setUp() {
@@ -46,7 +47,7 @@ public class InterstitialPresenterTest {
 
     @Test
     public void createsInterstitialPresenterFromInterstitialPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.interstitialForPlayer(), trackView, listener);
+        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.interstitialForPlayer(), trackView, listener, eventBus);
         Expect.expect(adOverlayPresenter).toBeInstanceOf(InterstitialPresenter.class);
     }
 

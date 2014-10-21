@@ -1,14 +1,20 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LeaveBehindEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 
 import android.view.View;
 
 public class LeaveBehindPresenter extends AdOverlayPresenter {
 
-    public LeaveBehindPresenter(View trackView, Listener listener) {
+    private EventBus eventBus;
+
+    public LeaveBehindPresenter(View trackView, Listener listener, EventBus eventBus) {
         super(trackView, R.id.leave_behind, R.id.leave_behind_stub, R.id.leave_behind_image, R.id.leave_behind_close, listener);
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -21,5 +27,17 @@ public class LeaveBehindPresenter extends AdOverlayPresenter {
     @Override
     public boolean isFullScreen() {
         return false;
+    }
+
+    @Override
+    public void setVisible() {
+        super.setVisible();
+        eventBus.publish(EventQueue.LEAVE_BEHIND, LeaveBehindEvent.shown());
+    }
+
+    @Override
+    public void setInvisible() {
+        super.setInvisible();
+        eventBus.publish(EventQueue.LEAVE_BEHIND, LeaveBehindEvent.hidden());
     }
 }

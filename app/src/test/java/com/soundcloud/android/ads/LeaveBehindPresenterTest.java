@@ -6,7 +6,10 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leave
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -31,23 +34,24 @@ public class LeaveBehindPresenterTest {
     @Mock private View closeStub;
     @Mock private ImageView imageStub;
     @Mock private ViewStub overlayStub;
+    private TestEventBus eventBus;
 
     @Before
     public void setUp() {
+        eventBus = new TestEventBus();
         when(trackView.findViewById(R.id.leave_behind_stub)).thenReturn(overlayStub);
         when(overlayStub.inflate()).thenReturn(overlay);
         when(overlay.findViewById(R.id.leave_behind_close)).thenReturn(closeStub);
         when(overlay.findViewById(R.id.leave_behind_image)).thenReturn(imageStub);
 
-        presenter = new LeaveBehindPresenter(trackView, listener);
+        presenter = new LeaveBehindPresenter(trackView, listener, eventBus);
     }
 
     @Test
     public void createsLeaveBehindPresenterFromLeaveBehindPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener);
+        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener, eventBus);
         expect(adOverlayPresenter).toBeInstanceOf(LeaveBehindPresenter.class);
     }
-
 
     @Test
     public void shouldNotShowLeaveBehindWhenAdWasClicked() {
@@ -75,6 +79,22 @@ public class LeaveBehindPresenterTest {
         properties = leaveBehindForPlayerWithDisplayMetaData();
 
         expect(presenter.shouldDisplayOverlay(properties, true, true, true)).toBeTrue();
+    }
+
+    @Test
+    public void sendAnEventWhenVisible() {
+        presenter.setVisible();
+
+        expect(eventBus.eventsOn(EventQueue.LEAVE_BEHIND)).toNumber(1);
+        expect(eventBus.lastEventOn(EventQueue.LEAVE_BEHIND).getKind()).toEqual(LeaveBehindEvent.SHOWN);
+    }
+
+    @Test
+    public void sendAnEventWhenInVisible() {
+        presenter.setInvisible();
+
+        expect(eventBus.eventsOn(EventQueue.LEAVE_BEHIND)).toNumber(1);
+        expect(eventBus.lastEventOn(EventQueue.LEAVE_BEHIND).getKind()).toEqual(LeaveBehindEvent.HIDDEN);
     }
 
     @Test

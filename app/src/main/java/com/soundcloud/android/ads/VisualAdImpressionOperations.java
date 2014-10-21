@@ -30,7 +30,7 @@ public class VisualAdImpressionOperations {
         @Override
         public VisualAdImpressionEvent call(State state) {
             return new VisualAdImpressionEvent(playQueueManager.getCurrentMetaData(), state.currentTrackUrn,
-                    accountOperations.getLoggedInUserUrn());
+                    accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
         }
     };
 

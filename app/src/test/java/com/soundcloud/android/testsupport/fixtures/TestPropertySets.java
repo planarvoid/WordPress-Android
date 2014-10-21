@@ -31,8 +31,7 @@ public abstract class TestPropertySets {
                 AdProperty.AUDIO_AD_FINISH_URLS.bind(newArrayList("finish1", "finish2")),
                 AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(newArrayList("click1", "click2")),
                 AdProperty.AUDIO_AD_SKIP_URLS.bind(newArrayList("skip1", "skip2")),
-                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(newArrayList("visual1", "visual2")),
-                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("leaveBehindTrackingUrl1", "leaveBehindTrackingUrl2"))
+                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(newArrayList("visual1", "visual2"))
         );
     }
 
@@ -69,11 +68,13 @@ public abstract class TestPropertySets {
 
     public static PropertySet leaveBehindForPlayer() {
         return PropertySet.from(
-                LeaveBehindProperty.LEAVE_BEHIND_URN.bind("adswizz:ads:1105"),
+                LeaveBehindProperty.AD_URN.bind("adswizz:ads:123"),
+                LeaveBehindProperty.AUDIO_AD_TRACK_URN.bind(Urn.forTrack(123L)),
+                LeaveBehindProperty.LEAVE_BEHIND_URN.bind("adswizz:leavebehind:1105"),
                 LeaveBehindProperty.IMAGE_URL.bind("https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg"),
                 LeaveBehindProperty.CLICK_THROUGH_URL.bind(Uri.parse("http://squarespace.com")),
-                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A1105%3Bview_key%3A1410853892331806%3Bzone_id%3A56&loc=&listenerId=5284047f4ffb4e04824a2fd1d1f0cd62&sessionId=67fa476869b956676b5bae2866c377a9&ip=%3A%3Affff%3A80.82.202.196&OAGEO=ZGUlN0MxNiU3Q2JlcmxpbiU3QzEwMTE1JTdDNTIuNTMxOTk3NjgwNjY0MDYlN0MxMy4zOTIxOTY2NTUyNzM0MzglN0MlN0MlN0MlN0MlM0ElM0FmZmZmJTNBODAuODIuMjAyLjE5NiU3Q3RoZSt1bmJlbGlldmFibGUrbWFjaGluZStjb21wYW55K2dtYmg=&user_agent=SoundCloud-Android%2F14.09.02+%28Android+4.3%3B+Genymotion+Sony+Xperia+Z+-+4.3+-+API+18+-+1080x1920%29&cbs=681405")),
-                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(newArrayList("https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=1105&zoneId=56&cb=dfd1b6e0c90745e9934f9d35b174ff30"))
+                LeaveBehindProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("leaveBehindTrackingImpressionUrl1", "leaveBehindTrackingImpressionUrl2")),
+                LeaveBehindProperty.TRACKING_CLICK_URLS.bind(newArrayList("leaveBehindTrackingClickTroughUrl1", "leaveBehindTrackingClickTroughUrl2"))
         );
     }
 

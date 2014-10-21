@@ -5,7 +5,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.LeaveBehindImpressionEvent;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -67,13 +67,13 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
             handleUIEvent((UIEvent) event);
         } else if (event instanceof VisualAdImpressionEvent) {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
-        } else if (event instanceof LeaveBehindImpressionEvent) {
-            handleLeaveBehindImpression(((LeaveBehindImpressionEvent) event));
+        } else if (event instanceof LeaveBehindTrackingEvent) {
+            handleLeaveBehindImpression((LeaveBehindTrackingEvent) event);
         }
     }
 
-    private void handleLeaveBehindImpression(LeaveBehindImpressionEvent event) {
-        trackAllUrls(event.getTimeStamp(), event.getImpressionUrls());
+    private void handleLeaveBehindImpression(LeaveBehindTrackingEvent event) {
+        trackAllUrls(event.getTimeStamp(), event.getTrackingUrls());
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {

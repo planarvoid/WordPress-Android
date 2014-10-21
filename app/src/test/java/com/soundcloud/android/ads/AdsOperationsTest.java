@@ -145,7 +145,10 @@ public class AdsOperationsTest {
 
         expect(playQueue.getUrn(0)).toEqual(adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getApiLeaveBehind().toPropertySet());
+        expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getApiLeaveBehind()
+                .toPropertySet()
+                .put(LeaveBehindProperty.AD_URN, adsWithOnlyAudioAd.audioAd().getUrn())
+                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn()));
     }
 
     @Test
@@ -165,7 +168,10 @@ public class AdsOperationsTest {
 
         expect(playQueue.getUrn(0)).toEqual(fullAdsForTrack.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getApiLeaveBehind().toPropertySet());
+        expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getApiLeaveBehind()
+                .toPropertySet()
+                .put(LeaveBehindProperty.AD_URN, fullAdsForTrack.audioAd().getUrn())
+                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, fullAdsForTrack.audioAd().getApiTrack().getUrn()));
     }
 
     @Test
@@ -217,7 +223,10 @@ public class AdsOperationsTest {
 
         expect(playQueue.getUrn(0)).toEqual(noInterstitial.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind().toPropertySet());
+        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind()
+                .toPropertySet()
+                .put(LeaveBehindProperty.AD_URN, noInterstitial.audioAd().getUrn())
+                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, noInterstitial.audioAd().getApiTrack().getUrn()));
     }
 
     @Test

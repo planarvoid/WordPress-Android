@@ -4,7 +4,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
-import com.soundcloud.android.events.LeaveBehindImpressionEvent;
+import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -26,12 +26,12 @@ public class LeaveBehindImpressionOperations {
 
     private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
         @Override
-        public LeaveBehindImpressionEvent call(State state) {
-            return new LeaveBehindImpressionEvent(
+        public LeaveBehindTrackingEvent call(State state) {
+            return LeaveBehindTrackingEvent.forImpression(
                     playQueueManager.getCurrentMetaData(),
                     playQueueManager.getCurrentTrackUrn(),
                     accountOperations.getLoggedInUserUrn(),
-                    System.currentTimeMillis());
+                    playQueueManager.getCurrentTrackSourceInfo());
         }
     };
 
