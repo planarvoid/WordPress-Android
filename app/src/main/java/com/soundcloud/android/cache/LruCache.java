@@ -1,8 +1,8 @@
 package com.soundcloud.android.cache;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Copyright (C) 2009 The Android Open Source Project
@@ -24,13 +24,17 @@ import java.util.Map;
  * </a>
  */
 public class LruCache<K, V> {
-    private final HashMap<K, V> lruMap;
-    private long lruHits, requests;
+    private final Map<K, V> lruMap;
+    private final Object mapLock;
+    private final AtomicInteger lruHits, requests;
 
     /**
      * @param capacity max capacity for the LRU cache
      */
     public LruCache(final int capacity) {
+        mapLock = new Object();
+        lruHits = new AtomicInteger(0);
+        requests = new AtomicInteger(0);
         lruMap = new LinkedHashMap<K, V>(capacity, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
@@ -39,37 +43,48 @@ public class LruCache<K, V> {
         };
     }
 
-    public synchronized V put(K key, V value) {
-        return lruMap.put(key, value);
-    }
-
-    public synchronized V get(K key) {
-        requests++;
-
-        V value = lruMap.get(key);
-        if (value != null) {
-            lruHits++;
-            return value;
+    public V put(K key, V value) {
+        synchronized (mapLock) {
+            return lruMap.put(key, value);
         }
-        return null;
     }
 
-    public synchronized void clear() {
-        lruMap.clear();
-        lruHits = requests = 0;
+    public V get(K key) {
+        requests.incrementAndGet();
+
+        V value;
+        synchronized (mapLock) {
+            value = lruMap.get(key);
+        }
+        if (value != null) {
+            lruHits.incrementAndGet();
+        }
+        return value;
     }
 
-    public synchronized boolean containsKey(K key) {
-        return lruMap.containsKey(key);
+    public void clear() {
+        synchronized (mapLock) {
+            lruMap.clear();
+        }
+        lruHits.set(0);
+        requests.set(0);
     }
 
-    public synchronized void remove(K key) {
-        lruMap.remove(key);
+    public boolean containsKey(K key) {
+        synchronized (mapLock) {
+            return lruMap.containsKey(key);
+        }
     }
 
-    public synchronized String toString() {
+    public void remove(K key) {
+        synchronized (mapLock) {
+            lruMap.remove(key);
+        }
+    }
+
+    public String toString() {
         return "LruCache{lru: " + lruMap.size() +
-                " lru ratio: " + String.format("%.2f", lruHits / (double) (requests)) +
+                " lru ratio: " + String.format("%.2f", lruHits.doubleValue() / requests.doubleValue()) +
                 "}";
     }
 }
