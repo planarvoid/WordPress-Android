@@ -12,8 +12,6 @@ import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -32,7 +30,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
@@ -126,15 +123,6 @@ public final class ImageUtils {
         if (bmp != null) {
             bmp.recycle();
         }
-    }
-
-    public static Bitmap loadContactPhoto(ContentResolver cr, long id) {
-        Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
-        InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
-        if (input == null) {
-            return null;
-        }
-        return BitmapFactory.decodeStream(input);
     }
 
     public static Bitmap getConfiguredBitmap(File imageFile, int minWidth, int minHeight) {
