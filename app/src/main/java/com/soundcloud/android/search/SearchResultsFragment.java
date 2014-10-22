@@ -77,6 +77,12 @@ public class SearchResultsFragment extends DefaultFragment
     private Subscription connectionSubscription = Subscriptions.empty();
     private SearchOperations.SearchResultPager pager;
 
+    private final Func1<SearchResult, List<PropertySet>> TO_PROPERTY_SET = new Func1<SearchResult, List<PropertySet>>() {
+        @Override
+        public List<PropertySet> call(SearchResult searchResult) {
+            return searchResult.getItems();
+        }
+    };
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
@@ -128,13 +134,7 @@ public class SearchResultsFragment extends DefaultFragment
     public ConnectableObservable<List<PropertySet>> buildObservable() {
         final String query = getArguments().getString(EXTRA_QUERY);
         final Observable<SearchResult> observable = searchOperations.getSearchResult(query, searchType);
-        return pager
-                .page(observable).map(new Func1<SearchResult, List<PropertySet>>() {
-                    @Override
-                    public List<PropertySet> call(SearchResult searchResult) {
-                        return searchResult.items;
-                    }
-                })
+        return pager.page(observable).map(TO_PROPERTY_SET)
                 .observeOn(mainThread()).replay();
     }
 

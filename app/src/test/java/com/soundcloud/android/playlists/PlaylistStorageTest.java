@@ -4,12 +4,12 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,22 +32,37 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         storage = new PlaylistStorage(propeller(), Schedulers.immediate());
     }
 
-    @Ignore //TODO: Matthias this is the test I wrote to you about
-    public void backFillLikesStatusUpdatesPropertySetWithListStatus() {
-        final ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
-        final ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
-
-        testFixtures().insertPlaylistLike(apiPlaylist1.getId(), 123L);
+    @Test
+    public void playlistLikesReturnChangeSetsWithLikeStatus() {
+        ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
+        ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
         List<PropertySet> input = Arrays.asList(apiPlaylist1.toPropertySet(), apiPlaylist2.toPropertySet());
+        testFixtures().insertPlaylistLike(apiPlaylist1.getId(), 123L);
 
-        final List<PropertySet> updatedSets = storage.backFillLikesStatus(input);
+        final List<PropertySet> changeSet = storage.playlistLikes(input);
 
-        PropertySet updatedSet1 = apiPlaylist1.toPropertySet().merge(PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
-        PropertySet updatedSet2 = apiPlaylist2.toPropertySet().merge(PropertySet.from(PlaylistProperty.IS_LIKED.bind(false)));
+        expect(changeSet).toNumber(2);
+        expect(changeSet.get(0).get(PlayableProperty.URN)).toEqual(apiPlaylist1.getUrn());
+        expect(changeSet.get(0).get(PlayableProperty.IS_LIKED)).toEqual(true);
+        expect(changeSet.get(1).get(PlayableProperty.URN)).toEqual(apiPlaylist2.getUrn());
+        expect(changeSet.get(1).get(PlayableProperty.IS_LIKED)).toEqual(false);
+    }
 
-        expect(updatedSets).toNumber(2);
-        expect(updatedSets.get(0)).toEqual(updatedSet1);
-        expect(updatedSets.get(1)).toEqual(updatedSet2);
+    @Test
+    public void playlistLikesDoesNotReturnsOnlyChangeSetsForPlaylists() {
+        final ApiPlaylist likedPlaylist = testFixtures().insertPlaylist();
+        final ApiPlaylist unlikedPlaylist = testFixtures().insertPlaylist();
+        final ApiTrack track = testFixtures().insertTrack();
+        testFixtures().insertPlaylistLike(likedPlaylist.getId(), 123L);
+
+        List<PropertySet> input = Arrays.asList(
+                likedPlaylist.toPropertySet(), unlikedPlaylist.toPropertySet(), track.toPropertySet());
+        List<PropertySet> changeSets = storage.playlistLikes(input);
+
+        expect(changeSets).toContainExactlyInAnyOrder(
+                PropertySet.from(PlaylistProperty.URN.bind(likedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(true)),
+                PropertySet.from(PlaylistProperty.URN.bind(unlikedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(false))
+        );
     }
 
     @Test
