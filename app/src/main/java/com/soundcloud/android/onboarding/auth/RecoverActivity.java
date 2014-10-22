@@ -31,7 +31,7 @@ public class RecoverActivity extends TrackedActivity {
         super.onCreate(savedInstanceState);
         build();
         if (savedInstanceState == null) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_FORGOT_PASSWORD));
+            getEventBus().publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_FORGOT_PASSWORD));
         }
     }
 

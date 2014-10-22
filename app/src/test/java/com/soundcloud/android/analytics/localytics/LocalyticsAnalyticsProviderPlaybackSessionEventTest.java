@@ -5,7 +5,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.localytics.android.LocalyticsSession;
+import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
@@ -36,7 +36,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     private LocalyticsAnalyticsProvider localyticsProvider;
 
     @Mock
-    private LocalyticsSession localyticsSession;
+    private LocalyticsAmpSession localyticsSession;
 
     @Mock
     private PlaybackStateProvider playbackServiceStateWrapper;

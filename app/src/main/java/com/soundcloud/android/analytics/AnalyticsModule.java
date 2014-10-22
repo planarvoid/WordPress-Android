@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 @Module(addsTo = ApplicationModule.class, injects = SoundCloudApplication.class)
 public class AnalyticsModule {
@@ -32,5 +34,11 @@ public class AnalyticsModule {
     @Named("tracking_db")
     PropellerDatabase provideTrackingDatabase(TrackingDbHelper dbHelper) {
         return new PropellerDatabase(dbHelper.getWritableDatabase());
+    }
+
+    @Provides
+    @Singleton
+    LocalyticsAmpSession provideLocalyticsSession(Context context, AnalyticsProperties analyticsProperties) {
+        return new LocalyticsAmpSession(context, analyticsProperties.getLocalyticsAppKey());
     }
 }

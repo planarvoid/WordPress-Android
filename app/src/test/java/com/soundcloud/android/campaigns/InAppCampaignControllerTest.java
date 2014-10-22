@@ -22,20 +22,19 @@ public class InAppCampaignControllerTest {
     private InAppCampaignController inAppCampaignController;
 
     @Mock private ScActivity activity;
-    @Mock private InAppCampaignController.LocalyticsAmpSessionFactory factory;
     @Mock private LocalyticsAmpSession session;
 
     @Before
     public void setUp() throws Exception {
         when(activity.getString(R.string.google_api_key)).thenReturn("123");
-        when(factory.create(activity)).thenReturn(session);
 
-        inAppCampaignController = new InAppCampaignController(factory);
+        inAppCampaignController = new InAppCampaignController(session);
         inAppCampaignController.onBind(activity);
     }
 
     @Test
-    public void onBindRegistersPushApiKey() throws Exception {
+    public void onCreateRegistersPushApiKey() throws Exception {
+        inAppCampaignController.onCreate(null);
         verify(session).registerPush("123");
     }
 
@@ -48,7 +47,6 @@ public class InAppCampaignControllerTest {
 
         InOrder inOrder = Mockito.inOrder(session);
         inOrder.verify(session).open();
-        inOrder.verify(session).upload();
         inOrder.verify(session).attach(activity);
         inOrder.verify(session).handleIntent(intent);
     }
@@ -60,6 +58,5 @@ public class InAppCampaignControllerTest {
         InOrder inOrder = Mockito.inOrder(session);
         inOrder.verify(session).detach();
         inOrder.verify(session).close();
-        inOrder.verify(session).upload();
     }
 }

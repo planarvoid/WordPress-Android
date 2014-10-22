@@ -2,7 +2,7 @@ package com.soundcloud.android.analytics.localytics;
 
 import static org.mockito.Mockito.verify;
 
-import com.localytics.android.LocalyticsSession;
+import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -19,11 +19,11 @@ public class LocalyticsAnalyticsProviderSearchTest {
     private LocalyticsAnalyticsProvider provider;
 
     @Mock
-    private LocalyticsSession localyticsSession;
+    private LocalyticsAmpSession localyticsSession;
 
     @Before
     public void setUp() throws CreateModelException {
-        provider = new LocalyticsAnalyticsProvider(localyticsSession, null);
+        provider = new LocalyticsAnalyticsProvider(localyticsSession, null, 123L);
     }
 
     @Test

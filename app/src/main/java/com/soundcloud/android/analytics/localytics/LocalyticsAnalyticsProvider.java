@@ -2,9 +2,9 @@ package com.soundcloud.android.analytics.localytics;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -21,7 +21,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
-import android.content.Context;
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private static final int NO_USER = -1;
     private static final long SESSION_EXPIRY = TimeUnit.MINUTES.toMillis(1);
 
-    private final LocalyticsSession session;
+    private final LocalyticsAmpSession session;
     private final LocalyticsUIEventHandler uiEventHandler;
     private final LocalyticsOnboardingEventHandler onboardingEventHandler;
     private final PlaybackStateProvider playbackStateWrapper;
@@ -52,20 +51,19 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Inject
-    public LocalyticsAnalyticsProvider(Context context, AnalyticsProperties analyticsProperties, AccountOperations accountOperations) {
-        this(new LocalyticsSession(context.getApplicationContext(), analyticsProperties.getLocalyticsAppKey()),
-                new PlaybackStateProvider(), accountOperations.getLoggedInUserId());
+    public LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsAmpSession, AccountOperations accountOperations) {
+        this(localyticsAmpSession, new PlaybackStateProvider(), accountOperations.getLoggedInUserId());
     }
 
     @VisibleForTesting
-    protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
+    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
                                           PlaybackStateProvider playbackStateWrapper, long currentUserId) {
         this(localyticsSession, playbackStateWrapper);
         localyticsSession.setCustomerId(getCustomerId(currentUserId));
     }
 
     @VisibleForTesting
-    protected LocalyticsAnalyticsProvider(LocalyticsSession localyticsSession,
+    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
                                           PlaybackStateProvider playbackStateWrapper) {
         session = localyticsSession;
         uiEventHandler = new LocalyticsUIEventHandler(session);

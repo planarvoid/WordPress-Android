@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -24,11 +25,11 @@ public class LocalyticsAnalyticsProviderTest {
 
     private LocalyticsAnalyticsProvider localyticsProvider;
 
-    @Mock private LocalyticsSession localyticsSession;
+    @Mock private LocalyticsAmpSession localyticsSession;
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null, 123L);
     }
 
     @Test
@@ -44,7 +45,6 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldSetCustomerIdWhenConstructed() throws Exception {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null, 123L);
         verify(localyticsSession).setCustomerId("123");
     }
 
@@ -56,10 +56,10 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldSetCustomerIdToUserIdWhenUserIsUpdated() {
-        PublicApiUser user = new PublicApiUser(123L);
+        PublicApiUser user = new PublicApiUser(456L);
         CurrentUserChangedEvent userEvent = CurrentUserChangedEvent.forUserUpdated(user);
         localyticsProvider.handleCurrentUserChangedEvent(userEvent);
-        verify(localyticsSession).setCustomerId(Long.toString(123L));
+        verify(localyticsSession).setCustomerId(Long.toString(456L));
     }
 
     @Test

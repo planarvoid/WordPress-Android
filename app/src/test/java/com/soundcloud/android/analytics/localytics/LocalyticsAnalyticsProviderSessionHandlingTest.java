@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.localytics.android.LocalyticsSession;
+import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -24,7 +24,7 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     private LocalyticsAnalyticsProvider localyticsProvider;
 
-    @Mock private LocalyticsSession localyticsSession;
+    @Mock private LocalyticsAmpSession localyticsSession;
     @Mock private PlaybackStateProvider playbackWrapper;
 
     @Before

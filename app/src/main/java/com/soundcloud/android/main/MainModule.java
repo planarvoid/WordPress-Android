@@ -1,6 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
@@ -21,6 +22,7 @@ import dagger.Module;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 MainActivity.class,
+                TrackedActivity.class,
                 MeActivity.class,
                 RecordActivity.class,
                 SuggestedUsersActivity.class,
@@ -38,5 +40,5 @@ import dagger.Module;
                 SuggestedUsersCategoryActivity.class,
                 TrackCommentsActivity.class,
                 ProfileActivity.class
-        }, includes = AssociationsModule.class)
+        }, includes = {AssociationsModule.class, AnalyticsModule.class})
 public class MainModule { }

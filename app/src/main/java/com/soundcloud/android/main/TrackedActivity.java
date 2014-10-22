@@ -13,25 +13,37 @@ import android.os.Bundle;
  */
 public abstract class TrackedActivity extends Activity {
 
-    protected EventBus eventBus;
+    public EventBus eventBus;
+
+    public TrackedActivity() {
+    }
+
+    public TrackedActivity(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+
+        getEventBus().publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
+        getEventBus().publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+        getEventBus().publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
+    }
+
+    // lazy mans injection. no proper DI in this class or subclasses
+    protected EventBus getEventBus() {
+        return eventBus == null ? SoundCloudApplication.fromContext(this).getEventBus() : eventBus;
     }
 
 }
