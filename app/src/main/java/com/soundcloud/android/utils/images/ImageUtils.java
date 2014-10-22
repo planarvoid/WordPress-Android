@@ -21,9 +21,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -35,7 +32,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Transformation;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -263,128 +259,6 @@ public final class ImageUtils {
             Log.w(TAG, String.format("not resizing: sampleSize %d, degree %d", sampleSize, degree));
             return false;
         }
-    }
-
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    public static void drawBubbleOnCanvas(Canvas c,
-                                          Paint bgPaint,
-                                          Paint linePaint,
-                                          int width,
-                                          int height,
-                                          int arc,
-                                          int arrowWidth,
-                                          int arrowHeight,
-                                          int arrowOffset) {
-
-        /*
-             A ---- B
-           I          C
-           H ----G-E- D
-                 F
-
-         */
-
-        final boolean arrowLeft = arrowOffset <= width / 2;
-
-        final int Ax = arc;
-        final int Ay = 0;
-        final int Bx = width - arc;
-        final int By = 0;
-        final int Cx = width;
-        final int Cy = arc;
-        final int Dx = width;
-        final int Dy = height;
-        final int Ex = arrowLeft ? arrowWidth + arrowOffset : arrowOffset;
-        final int Ey = height;
-        final int Fx = arrowOffset;
-        final int Fy = height + arrowHeight;
-        final int Gx = arrowLeft ? arrowOffset : arrowOffset - arrowWidth;
-        final int Gy = height;
-        final int Hx = 0;
-        final int Hy = height;
-        final int Ix = 0;
-        final int Iy = arc;
-
-        Path ctx = new Path();
-        ctx.moveTo(Ax, Ay);
-        ctx.lineTo(Bx, By);
-        ctx.arcTo(new RectF(Bx, By, Cx, Cy), 270, 90); //B-C arc
-
-        ctx.lineTo(Dx, Dy);
-
-        if (arrowWidth > 0) {
-            ctx.lineTo(Ex, Ey);
-            ctx.lineTo(Fx, Fy);
-            ctx.lineTo(Gx, Gy);
-        }
-
-
-        ctx.lineTo(Hx, Hy);
-        ctx.lineTo(Ix, Iy);
-        //noinspection PointlessArithmeticExpression
-        ctx.arcTo(new RectF(Ax - arc, Ay, Ix + arc, Iy), 180, 90); //F-A arc
-        c.drawPath(ctx, bgPaint);
-
-        if (linePaint != null) {
-            c.drawLine(arrowOffset, height, arrowOffset, height + arrowOffset, linePaint);
-        }
-    }
-
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    public static void drawSquareBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arrowWidth, int arrowHeight, int arrowOffset) {
-
-        /*
-             A ---- B
-           I          C
-           H ----G-E- D
-                 F
-
-         */
-
-        final boolean arrowLeft = arrowOffset <= width / 2;
-
-        final int Ax = 0;
-        final int Ay = 0;
-        final int Bx = width;
-        final int By = 0;
-        final int Cx = width;
-        final int Cy = height;
-        final int Dx = arrowLeft ? arrowWidth + arrowOffset : arrowOffset;
-        final int Dy = height;
-        final int Ex = arrowOffset;
-        final int Ey = height + arrowHeight;
-        final int Fx = arrowLeft ? arrowOffset : arrowOffset - arrowWidth;
-        final int Fy = height;
-        final int Gx = 0;
-        final int Gy = height;
-
-        Path ctx = new Path();
-        ctx.moveTo(Ax, Ay);
-        ctx.lineTo(Bx, By);
-        ctx.lineTo(Cx, Cy);
-
-        if (arrowWidth > 0) {
-            ctx.lineTo(Dx, Dy);
-            ctx.lineTo(Ex, Ey);
-            ctx.lineTo(Fx, Fy);
-        }
-
-        ctx.lineTo(Gx, Gy);
-        c.drawPath(ctx, bgPaint);
-        if (linePaint != null) {
-            c.drawLine(arrowOffset, height, arrowOffset, height + arrowOffset, linePaint);
-        }
-    }
-
-    public static float getCurrentTransformY(View v) {
-        if (v.getAnimation() == null) {
-            return 0f;
-        }
-        Transformation t = new Transformation();
-        float[] values = new float[9];
-        v.getAnimation().getTransformation(v.getDrawingTime(), t);
-        t.getMatrix().getValues(values);
-        return values[5];
     }
 
     @TargetApi(9)
