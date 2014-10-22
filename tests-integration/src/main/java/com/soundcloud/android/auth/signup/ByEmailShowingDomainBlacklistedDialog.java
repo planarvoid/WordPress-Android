@@ -26,7 +26,7 @@ public class ByEmailShowingDomainBlacklistedDialog extends SignUpTestCase {
     // All the emails with the domain "@0815.ru" will have responses which will trigger a denied signup dialog,
     // this is, a 422 response with the response body { "error": 102 }
     protected String generateEmail() {
-        return "blacklistedEmail@0815.ru";
+        return "blacklistedEmail3@0815.ru";
     }
 
 }
