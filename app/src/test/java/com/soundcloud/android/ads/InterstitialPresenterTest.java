@@ -48,7 +48,7 @@ public class InterstitialPresenterTest {
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
 
         properties = interstitialForPlayer();
-        presenter = new InterstitialPresenter(trackView, listener, resources, imageOperations);
+        presenter = new InterstitialPresenter(trackView, listener, eventBus, imageOperations, resources);
     }
 
     @Test

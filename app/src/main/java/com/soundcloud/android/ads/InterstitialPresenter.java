@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 
@@ -19,8 +20,8 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     private final TextView nowPlayingTitleView;
     private final Resources resources;
 
-    public InterstitialPresenter(View trackView, Listener listener, Resources resources, ImageOperations imageOperations) {
-        super(trackView, R.id.interstitial, R.id.interstitial_stub, R.id.interstitial_image, R.id.interstitial_header, listener, imageOperations);
+    public InterstitialPresenter(View trackView, Listener listener, EventBus eventBus, ImageOperations imageOperations, Resources resources) {
+        super(trackView, R.id.interstitial, R.id.interstitial_stub, R.id.interstitial_image, R.id.interstitial_header, listener, imageOperations, eventBus);
         this.previewContainer = trackView.findViewById(R.id.interstitial_preview_container);
         this.previewImage = (ImageView) trackView.findViewById(R.id.interstitial_now_playing_artwork);
         this.nowPlayingTitleView = (TextView) trackView.findViewById(R.id.interstitial_now_playing_title);

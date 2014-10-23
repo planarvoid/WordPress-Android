@@ -32,7 +32,7 @@ public class AdsController {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final VisualAdImpressionOperations visualAdImpressionOperations;
-    private final LeaveBehindImpressionOperations leaveBehindImpressionOperations;
+    private final AdOverlayImpressionOperations adOverlayImpressionOperations;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
     private final FeatureFlags featureFlags;
@@ -107,24 +107,24 @@ public class AdsController {
     @Inject
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
-                         LeaveBehindImpressionOperations leaveBehindImpressionOperations,
+                         AdOverlayImpressionOperations adOverlayImpressionOperations,
                          PlayQueueManager playQueueManager,
                          TrackOperations trackOperations,
                          FeatureFlags featureFlags) {
-        this(eventBus, adsOperations, visualAdImpressionOperations, leaveBehindImpressionOperations,
+        this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
                 playQueueManager, trackOperations, featureFlags, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
-                         LeaveBehindImpressionOperations leaveBehindImpressionOperations,
+                         AdOverlayImpressionOperations adOverlayImpressionOperations,
                          PlayQueueManager playQueueManager,
                          TrackOperations trackOperations,
                          FeatureFlags featureFlags, Scheduler scheduler) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.visualAdImpressionOperations = visualAdImpressionOperations;
-        this.leaveBehindImpressionOperations = leaveBehindImpressionOperations;
+        this.adOverlayImpressionOperations = adOverlayImpressionOperations;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.featureFlags = featureFlags;
@@ -153,7 +153,7 @@ public class AdsController {
         visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
 
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
-            leaveBehindImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
+            adOverlayImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
         }
     }
 

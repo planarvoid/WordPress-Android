@@ -12,8 +12,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -191,7 +191,7 @@ public class AdOverlayControllerTest {
         controller.onImageClick();
 
         expect(eventBus.eventsOn(EventQueue.TRACKING)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toBe(LeaveBehindTrackingEvent.KIND_CLICK);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toBe(AdOverlayTrackingEvent.KIND_CLICK);
     }
 
     @Test

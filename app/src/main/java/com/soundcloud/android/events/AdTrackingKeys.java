@@ -8,4 +8,6 @@ public class AdTrackingKeys {
     public static final String KEY_ORIGIN_SCREEN = "origin_screen";
     public static final String KEY_AD_TRACK_URN = "ad_track_urn";
     public static final String KEY_AD_URN = "ad_urn";
+    public static final String KEY_MONETIZATION_TYPE = "monetization_type";
+    public static final String KEY_AD_TYPE = "ad_type";
 }

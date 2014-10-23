@@ -11,7 +11,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.events.LeaveBehindTrackingEvent;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -171,7 +171,7 @@ public class PromotedAnalyticsProviderTest {
     public void tracksLeaveBehindImpressions() {
         final PropertySet audioAdMetadata = TestPropertySets.leaveBehindForPlayer();
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        LeaveBehindTrackingEvent impressionEvent = LeaveBehindTrackingEvent.forImpression(333, audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), sourceInfo);
+        AdOverlayTrackingEvent impressionEvent = AdOverlayTrackingEvent.forImpression(333, audioAdMetadata, Urn.forTrack(888), Urn.forUser(777), sourceInfo);
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
 

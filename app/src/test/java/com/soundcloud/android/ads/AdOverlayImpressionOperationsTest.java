@@ -5,8 +5,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
@@ -25,10 +25,10 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LeaveBehindImpressionOperationsTest {
+public class AdOverlayImpressionOperationsTest {
 
-    private final LeaveBehindEvent LEAVE_BEHIND_SHOWN = LeaveBehindEvent.shown();
-    private final LeaveBehindEvent LEAVE_BEHIND_HIDDEN = LeaveBehindEvent.hidden();
+    private final AdOverlayEvent LEAVE_BEHIND_SHOWN = AdOverlayEvent.shown();
+    private final AdOverlayEvent LEAVE_BEHIND_HIDDEN = AdOverlayEvent.hidden();
     private final PlayerUIEvent PLAYER_EXPANDED = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED = PlayerUIEvent.fromPlayerCollapsed();
     private final ActivityLifeCycleEvent ACTIVITY_RESUMED = ActivityLifeCycleEvent.forOnResume(Activity.class);
@@ -39,10 +39,10 @@ public class LeaveBehindImpressionOperationsTest {
     @Mock private AccountOperations accountOperations;
     private TestEventBus eventBus;
 
-    private LeaveBehindImpressionOperations controller;
+    private AdOverlayImpressionOperations controller;
     private TestObserver<TrackingEvent> observer;
 
-    private Subject<LeaveBehindEvent, LeaveBehindEvent> leaveBehindEventQueue;
+    private Subject<AdOverlayEvent, AdOverlayEvent> leaveBehindEventQueue;
     private Subject<PlayerUIEvent, PlayerUIEvent> playerUiQueue;
     private Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activitiesLifeCycleQueue;
 
@@ -53,9 +53,9 @@ public class LeaveBehindImpressionOperationsTest {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         eventBus = new TestEventBus();
-        controller = new LeaveBehindImpressionOperations(eventBus, playQueueManager, accountOperations);
+        controller = new AdOverlayImpressionOperations(eventBus, playQueueManager, accountOperations);
 
-        leaveBehindEventQueue = eventBus.queue(EventQueue.LEAVE_BEHIND);
+        leaveBehindEventQueue = eventBus.queue(EventQueue.AD_OVERLAY);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
 

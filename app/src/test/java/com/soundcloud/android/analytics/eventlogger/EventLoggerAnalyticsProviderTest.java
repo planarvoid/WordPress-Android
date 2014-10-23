@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.events.LeaveBehindTrackingEvent;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -160,7 +160,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackLeaveBehindImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(eventLoggerUrlBuilder.build(event)).thenReturn("ForAudioAdImpression");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -172,7 +172,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackLeaveBehindClickTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(eventLoggerUrlBuilder.build(event)).thenReturn("ForAudioAdClick");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 

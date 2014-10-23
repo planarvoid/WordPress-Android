@@ -1,8 +1,8 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -84,7 +84,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     private void sendTrackingEvent() {
-        final LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forClick(
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(
                 playQueueManager.getCurrentMetaData(),
                 playQueueManager.getCurrentTrackUrn(),
                 accountOperations.getLoggedInUserUrn(),

@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.events.AdOverlayEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -19,6 +21,7 @@ public abstract class AdOverlayPresenter {
     private final ImageView adImage;
     private final View leaveBehindHeader;
     protected final ImageOperations imageOperations;
+    private final EventBus eventBus;
 
     private final ImageListener imageListener = new ImageListener() {
 
@@ -44,12 +47,14 @@ public abstract class AdOverlayPresenter {
         overlay.setClickable(true);
         adImage.setVisibility(View.VISIBLE);
         leaveBehindHeader.setVisibility(View.VISIBLE);
+        eventBus.publish(EventQueue.AD_OVERLAY, AdOverlayEvent.shown());
     }
 
     public void setInvisible() {
         overlay.setClickable(false);
         adImage.setVisibility(View.GONE);
         leaveBehindHeader.setVisibility(View.GONE);
+        eventBus.publish(EventQueue.AD_OVERLAY, AdOverlayEvent.hidden());
     }
 
     public boolean isNotVisible() {
@@ -75,7 +80,7 @@ public abstract class AdOverlayPresenter {
 
     public static AdOverlayPresenter create(PropertySet data, View trackView, Listener listener, EventBus eventBus, Resources resources, ImageOperations imageOperations) {
         if (isInterstitial(data)) {
-            return new InterstitialPresenter(trackView, listener, resources, imageOperations);
+            return new InterstitialPresenter(trackView, listener, eventBus, imageOperations, resources);
         } else {
             return new LeaveBehindPresenter(trackView, listener, eventBus, imageOperations);
         }
@@ -85,9 +90,10 @@ public abstract class AdOverlayPresenter {
         return data != null && data.contains(InterstitialProperty.INTERSTITIAL_URN);
     }
 
-    protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int headerId, final Listener listener, ImageOperations imageOperations) {
+    protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int headerId, final Listener listener, ImageOperations imageOperations, EventBus eventBus) {
         this.overlay = getOverlayView(trackView, overlayId, overlayStubId);
         this.listener = listener;
+        this.eventBus = eventBus;
 
         this.adImage = (ImageView) overlay.findViewById(adImageId);
         this.adImage.setOnClickListener(new View.OnClickListener() {

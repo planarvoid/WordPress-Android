@@ -6,8 +6,8 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leave
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.LeaveBehindEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -88,16 +88,16 @@ public class LeaveBehindPresenterTest {
     public void sendAnEventWhenVisible() {
         presenter.setVisible();
 
-        expect(eventBus.eventsOn(EventQueue.LEAVE_BEHIND)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.LEAVE_BEHIND).getKind()).toEqual(LeaveBehindEvent.SHOWN);
+        expect(eventBus.eventsOn(EventQueue.AD_OVERLAY)).toNumber(1);
+        expect(eventBus.lastEventOn(EventQueue.AD_OVERLAY).getKind()).toEqual(AdOverlayEvent.SHOWN);
     }
 
     @Test
     public void sendAnEventWhenInVisible() {
         presenter.setInvisible();
 
-        expect(eventBus.eventsOn(EventQueue.LEAVE_BEHIND)).toNumber(1);
-        expect(eventBus.lastEventOn(EventQueue.LEAVE_BEHIND).getKind()).toEqual(LeaveBehindEvent.HIDDEN);
+        expect(eventBus.eventsOn(EventQueue.AD_OVERLAY)).toNumber(1);
+        expect(eventBus.lastEventOn(EventQueue.AD_OVERLAY).getKind()).toEqual(AdOverlayEvent.HIDDEN);
     }
 
     @Test

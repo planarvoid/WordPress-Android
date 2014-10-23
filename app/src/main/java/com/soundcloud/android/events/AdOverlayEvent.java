@@ -1,21 +1,21 @@
 package com.soundcloud.android.events;
 
-public class LeaveBehindEvent {
+public class AdOverlayEvent {
 
     public static final int SHOWN = 0;
     public static final int HIDDEN = 1;
 
     private final int kind;
 
-    public static LeaveBehindEvent shown() {
-        return new LeaveBehindEvent(SHOWN);
+    public static AdOverlayEvent shown() {
+        return new AdOverlayEvent(SHOWN);
     }
-    public static LeaveBehindEvent hidden() {
-        return new LeaveBehindEvent(HIDDEN);
+    public static AdOverlayEvent hidden() {
+        return new AdOverlayEvent(HIDDEN);
     }
 
 
-    public LeaveBehindEvent(int kind) {
+    public AdOverlayEvent(int kind) {
         this.kind = kind;
     }
 
@@ -25,7 +25,7 @@ public class LeaveBehindEvent {
 
     @Override
     public String toString() {
-        return "LeaveBehindEvent: " + kind;
+        return "AdOverlayEvent: " + kind;
     }
 
 }

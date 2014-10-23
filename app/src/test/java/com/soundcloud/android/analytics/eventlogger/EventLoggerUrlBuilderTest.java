@@ -11,13 +11,14 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
-import com.soundcloud.android.events.LeaveBehindTrackingEvent;
-import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -244,7 +245,7 @@ public class EventLoggerUrlBuilderTest {
                 + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
                 + "&impression_name=companion_display"
                 + "&impression_object=" + audioAdTrackUrn.toEncodedString()
-                + "&monetization_type=audio_ad"
+                + "&monetization_type=" + "audio_ad"
                 + "&monetized_object=" + audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()
                 + "&external_media=" + "http%3A%2F%2Fartwork.org%2Fimage.pmg%3Fa%3Db%26c%3Dd")));
     }
@@ -254,7 +255,7 @@ public class EventLoggerUrlBuilderTest {
         final Urn monetizedTrack = Urn.forTrack(123L);
         final PropertySet leaveBehind = TestPropertySets.leaveBehindForPlayer();
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forImpression(321, leaveBehind, monetizedTrack, userUrn, sourceInfo);
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(321, leaveBehind, monetizedTrack, userUrn, sourceInfo);
         final String url = eventLoggerUrlBuilder.build(event);
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
@@ -272,11 +273,33 @@ public class EventLoggerUrlBuilderTest {
     }
 
     @Test
+    public void createUrlForInterstitialImpression() throws CreateModelException, UnsupportedEncodingException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final PropertySet interstitial = TestPropertySets.interstitialForPlayer();
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(321, interstitial, monetizedTrack, userUrn, sourceInfo);
+        final String url = eventLoggerUrlBuilder.build(event);
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&user=" + userUrn.toEncodedString()
+                + "&page_name=" + "page_source"
+                + "&impression_name=interstitial"
+                + "&impression_object=" + monetizedTrack.toEncodedString()
+                + "&ad_urn=" + URLEncoder.encode(interstitial.get(InterstitialProperty.INTERSTITIAL_URN), Charsets.UTF_8.displayName())
+                + "&monetized_object=" + monetizedTrack.toEncodedString()
+                + "&monetization_type=interstitial"
+                + "&external_media=" + interstitial.get(InterstitialProperty.IMAGE_URL))));
+    }
+
+    @Test
     public void createUrlForLeaveBehindClick() throws CreateModelException, UnsupportedEncodingException {
         final Urn monetizedTrack = Urn.forTrack(123L);
         final PropertySet leaveBehind = TestPropertySets.leaveBehindForPlayer();
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final LeaveBehindTrackingEvent event = LeaveBehindTrackingEvent.forClick(321, leaveBehind, monetizedTrack, userUrn, sourceInfo);
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(321, leaveBehind, monetizedTrack, userUrn, sourceInfo);
         final String url = eventLoggerUrlBuilder.build(event);
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
@@ -292,6 +315,29 @@ public class EventLoggerUrlBuilderTest {
                 + "&monetized_object=" + monetizedTrack.toEncodedString()
                 + "&monetization_type=audio_ad"
                 + "&external_media=" + leaveBehind.get(LeaveBehindProperty.IMAGE_URL))));
+    }
+
+    @Test
+    public void createUrlForInterstitialClick() throws CreateModelException, UnsupportedEncodingException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final PropertySet interstitial = TestPropertySets.interstitialForPlayer();
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(321, interstitial, monetizedTrack, userUrn, sourceInfo);
+        final String url = eventLoggerUrlBuilder.build(event);
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/click?"
+                + "client_id=123"
+                + "&anonymous_id=9876"
+                + "&ts=321"
+                + "&user=" + userUrn.toEncodedString()
+                + "&page_name=" + "page_source"
+                + "&click_name=" + "clickthrough::interstitial"
+                + "&click_object=" + monetizedTrack.toEncodedString()
+                + "&click_target=" + interstitial.get(InterstitialProperty.CLICK_THROUGH_URL)
+                + "&ad_urn=" + URLEncoder.encode(interstitial.get(InterstitialProperty.INTERSTITIAL_URN), Charsets.UTF_8.displayName())
+                + "&monetized_object=" + monetizedTrack.toEncodedString()
+                + "&monetization_type=interstitial"
+                + "&external_media=" + interstitial.get(InterstitialProperty.IMAGE_URL))));
     }
 
     @Test

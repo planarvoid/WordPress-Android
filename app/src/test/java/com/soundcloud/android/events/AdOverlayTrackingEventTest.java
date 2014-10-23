@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LeaveBehindTrackingEventTest extends TestCase {
+public class AdOverlayTrackingEventTest extends TestCase {
 
     private TrackSourceInfo sourceInfo;
 
@@ -27,8 +27,8 @@ public class LeaveBehindTrackingEventTest extends TestCase {
     @Test
     public void shouldCreateEventFromLeaveBehindImpression() {
         PropertySet audioAd = TestPropertySets.leaveBehindForPlayer();
-        LeaveBehindTrackingEvent uiEvent = LeaveBehindTrackingEvent.forImpression(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
-        expect(uiEvent.getKind()).toEqual(LeaveBehindTrackingEvent.KIND_IMPRESSION);
+        AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forImpression(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
+        expect(uiEvent.getKind()).toEqual(AdOverlayTrackingEvent.KIND_IMPRESSION);
         expect(uiEvent.getTimeStamp()).toEqual(1000L);
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.AD_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
@@ -40,8 +40,8 @@ public class LeaveBehindTrackingEventTest extends TestCase {
     @Test
     public void shouldCreateEventFromLeaveBehindClick() {
         PropertySet audioAd = TestPropertySets.leaveBehindForPlayer();
-        LeaveBehindTrackingEvent uiEvent = LeaveBehindTrackingEvent.forClick(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
-        expect(uiEvent.getKind()).toEqual(LeaveBehindTrackingEvent.KIND_CLICK);
+        AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forClick(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
+        expect(uiEvent.getKind()).toEqual(AdOverlayTrackingEvent.KIND_CLICK);
         expect(uiEvent.getTimeStamp()).toEqual(1000L);
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.AD_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());

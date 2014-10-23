@@ -3,8 +3,8 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
-import com.soundcloud.android.events.LeaveBehindTrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -64,6 +64,7 @@ public class EventLoggerUrlBuilder {
     private static final String CLICK_NAME = "click_name";
     private static final String CLICK_OBJECT = "click_object";
     private static final String CLICK_TARGET = "click_target";
+    public static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
 
     private final String appId;
     private final DeviceHelper deviceHelper;
@@ -82,10 +83,12 @@ public class EventLoggerUrlBuilder {
         switch (event.getKind()) {
             case UIEvent.KIND_AUDIO_AD_CLICK:
                 builder = audioAddClickThrough(event)
+                        .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                         .appendQueryParameter(CLICK_NAME, "clickthrough::companion_display");
                 break;
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
                 builder = audioAddClick(event)
+                        .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                         .appendQueryParameter(CLICK_NAME, "ad::skip");
                 break;
             default:
@@ -100,22 +103,25 @@ public class EventLoggerUrlBuilder {
         return audioAdImpression(event)
                 .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
                 .appendQueryParameter(IMPRESSION_NAME, "companion_display")
+                .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                 .toString();
     }
 
-    public String build(LeaveBehindTrackingEvent event) {
+    public String build(AdOverlayTrackingEvent event) {
         checkArgument(
-                event.getKind().equals(LeaveBehindTrackingEvent.KIND_CLICK) || event.getKind().equals(LeaveBehindTrackingEvent.KIND_IMPRESSION),
+                event.getKind().equals(AdOverlayTrackingEvent.KIND_CLICK) || event.getKind().equals(AdOverlayTrackingEvent.KIND_IMPRESSION),
                 "Unknown LeaveBehindTrackingEvent kind: " + event.getKind());
 
-        if (event.getKind().equals(LeaveBehindTrackingEvent.KIND_CLICK)) {
+        if (event.getKind().equals(AdOverlayTrackingEvent.KIND_CLICK)) {
             return audioAddClickThrough(event)
-                    .appendQueryParameter(CLICK_NAME, "clickthrough::leave_behind")
+                    .appendQueryParameter(CLICK_NAME, "clickthrough::" + event.get(AdTrackingKeys.KEY_AD_TYPE))
+                    .appendQueryParameter(MONETIZATION_TYPE, event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                     .toString();
         } else {
             return audioAdImpression(event)
                     .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
-                    .appendQueryParameter(IMPRESSION_NAME, "leave_behind")
+                    .appendQueryParameter(IMPRESSION_NAME, event.get(AdTrackingKeys.KEY_AD_TYPE))
+                    .appendQueryParameter(MONETIZATION_TYPE, event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                     .toString();
         }
     }
@@ -123,6 +129,7 @@ public class EventLoggerUrlBuilder {
     public String buildForAudioAdImpression(PlaybackSessionEvent event) {
         return audioAdImpression(event)
                 .appendQueryParameter(IMPRESSION_NAME, "audio_ad_impression")
+                .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                 .toString();
     }
 
@@ -130,6 +137,7 @@ public class EventLoggerUrlBuilder {
     public String buildForAdFinished(PlaybackSessionEvent event) {
         return audioAddClick(event)
                 .appendQueryParameter(CLICK_NAME, "ad::finish")
+                .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                 .toString();
     }
 
@@ -160,8 +168,7 @@ public class EventLoggerUrlBuilder {
     private Uri.Builder addCommonAudioAdParams(Uri.Builder builder, TrackingEvent event) {
         return builder
                 .appendQueryParameter(AD_URN, event.get(AdTrackingKeys.KEY_AD_URN))
-                .appendQueryParameter(MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+                .appendQueryParameter(MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
     }
 
     public String buildForAudioEvent(PlaybackSessionEvent event) {
@@ -209,7 +216,7 @@ public class EventLoggerUrlBuilder {
         // audio ad specific params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#audio
         if (event.isAd()) {
-            builder.appendQueryParameter(MONETIZATION_TYPE, "audio_ad");
+            builder.appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD);
             builder.appendQueryParameter(AD_URN, event.get(AdTrackingKeys.KEY_AD_URN));
             builder.appendQueryParameter(MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
         }

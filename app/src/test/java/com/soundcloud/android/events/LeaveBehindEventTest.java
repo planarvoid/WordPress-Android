@@ -11,13 +11,13 @@ public class LeaveBehindEventTest {
 
     @Test
     public void createsEventFromPlayerExpanded() {
-        LeaveBehindEvent event = LeaveBehindEvent.shown();
+        AdOverlayEvent event = AdOverlayEvent.shown();
         expect(event.getKind()).toEqual(0);
     }
 
     @Test
     public void createsEventFromPlayerCollapsed() {
-        LeaveBehindEvent event = LeaveBehindEvent.hidden();
+        AdOverlayEvent event = AdOverlayEvent.hidden();
         expect(event.getKind()).toEqual(1);
     }
 
