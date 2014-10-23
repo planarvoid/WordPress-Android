@@ -12,13 +12,31 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 
-public abstract class AdOverlayPresenter implements ImageListener {
+public abstract class AdOverlayPresenter {
 
     private final Listener listener;
     private final View overlay;
     private final ImageView adImage;
     private final View leaveBehindHeader;
     protected final ImageOperations imageOperations;
+
+    private final ImageListener imageListener = new ImageListener() {
+
+        @Override
+        public void onLoadingStarted(String imageUri, View view) {
+            // no-op
+        }
+
+        @Override
+        public void onLoadingFailed(String imageUri, View view, String failedReason) {
+            // no-op
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            listener.onAdImageLoaded();
+        }
+    };
 
     public abstract boolean shouldDisplayOverlay(PropertySet data, boolean isExpanded, boolean isPortrait, boolean isForeground);
 
@@ -46,22 +64,7 @@ public abstract class AdOverlayPresenter implements ImageListener {
     public abstract boolean isFullScreen();
 
     public void bind(PropertySet data) {
-        imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), getImageView(), this);
-    }
-
-    @Override
-    public void onLoadingStarted(String imageUri, View view) {
-        // no-op
-    }
-
-    @Override
-    public void onLoadingFailed(String imageUri, View view, String failedReason) {
-        // no-op
-    }
-
-    @Override
-    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        listener.onAdImageLoaded();
+        imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), getImageView(), imageListener);
     }
 
     public static interface Listener {
