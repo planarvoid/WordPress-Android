@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 
@@ -12,8 +13,8 @@ public class LeaveBehindPresenter extends AdOverlayPresenter {
 
     private EventBus eventBus;
 
-    public LeaveBehindPresenter(View trackView, Listener listener, EventBus eventBus) {
-        super(trackView, R.id.leave_behind, R.id.leave_behind_stub, R.id.leave_behind_image, R.id.leave_behind_close, listener);
+    public LeaveBehindPresenter(View trackView, Listener listener, EventBus eventBus, ImageOperations imageOperations) {
+        super(trackView, R.id.leave_behind, R.id.leave_behind_stub, R.id.leave_behind_image, R.id.leave_behind_header, listener, imageOperations);
         this.eventBus = eventBus;
     }
 

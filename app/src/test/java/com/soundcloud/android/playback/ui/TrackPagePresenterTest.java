@@ -73,9 +73,9 @@ public class TrackPagePresenterTest {
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, featureFlags);
         when(container.getContext()).thenReturn(Robolectric.application);
-        when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
+        when(waveformFactory.create(any(WaveformView.class), any(AdOverlayController.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
-        when(playerOverlayControllerFactory.create(any(View.class), any(AdOverlayController.class))).thenReturn(playerOverlayController);
+        when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
         when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
         trackView = presenter.createItemView(container, skipListener);
@@ -245,6 +245,12 @@ public class TrackPagePresenterTest {
     public void setCollapsedShouldShowFooterControl() {
         presenter.setCollapsed(trackView);
         expect(getHolder(trackView).footer).toBeVisible();
+    }
+
+    @Test
+    public void onPlayerSlidePassesSlideValueToWaveformController() {
+        presenter.onPlayerSlide(trackView, 1);
+        verify(waveformViewController).onPlayerSlide(1);
     }
 
     @Test
@@ -453,7 +459,7 @@ public class TrackPagePresenterTest {
         final PropertySet track = TestPropertySets.leaveBehindForPlayer();
         populateTrackPage();
 
-        presenter.setLeaveBehind(trackView, track);
+        presenter.setAdOverlay(trackView, track);
 
         verify(adOverlayController).initialize(track);
     }
@@ -463,7 +469,7 @@ public class TrackPagePresenterTest {
         when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         populateTrackPage();
 
-        presenter.clearLeaveBehind(trackView);
+        presenter.clearAdOverlay(trackView);
 
         verify(adOverlayController).clear();
 

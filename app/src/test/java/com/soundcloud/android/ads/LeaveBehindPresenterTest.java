@@ -8,10 +8,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindEvent;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +33,10 @@ public class LeaveBehindPresenterTest {
     @Mock AdOverlayPresenter.Listener listener;
     @Mock View trackView;
     @Mock private View overlay;
-    @Mock private View closeStub;
+    @Mock private View headerStub;
     @Mock private ImageView imageStub;
     @Mock private ViewStub overlayStub;
+    @Mock private ImageOperations imageOperations;
     private TestEventBus eventBus;
 
     @Before
@@ -41,15 +44,15 @@ public class LeaveBehindPresenterTest {
         eventBus = new TestEventBus();
         when(trackView.findViewById(R.id.leave_behind_stub)).thenReturn(overlayStub);
         when(overlayStub.inflate()).thenReturn(overlay);
-        when(overlay.findViewById(R.id.leave_behind_close)).thenReturn(closeStub);
+        when(overlay.findViewById(R.id.leave_behind_header)).thenReturn(headerStub);
         when(overlay.findViewById(R.id.leave_behind_image)).thenReturn(imageStub);
 
-        presenter = new LeaveBehindPresenter(trackView, listener, eventBus);
+        presenter = new LeaveBehindPresenter(trackView, listener, eventBus, imageOperations);
     }
 
     @Test
     public void createsLeaveBehindPresenterFromLeaveBehindPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener, eventBus);
+        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener, eventBus, Robolectric.application.getResources(), imageOperations);
         expect(adOverlayPresenter).toBeInstanceOf(LeaveBehindPresenter.class);
     }
 

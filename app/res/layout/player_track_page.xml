@@ -62,24 +62,6 @@
 
     <include layout="@layout/player_play_controls" />
 
-    <ViewStub
-        android:id="@+id/leave_behind_stub"
-        android:inflatedId="@+id/leave_behind"
-        android:layout_below="@id/player_close"
-        android:layout_above="@id/player_bottom_close"
-        android:layout="@layout/ad_leave_behind"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <ViewStub
-            android:id="@+id/interstitial_stub"
-            android:inflatedId="@+id/interstitial"
-            android:layout_below="@id/player_close"
-            android:layout_above="@id/player_bottom_close"
-            android:layout="@layout/ad_interstitial"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
     <RelativeLayout
             android:id="@+id/profile_link"
             android:layout_width="wrap_content"
@@ -100,5 +82,26 @@
     </RelativeLayout>
 
     <include layout="@layout/player_footer_controls" />
+
+    <ViewStub
+            android:id="@+id/leave_behind_stub"
+            android:inflatedId="@+id/leave_behind"
+            android:layout_below="@id/player_close"
+            android:layout_above="@id/player_bottom_close"
+            android:layout="@layout/ad_leave_behind"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    <FrameLayout
+            android:id="@+id/interstitial_holder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <ViewStub
+                android:id="@+id/interstitial_stub"
+                android:inflatedId="@+id/interstitial"
+                android:layout="@layout/ad_interstitial"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+    </FrameLayout>
 
 </RelativeLayout>

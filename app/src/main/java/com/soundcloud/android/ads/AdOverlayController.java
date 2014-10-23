@@ -3,7 +3,6 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LeaveBehindTrackingEvent;
-import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -13,7 +12,6 @@ import com.soundcloud.propeller.PropertySet;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.View;
 
@@ -35,18 +33,6 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private @Nullable PropertySet data;
 
     private AdOverlayPresenter presenter;
-    private final ImageListener imageListener = new ImageListener() {
-        @Override
-        public void onLoadingStarted(String imageUri, View view) {}
-
-        @Override
-        public void onLoadingFailed(String imageUri, View view, String failedReason) {}
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            setVisible();
-        }
-    };
     private boolean isExpanded;
 
     public void setCollapsed() {
@@ -74,8 +60,13 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     @Override
+    public void onAdImageLoaded() {
+        setVisible();
+    }
+
+    @Override
     public void onImageClick() {
-        startActivity(data.get(LeaveBehindProperty.CLICK_THROUGH_URL));
+        startActivity(data.get(AdOverlayProperty.CLICK_THROUGH_URL));
         sendTrackingEvent();
         clear();
     }
@@ -103,7 +94,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     public void initialize(PropertySet data) {
         this.data = data;
-        presenter = AdOverlayPresenter.create(data, trackView, this, eventBus);
+        presenter = AdOverlayPresenter.create(data, trackView, this, eventBus, context.getResources(), imageOperations);
         setInvisible();
     }
 
@@ -112,20 +103,20 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     public void show(boolean isForeground) {
-        if (shouldDisplayLeaveBehind(isForeground)) {
-            imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), presenter.getImageView(), imageListener);
+        if (shouldDisplayAdOverlay(isForeground)) {
+            presenter.bind(data);
             resetMetaData();
         }
     }
 
     private void resetMetaData() {
         if (data != null) {
-            data.put(LeaveBehindProperty.META_AD_COMPLETED, false);
-            data.put(LeaveBehindProperty.META_AD_CLICKED, false);
+            data.put(AdOverlayProperty.META_AD_COMPLETED, false);
+            data.put(AdOverlayProperty.META_AD_CLICKED, false);
         }
     }
 
-    private boolean shouldDisplayLeaveBehind(boolean isForeground) {
+    private boolean shouldDisplayAdOverlay(boolean isForeground) {
         if (data == null) {
             return false;
         }
@@ -154,14 +145,25 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         return presenter == null || presenter.isNotVisible();
     }
 
+    public boolean isNotVisibleInFullscreen() {
+        return isNotVisible() || !presenter.isFullScreen();
+    }
+
     public void clear() {
         resetMetaData();
         if (presenter != null) {
+            setOverlayDismissed();
             final boolean fullScreen = presenter.isFullScreen();
             presenter.clear();
             presenter = null;
             data = null;
             listener.onAdOverlayHidden(fullScreen);
+        }
+    }
+
+    private void setOverlayDismissed() {
+        if (data != null) {
+            data.put(AdOverlayProperty.META_AD_DISMISSED, true);
         }
     }
 

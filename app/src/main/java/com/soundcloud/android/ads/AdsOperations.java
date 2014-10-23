@@ -103,6 +103,7 @@ public class AdsOperations {
         final PropertySet leaveBehindProperties = apiAudioAd
                 .getApiLeaveBehind()
                 .toPropertySet()
+                .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, adMetaData.get(AdProperty.AD_URN))
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, audioAdTrack);
 
@@ -138,7 +139,7 @@ public class AdsOperations {
     }
 
     private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition) {
-        PropertySet interstitialPropertySet = interstitial.toPropertySet();
+        PropertySet interstitialPropertySet = interstitial.toPropertySet().put(AdOverlayProperty.META_AD_DISMISSED, false);
         playQueueManager.performPlayQueueUpdateOperations(
                 new PlayQueueManager.MergeMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
         );

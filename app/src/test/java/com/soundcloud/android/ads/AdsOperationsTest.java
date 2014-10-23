@@ -127,7 +127,9 @@ public class AdsOperationsTest {
         value1.execute(playQueue);
 
         expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(0)).toEqual(adsWithOnlyInterstitial.interstitialAd().toPropertySet());
+        final PropertySet expectedProperties = adsWithOnlyInterstitial.interstitialAd().toPropertySet();
+        expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
+        expect(playQueue.getMetaData(0)).toEqual(expectedProperties);
     }
 
     @Test
@@ -149,6 +151,7 @@ public class AdsOperationsTest {
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
         expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getApiLeaveBehind()
                 .toPropertySet()
+                .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, adsWithOnlyAudioAd.audioAd().getUrn())
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn()));
     }
@@ -170,6 +173,7 @@ public class AdsOperationsTest {
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
         expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getApiLeaveBehind()
                 .toPropertySet()
+                .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, fullAdsForTrack.audioAd().getUrn())
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, fullAdsForTrack.audioAd().getApiTrack().getUrn()));
     }
@@ -225,6 +229,7 @@ public class AdsOperationsTest {
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
         expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind()
                 .toPropertySet()
+                .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, noInterstitial.audioAd().getUrn())
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, noInterstitial.audioAd().getApiTrack().getUrn()));
     }

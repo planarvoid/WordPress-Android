@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -64,6 +65,7 @@ public class WaveformViewControllerTest {
     @Mock private WaveformData waveformData;
     @Mock private Bitmap bitmap;
     @Mock private WaveformOperations waveformOperations;
+    @Mock private AdOverlayController adOverlayController;
 
     @Before
     public void setUp() throws Exception {
@@ -82,9 +84,10 @@ public class WaveformViewControllerTest {
         when(scrubControllerFactory.create(dragViewHolder)).thenReturn(scrubController);
 
         when(waveformResult.getWaveformData()).thenReturn(waveformData);
+        when(adOverlayController.isNotVisible()).thenReturn(true);
 
         waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
-               Schedulers.immediate()).create(waveformView);
+               Schedulers.immediate()).create(waveformView, adOverlayController);
     }
 
     @Test
@@ -352,6 +355,19 @@ public class WaveformViewControllerTest {
         final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
         when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(bitmapPair);
         waveformViewController.onWaveformViewWidthChanged(500);
+        verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
+    }
+
+    @Test
+    public void setExpandedWhenAdOverlayActiveWithWaveformResultDoesNotSetWaveform() {
+        waveformViewController.onWaveformViewWidthChanged(500);
+        waveformViewController.onForeground();
+        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(new Pair<>(bitmap, bitmap));
+        when(adOverlayController.isNotVisible()).thenReturn(false);
+
+        waveformViewController.setExpanded();
+
         verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
     }
 

@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.ads.AdOverlayController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 
 import android.view.View;
@@ -12,38 +11,46 @@ import javax.inject.Provider;
 class PlayerOverlayController implements ScrubController.OnScrubListener {
 
     private final OverlayAnimator overlayAnimator;
-    private final PlaySessionStateProvider playSessionStateProvider;
-    private final AdOverlayController adOverlayController;
     private final View overlay;
     private boolean isScrubbing;
     private float alphaFromCollapse;
 
-    public PlayerOverlayController(View overlay,
-                                   OverlayAnimator overlayAnimator,
-                                   PlaySessionStateProvider playSessionStateProvider,
-                                   AdOverlayController adOverlayController) {
+    private boolean playSessionIsActive;
+    private boolean adOverlayShown;
+
+    public PlayerOverlayController(View overlay, OverlayAnimator overlayAnimator) {
         this.overlay = overlay;
         this.overlayAnimator = overlayAnimator;
-        this.playSessionStateProvider = playSessionStateProvider;
-        this.adOverlayController = adOverlayController;
     }
 
-    public void showPlayingState(){
-        if (notScrubbing() && isExpanded() && isLeaveBehindDisabled()){
+    public void setPlayState(Playa.StateTransition stateTransition) {
+        playSessionIsActive = stateTransition.playSessionIsActive();
+        configureOverlay();
+    }
+
+    public void setAdOverlayShown(boolean isShown) {
+        adOverlayShown = isShown;
+        configureOverlay();
+    }
+
+    private void configureOverlay() {
+        if (notScrubbing() && isExpanded() && playingAndNotShowingAd()) {
             overlayAnimator.hideOverlay(overlay);
+        } else if (isExpanded()){
+            overlayAnimator.showOverlay(overlay);
         }
-    }
-
-    public void showIdleState() {
-        overlayAnimator.showOverlay(overlay);
     }
 
     public void setAlphaFromCollapse(float alpha) {
         alphaFromCollapse = alpha;
 
-        if (playSessionStateProvider.isPlaying() && isLeaveBehindDisabled()) {
+        if (playingAndNotShowingAd()) {
             overlayAnimator.setAlpha(overlay, alphaFromCollapse);
         }
+    }
+
+    private boolean playingAndNotShowingAd() {
+        return playSessionIsActive && !adOverlayShown;
     }
 
     @Override
@@ -53,7 +60,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
         if (isScrubbing){
             overlayAnimator.showOverlay(overlay);
 
-        } else if (playSessionStateProvider.isPlaying() && isExpanded() && isLeaveBehindDisabled()){
+        } else if (playingAndNotShowingAd() && isExpanded()){
             overlayAnimator.hideOverlay(overlay);
         }
     }
@@ -71,27 +78,16 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
         return !isScrubbing;
     }
 
-    private boolean isLeaveBehindDisabled() {
-        return adOverlayController == null || adOverlayController.isNotVisible();
-    }
-
     public static class Factory {
         private final Provider<OverlayAnimator> overlayAnimatorProvider;
-        private final PlaySessionStateProvider playSessionStateProvider;
 
         @Inject
-        Factory(Provider<OverlayAnimator> overlayAnimatorProvider, PlaySessionStateProvider playSessionController) {
+        Factory(Provider<OverlayAnimator> overlayAnimatorProvider) {
             this.overlayAnimatorProvider = overlayAnimatorProvider;
-            this.playSessionStateProvider = playSessionController;
         }
 
         public PlayerOverlayController create(View overlay) {
-            return new PlayerOverlayController(overlay, overlayAnimatorProvider.get(), playSessionStateProvider, null);
+            return new PlayerOverlayController(overlay, overlayAnimatorProvider.get());
         }
-
-        public PlayerOverlayController create(View overlay, AdOverlayController adOverlayController) {
-            return new PlayerOverlayController(overlay, overlayAnimatorProvider.get(), playSessionStateProvider, adOverlayController);
-        }
-
     }
 }

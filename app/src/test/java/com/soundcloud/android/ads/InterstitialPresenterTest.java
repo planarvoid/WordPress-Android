@@ -6,15 +6,18 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -33,6 +36,8 @@ public class InterstitialPresenterTest {
     @Mock private ImageView imageStub;
     @Mock private ViewStub overlayStub;
     @Mock private EventBus eventBus;
+    @Mock private ImageOperations imageOperations;
+    @Mock private Resources resources;
 
     @Before
     public void setUp() {
@@ -40,14 +45,15 @@ public class InterstitialPresenterTest {
         when(overlayStub.inflate()).thenReturn(overlay);
         when(overlay.findViewById(R.id.interstitial_close)).thenReturn(closeStub);
         when(overlay.findViewById(R.id.interstitial_image)).thenReturn(imageStub);
+        when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
 
         properties = interstitialForPlayer();
-        presenter = new InterstitialPresenter(trackView, listener);
+        presenter = new InterstitialPresenter(trackView, listener, resources, imageOperations);
     }
 
     @Test
     public void createsInterstitialPresenterFromInterstitialPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.interstitialForPlayer(), trackView, listener, eventBus);
+        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.interstitialForPlayer(), trackView, listener, eventBus, Robolectric.application.getResources(), imageOperations);
         Expect.expect(adOverlayPresenter).toBeInstanceOf(InterstitialPresenter.class);
     }
 
@@ -62,6 +68,22 @@ public class InterstitialPresenterTest {
     public void doesNotShowInterstitialIfCollapsed() {
         final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, false, true, true);
 
+        expect(shouldDisplay).toBeFalse();
+    }
+
+    @Test
+    public void doesNotShowInterstitialIfAlreadyDismissed() {
+        properties.put(AdOverlayProperty.META_AD_DISMISSED, true);
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, true, true, true);
+
+        expect(shouldDisplay).toBeFalse();
+    }
+
+    @Test
+    public void doesNotShowInterstitialIfResourcesDoesNotAllow() {
+        when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(false);
+
+        final boolean shouldDisplay = presenter.shouldDisplayOverlay(properties, true, true, true);
         expect(shouldDisplay).toBeFalse();
     }
 

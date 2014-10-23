@@ -1,6 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ads.AdOverlayProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -22,13 +23,17 @@ public final class LeaveBehindTrackingEvent extends TrackingEvent {
 
         put(AdTrackingKeys.KEY_USER_URN, user.toString());
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, track.toString());
-
-        put(AdTrackingKeys.KEY_AD_URN, properties.get(LeaveBehindProperty.AD_URN));
-        put(AdTrackingKeys.KEY_AD_TRACK_URN, properties.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString());
-
-        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, properties.get(LeaveBehindProperty.IMAGE_URL));
-        put(AdTrackingKeys.KEY_CLICK_THROUGH_URN, properties.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
+        put(AdTrackingKeys.KEY_AD_ARTWORK_URL, properties.get(AdOverlayProperty.IMAGE_URL));
+        put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, properties.get(AdOverlayProperty.CLICK_THROUGH_URL).toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNonNullOriginScreenValue(trackSourceInfo));
+
+        if (properties.contains(LeaveBehindProperty.AD_URN)){
+            put(AdTrackingKeys.KEY_AD_URN, properties.get(LeaveBehindProperty.AD_URN));
+        }
+
+        if (properties.contains(LeaveBehindProperty.AUDIO_AD_TRACK_URN)){
+            put(AdTrackingKeys.KEY_AD_TRACK_URN, properties.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString());
+        }
     }
 
     private String getNonNullOriginScreenValue(@Nullable TrackSourceInfo trackSourceInfo) {

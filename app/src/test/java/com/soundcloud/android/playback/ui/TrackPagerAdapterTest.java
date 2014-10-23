@@ -86,7 +86,7 @@ public class TrackPagerAdapterTest {
             new TrackPageData(0, TRACK1_URN, PropertySet.create()),
             new TrackPageData(1, TRACK2_URN, PropertySet.create()),
             new TrackPageData(2, AD_URN, getAudioAd()),
-            new TrackPageData(3, MONETIZABLE_TRACK_URN, TestPropertySets.leaveBehindForPlayer()));
+            new TrackPageData(3, MONETIZABLE_TRACK_URN, TestPropertySets.interstitialForPlayer()));
 
     @Before
     public void setUp() throws Exception {
@@ -99,7 +99,9 @@ public class TrackPagerAdapterTest {
         adapter.initialize(container, skipListener, viewVisibilityProvider);
         adapter.setCurrentData(trackPageData);
 
-        track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN));
+        track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
+                PlayableProperty.TITLE.bind("title"),
+                PlayableProperty.CREATOR_NAME.bind("artist"));
 
         when(trackOperations.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
                 PropertySet.from(
@@ -411,15 +413,20 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
-    public void instantiateItemForMonetizableSetsLeaveBehind() throws Exception {
+    public void instantiateItemForMonetizableSetsAdOverlay() throws Exception {
         final View viewForTrack = getPageView(3, MONETIZABLE_TRACK_URN);
-        verify(trackPagePresenter).setLeaveBehind(same(viewForTrack), eq(TestPropertySets.leaveBehindForPlayer()));
+        final PropertySet value = TestPropertySets.interstitialForPlayer()
+                .put(TrackProperty.URN, MONETIZABLE_TRACK_URN)
+                .put(TrackProperty.TITLE, "title")
+                .put(TrackProperty.CREATOR_NAME, "artist");
+
+        verify(trackPagePresenter).setAdOverlay(same(viewForTrack), eq(value));
     }
 
     @Test
     public void instantiateItemWithoutLeaveBehindClearsLeaveBehind() throws Exception {
         final View view = getPageView();
-        verify(trackPagePresenter).clearLeaveBehind(view);
+        verify(trackPagePresenter).clearAdOverlay(view);
     }
 
     @Test
@@ -430,8 +437,8 @@ public class TrackPagerAdapterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(MONETIZABLE_TRACK_URN));
 
-        verify(trackPagePresenter, times(2)).clearLeaveBehind(viewForCurrentTrack);
-        verify(trackPagePresenter, never()).clearLeaveBehind(viewForOtherTrack);
+        verify(trackPagePresenter, times(2)).clearAdOverlay(viewForCurrentTrack);
+        verify(trackPagePresenter, never()).clearAdOverlay(viewForOtherTrack);
 
     }
 

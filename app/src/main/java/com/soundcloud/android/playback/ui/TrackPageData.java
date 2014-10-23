@@ -34,8 +34,7 @@ final class TrackPageData {
         return properties.contains(AdProperty.AD_URN);
     }
 
-    // todo : this should be hasAdOverlay, and we should rename the controller
-    boolean hasLeaveBehind() {
+    boolean hasAdOverlay() {
         return properties.contains(LeaveBehindProperty.LEAVE_BEHIND_URN)
                 || properties.contains(InterstitialProperty.INTERSTITIAL_URN);
     }

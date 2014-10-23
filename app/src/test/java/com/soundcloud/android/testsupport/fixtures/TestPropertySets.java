@@ -84,8 +84,10 @@ public abstract class TestPropertySets {
                 InterstitialProperty.IMAGE_URL.bind("https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg"),
                 InterstitialProperty.CLICK_THROUGH_URL.bind(Uri.parse("http://squarespace.com")),
                 InterstitialProperty.TRACKING_IMPRESSION_URLS.bind(newArrayList("https://promoted.soundcloud.com/impression?adData=instance%3Asoundcloud%3Bad_id%3A1105%3Bview_key%3A1410853892331806%3Bzone_id%3A56&loc=&listenerId=5284047f4ffb4e04824a2fd1d1f0cd62&sessionId=67fa476869b956676b5bae2866c377a9&ip=%3A%3Affff%3A80.82.202.196&OAGEO=ZGUlN0MxNiU3Q2JlcmxpbiU3QzEwMTE1JTdDNTIuNTMxOTk3NjgwNjY0MDYlN0MxMy4zOTIxOTY2NTUyNzM0MzglN0MlN0MlN0MlN0MlM0ElM0FmZmZmJTNBODAuODIuMjAyLjE5NiU3Q3RoZSt1bmJlbGlldmFibGUrbWFjaGluZStjb21wYW55K2dtYmg=&user_agent=SoundCloud-Android%2F14.09.02+%28Android+4.3%3B+Genymotion+Sony+Xperia+Z+-+4.3+-+API+18+-+1080x1920%29&cbs=681405")),
-                InterstitialProperty.TRACKING_CLICK_URLS.bind(newArrayList("https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=1105&zoneId=56&cb=dfd1b6e0c90745e9934f9d35b174ff30"))
-        );
+                InterstitialProperty.TRACKING_CLICK_URLS.bind(newArrayList("https://promoted.soundcloud.com/track?reqType=SCAdClicked&protocolVersion=2.0&adId=1105&zoneId=56&cb=dfd1b6e0c90745e9934f9d35b174ff30")),
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                PlayableProperty.TITLE.bind("dubstep anthem"),
+                PlayableProperty.CREATOR_NAME.bind("squirlex"));
     }
 
     public static PropertySet leaveBehindForPlayerWithDisplayMetaData() {

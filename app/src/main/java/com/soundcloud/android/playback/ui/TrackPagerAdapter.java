@@ -241,9 +241,20 @@ public class TrackPagerAdapter extends PagerAdapter {
         if (viewData.isAdPage()) {
             trackObservable = getAdObservable(viewData.getTrackUrn(), viewData.getProperties());
         } else {
-            trackObservable = getTrackObservable(viewData.getTrackUrn());
+            trackObservable = getTrackObservable(viewData.getTrackUrn(), viewData.getProperties());
         }
         return trackObservable;
+    }
+
+    private Observable<PropertySet> getTrackObservable(Urn urn, final PropertySet adOverlayData) {
+        return getTrackObservable(urn).doOnNext(new Action1<PropertySet>() {
+            @Override
+            public void call(PropertySet track) {
+                adOverlayData.put(TrackProperty.URN, track.get(TrackProperty.URN))
+                        .put(TrackProperty.TITLE, track.get(TrackProperty.TITLE))
+                        .put(TrackProperty.CREATOR_NAME, track.get(TrackProperty.CREATOR_NAME));
+            }
+        });
     }
 
     private Observable<PropertySet> getAdObservable(Urn urn, final PropertySet audioAd) {
@@ -260,8 +271,8 @@ public class TrackPagerAdapter extends PagerAdapter {
     }
 
     private View subscribeToPlayEvents(PlayerPagePresenter presenter, final View trackPage) {
-        subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
+        subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus
                 .queue(EventQueue.PLAYABLE_CHANGED)
                 .filter(PlayableUpdatedEvent.IS_TRACK_FILTER)
@@ -277,7 +288,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         subscription.add(eventBus
                         .queue(EventQueue.PLAY_QUEUE_TRACK)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new LeaveBehindSubscriber(presenter, trackPage))
+                        .subscribe(new ClearAdOverlaySubscriber(presenter, trackPage))
         );
         return trackPage;
     }
@@ -296,10 +307,10 @@ public class TrackPagerAdapter extends PagerAdapter {
     private void onTrackPageSet(View view, int position) {
         final TrackPageData trackPageData = currentData.get(position);
         trackPagePresenter.onPositionSet(view, position, currentData.size());
-        if (trackPageData.hasLeaveBehind()){
-            trackPagePresenter.setLeaveBehind(view, trackPageData.getProperties());
+        if (trackPageData.hasAdOverlay()){
+            trackPagePresenter.setAdOverlay(view, trackPageData.getProperties());
         } else {
-            trackPagePresenter.clearLeaveBehind(view);
+            trackPagePresenter.clearAdOverlay(view);
         }
 
     }
@@ -430,12 +441,12 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     }
 
-    private final class LeaveBehindSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent>{
+    private final class ClearAdOverlaySubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent>{
 
         private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        public LeaveBehindSubscriber(PlayerPagePresenter presenter, View trackPage) {
+        public ClearAdOverlaySubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
@@ -443,7 +454,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent args) {
             if (trackByViews.containsKey(trackPage) && !playQueueManager.isCurrentTrack(trackByViews.get(trackPage).getTrackUrn())) {
-                presenter.clearLeaveBehind(trackPage);
+                presenter.clearAdOverlay(trackPage);
             }
         }
     }

@@ -51,7 +51,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackMenuController.Factory trackMenuControllerFactory;
-    private final AdOverlayController.Factory leaveBehindControllerFactory;
+    private final AdOverlayController.Factory adOverlayControllerFactory;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
     private final FeatureFlags featureFlags;
 
@@ -61,7 +61,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackMenuController.Factory trackMenuControllerFactory,
-                              AdOverlayController.Factory leaveBehindControllerFactory,
+                              AdOverlayController.Factory adOverlayControllerFactory,
                               FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
@@ -69,7 +69,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
-        this.leaveBehindControllerFactory = leaveBehindControllerFactory;
+        this.adOverlayControllerFactory = adOverlayControllerFactory;
         this.featureFlags = featureFlags;
     }
 
@@ -144,17 +144,17 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         setClickListener(this, holder.onClickViews);
     }
 
-    public void setLeaveBehind(View view, PropertySet track) {
+    public void setAdOverlay(View view, PropertySet track) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
             getViewHolder(view).adOverlayController.initialize(track);
         }
     }
 
-    public void clearLeaveBehind(View view) {
-        clearLeaveBehind(getViewHolder(view));
+    public void clearAdOverlay(View view) {
+        clearAdOverlay(getViewHolder(view));
     }
 
-    private void clearLeaveBehind(TrackPageHolder viewHolder) {
+    private void clearAdOverlay(TrackPageHolder viewHolder) {
         viewHolder.adOverlayController.clear();
     }
 
@@ -189,15 +189,15 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
             setProgress(trackPage, PlaybackProgress.empty());
         }
-        configureLeaveBehind(stateTransition, isCurrentTrack, isForeground, holder);
+        configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
     }
 
-    private void configureLeaveBehind(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
+    private void configureAdOverlay(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
                 holder.adOverlayController.show(isForeground);
             } else if (stateTransition.isPaused() || stateTransition.wasError()) {
-                clearLeaveBehind(holder);
+                clearAdOverlay(holder);
             }
         }
     }
@@ -282,21 +282,16 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             holder.artworkController.showIdleState();
         }
 
-        setOverlayPlayState(holder, state);
+        for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
+            playerOverlayController.setPlayState(state);
+        }
+
         setTextBackgrounds(holder, state.playSessionIsActive());
     }
 
-    private void setOverlayPlayState(TrackPageHolder holder, StateTransition state) {
-        setOverlayPlayState(holder, state.playSessionIsActive());
-    }
-
-    private void setOverlayPlayState(TrackPageHolder holder, boolean isActive) {
+    private void setAdStateOnPlayerOverlay(TrackPageHolder holder, boolean isShown) {
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
-            if (isActive) {
-                playerOverlayController.showPlayingState();
-            } else {
-                playerOverlayController.showIdleState();
-            }
+            playerOverlayController.setAdOverlayShown(isShown);
         }
     }
 
@@ -337,7 +332,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     @Override
     public void onPlayerSlide(View trackView, float slideOffset) {
         TrackPageHolder holder = getViewHolder(trackView);
-        helper.configureViewsFromSlide(slideOffset, holder.footer, holder.fullScreenViews, holder.playerOverlayControllers);
+
+        final Iterable<View> fullScreenViews = holder.adOverlayController.isNotVisibleInFullscreen() ? holder.fullScreenViews : holder.adOverlayIterable;
+        helper.configureViewsFromSlide(slideOffset, holder.footer, fullScreenViews, holder.playerOverlayControllers);
         holder.waveformController.onPlayerSlide(slideOffset);
     }
 
@@ -426,14 +423,16 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
         holder.footerUser = (TextView) trackView.findViewById(R.id.footer_user);
 
-        final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
-        holder.waveformController = waveformControllerFactory.create(waveform);
+        holder.adOverlayController = adOverlayControllerFactory.create(trackView, createAdOverlayListener(holder));
 
-        holder.adOverlayController = leaveBehindControllerFactory.create(trackView, createAdOverlayListener(holder));
+        final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
+        holder.waveformController = waveformControllerFactory.create(waveform, holder.adOverlayController);
+
+
 
         holder.playerOverlayControllers = new PlayerOverlayController[] {
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark), holder.adOverlayController),
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image), holder.adOverlayController)
+                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark)),
+                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
         };
 
         holder.artworkController = artworkControllerFactory.create(holder.artworkView);
@@ -443,6 +442,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.menuController = trackMenuControllerFactory.create(holder.more);
         holder.playControlsHolder = trackView.findViewById(R.id.play_controls);
         holder.closeIndicator = trackView.findViewById(R.id.player_close_indicator);
+        holder.interstitialHolder = trackView.findViewById(R.id.interstitial_holder);
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             holder.waveformController.addScrubListener(playerOverlayController);
@@ -452,7 +452,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clearLeaveBehind(holder);
+                clearAdOverlay(holder);
                 holder.menuController.show();
             }
         });
@@ -465,23 +465,23 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         return new AdOverlayController.AdOverlayListener() {
             @Override
             public void onAdOverlayShown(boolean fullscreen) {
-                setOverlayPlayState(holder, false);
+                setAdStateOnPlayerOverlay(holder, true);
                 setTextBackgrounds(holder, false);
                 holder.waveformController.setCollapsed();
 
                 if (fullscreen){
-                    AnimUtils.hideViews(holder.close, holder.more, holder.likeToggle);
+                    AnimUtils.hideViews(holder.close, holder.more, holder.likeToggle, holder.title, holder.user);
                 }
             }
 
             @Override
             public void onAdOverlayHidden(boolean fullscreen) {
-                setOverlayPlayState(holder, true);
+                setAdStateOnPlayerOverlay(holder, false);
                 setTextBackgrounds(holder, true);
                 holder.waveformController.setExpanded();
 
                 if (fullscreen){
-                    AnimUtils.showViews(holder.close, holder.more, holder.likeToggle);
+                    AnimUtils.showViews(holder.close, holder.more, holder.likeToggle, holder.title, holder.user);
                 }
             }
         };
@@ -509,6 +509,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         View playControlsHolder;
         View closeIndicator;
         View profileLink;
+        View interstitialHolder;
+
 
         // Footer player
         View footer;
@@ -518,6 +520,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         // View sets
         Iterable<View> fullScreenViews;
+        Iterable<View> adOverlayIterable;
         Iterable<View> hideOnScrubViews;
         Iterable<View> onClickViews;
         Iterable<ProgressAware> progressAwares;
@@ -533,7 +536,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton, bottomClose);
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, profileLink);
 
-            fullScreenViews = Arrays.asList(title, user, close, timestamp);
+            fullScreenViews = Arrays.asList(title, user, close, timestamp, interstitialHolder);
+            adOverlayIterable = Arrays.asList(interstitialHolder);
             hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
             progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);

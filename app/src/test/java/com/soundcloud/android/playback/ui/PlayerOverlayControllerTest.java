@@ -1,11 +1,14 @@
 package com.soundcloud.android.playback.ui;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdOverlayController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -19,36 +22,36 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerOverlayControllerTest {
 
+    public static final Urn TRACK_URN = Urn.forTrack(123L);
     private PlayerOverlayController controller;
 
     @Mock private OverlayAnimator overlayAnimator;
-    @Mock private PlaySessionStateProvider playStateProvider;
     @Mock private View overlay;
     @Mock private AdOverlayController adOverlayController;
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlayerOverlayController(overlay, overlayAnimator, playStateProvider, adOverlayController);
+        controller = new PlayerOverlayController(overlay, overlayAnimator);
         when(adOverlayController.isNotVisible()).thenReturn(true);
     }
 
     @Test
     public void shouldHideOverlayImmediatelyOnSetExpandedWhilePlaying() {
-        when(playStateProvider.isPlaying()).thenReturn(true);
+        setPlayingState();
         controller.setAlphaFromCollapse(0);
         verify(overlayAnimator).setAlpha(overlay, 0);
     }
 
     @Test
     public void shouldShowOverlayImmediatelyOnSetCollapsedWhilePlaying() {
-        when(playStateProvider.isPlaying()).thenReturn(true);
+        setPlayingState();
         controller.setAlphaFromCollapse(1);
         verify(overlayAnimator).setAlpha(overlay, 1);
     }
 
     @Test
     public void shouldShowOverlayWhileScrubbingExpandedAndPlaying() {
-        when(playStateProvider.isPlaying()).thenReturn(true);
+        setPlayingState();
         controller.setAlphaFromCollapse(0);
         Mockito.reset(overlayAnimator);
 
@@ -59,7 +62,7 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldHideOverlayOnSetExpandedWhilePlayingAfterScrubStateSetToNone() {
-        when(playStateProvider.isPlaying()).thenReturn(true);
+        setPlayingState();
         controller.setAlphaFromCollapse(0);
         controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         Mockito.reset(overlayAnimator);
@@ -71,7 +74,7 @@ public class PlayerOverlayControllerTest {
 
     @Test
     public void shouldHideOverlayOnSetExpandedWhilePlayingAfterScrubStateCancelled() {
-        when(playStateProvider.isPlaying()).thenReturn(true);
+        setPlayingState();
         controller.setAlphaFromCollapse(0);
         controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         Mockito.reset(overlayAnimator);
@@ -82,16 +85,20 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
-    public void shouldNotHideTheOverlayOnPlayingStateWhenLeaveBehindDisplayed() {
-        when(adOverlayController.isNotVisible()).thenReturn(false);
+    public void shouldNotHideTheOverlayOnPlayingStateWhenAdOverlayDisplayed() throws Exception {
+        controller.setAdOverlayShown(true);
 
-        controller.showPlayingState();
+        setPlayingState();
 
-        verifyZeroInteractions(overlayAnimator);
+        verify(overlayAnimator, never()).hideOverlay(overlay);
+    }
+
+    private void setPlayingState() {
+        controller.setPlayState(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN));
     }
 
     @Test
-    public void shouldNotHideTheOverlayWhileExpandingWhenLeaveBehindDisplayed() {
+    public void shouldNotHideTheOverlayWhileExpandingWhenAdOverlayDisplayed() {
         when(adOverlayController.isNotVisible()).thenReturn(false);
 
         controller.setAlphaFromCollapse(0);
@@ -99,17 +106,48 @@ public class PlayerOverlayControllerTest {
         verifyZeroInteractions(overlayAnimator);
     }
 
+    @Test
+    public void shouldNotHideTheOverlayOnAdOverlayHiddenWhenIdle() throws Exception {
+        setIdleState();
+
+        controller.setAdOverlayShown(false);
+
+        verify(overlayAnimator, never()).hideOverlay(overlay);
+    }
+
+    @Test
+    public void shouldShowTheOverlayOnAdOverlayShownWhenPlaying() throws Exception {
+        setPlayingState();
+
+        controller.setAdOverlayShown(true);
+
+        verify(overlayAnimator).showOverlay(overlay);
+    }
+
+    @Test
+    public void shouldShowTheOverlayOnAdOverlayShownWhenIdle() throws Exception {
+        setIdleState();
+
+        controller.setAdOverlayShown(true);
+
+        verify(overlayAnimator, times(2)).showOverlay(overlay);
+    }
 
     @Test
     public void shouldShowOverlayOnShowIdleState() {
-        controller.showIdleState();
+        setIdleState();
+
         verify(overlayAnimator).showOverlay(overlay);
+    }
+
+    private void setIdleState() {
+        controller.setPlayState(new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN));
     }
 
     @Test
     public void shouldHideOverlayOnShowPlayingStateWhileExpandedAndNotScrubbing() {
         controller.setAlphaFromCollapse(0);
-        controller.showPlayingState();
+        setPlayingState();
 
         verify(overlayAnimator).hideOverlay(overlay);
     }
@@ -120,7 +158,7 @@ public class PlayerOverlayControllerTest {
         controller.scrubStateChanged(ScrubController.SCRUB_STATE_CANCELLED);
         Mockito.reset(overlayAnimator);
 
-        controller.showPlayingState();
+        setPlayingState();
 
         verify(overlayAnimator).hideOverlay(overlay);
     }

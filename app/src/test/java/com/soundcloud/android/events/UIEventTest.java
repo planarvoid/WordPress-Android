@@ -238,7 +238,7 @@ public class UIEventTest {
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AD_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(123).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
-        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URN)).toEqual(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).toEqual(audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
         expect(uiEvent.getAudioAdClickthroughUrls()).toContain("click1", "click2");
     }

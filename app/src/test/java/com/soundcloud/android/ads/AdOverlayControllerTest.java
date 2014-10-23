@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.interstitialForPlayer;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -31,8 +32,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +54,8 @@ public class AdOverlayControllerTest {
     @Mock private AdOverlayController.AdOverlayListener listener;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
+    @Mock private Context context;
+    @Mock private Resources resources;
     @Captor private ArgumentCaptor<ImageListener> imageListenerCaptor;
 
     @Before
@@ -58,13 +63,14 @@ public class AdOverlayControllerTest {
         eventBus = new TestEventBus();
         trackView = LayoutInflater.from(Robolectric.application).inflate(R.layout.player_track_page, mock(ViewGroup.class));
         AdOverlayController.Factory factory = new AdOverlayController.Factory(imageOperations,
-                Robolectric.application, deviceHelper, eventBus, playQueueManager, accountOperations);
+                context, deviceHelper, eventBus, playQueueManager, accountOperations);
         controller = factory.create(trackView, listener);
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(Urn.forTrack(123L));
         when(playQueueManager.getCurrentMetaData()).thenReturn(TestPropertySets.leaveBehindForPlayer());
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
+        when(context.getResources()).thenReturn(resources);
     }
 
     @Test
@@ -123,6 +129,17 @@ public class AdOverlayControllerTest {
     }
 
     @Test
+    public void recordsOverlayDismissal() {
+        final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
+        controller.initialize(properties);
+        controller.show();
+
+        controller.onCloseButtonClick();
+
+        expect(properties.getOrElse(AdOverlayProperty.META_AD_DISMISSED, false)).toBeTrue();
+    }
+
+    @Test
     public void loadsLeaveBehindImageFromModel() {
         final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
         controller.initialize(properties);
@@ -146,7 +163,11 @@ public class AdOverlayControllerTest {
 
         controller.onImageClick();
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
+
+        verify(context).startActivity(intentArgumentCaptor.capture());
+
+        Intent intent = intentArgumentCaptor.getValue();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Intent.ACTION_VIEW);
         expect(intent.getData()).toEqual(properties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
@@ -173,6 +194,70 @@ public class AdOverlayControllerTest {
         expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toBe(LeaveBehindTrackingEvent.KIND_CLICK);
     }
 
+    @Test
+    public void isNotVisibleReturnsTrueIfPresenterIsNull() throws Exception {
+        expect(controller.isNotVisible()).toBeTrue();
+    }
+
+    @Test
+    public void isNotVisibleReturnsTrueIfLeaveBehindImageHasNotLoaded() throws Exception {
+        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.show();
+
+        expect(controller.isNotVisible()).toBeTrue();
+    }
+
+    @Test
+    public void isNotVisibleReturnsFalseIfLeaveBehindImageHasLoaded() throws Exception {
+        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.show();
+
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        expect(controller.isNotVisible()).toBeFalse();
+    }
+
+    @Test
+    public void isNotVisibleReturnsTrueIfInterstitialImageHasNotLoaded() throws Exception {
+        controller.initialize(interstitialForPlayer());
+        controller.show();
+
+        expect(controller.isNotVisible()).toBeTrue();
+    }
+
+    @Test
+    public void isNotVisibleReturnsFalseIfInterstitialImageHasLoaded() throws Exception {
+        when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
+        controller.initialize(interstitialForPlayer());
+        controller.setExpanded();
+        controller.show(true);
+
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        expect(controller.isNotVisible()).toBeFalse();
+    }
+
+    @Test
+    public void isNotVisibleInFullscreenReturnsTrueIfLeaveBehindImageHasLoaded() throws Exception {
+        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.show();
+
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        expect(controller.isNotVisibleInFullscreen()).toBeTrue();
+    }
+
+    @Test
+    public void isNotVisibleInFullscreenReturnsFalseIfInterstitialImageHasLoaded() throws Exception {
+        when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
+        controller.initialize(interstitialForPlayer());
+        controller.setExpanded();
+        controller.show(true);
+
+        captureImageListener().onLoadingComplete(null, null, null);
+
+        expect(controller.isNotVisibleInFullscreen()).toBeFalse();
+    }
 
     private ImageListener captureImageListener() {
         verify(imageOperations).displayLeaveBehind(any(Uri.class), any(ImageView.class), imageListenerCaptor.capture());
@@ -187,8 +272,8 @@ public class AdOverlayControllerTest {
         return trackView.findViewById(R.id.leave_behind_image);
     }
 
-    private View getLeaveBehindClose() {
-        return trackView.findViewById(R.id.leave_behind_close);
+    private View getLeaveBehindHeader() {
+        return trackView.findViewById(R.id.leave_behind_header);
     }
 
     private void initializeAndShow(PropertySet properties) {
@@ -199,12 +284,12 @@ public class AdOverlayControllerTest {
     private void expectLeaveBehindToBeGone() {
         expect(getLeaveBehind()).not.toBeClickable();
         expect(getLeaveBehindImage()).toBeGone();
-        expect(getLeaveBehindClose()).toBeGone();
+        expect(getLeaveBehindHeader()).toBeGone();
     }
 
     private void expectLeaveBehindToVisible() {
         expect(getLeaveBehind()).toBeClickable();
         expect(getLeaveBehindImage()).toBeVisible();
-        expect(getLeaveBehindClose()).toBeVisible();
+        expect(getLeaveBehindHeader()).toBeVisible();
     }
 }

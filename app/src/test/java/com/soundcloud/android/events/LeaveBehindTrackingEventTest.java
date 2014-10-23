@@ -33,7 +33,7 @@ public class LeaveBehindTrackingEventTest extends TestCase {
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.AD_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(LeaveBehindProperty.IMAGE_URL).toString());
-        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URN)).toEqual(audioAd.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).toEqual(audioAd.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
         expect(uiEvent.getTrackingUrls()).toContain("leaveBehindTrackingImpressionUrl1", "leaveBehindTrackingImpressionUrl1");
     }
 
@@ -46,7 +46,7 @@ public class LeaveBehindTrackingEventTest extends TestCase {
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.AD_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(LeaveBehindProperty.IMAGE_URL).toString());
-        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URN)).toEqual(audioAd.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
+        expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).toEqual(audioAd.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
         expect(uiEvent.getTrackingUrls()).toContain("leaveBehindTrackingClickTroughUrl1", "leaveBehindTrackingClickTroughUrl2");
     }
 }

@@ -80,6 +80,7 @@
     <string name="ad_in_progress">Advertisement in progress</string>
     <string name="ad_resume_playing_to_continue">Resume playing ad to continue</string>
     <string name="ad_skip">Skip in: %s</string>
+    <string name="now_playing">Now Playing: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">I forgot my password</string>

@@ -127,12 +127,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive);
-
-        if (stateTransition.playSessionIsActive()) {
-            holder.playerOverlayController.showPlayingState();
-        } else {
-            holder.playerOverlayController.showIdleState();
-        }
+        holder.playerOverlayController.setPlayState(stateTransition);
     }
 
     @Override
@@ -167,7 +162,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void clearLeaveBehind(View trackPage) {
+    public void clearAdOverlay(View trackPage) {
 
     }
 

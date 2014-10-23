@@ -3,13 +3,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:paddingLeft="@dimen/leave_behind_padding"
-              android:paddingRight="@dimen/leave_behind_padding"
+              android:paddingLeft="@dimen/ad_overlay_padding"
+              android:paddingRight="@dimen/ad_overlay_padding"
               android:clickable="true"
               android:animateLayoutChanges="true">
 
     <FrameLayout
-        android:id="@+id/leave_behind_close"
+        android:id="@+id/leave_behind_header"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/leave_behind_image"
@@ -17,7 +17,7 @@
 
         <Button
             style="@style/AdOverlayClose"
-            android:layout_marginBottom="@dimen/leave_behind_padding"
+            android:layout_marginBottom="@dimen/ad_overlay_padding"
             android:layout_gravity="bottom|right" />
     </FrameLayout>
 

@@ -26,5 +26,5 @@ public interface PlayerPagePresenter {
     void setExpanded(View trackPage);
     void onPlayerSlide(View trackPage, float position);
 
-    void clearLeaveBehind(View trackPage);
+    void clearAdOverlay(View trackPage);
 }

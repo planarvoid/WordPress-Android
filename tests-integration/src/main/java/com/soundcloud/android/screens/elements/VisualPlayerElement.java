@@ -91,6 +91,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.interstitial));
     }
 
+    private ViewElement interstitialNowPlaying() {
+        return solo.findElement(With.id(R.id.interstitial_now_playing_title));
+    }
+
     public boolean isExpanded() {
         return !footerPlayer().isVisible();
     }
@@ -150,6 +154,10 @@ public class VisualPlayerElement extends Element {
 
     public String getTrackTitle() {
         return trackTitle().getText();
+    }
+
+    public String interstitalNowPlayingText() {
+        return interstitialNowPlaying().getText();
     }
 
     public String getTrackCreator() {

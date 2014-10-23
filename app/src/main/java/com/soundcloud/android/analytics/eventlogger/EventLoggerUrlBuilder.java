@@ -135,7 +135,7 @@ public class EventLoggerUrlBuilder {
 
     private Uri.Builder audioAddClickThrough(TrackingEvent event) {
         return audioAddClick(event)
-                .appendQueryParameter(CLICK_TARGET, event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URN));
+                .appendQueryParameter(CLICK_TARGET, event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL));
     }
 
     private Uri.Builder audioAddClick(TrackingEvent event) {

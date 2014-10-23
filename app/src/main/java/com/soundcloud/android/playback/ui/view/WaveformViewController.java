@@ -6,6 +6,7 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
+import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -45,6 +46,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     private final WaveformView waveformView;
     private final Scheduler graphicsScheduler;
+    private final AdOverlayController adOverlayController;
     private final float waveformWidthRatio;
     private final ProgressController leftProgressController;
     private final ProgressController rightProgressController;
@@ -66,9 +68,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler){
+                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler, AdOverlayController adOverlayController){
         this.waveformView = waveform;
         this.graphicsScheduler = graphicsScheduler;
+        this.adOverlayController = adOverlayController;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
 
@@ -187,12 +190,16 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void onPlayerSlide(float value){
-        waveformView.setVisibility(value > 0 ? View.VISIBLE : View.GONE);
+        if (adOverlayController.isNotVisible()){
+            waveformView.setVisibility(value > 0 ? View.VISIBLE : View.GONE);
+        }
     }
 
     public void setExpanded() {
-        createWaveforms(IS_EXPANDED);
-        waveformView.setVisibility(View.VISIBLE);
+        if (adOverlayController.isNotVisible()){
+            createWaveforms(IS_EXPANDED);
+            waveformView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void setCollapsed() {
@@ -279,8 +286,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             this.animationControllerFactory = animationControllerFactory;
             this.scheduler = scheduler;
         }
-        public WaveformViewController create(WaveformView waveformView){
-            return new WaveformViewController(waveformView, animationControllerFactory,scrubControllerFactory, scheduler);
+        public WaveformViewController create(WaveformView waveformView, AdOverlayController adOverlayController){
+            return new WaveformViewController(waveformView, animationControllerFactory,scrubControllerFactory,
+                    scheduler, adOverlayController);
         }
     }
 
