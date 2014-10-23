@@ -200,7 +200,7 @@ public class SearchResultsFragmentTest {
     private void setupSearchOperations() {
         final Observable<SearchResult> searchResult =
                 TestObservables.withSubscription(subscription, Observable.<SearchResult>never());
-        when(operations.getSearchResult(eq("query"), anyInt())).thenReturn(searchResult);
+        when(operations.searchResult(eq("query"), anyInt())).thenReturn(searchResult);
         when(operations.pager(anyInt())).thenReturn(pager);
         when(pager.page(searchResult)).thenReturn(searchResult);
     }

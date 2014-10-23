@@ -8,31 +8,34 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.propeller.PropertySet;
 
-public class UniversalSearchResult implements PropertySetSource {
+/**
+ * Has either a user XOR a playlist XOR a track set, as it represents a result item from a universal search.
+ */
+class ApiUniversalSearchItem implements PropertySetSource {
 
     private final ApiUser user;
     private final ApiPlaylist playlist;
     private final ApiTrack track;
 
     @JsonCreator
-    UniversalSearchResult(@JsonProperty("user") ApiUser user,
-                          @JsonProperty("playlist") ApiPlaylist playlist,
-                          @JsonProperty("track") ApiTrack track) {
+    ApiUniversalSearchItem(@JsonProperty("user") ApiUser user,
+                           @JsonProperty("playlist") ApiPlaylist playlist,
+                           @JsonProperty("track") ApiTrack track) {
         this.user = user;
         this.playlist = playlist;
         this.track = track;
     }
 
-    static UniversalSearchResult forTrack(ApiTrack track) {
-        return new UniversalSearchResult(null, null, track);
+    static ApiUniversalSearchItem forTrack(ApiTrack track) {
+        return new ApiUniversalSearchItem(null, null, track);
     }
 
-    static UniversalSearchResult forPlaylist(ApiPlaylist playlist) {
-        return new UniversalSearchResult(null, playlist, null);
+    static ApiUniversalSearchItem forPlaylist(ApiPlaylist playlist) {
+        return new ApiUniversalSearchItem(null, playlist, null);
     }
 
-    static UniversalSearchResult forUser(ApiUser user) {
-        return new UniversalSearchResult(user, null, null);
+    static ApiUniversalSearchItem forUser(ApiUser user) {
+        return new ApiUniversalSearchItem(user, null, null);
     }
 
     @Override

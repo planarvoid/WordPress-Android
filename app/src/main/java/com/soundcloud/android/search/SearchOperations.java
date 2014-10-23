@@ -70,6 +70,15 @@ class SearchOperations {
             }
             return searchResult;
         }
+
+        private Predicate<PropertySet> matchingUrnPredicate(final Urn itemUrn) {
+            return new Predicate<PropertySet>() {
+                @Override
+                public boolean apply(PropertySet input) {
+                    return input.get(PlaylistProperty.URN).equals(itemUrn);
+                }
+            };
+        }
     };
 
     @Inject
@@ -86,14 +95,12 @@ class SearchOperations {
         return new SearchResultPager(searchType);
     }
 
-    Observable<SearchResult> getSearchResult(String query, int searchType) {
-        final SearchStrategy<?> searchStrategy = getSearchStrategy(searchType);
-        return searchStrategy.getSearchResultObservable(query);
+    Observable<SearchResult> searchResult(String query, int searchType) {
+        return getSearchStrategy(searchType).searchResult(query);
     }
 
-    private Observable<SearchResult> getSearchResult(Link link, int searchType) {
-        final SearchStrategy<?> searchStrategy = getSearchStrategy(searchType);
-        return searchStrategy.getSearchResultObservable(link);
+    private Observable<SearchResult> nextResultPage(Link link, int searchType) {
+        return getSearchStrategy(searchType).nextResultPage(link);
     }
 
     private SearchStrategy<?> getSearchStrategy(int searchType) {
@@ -111,15 +118,6 @@ class SearchOperations {
         }
     }
 
-    private Predicate<PropertySet> matchingUrnPredicate(final Urn itemUrn) {
-        return new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(PropertySet input) {
-                return input.get(PlaylistProperty.URN).equals(itemUrn);
-            }
-        };
-    }
-
     class SearchResultPager extends Pager<SearchResult> {
         private final int searchType;
 
@@ -131,7 +129,7 @@ class SearchOperations {
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
             final Optional<Link> nextHref = searchResultsCollection.nextHref;
             if (nextHref.isPresent()) {
-                return getSearchResult(nextHref.get(), searchType);
+                return nextResultPage(nextHref.get(), searchType);
             } else {
                 return Pager.finish();
             }
@@ -148,7 +146,7 @@ class SearchOperations {
             this.apiEndpoint = apiEndpoint;
         }
 
-        private Observable<SearchResult> getSearchResultObservable(String query) {
+        private Observable<SearchResult> searchResult(String query) {
             return getSearchResultObservable(ApiRequest.Builder.<ResultT>get(apiEndpoint)
                     .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
                     .addQueryParameters("q", query)
@@ -156,7 +154,7 @@ class SearchOperations {
                     .forResource(typeToken));
         }
 
-        private Observable<SearchResult> getSearchResultObservable(Link nextPageLink) {
+        private Observable<SearchResult> nextResultPage(Link nextPageLink) {
             return getSearchResultObservable(ApiRequest.Builder.<ResultT>get(nextPageLink.getHref())
                     .forPrivateApi(1)
                     .forResource(typeToken));
@@ -233,16 +231,16 @@ class SearchOperations {
         }
     }
 
-    private final class UniversalSearchStrategy extends SearchStrategy<ModelCollection<UniversalSearchResult>> {
+    private final class UniversalSearchStrategy extends SearchStrategy<ModelCollection<ApiUniversalSearchItem>> {
 
-        private final Action1<ModelCollection<UniversalSearchResult>> cacheUniversal = new Action1<ModelCollection<UniversalSearchResult>>() {
+        private final Action1<ModelCollection<ApiUniversalSearchItem>> cacheUniversal = new Action1<ModelCollection<ApiUniversalSearchItem>>() {
             @Override
-            public void call(ModelCollection<UniversalSearchResult> universalSearchResults) {
+            public void call(ModelCollection<ApiUniversalSearchItem> universalSearchResults) {
                 List<ApiUser> users = new ArrayList<>();
                 List<ApiPlaylist> playlists = new ArrayList<>();
                 List<ApiTrack> tracks = new ArrayList<>();
 
-                for (UniversalSearchResult result : universalSearchResults) {
+                for (ApiUniversalSearchItem result : universalSearchResults) {
                     if (result.isUser()) {
                         users.add(result.getUser());
                     } else if (result.isPlaylist()) {
@@ -265,12 +263,12 @@ class SearchOperations {
         };
 
         protected UniversalSearchStrategy() {
-            super(new TypeToken<ModelCollection<UniversalSearchResult>>() {
+            super(new TypeToken<ModelCollection<ApiUniversalSearchItem>>() {
             }, ApiEndpoints.SEARCH_ALL.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<UniversalSearchResult>> builder) {
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiUniversalSearchItem>> builder) {
             return apiScheduler.mappedResponse(builder.build())
                     .doOnNext(cacheUniversal)
                     .map(TO_SEARCH_RESULT)

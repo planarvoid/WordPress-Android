@@ -57,9 +57,9 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldDifferentiateItemViewTypesForUniversalSearchResult() {
-        adapter.addItem(UniversalSearchResult.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
-        adapter.addItem(UniversalSearchResult.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
-        adapter.addItem(UniversalSearchResult.forPlaylist(ModelFixtures.create(ApiPlaylist.class)).toPropertySet());
+        adapter.addItem(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
+        adapter.addItem(ApiUniversalSearchItem.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
+        adapter.addItem(ApiUniversalSearchItem.forPlaylist(ModelFixtures.create(ApiPlaylist.class)).toPropertySet());
 
         expect(adapter.getItemViewType(0)).toEqual(TYPE_USER);
         expect(adapter.getItemViewType(1)).toEqual(TYPE_TRACK);

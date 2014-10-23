@@ -133,7 +133,7 @@ public class SearchResultsFragment extends DefaultFragment
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
         final String query = getArguments().getString(EXTRA_QUERY);
-        final Observable<SearchResult> observable = searchOperations.getSearchResult(query, searchType);
+        final Observable<SearchResult> observable = searchOperations.searchResult(query, searchType);
         return pager.page(observable).map(TO_PROPERTY_SET)
                 .observeOn(mainThread()).replay();
     }

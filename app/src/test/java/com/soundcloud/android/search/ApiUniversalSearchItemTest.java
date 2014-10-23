@@ -14,13 +14,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UniversalSearchResultTest {
+public class ApiUniversalSearchItemTest {
 
 
     @Test
     public void shouldConvertWrappedApiUserToPropertySet() {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
-        final UniversalSearchResult searchResult = UniversalSearchResult.forUser(user);
+        final ApiUniversalSearchItem searchResult = ApiUniversalSearchItem.forUser(user);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
@@ -30,7 +30,7 @@ public class UniversalSearchResultTest {
     @Test
     public void shouldConvertWrappedApiTrackToPropertySet() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final UniversalSearchResult searchResult = UniversalSearchResult.forTrack(track);
+        final ApiUniversalSearchItem searchResult = ApiUniversalSearchItem.forTrack(track);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
@@ -40,7 +40,7 @@ public class UniversalSearchResultTest {
     @Test
     public void shouldConvertWrappedApiPlaylistToPropertySet() {
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        final UniversalSearchResult searchResult = UniversalSearchResult.forPlaylist(playlist);
+        final ApiUniversalSearchItem searchResult = ApiUniversalSearchItem.forPlaylist(playlist);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 

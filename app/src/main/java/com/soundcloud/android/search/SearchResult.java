@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 class SearchResult implements Iterable<PropertySet> {
-    private List<PropertySet> items;
+    private final List<PropertySet> items;
     final Optional<Link> nextHref;
 
     SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref) {
