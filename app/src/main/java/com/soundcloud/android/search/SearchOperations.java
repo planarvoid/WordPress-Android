@@ -31,7 +31,9 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressFBWarnings(value = "SE_BAD_FIELD_INNER_CLASS", justification = "we never serialize search operations")
+@SuppressFBWarnings(
+        value = {"SE_BAD_FIELD_INNER_CLASS", "SE_BAD_FIELD"},
+        justification = "we never serialize search operations")
 class SearchOperations {
 
     static final int TYPE_ALL = 0;
