@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressLint("ValidFragment")
 public class PlaylistFragment extends DefaultFragment implements AdapterView.OnItemClickListener, OnRefreshListener {
 
-    @Inject PlaylistDetailsController controller;
+    @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject LegacyPlaylistOperations legacyPlaylistOperations;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
@@ -71,6 +71,8 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     @Inject PlaylistPresenter playlistPresenter;
     @Inject PlaybackToastViewController playbackToastViewController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+
+    private PlaylistDetailsController controller;
 
     private ListView listView;
     private View progressView;
@@ -121,7 +123,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     }
 
     @VisibleForTesting
-    PlaylistFragment(PlaylistDetailsController controller,
+    PlaylistFragment(PlaylistDetailsController.Provider controllerProvider,
                      PlaybackOperations playbackOperations,
                      LegacyPlaylistOperations legacyPlaylistOperations,
                      PlaylistOperations playlistOperations,
@@ -132,7 +134,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
                      PlayQueueManager playQueueManager,
                      PlaylistPresenter playlistPresenter,
                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
-        this.controller = controller;
+        this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
         this.playlistOperations = playlistOperations;
@@ -149,7 +151,6 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     private void addLifeCycleComponents() {
         pullToRefreshController.setRefreshListener(this);
         addLifeCycleComponent(pullToRefreshController);
-        addLifeCycleComponent(controller);
     }
 
     @Override
@@ -160,12 +161,15 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        controller = controllerProvider.create();
         return inflater.inflate(R.layout.playlist_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View layout, Bundle savedInstanceState) {
         super.onViewCreated(layout, savedInstanceState);
+
+        controller.onViewCreated(layout, savedInstanceState);
 
         progressView = layout.findViewById(R.id.progress_container);
 
@@ -223,6 +227,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     @Override
     public void onDestroyView() {
         playlistSubscription.unsubscribe();
+        controller.onDestroyView();
         super.onDestroyView();
     }
 

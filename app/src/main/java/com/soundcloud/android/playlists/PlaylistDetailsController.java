@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.main.DefaultFragmentLifeCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.view.adapters.ItemAdapter;
@@ -15,10 +14,11 @@ import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.View;
 
-abstract class PlaylistDetailsController extends DefaultFragmentLifeCycle<Fragment> implements EmptyViewAware {
+import javax.inject.Inject;
+
+abstract class PlaylistDetailsController implements EmptyViewAware {
 
     private final TrackItemPresenter trackPresenter;
     private final ItemAdapter<PropertySet> adapter;
@@ -40,7 +40,6 @@ abstract class PlaylistDetailsController extends DefaultFragmentLifeCycle<Fragme
 
     abstract void setListShown(boolean show);
 
-    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, trackPresenter)),
@@ -48,8 +47,20 @@ abstract class PlaylistDetailsController extends DefaultFragmentLifeCycle<Fragme
         );
     }
 
-    @Override
     public void onDestroyView() {
         eventSubscriptions.unsubscribe();
+    }
+
+    public static class Provider {
+        private final javax.inject.Provider<PlaylistDetailsController> injectionProvider;
+
+        @Inject
+        Provider(javax.inject.Provider<PlaylistDetailsController> injectionProvider) {
+            this.injectionProvider = injectionProvider;
+        }
+
+        public PlaylistDetailsController create() {
+            return injectionProvider.get();
+        }
     }
 }
