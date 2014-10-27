@@ -20,7 +20,7 @@ public class ApiAdWrapper {
     }
 
     @JsonCreator
-    public ApiAdWrapper(@JsonProperty("audioAd") @Nullable ApiAudioAd apiAudioAd,
+    public ApiAdWrapper(@JsonProperty("audio_ad") @Nullable ApiAudioAd apiAudioAd,
                           @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial) {
         this.apiAudioAd = apiAudioAd;
         this.interstitial = interstitial;
