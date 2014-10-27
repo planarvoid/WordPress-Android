@@ -1,5 +1,8 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
+
 import com.soundcloud.android.R;
 
 import android.view.View;
@@ -90,6 +93,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
     }
 
     private void setNewAppendState(AppendState newState) {
+        assertOnUiThread("Adapter should always be uses on UI Thread. Tracking issue #2377");
         appendState = newState;
         notifyDataSetChanged();
     }
@@ -101,6 +105,10 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
 
     @Override
     public int getItemViewType(int position) {
+        if (position == items.size()) {
+            checkArgument(appendState != AppendState.IDLE, "This position is invalid in Idle state. Tracking issue #2377");
+        }
+        
         return appendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
                  : super.getItemViewType(position);
     }
@@ -129,6 +137,5 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
             addItem(item);
         }
         setNewAppendState(AppendState.IDLE);
-        notifyDataSetChanged();
     }
 }
