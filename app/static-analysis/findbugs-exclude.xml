@@ -12,5 +12,8 @@
         <!-- Skippy Lib -->
         <Package name="com.soundcloud.android.skippy" />
     </Match>
+    <Match>
+        <Bug pattern="NP_NULL_ON_SOME_PATH" />
+    </Match>
 
 </FindBugsFilter>
