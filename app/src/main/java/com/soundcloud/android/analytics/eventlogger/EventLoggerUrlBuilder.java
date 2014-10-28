@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
@@ -147,9 +148,17 @@ public class EventLoggerUrlBuilder {
     }
 
     private Uri.Builder audioAddClick(TrackingEvent event) {
-        return addCommonAudioAdParams(click(event), event)
-                .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
-                .appendQueryParameter(CLICK_OBJECT, event.get(AdTrackingKeys.KEY_AD_TRACK_URN));
+        final Uri.Builder builder = addCommonAudioAdParams(click(event), event)
+                .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
+        addClickObjectIfIncluded(event, builder);
+        return builder;
+    }
+
+    private void addClickObjectIfIncluded(TrackingEvent event, Uri.Builder builder) {
+        final String clickObjectUrn = event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN);
+        if (!Strings.isNullOrEmpty(clickObjectUrn)) {
+            builder.appendQueryParameter(CLICK_OBJECT, clickObjectUrn);
+        }
     }
 
     private Uri.Builder audioAdImpression(TrackingEvent event) {

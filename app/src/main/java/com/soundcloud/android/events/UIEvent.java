@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -155,6 +156,7 @@ public final class UIEvent extends TrackingEvent {
     private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
         return event
                 .put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
+                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
                 .put(AdTrackingKeys.KEY_USER_URN, user.toString())
                 .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
                 .put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString())

@@ -87,6 +87,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, get(KEY_TRACK_URN));
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
+        put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, get(KEY_TRACK_URN));
         this.adImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS);
         this.adCompanionImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);
         this.adFinishedUrls = audioAd.get(AdProperty.AUDIO_AD_FINISH_URLS);

@@ -44,6 +44,7 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
 
         if (adMetaData.contains(LeaveBehindProperty.AUDIO_AD_TRACK_URN)){
             put(AdTrackingKeys.KEY_AD_TRACK_URN, adMetaData.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString());
+            put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, adMetaData.get(LeaveBehindProperty.AUDIO_AD_TRACK_URN).toString());
         } else {
             put(AdTrackingKeys.KEY_AD_TRACK_URN, monetizableTrack.toString());
         }

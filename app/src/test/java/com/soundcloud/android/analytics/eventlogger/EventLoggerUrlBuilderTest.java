@@ -332,7 +332,6 @@ public class EventLoggerUrlBuilderTest {
                 + "&user=" + userUrn.toEncodedString()
                 + "&page_name=" + "page_source"
                 + "&click_name=" + "clickthrough::interstitial"
-                + "&click_object=" + monetizedTrack.toEncodedString()
                 + "&click_target=" + interstitial.get(InterstitialProperty.CLICK_THROUGH_URL)
                 + "&ad_urn=" + URLEncoder.encode(interstitial.get(InterstitialProperty.INTERSTITIAL_URN), Charsets.UTF_8.displayName())
                 + "&monetized_object=" + monetizedTrack.toEncodedString()
