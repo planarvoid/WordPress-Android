@@ -1,7 +1,10 @@
 package com.soundcloud.android.api;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
@@ -29,6 +32,31 @@ public class ApiSchedulerTest {
     }
 
     @Test
+    public void shouldEmitResponseOnSuccess() {
+        ApiResponse response = new ApiResponse(request, 200, "");
+        when(client.fetchResponse(request)).thenReturn(response);
+
+        scheduler.response(request).subscribe(observer);
+
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onNext(response);
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void shouldEmitExceptionOnFailedResponse() {
+        ApiResponse response = new ApiResponse(request, 500, "");
+        when(client.fetchResponse(request)).thenReturn(response);
+
+        scheduler.response(request).subscribe(observer);
+
+        verify(observer).onError(isA(ApiRequestException.class));
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+    }
+
+    @Test
     public void shouldEmitMappedResponseOnSuccess() throws Exception {
         ApiTrack track = new ApiTrack();
         ApiResponse response = new ApiResponse(request, 200, "");
@@ -44,15 +72,15 @@ public class ApiSchedulerTest {
     }
 
     @Test
-    public void shouldEmitExceptionOnFailedResponse() throws Exception {
+    public void shouldEmitExceptionIfResponseFailedBeforeMapping() throws Exception {
         ApiResponse response = new ApiResponse(request, 500, "");
         when(client.fetchResponse(request)).thenReturn(response);
 
         scheduler.mappedResponse(request).subscribe(observer);
 
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onError(isA(ApiRequestException.class));
-        inOrder.verifyNoMoreInteractions();
+        verify(observer).onError(isA(ApiRequestException.class));
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
     }
 
     @Test

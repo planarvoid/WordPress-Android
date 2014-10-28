@@ -17,6 +17,21 @@ public class ApiScheduler {
         this.scheduler = scheduler;
     }
 
+    public Observable<ApiResponse> response(final ApiRequest<?> request) {
+        return Observable.create(new Observable.OnSubscribe<ApiResponse>() {
+            @Override
+            public void call(Subscriber<? super ApiResponse> subscriber) {
+                final ApiResponse response = apiClient.fetchResponse(request);
+                if (response.isSuccess()) {
+                    subscriber.onNext(response);
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(response.getFailure());
+                }
+            }
+        }).subscribeOn(scheduler);
+    }
+
     public <T> Observable<T> mappedResponse(final ApiRequest<T> request) {
         return Observable.create(new Observable.OnSubscribe<T>() {
             @Override
@@ -25,10 +40,10 @@ public class ApiScheduler {
                     final ApiResponse response = apiClient.fetchResponse(request);
                     if (response.isSuccess()) {
                         subscriber.onNext(apiClient.mapResponse(request, response));
+                        subscriber.onCompleted();
                     } else {
                         subscriber.onError(response.getFailure());
                     }
-                    subscriber.onCompleted();
                 } catch (ApiMapperException e) {
                     subscriber.onError(e);
                 }
