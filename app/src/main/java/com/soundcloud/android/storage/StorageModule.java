@@ -19,6 +19,7 @@ import javax.inject.Named;
 public class StorageModule {
 
     public static final String PLAYLIST_TAGS = "playlist_tags";
+    public static final String PAYMENTS = "payments";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -27,8 +28,14 @@ public class StorageModule {
 
     @Provides
     @Named("PlaylistTags")
-    public SharedPreferences provideSharedPreferences(SoundCloudApplication application) {
-        return application.getSharedPreferences(PLAYLIST_TAGS, Context.MODE_PRIVATE);
+    public SharedPreferences providePlaylistTagPrefs(Context context) {
+        return context.getSharedPreferences(PLAYLIST_TAGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named("Payments")
+    public SharedPreferences providePaymentsPrefs(Context context) {
+        return context.getSharedPreferences(PAYMENTS, Context.MODE_PRIVATE);
     }
 
     @Provides

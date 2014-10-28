@@ -2,13 +2,16 @@ package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.payments.AvailableProducts.Product;
 
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiScheduler;
+import com.soundcloud.android.payments.googleplay.PlayBillingResult;
 import com.soundcloud.android.payments.googleplay.PlayBillingService;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.app.Activity;
@@ -17,22 +20,33 @@ import javax.inject.Inject;
 
 class PaymentOperations {
 
-    private final RxHttpClient rxHttpClient;
+    private static final String TAG = "PaymentOps";
+
+    private final ApiScheduler apiScheduler;
     private final PlayBillingService playBilling;
+    private final PaymentStorage paymentStorage;
 
     private final Func1<Product, Observable<ProductStatus>> productToResult = new Func1<Product, Observable<ProductStatus>>() {
         @Override
         public Observable<ProductStatus> call(Product product) {
             return product.isEmpty()
                     ? Observable.just(ProductStatus.fromNoProduct())
-                    : queryProductDetails(product.id).map(ProductStatus.SUCCESS);
+                    : queryProduct(product.id).map(ProductStatus.SUCCESS);
+        }
+    };
+
+    private final Action1<String> saveToken = new Action1<String>() {
+        @Override
+        public void call(String checkoutToken) {
+            paymentStorage.setCheckoutToken(checkoutToken);
         }
     };
 
     @Inject
-    PaymentOperations(RxHttpClient rxHttpClient, PlayBillingService playBilling) {
-        this.rxHttpClient = rxHttpClient;
+    PaymentOperations(ApiScheduler apiScheduler, PlayBillingService playBilling, PaymentStorage paymentStorage) {
+        this.apiScheduler = apiScheduler;
         this.playBilling = playBilling;
+        this.paymentStorage = paymentStorage;
     }
 
     public Observable<ConnectionStatus> connect(Activity activity) {
@@ -43,25 +57,47 @@ class PaymentOperations {
         playBilling.closeConnection();
     }
 
-    public Observable<ProductStatus> queryProductDetails() {
+    public Observable<ProductStatus> queryProduct() {
         return getSubscriptionId()
                 .flatMap(productToResult)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Observable<String> buy(String id) {
-        final ApiRequest<CheckoutResult> request =
-                ApiRequest.Builder.<CheckoutResult>post(ApiEndpoints.CHECKOUT.path())
+    public Observable<String> purchase(final String id) {
+        final ApiRequest<CheckoutStart> request =
+                ApiRequest.Builder.<CheckoutStart>post(ApiEndpoints.CHECKOUT.path())
                         .forPrivateApi(1)
-                        .forResource(CheckoutResult.class)
+                        .forResource(CheckoutStart.class)
                         .addQueryParameters("product_id", id)
                         .build();
-        return rxHttpClient.<CheckoutResult>fetchModels(request)
-                .map(CheckoutResult.TOKEN)
-                .observeOn(AndroidSchedulers.mainThread());
+        return apiScheduler.mappedResponse(request)
+                .map(CheckoutStart.TOKEN)
+                .doOnNext(saveToken)
+                .doOnNext(launchPaymentFlow(id));
     }
 
-    private Observable<ProductDetails> queryProductDetails(String id) {
+    private Action1<String> launchPaymentFlow(final String id) {
+        return new Action1<String>() {
+            @Override
+            public void call(String token) {
+                playBilling.startPurchase(id, token);
+            }
+        };
+    }
+
+    public Observable<PurchaseStatus> verify(final PlayBillingResult result) {
+        Log.e(TAG, "Verify: " + paymentStorage.getCheckoutToken());
+        // TODO: POST /checkout/:token with purchase JSON & signature
+        return Observable.just(PurchaseStatus.VERIFYING);
+    }
+
+    public Observable<Void> cancel(final PlayBillingResult result) {
+        Log.e(TAG, "Cancel: " + paymentStorage.getCheckoutToken());
+        // TODO: POST /checkout/:token with updated status
+        return Observable.just(null);
+    }
+
+    private Observable<ProductDetails> queryProduct(String id) {
         return playBilling.getDetails(id)
                 .subscribeOn(ScSchedulers.API_SCHEDULER);
     }
@@ -77,7 +113,7 @@ class PaymentOperations {
                         .forPrivateApi(1)
                         .forResource(AvailableProducts.class)
                         .build();
-        return rxHttpClient.fetchModels(request);
+        return apiScheduler.mappedResponse(request);
     }
 
 }

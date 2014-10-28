@@ -26,11 +26,11 @@ final class PlayBillingUtil {
     public static final String RESPONSE_CODE = "RESPONSE_CODE";
     public static final String RESPONSE_GET_SKU_DETAILS_LIST = "DETAILS_LIST";
     public static final String RESPONSE_BUY_INTENT = "BUY_INTENT";
-    public static final String RESPONSE_INAPP_PURCHASE_DATA = "INAPP_PURCHASE_DATA";
-    public static final String RESPONSE_INAPP_SIGNATURE = "INAPP_DATA_SIGNATURE";
-    public static final String RESPONSE_INAPP_ITEM_LIST = "INAPP_PURCHASE_ITEM_LIST";
-    public static final String RESPONSE_INAPP_PURCHASE_DATA_LIST = "INAPP_PURCHASE_DATA_LIST";
-    public static final String RESPONSE_INAPP_SIGNATURE_LIST = "INAPP_DATA_SIGNATURE_LIST";
+    public static final String RESPONSE_PURCHASE_DATA = "INAPP_PURCHASE_DATA";
+    public static final String RESPONSE_SIGNATURE = "INAPP_DATA_SIGNATURE";
+    public static final String RESPONSE_ITEM_LIST = "INAPP_PURCHASE_ITEM_LIST";
+    public static final String RESPONSE_PURCHASE_DATA_LIST = "INAPP_PURCHASE_DATA_LIST";
+    public static final String RESPONSE_SIGNATURE_LIST = "INAPP_DATA_SIGNATURE_LIST";
 
     public static final String REQUEST_PRODUCT_DETAILS = "ITEM_ID_LIST";
     public static final String REQUEST_PRODUCT_DETAILS_TYPES = "ITEM_TYPE_LIST";
@@ -70,10 +70,10 @@ final class PlayBillingUtil {
     public static void logBillingResponse(String message, int responseCode) {
         switch (responseCode) {
             case PlayBillingUtil.RESULT_OK:
-                Log.d(TAG, message + ": Responded OK");
+                Log.d(TAG, message + ": OK");
                 break;
             case PlayBillingUtil.RESULT_BILLING_UNAVAILABLE:
-                Log.e(TAG, message + ": Responded UNAVAILABLE");
+                Log.e(TAG, message + ": UNAVAILABLE");
                 break;
             case PlayBillingUtil.ERROR_REMOTE_EXCEPTION:
                 Log.e(TAG, message + ": RemoteException");

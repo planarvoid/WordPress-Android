@@ -25,9 +25,9 @@ public class PlayResponseProcessorTest {
     public void parsesProductDetailsFromJson() throws JSONException {
         ProductDetails details = processor.parseProduct(PRODUCT_JSON);
 
-        expect(details.id).toEqual("product_id");
-        expect(details.title).toEqual("subscription title");
-        expect(details.description).toEqual("placeholder description");
-        expect(details.price).toEqual("€4.75");
+        expect(details.getId()).toEqual("product_id");
+        expect(details.getTitle()).toEqual("subscription title");
+        expect(details.getDescription()).toEqual("placeholder description");
+        expect(details.getPrice()).toEqual("€4.75");
     }
 }

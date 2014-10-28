@@ -24,7 +24,10 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -65,7 +68,7 @@ public class PlayBillingServiceTest {
         when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(PlayBillingUtil.RESULT_OK);
         onServiceConnected();
 
-        ConnectionStatus status = result.toBlocking().first();
+        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
         expect(status.isReady()).toBeTrue();
     }
 
@@ -75,7 +78,7 @@ public class PlayBillingServiceTest {
 
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
 
-        ConnectionStatus status = result.toBlocking().first();
+        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
         expect(status.isUnsupported()).toBeTrue();
     }
 
@@ -85,7 +88,7 @@ public class PlayBillingServiceTest {
         when(service.isBillingSupported(eq(3), anyString(), anyString())).thenReturn(PlayBillingUtil.RESULT_ERROR);
         onServiceConnected();
 
-        ConnectionStatus status = result.toBlocking().first();
+        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
         expect(status.isUnsupported()).toBeTrue();
     }
 
@@ -96,7 +99,7 @@ public class PlayBillingServiceTest {
 
         onServiceDisconnected();
 
-        ConnectionStatus status = result.toBlocking().first();
+        ConnectionStatus status = result.toBlocking().firstOrDefault(null);
         expect(status.isDisconnected()).toBeTrue();
     }
 
@@ -120,9 +123,23 @@ public class PlayBillingServiceTest {
 
         billingService.openConnection(activity);
         onServiceConnected();
-        ProductDetails result = billingService.getDetails("id").toBlocking().first();
+        ProductDetails result = billingService.getDetails("id").toBlocking().firstOrDefault(null);
 
         expect(result).toBe(details);
+    }
+
+    @Test
+    public void startPurchaseStartsIntentFromBillingService() throws RemoteException, IntentSender.SendIntentException {
+        Bundle bundle = new Bundle();
+        bundle.putInt(PlayBillingUtil.RESPONSE_CODE, PlayBillingUtil.RESULT_OK);
+        bundle.putParcelable(PlayBillingUtil.RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
+        when(service.getBuyIntent(3, "com.package", "package_id", "subs", "token")).thenReturn(bundle);
+
+        billingService.openConnection(activity);
+        onServiceConnected();
+        billingService.startPurchase("package_id", "token");
+
+        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(PlayBillingResult.REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
     private void onServiceConnected() {

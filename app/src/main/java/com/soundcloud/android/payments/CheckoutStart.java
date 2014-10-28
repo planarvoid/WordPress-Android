@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import rx.functions.Func1;
 
-class CheckoutResult {
+class CheckoutStart {
 
-    public static final Func1<CheckoutResult, String> TOKEN = new Func1<CheckoutResult, String>() {
+    public static final Func1<CheckoutStart, String> TOKEN = new Func1<CheckoutStart, String>() {
         @Override
-        public String call(CheckoutResult result) {
+        public String call(CheckoutStart result) {
             return result.token;
         }
     };
@@ -16,7 +16,7 @@ class CheckoutResult {
     public final String token;
 
     @JsonCreator
-    public CheckoutResult(@JsonProperty("checkout_token") String token) {
+    public CheckoutStart(@JsonProperty("checkout_token") String token) {
         this.token = token;
     }
 

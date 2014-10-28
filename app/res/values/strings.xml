@@ -307,6 +307,14 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s at %2$s</string>
 
+    <!-- __PAYMENTS -->
+    <string name="payments_connection_error">Connection error</string>
+    <string name="payments_user_cancelled">User cancelled</string>
+    <string name="payments_none_available">No subscription available</string>
+    <string name="payments_verifying">Verifying</string>
+    <string name="payments_verification_failed">Verification failed</string>
+    <string name="payments_success">Success</string>
+
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>
