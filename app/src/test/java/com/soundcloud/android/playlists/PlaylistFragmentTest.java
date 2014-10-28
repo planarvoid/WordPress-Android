@@ -18,6 +18,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -28,7 +29,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -60,6 +60,7 @@ public class PlaylistFragmentTest {
     private PublicApiPlaylist playlist;
     private TestEventBus eventBus = new TestEventBus();
 
+    @Mock private PlaylistDetailsController.Provider controllerProvider;
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
@@ -74,7 +75,7 @@ public class PlaylistFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistFragment(
-                controller,
+                controllerProvider,
                 playbackOperations,
                 legacyPlaylistOperations,
                 playlistOperations,
@@ -92,6 +93,7 @@ public class PlaylistFragmentTest {
 
         playlist = createPlaylist();
 
+        when(controllerProvider.create()).thenReturn(controller);
         when(controller.getAdapter()).thenReturn(adapter);
         when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
         when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
@@ -394,6 +396,31 @@ public class PlaylistFragmentTest {
         expect(getToggleButton(layout).isChecked()).toBeFalse();
     }
 
+    @Test
+    public void shouldForwardOnViewCreatedEventToController() {
+        Bundle savedInstanceState = new Bundle();
+        View layout = createFragmentView(savedInstanceState);
+
+        verify(controller).onViewCreated(layout, savedInstanceState);
+    }
+
+    @Test
+    public void shouldForwardOnDestroyViewEventToController() {
+        createFragmentView();
+        fragment.onDestroyView();
+
+        verify(controller).onDestroyView();
+    }
+
+    @Test
+    public void onCreateViewRecreatesPlaylistDetailsController() {
+        createFragmentView();
+
+        fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
+
+        verify(controllerProvider, times(2)).create();
+    }
+
     private PublicApiTrack createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
         final PublicApiTrack model = ModelFixtures.create(PublicApiTrack.class);
         model.setTitle(title);
@@ -405,9 +432,17 @@ public class PlaylistFragmentTest {
         bundle.putParcelable(PlaylistFragment.EXTRA_URN, playlist.getUrn());
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
+        return createFragmentView(new Bundle());
+    }
+
+    private View createFragmentView(Bundle savedInstanceState) {
+        Bundle fragmentArguments = new Bundle();
+        fragmentArguments.putParcelable(PlaylistFragment.EXTRA_URN, playlist.getUrn());
+        Screen.SIDE_MENU_STREAM.addToBundle(fragmentArguments);
+        fragment.setArguments(fragmentArguments);
         fragment.onCreate(null);
         View layout = fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
-        fragment.onViewCreated(layout, null);
+        fragment.onViewCreated(layout, savedInstanceState);
         return layout;
     }
 

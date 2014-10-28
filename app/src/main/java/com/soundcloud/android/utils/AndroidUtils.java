@@ -2,6 +2,8 @@ package com.soundcloud.android.utils;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import org.jetbrains.annotations.Nullable;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -19,7 +21,6 @@ import android.view.Display;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

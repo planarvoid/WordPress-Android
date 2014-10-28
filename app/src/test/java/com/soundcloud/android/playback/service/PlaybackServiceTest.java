@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -26,6 +27,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowService;
 import dagger.Lazy;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,7 @@ import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -264,6 +267,25 @@ public class PlaybackServiceTest {
         ShadowService service = Robolectric.shadowOf(playbackService);
         expect(service.getLastForegroundNotification()).toBeNull();
 
+    }
+
+    @Test
+    public void doNotCrashOnPlayingNotificationException() {
+        when(stateTransition.getTrackUrn()).thenReturn(getTrackUrn());
+        when(stateTransition.playSessionIsActive()).thenReturn(true);
+
+        when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
+        playbackService.onCreate();
+
+        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, getTrackUrn()));
+        when(playbackNotificationController.playingNotification()).thenReturn(Observable.<Notification>error(new SyncFailedException(new Bundle())));
+        playbackService.openCurrent(track, false);
+
+        try {
+            playbackService.onPlaystateChanged(stateTransition);
+        } catch (Exception e) {
+            Assert.fail();
+        }
     }
 
     @Test

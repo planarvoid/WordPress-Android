@@ -1,8 +1,6 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Token;
 
@@ -41,10 +39,7 @@ public class TestUser {
     public boolean logIn(Context context) {
         ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
         try {
-            Token token = getToken(apiWrapper);
-            PublicApiUser user = getUser(apiWrapper);
-            return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
-
+            return AccountAssistant.waitForInjectionAddAccountAndEnableSync(context, getToken(apiWrapper), getUser(apiWrapper));
         } catch (IOException e) {
             throw new AssertionError("error logging in: " + e.getMessage());
         }

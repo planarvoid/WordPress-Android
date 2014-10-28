@@ -35,6 +35,6 @@ public class PlaylistsModule {
 
     @Provides
     public ItemAdapter<PropertySet> provideSplitScreenItemAdapter(TrackItemPresenter trackRowPresenter) {
-        return new ItemAdapter<PropertySet>(trackRowPresenter);
+        return new ItemAdapter<>(trackRowPresenter);
     }
 }

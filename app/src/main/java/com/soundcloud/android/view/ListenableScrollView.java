@@ -1,10 +1,10 @@
 package com.soundcloud.android.view;
 
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ScrollView;
-
-import javax.annotation.Nullable;
 
 public class ListenableScrollView extends ScrollView {
 

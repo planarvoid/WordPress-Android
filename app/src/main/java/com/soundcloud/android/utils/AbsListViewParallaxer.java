@@ -5,6 +5,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.view.ParallaxImageView;
+import org.jetbrains.annotations.Nullable;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -12,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 

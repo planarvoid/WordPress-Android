@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.view.View;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.AccessorClassGeneration")

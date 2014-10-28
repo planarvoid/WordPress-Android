@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.service.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
@@ -72,13 +71,6 @@ public class TestApplicationModule {
     @Provides
     public Resources provideResources() {
         return application.getResources();
-    }
-
-    @Provides
-    public ApplicationProperties provideAppProperties() {
-        Resources mockResources = mock(Resources.class);
-        when(mockResources.getString(R.string.build_type)).thenReturn("DEBUG");
-        return new ApplicationProperties(mockResources);
     }
 
     @Provides

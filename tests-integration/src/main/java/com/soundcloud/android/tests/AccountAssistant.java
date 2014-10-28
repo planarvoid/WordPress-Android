@@ -31,6 +31,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public final class AccountAssistant {
 
+    private static final long INJECTION_TIMEOUT = 2000;
+
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
 
@@ -69,15 +71,39 @@ public final class AccountAssistant {
         try {
             Token token = getToken(apiWrapper, username, password);
             PublicApiUser user = getLoggedInUser(apiWrapper);
-            if (SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
+            if (waitForInjectionAddAccountAndEnableSync(context, token, user)) {
                 return getAccount(context);
             }
-
         } catch (IOException e) {
             throw new AssertionError("error logging in: " + e.getMessage());
         }
 
         return null;
+    }
+
+    static boolean waitForInjectionAddAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
+        waitForAccountOperationsToBeInjected(context);
+        return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+    }
+
+    // Dirty workaround :
+    //      we wait on the integration tests thread for the application
+    //      to perform injection in order to mutate the application.
+    //
+    // A real user can't face this race condition.
+    private static void waitForAccountOperationsToBeInjected(Context context) {
+        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+        final int waitingTimeBetweenEachAttempt = 200;
+        final int maxAttempt = (int) INJECTION_TIMEOUT / waitingTimeBetweenEachAttempt;
+
+        for (int attempt = 0; application.getAccountOperations() == null && attempt < maxAttempt; attempt++) {
+            try {
+                Log.i(TAG, "Login: waiting for the application to be ready #" + attempt);
+                Thread.sleep(waitingTimeBetweenEachAttempt);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {

@@ -19,6 +19,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -28,7 +29,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 public class PlaylistEngagementsController {

@@ -1,8 +1,9 @@
 package com.soundcloud.android.payments;
 
+import org.jetbrains.annotations.Nullable;
+
 import android.content.SharedPreferences;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 
