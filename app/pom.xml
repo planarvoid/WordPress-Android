@@ -461,8 +461,8 @@
         <dependency>
             <groupId>com.google.android.gms</groupId>
             <artifactId>google-play-services</artifactId>
-            <version>6</version>
-            <type>apklib</type>
+            <version>4.0.30-stripped</version>
+            <type>aar</type>
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
