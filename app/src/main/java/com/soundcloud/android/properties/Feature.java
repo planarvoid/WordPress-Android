@@ -10,7 +10,8 @@ public enum Feature {
     API_MOBILE_SEARCH(R.bool.feature_api_mobile_search),
     HTTPCLIENT_REFACTOR(R.bool.feature_httpclient_refactor),
     LOCALYTICS_PUSH(R.bool.feature_localytics_push),
-    INTERSTITIAL(R.bool.feature_interstitial);
+    INTERSTITIAL(R.bool.feature_interstitial),
+    ADJUST_TRACKING(R.bool.feature_adjust);
 
     private final int resourceId;
 

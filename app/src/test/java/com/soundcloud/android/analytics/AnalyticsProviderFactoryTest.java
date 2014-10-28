@@ -4,14 +4,17 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.settings.GeneralSettings;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,11 +37,15 @@ public class AnalyticsProviderFactoryTest {
     @Mock private LocalyticsAnalyticsProvider localyticsProvider;
     @Mock private PromotedAnalyticsProvider promotedProvider;
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
+    @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
+    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences, eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, comScoreProvider);
+        when(featureFlags.isEnabled(Feature.ADJUST_TRACKING)).thenReturn(true);
+        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
+                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, featureFlags);
     }
 
     @Test
@@ -61,16 +68,25 @@ public class AnalyticsProviderFactoryTest {
         when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
-        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, comScoreProvider);
+        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider, comScoreProvider);
     }
 
     @Test
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
-        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences, eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, null);
+        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences, eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, null, featureFlags);
         when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
-        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider);
+        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider);
+    }
+
+    @Test
+    public void getProvidersReturnsAllProvidersExceptAdjustWhenFeatureIsDisabled() {
+        when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
+        when(featureFlags.isEnabled(Feature.ADJUST_TRACKING)).thenReturn(false);
+
+        List<AnalyticsProvider> providers = factory.getProviders();
+        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, comScoreProvider);
     }
 
     @Test

@@ -4,6 +4,8 @@
 
     <string name="build_type">beta</string>
     <string name="localytics_app_key">8fecc6a72fcb74ddc76e2ac-02fa3b92-08f2-11e3-120d-004a77f8b47f</string>
+    <string name="adjust_environment">production</string>
+    <string name="adjust_log_level">error</string>
     <bool name="analytics_enabled">true</bool>
     <bool name="verbose_logging">false</bool>
 
@@ -17,4 +19,5 @@
     <bool name="feature_interstitial">false</bool>
     <bool name="feature_httpclient_refactor">false</bool>
     <bool name="feature_localytics_push">false</bool>
+    <bool name="feature_adjust">false</bool>
 </resources>

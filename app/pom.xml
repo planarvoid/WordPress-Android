@@ -259,6 +259,11 @@
             <version>2.1407.28</version>
         </dependency>
         <dependency>
+            <groupId>com.adjust.sdk</groupId>
+            <artifactId>adjust-android</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.squareup.dagger</groupId>
             <artifactId>dagger</artifactId>
             <version>${dagger.version}</version>

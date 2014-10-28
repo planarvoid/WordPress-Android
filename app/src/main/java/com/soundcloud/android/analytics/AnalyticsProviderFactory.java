@@ -1,13 +1,16 @@
 package com.soundcloud.android.analytics;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,8 +32,11 @@ public class AnalyticsProviderFactory {
     private final PlayCountAnalyticsProvider playCountAnalyticsProvider;
     private final LocalyticsAnalyticsProvider localyticsAnalyticsProvider;
     private final PromotedAnalyticsProvider promotedAnalyticsProvider;
+    private final AdjustAnalyticsProvider adjustAnalyticsProvider;
+    private final FeatureFlags featureFlags;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
+
 
     @Inject
     public AnalyticsProviderFactory(AnalyticsProperties analyticsProperties,
@@ -40,15 +46,19 @@ public class AnalyticsProviderFactory {
                                     PlayCountAnalyticsProvider playCountProvider,
                                     LocalyticsAnalyticsProvider localyticsProvider,
                                     PromotedAnalyticsProvider promotedProvider,
-                                    @Nullable ComScoreAnalyticsProvider comScoreProvider) {
+                                    AdjustAnalyticsProvider adjustAnalyticsProvider,
+                                    @Nullable ComScoreAnalyticsProvider comScoreProvider,
+                                    FeatureFlags featureFlags) {
         this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
         this.analyticsProperties = analyticsProperties;
         this.eventLoggerAnalyticsProvider = eventLoggerProvider;
         this.playCountAnalyticsProvider = playCountProvider;
         this.localyticsAnalyticsProvider = localyticsProvider;
+        this.adjustAnalyticsProvider = adjustAnalyticsProvider;
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.promotedAnalyticsProvider = promotedProvider;
+        this.featureFlags = featureFlags;
     }
 
     public List<AnalyticsProvider> getProviders() {
@@ -81,6 +91,11 @@ public class AnalyticsProviderFactory {
 
     private void addOptInProviders(List<AnalyticsProvider> providers) {
         providers.add(localyticsAnalyticsProvider);
+
+        if (featureFlags.isEnabled(Feature.ADJUST_TRACKING)) {
+            providers.add(adjustAnalyticsProvider);
+        }
+
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);
         }

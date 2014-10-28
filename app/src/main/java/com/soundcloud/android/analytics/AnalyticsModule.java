@@ -15,7 +15,7 @@ import android.content.Context;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Module(addsTo = ApplicationModule.class, injects = SoundCloudApplication.class)
+@Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class, InstallReceiver.class})
 public class AnalyticsModule {
 
     @Provides
