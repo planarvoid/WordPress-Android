@@ -26,6 +26,7 @@ public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
         setDependsOn(Feature.LEAVE_BEHIND);
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
+        setSkipOnReleaseBuild();
 
         playMonetizablePlaylist();
     }
