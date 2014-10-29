@@ -5,12 +5,15 @@ import static com.soundcloud.android.tests.TestUser.GPlusAccount;
 import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
 import static com.soundcloud.android.tests.TestUser.scAccount;
 import static com.soundcloud.android.tests.TestUser.scTestAccount;
+import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
@@ -44,9 +47,7 @@ public class LoginFlowTest extends LoginTestCase {
     public void testSCUserLoginFlow()  {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getPermalink(), scTestAccount.getPassword());
-        //TODO: MainScreen.menu().getUsername();
-        menuScreen.open();
-        assertEquals(scTestAccount.getPermalink(), menuScreen.getUserName());
+        assertThat(new StreamScreen(solo), visible());
     }
 
     /*
@@ -67,8 +68,7 @@ public class LoginFlowTest extends LoginTestCase {
         solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
-        menuScreen.open();
-        assertEquals(GPlusAccount.getPermalink(), menuScreen.getUserName());
+        assertThat(new StreamScreen(solo), visible());
     }
 
     /*
@@ -86,9 +86,7 @@ public class LoginFlowTest extends LoginTestCase {
         solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
-
-        menuScreen.open();
-        assertEquals(noGPlusAccount.getPermalink(), menuScreen.getUserName());
+        assertThat(new StreamScreen(solo), visible());
     }
 
     /*
@@ -118,9 +116,7 @@ public class LoginFlowTest extends LoginTestCase {
         FBWebViewScreen.typePassword(scAccount.getPassword());
         FBWebViewScreen.typeEmail(scAccount.getEmail());
         FBWebViewScreen.submit();
-        menuScreen.open();
-
-        assertEquals(scAccount.getPermalink(), menuScreen.getUserName());
+        assertThat(new StreamScreen(solo), visible());
     }
 
     /*
