@@ -86,9 +86,15 @@ module Build
     end
 
     def github_tasks
+
       desc 'Creates github issues as a base for regression tests'
       task :regression_tests do
-        github.create_regression_tests_checklist("Regression tests: #{Build.version}", parse_issues)
+        github.create_regression_tests_checklist("Regression tests: #{Build.version}")
+      end
+
+      desc 'Creates a GitHub issue with a release checklist'
+      task :release_checklist do
+        github.create_release_checklist
       end
     end
 
@@ -253,13 +259,6 @@ module Build
 
     def check_git
       raise "Uncommitted changes in working tree" if git.uncommited_changes?
-    end
-
-    def parse_issues
-      IO.read('.regression-tests.md').split(/^$\n{2}/).map{|issue|
-        array = issue.lines
-        Github::Issue.new(array.first, array[1..-1])
-      }
     end
 
     def git

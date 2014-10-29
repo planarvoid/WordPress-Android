@@ -8,17 +8,31 @@ module Build
       @token = token
     end
 
-    def create_regression_tests_checklist(milestone_title, issues)
-      milestone_number = create_milestone(milestone_title)['number']
-       issues.each{|issue|
-         puts "Creating checklist: #{issue.title}"
+    def create_release_checklist
+      issues = parse_issue_template('.release-tasks.md')
+      issues.each do |issue|
+        issue.title << " #{Time.now.strftime("%Y-%m-%d")}"
+        puts "Creating issue for: #{issue.title}"
 
-         authorized_connection.post("/repos/#{OWNER}/#{REPO}/issues", :body=> {
+        authorized_connection.post("/repos/#{OWNER}/#{REPO}/issues", :body => {
+         :title      => issue.title,
+         :body       => issue.body,
+        }.to_json)
+      end
+    end
+
+    def create_regression_tests_checklist(milestone_title)
+      issues = parse_issue_template('.regression-tests.md')
+      milestone_number = create_milestone(milestone_title)['number']
+       issues.each do |issue|
+         puts "Creating issue for: #{issue.title}"
+
+         authorized_connection.post("/repos/#{OWNER}/#{REPO}/issues", :body => {
            :title      => issue.title,
            :body       => issue.body,
            :milestone  => milestone_number
          }.to_json)
-       }
+       end
     end
 
     def create_release(tag_name, name, body)
@@ -64,6 +78,14 @@ module Build
             token
       )
     end
+
+    def parse_issue_template(template_file)
+      IO.read(template_file).split(/^$\n{2}/).map{|issue|
+        array = issue.lines
+        Github::Issue.new(array.first, array[1..-1])
+      }
+    end
+
     class Issue
       attr_reader :title, :body
       def initialize(title, body = nil)
