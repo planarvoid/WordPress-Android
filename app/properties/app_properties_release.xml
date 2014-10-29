@@ -13,13 +13,14 @@
     <string name="public_api_base_url">https://api.soundcloud.com</string>
     <string name="mobile_api_base_url">https://api-mobile.soundcloud.com</string>
 
-    <!-- Feature flags -->
-    <bool name="feature_leave_behind">false</bool>
+    <!-- Feature flags (enabled) -->
+    <bool name="feature_leave_behind">true</bool>
+    <bool name="feature_api_mobile_search">true</bool>
+    <bool name="feature_interstitial">true</bool>
+    <bool name="feature_httpclient_refactor">true</bool>
+    <bool name="feature_adjust">true</bool>
+    <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
-    <bool name="feature_api_mobile_search">false</bool>
-    <bool name="feature_interstitial">false</bool>
-    <bool name="feature_httpclient_refactor">false</bool>
     <bool name="feature_localytics_push">false</bool>
     <bool name="feature_okhttp">false</bool>
-    <bool name="feature_adjust">false</bool>
 </resources>
