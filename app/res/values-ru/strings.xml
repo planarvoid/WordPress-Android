@@ -52,7 +52,7 @@
     <string name="track">музыка</string>
     <string name="track_by">исп:</string>
     <string name="user">личность</string>
-    <string name="username">Имя пользователя</string>
+    <string name="display_name">Имя пользователя</string>
     <string name="website">Веб-сайт</string>
     <string name="what_hint">Что</string>
     <string name="where_hint">Где</string>

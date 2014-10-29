@@ -53,7 +53,7 @@
 
                 <com.soundcloud.android.view.CustomFontTextView
                     style="@style/SignUp.Label"
-                    android:text="@string/username" />
+                    android:text="@string/display_name" />
 
                 <com.soundcloud.android.view.ClearText
                     android:id="@+id/txt_username"

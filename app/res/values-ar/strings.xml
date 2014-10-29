@@ -52,7 +52,7 @@
     <string name="track">صوت</string>
     <string name="track_by">بواسطة</string>
     <string name="user">شخص</string>
-    <string name="username">اسم المستخدم</string>
+    <string name="display_name">اسم المستخدم</string>
     <string name="website">الموقع</string>
     <string name="what_hint">ماذا</string>
     <string name="where_hint">أين</string>
