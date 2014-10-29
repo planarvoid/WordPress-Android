@@ -20,6 +20,6 @@
     <bool name="feature_interstitial">true</bool>
     <bool name="feature_httpclient_refactor">true</bool>
     <bool name="feature_localytics_push">true</bool>
-    <bool name="feature_okhttp">true</bool>
+    <bool name="feature_okhttp">false</bool>
     <bool name="feature_adjust">true</bool>
 </resources>
