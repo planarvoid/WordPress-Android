@@ -14,7 +14,8 @@
     </Match>
     <Match>
         <Bug pattern="NP_NULL_ON_SOME_PATH" />
+    </Match>
+    <Match>
         <Bug pattern="BC_IMPOSSIBLE_CAST" />
     </Match>
-
 </FindBugsFilter>
