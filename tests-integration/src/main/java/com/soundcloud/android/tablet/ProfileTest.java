@@ -27,7 +27,7 @@ public class ProfileTest extends ActivityTestCase<MainActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(), followedUser.getUsername(), followedUser.getPassword());
+        AccountAssistant.loginAs(getInstrumentation(), followedUser.getPermalink(), followedUser.getPassword());
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
         myProfileScreen = new MenuScreenTablet(solo).clickUserProfile();

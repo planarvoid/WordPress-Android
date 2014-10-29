@@ -43,10 +43,10 @@ public class LoginFlowTest extends LoginTestCase {
      */
     public void testSCUserLoginFlow()  {
         loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
+        loginScreen.loginAs(scTestAccount.getPermalink(), scTestAccount.getPassword());
         //TODO: MainScreen.menu().getUsername();
         menuScreen.open();
-        assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
+        assertEquals(scTestAccount.getPermalink(), menuScreen.getUserName());
     }
 
     /*
@@ -68,7 +68,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOnContinueButton();
         menuScreen.open();
-        assertEquals(GPlusAccount.getUsername(), menuScreen.getUserName());
+        assertEquals(GPlusAccount.getPermalink(), menuScreen.getUserName());
     }
 
     /*
@@ -88,7 +88,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOnContinueButton();
 
         menuScreen.open();
-        assertEquals(noGPlusAccount.getUsername(), menuScreen.getUserName());
+        assertEquals(noGPlusAccount.getPermalink(), menuScreen.getUserName());
     }
 
     /*
@@ -120,7 +120,7 @@ public class LoginFlowTest extends LoginTestCase {
         FBWebViewScreen.submit();
         menuScreen.open();
 
-        assertEquals(scAccount.getUsername(), menuScreen.getUserName());
+        assertEquals(scAccount.getPermalink(), menuScreen.getUserName());
     }
 
     /*
@@ -140,7 +140,7 @@ public class LoginFlowTest extends LoginTestCase {
      */
     public void testLoginWithWrongCredentials() {
         loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
+        loginScreen.loginAs(scTestAccount.getPermalink(), "wrong-password", false);
         //TODO: DialogElement
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
         loginScreen.clickOkButton();

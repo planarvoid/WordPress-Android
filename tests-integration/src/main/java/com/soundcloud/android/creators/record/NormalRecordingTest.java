@@ -300,7 +300,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.findElement(With.id(R.id.home)).click();
-        solo.clickOnText(TestUser.defaultUser.getUsername());
+        solo.clickOnText(TestUser.defaultUser.getPermalink());
     }
 
     public void ignore_testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {

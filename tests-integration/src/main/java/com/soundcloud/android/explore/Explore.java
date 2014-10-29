@@ -25,7 +25,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
+        AccountAssistant.loginAs(getInstrumentation(), testUser.getPermalink(), testUser.getPassword());
         super.setUp();
 
         waiter = new Waiter(solo);
