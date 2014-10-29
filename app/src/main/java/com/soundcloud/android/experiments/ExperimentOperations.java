@@ -82,7 +82,7 @@ public class ExperimentOperations {
                 Log.d(TAG, "Requesting assignments for device: " + deviceId);
                 ApiRequest<Assignment> request =
                         ApiRequest.Builder.<Assignment>get(ApiEndpoints.EXPERIMENTS.path(deviceId))
-                                .addQueryParameters(PARAM_LAYERS, activeExperiments.getRequestLayers())
+                                .addQueryParam(PARAM_LAYERS, activeExperiments.getRequestLayers())
                                 .forPrivateApi(1)
                                 .forResource(TypeToken.of(Assignment.class))
                                 .build();

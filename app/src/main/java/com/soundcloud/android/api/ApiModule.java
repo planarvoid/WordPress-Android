@@ -5,6 +5,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
 
@@ -39,4 +40,9 @@ public class ApiModule {
         return new PublicApi(context);
     }
 
+    @Provides
+    @Singleton
+    public OkHttpClient provideOkHttpClient() {
+        return new OkHttpClient();
+    }
 }

@@ -56,7 +56,6 @@ public class PlaybackServiceTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackOperations trackOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private PlaybackServiceOperations playbackServiceOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private StreamPlaya streamPlayer;
     @Mock private PlaybackReceiver.Factory playbackReceiverFactory;
@@ -72,7 +71,7 @@ public class PlaybackServiceTest {
     @Before
     public void setUp() throws Exception {
         playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations,
-                accountOperations, playbackServiceOperations, streamPlayer,
+                accountOperations, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider, playbackNotificationController, analyticsController, adsOperations);
 
         track = TestPropertySets.expectedTrackForPlayer();

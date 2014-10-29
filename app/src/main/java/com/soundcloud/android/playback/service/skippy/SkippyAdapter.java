@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.service.skippy;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
 import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
@@ -9,6 +11,9 @@ import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -16,7 +21,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -24,6 +28,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.api.Token;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +39,7 @@ import android.os.Message;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 
 
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
@@ -46,7 +52,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final Skippy skippy;
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
-    private final PlaybackServiceOperations playbackOperations;
+    private final ApiUrlBuilder urlBuilder;
     private final NetworkConnectionHelper connectionHelper;
 
     private volatile String currentStreamUrl;
@@ -55,12 +61,12 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private long lastStateChangeProgress;
 
     @Inject
-    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, PlaybackServiceOperations playbackOperations,
+    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
         this.skippyFactory = skippyFactory;
         skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
-        this.playbackOperations = playbackOperations;
+        this.urlBuilder = urlBuilder;
         stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
@@ -107,8 +113,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
 
-
-        final String trackUrl = playbackOperations.buildHLSUrlForTrack(currentTrackUrn);
+        final String trackUrl = buildStreamUrl();
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
             skippy.seek(fromPos);
@@ -123,6 +128,15 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             }
 
         }
+    }
+
+    private String buildStreamUrl() {
+        checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
+        Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
+        return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
+                .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.access)
+                .forceHttp()
+                .build();
     }
 
     @Override

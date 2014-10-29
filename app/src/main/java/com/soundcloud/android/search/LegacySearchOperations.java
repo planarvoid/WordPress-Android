@@ -95,7 +95,7 @@ class LegacySearchOperations {
 
     private Observable<Page<SearchResultsCollection>> getSearchResults(ApiEndpoints apiEndpoint, @Nullable String query) {
         final ApiRequest.Builder<SearchResultsCollection> builder = createSearchRequestBuilder(apiEndpoint.path());
-        return getPageObservable(builder.addQueryParameters("q", query).build());
+        return getPageObservable(builder.addQueryParam("q", query).build());
     }
 
     private Observable<Page<SearchResultsCollection>> getSearchResults(String nextHref) {
@@ -105,7 +105,7 @@ class LegacySearchOperations {
 
     private ApiRequest.Builder<SearchResultsCollection> createSearchRequestBuilder(String path) {
         return ApiRequest.Builder.<SearchResultsCollection>get(path)
-                .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
+                .addQueryParam("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
                 .forPublicApi()
                 .forResource(TypeToken.of(SearchResultsCollection.class));
     }

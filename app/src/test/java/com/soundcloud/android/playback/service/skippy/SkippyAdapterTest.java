@@ -20,13 +20,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiUrlBuilder;
+import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.service.PlaybackServiceOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -36,6 +37,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.api.Token;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -55,7 +57,7 @@ public class SkippyAdapterTest {
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private SkippyAdapter skippyAdapter;
 
-    private static final String STREAM_URL = "https://api.soundcloud.com/app/mobileapps/tracks/soundcloud:tracks:1/streams/hls?oauth_token=access";
+    private static final String STREAM_URL = "http://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
     private static final long PROGRESS = 500L;
     private static final long DURATION = 1000L;
 
@@ -65,7 +67,7 @@ public class SkippyAdapterTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private SkippyAdapter.StateChangeHandler stateChangeHandler;
-    @Mock private PlaybackServiceOperations playbackOperations;
+    @Mock private HttpProperties httpProperties;
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
@@ -80,15 +82,16 @@ public class SkippyAdapterTest {
     public void setUp() throws Exception {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
-        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, playbackOperations,
+        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, new ApiUrlBuilder(httpProperties),
                 stateChangeHandler, eventBus, connectionHelper);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
 
         trackUrn = track.get(TrackProperty.URN);
-        when(playbackOperations.buildHLSUrlForTrack(trackUrn)).thenReturn(STREAM_URL);
+        when(httpProperties.getMobileApiBaseUrl()).thenReturn("https://api-mobile.soundcloud.com");
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(listener.requestAudioFocus()).thenReturn(true);
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
     }

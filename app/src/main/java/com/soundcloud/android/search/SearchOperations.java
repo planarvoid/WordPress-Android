@@ -148,8 +148,8 @@ class SearchOperations {
 
         private Observable<SearchResult> searchResult(String query) {
             return getSearchResultObservable(ApiRequest.Builder.<ResultT>get(apiEndpoint)
-                    .addQueryParameters("limit", String.valueOf(Consts.LIST_PAGE_SIZE))
-                    .addQueryParameters("q", query)
+                    .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
+                    .addQueryParam("q", query)
                     .forPrivateApi(1)
                     .forResource(typeToken));
         }

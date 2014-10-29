@@ -81,7 +81,7 @@ class ExploreTracksOperations {
 
     private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {
         ApiRequest<SuggestedTracksCollection> request = ApiRequest.Builder.<SuggestedTracksCollection>get(endpoint)
-                .addQueryParameters("limit", String.valueOf(Consts.CARD_PAGE_SIZE))
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 

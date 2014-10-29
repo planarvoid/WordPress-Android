@@ -1,9 +1,6 @@
 package com.soundcloud.android.api;
 
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 
@@ -16,13 +13,13 @@ import java.util.Random;
 
 public class HttpProperties {
 
-    private static final String HTTPS_API_URL_FORMAT = "http://%s";
     private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
     private static final long[] PRODUCTION =
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
     private final String apiMobileBaseUriPath;
-    private final String httpsApiHost;
+    private final String mobileApiBaseUrl;
+    private final String publicApiBaseUrl;
 
     public HttpProperties() {
         this(SoundCloudApplication.instance);
@@ -34,14 +31,9 @@ public class HttpProperties {
 
     @Inject
     public HttpProperties(Resources resources) {
+        this.mobileApiBaseUrl = resources.getString(R.string.mobile_api_base_url);
+        this.publicApiBaseUrl = resources.getString(R.string.public_api_base_url);
         apiMobileBaseUriPath = resources.getString(R.string.api_mobile_base_uri_path);
-        checkArgument(isNotBlank(apiMobileBaseUriPath), "API mobile base uri path cannot be blank");
-
-        String apiHost = resources.getString(R.string.api_host);
-        checkArgument(isNotBlank(apiHost), "API host cannot be blank");
-
-        httpsApiHost = String.format(HTTPS_API_URL_FORMAT, apiHost + apiMobileBaseUriPath);
-
     }
 
     public String getClientSecret() {
@@ -52,12 +44,24 @@ public class HttpProperties {
         return CLIENT_ID;
     }
 
+    public String getMobileApiBaseUrl() {
+        return mobileApiBaseUrl;
+    }
+
+    public String getPublicApiBaseUrl() {
+        return publicApiBaseUrl;
+    }
+
+    @Deprecated
     public String getApiMobileBaseUriPath() {
         return apiMobileBaseUriPath;
     }
 
-    public String getPrivateApiHostWithHttpScheme() {
-        return httpsApiHost;
+    /**
+     * @return e.g. http://api-mobile.soundcloud.com instead of https://
+     */
+    public String getMobileApiHttpUrl() {
+        return mobileApiBaseUrl.replaceFirst("https://", "http://");
     }
 
     /**
@@ -107,19 +111,4 @@ public class HttpProperties {
         return -1 == i ? decoded : decoded.substring(0, i);
     }
 
-    public enum Parameter {
-        OAUTH_PARAMETER("oauth_token");
-
-        private final String parameter;
-
-        private Parameter(String parameter) {
-            this.parameter = parameter;
-        }
-
-        @Override
-        public String toString() {
-            return parameter;
-        }
-
-    }
 }

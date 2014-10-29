@@ -39,7 +39,7 @@ public class ApiWrapperFactoryTest {
         when(apiRequest.isPrivate()).thenReturn(true);
         when(apiRequest.getVersion()).thenReturn(22);
         ApiWrapper wrapper = wrapperFactory.createWrapper(apiRequest);
-        expect(wrapper.getDefaultContentType()).toEqual("application/vnd.com.soundcloud.mobile.v22+json");
+        expect(wrapper.getDefaultContentType()).toEqual("application/vnd.com.soundcloud.mobile.v22+json; charset=utf-8");
     }
 
     @Test

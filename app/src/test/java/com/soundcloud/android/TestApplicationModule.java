@@ -22,6 +22,7 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
 
@@ -148,6 +149,11 @@ public class TestApplicationModule {
     @Provides
     public ApiScheduler provideApiScheduler() {
         return mock(ApiScheduler.class);
+    }
+
+    @Provides
+    public OkHttpClient provideOkHttpClient() {
+        return new OkHttpClient();
     }
 }
 

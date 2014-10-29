@@ -2,7 +2,6 @@ package com.soundcloud.android.api;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
@@ -16,6 +15,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
 
@@ -31,11 +31,11 @@ public class ApiRequest<ResourceType> {
     private final Boolean isPrivate;
     @NotNull private final Multimap<String, String> queryParams;
     @NotNull private final Map<String, String> headers;
-    private final Object content;
+    @Nullable private final Object content;
 
     ApiRequest(Uri uri, String method, int endpointVersion, TypeToken<ResourceType> typeToken,
-                       Boolean isPrivate, @NotNull Multimap<String, String> queryParams, Object content,
-                       @NotNull Map<String, String> headers) {
+               Boolean isPrivate, @NotNull Multimap<String, String> queryParams, @Nullable Object content,
+               @NotNull Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
         this.endpointVersion = endpointVersion;
@@ -80,25 +80,42 @@ public class ApiRequest<ResourceType> {
         return ImmutableMap.copyOf(headers);
     }
 
+    @Nullable
     public Object getContent() {
         return content;
     }
 
+    public static enum Param {
+        PAGE_SIZE("limit"),
+        OAUTH_TOKEN("oauth_token");
+
+        private final String parameter;
+
+        private Param(String parameter) {
+            this.parameter = parameter;
+        }
+
+        @Override
+        public String toString() {
+            return parameter;
+        }
+    }
+
     public static class Builder<ResourceType> {
-        private final String uri;
+        private final Uri uri;
         private final String httpMethod;
         private int endpointVersion;
         private TypeToken<ResourceType> resourceType;
         private Boolean isPrivate;
-        @NotNull private final Multimap<String, String> parameters;
-        @NotNull private final Map<String, String> headers;
+        private final Multimap<String, String> parameters;
+        private final Map<String, String> headers;
         private Object content;
 
         public Builder(String uri, String methodName) {
-            this.uri = uri;
-            httpMethod = methodName;
-            parameters = UriUtils.getQueryParameters(uri);
-            headers = new HashMap<>();
+            this.parameters = UriUtils.getQueryParameters(uri);
+            this.uri = UriUtils.clearQueryParams(Uri.parse(uri));
+            this.httpMethod = methodName;
+            this.headers = new HashMap<>();
         }
 
         public static <ResourceType> Builder<ResourceType> get(String uri) {
@@ -118,12 +135,11 @@ public class ApiRequest<ResourceType> {
         }
 
         public ApiRequest<ResourceType> build() {
-            checkArgument(isNotBlank(uri), "URI needs to be valid value");
             checkNotNull(isPrivate, "Must specify api mode");
             if (isPrivate) {
                 checkArgument(endpointVersion > 0, "Not a valid api version: %s", endpointVersion);
             }
-            return new ApiRequest<>(Uri.parse(uri), httpMethod, endpointVersion,
+            return new ApiRequest<>(uri, httpMethod, endpointVersion,
                     resourceType, isPrivate, parameters, content, headers);
         }
 
@@ -148,11 +164,15 @@ public class ApiRequest<ResourceType> {
             return this;
         }
 
-        public Builder<ResourceType> addQueryParameters(String key, Object... values) {
+        public Builder<ResourceType> addQueryParam(String key, Object... values) {
             for (Object object : values) {
                 parameters.put(key, object.toString());
             }
             return this;
+        }
+
+        public Builder<ResourceType> addQueryParam(Param param, Object... values) {
+            return addQueryParam(param.parameter, values);
         }
 
         public Builder<ResourceType> withContent(Object content) {
@@ -161,7 +181,6 @@ public class ApiRequest<ResourceType> {
         }
 
         public Builder<ResourceType> withHeader(String name, String value) {
-            checkNotNull(isPrivate, "header values can not be null");
             headers.put(name, value);
             return this;
         }

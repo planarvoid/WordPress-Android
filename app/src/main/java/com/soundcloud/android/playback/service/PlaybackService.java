@@ -64,7 +64,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject PlayQueueManager playQueueManager;
     @Inject TrackOperations trackOperations;
     @Inject AccountOperations accountOperations;
-    @Inject PlaybackServiceOperations playbackServiceOperations;
     @Inject StreamPlaya streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
@@ -92,7 +91,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     EventBus eventBus,
                     TrackOperations trackOperations,
                     AccountOperations accountOperations,
-                    PlaybackServiceOperations playbackServiceOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     PlaybackNotificationController playbackNotificationController,
@@ -101,7 +99,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
         this.accountOperations = accountOperations;
-        this.playbackServiceOperations = playbackServiceOperations;
         this.streamPlayer = streamPlaya;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.remoteAudioManagerProvider = remoteAudioManagerProvider;

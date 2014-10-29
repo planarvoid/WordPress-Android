@@ -6,6 +6,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -17,6 +18,8 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
@@ -41,7 +44,9 @@ public class SoundAssociationOperations {
 
     private final EventBus eventBus;
     private final SoundAssociationStorage soundAssocStorage;
+    private final FeatureFlags featureFlags;
     private final RxHttpClient httpClient;
+    private final ApiScheduler apiScheduler;
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
     private final LegacyPlaylistOperations legacyPlaylistOperations;
@@ -50,13 +55,16 @@ public class SoundAssociationOperations {
     public SoundAssociationOperations(
             EventBus eventBus,
             SoundAssociationStorage soundAssocStorage,
-            RxHttpClient httpClient,
+            FeatureFlags featureFlags, RxHttpClient httpClient,
+            ApiScheduler apiScheduler,
             ScModelManager modelManager,
             TrackStorage trackStorage,
             LegacyPlaylistOperations legacyPlaylistOperations) {
         this.eventBus = eventBus;
         this.soundAssocStorage = soundAssocStorage;
+        this.featureFlags = featureFlags;
         this.httpClient = httpClient;
+        this.apiScheduler = apiScheduler;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
@@ -86,11 +94,16 @@ public class SoundAssociationOperations {
                 .mergeMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
                     @Override
                     public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
-                        return httpClient.fetchResponse(buildRequestForLike(playable, addLike));
+                        return apiResponse(buildRequestForLike(playable, addLike));
                     }
                 })
                 .map(playableToLikePropertiesFunc(playable))
                 .onErrorResumeNext(handleLikeRequestError(playable, addLike));
+    }
+
+    private Observable<ApiResponse> apiResponse(ApiRequest request) {
+        return featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)
+                ? apiScheduler.response(request) : httpClient.fetchResponse(request);
     }
 
     private Observable<SoundAssociation> updateLikeState(Playable playable, boolean addLike) {
@@ -174,7 +187,7 @@ public class SoundAssociationOperations {
                 .mergeMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
                     @Override
                     public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
-                        return httpClient.fetchResponse(buildRequestForRepost(playable, addRepost));
+                        return apiResponse(buildRequestForRepost(playable, addRepost));
                     }
                 })
                 .map(playableToRepostPropertiesFunc(playable))

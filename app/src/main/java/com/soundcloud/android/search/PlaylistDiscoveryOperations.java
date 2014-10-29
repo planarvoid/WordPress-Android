@@ -89,7 +89,7 @@ class PlaylistDiscoveryOperations {
     Observable<ModelCollection<ApiPlaylist>> playlistsForTag(final String tag) {
         final ApiRequest<ModelCollection<ApiPlaylist>> request =
                 createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
-                        .addQueryParameters("tag", tag)
+                        .addQueryParam("tag", tag)
                         .build();
         return getPlaylistResultsPage(tag, request).finallyDo(new Action0() {
             @Override

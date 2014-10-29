@@ -15,6 +15,9 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiUrlBuilder;
+import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -59,7 +62,7 @@ public class ImageOperations {
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
 
     private final ImageLoader imageLoader;
-    private final ImageEndpointBuilder imageEndpointBuilder;
+    private final ApiUrlBuilder urlBuilder;
     private final PlaceholderGenerator placeholderGenerator;
 
     private final Set<String> notFoundUris = Sets.newHashSet();
@@ -78,9 +81,9 @@ public class ImageOperations {
     private ImageProcessor imageProcessor;
 
     @Inject
-    public ImageOperations(ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator,
+    public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
-        this(ImageLoader.getInstance(), imageEndpointBuilder, placeholderGenerator, adapterFactory,imageProcessor,
+        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory,imageProcessor,
                 CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, TransitionDrawable>build(),
                 CacheBuilder.newBuilder().weakValues().maximumSize(10).<Urn, Bitmap>build(),
                 new HashCodeFileNameGenerator());
@@ -90,10 +93,12 @@ public class ImageOperations {
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageEndpointBuilder imageEndpointBuilder, PlaceholderGenerator placeholderGenerator, FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
+    ImageOperations(ImageLoader imageLoader, ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
+                    FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor,
+                    Cache<String, TransitionDrawable> placeholderCache,
                     Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
-        this.imageEndpointBuilder = imageEndpointBuilder;
+        this.urlBuilder = urlBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.placeholderCache = placeholderCache;
         this.blurredImageCache = blurredImageCache;
@@ -259,6 +264,7 @@ public class ImageOperations {
         });
     }
 
+    @Nullable
     public Bitmap getCachedListItemBitmap(Resources resources, Urn resourceUrn){
         return getCachedBitmap(resourceUrn, ApiImageSize.getListItemImageSize(resources),
                 resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
@@ -280,7 +286,7 @@ public class ImageOperations {
 
     @Nullable
     public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize, int targetWidth, int targetHeight){
-        final String imageUrl = imageEndpointBuilder.imageUrl(resourceUrn, apiImageSize);
+        final String imageUrl = getImageUrl(resourceUrn, apiImageSize);
         if (notFoundUris.contains(imageUrl)) {
             return null;
         }
@@ -351,8 +357,12 @@ public class ImageOperations {
 
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
-        final String imageUrl = imageEndpointBuilder.imageUrl(urn, apiImageSize);
+        final String imageUrl = getImageUrl(urn, apiImageSize);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
+    }
+
+    private String getImageUrl(Urn urn, ApiImageSize apiImageSize) {
+        return urlBuilder.from(ApiEndpoints.IMAGES, urn, apiImageSize.sizeSpec).build();
     }
 
     @VisibleForTesting

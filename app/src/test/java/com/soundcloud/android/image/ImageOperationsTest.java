@@ -24,6 +24,8 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.soundcloud.android.api.ApiUrlBuilder;
+import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -37,7 +39,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -64,7 +65,7 @@ public class ImageOperationsTest {
     private static final int RES_ID = 123;
 
     @Mock ImageLoader imageLoader;
-    @Mock ImageEndpointBuilder imageEndpointBuilder;
+    @Mock HttpProperties httpProperties;
     @Mock PlaceholderGenerator placeholderGenerator;
     @Mock DiskCache diskCache;
     @Mock MemoryCache memoryCache;
@@ -89,17 +90,16 @@ public class ImageOperationsTest {
     final private String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     final private String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
 
-    final private static String RESOLVER_URL_LARGE = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
+    final private static String BASE_URL = "https://api-mobile.soundcloud.com";
+    final private static String RESOLVER_URL_LARGE = BASE_URL + "/images/soundcloud:tracks:1/large";
     final private static Urn URN = new Urn("soundcloud:tracks:1");
-
-    private final Scheduler graphicsScheduler = Schedulers.immediate();
 
     @Before
     public void setUp() throws Exception {
-        imageOperations = new ImageOperations(imageLoader, imageEndpointBuilder, placeholderGenerator, viewlessLoadingAdapterFactory, imageProcessor, placeholderCache, blurCache, fileNameGenerator);
+        imageOperations = new ImageOperations(imageLoader, new ApiUrlBuilder(httpProperties), placeholderGenerator, viewlessLoadingAdapterFactory, imageProcessor, placeholderCache, blurCache, fileNameGenerator);
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
         when(imageLoader.getMemoryCache()).thenReturn(memoryCache);
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(RESOLVER_URL_LARGE);
+        when(httpProperties.getMobileApiBaseUrl()).thenReturn(BASE_URL);
         when(placeholderGenerator.generateTransitionDrawable(any(String.class))).thenReturn(transitionDrawable);
         when(placeholderGenerator.generateDrawable(any(String.class))).thenReturn(gradientDrawable);
     }
@@ -172,12 +172,9 @@ public class ImageOperationsTest {
 
     @Test
     public void displayImageInAdapterViewShouldRequestImagesThroughMobileImageResolver() {
-        final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/large";
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
-
         imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
         verify(imageLoader).displayImage(
-                eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
+                eq(BASE_URL + "/images/soundcloud:tracks:1/large"), any(ImageAware.class), any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
     @Test
@@ -201,13 +198,10 @@ public class ImageOperationsTest {
 
     @Test
     public void displayInFullDialogViewShouldLoadImageFromMobileImageResolver() {
-        final String imageUrl = "http://api.soundcloud.com/app/mobileapps/images/soundcloud:tracks:1/t500x500";
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.T500)).thenReturn(imageUrl);
-
         imageOperations.displayInFullDialogView(URN, ApiImageSize.T500, imageView, imageListener);
 
         verify(imageLoader).displayImage(
-                eq(imageUrl), any(ImageAware.class), any(DisplayImageOptions.class), any(ImageListenerUILAdapter.class));
+                eq(BASE_URL + "/images/soundcloud:tracks:1/t500x500"), any(ImageAware.class), any(DisplayImageOptions.class), any(ImageListenerUILAdapter.class));
     }
 
     @Test
@@ -233,7 +227,6 @@ public class ImageOperationsTest {
     @Test
     public void displayWithPlaceholderShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
         when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
@@ -247,7 +240,6 @@ public class ImageOperationsTest {
     @Test
     public void displayInPlayerShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
         when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
@@ -263,7 +255,6 @@ public class ImageOperationsTest {
     @Test
     public void displayInPlayerShouldDelayLoadingIfHighPriorityFlagIsNotSet() throws ExecutionException {
         final String imageUrl = RESOLVER_URL_LARGE;
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.LARGE)).thenReturn(imageUrl);
         when(placeholderCache.get(anyString(), any(Callable.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
@@ -369,7 +360,6 @@ public class ImageOperationsTest {
         Bitmap cachedBitmaop = Bitmap.createBitmap(1,0, Bitmap.Config.RGB_565);
         Bitmap blurredBitmap = Bitmap.createBitmap(0,1, Bitmap.Config.RGB_565);
 
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.BADGE)).thenReturn(RESOLVER_URL_LARGE);
         when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
         when(imageProcessor.blurBitmap(cachedBitmaop)).thenReturn(blurredBitmap);
 
@@ -385,7 +375,6 @@ public class ImageOperationsTest {
         Bitmap cachedBitmaop = Bitmap.createBitmap(1,0, Bitmap.Config.RGB_565);
         Bitmap blurredBitmap = Bitmap.createBitmap(0,1, Bitmap.Config.RGB_565);
 
-        when(imageEndpointBuilder.imageUrl(URN, ApiImageSize.BADGE)).thenReturn(RESOLVER_URL_LARGE);
         when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
         when(imageProcessor.blurBitmap(cachedBitmaop)).thenReturn(blurredBitmap);
 

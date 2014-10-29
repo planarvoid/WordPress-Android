@@ -216,6 +216,13 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.squareup.okhttp</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- compile/dev time dependencies -->
         <dependency>
             <groupId>com.squareup.dagger</groupId>
@@ -292,6 +299,11 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>2.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
