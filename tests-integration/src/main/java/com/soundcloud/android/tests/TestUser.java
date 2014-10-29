@@ -63,7 +63,7 @@ public class TestUser {
     public static final TestUser adUser         = new TestUser("scandroidad1",          "scandroidtestad1@gmail.com",   "scandtest");
     public static final TestUser scAccount      = new TestUser("steven-testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
     public static final TestUser scTestAccount  = new TestUser("android-testing",       "",                             "android-testing");
-    public static final TestUser noGPlusAccount = scAccount;
+    public static final TestUser noGPlusAccount = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
     public static final TestUser GPlusAccount   = new TestUser("scandroidtest",         "sccloudandroid@gmail.com",     "s0undcl0ud");
     public static final TestUser Facebook       = new TestUser("Mike Smiechowy",        "ssmiechowy@gmail.com",         "passwordyeah3");
     public static final TestUser playlistUser   = new TestUser("mike-smiechowy",        "ssmiechowy@gmail.com",         "passwordyeah");
