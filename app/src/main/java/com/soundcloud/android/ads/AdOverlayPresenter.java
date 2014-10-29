@@ -90,13 +90,14 @@ public abstract class AdOverlayPresenter {
         return data != null && data.contains(InterstitialProperty.INTERSTITIAL_URN);
     }
 
-    protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int headerId, final Listener listener, ImageOperations imageOperations, EventBus eventBus) {
+    protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int adClickId, int headerId, final Listener listener, ImageOperations imageOperations, EventBus eventBus) {
         this.overlay = getOverlayView(trackView, overlayId, overlayStubId);
         this.listener = listener;
         this.eventBus = eventBus;
 
         this.adImage = (ImageView) overlay.findViewById(adImageId);
-        this.adImage.setOnClickListener(new View.OnClickListener() {
+        final View adImageHolder = overlay.findViewById(adClickId);
+        adImageHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onImageClick();

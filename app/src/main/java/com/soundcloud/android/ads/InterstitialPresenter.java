@@ -21,7 +21,7 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     private final Resources resources;
 
     public InterstitialPresenter(View trackView, Listener listener, EventBus eventBus, ImageOperations imageOperations, Resources resources) {
-        super(trackView, R.id.interstitial, R.id.interstitial_stub, R.id.interstitial_image, R.id.interstitial_header, listener, imageOperations, eventBus);
+        super(trackView, R.id.interstitial, R.id.interstitial_stub, R.id.interstitial_image, R.id.interstitial_image_holder, R.id.interstitial_header, listener, imageOperations, eventBus);
         this.previewContainer = trackView.findViewById(R.id.interstitial_preview_container);
         this.previewImage = (ImageView) trackView.findViewById(R.id.interstitial_now_playing_artwork);
         this.nowPlayingTitleView = (TextView) trackView.findViewById(R.id.interstitial_now_playing_title);

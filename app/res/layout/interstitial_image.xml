@@ -7,6 +7,8 @@
              android:layout_height="0dp"
              android:layout_above="@+id/interstitial_preview_container"
              android:layout_below="@id/interstitial_header"
+             android:foreground="@drawable/interstitial_selector"
+             android:clickable="true"
              tools:showIn="@layout/ad_interstitial">
     <ImageView android:id="@+id/interstitial_image"
                android:visibility="gone"
