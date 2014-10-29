@@ -127,10 +127,21 @@
         <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/DefaultHeaderTransformer$HideAnimationCallback.class"/>
         <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/DefaultHeaderTransformer.class"/>
         <ignore path="target/classes/uk/co/senab/actionbarpulltorefresh/library/PullToRefreshAttacher$2.class"/>
+        <ignore path="target/classes/com/google/android/gms/common/GooglePlayServicesUtil.class"/>
+        <ignore path="target/classes/com/google/android/gms/common/images/ImageManager$a.class"/>
+        <ignore path="target/classes/com/google/android/gms/common/images/ImageManager$e.class"/>
+        <ignore path="target/classes/com/google/android/gms/common/images/ImageManager.class"/>
+        <ignore path="target/classes/com/google/android/gms/common/images/a.class"/>
+        <ignore path="target/classes/com/google/android/gms/internal/cj.class"/>
+        <ignore path="target/classes/com/google/android/gms/internal/ct.class"/>
+        <ignore path="target/classes/com/google/android/gms/internal/cz.class"/>
+        <ignore path="target/classes/com/google/android/gms/internal/ck.class"/>
+        <ignore path="target/classes/com/google/android/gms/internal/es$b.class"/>
     </issue>
 
     <issue id="Registered" severity="error">
         <ignore path="target/classes/com/soundcloud/android/cropimage/MonitoredActivity.class"/>
+        <ignore path="target/classes/com/google/android/gms/ads/AdActivity.class"/>
     </issue>
 
     <issue id="TypographyDashes">
