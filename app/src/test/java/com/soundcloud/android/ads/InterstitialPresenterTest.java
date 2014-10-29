@@ -32,8 +32,9 @@ public class InterstitialPresenterTest {
     @Mock AdOverlayPresenter.Listener listener;
     @Mock View trackView;
     @Mock private View overlay;
-    @Mock private View closeStub;
-    @Mock private ImageView imageStub;
+    @Mock private View closeView;
+    @Mock private View imageHolder;
+    @Mock private ImageView imageView;
     @Mock private ViewStub overlayStub;
     @Mock private EventBus eventBus;
     @Mock private ImageOperations imageOperations;
@@ -43,8 +44,9 @@ public class InterstitialPresenterTest {
     public void setUp() {
         when(trackView.findViewById(R.id.interstitial_stub)).thenReturn(overlayStub);
         when(overlayStub.inflate()).thenReturn(overlay);
-        when(overlay.findViewById(R.id.interstitial_close)).thenReturn(closeStub);
-        when(overlay.findViewById(R.id.interstitial_image)).thenReturn(imageStub);
+        when(overlay.findViewById(R.id.interstitial_close)).thenReturn(closeView);
+        when(overlay.findViewById(R.id.interstitial_image)).thenReturn(imageView);
+        when(overlay.findViewById(R.id.interstitial_image_holder)).thenReturn(imageHolder);
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
 
         properties = interstitialForPlayer();
