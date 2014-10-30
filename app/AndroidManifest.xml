@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="154" android:versionName="14.10.27" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="155" android:versionName="14.10.30" package="com.soundcloud.android">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="19"/>
@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 
     <!-- Do not remove the DEBUG_ONLY tag! The build system omits this permission for betas and releases. -->
-    <uses-permission android:name="com.android.vending.BILLING" /> <!-- DEBUG_ONLY -->
+    <uses-permission android:name="com.android.vending.BILLING"/> <!-- DEBUG_ONLY -->
 
     <!-- allows non-flash, non-autofocus devices to use app -->
     <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
@@ -309,7 +309,7 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-        <activity android:name=".payments.SubscribeActivity" android:label="@string/title_subscribe" />
+        <activity android:label="@string/title_subscribe" android:name=".payments.SubscribeActivity"/>
 
         <!-- for testing purposes -->
 
@@ -438,8 +438,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.localytics.android.PushReceiver"
-                  android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver android:name="com.localytics.android.PushReceiver" android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
@@ -447,15 +446,14 @@
             </intent-filter>
         </receiver>
 
-        <meta-data android:name="LOCALYTICS_APP_KEY"
-                   android:value="@string/localytics_app_key"/>
+        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="@string/localytics_app_key"/>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
 
-        <meta-data android:name="AdjustAppToken"    android:value="87l2rj9gqhlj" />
-        <meta-data android:name="AdjustLogLevel"    android:value="@string/adjust_log_level" />
-        <meta-data android:name="AdjustEnvironment" android:value="@string/adjust_environment" />
+        <meta-data android:name="AdjustAppToken" android:value="87l2rj9gqhlj"/>
+        <meta-data android:name="AdjustLogLevel" android:value="@string/adjust_log_level"/>
+        <meta-data android:name="AdjustEnvironment" android:value="@string/adjust_environment"/>
 
     </application>
 
