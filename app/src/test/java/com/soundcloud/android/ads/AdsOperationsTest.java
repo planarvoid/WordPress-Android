@@ -23,6 +23,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.AdFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -129,6 +130,7 @@ public class AdsOperationsTest {
         expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
         final PropertySet expectedProperties = adsWithOnlyInterstitial.interstitialAd().toPropertySet();
         expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
+        expectedProperties.put(TrackProperty.URN, TRACK_URN);
         expect(playQueue.getMetaData(0)).toEqual(expectedProperties);
     }
 

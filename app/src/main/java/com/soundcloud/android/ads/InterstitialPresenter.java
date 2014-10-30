@@ -5,6 +5,8 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
@@ -60,8 +62,17 @@ public class InterstitialPresenter extends AdOverlayPresenter {
         final ApiImageSize listItemImageSize = ApiImageSize.getListItemImageSize(previewImage.getResources());
         imageOperations.displayWithPlaceholder(data.get(TrackProperty.URN), listItemImageSize, previewImage);
 
-        final String nowPlayingCreator = data.get(TrackProperty.CREATOR_NAME);
-        final String nowPlayingTitle = data.get(TrackProperty.TITLE);
-        nowPlayingTitleView.setText(resources.getString(R.string.now_playing, nowPlayingTitle, nowPlayingCreator));
+        if (data.contains(TrackProperty.TITLE) && data.contains(TrackProperty.CREATOR_NAME)){
+            final String nowPlayingTitle = data.get(TrackProperty.TITLE);
+            final String nowPlayingCreator = data.get(TrackProperty.CREATOR_NAME);
+            nowPlayingTitleView.setText(resources.getString(R.string.now_playing, nowPlayingTitle, nowPlayingCreator));
+        } else {
+
+            // we are missing certain track data here, just before launching.
+            // Need to look at these reports and find the path that causes this. It seems to be when a monetizable track
+            // has an audio ad, then an interstitial when the same playlist is started over
+            ErrorUtils.handleSilentException(new IllegalStateException("Interstitial missing track data: " + data));
+        }
+
     }
 }
