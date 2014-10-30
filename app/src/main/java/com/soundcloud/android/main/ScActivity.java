@@ -425,6 +425,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                         context.onDataConnectionChanged(connected);
                     }
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
             }
         }
     }

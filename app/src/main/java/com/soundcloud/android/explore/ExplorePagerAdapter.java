@@ -34,8 +34,9 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
                 return ExploreTracksFragment.create(ExploreGenre.POPULAR_MUSIC_CATEGORY, Screen.EXPLORE_TRENDING_MUSIC);
             case TAB_TRENDING_AUDIO:
                 return ExploreTracksFragment.create(ExploreGenre.POPULAR_AUDIO_CATEGORY, Screen.EXPLORE_TRENDING_AUDIO);
+            default:
+                throw new IllegalArgumentException("Unexpected position for getItem " + position);
         }
-        throw new IllegalArgumentException("Unexpected position for getItem " + position);
     }
 
     @Override
@@ -52,8 +53,9 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
                 return resources.getString(R.string.explore_category_trending_music);
             case TAB_TRENDING_AUDIO:
                 return resources.getString(R.string.explore_category_trending_audio);
+            default:
+                throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }
-        throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
     }
 
 }

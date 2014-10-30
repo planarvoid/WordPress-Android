@@ -59,6 +59,8 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                 case MSG_ANIMATE_OUT_SAVE_MESSAGE:
                     hideSavedMessage();
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
             }
         }
 
@@ -254,6 +256,12 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                 recorder.revertFile();
                 updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                 break;
+
+            case UNSAVED_RECORDING:
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
     }
 
@@ -324,10 +332,12 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     if (data.getBooleanExtra(Actions.UPLOAD_EXTRA_UPLOADING, false)) {
                         finish(); // upload started, finish
                     }
-                } else {
-                    // back button pressed, do nothing
                 }
+                // back button pressed, do nothing
                 break;
+
+            default:
+                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
     }
 
@@ -408,7 +418,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     private ImageButton setupActionButton() {
         final ImageButton button = (ImageButton) findViewById(R.id.btn_action);
         button.setOnClickListener(new View.OnClickListener() {
-            @Override
+            @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
             public void onClick(View v) {
                 switch (currentState) {
                     case IDLE_RECORD:
@@ -696,6 +706,9 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     configurePlaybackInfo();
                 }
                 break;
+
+            default:
+                throw new IllegalArgumentException("Unknown currentState: " + currentState);
         }
 
         final boolean inEditState = currentState.isEdit();

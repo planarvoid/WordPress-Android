@@ -37,7 +37,7 @@ import java.util.List;
 @Deprecated
 public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T> {
 
-    @Override
+    @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
     public ReturnData<T> load(PublicCloudAPI api, CollectionParams<T> params) {
         final Context context = SoundCloudApplication.instance;
         final ContentResolver resolver = context.getContentResolver();

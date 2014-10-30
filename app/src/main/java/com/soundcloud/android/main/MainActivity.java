@@ -267,6 +267,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                 break;
             case PLAYLISTS:
                 displayPlaylists();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown navItem: " + navItem);
         }
 
         if (setTitle) {

@@ -41,6 +41,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import org.jetbrains.annotations.Nullable;
+import rx.android.IllegalThreadException;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -242,6 +243,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                     case TourLayout.IMAGE_ERROR:
                         hideView(OnboardActivity.this, splash, true);
                         break;
+                    default:
+                        throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
                 }
             }
         });
@@ -464,6 +467,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             case API:
                 SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown signupVia: " + signupVia.name());
         }
 
         hideView(this, getAcceptTerms(), true);

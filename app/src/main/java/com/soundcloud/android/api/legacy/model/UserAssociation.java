@@ -191,6 +191,9 @@ public class UserAssociation extends Association implements UserHolder {
                 mAddedAt = null;
                 mToken = null;
                 break;
+
+            default:
+                throw new IllegalArgumentException("Unknown newState: " + newState.name());
         }
     }
 

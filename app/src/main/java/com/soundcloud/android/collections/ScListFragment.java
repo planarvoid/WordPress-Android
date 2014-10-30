@@ -278,7 +278,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         retainedListPosition = listView.getFirstVisiblePosition();
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
     public void onResume() {
         super.onResume();
         if (content != null) {
@@ -351,7 +351,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
-            case ApiSyncService.STATUS_SYNC_ERROR: {
+            case ApiSyncService.STATUS_SYNC_ERROR:
 
                 final boolean nothingChanged = resultData != null && !resultData.getBoolean(contentUri.toString());
                 log("Returned from sync. Change: " + !nothingChanged);
@@ -373,7 +373,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                     }
                 }
                 break;
-            }
+            default:
+                throw new IllegalArgumentException("Unknown resultCode: " + resultCode);
         }
     }
 
@@ -811,6 +812,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                         }
                     }
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
             }
         }
     }

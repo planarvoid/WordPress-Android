@@ -97,6 +97,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             case ActivityLifeCycleEvent.ON_PAUSE_EVENT:
                 closeSessionForActivity();
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown event kind: " + event.getKind());
         }
     }
 

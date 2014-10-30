@@ -72,6 +72,7 @@ public final class ContentStats {
         editor.putLong(prefKey(content, key), timestamp).apply();
     }
 
+    @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
     public static void updateCount(Context context, Content content, int count) {
         switch (content) {
             case ME_SOUND_STREAM:

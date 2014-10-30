@@ -135,6 +135,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                         connectionList.setVisibility(View.GONE);
                         ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
                         break;
+                    default:
+                        throw new IllegalArgumentException("Unknown checkedId: " + checkedId);
                 }
             }
         });
@@ -230,6 +232,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                 ImageUtils.startTakeNewPictureIntent(this, recording.generateImageFile(Recording.IMAGE_DIR),
                         Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
     }
 
@@ -238,6 +242,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         switch (requestCode) {
             case DIALOG_PICK_IMAGE:
                 ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+            default:
+                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
     }
 
@@ -292,6 +298,9 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                                 .setData(Content.ME_CONNECTIONS.uri));
                     }
                 }
+
+            default:
+                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
     }
 

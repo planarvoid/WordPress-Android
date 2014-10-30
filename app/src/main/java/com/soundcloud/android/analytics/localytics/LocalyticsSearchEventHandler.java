@@ -22,6 +22,8 @@ class LocalyticsSearchEventHandler {
             case SearchEvent.KIND_RESULTS:
                 localyticsSession.tagEvent(LocalyticsEvents.Search.SEARCH_RESULTS, event.getAttributes());
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown event kind: " + event.getKind());
         }
     }
 }

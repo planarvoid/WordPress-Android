@@ -143,8 +143,9 @@ public class ScModelManager {
                 return userCache;
             case PLAYLIST:
                 return playlistCache;
+            default:
+                return null;
         }
-        return null;
     }
 
     public
