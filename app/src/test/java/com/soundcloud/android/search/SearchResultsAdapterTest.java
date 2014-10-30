@@ -100,16 +100,19 @@ public class SearchResultsAdapterTest {
     public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() {
         PropertySet unlikedPlaylist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
         unlikedPlaylist.put(PlaylistProperty.IS_LIKED, false);
-
+        adapter.addItem(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
+        adapter.addItem(ApiUniversalSearchItem.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
         adapter.addItem(unlikedPlaylist);
         adapter.onViewCreated(null, null);
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED,
                 PlayableUpdatedEvent.forLike(unlikedPlaylist.get(PlayableProperty.URN), true, 1));
-        adapter.getView(0, itemView, new FrameLayout(Robolectric.application));
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        expect(propSetCaptor.getValue().get(0).get(PlayableProperty.IS_LIKED)).toBeTrue();
+        final int playlistPosition = 2;
+        adapter.getView(playlistPosition, itemView, new FrameLayout(Robolectric.application));
+
+        verify(playlistPresenter).bindItemView(eq(playlistPosition), refEq(itemView), propSetCaptor.capture());
+        expect(propSetCaptor.getValue().get(playlistPosition).get(PlayableProperty.IS_LIKED)).toBeTrue();
     }
 
     @Test
