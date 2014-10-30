@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.soundcloud.android</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>android-parent</artifactId>
         <version>${maven.build.timestamp}</version>
     </parent>
 
