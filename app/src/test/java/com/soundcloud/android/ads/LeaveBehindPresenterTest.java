@@ -33,8 +33,9 @@ public class LeaveBehindPresenterTest {
     @Mock AdOverlayPresenter.Listener listener;
     @Mock View trackView;
     @Mock private View overlay;
-    @Mock private View headerStub;
-    @Mock private ImageView imageStub;
+    @Mock private View headerView;
+    @Mock private View imageViewHolder;
+    @Mock private ImageView imageView;
     @Mock private ViewStub overlayStub;
     @Mock private ImageOperations imageOperations;
     private TestEventBus eventBus;
@@ -44,8 +45,9 @@ public class LeaveBehindPresenterTest {
         eventBus = new TestEventBus();
         when(trackView.findViewById(R.id.leave_behind_stub)).thenReturn(overlayStub);
         when(overlayStub.inflate()).thenReturn(overlay);
-        when(overlay.findViewById(R.id.leave_behind_header)).thenReturn(headerStub);
-        when(overlay.findViewById(R.id.leave_behind_image)).thenReturn(imageStub);
+        when(overlay.findViewById(R.id.leave_behind_header)).thenReturn(headerView);
+        when(overlay.findViewById(R.id.leave_behind_image)).thenReturn(imageView);
+        when(overlay.findViewById(R.id.leave_behind_image_holder)).thenReturn(imageViewHolder);
 
         presenter = new LeaveBehindPresenter(trackView, listener, eventBus, imageOperations);
     }

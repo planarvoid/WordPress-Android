@@ -7,7 +7,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:sfl_dominantMeasurement="height"
-        android:foreground="@drawable/interstitial_selector"
+        android:foreground="@drawable/ad_overlay_selector"
         android:clickable="true"
         android:layout_above="@+id/interstitial_preview_container"
         android:layout_below="@id/interstitial_header"
