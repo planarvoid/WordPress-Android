@@ -36,6 +36,12 @@
                     <sign>
                         <debug>false</debug>
                     </sign>
+                    <dex>
+                        <jvmArguments>
+                            <jvmArgument>-Xms1536m</jvmArgument>
+                            <jvmArgument>-Xmx1536m</jvmArgument>
+                        </jvmArguments>
+                    </dex>
                 </configuration>
             </plugin>
               <plugin>
