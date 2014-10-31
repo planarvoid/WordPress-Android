@@ -105,14 +105,17 @@ public class PlaybackSessionAnalyticsController {
     }
 
     private void publishStopEvent(final Playa.StateTransition stateTransition, final int stopReason) {
+        // note that we only want to publish a stop event if we have a corresponding play event. This value
+        // will be nulled out after it is used, and we will not publish another stop event until a play event
+        // creates a new value for lastPlayEventData
         if (lastPlayEventData != null && currentTrackSourceInfo != null) {
-            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition)).subscribe(eventBus.queue(EventQueue.TRACKING));
+            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition, lastPlayEventData)).subscribe(eventBus.queue(EventQueue.TRACKING));
             lastPlayEventData = null;
             lastPlayAudioAd = null;
         }
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionStopEvent(final int stopReason, final Playa.StateTransition stateTransition) {
+    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionStopEvent(final int stopReason, final Playa.StateTransition stateTransition, final PlaybackSessionEvent lastPlayEventData) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
