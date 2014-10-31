@@ -40,9 +40,9 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     @Override
     public void bindItemView(int position, View itemView, List<PropertySet> trackItems) {
         final PropertySet track = trackItems.get(position);
-        getTextView(itemView, R.id.list_item_header).setText(track.get(PlayableProperty.CREATOR_NAME));
-        getTextView(itemView, R.id.list_item_subheader).setText(track.get(PlayableProperty.TITLE));
-        final String formattedDuration = ScTextUtils.formatTimestamp(track.get(PlayableProperty.DURATION), TimeUnit.MILLISECONDS);
+        getTextView(itemView, R.id.list_item_header).setText(track.getOrElse(TrackProperty.CREATOR_NAME, ScTextUtils.EMPTY_STRING));
+        getTextView(itemView, R.id.list_item_subheader).setText(track.getOrElse(TrackProperty.TITLE, ScTextUtils.EMPTY_STRING));
+        final String formattedDuration = ScTextUtils.formatTimestamp(track.get(TrackProperty.DURATION), TimeUnit.MILLISECONDS);
         getTextView(itemView, R.id.list_item_right_info).setText(formattedDuration);
 
         showRelevantAdditionalInformation(itemView, track);

@@ -60,6 +60,21 @@ public class TrackItemPresenterTest {
         expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
     }
 
+    @Test // this is until we remedy the numerous sources of null data on tracks
+    public void shouldTurnNullTitlesToEmptyStrings() {
+        presenter.bindItemView(0, itemView, Arrays.asList(PropertySet.from(
+                // these shouldn't be allowed going forward, but have to deal with it now
+                TrackProperty.TITLE.bind(null),
+                TrackProperty.CREATOR_NAME.bind(null),
+                TrackProperty.DURATION.bind(227000),
+                TrackProperty.URN.bind(Urn.forTrack(123)),
+                TrackProperty.PLAY_COUNT.bind(870)
+        )));
+
+        expect(textView(R.id.list_item_subheader).getText()).toEqual("");
+        expect(textView(R.id.list_item_header).getText()).toEqual("");
+    }
+
     @Test
     public void shouldBindDurationToView() {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
