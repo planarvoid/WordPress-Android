@@ -8,13 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
-import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
-import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
@@ -51,8 +50,6 @@ public class AccountCleanupActionTest {
     @Mock
     private SoundCloudApplication soundCloudApplication;
     @Mock
-    private C2DMReceiver c2DMReceiver;
-    @Mock
     private UserAssociationStorage userAssociationStorage;
     @Mock
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
@@ -62,7 +59,7 @@ public class AccountCleanupActionTest {
     @Before
     public void setup() {
         action = new AccountCleanupAction(context, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, c2DMReceiver, unauthorisedRequestRegistry);
+                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, unauthorisedRequestRegistry);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -98,12 +95,6 @@ public class AccountCleanupActionTest {
     public void shouldNotClearPlayQueueManagersState() {
         action.call();
         verifyZeroInteractions(playQueue);
-    }
-
-    @Test
-    public void shouldUnregisterFromC2DM() {
-        action.call();
-        verify(c2DMReceiver).unregister(context);
     }
 
     @Test

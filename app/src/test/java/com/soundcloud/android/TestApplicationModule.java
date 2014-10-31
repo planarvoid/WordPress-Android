@@ -3,7 +3,9 @@ package com.soundcloud.android;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
+import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
@@ -35,7 +37,7 @@ import android.content.res.Resources;
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
-@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class})
+@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class, LocalyticsPushReceiver.class})
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;
@@ -154,6 +156,11 @@ public class TestApplicationModule {
     @Provides
     public OkHttpClient provideOkHttpClient() {
         return new OkHttpClient();
+    }
+
+    @Provides
+    public LocalyticsAmpSession provideLocalyticsSession() {
+        return mock(LocalyticsAmpSession.class);
     }
 }
 

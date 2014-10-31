@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
@@ -36,32 +35,26 @@ public final class SyncConfig {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, false);
     }
 
-    public static boolean isIncomingEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras); return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true)
-                && evt == PushEvent.NONE;
+    public static boolean isIncomingEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true);
     }
 
-    public static boolean isLikeEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true)
-                && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
+    public static boolean isLikeEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true);
     }
 
-    public static boolean isRepostEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true)
-                && (evt == PushEvent.NONE || evt == PushEvent.REPOST);
+    public static boolean isRepostEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true);
     }
 
     public static boolean isActivitySyncEnabled(Context c, Bundle extras) {
-        return isLikeEnabled(c, extras) || isCommentsEnabled(c, extras);
+        return isLikeEnabled(c) || isCommentsEnabled(c);
     }
 
-    public static boolean isCommentsEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
+    public static boolean isCommentsEnabled(Context c) {
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true) && (evt == PushEvent.NONE || evt == PushEvent.COMMENT);
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true);
     }
 
     public static boolean isSyncWifiOnlyEnabled(Context c) {
@@ -84,8 +77,6 @@ public final class SyncConfig {
     public static boolean shouldSyncCollections(Context c) {
         return !isSyncWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c);
     }
-
-
 
     public static boolean shouldSync(Context context, String prefKey, long max) {
         final long lastAction = PreferenceManager.getDefaultSharedPreferences(context).getLong(

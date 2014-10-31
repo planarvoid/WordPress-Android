@@ -11,7 +11,6 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
-import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
@@ -205,12 +204,6 @@ public class SoundCloudApplication extends Application {
                     IOUtils.deleteDir(Consts.OLD_EXTERNAL_CACHE_DIRECTORY);
                 }
             });
-
-            try {
-                C2DMReceiver.register(this);
-            } catch (Exception e){
-                ErrorUtils.handleSilentException("Could not register c2dm ", e);
-            }
 
             // sync current sets
             AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {

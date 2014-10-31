@@ -64,7 +64,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
 
         // deliver incoming sounds, if the user has enabled this
-        if (SyncConfig.isIncomingEnabled(app, extras)) {
+        if (SyncConfig.isIncomingEnabled(app)) {
             if (delta > frequency) {
                 final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
                 Activities activities = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, lastStreamSeen);
@@ -126,9 +126,9 @@ class SyncServiceResultReceiver extends ResultReceiver {
         if (!activities.isEmpty()) {
             ContentStats.updateCount(app, Content.ME_ACTIVITIES, activities.size());
 
-            final boolean likeEnabled = SyncConfig.isLikeEnabled(app, extras);
-            final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app, extras);
-            final boolean repostsEnabled = SyncConfig.isRepostEnabled(app, extras);
+            final boolean likeEnabled = SyncConfig.isLikeEnabled(app);
+            final boolean commentsEnabled = SyncConfig.isCommentsEnabled(app);
+            final boolean repostsEnabled = SyncConfig.isRepostEnabled(app);
 
             final Activities likes = likeEnabled ? activities.trackLikes() : Activities.EMPTY;
             final Activities comments = commentsEnabled ? activities.comments() : Activities.EMPTY;
