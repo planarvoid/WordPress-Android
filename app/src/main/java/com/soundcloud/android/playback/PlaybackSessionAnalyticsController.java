@@ -23,6 +23,7 @@ public class PlaybackSessionAnalyticsController {
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
+    private PlaybackSessionEvent lastPlayEventData;
     private PropertySet lastPlayAudioAd;
 
     private TrackSourceInfo currentTrackSourceInfo;
@@ -91,21 +92,23 @@ public class PlaybackSessionAnalyticsController {
                 final Urn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
                 final long progress = stateTransition.getProgress().position;
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
-                PlaybackSessionEvent playEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
+                lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
                 if (adsOperations.isCurrentTrackAudioAd()) {
                     lastPlayAudioAd = playQueueManager.getCurrentMetaData();
-                    playEventData = playEventData.withAudioAd(lastPlayAudioAd);
+                    lastPlayEventData = lastPlayEventData.withAudioAd(lastPlayAudioAd);
                 } else {
                     lastPlayAudioAd = null;
                 }
-                return playEventData;
+                return lastPlayEventData;
             }
         };
     }
 
     private void publishStopEvent(final Playa.StateTransition stateTransition, final int stopReason) {
-        if (currentTrackSourceInfo != null) {
+        if (lastPlayEventData != null && currentTrackSourceInfo != null) {
             trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition)).subscribe(eventBus.queue(EventQueue.TRACKING));
+            lastPlayEventData = null;
+            lastPlayAudioAd = null;
         }
     }
 
@@ -116,11 +119,10 @@ public class PlaybackSessionAnalyticsController {
                 final long progress = stateTransition.getProgress().position;
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
                 PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(), protocol,
-                        currentTrackSourceInfo, stopReason, progress);
+                        currentTrackSourceInfo, lastPlayEventData, stopReason, progress);
 
                 if (lastPlayAudioAd != null) {
                     stopEvent = stopEvent.withAudioAd(lastPlayAudioAd);
-                    lastPlayAudioAd = null;
                 }
                 return stopEvent;
             }
