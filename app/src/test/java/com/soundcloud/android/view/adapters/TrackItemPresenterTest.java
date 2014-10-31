@@ -7,10 +7,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -42,10 +41,10 @@ public class TrackItemPresenterTest {
     @Before
     public void setUp() throws Exception {
         propertySet = PropertySet.from(
-                PlayableProperty.TITLE.bind("title"),
-                PlayableProperty.CREATOR_NAME.bind("creator"),
-                PlayableProperty.DURATION.bind(227000),
-                PlayableProperty.URN.bind(Urn.forTrack(123)),
+                TrackProperty.TITLE.bind("title"),
+                TrackProperty.CREATOR_NAME.bind("creator"),
+                TrackProperty.DURATION.bind(227000),
+                TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );
 
@@ -114,7 +113,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldBindReposterIfAny() {
-        propertySet.put(PlayableProperty.REPOSTER, "reposter");
+        propertySet.put(TrackProperty.REPOSTER, "reposter");
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.reposter)).toBeVisible();
@@ -130,7 +129,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldShowPrivateIndicatorIfTrackIsPrivate() {
-        propertySet.put(PlayableProperty.IS_PRIVATE, true);
+        propertySet.put(TrackProperty.IS_PRIVATE, true);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.private_indicator)).toBeVisible();
@@ -140,7 +139,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldHidePrivateIndicatorIfTrackIsPublic() {
-        propertySet.put(PlayableProperty.IS_PRIVATE, false);
+        propertySet.put(TrackProperty.IS_PRIVATE, false);
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.private_indicator)).toBeGone();

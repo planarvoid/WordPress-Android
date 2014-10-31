@@ -4,9 +4,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -53,15 +52,15 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private void loadArtwork(View itemView, PropertySet track) {
         imageOperations.displayInAdapterView(
-                track.get(PlayableProperty.URN), ApiImageSize.getListItemImageSize(itemView.getContext()),
+                track.get(TrackProperty.URN), ApiImageSize.getListItemImageSize(itemView.getContext()),
                 (ImageView) itemView.findViewById(R.id.image));
     }
 
     private void toggleReposterView(View itemView, PropertySet track) {
         final TextView reposterView = getTextView(itemView, R.id.reposter);
-        if (track.contains(PlayableProperty.REPOSTER)) {
+        if (track.contains(TrackProperty.REPOSTER)) {
             reposterView.setVisibility(View.VISIBLE);
-            reposterView.setText(track.get(PlayableProperty.REPOSTER));
+            reposterView.setText(track.get(TrackProperty.REPOSTER));
         } else {
             reposterView.setVisibility(View.GONE);
         }
@@ -69,7 +68,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private void showRelevantAdditionalInformation(View itemView, PropertySet track) {
         hideAllAdditionalInformation(itemView);
-        if (track.get(PlayableProperty.URN).equals(playingTrack)) {
+        if (track.get(TrackProperty.URN).equals(playingTrack)) {
             showNowPlaying(itemView);
         } else if (isPrivateTrack(track)) {
             showPrivateIndicator(itemView);
@@ -79,7 +78,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     }
 
     private Boolean isPrivateTrack(PropertySet track) {
-        return track.contains(PlayableProperty.IS_PRIVATE) && track.get(PlayableProperty.IS_PRIVATE);
+        return track.contains(TrackProperty.IS_PRIVATE) && track.get(TrackProperty.IS_PRIVATE);
     }
 
     private void hideAllAdditionalInformation(View itemView) {
