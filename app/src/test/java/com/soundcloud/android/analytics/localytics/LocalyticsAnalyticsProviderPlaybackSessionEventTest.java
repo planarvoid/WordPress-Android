@@ -227,7 +227,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     }
 
     private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
-        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, "hls", trackSourceInfo, startEvent,
+        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, "hls", trackSourceInfo,
                 PlaybackSessionEvent.STOP_REASON_BUFFERING, 0L,
                 (long) (startEvent.getTimeStamp() + DURATION * percent));
     }
@@ -239,11 +239,11 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     private PlaybackSessionEvent createStopEventWithStopTimeAndDuration(long stopTime, int duration) {
         return PlaybackSessionEvent.forStop(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", duration),
-                USER_URN, "hls", trackSourceInfo, startEvent,
+                USER_URN, "hls", trackSourceInfo,
                 PlaybackSessionEvent.STOP_REASON_BUFFERING, 0L, stopTime);
     }
 
     private PlaybackSessionEvent createStopEventWithWithReason(int reason) {
-        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, "hls", trackSourceInfo, startEvent, reason, 0);
+        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, "hls", trackSourceInfo, reason, 0);
     }
 }

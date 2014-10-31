@@ -159,9 +159,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             eventAttributes.put("track_length_ms", String.valueOf(duration));
             eventAttributes.put("track_length_bucket", getTrackLengthBucket(duration));
 
-            eventAttributes.put("play_duration_ms", String.valueOf(eventData.getListenTime()));
-            eventAttributes.put("percent_listened", getPercentListenedBucket(eventData, duration));
-
             if (eventData.getTrackSourceInfo().isFromPlaylist()) {
                 eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistUrn().getNumericId()));
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
@@ -225,19 +222,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 toStringHelper.add(key, eventAttributes.get(key));
             }
             Log.d(TAG, toStringHelper.toString());
-        }
-    }
-
-    private String getPercentListenedBucket(PlaybackSessionEvent eventData, long duration) {
-        double percentListened = ((double) eventData.getListenTime()) / duration;
-        if (percentListened < .05) {
-            return "<5%";
-        } else if (percentListened <= .25) {
-            return "5% to 25%";
-        } else if (percentListened <= .75) {
-            return "25% to 75%";
-        } else {
-            return ">75%";
         }
     }
 

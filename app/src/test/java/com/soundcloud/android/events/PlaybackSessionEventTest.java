@@ -33,17 +33,8 @@ public class PlaybackSessionEventTest {
     @Mock TrackSourceInfo trackSourceInfo;
 
     @Test
-    public void stopEventSetsTimeElapsedSinceLastPlayEvent() throws Exception {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, PROGRESS);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, playEvent,
-                PlaybackSessionEvent.STOP_REASON_BUFFERING, PROGRESS);
-        expect(stopEvent.getListenTime()).toEqual(stopEvent.getTimeStamp() - playEvent.getTimeStamp());
-    }
-
-    @Test
     public void stopEventSetsStopReason() throws Exception {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, PROGRESS);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, playEvent,
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo,
                 PlaybackSessionEvent.STOP_REASON_BUFFERING, PROGRESS);
         expect(stopEvent.getStopReason()).toEqual(PlaybackSessionEvent.STOP_REASON_BUFFERING);
     }
@@ -65,8 +56,7 @@ public class PlaybackSessionEventTest {
     @Test
     public void aStopEventWithProgressZeroIsNotAFirstPlay() {
         long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, progress);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, playEvent,
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo,
                 PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, progress);
         expect(stopEvent.isFirstPlay()).toBeFalse();
     }

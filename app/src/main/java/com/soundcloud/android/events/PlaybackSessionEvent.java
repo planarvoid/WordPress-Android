@@ -34,7 +34,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private final long progress;
 
     private int stopReason;
-    private long listenTime;
     private final TrackSourceInfo trackSourceInfo;
     private List<String> adCompanionImpressionUrls = Collections.emptyList();
     private List<String> adImpressionUrls = Collections.emptyList();
@@ -51,19 +50,18 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
-                                               String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
+                                               String protocol, TrackSourceInfo trackSourceInfo,
                                                int stopReason, long progress, long timestamp) {
         final PlaybackSessionEvent playbackSessionEvent =
                 new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, protocol, trackSourceInfo, progress, timestamp);
-        playbackSessionEvent.setListenTime(playbackSessionEvent.timeStamp - lastPlayEvent.getTimeStamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
-                                               String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
+                                               String protocol, TrackSourceInfo trackSourceInfo,
                                                int stopReason, long progress) {
-        return forStop(trackData, userUrn, protocol, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
+        return forStop(trackData, userUrn, protocol, trackSourceInfo, stopReason, progress, System.currentTimeMillis());
     }
 
     // Use this constructor for an ordinary audio playback event
@@ -130,20 +128,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return adCompanionImpressionUrls;
     }
 
-    private void setListenTime(long listenTime) {
-        this.listenTime = listenTime;
-    }
-
     public int getStopReason() {
         return stopReason;
     }
 
     private void setStopReason(int stopReason) {
         this.stopReason = stopReason;
-    }
-
-    public long getListenTime() {
-        return listenTime;
     }
 
     public boolean isAd() {

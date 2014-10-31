@@ -31,7 +31,7 @@ public class TestEvents {
         return PlaybackSessionEvent.forStop(
                 TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L)),
                 Urn.forUser(1), "hls", new TrackSourceInfo("screen", false),
-                previousPlayEvent, stopReason, 0, 1000L);
+                stopReason, 0, 1000L);
 
     }
 
