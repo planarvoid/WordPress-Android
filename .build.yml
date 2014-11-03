@@ -16,7 +16,7 @@ release:
         tests: true
         profiles:
           - release
-      phone_test:
+      phone_test: &defaults_phone_test
         phase: install
         project: tests-integration
         tests: true
@@ -30,6 +30,25 @@ release:
 releaseinttest:
   mvn:
     <<: *defaults_mvn
+    tasks:
+      <<: *defaults_tasks
+      build:
+        <<: *defaults_build
+        profiles:
+          - sign
+          - soundcloud
+          - releaseinttests
+      unittests:
+        <<: *defaults_unittests
+        profiles:
+          - releaseinttests
+      phone_test:
+        <<: *defaults_phone_test
+        profiles:
+          - sign
+          - releaseinttests
+          - soundcloud
+          - phone-test
 debug:
   mvn:
     <<: *defaults_mvn
