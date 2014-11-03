@@ -123,10 +123,8 @@
             <properties>
                 <build.type>releaseinttest</build.type>
                 <build.debuggable>false</build.debuggable>
-                <keystore.alias>androiddebugkey</keystore.alias>
-                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
-                <keystore.password>android</keystore.password>
-                <keystore.keypass>android</keystore.keypass>
+                <keystore.location>${project.basedir}/../app/soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.alias>jons keystore</keystore.alias>
                 <build.proguard.skip>false</build.proguard.skip>
             </properties>
         </profile>
