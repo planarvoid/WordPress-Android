@@ -10,6 +10,7 @@ import com.soundcloud.api.CloudAPI;
 import android.content.Context;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -143,5 +144,23 @@ import java.io.IOException;
                 '}';
     }
 
+
+    static class Factory {
+
+        private final Context context;
+        private final ApiSyncerFactory apiSyncerFactory;
+        private final SyncStateManager syncStateManager;
+
+        @Inject
+        Factory(Context context, ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
+            this.context = context;
+            this.apiSyncerFactory = apiSyncerFactory;
+            this.syncStateManager = syncStateManager;
+        }
+
+        CollectionSyncRequest create(Uri contentUri, String action, boolean isUI) {
+            return new CollectionSyncRequest(context, contentUri, action, isUI, apiSyncerFactory, syncStateManager);
+        }
+    }
 
 }

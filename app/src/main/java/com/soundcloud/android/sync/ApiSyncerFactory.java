@@ -8,7 +8,14 @@ import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import android.content.Context;
 import android.net.Uri;
 
+import javax.inject.Inject;
+
 public class ApiSyncerFactory {
+
+    @Inject
+    public ApiSyncerFactory() {
+    }
+
     public static final String TAG = ApiSyncService.LOG_TAG;
 
     public SyncStrategy forContentUri(Context context, Uri contentUri) {

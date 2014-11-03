@@ -34,6 +34,7 @@ import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
+import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -106,6 +107,7 @@ public class SoundCloudApplication extends Application {
                 new WidgetModule(),
                 new LegacyModule(),
                 new FeaturesModule(),
+                new SyncModule(),
                 new PlaybackServiceModule());
     }
 

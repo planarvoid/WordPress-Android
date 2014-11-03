@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -32,12 +33,15 @@ import java.util.LinkedHashMap;
 public class ApiSyncServiceTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
+    CollectionSyncRequest.Factory collectionSyncRequestFactory;
+    @Mock ApiSyncerFactory apiSyncerFactory;
 
     static final long USER_ID = 100L;
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
+        collectionSyncRequestFactory = new CollectionSyncRequest.Factory(Robolectric.application, apiSyncerFactory, syncStateManager);
         TestHelper.setUserId(USER_ID);
     }
 
@@ -88,8 +92,8 @@ public class ApiSyncServiceTest {
         syncIntent.setData(Content.ME_FOLLOWINGS.uri);
 
         ApiSyncService svc = new ApiSyncService();
-        svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
-        svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
+        svc.enqueueRequest(new SyncIntent(syncIntent, collectionSyncRequestFactory));
+        svc.enqueueRequest(new SyncIntent(syncIntent, collectionSyncRequestFactory));
         expect(svc.pendingRequests.size()).toBe(1);
     }
 
@@ -105,9 +109,9 @@ public class ApiSyncServiceTest {
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
-        SyncIntent request1 = new SyncIntent(context, intent);
-        SyncIntent request2 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
-        SyncIntent request3 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
+        SyncIntent request1 = new SyncIntent(intent, collectionSyncRequestFactory);
+        SyncIntent request2 = new SyncIntent(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true), collectionSyncRequestFactory);
+        SyncIntent request3 = new SyncIntent(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri), collectionSyncRequestFactory);
 
         svc.enqueueRequest(request1);
         expect(svc.pendingRequests.size()).toBe(3);
@@ -122,7 +126,7 @@ public class ApiSyncServiceTest {
         expect(svc.pendingRequests.peek().getContentUri()).toBe(Content.ME_LIKES.uri);
         expect(svc.pendingRequests.get(1).getContentUri()).toBe(Content.ME_SOUNDS.uri);
 
-        SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncIntent request4 = new SyncIntent(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true), collectionSyncRequestFactory);
         svc.enqueueRequest(request4);
         expect(svc.pendingRequests.peek().getContentUri()).toBe(Content.ME_FOLLOWINGS.uri);
 

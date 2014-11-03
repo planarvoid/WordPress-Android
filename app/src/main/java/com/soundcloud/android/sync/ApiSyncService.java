@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.storage.TableColumns;
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.os.IBinder;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,11 +39,17 @@ public class ApiSyncService extends Service {
 
     public static final int MAX_TASK_LIMIT = 3;
 
+    @Inject SyncIntent.Factory syncIntentFactory;
+
     private int activeTaskCount;
 
     /* package */ final List<SyncIntent> syncIntents = new ArrayList<>();
     /* package */ final LinkedList<CollectionSyncRequest> pendingRequests = new LinkedList<>();
     /* package */ final List<CollectionSyncRequest> runningRequests = new ArrayList<>();
+
+    public ApiSyncService() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public void onCreate() {
@@ -55,7 +63,7 @@ public class ApiSyncService extends Service {
         super.onStart(intent, startId);
         Log.d(LOG_TAG, "startListening("+intent+")");
         if (intent != null){
-            enqueueRequest(new SyncIntent(this, intent));
+            enqueueRequest(syncIntentFactory.create(intent));
         }
         flushSyncRequests();
     }

@@ -2,16 +2,18 @@ package com.soundcloud.android.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,20 +21,13 @@ import android.os.ResultReceiver;
 
 import java.util.ArrayList;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class SyncIntentTest {
-    ContentResolver resolver;
-    static final long USER_ID = 100L;
-
-    @Before public void before() {
-        resolver = Robolectric.application.getContentResolver();
-        TestHelper.setUserId(USER_ID);
-    }
+    @Mock CollectionSyncRequest.Factory collectionSyncRequestFactory;
 
     @Test
     public void shouldCreateCollectionSyncRequests() throws Exception {
-        SyncIntent req = new SyncIntent(DefaultTestRunner.application,
-                new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri));
+        SyncIntent req = new SyncIntent(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), collectionSyncRequestFactory);
 
         expect(req.collectionSyncRequests.size()).toEqual(1);
     }
@@ -46,15 +41,13 @@ public class SyncIntentTest {
         uris.add(Content.ME_LIKES.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, uris);
-        SyncIntent req = new SyncIntent(DefaultTestRunner.application, intent);
+        SyncIntent req = new SyncIntent(intent, collectionSyncRequestFactory);
 
         expect(req.collectionSyncRequests.size()).toEqual(2);
     }
 
     @Test
     public void shouldCallResultReceiverWhenAllRequestsHaveBeenExecuted() throws Exception {
-        Robolectric.setDefaultHttpResponse(500, "error");
-
         final Boolean[] executed = new Boolean[1];
         final Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri);
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(null) {
@@ -63,14 +56,13 @@ public class SyncIntentTest {
             }
         });
 
-        SyncIntent req = new SyncIntent(DefaultTestRunner.application, intent);
+        final CollectionSyncRequest collectionSyncRequest = new CollectionSyncRequest(Robolectric.application, Content.ME_FOLLOWERS.uri, null, false);
+        when(collectionSyncRequestFactory.create(any(Uri.class), anyString(), anyBoolean())).thenReturn(collectionSyncRequest);
 
-        final CollectionSyncRequest syncRequest = req.collectionSyncRequests.get(0);
-        syncRequest.onQueued();
+        SyncIntent req = new SyncIntent(intent, collectionSyncRequestFactory);
 
-        expect(req.onUriResult(syncRequest.execute())).toBeTrue();
+        expect(req.onUriResult(collectionSyncRequest)).toBeTrue();
         expect(executed[0]).toBeTrue();
-        expect(syncRequest.getResult().success).toBeFalse();
     }
 }
 

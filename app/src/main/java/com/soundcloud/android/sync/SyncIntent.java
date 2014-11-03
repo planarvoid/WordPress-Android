@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +39,7 @@ import java.util.Set;
     private final Bundle resultData = new Bundle();
     private final SyncResult syncAdapterResult = new SyncResult();
 
-    public SyncIntent(Context context, Intent intent) {
+    SyncIntent(Intent intent, CollectionSyncRequest.Factory collectionSyncRequestFactory) {
         resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         isUIRequest = intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false);
         action = intent.getAction();
@@ -52,7 +53,7 @@ import java.util.Set;
             syncUris.add(intent.getData());
         }
         for (Uri uri : syncUris) {
-            collectionSyncRequests.add(new CollectionSyncRequest(context, uri, action, isUIRequest));
+            collectionSyncRequests.add(collectionSyncRequestFactory.create(uri, action, isUIRequest));
         }
         requestsRemaining = new HashSet<CollectionSyncRequest>(collectionSyncRequests);
     }
@@ -108,5 +109,18 @@ import java.util.Set;
             }
         }
         return true;
+    }
+
+    static class Factory {
+        private final CollectionSyncRequest.Factory collectionSyncRequestFactory;
+
+        @Inject
+        Factory(CollectionSyncRequest.Factory collectionSyncRequestFactory) {
+            this.collectionSyncRequestFactory = collectionSyncRequestFactory;
+        }
+
+        SyncIntent create(Intent intent){
+            return new SyncIntent(intent, collectionSyncRequestFactory);
+        }
     }
 }
