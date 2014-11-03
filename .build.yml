@@ -27,6 +27,9 @@ release:
           - phone-test
   hockey:
     enabled: false
+releaseinttest:
+  mvn:
+    <<: *defaults_mvn
 debug:
   mvn:
     <<: *defaults_mvn
