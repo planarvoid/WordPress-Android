@@ -1,8 +1,10 @@
 package com.soundcloud.android.analytics;
 
+import com.crashlytics.android.Crashlytics;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
+import com.soundcloud.android.analytics.crashlytics.CrashlyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
@@ -33,6 +35,7 @@ public class AnalyticsProviderFactory {
     private final LocalyticsAnalyticsProvider localyticsAnalyticsProvider;
     private final PromotedAnalyticsProvider promotedAnalyticsProvider;
     private final AdjustAnalyticsProvider adjustAnalyticsProvider;
+    private final CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider;
     private final FeatureFlags featureFlags;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
@@ -48,6 +51,7 @@ public class AnalyticsProviderFactory {
                                     PromotedAnalyticsProvider promotedProvider,
                                     AdjustAnalyticsProvider adjustAnalyticsProvider,
                                     @Nullable ComScoreAnalyticsProvider comScoreProvider,
+                                    CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider,
                                     FeatureFlags featureFlags) {
         this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
@@ -58,6 +62,7 @@ public class AnalyticsProviderFactory {
         this.adjustAnalyticsProvider = adjustAnalyticsProvider;
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.promotedAnalyticsProvider = promotedProvider;
+        this.crashlyticsAnalyticsProvider = crashlyticsAnalyticsProvider;
         this.featureFlags = featureFlags;
     }
 
@@ -71,6 +76,11 @@ public class AnalyticsProviderFactory {
         if (sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)) {
             addOptInProviders(providers);
         }
+
+        if (Crashlytics.getInstance().isInitialized()) {
+            providers.add(crashlyticsAnalyticsProvider);
+        }
+
         return providers;
     }
 
