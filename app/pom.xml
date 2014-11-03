@@ -383,11 +383,6 @@
             <type>aar</type>
         </dependency>
         <dependency>
-            <groupId>com.integralblue</groupId>
-            <artifactId>httpresponsecache</artifactId>
-            <version>1.3sc1</version>
-        </dependency>
-        <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
             <version>${rxjava.version}</version>

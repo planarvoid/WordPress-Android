@@ -17,11 +17,8 @@ import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
-import com.soundcloud.android.api.HttpProperties;
-import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -124,8 +121,6 @@ public class ImageOperations {
             builder.memoryCacheSize((int) (availableMemory / 16));
         }
         imageLoader.init(builder.build());
-
-        FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
     public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {

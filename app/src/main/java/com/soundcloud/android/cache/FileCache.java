@@ -1,15 +1,11 @@
 package com.soundcloud.android.cache;
 
-import com.integralblue.httpresponsecache.HttpResponseCache;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.ResponseCache;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,56 +18,6 @@ import java.util.List;
  */
 public final class FileCache {
     public static final String TAG = FileCache.class.getSimpleName();
-    public static final long MAX_IMAGE_CACHE = 60 * 1024 * 1024; // 60  MB
-
-    public static ResponseCache installFileCache(final File cacheDir) {
-        ResponseCache responseCache = ResponseCache.getDefault();
-        if (responseCache instanceof HttpResponseCache) {
-            Log.d(TAG, "Cache has already been installed.");
-            return responseCache;
-
-        } else if (responseCache == null) {
-            final long size = determineAvailableSpace(cacheDir);
-
-            if (size > 0) {
-                Log.d(TAG, "using " + IOUtils.inMbFormatted(size) + " MB for image cache");
-
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (cacheDir.exists() || cacheDir.mkdirs()) {
-                                HttpResponseCache.install(cacheDir, size);
-                            }
-                        } catch (IOException e) {
-                            Log.w(TAG, "error installing cache", e);
-                        } catch (IllegalArgumentException e) {
-                            Log.w(TAG, "error installing cache", e);
-                            ErrorUtils.handleSilentException("Error installing cache, SD Avail: "
-                                    + IOUtils.isSDCardAvailable(), e);
-                        }
-                    }
-                }.start();
-
-                return null;
-            } else {
-                Log.d(TAG, "not using disk cache - not enough space left");
-                return null;
-            }
-        } else {
-            Class<? extends ResponseCache> type = responseCache.getClass();
-            Log.e(TAG, "Another ResponseCache has already been installed: " + type);
-            return null;
-        }
-    }
-
-    private static long determineAvailableSpace(File dir) {
-        if (IOUtils.getSpaceLeft(dir) < MAX_IMAGE_CACHE * 3) {
-            return 0;
-        } else {
-            return MAX_IMAGE_CACHE;
-        }
-    }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
         private final boolean recurse;
