@@ -47,8 +47,9 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTendingMusicLoadsNextPage(){
         exploreScreen.touchTrendingMusicTab();
+        int exploreTracksCountBefore = exploreScreen.getItemsOnTrendingMusicList();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertThat(exploreScreen.getItemsOnTrendingMusicList(), is(greaterThan(0)));
+        assertThat(exploreTracksCountBefore, is(lessThan(exploreScreen.getItemsOnTrendingMusicList())));
     }
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {

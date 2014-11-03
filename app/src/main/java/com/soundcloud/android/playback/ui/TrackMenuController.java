@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
@@ -18,7 +17,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -43,8 +41,8 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     private final EventBus eventBus;
     private final String commentAtUnformatted;
 
-    @Nullable private PlayerTrack track;
-    @Nullable private PlaybackProgress lastProgress;
+    private PlayerTrack track = PlayerTrack.EMPTY;
+    private PlaybackProgress lastProgress = PlaybackProgress.empty();
 
     private long commentPosition;
 
@@ -75,10 +73,10 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
 
     @Override
     public void displayScrubPosition(float scrubPosition) {
-        if (lastProgress != null && !lastProgress.isEmpty()) {
-            updateCommentPosition((long) (scrubPosition * lastProgress.getDuration()));
-        } else if (track != null) {
+        if (lastProgress.isEmpty()) {
             updateCommentPosition((long) (scrubPosition * track.getDuration()));
+        } else {
+            updateCommentPosition((long) (scrubPosition * lastProgress.getDuration()));
         }
     }
 
@@ -95,7 +93,6 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        checkNotNull(track);
         switch (menuItem.getItemId()) {
             case R.id.share:
                 handleShare(track);
@@ -165,7 +162,9 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     }
 
     public void show() {
-        popupMenuWrapper.show();
+        if (track != PlayerTrack.EMPTY) {
+            popupMenuWrapper.show();
+        }
     }
 
     public void dismiss() {
@@ -183,7 +182,8 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
 
     private String buildText(PlayerTrack track) {
         if (ScTextUtils.isNotBlank(track.getUserName())) {
-            return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(), track.getUserName(), track.getPermalinkUrl());
+            return activity.getString(R.string.share_track_by_artist_on_soundcloud, track.getTitle(),
+                    track.getUserName(), track.getPermalinkUrl());
         }
         return activity.getString(R.string.share_track_on_soundcloud, track.getTitle(), track.getPermalinkUrl());
     }

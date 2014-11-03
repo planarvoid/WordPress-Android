@@ -1,6 +1,9 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchOperations.*;
+import static com.soundcloud.android.search.SearchOperations.TYPE_ALL;
+import static com.soundcloud.android.search.SearchOperations.TYPE_PLAYLISTS;
+import static com.soundcloud.android.search.SearchOperations.TYPE_TRACKS;
+import static com.soundcloud.android.search.SearchOperations.TYPE_USERS;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -182,7 +185,7 @@ public class SearchResultsFragment extends DefaultFragment
                     .subscribe(subscriberProvider.get());
         } else if (urn.isPlaylist()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
-            PlaylistDetailActivity.start(getActivity(), urn, Screen.UNKNOWN);
+            PlaylistDetailActivity.start(getActivity(), urn, getTrackingScreen());
         } else if (urn.isUser()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen()));
             startActivity(ProfileActivity.getIntent(getActivity(), urn));

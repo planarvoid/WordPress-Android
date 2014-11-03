@@ -72,7 +72,6 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
 
         expect(stopEventAttributes.getValue().get("context")).toEqual(Screen.YOUR_LIKES.get());
-        expect(stopEventAttributes.getValue().get("play_duration_ms")).toEqual("1000");
         expect(stopEventAttributes.getValue().get("track_length_ms")).toEqual(String.valueOf(DURATION));
         expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(TRACK_URN.getNumericId()));
     }
@@ -93,48 +92,6 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");
         expect(stopEventAttributes.getValue().get("set_owner")).toEqual("other");
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldTrackPercentListenedLessThan5() {
-        localyticsProvider.handleTrackingEvent(createStopEventWithPercentListened(.04));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("<5%");
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldTrackPercentListened5to25With5percent() {
-        localyticsProvider.handleTrackingEvent(createStopEventWithPercentListened(.05));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("5% to 25%");
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldTrackPercentListened5to25With25percent() {
-        localyticsProvider.handleTrackingEvent(createStopEventWithPercentListened(.25));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("5% to 25%");
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldTrackPercentListened25to75With26percent() {
-        localyticsProvider.handleTrackingEvent(createStopEventWithPercentListened(.26));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("25% to 75%");
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldTrackPercentListened25to75With75percent() {
-        localyticsProvider.handleTrackingEvent(createStopEventWithPercentListened(.75));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("percent_listened")).toEqual("25% to 75%");
-    }
-
-    @Test
-    public void playbackEventDataForStopEventShouldTrackPercentListenedGreaterThan75() {
-        localyticsProvider.handleTrackingEvent(createStopEventWithPercentListened(.76));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("percent_listened")).toEqual(">75%");
     }
 
     @Test

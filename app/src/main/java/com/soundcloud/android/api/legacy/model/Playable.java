@@ -438,6 +438,9 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     @Override
     public PropertySet toPropertySet() {
+        if (title == null) {
+            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to create PropertySet with a null title; urn=" + getUrn()));
+        }
         return PropertySet.from(
                 PlayableProperty.DURATION.bind(duration),
                 PlayableProperty.TITLE.bind(title),

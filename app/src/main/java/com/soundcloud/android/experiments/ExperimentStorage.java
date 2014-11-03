@@ -17,6 +17,7 @@ import android.content.Context;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 class ExperimentStorage extends ScheduledOperations {
 
@@ -62,9 +63,15 @@ class ExperimentStorage extends ScheduledOperations {
         }));
     }
 
-    public Assignment loadAssignment() throws Exception {
+    public Assignment loadAssignment() throws IOException, ApiMapperException {
         String json = IOUtils.readInputStream(new FileInputStream(getAssignmentHandle()));
-        return jsonTransformer.fromJson(json, TypeToken.of(Assignment.class));
+        try {
+            return jsonTransformer.fromJson(json, TypeToken.of(Assignment.class));
+        } catch (ApiMapperException e) {
+            // see https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/5452b652e3de5099ba2b4fea
+            ErrorUtils.handleSilentException(new IllegalStateException("Failed parsing assigment; json = " + json));
+            throw e;
+        }
     }
 
     private boolean hasAssignment() {

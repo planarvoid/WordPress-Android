@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -78,7 +79,7 @@ public class AdsOperations {
         if (ads.hasAudioAd()) {
             insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
         } else if (ads.hasInterstitialAd() && featureFlags.isEnabled(Feature.INTERSTITIAL)) {
-            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition);
+            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
         }
     }
 
@@ -138,8 +139,11 @@ public class AdsOperations {
         return playQueueManager.getMetaDataAt(monetizableTrackPosition);
     }
 
-    private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition) {
-        PropertySet interstitialPropertySet = interstitial.toPropertySet().put(AdOverlayProperty.META_AD_DISMISSED, false);
+    private void applyInterstitialAd(ApiInterstitial interstitial, int currentMonetizablePosition, Urn monetizableTrack) {
+        PropertySet interstitialPropertySet = interstitial.toPropertySet()
+                .put(AdOverlayProperty.META_AD_DISMISSED, false)
+                .put(TrackProperty.URN, monetizableTrack);
+
         playQueueManager.performPlayQueueUpdateOperations(
                 new PlayQueueManager.MergeMetadataOperation(currentMonetizablePosition, interstitialPropertySet)
         );

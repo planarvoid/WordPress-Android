@@ -3,7 +3,6 @@
     <style name="InterstitialImage">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/holo_green_light</item>
         <item name="android:adjustViewBounds">true</item>
     </style>
 </resources>
