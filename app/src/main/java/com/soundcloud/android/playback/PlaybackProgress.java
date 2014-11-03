@@ -42,11 +42,11 @@ public class PlaybackProgress {
         }
     }
 
-    public long getTimeLeft(){
-        return duration - position;
+    public long getTimeLeft() {
+        return Math.max(duration - position, 0L);
     }
 
-    public long getTimeSinceCreation(){
+    public long getTimeSinceCreation() {
         return SystemClock.uptimeMillis() - createdAt;
     }
 

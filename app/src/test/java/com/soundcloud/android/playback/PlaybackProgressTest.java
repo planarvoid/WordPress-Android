@@ -60,4 +60,11 @@ public class PlaybackProgressTest {
         PlaybackProgress event = new PlaybackProgress(31L, 1L);
         expect(event.isDurationValid()).toBeTrue();
     }
+
+    @Test // had a crash in production because time left cam back as negative
+    // see https://github.com/soundcloud/SoundCloud-Android/issues/2409
+    public void shouldClampTimeLeftToZero() {
+        PlaybackProgress event = new PlaybackProgress(1L, 0L);
+        expect(event.getTimeLeft()).toEqual(0L);
+    }
 }
