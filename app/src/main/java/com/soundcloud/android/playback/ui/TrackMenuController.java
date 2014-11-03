@@ -162,7 +162,9 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
     }
 
     public void show() {
-        popupMenuWrapper.show();
+        if (track != PlayerTrack.EMPTY) {
+            popupMenuWrapper.show();
+        }
     }
 
     public void dismiss() {
