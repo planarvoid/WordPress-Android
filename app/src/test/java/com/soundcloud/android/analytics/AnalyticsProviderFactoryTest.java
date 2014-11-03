@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
+import com.soundcloud.android.analytics.crashlytics.CrashlyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
@@ -38,6 +39,7 @@ public class AnalyticsProviderFactoryTest {
     @Mock private PromotedAnalyticsProvider promotedProvider;
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
+    @Mock private CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider;
     @Mock private FeatureFlags featureFlags;
 
     @Before
@@ -45,7 +47,7 @@ public class AnalyticsProviderFactoryTest {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(featureFlags.isEnabled(Feature.ADJUST_TRACKING)).thenReturn(true);
         factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
-                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, featureFlags);
+                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, crashlyticsAnalyticsProvider, featureFlags);
     }
 
     @Test
@@ -73,7 +75,9 @@ public class AnalyticsProviderFactoryTest {
 
     @Test
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
-        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences, eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, null, featureFlags);
+        factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
+                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider,
+                null, crashlyticsAnalyticsProvider, featureFlags);
         when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
