@@ -37,16 +37,16 @@ releaseinttest:
         profiles:
           - sign
           - soundcloud
-          - releaseinttests
+          - releaseinttest
       unittests:
         <<: *defaults_unittests
         profiles:
-          - releaseinttests
+          - releaseinttest
       phone_test:
         <<: *defaults_phone_test
         profiles:
           - sign
-          - releaseinttests
+          - releaseinttest
           - soundcloud
           - phone-test
 debug:
