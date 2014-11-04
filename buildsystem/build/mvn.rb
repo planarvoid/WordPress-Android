@@ -72,6 +72,23 @@ module Build
       self.new('mvn android:manifest-update')
     end
 
+    def self.pre_proguard(options = [])
+      mvn = self.new("mvn clean package")
+      mvn.projects('app')
+      mvn.skip_tests
+      mvn.with_proguard(['-dontobfuscate', '-dontoptimize'] + options)
+      mvn.with_profiles('ci,sign')
+      mvn
+    end
+
+    def self.install_file(file, group_id, artifact_id, version)
+      self.new "mvn install:install-file -Dfile=#{file} -DgroupId=#{group_id} -DartifactId=#{artifact_id} -Dversion=#{version} -Dpackaging=jar"
+    end
+
+    def self.deploy_file(file, group_id, artifact_id, version)
+      self.new "mvn deploy:deploy-file -Dfile=#{file} -DgroupId=#{group_id} -DartifactId=#{artifact_id} -Dversion=#{version} -Dpackaging=jar -DrepositoryId=soundcloud.internal.releases -Durl=http://maven.int.s-cloud.net/content/repositories/releases"
+    end
+
     def projects(*array_of_projects)
       @command << " --projects #{array_of_projects.join(',')}"
       self
@@ -115,8 +132,11 @@ module Build
       self
     end
 
-    def with_proguard
+    def with_proguard(options = [])
       @command << " -Dandroid.proguard.skip=false"
+      if options.any?
+        @command << " -Dandroid.proguard.options=\"#{options.join(' ')}\""
+      end
       self
     end
 
