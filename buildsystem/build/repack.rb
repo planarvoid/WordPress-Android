@@ -4,10 +4,10 @@ module Build
   class Repacker
 
     def self.repack(base_package, group_id, artifact_id, pg_options = [])
-      # Running ProGuard'ed build...
+      puts "Running ProGuard'ed build..."
       Mvn.pre_proguard(pg_options).execute
 
-      # will yield something like com/google/com
+      # will yield something like com/company/package
       dimension_str = "#{group_id}:#{artifact_id}"
       puts "Repacking #{dimension_str}..."
       pkg_path = base_package.gsub("\.", "/")
