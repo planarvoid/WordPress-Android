@@ -15,6 +15,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.R;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.with.With;
 
@@ -36,7 +37,7 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
 
         super.setUp();
-        setSkipOnReleaseBuild();
+        setSkipBasedOnResource(R.bool.run_ads_tests);
 
         playMonetizablePlaylist();
     }
