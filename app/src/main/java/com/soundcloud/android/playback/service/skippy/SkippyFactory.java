@@ -1,10 +1,14 @@
 package com.soundcloud.android.playback.service.skippy;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.skippy.Skippy;
+
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 
 import javax.inject.Inject;
 
@@ -23,11 +27,15 @@ public class SkippyFactory {
 
     private final ApplicationProperties applicationProperties;
     private final FeatureFlags featureFlags;
+    private final SharedPreferences sharedPreferences;
+    private final String maxSizePercentageKey;
 
     @Inject
-    SkippyFactory(ApplicationProperties applicationProperties, FeatureFlags featureFlags) {
+    SkippyFactory(ApplicationProperties applicationProperties, FeatureFlags featureFlags, SharedPreferences sharedPreferences, Resources resources) {
         this.applicationProperties = applicationProperties;
         this.featureFlags = featureFlags;
+        this.sharedPreferences = sharedPreferences;
+        maxSizePercentageKey = resources.getString(R.string.key_stream_cache_size);
     }
 
 
@@ -63,7 +71,7 @@ public class SkippyFactory {
         return new Skippy.Configuration(
                 PROGRESS_INTERVAL_MS,
                 MAX_CACHE_SIZE_BYTES,
-                MAX_CACHE_SIZE_PERCENTAGE,
+                sharedPreferences.getInt(maxSizePercentageKey, MAX_CACHE_SIZE_PERCENTAGE),
                 Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY.getAbsolutePath(),
                 CACHE_ENCRYPTION_KEY,
                 applicationProperties.useVerboseLogging(),
