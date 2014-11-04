@@ -12,7 +12,8 @@ public enum Feature {
     LOCALYTICS_PUSH(R.bool.feature_localytics_push),
     OKHTTP(R.bool.feature_okhttp),
     INTERSTITIAL(R.bool.feature_interstitial),
-    ADJUST_TRACKING(R.bool.feature_adjust);
+    ADJUST_TRACKING(R.bool.feature_adjust),
+    SECURE_STREAM_CACHE(R.bool.feature_secure_stream_cache);
 
     private final int resourceId;
 
