@@ -24,8 +24,8 @@ module Build
 
       puts "Installing to local Maven cache..."
       repack_group_id = group_id
-      repack_artifact_id = "#{artifact_id}-min"
-      repack_version = "#{Build.version}.repack"
+      repack_artifact_id = "#{artifact_id}-repack"
+      repack_version = "#{Build.version}"
       Mvn.install_file(repack_jar, repack_group_id, repack_artifact_id, repack_version).execute
       puts "Deploying to Nexus..."
       begin
