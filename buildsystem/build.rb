@@ -6,6 +6,7 @@ require_relative 'build/rake_helper'
 require_relative 'build/relase_strategy'
 require_relative 'build/device'
 require_relative 'build/github'
+require_relative 'build/repack'
 require 'rexml/document'
 require 'version'
 
