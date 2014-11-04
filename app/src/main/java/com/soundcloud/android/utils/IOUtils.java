@@ -284,25 +284,14 @@ public final class IOUtils {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public static void checkState(Context c) {
+
+    public static void createCacheDirectories(Context c) {
         mkdirs(getCacheDir(c));
         if (isSDCardAvailable()) {
-            // remove old track cache directory if it exists
-            if (Consts.EXTERNAL_TRACK_CACHE_DIRECTORY.exists()) {
-                deleteDir(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY);
-            }
-
-            // fix deprecated casing
-            if (fileExistsCaseSensitive(Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY)) {
-                boolean renamed = renameCaseSensitive(
-                        Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY, Consts.EXTERNAL_STORAGE_DIRECTORY);
-                Log.d(TAG, "Attempting to rename external storage: " + renamed);
-            }
-
             // create external storage directory
             mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
-            mkdirs(Consts.EXTERNAL_STREAM_DIRECTORY);
+            mkdirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
+            mkdirs(Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
 
             // ignore all media below files
             nomedia(Consts.FILES_PATH);

@@ -136,7 +136,7 @@ public class SoundCloudApplication extends Application {
 
         memoryReporter.reportSystemMemoryStats();
 
-        IOUtils.checkState(this);
+        IOUtils.createCacheDirectories(this);
 
         // initialise skippy so it can do it's expensive one-shot ops
         skippyFactory.create().preload(this);

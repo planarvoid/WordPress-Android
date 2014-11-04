@@ -181,7 +181,7 @@ public class GeneralSettings {
                                 activity.removeDialog(SettingsActivity.DIALOG_CACHE_DELETING);
                                 updateClearCacheTitles(activity);
                             }
-                        }.execute(Consts.EXTERNAL_STREAM_DIRECTORY);
+                        }.execute(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
                         return true;
                     }
                 }
@@ -213,7 +213,7 @@ public class GeneralSettings {
 
     void updateClearCacheTitles(PreferenceActivity activity) {
         setClearCacheTitle(activity, CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(appContext));
-        setClearCacheTitle(activity, CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
+        setClearCacheTitle(activity, CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
     }
 
     private void setClearCacheTitle(final PreferenceActivity activity, final String pref, final int key, final File dir) {

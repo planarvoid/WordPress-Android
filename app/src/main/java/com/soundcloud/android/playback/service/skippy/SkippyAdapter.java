@@ -39,7 +39,6 @@ import android.os.Message;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Collections;
 
 
 public class SkippyAdapter implements Playa, Skippy.PlayListener {

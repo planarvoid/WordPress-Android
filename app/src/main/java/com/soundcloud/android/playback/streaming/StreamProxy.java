@@ -79,7 +79,7 @@ public class StreamProxy {
 
     @Inject
     public StreamProxy(Context context) {
-        storage = new StreamStorage(context.getApplicationContext(), Consts.EXTERNAL_STREAM_DIRECTORY);
+        storage = new StreamStorage(context.getApplicationContext(), Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
         loader = new StreamLoader(context.getApplicationContext(), storage);
     }
 
