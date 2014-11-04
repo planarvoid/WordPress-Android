@@ -26,7 +26,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected Waiter waiter;
 
     private Feature dependency;
-    private boolean skipBasedOnResource;
+    private boolean runBasedOnResource;
 
     protected Han solo;
 
@@ -117,12 +117,12 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         this.dependency = dependency;
     }
 
-    protected void setSkipBasedOnResource(int id) {
-        skipBasedOnResource = getInstrumentation().getContext().getResources().getBoolean(id);
+    protected void setRunBasedOnResource(int id) {
+        runBasedOnResource = getInstrumentation().getContext().getResources().getBoolean(id);
     }
 
     protected boolean shouldSkip() {
-        return skipBasedOnResource || (dependency != null && getFeatureFlags().isDisabled(dependency));
+        return !runBasedOnResource || (dependency != null && getFeatureFlags().isDisabled(dependency));
     }
 
     private FeatureFlags getFeatureFlags() {

@@ -27,7 +27,7 @@ public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
         setDependsOn(Feature.LEAVE_BEHIND);
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
-        setSkipBasedOnResource(R.bool.run_ads_tests);
+        setRunBasedOnResource(R.bool.run_ads_tests);
 
         playMonetizablePlaylist();
     }

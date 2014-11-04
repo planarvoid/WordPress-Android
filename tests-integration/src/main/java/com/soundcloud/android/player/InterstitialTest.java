@@ -26,7 +26,7 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
 
         super.setUp();
-        setSkipBasedOnResource(R.bool.run_ads_tests);
+        setRunBasedOnResource(R.bool.run_ads_tests);
 
         playInterstitialPlaylist();
     }
