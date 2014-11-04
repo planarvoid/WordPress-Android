@@ -7,6 +7,10 @@ public class PlayBillingResult {
 
     public static final int REQUEST_CODE = 1001;
 
+    private static final String FAIL_REASON_CANCELLED = "user cancelled";
+    private static final String FAIL_REASON_ERROR = "billing error: ";
+    private static final String FAIL_REASON_UNKNOWN = "unknown";
+
     private final int requestCode;
     private final int resultCode;
     private final Intent data;
@@ -22,9 +26,11 @@ public class PlayBillingResult {
     }
 
     public boolean isOk() {
-        return resultCode == Activity.RESULT_OK
-                && data != null
-                && PlayBillingUtil.getResponseCodeFromIntent(data) == PlayBillingUtil.RESULT_OK;
+        return resultCode == Activity.RESULT_OK && isBillingResultOk();
+    }
+
+    private boolean isBillingResultOk() {
+        return PlayBillingUtil.getResponseCodeFromIntent(data) == PlayBillingUtil.RESULT_OK;
     }
 
     public String getData() {
@@ -33,6 +39,16 @@ public class PlayBillingResult {
 
     public String getSignature() {
         return data.getStringExtra(PlayBillingUtil.RESPONSE_SIGNATURE);
+    }
+
+    public String getFailReason() {
+        if (resultCode == Activity.RESULT_CANCELED) {
+            return FAIL_REASON_CANCELLED;
+        } else if (!isBillingResultOk()) {
+            return FAIL_REASON_ERROR + PlayBillingUtil.getResponseCodeFromIntent(data);
+        } else {
+            return FAIL_REASON_UNKNOWN;
+        }
     }
 
 }

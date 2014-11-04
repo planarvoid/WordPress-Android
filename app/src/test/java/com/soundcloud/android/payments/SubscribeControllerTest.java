@@ -2,12 +2,15 @@ package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.PlayBillingResult;
+import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -26,7 +29,6 @@ public class SubscribeControllerTest {
 
     @Mock Activity activity;
     @Mock PaymentOperations paymentOperations;
-    @Mock PlayBillingResult billingResult;
 
     private SubscribeController controller;
     private View contentView;
@@ -37,7 +39,6 @@ public class SubscribeControllerTest {
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.payments_activity, null, false);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
-        when(billingResult.isForRequest()).thenReturn(true);
     }
 
     @Test
@@ -60,7 +61,7 @@ public class SubscribeControllerTest {
 
     @Test
     public void sendsPlayBillingSuccessForVerification() {
-        when(billingResult.isOk()).thenReturn(true);
+        PlayBillingResult billingResult = TestBillingResults.success();
         when(paymentOperations.verify(billingResult)).thenReturn(Observable.just(PurchaseStatus.VERIFYING));
 
         controller.handleBillingResult(billingResult);
@@ -70,12 +71,20 @@ public class SubscribeControllerTest {
 
     @Test
     public void cancelsTransactionForPlayBillingFailure() {
-        when(billingResult.isOk()).thenReturn(false);
-        when(paymentOperations.cancel(billingResult)).thenReturn(Observable.<Void>empty());
+        when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
-        controller.handleBillingResult(billingResult);
+        controller.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(paymentOperations).cancel(billingResult);
+        verify(paymentOperations).cancel("user cancelled");
+    }
+
+    @Test
+    public void cancelsTransactionPlayBillingError() {
+        when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
+
+        controller.handleBillingResult(TestBillingResults.error());
+
+        verify(paymentOperations).cancel(anyString());
     }
 
     @Test

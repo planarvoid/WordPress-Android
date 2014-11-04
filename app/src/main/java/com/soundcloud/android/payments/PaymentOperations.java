@@ -4,11 +4,11 @@ import static com.soundcloud.android.payments.AvailableProducts.Product;
 
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.payments.googleplay.PlayBillingResult;
 import com.soundcloud.android.payments.googleplay.PlayBillingService;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -20,11 +20,18 @@ import javax.inject.Inject;
 
 class PaymentOperations {
 
-    private static final String TAG = "PaymentOps";
-
     private final ApiScheduler apiScheduler;
     private final PlayBillingService playBilling;
     private final PaymentStorage paymentStorage;
+
+    private static final Func1<ApiResponse, PurchaseStatus> TO_PURCHASE_STATUS = new Func1<ApiResponse, PurchaseStatus>() {
+        @Override
+        public PurchaseStatus call(ApiResponse apiResponse) {
+            return apiResponse.isSuccess()
+                    ? PurchaseStatus.VERIFYING
+                    : PurchaseStatus.FAILURE;
+        }
+    };
 
     private final Func1<Product, Observable<ProductStatus>> productToResult = new Func1<Product, Observable<ProductStatus>>() {
         @Override
@@ -86,15 +93,19 @@ class PaymentOperations {
     }
 
     public Observable<PurchaseStatus> verify(final PlayBillingResult result) {
-        Log.e(TAG, "Verify: " + paymentStorage.getCheckoutToken());
-        // TODO: POST /checkout/:token with purchase JSON & signature
-        return Observable.just(PurchaseStatus.VERIFYING);
+        return apiScheduler.response(buildUpdateRequest(CheckoutUpdate.fromSuccess(result)))
+                .map(TO_PURCHASE_STATUS);
     }
 
-    public Observable<Void> cancel(final PlayBillingResult result) {
-        Log.e(TAG, "Cancel: " + paymentStorage.getCheckoutToken());
-        // TODO: POST /checkout/:token with updated status
-        return Observable.just(null);
+    public Observable<ApiResponse> cancel(final String reason) {
+        return apiScheduler.response(buildUpdateRequest(CheckoutUpdate.fromFailure(reason)));
+    }
+
+    private ApiRequest buildUpdateRequest(CheckoutUpdate update) {
+        return ApiRequest.Builder.post(ApiEndpoints.CHECKOUT_URN.path(paymentStorage.getCheckoutToken()))
+                .forPrivateApi(1)
+                .withContent(update)
+                .build();
     }
 
     private Observable<ProductDetails> queryProduct(String id) {

@@ -32,6 +32,7 @@ public enum ApiEndpoints {
     POLICIES("/policies/tracks"),
     PRODUCTS("/products/google-play"),
     CHECKOUT("/checkout"),
+    CHECKOUT_URN("/checkout/%s"),
     IMAGES("/images/%s/%s"),
 
     // public API (DEPRECATED)

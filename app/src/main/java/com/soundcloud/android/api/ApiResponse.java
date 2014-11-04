@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -14,7 +15,8 @@ public class ApiResponse {
     private final String responseBody;
     @Nullable private ApiRequestException failure;
 
-    protected ApiResponse(ApiRequest request, int statusCode, String responseBody) {
+    @VisibleForTesting
+    public ApiResponse(ApiRequest request, int statusCode, String responseBody) {
         this.statusCode = statusCode;
         this.responseBody = responseBody;
         determineFailure(request, statusCode);
