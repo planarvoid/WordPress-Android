@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Locale;
 
 public enum Table {
+    SOUNDSTREAM("SoundStream", false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM, TableColumns.SoundStream.ALL_FIELDS),
+
     SOUNDS("Sounds", false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
     TRACK_METADATA("TrackMetadata", false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
     USERS("Users", false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),

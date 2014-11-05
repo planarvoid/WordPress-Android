@@ -24,4 +24,5 @@
     <bool name="feature_localytics_push">false</bool>
     <bool name="feature_okhttp">false</bool>
     <bool name="feature_secure_stream_cache">false</bool>
+    <bool name="feature_api_mobile_stream">false</bool>
 </resources>
