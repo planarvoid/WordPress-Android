@@ -33,4 +33,12 @@ public class PolicyInfo {
     public String getPolicy() {
         return policy;
     }
+
+    public String toString() {
+        return "PolicyInfo{" +
+                "urn=" + trackUrn.toString() +
+                ", monetizable=" + String.valueOf(monetizable) +
+                ", policy=" + policy +
+                "}";
+    }
 }

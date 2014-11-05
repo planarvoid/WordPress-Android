@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -22,6 +23,7 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -43,6 +45,11 @@ public class PlayQueueOperations {
     private final Action1<ModelCollection<PolicyInfo>> storePolicies = new Action1<ModelCollection<PolicyInfo>>() {
         @Override
         public void call(ModelCollection<PolicyInfo> policies) {
+            if (Log.isLoggable(ADS_TAG, Log.DEBUG)) {
+                for (PolicyInfo policy : policies.getCollection()) {
+                    com.soundcloud.android.utils.Log.d(ADS_TAG, "Retrieved policy info: " + policy);
+                }
+            }
             fireAndForget(trackWriteStorage.storePoliciesAsync(policies.getCollection()));
         }
     };
