@@ -22,7 +22,7 @@ public class SkippyFactory {
     private static final boolean ONE_TRACK_CACHE = true;
     private static final boolean ALL_TRACKS_CACHE = false;
     private static final int MAX_CACHE_SIZE_BYTES = 1000000000;
-    private static final int MAX_CACHE_SIZE_PERCENTAGE = 90;
+    private static final int DEFAULT_MAX_CACHE_SIZE_PERCENTAGE = 10;
     private static final String NO_CACHE = null;
     private static final byte[] NO_CACHE_ENCRYPTION_KEY = null;
 
@@ -76,7 +76,7 @@ public class SkippyFactory {
         return new Skippy.Configuration(
                 PROGRESS_INTERVAL_MS,
                 MAX_CACHE_SIZE_BYTES,
-                sharedPreferences.getInt(maxSizePercentageKey, MAX_CACHE_SIZE_PERCENTAGE),
+                sharedPreferences.getInt(maxSizePercentageKey, DEFAULT_MAX_CACHE_SIZE_PERCENTAGE),
                 Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY.getAbsolutePath(),
                 cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),
                 applicationProperties.useVerboseLogging(),
