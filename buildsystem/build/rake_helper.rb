@@ -41,13 +41,18 @@ module Build
       end
 
       namespace :repack do
-        desc "Roll your own Guava!"
+        desc "Roll your own Guava JAR!"
         task :guava do
           guava_pg_options = [
             '-keep class com.google.common.annotations.VisibleForTesting',
             '-keep class com.google.common.net.HttpHeaders { *; }'
           ]
           Repacker.repack "com.google.common", "com.google.guava", "guava", guava_pg_options
+        end
+
+        desc "Roll your own Jackson JAR!"
+        task :jackson do
+          Repacker.repack "com.fasterxml.jackson", "com.fasterxml.jackson.core", "jackson"
         end
       end
     end
