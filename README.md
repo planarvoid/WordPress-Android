@@ -11,20 +11,20 @@ Make sure the [Android SDK][] and Maven (3.1+ required) are installed.
     Apache Maven 3.2.2 (45f7c067; 2014-06-17T15:51:42+02:00)
     
 
-Add thess lines to your .zshrc (or bash's .bash_profile or whatever)
+Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
 
     ANDROID_HOME=/usr/local/opt/android-sdk/
     export ANDROID_HOME=$ANDROID_HOME
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     export ANDROID_SDK_HOME=$ANDROID_HOME
 
-    export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
+    export JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
 
 Run
 
     $ android update sdk --no-ui --all --force
 
-Clone and build it:
+Clone and build this project:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
