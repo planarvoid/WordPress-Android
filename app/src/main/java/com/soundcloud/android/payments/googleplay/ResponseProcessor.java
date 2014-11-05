@@ -19,4 +19,8 @@ class ResponseProcessor {
                 json.optString("price"));
     }
 
+    public String extractToken(String json) throws JSONException {
+        return new JSONObject(json).optString("developerPayload");
+    }
+
 }

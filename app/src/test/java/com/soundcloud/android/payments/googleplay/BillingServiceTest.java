@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments.googleplay;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -32,6 +33,8 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import java.util.ArrayList;
 
 @RunWith(SoundCloudTestRunner.class)
 public class BillingServiceTest {
@@ -65,7 +68,7 @@ public class BillingServiceTest {
     @Test
     public void connectionStatusReadyIfConnectedAndSubsSupported() throws RemoteException {
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
-        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(BillingUtil.RESULT_OK);
+        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(RESULT_OK);
         onServiceConnected();
 
         ConnectionStatus status = result.toBlocking().firstOrDefault(null);
@@ -85,7 +88,7 @@ public class BillingServiceTest {
     @Test
     public void connectionStatusUnsupportedIfSubsNotAvailable() throws RemoteException {
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
-        when(service.isBillingSupported(eq(3), anyString(), anyString())).thenReturn(BillingUtil.RESULT_ERROR);
+        when(service.isBillingSupported(eq(3), anyString(), anyString())).thenReturn(RESULT_ERROR);
         onServiceConnected();
 
         ConnectionStatus status = result.toBlocking().firstOrDefault(null);
@@ -95,7 +98,7 @@ public class BillingServiceTest {
     @Test
     public void connectionStatusDisconnectedIfConnectionClosed() throws RemoteException {
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
-        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(BillingUtil.RESULT_OK);
+        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(RESULT_OK);
 
         onServiceDisconnected();
 
@@ -115,8 +118,8 @@ public class BillingServiceTest {
 
     @Test
     public void getDetailsReturnsProductDataFromBillingService() throws RemoteException, JSONException {
-        Bundle bundle = new Bundle();
-        bundle.putStringArrayList(BillingUtil.RESPONSE_GET_SKU_DETAILS_LIST, Lists.newArrayList("data"));
+        Bundle bundle = okBundle();
+        bundle.putStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST, Lists.newArrayList("data"));
         ProductDetails details = new ProductDetails("id", "title", "blah", "$100");
         when(service.getSkuDetails(eq(3), eq("com.package"), eq("subs"), any(Bundle.class))).thenReturn(bundle);
         when(responseProcessor.parseProduct(eq("data"))).thenReturn(details);
@@ -129,10 +132,39 @@ public class BillingServiceTest {
     }
 
     @Test
+    public void getStatusReturnsPayloadIfAlreadySubscribed() throws RemoteException {
+        Bundle bundle = okBundle();
+        bundle.putStringArrayList(RESPONSE_PURCHASE_DATA_LIST, Lists.newArrayList("data"));
+        bundle.putStringArrayList(RESPONSE_SIGNATURE_LIST, Lists.newArrayList("signature"));
+        when(service.getPurchases(3, "com.package", "subs", null)).thenReturn(bundle);
+
+
+        billingService.openConnection(activity);
+        onServiceConnected();
+        SubscriptionStatus status = billingService.getStatus().toBlocking().firstOrDefault(null);
+
+        expect(status.isSubscribed()).toBeTrue();
+        expect(status.getPayload()).toEqual(new Payload("data", "signature"));
+    }
+
+    @Test
+    public void getStatusReturnsCorrectStatusIfNotSubscribed() throws RemoteException {
+        Bundle bundle = okBundle();
+        bundle.putStringArrayList(RESPONSE_PURCHASE_DATA_LIST, new ArrayList<String>());
+        bundle.putStringArrayList(RESPONSE_SIGNATURE_LIST, new ArrayList<String>());
+        when(service.getPurchases(3, "com.package", "subs", null)).thenReturn(bundle);
+
+        billingService.openConnection(activity);
+        onServiceConnected();
+        SubscriptionStatus status = billingService.getStatus().toBlocking().firstOrDefault(null);
+
+        expect(status.isSubscribed()).toBeFalse();
+    }
+
+    @Test
     public void startPurchaseStartsIntentFromBillingService() throws RemoteException, IntentSender.SendIntentException {
-        Bundle bundle = new Bundle();
-        bundle.putInt(BillingUtil.RESPONSE_CODE, BillingUtil.RESULT_OK);
-        bundle.putParcelable(BillingUtil.RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
+        Bundle bundle = okBundle();
+        bundle.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
         when(service.getBuyIntent(3, "com.package", "package_id", "subs", "token")).thenReturn(bundle);
 
         billingService.openConnection(activity);
@@ -152,6 +184,12 @@ public class BillingServiceTest {
         verify(billingBinder).connect(eq(activity), connectionCaptor.capture());
         ServiceConnection connection = connectionCaptor.getValue();
         connection.onServiceDisconnected(ComponentName.unflattenFromString(""));
+    }
+
+    private Bundle okBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(RESPONSE_CODE, RESULT_OK);
+        return bundle;
     }
 
 }

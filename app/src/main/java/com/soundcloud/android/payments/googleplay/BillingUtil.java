@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 /*
- * Codes and utils for InAppBillingService.aidl
+ * Codes, IDs and utils for InAppBillingService.aidl
  */
 final class BillingUtil {
 
@@ -29,7 +29,6 @@ final class BillingUtil {
     public static final String RESPONSE_BUY_INTENT = "BUY_INTENT";
     public static final String RESPONSE_PURCHASE_DATA = "INAPP_PURCHASE_DATA";
     public static final String RESPONSE_SIGNATURE = "INAPP_DATA_SIGNATURE";
-    public static final String RESPONSE_ITEM_LIST = "INAPP_PURCHASE_ITEM_LIST";
     public static final String RESPONSE_PURCHASE_DATA_LIST = "INAPP_PURCHASE_DATA_LIST";
     public static final String RESPONSE_SIGNATURE_LIST = "INAPP_DATA_SIGNATURE_LIST";
 

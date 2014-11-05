@@ -1,7 +1,6 @@
 package com.soundcloud.android.payments.googleplay;
 
-import static com.soundcloud.android.payments.googleplay.BillingUtil.log;
-import static com.soundcloud.android.payments.googleplay.BillingUtil.logBillingResponse;
+import static com.soundcloud.android.payments.googleplay.BillingUtil.*;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.google.common.collect.Lists;
@@ -31,7 +30,7 @@ public class BillingService {
 
     private static final int NO_FLAGS = 0;
     private static final int IAB_VERSION = 3;
-    private static final String PRODUCT_TYPE = "subs";
+    private static final String TYPE_SUBS = "subs";
 
     private final DeviceHelper deviceHelper;
     private final BillingServiceBinder binder;
@@ -91,11 +90,11 @@ public class BillingService {
             @Override
             public void call(Subscriber<? super ProductDetails> subscriber) {
                 try {
-                    Bundle response = iabService.getSkuDetails(IAB_VERSION, deviceHelper.getPackageName(), PRODUCT_TYPE, getSkuBundle(id));
-                    logBillingResponse("getSkuDetails", BillingUtil.getResponseCodeFromBundle(response));
+                    Bundle response = iabService.getSkuDetails(IAB_VERSION, deviceHelper.getPackageName(), TYPE_SUBS, getSkuBundle(id));
+                    logBillingResponse("getSkuDetails", getResponseCodeFromBundle(response));
 
-                    if (response.containsKey(BillingUtil.RESPONSE_GET_SKU_DETAILS_LIST)) {
-                        ArrayList<String> responseList = response.getStringArrayList(BillingUtil.RESPONSE_GET_SKU_DETAILS_LIST);
+                    if (response.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
+                        ArrayList<String> responseList = response.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
                         ProductDetails details = processor.parseProduct(responseList.get(0));
                         subscriber.onNext(details);
                     }
@@ -108,13 +107,47 @@ public class BillingService {
         });
     }
 
+    public Observable<SubscriptionStatus> getStatus() {
+        return Observable.create(new Observable.OnSubscribe<SubscriptionStatus>() {
+            @Override
+            public void call(Subscriber<? super SubscriptionStatus> subscriber) {
+                try {
+                    Bundle response = iabService.getPurchases(IAB_VERSION, deviceHelper.getPackageName(), TYPE_SUBS, null);
+                    int responseCode = getResponseCodeFromBundle(response);
+                    logBillingResponse("getPurchases", responseCode);
+
+                    if (responseCode == RESULT_OK) {
+                        subscriber.onNext(extractStatusFromResponse(response));
+                    }
+                    subscriber.onCompleted();
+                } catch (RemoteException | JSONException e) {
+                    log("Failed to retrieve subscription status");
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
+
+    private SubscriptionStatus extractStatusFromResponse(Bundle response) throws JSONException {
+        ArrayList<String> data = response.getStringArrayList(RESPONSE_PURCHASE_DATA_LIST);
+        ArrayList<String> signatures = response.getStringArrayList(RESPONSE_SIGNATURE_LIST);
+        if (data.isEmpty()) {
+            return SubscriptionStatus.notSubscribed();
+        } else {
+            Payload payload = new Payload(data.get(0), signatures.get(0));
+            String token = processor.extractToken(data.get(0));
+            return SubscriptionStatus.subscribed(token, payload);
+        }
+    }
+
     public void startPurchase(final String id, final String purchaseUrn) {
         try {
-            Bundle response = iabService.getBuyIntent(3, deviceHelper.getPackageName(), id, PRODUCT_TYPE, purchaseUrn);
-            int responseCode = BillingUtil.getResponseCodeFromBundle(response);
+            Bundle response = iabService.getBuyIntent(IAB_VERSION, deviceHelper.getPackageName(), id, TYPE_SUBS, purchaseUrn);
+            int responseCode = getResponseCodeFromBundle(response);
             logBillingResponse("getBuyIntent", responseCode);
-            if (responseCode == BillingUtil.RESULT_OK) {
-                PendingIntent buyIntent = response.getParcelable(BillingUtil.RESPONSE_BUY_INTENT);
+
+            if (responseCode == RESULT_OK) {
+                PendingIntent buyIntent = response.getParcelable(RESPONSE_BUY_INTENT);
                 bindingActivity.startIntentSenderForResult(buyIntent.getIntentSender(),
                         BillingResult.REQUEST_CODE, new Intent(), NO_FLAGS, NO_FLAGS, NO_FLAGS);
             }
@@ -126,15 +159,15 @@ public class BillingService {
 
     private Bundle getSkuBundle(String sku) {
         Bundle querySkus = new Bundle();
-        querySkus.putStringArrayList(BillingUtil.REQUEST_PRODUCT_DETAILS, Lists.newArrayList(sku));
+        querySkus.putStringArrayList(REQUEST_PRODUCT_DETAILS, Lists.newArrayList(sku));
         return querySkus;
     }
 
     private boolean isSubsSupported() {
         try {
-            int responseCode = iabService.isBillingSupported(IAB_VERSION, deviceHelper.getPackageName(), PRODUCT_TYPE);
+            int responseCode = iabService.isBillingSupported(IAB_VERSION, deviceHelper.getPackageName(), TYPE_SUBS);
             logBillingResponse("isSubsSupported", responseCode);
-            return responseCode == BillingUtil.RESULT_OK;
+            return responseCode == RESULT_OK;
         } catch (RemoteException e) {
             return false;
         }

@@ -53,7 +53,7 @@ class SubscribeController {
     public void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
-                subscription.add(paymentOperations.verify(result).subscribe(new VerifySubscriber()));
+                subscription.add(paymentOperations.verify(result.getPayload()).subscribe(new StatusSubscriber()));
             } else {
                 showText(R.string.payments_user_cancelled);
                 fireAndForget(paymentOperations.cancel(result.getFailReason()));
@@ -77,7 +77,7 @@ class SubscribeController {
         @Override
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
-                subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
+                subscription.add(paymentOperations.queryStatus().subscribe(new StatusSubscriber()));
             } else if (status.isUnsupported()) {
                 showText(R.string.payments_connection_unavailable);
             }
@@ -113,7 +113,7 @@ class SubscribeController {
         }
     }
 
-    private class VerifySubscriber extends DefaultSubscriber<PurchaseStatus> {
+    private class StatusSubscriber extends DefaultSubscriber<PurchaseStatus> {
         @Override
         public void onNext(PurchaseStatus result) {
             switch(result) {
@@ -125,10 +125,23 @@ class SubscribeController {
                     break;
                 case SUCCESS:
                     showText(R.string.payments_success);
+                    break;
+                case NONE:
+                    loadPurchaseOptions();
+                    break;
                 default:
                     break;
             }
         }
+
+        @Override
+        public void onError(Throwable e) {
+            showConnectionError();
+        }
+    }
+
+    private void loadPurchaseOptions() {
+        subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
     }
 
     private void showConnectionError() {

@@ -51,4 +51,11 @@ public class BillingResultTest {
         expect(result.getFailReason()).toEqual("billing error: 6");
     }
 
+    @Test
+    public void extractsPayloadFromResponse() {
+        BillingResult result = TestBillingResults.success();
+        expect(result.getPayload().data).toEqual("payload");
+        expect(result.getPayload().signature).toEqual("payload_signature");
+    }
+
 }

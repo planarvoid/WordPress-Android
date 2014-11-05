@@ -33,12 +33,9 @@ public class BillingResult {
         return BillingUtil.getResponseCodeFromIntent(data) == BillingUtil.RESULT_OK;
     }
 
-    public String getData() {
-        return data.getStringExtra(BillingUtil.RESPONSE_PURCHASE_DATA);
-    }
-
-    public String getSignature() {
-        return data.getStringExtra(BillingUtil.RESPONSE_SIGNATURE);
+    public Payload getPayload() {
+        return new Payload(data.getStringExtra(BillingUtil.RESPONSE_PURCHASE_DATA),
+                data.getStringExtra(BillingUtil.RESPONSE_SIGNATURE));
     }
 
     public String getFailReason() {
