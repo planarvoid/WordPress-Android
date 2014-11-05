@@ -36,14 +36,14 @@ import android.os.RemoteException;
 @RunWith(SoundCloudTestRunner.class)
 public class BillingServiceTest {
 
-    @Mock DeviceHelper deviceHelper;
-    @Mock ResponseProcessor responseProcessor;
-    @Mock Activity activity;
-    @Mock IBinder iBinder;
-    @Mock BillingServiceBinder billingBinder;
-    @Mock IInAppBillingService service;
+    @Mock private DeviceHelper deviceHelper;
+    @Mock private ResponseProcessor responseProcessor;
+    @Mock private Activity activity;
+    @Mock private IBinder iBinder;
+    @Mock private BillingServiceBinder billingBinder;
+    @Mock private IInAppBillingService service;
 
-    @Captor ArgumentCaptor<ServiceConnection> connectionCaptor;
+    @Captor private ArgumentCaptor<ServiceConnection> connectionCaptor;
 
     private BillingService billingService;
 

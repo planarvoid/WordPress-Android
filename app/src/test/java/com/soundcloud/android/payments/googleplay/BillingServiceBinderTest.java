@@ -31,12 +31,12 @@ public class BillingServiceBinderTest {
 
     private BillingServiceBinder binder;
 
-    @Mock Context context;
-    @Mock Activity activity;
-    @Mock PackageManager packageManager;
-    @Mock ServiceConnection serviceConnection;
+    @Mock private PackageManager packageManager;
+    @Mock private ServiceConnection serviceConnection;
+    @Mock private Context context;
+    @Mock private Activity activity;
 
-    @Captor ArgumentCaptor<Intent> intentCaptor;
+    @Captor private ArgumentCaptor<Intent> intentCaptor;
 
     @Before
     public void setUp() throws Exception {

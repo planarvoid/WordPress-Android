@@ -32,10 +32,10 @@ import java.util.ArrayList;
 @RunWith(SoundCloudTestRunner.class)
 public class PaymentOperationsTest {
 
-    @Mock ApiScheduler apiScheduler;
-    @Mock BillingService billingService;
-    @Mock PaymentStorage paymentStorage;
-    @Mock Activity activity;
+    @Mock private ApiScheduler apiScheduler;
+    @Mock private BillingService billingService;
+    @Mock private PaymentStorage paymentStorage;
+    @Mock private Activity activity;
 
     private PaymentOperations paymentOperations;
     private BillingResult billingResult;

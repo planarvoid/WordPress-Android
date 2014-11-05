@@ -27,8 +27,8 @@ import android.widget.TextView;
 @RunWith(SoundCloudTestRunner.class)
 public class SubscribeControllerTest {
 
-    @Mock Activity activity;
-    @Mock PaymentOperations paymentOperations;
+    @Mock private PaymentOperations paymentOperations;
+    @Mock private Activity activity;
 
     private SubscribeController controller;
     private View contentView;
