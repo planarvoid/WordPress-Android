@@ -46,7 +46,8 @@ public class PaymentOperationsTest {
         billingResult = TestBillingResults.success();
         when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
                 .thenReturn(availableProductsObservable());
-        when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path()))))
+        when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
+                .withContent(new StartCheckout("product_id")))))
                 .thenReturn(checkoutResultObservable());
         when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(CheckoutUpdate.fromFailure("user cancelled")))))
@@ -108,7 +109,8 @@ public class PaymentOperationsTest {
     public void postsCheckoutStart() {
         paymentOperations.purchase("product_id").subscribe();
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())));
+        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
+                .withContent(new StartCheckout("product_id"))));
     }
 
     @Test
