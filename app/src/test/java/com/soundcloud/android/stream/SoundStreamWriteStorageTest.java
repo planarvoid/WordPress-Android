@@ -101,7 +101,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .whereEq(TableColumns.SoundStream.REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAt().getTime())
+                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
         ), counts(1));
     }
 
@@ -119,7 +119,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                         .whereEq(TableColumns.SoundStream.REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAt().getTime())
+                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
         ), counts(1));
     }
 

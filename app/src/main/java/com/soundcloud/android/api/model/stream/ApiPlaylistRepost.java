@@ -10,14 +10,14 @@ public class ApiPlaylistRepost {
 
     private final ApiPlaylist apiPlaylist;
     private final ApiUser reposter;
-    private final Date createdAt;
+    private final long createdAtTime;
 
     public ApiPlaylistRepost(@JsonProperty("playlist") ApiPlaylist apiPlaylist,
                              @JsonProperty("reposter") ApiUser reposter,
                              @JsonProperty("created_at") Date createdAt) {
         this.apiPlaylist = apiPlaylist;
         this.reposter = reposter;
-        this.createdAt = createdAt;
+        this.createdAtTime = createdAt.getTime();
     }
 
     public ApiPlaylist getApiPlaylist() {
@@ -28,7 +28,7 @@ public class ApiPlaylistRepost {
         return reposter;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public long getCreatedAtTime() {
+        return createdAtTime;
     }
 }

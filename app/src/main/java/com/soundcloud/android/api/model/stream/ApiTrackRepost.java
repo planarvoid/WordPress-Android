@@ -10,14 +10,14 @@ public class ApiTrackRepost {
 
     private final ApiTrack apiTrack;
     private final ApiUser reposter;
-    private final Date createdAt;
+    private final long createdAtTime;
 
     public ApiTrackRepost(@JsonProperty("track") ApiTrack apiTrack,
                           @JsonProperty("reposter") ApiUser reposter,
                           @JsonProperty("created_at") Date createdAt) {
         this.apiTrack = apiTrack;
         this.reposter = reposter;
-        this.createdAt = createdAt;
+        this.createdAtTime = createdAt.getTime();
     }
 
     public ApiTrack getApiTrack() {
@@ -28,7 +28,7 @@ public class ApiTrackRepost {
         return reposter;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public long getCreatedAtTime() {
+        return createdAtTime;
     }
 }

@@ -6,8 +6,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 
-import java.util.Date;
-
 public class ApiStreamItem {
 
     private ApiTrackPost apiTrackPost;
@@ -67,19 +65,19 @@ public class ApiStreamItem {
         }
     }
 
-    public Date getCreatedAt() {
+    public long getCreatedAtTime() {
 
         if (apiTrackPost != null){
-            return apiTrackPost.getApiTrack().getCreatedAt();
+            return apiTrackPost.getApiTrack().getCreatedAt().getTime();
 
         } else if (apiTrackRepost != null) {
-            return apiTrackRepost.getCreatedAt();
+            return apiTrackRepost.getCreatedAtTime();
 
         } else if (apiPlaylistPost != null){
-            return apiPlaylistPost.getApiPlaylist().getCreatedAt();
+            return apiPlaylistPost.getApiPlaylist().getCreatedAt().getTime();
 
         } else if (apiPlaylistRepost != null) {
-            return apiPlaylistRepost.getCreatedAt();
+            return apiPlaylistRepost.getCreatedAtTime();
 
         } else {
             throw new IllegalArgumentException("Unknown stream item type when fecthing creation date");

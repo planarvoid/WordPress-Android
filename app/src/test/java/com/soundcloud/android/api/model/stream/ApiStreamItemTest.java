@@ -30,7 +30,7 @@ public class ApiStreamItemTest {
     public void getCreatedAtWithTrackPostReturnsTrackCreatedAtDate() throws Exception {
         final ApiTrackPost apiTrackPost = ModelFixtures.create(ApiTrackPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackPost);
-        expect(streamItem.getCreatedAt()).toBe(apiTrackPost.getApiTrack().getCreatedAt());
+        expect(streamItem.getCreatedAtTime()).toEqual(apiTrackPost.getApiTrack().getCreatedAt().getTime());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ApiStreamItemTest {
     public void getCreatedAtWithTrackRepostReturnsRepostingDate() throws Exception {
         final ApiTrackRepost apiTrackRepost = ModelFixtures.create(ApiTrackRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackRepost);
-        expect(streamItem.getCreatedAt()).toBe(apiTrackRepost.getCreatedAt());
+        expect(streamItem.getCreatedAtTime()).toEqual(apiTrackRepost.getCreatedAtTime());
     }
     
     @Test
@@ -72,7 +72,7 @@ public class ApiStreamItemTest {
     public void getCreatedAtWithPlaylistPostReturnsPlaylistCreatedAtDate() throws Exception {
         final ApiPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiPlaylistPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistPost);
-        expect(streamItem.getCreatedAt()).toBe(apiPlaylistPost.getApiPlaylist().getCreatedAt());
+        expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistPost.getApiPlaylist().getCreatedAt().getTime());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ApiStreamItemTest {
     public void getCreatedAtWithPlaylistRepostReturnsRepostingDate() throws Exception {
         final ApiPlaylistRepost apiPlaylistRepost = ModelFixtures.create(ApiPlaylistRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistRepost);
-        expect(streamItem.getCreatedAt()).toBe(apiPlaylistRepost.getCreatedAt());
+        expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistRepost.getCreatedAtTime());
     }
 
 }

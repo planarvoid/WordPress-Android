@@ -67,7 +67,7 @@ public class SoundStreamWriteStorage {
         final ContentValuesBuilder builder = ContentValuesBuilder.values()
                 .put(TableColumns.SoundStream.SOUND_ID, getSoundId(streamItem))
                 .put(TableColumns.SoundStream.SOUND_TYPE, getSoundType(streamItem))
-                .put(TableColumns.SoundStream.CREATED_AT, getCreatedAt(streamItem));
+                .put(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime());
 
         final Optional<ApiUser> reposter = streamItem.getReposter();
         if (reposter.isPresent()){
@@ -85,7 +85,4 @@ public class SoundStreamWriteStorage {
         return track.isPresent() ? track.get().getId() : streamItem.getPlaylist().get().getId();
     }
 
-    private long getCreatedAt(ApiStreamItem streamItem) {
-        return streamItem.getCreatedAt().getTime();
-    }
 }
