@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.service.skippy;
 
+import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -14,7 +15,7 @@ import javax.inject.Inject;
 
 public class SkippyFactory {
 
-    private static final byte[] CACHE_ENCRYPTION_KEY = "1234567890123456".getBytes(); // TODO: Generate this key
+    private static final byte[] CACHE_ENCRYPTION_KEY = "1234567890123456".getBytes(Charsets.UTF_8); // TODO: Generate this key
     private static final int PROGRESS_INTERVAL_MS = 500;
     private static final int NO_CACHE_SIZE = -1;
     private static final int NO_CACHE_SIZE_PERCENTAGE = -1;
