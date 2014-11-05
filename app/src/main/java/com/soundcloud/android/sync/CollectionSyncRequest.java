@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
@@ -27,14 +28,10 @@ import java.io.IOException;
     private final String action;
     private final boolean isUI;
     private final SyncStateManager syncStateManager;
-    private ApiSyncerFactory apiSyncerFactory;
+    private final ApiSyncerFactory apiSyncerFactory;
 
     private LocalCollection localCollection;
     private ApiSyncResult result;
-
-    public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI) {
-        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context));
-    }
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
                                  ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
@@ -44,6 +41,17 @@ import java.io.IOException;
         this.isUI = isUI;
         this.syncStateManager = syncStateManager;
         this.apiSyncerFactory = apiSyncerFactory;
+        result = new ApiSyncResult(this.contentUri);
+    }
+
+    @VisibleForTesting
+    public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI) {
+        this.context = context;
+        this.contentUri = contentUri;
+        this.action = action;
+        this.isUI = isUI;
+        apiSyncerFactory = null;
+        syncStateManager = null;
         result = new ApiSyncResult(this.contentUri);
     }
 

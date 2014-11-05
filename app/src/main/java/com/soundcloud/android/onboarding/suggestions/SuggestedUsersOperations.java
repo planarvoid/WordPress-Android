@@ -1,16 +1,15 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.functions.Func1;
 
+import javax.inject.Inject;
 import java.util.List;
 
 
@@ -25,12 +24,8 @@ public class SuggestedUsersOperations extends ScheduledOperations {
 
     private final RxHttpClient rxHttpClient;
 
-    public SuggestedUsersOperations() {
-        this(new SoundCloudRxHttpClient());
-    }
-
-    @VisibleForTesting
-    protected SuggestedUsersOperations(RxHttpClient rxHttpClient) {
+    @Inject
+    public SuggestedUsersOperations(RxHttpClient rxHttpClient) {
         this.rxHttpClient = rxHttpClient;
     }
 

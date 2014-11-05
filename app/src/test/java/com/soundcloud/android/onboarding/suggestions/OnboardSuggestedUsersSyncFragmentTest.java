@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,12 +27,12 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     private OnboardSuggestedUsersSyncFragment fragment;
 
-    @Mock
-    private FollowingOperations followingOperations;
+    @Mock private FollowingOperations followingOperations;
+    @Mock private SyncInitiator syncInitiator;
 
     @Before
     public void setup() {
-        fragment = new OnboardSuggestedUsersSyncFragment(followingOperations);
+        fragment = new OnboardSuggestedUsersSyncFragment(followingOperations, syncInitiator);
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
         Robolectric.shadowOf(fragment).setAttached(true);
     }

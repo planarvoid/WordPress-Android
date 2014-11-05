@@ -2,7 +2,7 @@ package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.UserStorage;
@@ -13,12 +13,12 @@ import javax.inject.Inject;
 
 public class UserOperations extends ScheduledOperations {
 
-    private final RxHttpClient httpClient;
+    private final ApiScheduler apiScheduler;
     private final UserStorage userStorage;
 
     @Inject
-    public UserOperations(RxHttpClient httpClient, UserStorage userStorage) {
-        this.httpClient = httpClient;
+    public UserOperations(ApiScheduler apiScheduler, UserStorage userStorage) {
+        this.apiScheduler = apiScheduler;
         this.userStorage = userStorage;
     }
 
@@ -28,7 +28,7 @@ public class UserOperations extends ScheduledOperations {
                 .forPublicApi()
                 .forResource(PublicApiUser.class)
                 .build();
-        return httpClient.<PublicApiUser>fetchModels(request).mergeMap(new Func1<PublicApiUser, Observable<PublicApiUser>>() {
+        return apiScheduler.mappedResponse(request).mergeMap(new Func1<PublicApiUser, Observable<PublicApiUser>>() {
             @Override
             public Observable<PublicApiUser> call(PublicApiUser user) {
                 return userStorage.createOrUpdateAsync(user);

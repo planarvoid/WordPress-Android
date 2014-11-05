@@ -4,6 +4,10 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.onboarding.suggestions.OnboardSuggestedUsersSyncFragment;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryFragment;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.view.adapters.PostsAdapter;
@@ -19,7 +23,11 @@ import dagger.Module;
                 SoundAdapter.class,
                 PostsAdapter.class,
                 MyTracksAdapter.class,
-                ApiSyncer.class
+                ApiSyncer.class,
+                SuggestedUsersCategoryFragment.class,
+                SuggestedUsersCategoryActivity.class,
+                SuggestedUsersCategoriesFragment.class,
+                OnboardSuggestedUsersSyncFragment.class
         }, includes = AssociationsModule.class)
 
 /**
