@@ -34,7 +34,6 @@ final class PlayBillingUtil {
     public static final String RESPONSE_SIGNATURE_LIST = "INAPP_DATA_SIGNATURE_LIST";
 
     public static final String REQUEST_PRODUCT_DETAILS = "ITEM_ID_LIST";
-    public static final String REQUEST_PRODUCT_DETAILS_TYPES = "ITEM_TYPE_LIST";
 
     private PlayBillingUtil() {}
 
