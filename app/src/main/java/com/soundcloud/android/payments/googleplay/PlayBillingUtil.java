@@ -36,6 +36,8 @@ final class PlayBillingUtil {
     public static final String REQUEST_PRODUCT_DETAILS = "ITEM_ID_LIST";
     public static final String REQUEST_PRODUCT_DETAILS_TYPES = "ITEM_TYPE_LIST";
 
+    private PlayBillingUtil() {}
+
     /*
      * The InAppBillingService reference implementation states that response codes should be Integers,
      * but there is a bug that causes them to return as Longs in some cases.

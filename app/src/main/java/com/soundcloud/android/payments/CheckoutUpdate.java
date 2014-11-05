@@ -9,12 +9,17 @@ final class CheckoutUpdate {
     private static final String STATUS_FAILURE = "failure";
     private static final String REASON_OK = "ok";
 
-    public static CheckoutUpdate fromFailure(String reason) {
-        return new CheckoutUpdate(STATUS_FAILURE, reason, null, null);
-    }
+    public final String state;
+    public final String reason;
+    public final String payload;
+    public final String signature;
 
     public static CheckoutUpdate fromSuccess(PlayBillingResult result) {
         return new CheckoutUpdate(STATUS_SUCCESS, REASON_OK, result.getData(), result.getSignature());
+    }
+
+    public static CheckoutUpdate fromFailure(String reason) {
+        return new CheckoutUpdate(STATUS_FAILURE, reason, null, null);
     }
 
     private CheckoutUpdate(String state, String reason, String payload, String signature) {
@@ -23,11 +28,6 @@ final class CheckoutUpdate {
         this.payload = payload;
         this.signature = signature;
     }
-
-    public final String state;
-    public final String reason;
-    public final String payload;
-    public final String signature;
 
     @Override
     public boolean equals(Object o) {
