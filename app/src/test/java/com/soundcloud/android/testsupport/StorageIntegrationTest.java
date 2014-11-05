@@ -18,9 +18,14 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
 
     private DatabaseFixtures helper;
     private DatabaseScheduler scheduler;
+    private DatabaseAssertions databaseAssertions;
 
     protected DatabaseFixtures testFixtures() {
         return helper;
+    }
+
+    protected DatabaseAssertions databaseAssertions() {
+        return databaseAssertions;
     }
 
     protected DatabaseScheduler testScheduler() {
@@ -36,6 +41,7 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
         @Override
         protected void before() throws Throwable {
             helper = new DatabaseFixtures(database());
+            databaseAssertions = new DatabaseAssertions(database());
             scheduler = new DatabaseScheduler(propeller(), Schedulers.immediate());
         }
 

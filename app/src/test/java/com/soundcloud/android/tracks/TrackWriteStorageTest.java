@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -42,13 +41,13 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreTrackMetadataFromApiMobileTrack() {
         storage.storeTrackAsync(track).subscribe(observer);
-        expectTrackInserted(track);
+        databaseAssertions().assertTrackInserted(track);
     }
 
     @Test
     public void shouldStoreUserMetadataFromApiMobileTrack() {
         storage.storeTrackAsync(track).subscribe(observer);
-        expectUserInserted(track.getUser());
+        databaseAssertions().assertPlayableUserInserted(track.getUser());
     }
 
     @Test
@@ -69,8 +68,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
-        expectTrackInserted(tracks.get(0));
-        expectTrackInserted(tracks.get(1));
+        databaseAssertions().assertTrackInserted(tracks.get(0));
+        databaseAssertions().assertTrackInserted(tracks.get(1));
     }
 
     @Test
@@ -79,8 +78,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTracksAsync(tracks).subscribe(observer);
 
-        expectUserInserted(tracks.get(0).getUser());
-        expectUserInserted(tracks.get(1).getUser());
+        databaseAssertions().assertPlayableUserInserted(tracks.get(0).getUser());
+        databaseAssertions().assertPlayableUserInserted(tracks.get(1).getUser());
     }
 
     @Test
@@ -89,8 +88,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTracks(tracks);
 
-        expectTrackInserted(tracks.get(0));
-        expectTrackInserted(tracks.get(1));
+        databaseAssertions().assertTrackInserted(tracks.get(0));
+        databaseAssertions().assertTrackInserted(tracks.get(1));
     }
 
     @Test
@@ -99,8 +98,8 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
         storage.storeTracks(tracks);
 
-        expectUserInserted(tracks.get(0).getUser());
-        expectUserInserted(tracks.get(1).getUser());
+        databaseAssertions().assertPlayableUserInserted(tracks.get(0).getUser());
+        databaseAssertions().assertPlayableUserInserted(tracks.get(1).getUser());
     }
 
     @Test
@@ -146,35 +145,6 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
         TxnResult result = observer.getOnNextEvents().get(0);
         assertThat(result.success(), is(true));
         assertThat(result.getResults().size(), is(2));
-    }
-
-    private void expectTrackInserted(ApiTrack track) {
-        assertThat(select(from(Table.SOUNDS.name)
-                        .whereEq(TableColumns.Sounds._ID, track.getId())
-                        .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                        .whereEq(TableColumns.Sounds.TITLE, track.getTitle())
-                        .whereEq(TableColumns.Sounds.DURATION, track.getDuration())
-                        .whereEq(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl())
-                        .whereEq(TableColumns.Sounds.STREAM_URL, track.getStreamUrl())
-                        .whereEq(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl())
-                        .whereEq(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime())
-                        .whereEq(TableColumns.Sounds.GENRE, track.getGenre())
-                        .whereEq(TableColumns.Sounds.SHARING, track.getSharing().value())
-                        .whereEq(TableColumns.Sounds.USER_ID, track.getUser().getId())
-                        .whereEq(TableColumns.Sounds.COMMENTABLE, track.isCommentable())
-                        .whereEq(TableColumns.Sounds.MONETIZABLE, track.isMonetizable())
-                        .whereEq(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
-                        .whereEq(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
-                        .whereEq(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount())
-                        .whereEq(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount())
-        ), counts(1));
-    }
-
-    private void expectUserInserted(ApiUser user) {
-        assertThat(select(from(Table.SOUND_VIEW.name)
-                        .whereEq(TableColumns.SoundView.USER_ID, user.getId())
-                        .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
-        ), counts(1));
     }
 
     private void expectPolicyInserted(Urn trackUrn, boolean monetizable, String policy) {

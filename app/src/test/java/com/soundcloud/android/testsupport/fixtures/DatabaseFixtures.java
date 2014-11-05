@@ -7,6 +7,7 @@ import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
@@ -205,6 +206,14 @@ public class DatabaseFixtures {
         AffiliationActivity affiliation = ModelFixtures.create(AffiliationActivity.class);
         insertAffiliation(affiliation);
         return affiliation;
+    }
+
+    public long insertStreamTrackPost(ApiStreamItem apiStreamItem) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.SoundStream.SOUND_ID, apiStreamItem.getTrack().get().getId());
+        cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.SoundStream.CREATED_AT, apiStreamItem.getTrack().get().getCreatedAt().getTime());
+        return insertInto(Table.SOUNDSTREAM, cv);
     }
 
     public long insertInto(Table table, ContentValues cv) {

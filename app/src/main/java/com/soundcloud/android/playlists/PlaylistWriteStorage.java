@@ -1,7 +1,8 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.users.UserWriteStorage.buildUserContentValues;
+
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -54,12 +55,4 @@ public class PlaylistWriteStorage {
                 .put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
                 .get();
     }
-
-    private ContentValues buildUserContentValues(ApiUser user) {
-        return ContentValuesBuilder.values()
-                .put(TableColumns.Users._ID, user.getId())
-                .put(TableColumns.Users.USERNAME, user.getUsername())
-                .get();
-    }
-
 }

@@ -1,7 +1,8 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.users.UserWriteStorage.buildUserContentValues;
+
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -88,13 +89,6 @@ public class TrackWriteStorage {
                 .put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
                 .put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
                 .put(TableColumns.Sounds.USER_ID, track.getUser().getId())
-                .get();
-    }
-
-    private ContentValues buildUserContentValues(ApiUser user) {
-        return ContentValuesBuilder.values()
-                .put(TableColumns.Users._ID, user.getId())
-                .put(TableColumns.Users.USERNAME, user.getUsername())
                 .get();
     }
 

@@ -42,18 +42,29 @@ public class SoundStreamWriteStorage {
 
                 for (ApiStreamItem streamItem : streamItems) {
                     step(propeller.insert(Table.SOUNDSTREAM.name, buildSoundStreamContentValues(streamItem)));
-                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, getSoundTableContentValues(streamItem)));
+                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, getContentValuesForSoundTable(streamItem)));
+                    step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, getContentValuesForSoundOwner(streamItem)));
+
                     final Optional<ApiUser> reposter = streamItem.getReposter();
                     if (reposter.isPresent()){
                         step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(reposter.get())));
                     }
-
                 }
             }
         };
     }
 
-    private ContentValues getSoundTableContentValues(ApiStreamItem streamItem) {
+    private ContentValues getContentValuesForSoundOwner(ApiStreamItem streamItem) {
+        final Optional<ApiTrack> track = streamItem.getTrack();
+        if (track.isPresent()){
+            return buildUserContentValues(track.get().getUser());
+        } else {
+            return buildUserContentValues(streamItem.getPlaylist().get().getUser());
+        }
+
+    }
+
+    private ContentValues getContentValuesForSoundTable(ApiStreamItem streamItem) {
         final Optional<ApiTrack> track = streamItem.getTrack();
         if (track.isPresent()){
             return buildTrackContentValues(track.get());
