@@ -15,7 +15,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 29;
+    public static final int DATABASE_VERSION = 30;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -73,6 +73,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 29:
                             success = upgradeTo29(db, oldVersion);
+                            break;
+                        case 30:
+                            success = upgradeTo30(db, oldVersion);
                             break;
                         default:
                             break;
@@ -170,6 +173,17 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 29);
+        }
+        return false;
+    }
+
+    // New SoundStream syncing + storage
+    private static boolean upgradeTo30(SQLiteDatabase database, int oldVersion) {
+        try {
+            Table.SOUNDSTREAM.create(database);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 30);
         }
         return false;
     }

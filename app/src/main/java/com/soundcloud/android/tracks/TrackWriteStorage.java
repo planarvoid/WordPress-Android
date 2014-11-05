@@ -69,7 +69,7 @@ public class TrackWriteStorage {
         };
     }
 
-    private ContentValues buildTrackContentValues(ApiTrack track) {
+    public static ContentValues buildTrackContentValues(ApiTrack track) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Sounds._ID, track.getId())
                 .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)

@@ -4,6 +4,15 @@ import com.soundcloud.android.api.legacy.model.Playable;
 
 final class DatabaseSchema {
 
+    static final String DATABASE_CREATE_SOUNDSTREAM = "(" +
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "sound_id INTEGER, " +
+            "sound_type INTEGER," +
+            "reposter_id INTEGER," +
+            "created_at INTEGER," +
+            "FOREIGN KEY(sound_id) REFERENCES Sounds(_id)" +
+            ");";
+
     static final String DATABASE_CREATE_SOUNDS = "(" +
             "_id INTEGER," +
             "_type INTEGER," +

@@ -13,7 +13,8 @@ public enum Feature {
     OKHTTP(R.bool.feature_okhttp),
     INTERSTITIAL(R.bool.feature_interstitial),
     ADJUST_TRACKING(R.bool.feature_adjust),
-    SECURE_STREAM_CACHE(R.bool.feature_secure_stream_cache);
+    SECURE_STREAM_CACHE(R.bool.feature_secure_stream_cache),
+    API_MOBILE_STREAM(R.bool.feature_api_mobile_stream);
 
     private final int resourceId;
 

@@ -1,10 +1,5 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import com.google.common.collect.Lists;
-import com.soundcloud.android.ads.ApiAdWrapper;
-import com.soundcloud.android.ads.ApiAdsForTrack;
-import com.soundcloud.android.ads.ApiAudioAd;
-import com.soundcloud.android.ads.ApiInterstitial;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
@@ -12,7 +7,11 @@ import com.soundcloud.android.experiments.AssignmentBlueprint;
 import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiAudioAdBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
+import com.soundcloud.android.testsupport.blueprints.ApiPlaylistPostBlueprint;
+import com.soundcloud.android.testsupport.blueprints.ApiPlaylistRepostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackBlueprint;
+import com.soundcloud.android.testsupport.blueprints.ApiTrackPostBlueprint;
+import com.soundcloud.android.testsupport.blueprints.ApiTrackRepostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiUserBlueprint;
 import com.soundcloud.android.testsupport.blueprints.CategoryBlueprint;
 import com.soundcloud.android.testsupport.blueprints.DisplayPropertiesBlueprint;
@@ -61,6 +60,11 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(DisplayPropertiesBlueprint.class);
             modelFactory.registerBlueprint(LeaveBehindBlueprint.class);
             modelFactory.registerBlueprint(InterstitialBlueprint.class);
+            modelFactory.registerBlueprint(ApiTrackPostBlueprint.class);
+            modelFactory.registerBlueprint(ApiTrackRepostBlueprint.class);
+            modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);
+            modelFactory.registerBlueprint(ApiPlaylistRepostBlueprint.class);
+
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }

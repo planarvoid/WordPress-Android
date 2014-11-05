@@ -31,7 +31,7 @@ public class UserWriteStorage {
         return propeller.bulkInsert(Table.USERS.name, newItems);
     }
 
-    private ContentValues buildUserContentValues(ApiUser user) {
+    public static ContentValues buildUserContentValues(ApiUser user) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Users._ID, user.getId())
                 .put(TableColumns.Users.USERNAME, user.getUsername())

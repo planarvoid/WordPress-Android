@@ -24,6 +24,17 @@ public final class TableColumns {
         public static final String PERMALINK = "permalink";
     }
 
+    public static class SoundStream implements BaseColumns {
+        public static final String SOUND_ID = "sound_id";
+        public static final String SOUND_TYPE = "sound_type";
+        public static final String REPOSTER_ID = "reposter_id";
+        public static final String CREATED_AT = "created_at";
+
+        public static final String[] ALL_FIELDS = {
+                _ID, SOUND_ID, SOUND_TYPE, REPOSTER_ID, CREATED_AT
+        };
+    }
+
     /**
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_SOUNDS}
      */

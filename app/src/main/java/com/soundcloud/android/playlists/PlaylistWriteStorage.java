@@ -39,7 +39,7 @@ public class PlaylistWriteStorage {
         };
     }
 
-    private ContentValues buildPlaylistContentValues(ApiPlaylist playlist) {
+    public static ContentValues buildPlaylistContentValues(ApiPlaylist playlist) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Sounds._ID, playlist.getId())
                 .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
