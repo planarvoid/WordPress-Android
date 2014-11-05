@@ -7,4 +7,4 @@ import dagger.Module;
         injects = {
             SubscribeActivity.class,
         })
-public class PaymentsModule {}
+public class PaymentModule {}

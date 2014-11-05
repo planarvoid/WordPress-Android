@@ -10,15 +10,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlayResponseProcessorTest {
+public class ResponseProcessorTest {
 
     private static final String PRODUCT_JSON = "{\"title\":\"subscription title\",\"price\":\"€4.75\",\"type\":\"subs\",\"description\":\"placeholder description\",\"price_amount_micros\":4750000,\"price_currency_code\":\"EUR\",\"productId\":\"product_id\"}";
 
-    private PlayResponseProcessor processor;
+    private ResponseProcessor processor;
 
     @Before
     public void setUp() throws Exception {
-        processor = new PlayResponseProcessor();
+        processor = new ResponseProcessor();
     }
 
     @Test

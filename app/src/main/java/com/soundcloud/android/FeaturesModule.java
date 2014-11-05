@@ -6,7 +6,7 @@ import com.soundcloud.android.associations.LikesModule;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.main.MainModule;
-import com.soundcloud.android.payments.PaymentsModule;
+import com.soundcloud.android.payments.PaymentModule;
 import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
@@ -28,6 +28,6 @@ import dagger.Module;
         SoundStreamModule.class,
         TrackModule.class,
         CommentsModule.class,
-        PaymentsModule.class
+        PaymentModule.class
 })
 public class FeaturesModule {}

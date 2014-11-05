@@ -14,8 +14,8 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.payments.googleplay.PlayBillingResult;
-import com.soundcloud.android.payments.googleplay.PlayBillingService;
+import com.soundcloud.android.payments.googleplay.BillingResult;
+import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.apache.http.HttpStatus;
@@ -33,12 +33,12 @@ import java.util.ArrayList;
 public class PaymentOperationsTest {
 
     @Mock ApiScheduler apiScheduler;
-    @Mock PlayBillingService billingService;
+    @Mock BillingService billingService;
     @Mock PaymentStorage paymentStorage;
     @Mock Activity activity;
 
     private PaymentOperations paymentOperations;
-    private PlayBillingResult billingResult;
+    private BillingResult billingResult;
 
     @Before
     public void setUp() throws Exception {
@@ -49,10 +49,10 @@ public class PaymentOperationsTest {
         when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path()))))
                 .thenReturn(checkoutResultObservable());
         when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(CheckoutUpdate.fromFailure("user cancelled")))))
+                .withContent(UpdateCheckout.fromFailure("user cancelled")))))
                 .thenReturn(Observable.<ApiResponse>empty());
         when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(CheckoutUpdate.fromSuccess(billingResult)))))
+                .withContent(UpdateCheckout.fromSuccess(billingResult)))))
                 .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
     }
 
@@ -132,7 +132,7 @@ public class PaymentOperationsTest {
         paymentOperations.verify(billingResult);
 
         verify(apiScheduler).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(CheckoutUpdate.fromSuccess(billingResult))));
+                .withContent(UpdateCheckout.fromSuccess(billingResult))));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class PaymentOperationsTest {
     @Test
     public void verifyReturnsFailureStatusIfUpdateFailed() {
         when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(CheckoutUpdate.fromSuccess(billingResult)))))
+                .withContent(UpdateCheckout.fromSuccess(billingResult)))))
                 .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_FORBIDDEN, null)));
         when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
 
@@ -163,7 +163,7 @@ public class PaymentOperationsTest {
         paymentOperations.cancel("user cancelled").subscribe();
 
         verify(apiScheduler).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(CheckoutUpdate.fromFailure("user cancelled"))));
+                .withContent(UpdateCheckout.fromFailure("user cancelled"))));
     }
 
     private Observable<AvailableProducts> availableProductsObservable() {
@@ -171,8 +171,8 @@ public class PaymentOperationsTest {
         return Observable.just(products);
     }
 
-    private Observable<CheckoutStart> checkoutResultObservable() {
-        return Observable.just(new CheckoutStart("token_123"));
+    private Observable<CheckoutStarted> checkoutResultObservable() {
+        return Observable.just(new CheckoutStarted("token_123"));
     }
 
     private Observable<AvailableProducts> noProductsObservable() {
