@@ -164,7 +164,7 @@ public class SoundCloudApplication extends Application {
 
     private void generateDeviceKey() {
         if (featureFlags.isEnabled(Feature.DEVICE_KEY_GENERATION)) {
-            cryptoOperations.generateDeviceKeyIfNeeded();
+            cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
         }
     }
 
