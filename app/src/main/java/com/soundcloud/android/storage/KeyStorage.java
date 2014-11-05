@@ -3,10 +3,13 @@ package com.soundcloud.android.storage;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import javax.inject.Inject;
+
 public class KeyStorage {
 
     private final SharedPreferences preferences;
 
+    @Inject
     public KeyStorage(SharedPreferences preferences) {
         this.preferences = preferences;
     }
