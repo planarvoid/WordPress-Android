@@ -56,7 +56,7 @@ class SubscribeController {
                 subscription.add(paymentOperations.verify(result).subscribe(new VerifySubscriber()));
             } else {
                 showText(R.string.payments_user_cancelled);
-                fireAndForget(paymentOperations.cancel(result));
+                fireAndForget(paymentOperations.cancel(result.getFailReason()));
             }
         }
     }

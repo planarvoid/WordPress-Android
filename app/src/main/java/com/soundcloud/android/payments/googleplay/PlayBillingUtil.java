@@ -13,6 +13,7 @@ final class PlayBillingUtil {
     private static final String TAG = "PlayBilling";
 
     public static final int ERROR_REMOTE_EXCEPTION = -1;
+    public static final int ERROR_INVALID_DATA = -2;
 
     public static final int RESULT_OK = 0;
     public static final int RESULT_USER_CANCELED = 1;
@@ -43,13 +44,15 @@ final class PlayBillingUtil {
      */
 
     public static int getResponseCodeFromBundle(Bundle bundle) {
-        Object code = bundle.get(RESPONSE_CODE);
-        return responseCodeFromObject(code);
+        return bundle == null
+                ? ERROR_INVALID_DATA
+                : responseCodeFromObject(bundle.get(RESPONSE_CODE));
     }
 
     public static int getResponseCodeFromIntent(Intent intent) {
-        Object code = intent.getExtras().get(RESPONSE_CODE);
-        return responseCodeFromObject(code);
+        return intent == null
+                ? ERROR_INVALID_DATA
+                : responseCodeFromObject(intent.getExtras().get(RESPONSE_CODE));
     }
 
     private static int responseCodeFromObject(Object code) {
