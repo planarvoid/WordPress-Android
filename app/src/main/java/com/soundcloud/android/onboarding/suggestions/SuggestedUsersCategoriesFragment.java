@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.rx.observers.DefaultFragmentObserver;
 import com.soundcloud.android.utils.Log;
@@ -25,6 +26,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import javax.inject.Inject;
+
 @SuppressLint("ValidFragment")
 public class SuggestedUsersCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener {
 
@@ -32,17 +35,19 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     private static final String KEY_OBSERVABLE = "buckets_observable";
     private static final String FRAGMENT_TAG = "suggested_users_fragment";
     private static final String LOG_TAG = "suggested_users_frag";
+
+    @Inject SuggestedUsersCategoriesAdapter adapter;
+    @Inject SuggestedUsersOperations suggestedUserOps;
+    @Inject FollowingOperations followingOperations;
+
     private DisplayMode mMode = DisplayMode.LOADING;
-    private SuggestedUsersCategoriesAdapter adapter;
-    private SuggestedUsersOperations suggestedUserOps;
     private Subscription subscription;
     private Observer<CategoryGroup> observer;
     private ListView listView;
     private EmptyView emptyView;
 
     public SuggestedUsersCategoriesFragment() {
-        this(new SuggestedUsersOperations(), null,
-                new SuggestedUsersCategoriesAdapter());
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
@@ -147,7 +152,7 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
 
     private void loadCategories(Observable<CategoryGroup> observable) {
         if (observer == null) {
-            observer = new CategoryGroupsObserver(this);
+            observer = new CategoryGroupsObserver(this, followingOperations);
         }
         subscription = observable.subscribe(observer);
         setDisplayMode(DisplayMode.LOADING);
@@ -185,8 +190,11 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
 
     private static final class CategoryGroupsObserver extends DefaultFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
 
-        public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment) {
+        private final FollowingOperations followingOperations;
+
+        public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment, FollowingOperations followingOperations) {
             super(fragment);
+            this.followingOperations = followingOperations;
         }
 
         @Override
@@ -198,7 +206,6 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
             if (!categoryGroup.isFacebook()) {
                 fragment.setDisplayMode(DisplayMode.CONTENT);
             } else if (fragment.shouldShowFacebook()) {
-                final FollowingOperations followingOperations = new FollowingOperations();
                 fireAndForget(followingOperations.addFollowingsBySuggestedUsers(categoryGroup.getAllSuggestedUsers()));
             }
         }

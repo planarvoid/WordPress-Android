@@ -1,7 +1,10 @@
 package com.soundcloud.android.sync;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.mockito.Mockito.mock;
 
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.PlaylistSyncer;
@@ -10,6 +13,8 @@ import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.inject.Provider;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerFactoryTest {
@@ -35,6 +40,16 @@ public class ApiSyncerFactoryTest {
     }
 
     private SyncStrategy getSyncer(Content content) {
-        return new ApiSyncerFactory().forContentUri(Robolectric.application, content.uri);
+        return new ApiSyncerFactory(new Provider<FollowingOperations>() {
+            @Override
+            public FollowingOperations get() {
+                return mock(FollowingOperations.class);
+            }
+        }, new Provider<AccountOperations>() {
+            @Override
+            public AccountOperations get() {
+                return mock(AccountOperations.class);
+            }
+        }).forContentUri(Robolectric.application, content.uri);
     }
 }

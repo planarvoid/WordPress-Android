@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.UserStorage;
@@ -26,27 +26,24 @@ public class UserOperationsTest {
 
     private UserOperations userOperations;
 
-    @Mock
-    private SoundCloudRxHttpClient httpClient;
-    @Mock
-    private UserStorage userStorage;
-    @Mock
-    private Observer<PublicApiUser> userObserver;
+    @Mock private ApiScheduler apiScheduler;
+    @Mock private UserStorage userStorage;
+    @Mock private Observer<PublicApiUser> userObserver;
 
 
     @Before
     public void setup() {
-        userOperations = new UserOperations(httpClient, userStorage);
+        userOperations = new UserOperations(apiScheduler, userStorage);
     }
 
     @Test
     public void shouldRefreshTheUserFromTheApiAndPersistToLocalStorage() throws CreateModelException {
         PublicApiUser currentUser = ModelFixtures.create(PublicApiUser.class);
-        when(httpClient.<PublicApiUser>fetchModels(any(ApiRequest.class))).thenReturn(Observable.just(currentUser));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(currentUser));
 
         userOperations.refreshCurrentUser().subscribe(userObserver);
 
-        verify(httpClient).fetchModels(argThat(isPublicApiRequestTo("GET", ApiEndpoints.CURRENT_USER.path())));
+        verify(apiScheduler).mappedResponse(argThat(isPublicApiRequestTo("GET", ApiEndpoints.CURRENT_USER.path())));
         verify(userStorage).createOrUpdateAsync(currentUser);
     }
 }

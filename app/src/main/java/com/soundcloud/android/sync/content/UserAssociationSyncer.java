@@ -7,7 +7,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
@@ -50,15 +49,11 @@ public class UserAssociationSyncer extends SyncStrategy {
     private FollowingOperations followingOperations;
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
-    public UserAssociationSyncer(Context context) {
-        this(context, SoundCloudApplication.fromContext(context).getAccountOperations());
-    }
-
-    @VisibleForTesting
-    protected UserAssociationSyncer(Context context, AccountOperations accountOperations) {
+    public UserAssociationSyncer(Context context, AccountOperations accountOperations,
+                                    FollowingOperations followingOperations) {
         super(context, context.getContentResolver(), accountOperations);
         Scheduler scheduler = Schedulers.immediate();
-        init(new UserAssociationStorage(scheduler, context.getContentResolver()), new FollowingOperations(scheduler));
+        init(new UserAssociationStorage(scheduler, context.getContentResolver()), followingOperations);
     }
 
     @VisibleForTesting
@@ -216,7 +211,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                 }
             }
 
-            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, userAssociationStorage, new FollowingOperations());
+            final BulkFollowSubscriber observer = new BulkFollowSubscriber(associationsNeedingSync, userAssociationStorage, followingOperations);
             followingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
             if (!observer.wasSuccess()) {
                 result.success = false;

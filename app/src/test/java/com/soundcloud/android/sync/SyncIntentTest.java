@@ -24,6 +24,8 @@ import java.util.ArrayList;
 @RunWith(SoundCloudTestRunner.class)
 public class SyncIntentTest {
     @Mock CollectionSyncRequest.Factory collectionSyncRequestFactory;
+    @Mock ApiSyncerFactory apiSyncerFactory;
+    @Mock SyncStateManager syncStateManager;
 
     @Test
     public void shouldCreateCollectionSyncRequests() throws Exception {
@@ -56,7 +58,8 @@ public class SyncIntentTest {
             }
         });
 
-        final CollectionSyncRequest collectionSyncRequest = new CollectionSyncRequest(Robolectric.application, Content.ME_FOLLOWERS.uri, null, false);
+        final CollectionSyncRequest collectionSyncRequest = new CollectionSyncRequest(
+                Robolectric.application, Content.ME_FOLLOWERS.uri, null, false, apiSyncerFactory, syncStateManager);
         when(collectionSyncRequestFactory.create(any(Uri.class), anyString(), anyBoolean())).thenReturn(collectionSyncRequest);
 
         SyncIntent req = new SyncIntent(intent, collectionSyncRequestFactory);

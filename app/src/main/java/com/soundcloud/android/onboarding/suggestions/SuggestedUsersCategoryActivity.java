@@ -11,10 +11,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
 public class SuggestedUsersCategoryActivity extends ScActivity {
 
     private Category category;
     private SuggestedUsersCategoryFragment categoryFragment;
+
+    @Inject FollowingOperations followingOperations;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -52,7 +56,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (category.isFollowed(new FollowingOperations().getFollowedUserIds())){
+        if (category.isFollowed(followingOperations.getFollowedUserIds())){
             menu.findItem(R.id.menu_select_all).setVisible(false);
         } else {
             menu.findItem(R.id.menu_deselect_all).setVisible(false);
