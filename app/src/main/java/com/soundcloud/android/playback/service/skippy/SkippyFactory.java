@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service.skippy;
 
-import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -15,7 +15,7 @@ import javax.inject.Inject;
 
 public class SkippyFactory {
 
-    private static final byte[] CACHE_ENCRYPTION_KEY = "1234567890123456".getBytes(Charsets.UTF_8); // TODO: Generate this key
+    private static final String KEY_PREFERENCE_NAME = "skippy_cache";
     private static final int PROGRESS_INTERVAL_MS = 500;
     private static final int NO_CACHE_SIZE = -1;
     private static final int NO_CACHE_SIZE_PERCENTAGE = -1;
@@ -26,16 +26,20 @@ public class SkippyFactory {
     private static final String NO_CACHE = null;
     private static final byte[] NO_CACHE_ENCRYPTION_KEY = null;
 
+
     private final ApplicationProperties applicationProperties;
     private final FeatureFlags featureFlags;
     private final SharedPreferences sharedPreferences;
+    private final CryptoOperations cryptoOperations;
     private final String maxSizePercentageKey;
 
     @Inject
-    SkippyFactory(ApplicationProperties applicationProperties, FeatureFlags featureFlags, SharedPreferences sharedPreferences, Resources resources) {
+    SkippyFactory(CryptoOperations cryptoOperations, SharedPreferences sharedPreferences, ApplicationProperties applicationProperties,
+                  Resources resources, FeatureFlags featureFlags) {
+        this.cryptoOperations = cryptoOperations;
+        this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
         this.featureFlags = featureFlags;
-        this.sharedPreferences = sharedPreferences;
         maxSizePercentageKey = resources.getString(R.string.key_stream_cache_size);
     }
 
@@ -74,7 +78,7 @@ public class SkippyFactory {
                 MAX_CACHE_SIZE_BYTES,
                 sharedPreferences.getInt(maxSizePercentageKey, MAX_CACHE_SIZE_PERCENTAGE),
                 Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY.getAbsolutePath(),
-                CACHE_ENCRYPTION_KEY,
+                cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),
                 applicationProperties.useVerboseLogging(),
                 ALL_TRACKS_CACHE
         );

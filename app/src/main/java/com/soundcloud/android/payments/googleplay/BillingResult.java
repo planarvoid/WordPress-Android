@@ -3,7 +3,7 @@ package com.soundcloud.android.payments.googleplay;
 import android.app.Activity;
 import android.content.Intent;
 
-public class PlayBillingResult {
+public class BillingResult {
 
     public static final int REQUEST_CODE = 1001;
 
@@ -15,7 +15,7 @@ public class PlayBillingResult {
     private final int resultCode;
     private final Intent data;
 
-    public PlayBillingResult(int requestCode, int responseCode, Intent data) {
+    public BillingResult(int requestCode, int responseCode, Intent data) {
         this.requestCode = requestCode;
         this.resultCode = responseCode;
         this.data = data;
@@ -30,22 +30,22 @@ public class PlayBillingResult {
     }
 
     private boolean isBillingResultOk() {
-        return PlayBillingUtil.getResponseCodeFromIntent(data) == PlayBillingUtil.RESULT_OK;
+        return BillingUtil.getResponseCodeFromIntent(data) == BillingUtil.RESULT_OK;
     }
 
     public String getData() {
-        return data.getStringExtra(PlayBillingUtil.RESPONSE_PURCHASE_DATA);
+        return data.getStringExtra(BillingUtil.RESPONSE_PURCHASE_DATA);
     }
 
     public String getSignature() {
-        return data.getStringExtra(PlayBillingUtil.RESPONSE_SIGNATURE);
+        return data.getStringExtra(BillingUtil.RESPONSE_SIGNATURE);
     }
 
     public String getFailReason() {
         if (resultCode == Activity.RESULT_CANCELED) {
             return FAIL_REASON_CANCELLED;
         } else if (!isBillingResultOk()) {
-            return FAIL_REASON_ERROR + PlayBillingUtil.getResponseCodeFromIntent(data);
+            return FAIL_REASON_ERROR + BillingUtil.getResponseCodeFromIntent(data);
         } else {
             return FAIL_REASON_UNKNOWN;
         }

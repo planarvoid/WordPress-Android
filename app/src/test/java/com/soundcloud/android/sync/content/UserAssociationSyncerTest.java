@@ -333,7 +333,7 @@ public class UserAssociationSyncerTest {
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, accountOperations);
+        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, accountOperations, followingOperations);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 

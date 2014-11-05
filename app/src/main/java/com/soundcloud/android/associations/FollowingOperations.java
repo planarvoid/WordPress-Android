@@ -8,12 +8,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.RxHttpClient;
-import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -33,7 +31,6 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Func1;
 
@@ -41,6 +38,7 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -54,36 +52,26 @@ public class FollowingOperations {
     private final SyncStateManager syncStateManager;
     private final ScModelManager modelManager;
     private final UserAssociationStorage userAssociationStorage;
-    private final RxHttpClient rxHttpClient;
+    private final ApiScheduler apiScheduler;
     private final SyncInitiator syncInitiator;
 
-    @Deprecated
-    public FollowingOperations() {
-        this(new SoundCloudRxHttpClient(), new UserAssociationStorage(SoundCloudApplication.instance),
-                new SyncStateManager(SoundCloudApplication.instance),
-                FollowStatus.get(), SoundCloudApplication.sModelManager,
-                new SyncInitiator(SoundCloudApplication.instance, SoundCloudApplication.instance.getAccountOperations()));
+    @Inject
+    public FollowingOperations(ApiScheduler apiScheduler, UserAssociationStorage userAssociationStorage,
+                               SyncStateManager syncStateManager,
+                               ScModelManager modelManager, SyncInitiator syncInitiator) {
+        this.apiScheduler = apiScheduler;
+        this.userAssociationStorage = userAssociationStorage;
+        this.syncStateManager = syncStateManager;
+        this.followStatus = FollowStatus.get();
+        this.modelManager = modelManager;
+        this.syncInitiator = syncInitiator;
     }
 
-    /**
-     * Use this constructor to have all observables that are delegated to run on the same scheduler. This is useful
-     * if you know that work is already being done on a background thread and things can run synchronously on that
-     * same thread.
-     *
-     * @param scheduler the scheduler to use for all internal observables
-     */
-    @Deprecated
-    public FollowingOperations(Scheduler scheduler) {
-        this(new SoundCloudRxHttpClient(scheduler), new UserAssociationStorage(scheduler, SoundCloudApplication.instance.getContentResolver()),
-                new SyncStateManager(SoundCloudApplication.instance),
-                FollowStatus.get(), SoundCloudApplication.sModelManager,
-                new SyncInitiator(SoundCloudApplication.instance, SoundCloudApplication.instance.getAccountOperations()));
-    }
-
-    public FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
+    @VisibleForTesting
+    FollowingOperations(ApiScheduler apiScheduler, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager, FollowStatus followStatus,
                                ScModelManager modelManager, SyncInitiator syncInitiator) {
-        this.rxHttpClient = httpClient;
+        this.apiScheduler = apiScheduler;
         this.userAssociationStorage = userAssociationStorage;
         this.syncStateManager = syncStateManager;
         this.followStatus = followStatus;
@@ -143,7 +131,7 @@ public class FollowingOperations {
             return Observable.empty();
         } else {
             Log.d(LOG_TAG, "Executing bulk follow request: " + apiRequest);
-            return rxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<ApiResponse, Observable<Collection<UserAssociation>>>() {
+            return apiScheduler.response(apiRequest).flatMap(new Func1<ApiResponse, Observable<Collection<UserAssociation>>>() {
                 @Override
                 public Observable<Collection<UserAssociation>> call(ApiResponse apiResponse) {
                     Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);

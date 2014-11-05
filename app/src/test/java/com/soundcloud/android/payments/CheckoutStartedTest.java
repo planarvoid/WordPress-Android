@@ -8,12 +8,12 @@ import org.junit.runner.RunWith;
 import rx.Observable;
 
 @RunWith(SoundCloudTestRunner.class)
-public class CheckoutStartTest {
+public class CheckoutStartedTest {
 
     @Test
     public void mapsCheckoutResultToTokenString() {
-        CheckoutStart result = new CheckoutStart("token_123");
-        Observable<String> mappedResult = Observable.just(result).map(CheckoutStart.TOKEN);
+        CheckoutStarted result = new CheckoutStarted("token_123");
+        Observable<String> mappedResult = Observable.just(result).map(CheckoutStarted.TOKEN);
         expect(mappedResult.toBlocking().first()).toEqual("token_123");
     }
 

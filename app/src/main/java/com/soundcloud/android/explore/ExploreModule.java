@@ -19,6 +19,6 @@ public class ExploreModule {
 
     @Provides
     public EndlessAdapter<ApiTrack> provideEndlessAdapter(TrackGridPresenter presenter) {
-        return new EndlessAdapter<ApiTrack>(R.layout.grid_loading_item, presenter);
+        return new EndlessAdapter<>(R.layout.grid_loading_item, presenter);
     }
 }

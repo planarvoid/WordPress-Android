@@ -34,10 +34,10 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlayBillingServiceTest {
+public class BillingServiceTest {
 
     @Mock DeviceHelper deviceHelper;
-    @Mock PlayResponseProcessor responseProcessor;
+    @Mock ResponseProcessor responseProcessor;
     @Mock Activity activity;
     @Mock IBinder iBinder;
     @Mock BillingServiceBinder billingBinder;
@@ -45,11 +45,11 @@ public class PlayBillingServiceTest {
 
     @Captor ArgumentCaptor<ServiceConnection> connectionCaptor;
 
-    private PlayBillingService billingService;
+    private BillingService billingService;
 
     @Before
     public void setUp() throws Exception {
-        billingService = new PlayBillingService(deviceHelper, billingBinder, responseProcessor);
+        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor);
         when(billingBinder.bind(iBinder)).thenReturn(service);
         when(billingBinder.canConnect()).thenReturn(true);
         when(deviceHelper.getPackageName()).thenReturn("com.package");
@@ -65,7 +65,7 @@ public class PlayBillingServiceTest {
     @Test
     public void connectionStatusReadyIfConnectedAndSubsSupported() throws RemoteException {
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
-        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(PlayBillingUtil.RESULT_OK);
+        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(BillingUtil.RESULT_OK);
         onServiceConnected();
 
         ConnectionStatus status = result.toBlocking().firstOrDefault(null);
@@ -85,7 +85,7 @@ public class PlayBillingServiceTest {
     @Test
     public void connectionStatusUnsupportedIfSubsNotAvailable() throws RemoteException {
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
-        when(service.isBillingSupported(eq(3), anyString(), anyString())).thenReturn(PlayBillingUtil.RESULT_ERROR);
+        when(service.isBillingSupported(eq(3), anyString(), anyString())).thenReturn(BillingUtil.RESULT_ERROR);
         onServiceConnected();
 
         ConnectionStatus status = result.toBlocking().firstOrDefault(null);
@@ -95,7 +95,7 @@ public class PlayBillingServiceTest {
     @Test
     public void connectionStatusDisconnectedIfConnectionClosed() throws RemoteException {
         Observable<ConnectionStatus> result = billingService.openConnection(activity);
-        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(PlayBillingUtil.RESULT_OK);
+        when(service.isBillingSupported(anyInt(), anyString(), anyString())).thenReturn(BillingUtil.RESULT_OK);
 
         onServiceDisconnected();
 
@@ -116,7 +116,7 @@ public class PlayBillingServiceTest {
     @Test
     public void getDetailsReturnsProductDataFromBillingService() throws RemoteException, JSONException {
         Bundle bundle = new Bundle();
-        bundle.putStringArrayList(PlayBillingUtil.RESPONSE_GET_SKU_DETAILS_LIST, Lists.newArrayList("data"));
+        bundle.putStringArrayList(BillingUtil.RESPONSE_GET_SKU_DETAILS_LIST, Lists.newArrayList("data"));
         ProductDetails details = new ProductDetails("id", "title", "blah", "$100");
         when(service.getSkuDetails(eq(3), eq("com.package"), eq("subs"), any(Bundle.class))).thenReturn(bundle);
         when(responseProcessor.parseProduct(eq("data"))).thenReturn(details);
@@ -131,15 +131,15 @@ public class PlayBillingServiceTest {
     @Test
     public void startPurchaseStartsIntentFromBillingService() throws RemoteException, IntentSender.SendIntentException {
         Bundle bundle = new Bundle();
-        bundle.putInt(PlayBillingUtil.RESPONSE_CODE, PlayBillingUtil.RESULT_OK);
-        bundle.putParcelable(PlayBillingUtil.RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
+        bundle.putInt(BillingUtil.RESPONSE_CODE, BillingUtil.RESULT_OK);
+        bundle.putParcelable(BillingUtil.RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
         when(service.getBuyIntent(3, "com.package", "package_id", "subs", "token")).thenReturn(bundle);
 
         billingService.openConnection(activity);
         onServiceConnected();
         billingService.startPurchase("package_id", "token");
 
-        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(PlayBillingResult.REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
+        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(BillingResult.REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
     }
 
     private void onServiceConnected() {

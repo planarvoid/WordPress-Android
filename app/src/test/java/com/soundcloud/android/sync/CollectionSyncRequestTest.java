@@ -72,9 +72,9 @@ public class CollectionSyncRequestTest {
     @Test
     public void shouldSetTheBackgroundParameterIfNonUiRequest() throws Exception {
         CollectionSyncRequest nonUi = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWER.uri, SOME_ACTION, false);
+                Content.ME_FOLLOWER.uri, SOME_ACTION, false, null, syncStateManager);
         CollectionSyncRequest ui = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWER.uri, SOME_ACTION, true);
+                Content.ME_FOLLOWER.uri, SOME_ACTION, true, null, syncStateManager);
 
         ui.onQueued();
         nonUi.onQueued();

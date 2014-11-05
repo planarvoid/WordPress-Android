@@ -1,53 +1,52 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 
-import static rx.android.observables.AndroidObservable.fromFragment;
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncInitiator;
-import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import javax.inject.Inject;
+
 @SuppressLint("ValidFragment")
 public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
-    private FollowingOperations followingOperations;
+    @Inject SyncInitiator syncInitiator;
+    @Inject FollowingOperations followingOperations;
     private Subscription subscription;
 
     public OnboardSuggestedUsersSyncFragment() {
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    OnboardSuggestedUsersSyncFragment(@Nullable FollowingOperations followingOperations) {
+    OnboardSuggestedUsersSyncFragment(FollowingOperations followingOperations, SyncInitiator syncInitiator) {
         this.followingOperations = followingOperations;
+        this.syncInitiator = syncInitiator;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (followingOperations == null) {
-            followingOperations = new FollowingOperations();
-        }
 
-        subscription = fromFragment(this, followingOperations.waitForActivities(getActivity()))
+        subscription = bindFragment(this, followingOperations.waitForActivities(getActivity()))
                 .subscribe(new FollowingsSyncSubscriber());
     }
 
@@ -95,9 +94,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         public void onError(Throwable error) {
             super.onError(error);
             // send sync adapter request for followings so retry logic will kick in
-            FragmentActivity context = getActivity();
-            AccountOperations accountOperations = SoundCloudApplication.fromContext(getActivity()).getAccountOperations();
-            new SyncInitiator(context, accountOperations).pushFollowingsToApi();
+            syncInitiator.pushFollowingsToApi();
             finish(false);
         }
     }

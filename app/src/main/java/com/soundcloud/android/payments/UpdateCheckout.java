@@ -1,9 +1,9 @@
 package com.soundcloud.android.payments;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.payments.googleplay.PlayBillingResult;
+import com.soundcloud.android.payments.googleplay.BillingResult;
 
-final class CheckoutUpdate {
+final class UpdateCheckout {
 
     private static final String STATUS_SUCCESS = "success";
     private static final String STATUS_FAILURE = "failure";
@@ -14,15 +14,15 @@ final class CheckoutUpdate {
     public final String payload;
     public final String signature;
 
-    public static CheckoutUpdate fromSuccess(PlayBillingResult result) {
-        return new CheckoutUpdate(STATUS_SUCCESS, REASON_OK, result.getData(), result.getSignature());
+    public static UpdateCheckout fromSuccess(BillingResult result) {
+        return new UpdateCheckout(STATUS_SUCCESS, REASON_OK, result.getData(), result.getSignature());
     }
 
-    public static CheckoutUpdate fromFailure(String reason) {
-        return new CheckoutUpdate(STATUS_FAILURE, reason, null, null);
+    public static UpdateCheckout fromFailure(String reason) {
+        return new UpdateCheckout(STATUS_FAILURE, reason, null, null);
     }
 
-    private CheckoutUpdate(String state, String reason, String payload, String signature) {
+    private UpdateCheckout(String state, String reason, String payload, String signature) {
         this.state = state;
         this.reason = reason;
         this.payload = payload;
@@ -37,7 +37,7 @@ final class CheckoutUpdate {
             return false;
         }
 
-        CheckoutUpdate that = (CheckoutUpdate) o;
+        UpdateCheckout that = (UpdateCheckout) o;
         return Objects.equal(state, that.state)
                 && Objects.equal(reason, that.reason)
                 && Objects.equal(payload, that.payload)

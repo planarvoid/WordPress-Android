@@ -6,8 +6,8 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.payments.googleplay.PlayBillingResult;
-import com.soundcloud.android.payments.googleplay.PlayBillingService;
+import com.soundcloud.android.payments.googleplay.BillingResult;
+import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -21,7 +21,7 @@ import javax.inject.Inject;
 class PaymentOperations {
 
     private final ApiScheduler apiScheduler;
-    private final PlayBillingService playBilling;
+    private final BillingService playBilling;
     private final PaymentStorage paymentStorage;
 
     private static final Func1<ApiResponse, PurchaseStatus> TO_PURCHASE_STATUS = new Func1<ApiResponse, PurchaseStatus>() {
@@ -50,7 +50,7 @@ class PaymentOperations {
     };
 
     @Inject
-    PaymentOperations(ApiScheduler apiScheduler, PlayBillingService playBilling, PaymentStorage paymentStorage) {
+    PaymentOperations(ApiScheduler apiScheduler, BillingService playBilling, PaymentStorage paymentStorage) {
         this.apiScheduler = apiScheduler;
         this.playBilling = playBilling;
         this.paymentStorage = paymentStorage;
@@ -71,14 +71,14 @@ class PaymentOperations {
     }
 
     public Observable<String> purchase(final String id) {
-        final ApiRequest<CheckoutStart> request =
-                ApiRequest.Builder.<CheckoutStart>post(ApiEndpoints.CHECKOUT.path())
+        final ApiRequest<CheckoutStarted> request =
+                ApiRequest.Builder.<CheckoutStarted>post(ApiEndpoints.CHECKOUT.path())
                         .forPrivateApi(1)
                         .withContent(new StartCheckout(id))
-                        .forResource(CheckoutStart.class)
+                        .forResource(CheckoutStarted.class)
                         .build();
         return apiScheduler.mappedResponse(request)
-                .map(CheckoutStart.TOKEN)
+                .map(CheckoutStarted.TOKEN)
                 .doOnNext(saveToken)
                 .doOnNext(launchPaymentFlow(id));
     }
@@ -92,16 +92,16 @@ class PaymentOperations {
         };
     }
 
-    public Observable<PurchaseStatus> verify(final PlayBillingResult result) {
-        return apiScheduler.response(buildUpdateRequest(CheckoutUpdate.fromSuccess(result)))
+    public Observable<PurchaseStatus> verify(final BillingResult result) {
+        return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromSuccess(result)))
                 .map(TO_PURCHASE_STATUS);
     }
 
     public Observable<ApiResponse> cancel(final String reason) {
-        return apiScheduler.response(buildUpdateRequest(CheckoutUpdate.fromFailure(reason)));
+        return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)));
     }
 
-    private ApiRequest buildUpdateRequest(CheckoutUpdate update) {
+    private ApiRequest buildUpdateRequest(UpdateCheckout update) {
         return ApiRequest.Builder.post(ApiEndpoints.CHECKOUT_URN.path(paymentStorage.getCheckoutToken()))
                 .forPrivateApi(1)
                 .withContent(update)

@@ -1,5 +1,6 @@
 package com.soundcloud.android.onboarding.suggestions;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
@@ -21,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,7 +38,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private final List<Category> categories;
     private final Set<CategoryGroup> categoryGroups;
-
 
     private final SparseArray<Section> listPositionsToSections;
     private final FollowingOperations followingOperations;
@@ -54,19 +55,17 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     };
     private EnumSet<Section> activeSections;
 
-    public SuggestedUsersCategoriesAdapter() {
-        this(Section.ALL_SECTIONS);
+    @Inject
+    public SuggestedUsersCategoriesAdapter(FollowingOperations followingOperations) {
+        this(Section.ALL_SECTIONS, followingOperations);
     }
 
-    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections) {
-        this(activeSections, new FollowingOperations());
-    }
-
+    @VisibleForTesting
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations) {
         this.followingOperations = followingOperations;
-        categories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
-        categoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
-        listPositionsToSections = new SparseArray<Section>();
+        categories = new ArrayList<>(INITIAL_LIST_CAPACITY);
+        categoryGroups = new TreeSet<>(new CategoryGroupComparator());
+        listPositionsToSections = new SparseArray<>();
         this.activeSections = activeSections;
     }
 

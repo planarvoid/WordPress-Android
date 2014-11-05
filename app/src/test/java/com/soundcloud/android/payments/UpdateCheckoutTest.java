@@ -6,11 +6,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class CheckoutUpdateTest {
+public class UpdateCheckoutTest {
 
     @Test
     public void satisfiesEqualsContract() {
-        EqualsVerifier.forClass(CheckoutUpdate.class).verify();
+        EqualsVerifier.forClass(UpdateCheckout.class).verify();
     }
 
 }

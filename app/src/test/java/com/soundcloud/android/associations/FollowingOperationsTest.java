@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.SoundCloudRxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -55,7 +55,7 @@ public class FollowingOperationsTest {
     @Mock
     private ScModelManager scModelManager;
     @Mock
-    private SoundCloudRxHttpClient soundCloudRxHttpClient;
+    private ApiScheduler apiScheduler;
     @Mock
     private SyncInitiator syncInitiator;
     @Mock
@@ -78,7 +78,7 @@ public class FollowingOperationsTest {
         when(userAssociationStorage.follow(any(PublicApiUser.class))).thenReturn(observable);
         when(userAssociationStorage.unfollow(any(PublicApiUser.class))).thenReturn(observable);
 
-        ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator);
+        ops = new FollowingOperations(apiScheduler, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator);
 
         user = ModelFixtures.create(PublicApiUser.class);
 
@@ -170,49 +170,49 @@ public class FollowingOperationsTest {
     public void shouldReturnTrueIfNoAssociationHasToken(){
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         verify(observer).onCompleted();
-        verifyZeroInteractions(soundCloudRxHttpClient);
+        verifyZeroInteractions(apiScheduler);
         verifyZeroInteractions(userAssociationStorage);
     }
 
     @Test
     public void shouldMakeAPostRequestWhenBulkFollowing() {
-        when(soundCloudRxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(soundCloudRxHttpClient).fetchResponse(argumentCaptor.capture());
+        verify(apiScheduler).response(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("POST");
     }
 
     @Test
     public void shouldMakeRequestToPublicAPIWhenBulkFollowing() {
-        when(soundCloudRxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(soundCloudRxHttpClient).fetchResponse(argumentCaptor.capture());
+        verify(apiScheduler).response(argumentCaptor.capture());
         expect(argumentCaptor.getValue().isPrivate()).toBeFalse();
     }
 
     @Test
     public void shouldAddTokensAsQueryParametersWhenBulkFollowing() {
-        when(soundCloudRxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationTwo.getToken()).thenReturn("token2");
         when(userAssociationOne.hasToken()).thenReturn(true);
         when(userAssociationTwo.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(soundCloudRxHttpClient).fetchResponse(argumentCaptor.capture());
+        verify(apiScheduler).response(argumentCaptor.capture());
         Object jsonContent = argumentCaptor.getValue().getContent();
         expect(((FollowingOperations.BulkFollowingsHolder) jsonContent).tokens).toContainExactly("token1", "token2");
     }
 
     @Test
     public void shouldReturnTrueIfBulkFollowingRequestSucceeds(){
-        when(soundCloudRxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
@@ -234,7 +234,7 @@ public class FollowingOperationsTest {
         final Set<UserAssociation> associations = Collections.singleton(association);
 
         ApiResponse successResponse = mock(ApiResponse.class);
-        when(soundCloudRxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.just(successResponse));
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.just(successResponse));
 
         ops.bulkFollowAssociations(associations).subscribe(observer);
         verify(userAssociationStorage).setFollowingsAsSynced(associations);

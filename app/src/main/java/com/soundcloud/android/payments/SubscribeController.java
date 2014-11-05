@@ -6,7 +6,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.payments.googleplay.PlayBillingResult;
+import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
@@ -50,7 +50,7 @@ class SubscribeController {
         paymentOperations.disconnect();
     }
 
-    public void handleBillingResult(PlayBillingResult result) {
+    public void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
                 subscription.add(paymentOperations.verify(result).subscribe(new VerifySubscriber()));

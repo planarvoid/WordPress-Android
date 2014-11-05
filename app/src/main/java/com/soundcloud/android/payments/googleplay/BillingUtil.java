@@ -8,7 +8,7 @@ import android.os.Bundle;
 /*
  * Codes and utils for InAppBillingService.aidl
  */
-final class PlayBillingUtil {
+final class BillingUtil {
 
     private static final String TAG = "PlayBilling";
 
@@ -35,7 +35,7 @@ final class PlayBillingUtil {
 
     public static final String REQUEST_PRODUCT_DETAILS = "ITEM_ID_LIST";
 
-    private PlayBillingUtil() {}
+    private BillingUtil() {}
 
     /*
      * The InAppBillingService reference implementation states that response codes should be Integers,
@@ -73,13 +73,13 @@ final class PlayBillingUtil {
 
     public static void logBillingResponse(String message, int responseCode) {
         switch (responseCode) {
-            case PlayBillingUtil.RESULT_OK:
+            case BillingUtil.RESULT_OK:
                 Log.d(TAG, message + ": OK");
                 break;
-            case PlayBillingUtil.RESULT_BILLING_UNAVAILABLE:
+            case BillingUtil.RESULT_BILLING_UNAVAILABLE:
                 Log.e(TAG, message + ": UNAVAILABLE");
                 break;
-            case PlayBillingUtil.ERROR_REMOTE_EXCEPTION:
+            case BillingUtil.ERROR_REMOTE_EXCEPTION:
                 Log.e(TAG, message + ": RemoteException");
                 break;
             default:

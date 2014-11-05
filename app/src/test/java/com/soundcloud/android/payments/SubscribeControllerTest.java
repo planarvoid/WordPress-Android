@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.payments.googleplay.PlayBillingResult;
+import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -61,7 +61,7 @@ public class SubscribeControllerTest {
 
     @Test
     public void sendsPlayBillingSuccessForVerification() {
-        PlayBillingResult billingResult = TestBillingResults.success();
+        BillingResult billingResult = TestBillingResults.success();
         when(paymentOperations.verify(billingResult)).thenReturn(Observable.just(PurchaseStatus.VERIFYING));
 
         controller.handleBillingResult(billingResult);

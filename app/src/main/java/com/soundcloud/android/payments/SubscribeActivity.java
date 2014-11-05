@@ -2,7 +2,7 @@ package com.soundcloud.android.payments;
 
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.payments.googleplay.PlayBillingResult;
+import com.soundcloud.android.payments.googleplay.BillingResult;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,7 +27,7 @@ public class SubscribeActivity extends ScActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        controller.handleBillingResult(new PlayBillingResult(requestCode, resultCode, data));
+        controller.handleBillingResult(new BillingResult(requestCode, resultCode, data));
     }
 
     @Override

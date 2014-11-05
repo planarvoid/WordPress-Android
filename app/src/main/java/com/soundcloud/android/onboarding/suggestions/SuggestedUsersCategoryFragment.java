@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import static rx.android.observables.AndroidObservable.fromFragment;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
+import javax.inject.Inject;
 import java.util.Set;
 
 @SuppressLint("ValidFragment")
@@ -31,22 +33,23 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
     private SuggestedUsersAdapter adapter;
     private Category category;
     private GridViewCompat adapterView;
-    private FollowingOperations followingOperations;
-    private ImageOperations imageOperations;
     private final CompositeSubscription subscription = new CompositeSubscription();
 
+    @Inject ImageOperations imageOperations;
+    @Inject FollowingOperations followingOperations;
+
     public SuggestedUsersCategoryFragment() {
-        this(new FollowingOperations());
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
+    @VisibleForTesting
+    SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
         this.followingOperations = followingOperations;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imageOperations = SoundCloudApplication.fromContext(getActivity()).getImageOperations();
         if (getArguments() != null && getArguments().containsKey(Category.EXTRA)) {
             category = getArguments().getParcelable(Category.EXTRA);
         } else {

@@ -111,10 +111,13 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     protected String nextHref;
     protected int statusCode;
     protected PublicCloudAPI publicApi;
+
     @Inject AccountOperations accountOperations;
     @Inject ImageOperations imageOperations;
     @Inject EventBus eventBus;
     @Inject PullToRefreshController pullToRefreshController;
+    @Inject FollowingOperations followingOperations;
+
     @Nullable private ScListView listView;
     private ScBaseAdapter<?> adapter;
     @Nullable private EmptyView emptyView;
@@ -493,7 +496,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             if (userRefresh) {
                 adapter.refreshCreationStamps(getActivity());
                 if (adapter instanceof FollowingOperations.FollowStatusChangedListener) {
-                    new FollowingOperations().requestUserFollowings((FollowingOperations.FollowStatusChangedListener) adapter);
+                    followingOperations.requestUserFollowings((FollowingOperations.FollowStatusChangedListener) adapter);
                 }
             }
             if (!isSyncable()) {
