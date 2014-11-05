@@ -45,9 +45,9 @@ public class PlayQueueOperations {
     private final Action1<ModelCollection<PolicyInfo>> storePolicies = new Action1<ModelCollection<PolicyInfo>>() {
         @Override
         public void call(ModelCollection<PolicyInfo> policies) {
-            if (Log.isLoggable(ADS_TAG, Log.DEBUG)) {
+            if (Log.isLoggable(ADS_TAG, Log.INFO)) {
                 for (PolicyInfo policy : policies.getCollection()) {
-                    com.soundcloud.android.utils.Log.d(ADS_TAG, "Retrieved policy info: " + policy);
+                    com.soundcloud.android.utils.Log.i(ADS_TAG, "Retrieved policy info: " + policy);
                 }
             }
             fireAndForget(trackWriteStorage.storePoliciesAsync(policies.getCollection()));
