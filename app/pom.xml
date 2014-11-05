@@ -223,6 +223,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- compile/dev time dependencies -->
         <dependency>
             <groupId>com.squareup.dagger</groupId>
@@ -277,8 +284,8 @@
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>14.0.1</version>
+            <artifactId>guava-repack</artifactId>
+            <version>14.11.04</version>
         </dependency>
         <dependency>
             <groupId>com.crashlytics.android</groupId>
@@ -287,18 +294,8 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.1.2</version>
+            <artifactId>jackson-repack</artifactId>
+            <version>14.11.05</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp</groupId>
