@@ -7,9 +7,9 @@ module Build
       puts "Running ProGuard'ed build..."
       Mvn.pre_proguard(pg_options).execute
 
+      puts "Repacking #{artifact_id}..."
+
       # will yield something like com/company/package
-      dimension_str = "#{group_id}:#{artifact_id}"
-      puts "Repacking #{dimension_str}..."
       pkg_path = base_package.gsub("\.", "/")
       repack_dir = "app/target/#{artifact_id}-repack"
       target_dir = "#{repack_dir}/#{pkg_path}/"
