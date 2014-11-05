@@ -34,15 +34,12 @@ public class SkippyFactory {
     private final String maxSizePercentageKey;
 
     @Inject
-    SkippyFactory(ApplicationProperties applicationProperties,
-                  FeatureFlags featureFlags,
-                  SharedPreferences sharedPreferences,
-                  Resources resources,
-                  CryptoOperations cryptoOperations) {
+    SkippyFactory(CryptoOperations cryptoOperations, SharedPreferences sharedPreferences, ApplicationProperties applicationProperties,
+                  Resources resources, FeatureFlags featureFlags) {
+        this.cryptoOperations = cryptoOperations;
+        this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
         this.featureFlags = featureFlags;
-        this.sharedPreferences = sharedPreferences;
-        this.cryptoOperations = cryptoOperations;
         maxSizePercentageKey = resources.getString(R.string.key_stream_cache_size);
     }
 
