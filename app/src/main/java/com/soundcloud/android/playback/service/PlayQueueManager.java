@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.analytics.OriginProvider;
@@ -329,6 +330,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         publishQueueUpdate();
     }
 
+    @VisibleForTesting
     public void removeTracksWithMetaData(Predicate<PropertySet> predicate){
         removeTracksWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate());
     }

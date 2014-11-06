@@ -258,7 +258,7 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         verify(playQueueManager, never()).autoNextTrack();
-        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
         verify(playQueueManager).autoNextTrack();
     }
 
@@ -269,7 +269,7 @@ public class AdsControllerTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
-        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
         verify(playQueueManager, never()).autoNextTrack();
     }
 
@@ -280,7 +280,7 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
-        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         verify(playQueueManager, never()).autoNextTrack();
     }
@@ -292,7 +292,7 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.NONE));
-        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         verify(playQueueManager, never()).autoNextTrack();
     }
@@ -304,7 +304,7 @@ public class AdsControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
-        scheduler.advanceTimeBy(AdsController.SKIP_DELAY_SECS, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         verify(playQueueManager, never()).autoNextTrack();
     }

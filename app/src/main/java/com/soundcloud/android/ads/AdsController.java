@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.utils.Log.ADS_TAG;
+
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -21,6 +23,8 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
+import android.util.Log;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class AdsController {
 
-    public static final int SKIP_DELAY_SECS = 3;
+    public static final int FAILED_AD_WAIT_SECS = 3;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final VisualAdImpressionOperations visualAdImpressionOperations;
@@ -40,7 +44,7 @@ public class AdsController {
 
     private Observable<ApiAdsForTrack> currentObservable;
     private Subscription audioAdSubscription = Subscriptions.empty();
-    private Subscription skipAdSubscription = Subscriptions.empty();
+    private Subscription skipFailedAdSubscription = Subscriptions.empty();
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
         @Override
@@ -85,20 +89,20 @@ public class AdsController {
         public void call(CurrentPlayQueueTrackEvent event) {
             currentObservable = null;
             audioAdSubscription.unsubscribe();
-            skipAdSubscription.unsubscribe();
+            skipFailedAdSubscription.unsubscribe();
             if (!adsOperations.isCurrentTrackAudioAd()) {
                 adsOperations.clearAllAds();
             }
         }
     };
 
-    private final Action1<Playa.StateTransition> unsubscribeSkipAd = new Action1<Playa.StateTransition>() {
+    private final Action1<Playa.StateTransition> unsubscribeFailedAdSkip = new Action1<Playa.StateTransition>() {
         @Override
         public void call(Playa.StateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
-                skipAdSubscription.unsubscribe();
+                skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentTrackAudioAd()) {
-                skipAdSubscription.unsubscribe();
+                skipFailedAdSubscription.unsubscribe();
                 playQueueManager.autoNextTrack();
             }
         }
@@ -143,9 +147,9 @@ public class AdsController {
                 .subscribe(new PlayQueueSubscriber());
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .doOnNext(unsubscribeSkipAd)
+                .doOnNext(unsubscribeFailedAdSkip)
                 .filter(isBufferingAudioAd)
-                .subscribe(new PlaybackStateSubscriber());
+                .subscribe(new SkipFailedAdSubscriber());
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .subscribe(new LeaveBehindSubscriber());
@@ -191,15 +195,16 @@ public class AdsController {
         }
     }
 
-    private final class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+    private final class SkipFailedAdSubscriber extends DefaultSubscriber<Playa.StateTransition> {
 
         @Override
         public void onNext(Playa.StateTransition state) {
-            skipAdSubscription.unsubscribe();
-            skipAdSubscription = Observable.timer(SKIP_DELAY_SECS, TimeUnit.SECONDS, scheduler)
+            skipFailedAdSubscription.unsubscribe();
+            skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
                     .subscribe(new DefaultSubscriber<Long>() {
                         @Override
                         public void onNext(Long args) {
+                            Log.i(ADS_TAG, "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
                             playQueueManager.autoNextTrack();
                         }
                     });
