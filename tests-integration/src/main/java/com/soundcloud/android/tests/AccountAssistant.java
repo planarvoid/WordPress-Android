@@ -75,6 +75,7 @@ public final class AccountAssistant {
                 return getAccount(context);
             }
         } catch (IOException e) {
+            Log.i(TAG, "error logging in", e);
             throw new AssertionError("error logging in: " + e.getMessage());
         }
 
