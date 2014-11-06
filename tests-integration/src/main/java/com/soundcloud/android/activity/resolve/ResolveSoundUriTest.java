@@ -18,6 +18,7 @@ public class ResolveSoundUriTest extends ResolveBaseTest {
     public void testShouldOpenPlayerScreenAndLoadRecommentations() {
         VisualPlayerElement playerScreen = new VisualPlayerElement(solo);
 
+        playerScreen.waitForContent();
         assertThat(playerScreen.getTrackTitle(), is(equalTo(TRACK_NAME)));
 
         // make sure recommendations load
