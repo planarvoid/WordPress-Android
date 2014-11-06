@@ -176,8 +176,8 @@ public class GeneralSettings {
         );
     }
 
-    private FileCache.DeleteCacheTask getDeleteCacheTask(final boolean isRecursive, final SettingsActivity activity) {
-        return new FileCache.DeleteCacheTask(isRecursive) {
+    private FileCache.CleanCacheTask getDeleteCacheTask(final boolean isRecursive, final SettingsActivity activity) {
+        return new FileCache.CleanCacheTask(isRecursive) {
             @Override
             protected void onPreExecute() {
                 activity.safeShowDialog(SettingsActivity.DIALOG_CACHE_DELETING);

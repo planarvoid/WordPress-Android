@@ -211,6 +211,21 @@ public final class IOUtils {
         }
     }
 
+    public static void cleanDirectory(File dir) {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null && files.length > 0) {
+                for (File aFile : files) {
+                    if (aFile.isDirectory()) {
+                        deleteDir(aFile);
+                    } else {
+                        deleteFile(aFile);
+                    }
+                }
+            }
+        }
+    }
+
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             for (File f : nullSafeListFiles(dir, null)) {

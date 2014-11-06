@@ -17,8 +17,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 
 public class IOUtilsTest {
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Test
     public void testMD5() throws Exception {
@@ -105,6 +104,20 @@ public class IOUtilsTest {
         expect(IOUtils.removeExtension(new File("foo.ogg")).getName()).toEqual("foo");
         expect(IOUtils.removeExtension(new File("foo.ogg.ogg")).getName()).toEqual("foo.ogg");
         expect(IOUtils.removeExtension(new File("foo")).getName()).toEqual("foo");
+    }
+
+    @Test
+    public void cleanDirectoryShouldEmptyTheDirectory() throws IOException {
+        tempFolder.newFile("file.txt");
+        tempFolder.newFolder("folder1");
+        tempFolder.newFile("folder1/file.txt");
+        tempFolder.newFolder("folder1/subFolder");
+        tempFolder.newFile("folder1/subFolder/file1.txt");
+        tempFolder.newFile("folder1/subFolder/file2.txt");
+
+        IOUtils.cleanDirectory(tempFolder.getRoot());
+        expect(tempFolder.getRoot().exists()).toBeTrue();
+        expect(tempFolder.getRoot().list().length).toBe(0);
     }
 
     @Test

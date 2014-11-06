@@ -19,32 +19,32 @@ import java.util.List;
 public final class FileCache {
     public static final String TAG = FileCache.class.getSimpleName();
 
-    public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
+    public static class CleanCacheTask extends AsyncTask<File, Integer, Boolean> {
         private final boolean recurse;
 
-        public DeleteCacheTask(boolean recurse) {
+        public CleanCacheTask(boolean recurse) {
             this.recurse = recurse;
         }
 
         @Override
         protected Boolean doInBackground(File... params) {
             if (recurse) {
-                deleteRecursively(params);
+                cleanRecursively(params);
             } else {
-                deletePlain(params);
+                cleanPlain(params);
             }
             return true;
         }
 
-        private void deleteRecursively(File... dirs) {
+        private void cleanRecursively(File... dirs) {
             for (File d : dirs) {
                 if (d.isDirectory()) {
-                    IOUtils.deleteDir(d);
+                    IOUtils.cleanDirectory(d);
                 }
             }
         }
 
-        private void deletePlain(File... dirs) {
+        private void cleanPlain(File... dirs) {
             List<File> allFiles = new ArrayList<>();
             for (File dir : dirs) {
                 if (dir.isDirectory()) {
