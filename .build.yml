@@ -16,7 +16,7 @@ release:
         tests: true
         profiles:
           - release
-      phone_test:
+      phone_test: &defaults_phone_test
         phase: install
         project: tests-integration
         tests: true
@@ -27,6 +27,28 @@ release:
           - phone-test
   hockey:
     enabled: false
+releaseinttest:
+  mvn:
+    <<: *defaults_mvn
+    tasks:
+      <<: *defaults_tasks
+      build:
+        <<: *defaults_build
+        profiles:
+          - sign
+          - soundcloud
+          - releaseinttest
+      unittests:
+        <<: *defaults_unittests
+        profiles:
+          - releaseinttest
+      phone_test:
+        <<: *defaults_phone_test
+        profiles:
+          - sign
+          - releaseinttest
+          - soundcloud
+          - phone-test
 debug:
   mvn:
     <<: *defaults_mvn

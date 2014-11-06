@@ -1,0 +1,26 @@
+<!-- App properties for Market releases -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
+
+    <string name="build_type">release</string>
+    <string name="localytics_app_key">50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8</string>
+    <string name="adjust_environment">sandbox</string>
+    <string name="adjust_log_level">error</string>
+    <bool name="analytics_enabled">true</bool>
+    <bool name="verbose_logging">false</bool>
+
+    <string name="api_mobile_base_uri_path">/app/mobileapps-dev</string>
+    <string name="public_api_base_url">https://api.soundcloud.com</string>
+    <string name="mobile_api_base_url">https://api-mobile-dev.soundcloud.com</string>
+
+    <!-- Feature flags (enabled) -->
+    <bool name="feature_leave_behind">true</bool>
+    <bool name="feature_api_mobile_search">true</bool>
+    <bool name="feature_interstitial">true</bool>
+    <bool name="feature_httpclient_refactor">true</bool>
+    <bool name="feature_adjust">true</bool>
+    <!-- Feature flags (disabled) -->
+    <bool name="feature_payments">false</bool>
+    <bool name="feature_localytics_push">false</bool>
+    <bool name="feature_okhttp">false</bool>
+</resources>
