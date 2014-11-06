@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
@@ -50,12 +51,14 @@ public class GeneralSettings {
     private final DeviceHelper deviceHelper;
     private final Resources resources;
     private final Context appContext;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper) {
+    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper, FeatureFlags featureFlags) {
         this.appContext = appContext;
         this.resources = resources;
         this.deviceHelper = deviceHelper;
+        this.featureFlags = featureFlags;
     }
 
     public void setup(final SettingsActivity activity) {
@@ -140,23 +143,8 @@ public class GeneralSettings {
         activity.findPreference(CLEAR_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        new FileCache.DeleteCacheTask(false) {
-                            @Override
-                            protected void onPreExecute() {
-                                activity.safeShowDialog(SettingsActivity.DIALOG_CACHE_DELETING);
-                            }
-
-                            @Override
-                            protected void onProgressUpdate(Integer... progress) {
-                                activity.updateDeleteDialog(progress[0], progress[1]);
-                            }
-
-                            @Override
-                            protected void onPostExecute(Boolean result) {
-                                activity.removeDialog(SettingsActivity.DIALOG_CACHE_DELETING);
-                                updateClearCacheTitles(activity);
-                            }
-                        }.execute(IOUtils.getCacheDir(appContext));
+                        boolean isRecursive = false;
+                        getDeleteCacheTask(isRecursive, activity).execute(IOUtils.getCacheDir(appContext));
                         return true;
                     }
                 }
@@ -165,23 +153,9 @@ public class GeneralSettings {
         activity.findPreference(CLEAR_STREAM_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        new FileCache.DeleteCacheTask(true) {
-                            @Override
-                            protected void onPreExecute() {
-                                activity.safeShowDialog(SettingsActivity.DIALOG_CACHE_DELETING);
-                            }
-
-                            @Override
-                            protected void onProgressUpdate(Integer... progress) {
-                                activity.updateDeleteDialog(progress[0], progress[1]);
-                            }
-
-                            @Override
-                            protected void onPostExecute(Boolean result) {
-                                activity.removeDialog(SettingsActivity.DIALOG_CACHE_DELETING);
-                                updateClearCacheTitles(activity);
-                            }
-                        }.execute(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
+                        boolean isRecursive = true;
+                        getDeleteCacheTask(isRecursive, activity)
+                                .execute(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
                         return true;
                     }
                 }
@@ -200,6 +174,26 @@ public class GeneralSettings {
                     }
                 }
         );
+    }
+
+    private FileCache.DeleteCacheTask getDeleteCacheTask(final boolean isRecursive, final SettingsActivity activity) {
+        return new FileCache.DeleteCacheTask(isRecursive) {
+            @Override
+            protected void onPreExecute() {
+                activity.safeShowDialog(SettingsActivity.DIALOG_CACHE_DELETING);
+            }
+
+            @Override
+            protected void onProgressUpdate(Integer... progress) {
+                activity.updateDeleteDialog(progress[0], progress[1]);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean result) {
+                activity.removeDialog(SettingsActivity.DIALOG_CACHE_DELETING);
+                updateClearCacheTitles(activity);
+            }
+        };
     }
 
     private void togglePlaybackDebugMode() {

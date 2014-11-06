@@ -28,11 +28,10 @@ public final class FileCache {
 
         @Override
         protected Boolean doInBackground(File... params) {
-            final File dir = params[0];
             if (recurse) {
-                deleteRecursively(dir);
+                deleteRecursively(params);
             } else {
-                deletePlain(dir);
+                deletePlain(params);
             }
             return true;
         }
