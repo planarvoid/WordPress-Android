@@ -453,8 +453,6 @@
     <string name="pref_analytics_desc">تسمح لك خاصية تمكين التحليلات من تجميع البيانات حول استخدامك هذا التطبيق الذي يساعدنا في تحسين التطبيق. لمزيد من المعلومات، انظر سياسة الخصوصية.</string>
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">يساعدنا تمكين Crashlogs على تحسين التطبيق بشكل ملحوظ. نحن لا نجمع أي بيانات شخصية. لمزيد من التفاصيل، اطلع على سياسة الخصوصية.</string>
-    <string name="pref_stream_cache_size">حجم ذاكرة التخزين المؤقت للدفق</string>
-    <string name="pref_stream_cache_size_desc">حجم ذاكرة التخزين المؤقت للدفق بالنسبة المئوية</string>
     <string name="playback_error_logging">تسجيل أخطاء التشغيل: %s</string>
     <string name="enabled">تمكين</string>
     <string name="disabled">تعطيل</string>

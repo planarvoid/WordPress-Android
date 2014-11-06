@@ -453,8 +453,6 @@
     <string name="pref_analytics_desc">Включение функции \"Аналитика\" дает нам возможность собирать данные об использовании приложения, тем самым помогая делать его лучше. Ознакомьтесь с \"Политикой конфиденциальности\", чтобы узнать подробнее.</string>
     <string name="pref_crashlogs">Отчеты о сбоях</string>
     <string name="pref_crashlogs_desc">Включение функции \"Отчеты о сбоях\" значительно помогает нам улучшить приложение. Мы не собираем личную информацию. Ознакомьтесь с \"Политикой конфиденциальности\", чтобы узнать подробнее.</string>
-    <string name="pref_stream_cache_size">Размер кэша ленты</string>
-    <string name="pref_stream_cache_size_desc">Размер кэша ленты в процентах</string>
     <string name="playback_error_logging">Запись сбоев воспроизведения: %s</string>
     <string name="enabled">Включено</string>
     <string name="disabled">Выключено</string>

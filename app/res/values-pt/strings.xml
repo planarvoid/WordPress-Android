@@ -453,8 +453,6 @@
     <string name="pref_analytics_desc">Ativar a analítica nos permite coletar dados sobre o seu uso desse aplicativo, o que nos ajuda a melhorá-lo. Veja nossa Política de Privacidade para mais detalhes.</string>
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">A habilitação do Crashlogs nos ajuda a melhorar significativamente o aplicativo. Não recolhem quaisquer dados pessoais. Consulte nossa Política de Privacidade para obter mais detalhes.</string>
-    <string name="pref_stream_cache_size">Tamanho do cache de transmissão</string>
-    <string name="pref_stream_cache_size_desc">O tamanho do cache de transmissão em percentagem</string>
     <string name="playback_error_logging">Registro de erros de reprodução: %s</string>
     <string name="enabled">Habilitado</string>
     <string name="disabled">Desabilitado</string>

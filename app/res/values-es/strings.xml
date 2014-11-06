@@ -461,8 +461,6 @@
     <string name="pref_analytics_desc">Al activar la analítica de datos sobre el uso que haces de esta aplicación, lo cual nos ayuda a mejorarla. Para obtener más detalles consulta nuestra Política de privacidad.</string>
     <string name="pref_crashlogs">Registro de errores</string>
     <string name="pref_crashlogs_desc">Al activar el registro de errores nos ayudas a mejorar considerablemente la aplicación. No recogemos ningún dato personal. Para obtener más detalles consulta nuestra Política de privacidad.</string>
-    <string name="pref_stream_cache_size">Tamaño de caché de transferencia</string>
-    <string name="pref_stream_cache_size_desc">El tamaño de la caché de transferencia en porcentaje</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d seg.</string>
