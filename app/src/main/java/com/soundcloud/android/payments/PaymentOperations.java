@@ -74,8 +74,8 @@ class PaymentOperations {
         final ApiRequest<CheckoutStarted> request =
                 ApiRequest.Builder.<CheckoutStarted>post(ApiEndpoints.CHECKOUT.path())
                         .forPrivateApi(1)
+                        .withContent(new StartCheckout(id))
                         .forResource(CheckoutStarted.class)
-                        .addQueryParam("product_id", id)
                         .build();
         return apiScheduler.mappedResponse(request)
                 .map(CheckoutStarted.TOKEN)
