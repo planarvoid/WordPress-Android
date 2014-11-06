@@ -9,7 +9,7 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.model.Urn;
@@ -35,7 +35,7 @@ public class PlayQueueOperations {
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
     private final TrackWriteStorage trackWriteStorage;
-    private final RxHttpClient rxHttpClient;
+    private final ApiScheduler apiScheduler;
     private final Action1<RecommendedTracksCollection> cacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
         @Override
         public void call(RecommendedTracksCollection collection) {
@@ -56,11 +56,11 @@ public class PlayQueueOperations {
 
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                               TrackWriteStorage trackWriteStorage, RxHttpClient rxHttpClient) {
+                               TrackWriteStorage trackWriteStorage, ApiScheduler apiScheduler) {
         sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.playQueueStorage = playQueueStorage;
         this.trackWriteStorage = trackWriteStorage;
-        this.rxHttpClient = rxHttpClient;
+        this.apiScheduler = apiScheduler;
     }
 
     public long getLastStoredSeekPosition() {
@@ -126,17 +126,16 @@ public class PlayQueueOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
-        return rxHttpClient.<RecommendedTracksCollection>fetchModels(request).doOnNext(cacheRelatedTracks);
+        return apiScheduler.mappedResponse(request).doOnNext(cacheRelatedTracks);
     }
 
-    public Observable<ModelCollection<PolicyInfo>> fetchAndStorePolicies(List<Urn> trackUrns) {
+    public Observable<PolicyCollection> fetchAndStorePolicies(List<Urn> trackUrns) {
         final ApiRequest<PolicyCollection> request = ApiRequest.Builder.<PolicyCollection>post(ApiEndpoints.POLICIES.path())
                 .withContent(transformUrnsToStrings(trackUrns))
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(PolicyCollection.class)).build();
 
-        final Observable<ModelCollection<PolicyInfo>> mapObservable = rxHttpClient.fetchModels(request);
-        return mapObservable.doOnNext(storePolicies);
+        return apiScheduler.mappedResponse(request).doOnNext(storePolicies);
     }
 
     private List<String> transformUrnsToStrings(List<Urn> trackUrns) {

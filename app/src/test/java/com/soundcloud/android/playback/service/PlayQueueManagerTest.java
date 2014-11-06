@@ -77,7 +77,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
-        when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<ModelCollection<PolicyInfo>>empty());
+        when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<PlayQueueOperations.PolicyCollection>empty());
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 

@@ -4,7 +4,7 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.functions.Func1;
@@ -21,12 +21,18 @@ public class SuggestedUsersOperations extends ScheduledOperations {
             return CategoryGroup.createErrorGroup(CategoryGroup.KEY_FACEBOOK);
         }
     };
+    private static final Func1<List<CategoryGroup>, Observable<? extends CategoryGroup>> flattenGroupList = new Func1<List<CategoryGroup>, Observable<? extends CategoryGroup>>() {
+        @Override
+        public Observable<? extends CategoryGroup> call(List<CategoryGroup> groups) {
+            return Observable.from(groups);
+        }
+    };
 
-    private final RxHttpClient rxHttpClient;
+    private final ApiScheduler apiScheduler;
 
     @Inject
-    public SuggestedUsersOperations(RxHttpClient rxHttpClient) {
-        this.rxHttpClient = rxHttpClient;
+    public SuggestedUsersOperations(ApiScheduler apiScheduler) {
+        this.apiScheduler = apiScheduler;
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
@@ -34,7 +40,8 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateApi(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
-        return schedule(rxHttpClient.<CategoryGroup>fetchModels(request));
+        return schedule(apiScheduler.mappedResponse(request)
+                .flatMap(flattenGroupList));
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
@@ -42,7 +49,9 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateApi(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
-        return schedule(rxHttpClient.<CategoryGroup>fetchModels(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
+        return schedule(apiScheduler.mappedResponse(request)
+                .flatMap(flattenGroupList)
+                .onErrorReturn(EMPTY_FACEBOOK_GROUP));
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {

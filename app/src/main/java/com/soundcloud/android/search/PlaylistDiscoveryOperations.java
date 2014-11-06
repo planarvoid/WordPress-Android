@@ -6,7 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -24,7 +24,7 @@ import java.util.List;
 
 class PlaylistDiscoveryOperations {
 
-    private final RxHttpClient rxHttpClient;
+    private final ApiScheduler apiScheduler;
     private final PlaylistTagStorage tagStorage;
     private final PlaylistWriteStorage playlistWriteStorage;
 
@@ -51,8 +51,8 @@ class PlaylistDiscoveryOperations {
 
 
     @Inject
-    PlaylistDiscoveryOperations(RxHttpClient rxHttpClient, PlaylistTagStorage tagStorage, PlaylistWriteStorage playlistWriteStorage) {
-        this.rxHttpClient = rxHttpClient;
+    PlaylistDiscoveryOperations(ApiScheduler apiScheduler, PlaylistTagStorage tagStorage, PlaylistWriteStorage playlistWriteStorage) {
+        this.apiScheduler = apiScheduler;
         this.tagStorage = tagStorage;
         this.playlistWriteStorage = playlistWriteStorage;
     }
@@ -83,7 +83,7 @@ class PlaylistDiscoveryOperations {
                 .forResource(new TypeToken<ModelCollection<String>>() {
                 })
                 .build();
-        return rxHttpClient.<ModelCollection<String>>fetchModels(request).doOnNext(cachePopularTags).map(collectionToList);
+        return apiScheduler.mappedResponse(request).doOnNext(cachePopularTags).map(collectionToList);
     }
 
     Observable<ModelCollection<ApiPlaylist>> playlistsForTag(final String tag) {
@@ -117,8 +117,7 @@ class PlaylistDiscoveryOperations {
 
     private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsPage(
             String query, ApiRequest<ModelCollection<ApiPlaylist>> request) {
-        Observable<ModelCollection<ApiPlaylist>> source = rxHttpClient.fetchModels(request);
-        return source.doOnNext(preCachePlaylistResults).map(withSearchTag(query));
+        return apiScheduler.mappedResponse(request).doOnNext(preCachePlaylistResults).map(withSearchTag(query));
     }
 
     private Func1<ModelCollection<ApiPlaylist>, ModelCollection<ApiPlaylist>> withSearchTag(final String searchTag) {

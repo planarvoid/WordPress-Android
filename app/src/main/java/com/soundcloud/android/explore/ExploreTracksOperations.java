@@ -8,10 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import rx.Observable;
 import rx.android.Pager;
@@ -21,8 +18,6 @@ import javax.inject.Inject;
 
 class ExploreTracksOperations {
 
-    private final FeatureFlags featureFlags;
-    private final RxHttpClient rxHttpClient;
     private final TrackWriteStorage trackWriteStorage;
     private final ApiScheduler apiScheduler;
 
@@ -46,10 +41,7 @@ class ExploreTracksOperations {
     };
 
     @Inject
-    ExploreTracksOperations(FeatureFlags featureFlags, RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage,
-                            ApiScheduler apiScheduler) {
-        this.featureFlags = featureFlags;
-        this.rxHttpClient = rxHttpClient;
+    ExploreTracksOperations(TrackWriteStorage trackWriteStorage, ApiScheduler apiScheduler) {
         this.trackWriteStorage = trackWriteStorage;
         this.apiScheduler = apiScheduler;
     }
@@ -58,11 +50,7 @@ class ExploreTracksOperations {
         ApiRequest<ExploreGenresSections> request = ApiRequest.Builder.<ExploreGenresSections>get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ExploreGenresSections.class)).build();
-        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
-            return apiScheduler.mappedResponse(request);
-        } else {
-            return rxHttpClient.fetchModels(request);
-        }
+        return apiScheduler.mappedResponse(request);
     }
 
     public Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
@@ -85,10 +73,6 @@ class ExploreTracksOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
-        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
-            return apiScheduler.mappedResponse(request).doOnNext(cacheSuggestedTracks);
-        } else {
-            return rxHttpClient.<SuggestedTracksCollection>fetchModels(request).doOnNext(cacheSuggestedTracks);
-        }
+        return apiScheduler.mappedResponse(request).doOnNext(cacheSuggestedTracks);
     }
 }

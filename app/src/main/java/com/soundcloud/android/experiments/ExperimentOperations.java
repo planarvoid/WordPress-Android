@@ -7,7 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DeviceHelper;
 import rx.functions.Action0;
@@ -31,7 +31,7 @@ public class ExperimentOperations {
     private Assignment assignment = Assignment.empty();
 
     private final ExperimentStorage experimentStorage;
-    private final RxHttpClient rxHttpClient;
+    private final ApiScheduler apiScheduler;
     private final ActiveExperiments activeExperiments;
     private final DeviceHelper deviceHelper;
 
@@ -43,10 +43,10 @@ public class ExperimentOperations {
     };
 
     @Inject
-    public ExperimentOperations(ExperimentStorage experimentStorage, RxHttpClient rxHttpClient,
+    public ExperimentOperations(ExperimentStorage experimentStorage, ApiScheduler apiScheduler,
                                 ActiveExperiments activeExperiments, DeviceHelper deviceHelper) {
         this.experimentStorage = experimentStorage;
-        this.rxHttpClient = rxHttpClient;
+        this.apiScheduler = apiScheduler;
         this.activeExperiments = activeExperiments;
         this.deviceHelper = deviceHelper;
     }
@@ -86,7 +86,7 @@ public class ExperimentOperations {
                                 .forPrivateApi(1)
                                 .forResource(TypeToken.of(Assignment.class))
                                 .build();
-                fireAndForget(rxHttpClient.<Assignment>fetchModels(request).doOnNext(storeAssignment));
+                fireAndForget(apiScheduler.mappedResponse(request).doOnNext(storeAssignment));
             }
         };
     }

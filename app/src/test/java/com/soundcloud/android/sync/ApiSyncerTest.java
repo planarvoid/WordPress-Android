@@ -17,8 +17,6 @@ import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
 import com.soundcloud.android.matchers.SoundCloudMatchers;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -55,7 +53,6 @@ public class ApiSyncerTest {
 
     @Mock private EventBus eventBus;
     @Mock private ApiClient apiClient;
-    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void before() {
@@ -65,7 +62,6 @@ public class ApiSyncerTest {
         activitiesStorage = new ActivitiesStorage();
         playlistStorage = new PlaylistStorage();
         startTime = System.currentTimeMillis();
-        when(featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)).thenReturn(true);
     }
 
     @Test
@@ -116,7 +112,7 @@ public class ApiSyncerTest {
 
         // hard refresh
         addPendingHttpResponse(getClass(), "e1_stream_oldest.json");
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(), eventBus, featureFlags, apiClient);
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(), eventBus, apiClient);
         ApiSyncResult result = syncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
         expect(result.success).toBeTrue();
@@ -390,7 +386,7 @@ public class ApiSyncerTest {
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(
-                Robolectric.application, Robolectric.application.getContentResolver(), eventBus, featureFlags, apiClient);
+                Robolectric.application, Robolectric.application.getContentResolver(), eventBus, apiClient);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 }

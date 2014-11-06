@@ -72,7 +72,6 @@ public class ApiSyncer extends LegacySyncStrategy {
     @Inject SoundAssociationStorage soundAssociationStorage;
     @Inject UserStorage userStorage;
     @Inject EventBus eventBus;
-    @Inject FeatureFlags featureFlags;
     @Inject ApiClient apiClient;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
@@ -81,13 +80,12 @@ public class ApiSyncer extends LegacySyncStrategy {
     }
 
     @VisibleForTesting
-    ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, FeatureFlags featureFlags, ApiClient apiClient) {
+    ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient) {
         super(context, resolver);
         activitiesStorage = new ActivitiesStorage();
         soundAssociationStorage = new SoundAssociationStorage();
         userStorage = new UserStorage();
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         this.apiClient = apiClient;
     }
 
@@ -297,21 +295,17 @@ public class ApiSyncer extends LegacySyncStrategy {
     private ApiSyncResult syncMe(Content c) {
         ApiSyncResult result = new ApiSyncResult(c.uri);
         PublicApiUser user;
-        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
-            ApiRequest<PublicApiUser> request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
-                    .forPublicApi()
-                    .forResource(PublicApiUser.class)
-                    .build();
-            try {
-                user = apiClient.fetchMappedResponse(request);
-                user.setUpdated();
-                SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
-            } catch (ApiMapperException e) {
-                e.printStackTrace();
-                user = null;
-            }
-        } else {
-            user = new FetchUserTask(api).resolve(c.request());
+        ApiRequest<PublicApiUser> request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
+                .forPublicApi()
+                .forResource(PublicApiUser.class)
+                .build();
+        try {
+            user = apiClient.fetchMappedResponse(request);
+            user.setUpdated();
+            SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
+        } catch (ApiMapperException e) {
+            e.printStackTrace();
+            user = null;
         }
         result.synced_at = System.currentTimeMillis();
         if (user != null) {

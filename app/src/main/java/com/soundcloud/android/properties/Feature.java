@@ -8,7 +8,6 @@ public enum Feature {
     LEAVE_BEHIND(R.bool.feature_leave_behind),
     PAYMENTS(R.bool.feature_payments),
     API_MOBILE_SEARCH(R.bool.feature_api_mobile_search),
-    HTTPCLIENT_REFACTOR(R.bool.feature_httpclient_refactor),
     LOCALYTICS_PUSH(R.bool.feature_localytics_push),
     OKHTTP(R.bool.feature_okhttp),
     INTERSTITIAL(R.bool.feature_interstitial),

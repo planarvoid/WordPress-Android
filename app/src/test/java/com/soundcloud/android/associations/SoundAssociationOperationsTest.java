@@ -14,7 +14,6 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -26,8 +25,6 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
@@ -53,8 +50,6 @@ public class SoundAssociationOperationsTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private SoundAssociationStorage storage;
-    @Mock private FeatureFlags featureFlags;
-    @Mock private RxHttpClient httpClient;
     @Mock private ApiScheduler apiScheduler;
     @Mock private ScModelManager modelManager;
     @Mock private Observer observer;
@@ -74,8 +69,7 @@ public class SoundAssociationOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)).thenReturn(true);
-        operations = new SoundAssociationOperations(eventBus, storage, featureFlags, httpClient, apiScheduler, modelManager,
+        operations = new SoundAssociationOperations(eventBus, storage, apiScheduler, modelManager,
                 trackStorage, legacyPlaylistOperations);
         track = new PublicApiTrack(123L);
         playlist = new PublicApiPlaylist(124L);

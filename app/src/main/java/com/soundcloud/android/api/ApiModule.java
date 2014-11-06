@@ -4,7 +4,6 @@ import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
@@ -20,13 +19,6 @@ public class ApiModule {
     @Singleton
     public JsonTransformer provideJsonTransformer() {
         return new JacksonJsonTransformer();
-    }
-
-    @Provides
-    @Singleton
-    public RxHttpClient provideRxHttpClient(JsonTransformer jsonTransformer,
-                                            Context context, HttpProperties httpProperties) {
-        return new SoundCloudRxHttpClient(ScSchedulers.API_SCHEDULER, jsonTransformer, context, httpProperties);
     }
 
     @Provides

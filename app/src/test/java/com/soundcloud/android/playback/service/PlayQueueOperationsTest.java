@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -61,7 +61,7 @@ public class PlayQueueOperationsTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueue playQueue;
-    @Mock private RxHttpClient rxHttpClient;
+    @Mock private ApiScheduler apiScheduler;
     @Mock private Observer observer;
 
     private PlaySessionSource playSessionSource;
@@ -71,7 +71,7 @@ public class PlayQueueOperationsTest {
     public void before() throws CreateModelException {
         when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
 
-        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, trackWriteStorage, rxHttpClient);
+        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, trackWriteStorage, apiScheduler);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -162,11 +162,11 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(observer);
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(rxHttpClient).fetchModels(argumentCaptor.capture());
+        verify(apiScheduler).mappedResponse(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
         expect(argumentCaptor.getValue().getEncodedPath()).toEqual(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
@@ -179,7 +179,7 @@ public class PlayQueueOperationsTest {
         ApiTrack suggestion2 = ModelFixtures.create(ApiTrack.class);
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
-        when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
         when(trackWriteStorage.storeTracksAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
@@ -197,7 +197,7 @@ public class PlayQueueOperationsTest {
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
         RecommendedTracksCollection collection = createCollection(
                 ModelFixtures.create(ApiTrack.class));
-        when(rxHttpClient.<RecommendedTracksCollection>fetchModels(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 
@@ -212,7 +212,7 @@ public class PlayQueueOperationsTest {
         final ApiRequestTo expectedRequest = isMobileApiRequestTo("POST", ApiEndpoints.POLICIES.path());
         expectedRequest.withContent(Lists.newArrayList("soundcloud:tracks:123"));
 
-        when(rxHttpClient.fetchModels(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
+        when(apiScheduler.mappedResponse(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
         when(trackWriteStorage.storePoliciesAsync(anyCollection())).thenReturn(Observable.<TxnResult>empty());
         final ModelCollection<PolicyInfo> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
         expect(first).toBe(returnCollection);

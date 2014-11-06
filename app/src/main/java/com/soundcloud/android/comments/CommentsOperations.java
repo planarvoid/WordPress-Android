@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
@@ -36,12 +36,12 @@ class CommentsOperations {
         }
     };
 
-    private final RxHttpClient httpClient;
+    private final ApiScheduler apiScheduler;
     private final CommentsPager pager = new CommentsPager();
 
     @Inject
-    public CommentsOperations(RxHttpClient httpClient) {
-        this.httpClient = httpClient;
+    public CommentsOperations(ApiScheduler apiScheduler) {
+        this.apiScheduler = apiScheduler;
     }
 
     CommentsPager pager() {
@@ -50,24 +50,24 @@ class CommentsOperations {
 
     Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long timestamp) {
 
-        final ApiRequest request = ApiRequest.Builder.<PublicApiComment>post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest<PublicApiComment> request = ApiRequest.Builder.<PublicApiComment>post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .forPublicApi()
                 .forResource(TypeToken.of(PublicApiComment.class))
                 .withContent(new CommentHolder(commentText, timestamp))
                 .build();
 
-        return httpClient.fetchModels(request);
+        return apiScheduler.mappedResponse(request);
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
-        final ApiRequest request = apiRequest(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest<CommentsCollection> request = apiRequest(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .addQueryParam("linked_partitioning", "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
                 .build();
-        return httpClient.fetchModels(request);
+        return apiScheduler.mappedResponse(request);
     }
 
-    private ApiRequest.Builder apiRequest(String url) {
+    private ApiRequest.Builder<CommentsCollection> apiRequest(String url) {
         return ApiRequest.Builder.<CommentsCollection>get(url)
                 .forPublicApi()
                 .forResource(TypeToken.of(CommentsCollection.class));
@@ -90,7 +90,7 @@ class CommentsOperations {
         @Override
         public Observable<CommentsCollection> call(CommentsCollection apiComments) {
             if (apiComments.getNextHref() != null) {
-                return httpClient.fetchModels(apiRequest(apiComments.getNextHref()).build());
+                return apiScheduler.mappedResponse(apiRequest(apiComments.getNextHref()).build());
             } else {
                 return Pager.finish();
             }

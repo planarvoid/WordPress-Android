@@ -7,7 +7,6 @@ import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -97,11 +96,6 @@ public class TestApplicationModule {
     @Provides
     public JsonTransformer provideJsonTransformer() {
         return mock(JsonTransformer.class);
-    }
-
-    @Provides
-    public RxHttpClient provideRxHttpClient() {
-        return mock(RxHttpClient.class);
     }
 
     @Provides

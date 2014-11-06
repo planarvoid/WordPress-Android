@@ -8,7 +8,7 @@ import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequ
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -26,7 +26,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class CommentsOperationsTest {
 
-    @Mock RxHttpClient httpClient;
+    @Mock ApiScheduler apiScheduler;
 
     private CommentsOperations operations;
     private TestObserver<CommentsCollection> observer = new TestObserver<>();
@@ -36,9 +36,9 @@ public class CommentsOperationsTest {
 
     @Before
     public void setup() {
-        operations = new CommentsOperations(httpClient);
+        operations = new CommentsOperations(apiScheduler);
         apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), nextPageUrl));
-        when(httpClient.<CommentsCollection>fetchModels(argThat(
+        when(apiScheduler.mappedResponse(argThat(
                 isPublicApiRequestTo("GET", "/tracks/123/comments")
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(COMMENTS_PAGE_SIZE))
@@ -55,7 +55,7 @@ public class CommentsOperationsTest {
 
     @Test
     public void shouldPageCommentsIfMorePagesAvailable() {
-        when(httpClient.<CommentsCollection>fetchModels(argThat(isApiRequestTo(nextPageUrl)))).thenReturn(apiComments);
+        when(apiScheduler.mappedResponse(argThat(isApiRequestTo(nextPageUrl)))).thenReturn(apiComments);
         operations.pager().page(apiComments).subscribe(observer);
 
         operations.pager().next();
@@ -76,7 +76,7 @@ public class CommentsOperationsTest {
 
     @Test
     public void addsComment() throws Exception {
-        when(httpClient.<PublicApiComment>fetchModels(argThat(
+        when(apiScheduler.mappedResponse(argThat(
                 isPublicApiRequestTo("POST", "/tracks/123/comments")
                         .withContent(new CommentsOperations.CommentHolder("some comment text", 2001L))
         ))).thenReturn(Observable.just(comment));

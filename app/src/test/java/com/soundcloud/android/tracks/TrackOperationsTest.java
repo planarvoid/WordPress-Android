@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +38,6 @@ public class TrackOperationsTest {
 
     @Mock private TrackStorage trackStorage;
     @Mock private AccountOperations accountOperations;
-    @Mock private RxHttpClient rxHttpClient;
     @Mock private BulkStorage bulkStorage;
     @Mock private SyncInitiator syncInitiator;
 

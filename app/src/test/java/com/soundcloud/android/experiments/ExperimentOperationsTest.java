@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -24,24 +24,16 @@ import java.util.Map;
 @RunWith(SoundCloudTestRunner.class)
 public class ExperimentOperationsTest {
 
-    ExperimentOperations operations;
+    private ExperimentOperations operations;
 
-    @Mock
-    private ExperimentStorage experimentStorage;
-
-    @Mock
-    private RxHttpClient rxHttpClient;
-
-    @Mock
-    private ActiveExperiments activeExperiments;
-
-    @Mock
-    private DeviceHelper deviceHelper;
-
+    @Mock private ExperimentStorage experimentStorage;
+    @Mock private ApiScheduler apiScheduler;
+    @Mock private ActiveExperiments activeExperiments;
+    @Mock private DeviceHelper deviceHelper;
 
     @Before
     public void setUp() throws Exception {
-        operations = new ExperimentOperations(experimentStorage, rxHttpClient, activeExperiments,
+        operations = new ExperimentOperations(experimentStorage, apiScheduler, activeExperiments,
                 deviceHelper);
         when(deviceHelper.getUniqueDeviceID()).thenReturn("device1");
     }
@@ -56,7 +48,7 @@ public class ExperimentOperationsTest {
     @Test
     public void shouldGetEmptyAssignmentIfNoAssignmentIsStored() throws Exception {
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
 
         operations.loadAssignment();
         Assignment assignment = operations.getAssignment();
@@ -68,7 +60,7 @@ public class ExperimentOperationsTest {
     public void shouldGetAssignmentIfAssigmentIsStored() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
 
         operations.loadAssignment();
         Assignment loadedAssignment = operations.getAssignment();
@@ -82,7 +74,7 @@ public class ExperimentOperationsTest {
         Observable<Assignment> observable = Observable.from(assignment);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
         when(activeExperiments.getRequestLayers()).thenReturn(new String[]{ "android-ui" });
-        when(rxHttpClient.<Assignment>fetchModels(any(ApiRequest.class))).thenReturn(observable);
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 
         operations.loadAssignment();
 
@@ -93,7 +85,7 @@ public class ExperimentOperationsTest {
     public void shouldGenerateTrackingParametersMapForActiveExperiments() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(anyInt())).thenReturn(true);
 
         operations.loadAssignment();
@@ -111,7 +103,7 @@ public class ExperimentOperationsTest {
     public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(5)).thenReturn(true);
 
 
@@ -127,7 +119,7 @@ public class ExperimentOperationsTest {
     public void shouldNotLoadAssignmentsIfDeviceIdIsNull() {
         when(deviceHelper.getUniqueDeviceID()).thenReturn("");
         operations.loadAssignment();
-        verifyZeroInteractions(rxHttpClient, experimentStorage);
+        verifyZeroInteractions(apiScheduler, experimentStorage);
     }
 
 }

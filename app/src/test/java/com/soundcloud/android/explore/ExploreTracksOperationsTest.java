@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.api.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,49 +30,48 @@ public class ExploreTracksOperationsTest {
     private ExploreTracksOperations exploreTracksOperations;
 
     @Mock private ApiScheduler apiScheduler;
-    @Mock private SoundCloudRxHttpClient rxHttpClient;
     @Mock private TrackWriteStorage trackWriteStorage;
     @Mock private Observer observer;
     @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() {
-        exploreTracksOperations = new ExploreTracksOperations(featureFlags, rxHttpClient, trackWriteStorage, apiScheduler);
+        exploreTracksOperations = new ExploreTracksOperations(trackWriteStorage, apiScheduler);
     }
 
     @Test
     public void getCategoriesShouldMakeGetRequestToCategoriesEndpoint() {
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getCategories().subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())));
+        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())));
     }
 
     @Test
     public void getPopularMusicShouldMakeGetRequestToMobileApiEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path())));
+        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path())));
     }
 
     @Test
     public void getPopularAudioShouldMakeGetRequestToMobileApiEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_AUDIO_CATEGORY).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path())));
+        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path())));
     }
 
     @Test
     public void getTracksByCategoryShouldMakeGetRequestToMobileApiEndpoint() throws Exception {
-        when(rxHttpClient.fetchModels(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         String tracksUrl = "/suggestions/tracks/electronic";
         ExploreGenre genre = new ExploreGenre("title", tracksUrl);
 
         exploreTracksOperations.getSuggestedTracks(genre).subscribe(observer);
 
-        verify(rxHttpClient).fetchModels(argThat(isMobileApiRequestTo("GET", tracksUrl)));
+        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", tracksUrl)));
     }
 
     @Test
@@ -89,7 +87,7 @@ public class ExploreTracksOperationsTest {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
         collection.setCollection(Arrays.asList(track));
-        when(rxHttpClient.<SuggestedTracksCollection>fetchModels(any(ApiRequest.class))).thenReturn(
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(
                 Observable.<SuggestedTracksCollection>from(collection));
         return collection;
     }

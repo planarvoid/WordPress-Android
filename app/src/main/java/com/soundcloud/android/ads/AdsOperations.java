@@ -8,7 +8,6 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.api.RxHttpClient;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -26,7 +25,6 @@ import javax.inject.Inject;
 public class AdsOperations {
 
     private static final String UNIQUE_ID_HEADER = "SC-UDID";
-    private final RxHttpClient rxHttpClient;
     private final TrackWriteStorage trackWriteStorage;
     private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
@@ -48,9 +46,8 @@ public class AdsOperations {
     };
 
     @Inject
-    AdsOperations(RxHttpClient rxHttpClient, TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper,
+    AdsOperations(TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper,
                   PlayQueueManager playQueueManager, FeatureFlags featureFlags, ApiScheduler apiScheduler) {
-        this.rxHttpClient = rxHttpClient;
         this.trackWriteStorage = trackWriteStorage;
         this.deviceHelper = deviceHelper;
         this.playQueueManager = playQueueManager;
@@ -66,11 +63,7 @@ public class AdsOperations {
                 .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
                 .build();
 
-        if (featureFlags.isEnabled(Feature.HTTPCLIENT_REFACTOR)) {
-            return apiScheduler.mappedResponse(request).doOnNext(cacheAudioAdTrack);
-        } else {
-            return rxHttpClient.<ApiAdsForTrack>fetchModels(request).doOnNext(cacheAudioAdTrack);
-        }
+        return apiScheduler.mappedResponse(request).doOnNext(cacheAudioAdTrack);
     }
 
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {

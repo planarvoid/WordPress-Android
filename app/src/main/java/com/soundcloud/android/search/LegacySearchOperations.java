@@ -9,7 +9,7 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SearchResultsCollection;
@@ -67,12 +67,12 @@ class LegacySearchOperations {
     };
 
     private final ScModelManager modelManager;
-    private final RxHttpClient rxHttpClient;
+    private final ApiScheduler apiScheduler;
     private final BulkStorage bulkStorage;
 
     @Inject
-    public LegacySearchOperations(RxHttpClient rxHttpClient, BulkStorage bulkStorage, ScModelManager modelManager) {
-        this.rxHttpClient = rxHttpClient;
+    public LegacySearchOperations(ApiScheduler apiScheduler, BulkStorage bulkStorage, ScModelManager modelManager) {
+        this.apiScheduler = apiScheduler;
         this.bulkStorage = bulkStorage;
         this.modelManager = modelManager;
     }
@@ -111,7 +111,7 @@ class LegacySearchOperations {
     }
 
     private Observable<Page<SearchResultsCollection>> getPageObservable(ApiRequest<SearchResultsCollection> request) {
-        Observable<SearchResultsCollection> source = rxHttpClient.<SearchResultsCollection>fetchModels(request)
+        Observable<SearchResultsCollection> source = apiScheduler.mappedResponse(request)
                 .map(FILTER_UNKOWN_RESOURCES)
                 .map(cacheResources)
                 .doOnNext(new Action1<SearchResultsCollection>() {

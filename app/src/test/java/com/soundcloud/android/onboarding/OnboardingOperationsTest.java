@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.RxHttpClient;
+import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,33 +22,32 @@ public class OnboardingOperationsTest {
 
     private OnboardingOperations operations;
 
-    @Mock
-    private RxHttpClient rxHttpClient;
+    @Mock private ApiScheduler apiScheduler;
 
     @Before
     public void setUp() throws Exception {
-        operations = new OnboardingOperations(rxHttpClient);
+        operations = new OnboardingOperations(apiScheduler);
     }
 
     @Test
     public void shouldMakeAPutRequestOnEmailOptIn() {
-        when(rxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
 
         operations.sendEmailOptIn();
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(rxHttpClient).fetchResponse(argumentCaptor.capture());
+        verify(apiScheduler).response(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("PUT");
     }
 
     @Test
     public void shouldAddParametersOnEmailOptIn() throws Exception {
-        when(rxHttpClient.fetchResponse(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
 
         operations.sendEmailOptIn();
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(rxHttpClient).fetchResponse(argumentCaptor.capture());
+        verify(apiScheduler).response(argumentCaptor.capture());
         EmailOptIn content = (EmailOptIn) argumentCaptor.getValue().getContent();
         expect(content.newsletter).toBeTrue();
         expect(content.productUpdates).toBeTrue();
