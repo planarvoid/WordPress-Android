@@ -40,7 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class UserAssociationSyncer extends SyncStrategy {
+public class UserAssociationSyncer extends LegacySyncStrategy {
 
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";

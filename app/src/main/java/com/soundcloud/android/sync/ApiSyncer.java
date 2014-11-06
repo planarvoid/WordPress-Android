@@ -30,7 +30,7 @@ import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.HttpUtils;
@@ -64,7 +64,7 @@ import java.util.Set;
  * TODO: make package level visible again after removing {@link com.soundcloud.android.collections.tasks.ActivitiesLoader}
  * TODO: Split this up into different syncers
  */
-public class ApiSyncer extends SyncStrategy {
+public class ApiSyncer extends LegacySyncStrategy {
 
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 

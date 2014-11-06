@@ -20,7 +20,7 @@ import android.net.Uri;
 
 import java.io.IOException;
 
-public class PlaylistSyncer extends SyncStrategy {
+public class PlaylistSyncer extends LegacySyncStrategy {
 
     @VisibleForTesting
     public static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 30;
