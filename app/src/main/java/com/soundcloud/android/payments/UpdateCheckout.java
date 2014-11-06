@@ -5,8 +5,8 @@ import com.soundcloud.android.payments.googleplay.BillingResult;
 
 final class UpdateCheckout {
 
-    private static final String STATUS_SUCCESS = "success";
-    private static final String STATUS_FAILURE = "failure";
+    private static final String STATUS_SUCCESS = "successful";
+    private static final String STATUS_FAILURE = "failed";
     private static final String REASON_OK = "ok";
 
     public final String state;
