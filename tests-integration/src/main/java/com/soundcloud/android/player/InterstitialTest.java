@@ -31,7 +31,7 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
         playInterstitialPlaylist();
     }
 
-    public void testFinishAdShouldShowInterstitial() {
+    public void testShouldShowInterstitial() {
         playerElement.swipeNext(); // to monetizableTrack
         String trackTitle = playerElement.getTrackTitle();
         playerElement.waitForAdOverlayToLoad();

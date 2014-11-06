@@ -48,6 +48,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
 
         // make sure recommendations load
         playerScreen.swipeNext();
+        // TODO: this produces false positives when the item is not found
         assertNotSame(trackName, playerScreen.getTrackTitle());
     }
 }
