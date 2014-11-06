@@ -26,8 +26,8 @@ public class SoundStreamSyncer implements SyncStrategy {
 
     private final ApiClient apiClient;
     private final SoundStreamWriteStorage writeStorage;
-    private TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() { };
-    private Predicate<ApiStreamItem> removePromotedItemsPredicate = new Predicate<ApiStreamItem>() {
+    private final TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() { };
+    private final Predicate<ApiStreamItem> removePromotedItemsPredicate = new Predicate<ApiStreamItem>() {
         @Override
         public boolean apply(ApiStreamItem input) {
             return !input.isPromotedStreamItem();
