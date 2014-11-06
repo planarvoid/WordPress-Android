@@ -45,6 +45,14 @@ public class IOUtilsTest {
     }
 
     @Test
+    public void getFolderSizeMBFormatted() {
+        File folder1 = new File(getClass().getResource("io/folder1").getPath());
+        File folder2 = new File(getClass().getResource("io/folder2").getPath());
+
+        expect(IOUtils.inMbFormatted(folder1, folder2)).toEqual("8.8");
+    }
+
+    @Test
     public void shouldGetMBFormatted() throws Exception {
         expect(IOUtils.inMbFormatted(1024*1024)).toEqual("1");
         expect(IOUtils.inMbFormatted(2.3d * 1024*1024)).toEqual("2.3");

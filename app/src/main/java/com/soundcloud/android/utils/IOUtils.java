@@ -67,16 +67,18 @@ public final class IOUtils {
         return files == null ? new File[0] : files;
     }
 
-    public static long getDirSize(File dir) {
+    public static long getDirSize(File... directories) {
         long result = 0;
-        File[] fileList = nullSafeListFiles(dir, null);
-        for (File file : fileList) {
-            if (file.isDirectory() &&
-                    !dir.equals(file) /* check should not be necessary, but SO on some version of android */
-                    ) {
-                result += getDirSize(file);
-            } else {
-                result += file.length();
+        for (File dir : directories) {
+            File[] fileList = nullSafeListFiles(dir, null);
+            for (File file : fileList) {
+                if (file.isDirectory() &&
+                        !dir.equals(file) /* check should not be necessary, but SO on some version of android */
+                        ) {
+                    result += getDirSize(file);
+                } else {
+                    result += file.length();
+                }
             }
         }
         return result;
@@ -330,8 +332,8 @@ public final class IOUtils {
         return Math.min((long) (Math.floor((usedSpace + spaceLeft) * maxPct)), maxSpace);
     }
 
-    public static String inMbFormatted(File dir) {
-        return inMbFormatted(getDirSize(dir));
+    public static String inMbFormatted(File... directories) {
+        return inMbFormatted(getDirSize(directories));
     }
 
     public static String inMbFormatted(double bytes) {

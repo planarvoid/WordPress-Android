@@ -207,15 +207,16 @@ public class GeneralSettings {
 
     void updateClearCacheTitles(PreferenceActivity activity) {
         setClearCacheTitle(activity, CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(appContext));
-        setClearCacheTitle(activity, CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
+        setClearCacheTitle(activity, CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache,
+                Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
     }
 
-    private void setClearCacheTitle(final PreferenceActivity activity, final String pref, final int key, final File dir) {
+    private void setClearCacheTitle(final PreferenceActivity activity, final String pref, final int key, final File... directories) {
         final Handler handler = new Handler();
         new Thread() {
             @Override
             public void run() {
-                final String size = IOUtils.inMbFormatted(dir);
+                final String size = IOUtils.inMbFormatted(directories);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
