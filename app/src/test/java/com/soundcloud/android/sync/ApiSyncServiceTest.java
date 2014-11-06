@@ -34,6 +34,7 @@ public class ApiSyncServiceTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
     CollectionSyncRequest.Factory collectionSyncRequestFactory;
+
     @Mock ApiSyncerFactory apiSyncerFactory;
 
     static final long USER_ID = 100L;
@@ -139,13 +140,13 @@ public class ApiSyncServiceTest {
     public void shouldRemoveSyncRequestAfterCompletion() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Context context = DefaultTestRunner.application;
-        svc.runningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
-        svc.runningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
+        svc.runningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
+        svc.runningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false, apiSyncerFactory, syncStateManager));
 
         ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
+        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
         expect(svc.runningRequests.size()).toBe(1);
     }
 

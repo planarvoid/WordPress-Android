@@ -34,11 +34,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
-@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class, LocalyticsPushReceiver.class, ApiSyncService.class})
+@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class,
+        LocalyticsPushReceiver.class, ApiSyncService.class})
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;
@@ -162,6 +164,11 @@ public class TestApplicationModule {
     @Provides
     public LocalyticsAmpSession provideLocalyticsSession() {
         return mock(LocalyticsAmpSession.class);
+    }
+
+    @Provides
+    public SQLiteDatabase provideSqliteDatabase() {
+        return mock(SQLiteDatabase.class);
     }
 }
 

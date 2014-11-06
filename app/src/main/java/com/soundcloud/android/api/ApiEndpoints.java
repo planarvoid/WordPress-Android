@@ -34,6 +34,7 @@ public enum ApiEndpoints {
     CHECKOUT("/checkout"),
     CHECKOUT_URN("/checkout/%s"),
     IMAGES("/images/%s/%s"),
+    STREAM("/stream"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

@@ -17,8 +17,6 @@ import com.soundcloud.propeller.TxnResult;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.List;
 
 public class SoundStreamWriteStorage {
 
@@ -29,11 +27,11 @@ public class SoundStreamWriteStorage {
         this.database = database;
     }
 
-    public TxnResult replaceStreamItems(List<ApiStreamItem> streamItems) {
+    public TxnResult replaceStreamItems(Iterable<ApiStreamItem> streamItems) {
         return database.runTransaction(replaceStreamItemsTransaction(streamItems));
     }
 
-    private PropellerDatabase.Transaction replaceStreamItemsTransaction(final Collection<ApiStreamItem> streamItems) {
+    private PropellerDatabase.Transaction replaceStreamItemsTransaction(final Iterable<ApiStreamItem> streamItems) {
         return new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {

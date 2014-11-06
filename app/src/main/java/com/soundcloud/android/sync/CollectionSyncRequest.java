@@ -90,7 +90,7 @@ import java.io.IOException;
         } catch (IOException e) {
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncResult.fromIOException(contentUri);
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             ErrorUtils.handleSilentException(ex);
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncResult.fromUnexpectedResponseException(contentUri);

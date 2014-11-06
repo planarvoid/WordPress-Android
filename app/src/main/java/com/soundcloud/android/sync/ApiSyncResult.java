@@ -36,6 +36,14 @@ public class ApiSyncResult {
         this.new_size = new_size;
     }
 
+    public static ApiSyncResult fromSuccessfulChange(Uri uri) {
+        ApiSyncResult result = new ApiSyncResult(uri);
+        result.success = true;
+        result.synced_at = System.currentTimeMillis();
+        result.change = CHANGED;
+        return result;
+    }
+
     public static ApiSyncResult fromAuthException(Uri uri) {
         ApiSyncResult r = new ApiSyncResult(uri);
         r.syncResult.stats.numAuthExceptions++;
