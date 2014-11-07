@@ -32,7 +32,7 @@ class SoundStreamOperations {
     private static final String TAG = "SoundStream";
     private static final List<PropertySet> NO_MORE_PAGES = Collections.emptyList();
 
-    private final SoundStreamStorage soundStreamStorage;
+    private final ISoundStreamStorage legacySoundStreamStorage;
     private final SyncInitiator syncInitiator;
     private final Context appContext;
     private final Urn currentUserUrn;
@@ -56,9 +56,9 @@ class SoundStreamOperations {
     };
 
     @Inject
-    SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
+    SoundStreamOperations(ISoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
                           AccountOperations accountOperations, Context appContext) {
-        this.soundStreamStorage = soundStreamStorage;
+        this.legacySoundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.appContext = appContext;
         this.currentUserUrn = accountOperations.getLoggedInUserUrn();
@@ -81,7 +81,7 @@ class SoundStreamOperations {
     }
 
     public Observable<Urn> trackUrnsForPlayback() {
-        return soundStreamStorage.trackUrns();
+        return legacySoundStreamStorage.trackUrns();
     }
 
     public void updateLastSeen() {
@@ -91,7 +91,7 @@ class SoundStreamOperations {
 
     private Observable<List<PropertySet>> pagedStreamItems(final long timestamp, boolean syncCompleted) {
         Log.d(TAG, "Preparing page with user=" + currentUserUrn + "; timestamp=" + timestamp);
-        return soundStreamStorage
+        return legacySoundStreamStorage
                 .streamItemsBefore(timestamp, currentUserUrn, PAGE_SIZE).toList()
                 .mergeMap(handleLocalResult(timestamp, syncCompleted));
     }

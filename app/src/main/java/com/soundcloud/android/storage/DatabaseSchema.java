@@ -337,6 +337,32 @@ final class DatabaseSchema {
             "  PlaylistTracks." + TableColumns.PlaylistTracks.TRACK_ID + " = " + "SoundView." + TableColumns.SoundView._ID +
             " AND SoundView." + TableColumns.SoundView._TYPE + " = " + Playable.DB_TYPE_TRACK + ")";
 
+        /**
+         * A view which combines SoundStream data + tracks/users/comments
+         */
+        static final String DATABASE_CREATE_SOUNDSTREAM_VIEW = "AS SELECT " +
+                "SoundStream." + TableColumns.SoundStream._ID + " as " + TableColumns.SoundStreamView._ID +
+                ",SoundStream." + TableColumns.SoundStream.CREATED_AT + " as " + TableColumns.SoundStreamView.CREATED_AT +
+                ",SoundStream." + TableColumns.SoundStream.SOUND_ID + " as " + TableColumns.SoundStreamView.SOUND_ID +
+                ",SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " as " + TableColumns.SoundStreamView.SOUND_TYPE +
+                ",SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " as " + TableColumns.SoundStreamView.REPOSTER_ID +
+
+                // activity user (who commented, favorited etc. on contained following)
+                ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundStreamView.REPOSTER_USERNAME +
+                ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundStreamView.REPOSTER_PERMALINK +
+                ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundStreamView.REPOSTER_AVATAR_URL +
+
+                // track+user data
+                ",SoundView.*" +
+
+                " FROM SoundStream" +
+                " LEFT JOIN Users ON(" +
+                "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+                " LEFT JOIN SoundView ON(" +
+                "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
+                "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
+                " ORDER BY " + TableColumns.SoundStreamView.CREATED_AT + " DESC";
+
     /**
      * A view which combines activity data + tracks/users/comments
      */

@@ -40,6 +40,11 @@ public class ApiStreamItem {
     }
 
     @VisibleForTesting
+    public ApiStreamItem(ApiPromotedTrack apiPromotedTrack) {
+        this.apiPromotedTrack = apiPromotedTrack;
+    }
+
+    @VisibleForTesting
     public ApiStreamItem(ApiTrackRepost apiTrackRepost) {
         this.apiTrackRepost = apiTrackRepost;
     }

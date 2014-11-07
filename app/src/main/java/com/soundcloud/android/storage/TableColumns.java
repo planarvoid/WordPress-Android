@@ -29,10 +29,6 @@ public final class TableColumns {
         public static final String SOUND_TYPE = "sound_type";
         public static final String REPOSTER_ID = "reposter_id";
         public static final String CREATED_AT = "created_at";
-
-        public static final String[] ALL_FIELDS = {
-                _ID, SOUND_ID, SOUND_TYPE, REPOSTER_ID, CREATED_AT
-        };
     }
 
     /**
@@ -320,6 +316,12 @@ public final class TableColumns {
             System.arraycopy(ALL_VIEW_FIELDS, 0, ALL_FIELDS, Sounds.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
         }
 
+    }
+
+    public final static class SoundStreamView extends SoundStream {
+        public static final String REPOSTER_USERNAME = "reposter_username";
+        public static final String REPOSTER_PERMALINK = "reposter_permalink";
+        public static final String REPOSTER_AVATAR_URL = "reposter_avatar_url";
     }
 
     public final static class ActivityView extends Activities {
