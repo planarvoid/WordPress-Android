@@ -48,8 +48,8 @@ public class TrackWriteStorage {
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (ApiTrack track : tracks) {
-                    step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(track.getUser())));
-                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildTrackContentValues(track)));
+                    step(propeller.upsert(Table.Users, buildUserContentValues(track.getUser())));
+                    step(propeller.upsert(Table.Sounds, buildTrackContentValues(track)));
                 }
             }
         };
@@ -64,7 +64,7 @@ public class TrackWriteStorage {
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (PolicyInfo policyInfo : policies) {
-                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildPolicyContentValues(policyInfo)));
+                    step(propeller.upsert(Table.Sounds, buildPolicyContentValues(policyInfo)));
                 }
             }
         };

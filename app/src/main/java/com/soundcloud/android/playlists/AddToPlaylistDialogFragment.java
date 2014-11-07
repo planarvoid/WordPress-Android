@@ -152,7 +152,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
 
             @Override
             public Cursor loadInBackground() {
-                final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PLAYLIST_TRACKS
+                final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PlaylistTracks
                         + " WHERE " + TableColumns.PlaylistTracks.TRACK_ID + " = " + getArguments().getLong(KEY_TRACK_ID) + " AND " +
                         TableColumns.PlaylistTracks.PLAYLIST_ID + " = " + TableColumns.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
 

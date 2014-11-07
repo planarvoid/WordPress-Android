@@ -37,7 +37,7 @@ public class PlaylistStorage {
     }
 
     public Observable<Urn> trackUrns(final Urn playlistUrn) {
-        Query query = Query.from(Table.PLAYLIST_TRACKS.name)
+        Query query = Query.from(Table.PlaylistTracks.name())
                 .select(PlaylistTracks.TRACK_ID)
                 .whereEq(PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
                 .order(PlaylistTracks.POSITION, Query.ORDER_ASC);
@@ -69,12 +69,12 @@ public class PlaylistStorage {
     }
 
     private Query forLikes(List<PropertySet> input) {
-        final Query isLiked = Query.from(Table.COLLECTION_ITEMS.name)
-                .joinOn(Table.SOUND_VIEW.name + "." + SoundView._ID, CollectionItems.ITEM_ID)
+        final Query isLiked = Query.from(Table.CollectionItems.name())
+                .joinOn(Table.SoundView + "." + SoundView._ID, CollectionItems.ITEM_ID)
                 .joinOn(SoundView._TYPE, CollectionItems.RESOURCE_TYPE)
                 .whereEq(CollectionItems.COLLECTION_TYPE, CollectionItemTypes.LIKE);
 
-        return Query.from(Table.SOUND_VIEW.name)
+        return Query.from(Table.SoundView.name())
                 .select(SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))
                 .whereIn(SoundView._ID, getPlaylistIds(input))
                 .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);

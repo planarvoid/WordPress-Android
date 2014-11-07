@@ -11,41 +11,57 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public enum Table {
-    SOUNDSTREAM("SoundStream", false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM, TableColumns.SoundStream.ALL_FIELDS),
+public enum Table implements com.soundcloud.propeller.Table {
+    SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM, TableColumns.SoundStream.ALL_FIELDS),
 
-    SOUNDS("Sounds", false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
-    TRACK_METADATA("TrackMetadata", false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
-    USERS("Users", false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
-    COMMENTS("Comments", false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
-    ACTIVITIES("Activities", false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
-    RECORDINGS("Recordings", false, DatabaseSchema.DATABASE_CREATE_RECORDINGS, TableColumns.Recordings.ALL_FIELDS),
-    SEARCHES("Searches", false, DatabaseSchema.DATABASE_CREATE_SEARCHES),
-    PLAYLIST_TRACKS("PlaylistTracks", false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
-    USER_ASSOCIATIONS("UserAssociations", false, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATIONS),
+    Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
+    TrackMetadata(false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
+    Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
+    Comments(false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
+    Activities(false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
+    Recordings(false, DatabaseSchema.DATABASE_CREATE_RECORDINGS, TableColumns.Recordings.ALL_FIELDS),
+    Searches(false, DatabaseSchema.DATABASE_CREATE_SEARCHES),
+    PlaylistTracks(PrimaryKey.of(
+            TableColumns.PlaylistTracks._ID,
+            TableColumns.PlaylistTracks.POSITION,
+            TableColumns.PlaylistTracks.PLAYLIST_ID),
+            false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
+    UserAssociations(false, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATIONS),
 
-    PLAY_QUEUE("PlayQueue", false, DatabaseSchema.DATABASE_CREATE_PLAY_QUEUE),
+    PlayQueue(false, DatabaseSchema.DATABASE_CREATE_PLAY_QUEUE),
 
-    COLLECTION_ITEMS("CollectionItems", false, DatabaseSchema.DATABASE_CREATE_COLLECTION_ITEMS),
-    COLLECTIONS("Collections", false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
-    COLLECTION_PAGES("CollectionPages", false, DatabaseSchema.DATABASE_CREATE_COLLECTION_PAGES),
+    CollectionItems(PrimaryKey.of(
+            TableColumns.CollectionItems.USER_ID,
+            TableColumns.CollectionItems.ITEM_ID,
+            TableColumns.CollectionItems.COLLECTION_TYPE,
+            TableColumns.CollectionItems.RESOURCE_TYPE),
+            false, DatabaseSchema.DATABASE_CREATE_COLLECTION_ITEMS),
+    Collections(false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
+    CollectionPages(PrimaryKey.of(
+            TableColumns.CollectionPages.COLLECTION_ID,
+            TableColumns.CollectionPages.PAGE_INDEX),
+            false, DatabaseSchema.DATABASE_CREATE_COLLECTION_PAGES),
 
-    SUGGESTIONS("Suggestions", false, DatabaseSchema.DATABASE_CREATE_SUGGESTIONS, TableColumns.Suggestions.ALL_FIELDS),
-    CONNECTIONS("Connections", false, DatabaseSchema.DATABASE_CREATE_CONNECTIONS),
+    Suggestions(false, DatabaseSchema.DATABASE_CREATE_SUGGESTIONS, TableColumns.Suggestions.ALL_FIELDS),
+    Connections(false, DatabaseSchema.DATABASE_CREATE_CONNECTIONS),
 
     // views
-    SOUND_VIEW("SoundView", true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
-    ACTIVITY_VIEW("ActivityView", true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
-    SOUND_ASSOCIATION_VIEW("SoundAssociationView", true, DatabaseSchema.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
-    USER_ASSOCIATION_VIEW("UserAssociationView", true, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATION_VIEW),
-    PLAYLIST_TRACKS_VIEW("PlaylistTracksView", true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
+    SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
+    ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
+    SoundAssociationView(true, DatabaseSchema.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
+    UserAssociationView(PrimaryKey.of(
+            TableColumns.UserAssociations.OWNER_ID,
+            TableColumns.UserAssociations.TARGET_ID,
+            TableColumns.UserAssociations.ASSOCIATION_TYPE,
+            TableColumns.UserAssociations.RESOURCE_TYPE),
+            true, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATION_VIEW),
+    PlaylistTracksView(true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 
-    public final String name;
+    public final PrimaryKey primaryKey;
     public final String createString;
     public final String id;
     public final String type;
@@ -53,19 +69,20 @@ public enum Table {
     public final boolean view;
     public static final String TAG = DatabaseManager.TAG;
 
-    Table(String name, boolean view, String create, String... fields) {
-        if (name == null) {
-            throw new NullPointerException();
-        }
-        this.name = name;
+    Table(boolean view, String create, String... fields) {
+        this(PrimaryKey.of(BaseColumns._ID), view, create, fields);
+    }
+
+    Table(PrimaryKey primaryKey, boolean view, String create, String... fields) {
+        this.primaryKey = primaryKey;
         this.view = view;
         if (create != null) {
-            createString = buildCreateString(name, create, view);
+            createString = buildCreateString(name(), create, view);
         } else {
             createString = null;
         }
-        id = this.name + "." + BaseColumns._ID;
-        type = this.name + "." + TableColumns.ResourceTable._TYPE;
+        id = this.name() + "." + BaseColumns._ID;
+        type = this.name() + "." + TableColumns.ResourceTable._TYPE;
         this.fields = fields;
     }
 
@@ -73,17 +90,22 @@ public enum Table {
         return "CREATE " + (isView ? "VIEW" : "TABLE") + " IF NOT EXISTS " + tableName + " " + columnString;
     }
 
+    @Override
+    public PrimaryKey primaryKey() {
+        return primaryKey;
+    }
+
     public String allFields() {
-        return this.name + ".*";
+        return this.name() + ".*";
     }
 
     public String field(String field) {
-        return this.name + "." + field;
+        return this.name() + "." + field;
     }
 
     public static Table get(String name) {
         for (Table table : values()) {
-            if (table.name.equals(name)) {
+            if (table.name().equals(name)) {
                 return table;
             }
         }
@@ -92,14 +114,14 @@ public enum Table {
 
     public void drop(SQLiteDatabase db) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "dropping " + name);
+            Log.d(TAG, "dropping " + name());
         }
-        db.execSQL("DROP " + (view ? "VIEW" : "TABLE") + " IF EXISTS " + name);
+        db.execSQL("DROP " + (view ? "VIEW" : "TABLE") + " IF EXISTS " + name());
     }
 
     public boolean exists(SQLiteDatabase db) {
         try {
-            db.execSQL("SELECT 1 FROM " + name);
+            db.execSQL("SELECT 1 FROM " + name());
             return true;
         } catch (SQLException e) {
             return false;
@@ -109,11 +131,11 @@ public enum Table {
     public void create(SQLiteDatabase db) {
         if (!TextUtils.isEmpty(createString)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "creating " + (view ? "view" : "table") + " " + name);
+                Log.d(TAG, "creating " + (view ? "view" : "table") + " " + name());
             }
             db.execSQL(createString);
         } else if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "NOT creating " + name);
+            Log.d(TAG, "NOT creating " + name());
         }
     }
 
@@ -123,7 +145,7 @@ public enum Table {
     }
 
     public List<String> getColumnNames(SQLiteDatabase db) {
-        return getColumnNames(db, name);
+        return getColumnNames(db, name());
     }
 
     public static List<String> getColumnNames(SQLiteDatabase db, String table) {
@@ -143,7 +165,7 @@ public enum Table {
     }
 
     public List<String> alterColumns(SQLiteDatabase db, String[] fromAppendCols, String[] toAppendCols) {
-        return alterColumns(db, name, createString, fromAppendCols, toAppendCols);
+        return alterColumns(db, name(), createString, fromAppendCols, toAppendCols);
     }
 
     @Deprecated // should be a private method
@@ -154,8 +176,8 @@ public enum Table {
                                             final String[] toAppend) {
         List<String> toAppendCols = new ArrayList<String>();
         List<String> fromAppendCols = new ArrayList<String>();
-        Collections.addAll(fromAppendCols, fromAppend);
-        Collections.addAll(toAppendCols, toAppend);
+        java.util.Collections.addAll(fromAppendCols, fromAppend);
+        java.util.Collections.addAll(toAppendCols, toAppend);
 
         final String tmpTable = "bck_" + table;
         db.execSQL("DROP TABLE IF EXISTS " + tmpTable);
@@ -217,7 +239,7 @@ public enum Table {
             long id = v.getAsLong(BaseColumns._ID);
             List<Object> bindArgs = new ArrayList<Object>();
             StringBuilder sb = new StringBuilder(5000);
-            sb.append("INSERT OR REPLACE INTO ").append(name).append('(')
+            sb.append("INSERT OR REPLACE INTO ").append(name()).append('(')
                     .append(TextUtils.join(",", fields))
                     .append(") VALUES (");
             for (int i = 0; i < fields.length; i++) {
@@ -226,7 +248,7 @@ public enum Table {
                     sb.append('?');
                     bindArgs.add(v.get(f));
                 } else {
-                    sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
+                    sb.append("(SELECT ").append(f).append(" FROM ").append(name()).append(" WHERE _id=?)");
                     bindArgs.add(id);
                 }
                 if (i < fields.length - 1) {
@@ -260,7 +282,7 @@ public enum Table {
     }
 
     public long insertWithOnConflict(SQLiteDatabase db, ContentValues cv, int conflict) {
-        return db.insertWithOnConflict(name, null, cv, conflict);
+        return db.insertWithOnConflict(name(), null, cv, conflict);
     }
 
     public long insertOrReplaceArgs(SQLiteDatabase db, Object... args) {
@@ -309,6 +331,6 @@ public enum Table {
 
     @Override
     public String toString() {
-        return name;
+        return name();
     }
 }

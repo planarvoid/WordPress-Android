@@ -33,7 +33,7 @@ public class TrackStorage {
     }
 
     public Observable<PropertySet> track(final Urn trackUrn, final Urn loggedInUserUrn) {
-        final Query query = Query.from(Table.SOUND_VIEW.name)
+        final Query query = Query.from(Table.SoundView.name())
                 .select(
                         SoundView._ID,
                         SoundView.TITLE,
@@ -63,17 +63,17 @@ public class TrackStorage {
     }
 
     public Observable<PropertySet> trackDetails(final Urn trackUrn) {
-        final Query query = Query.from(Table.SOUND_VIEW.name) .select(SoundView.DESCRIPTION).whereEq(SoundView._ID, trackUrn.getNumericId());
+        final Query query = Query.from(Table.SoundView.name()) .select(SoundView.DESCRIPTION).whereEq(SoundView._ID, trackUrn.getNumericId());
         return scheduler.scheduleQuery(query).map(new TrackDescriptionMapper());
     }
 
     private Query soundAssociationQuery(int collectionType, long userId) {
-        return Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name)
-                .joinOn(Table.SOUND_VIEW.name + "." + SoundView._ID, CollectionItems.ITEM_ID)
+        return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
+                .joinOn(Table.SoundView + "." + SoundView._ID, CollectionItems.ITEM_ID)
                 .joinOn(SoundView._TYPE, CollectionItems.RESOURCE_TYPE)
                 .whereEq(CollectionItems.COLLECTION_TYPE, collectionType)
                 .whereEq(CollectionItems.RESOURCE_TYPE, Sounds.TYPE_TRACK)
-                .whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
+                .whereEq(Table.CollectionItems + "." + CollectionItems.USER_ID, userId);
     }
 
     private static final class TrackItemMapper extends RxResultMapper<PropertySet> {

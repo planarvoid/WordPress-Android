@@ -36,16 +36,16 @@ public class SoundStreamWriteStorage {
             @Override
             public void steps(PropellerDatabase propeller) {
 
-                step(propeller.delete(Table.SOUNDSTREAM.name));
+                step(propeller.delete(Table.SoundStream));
 
                 for (ApiStreamItem streamItem : streamItems) {
-                    step(propeller.insert(Table.SOUNDSTREAM.name, buildSoundStreamContentValues(streamItem)));
-                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, getContentValuesForSoundTable(streamItem)));
-                    step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, getContentValuesForSoundOwner(streamItem)));
+                    step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem)));
+                    step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
+                    step(propeller.upsert(Table.Users, getContentValuesForSoundOwner(streamItem)));
 
                     final Optional<ApiUser> reposter = streamItem.getReposter();
                     if (reposter.isPresent()){
-                        step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(reposter.get())));
+                        step(propeller.upsert(Table.Users, buildUserContentValues(reposter.get())));
                     }
                 }
             }

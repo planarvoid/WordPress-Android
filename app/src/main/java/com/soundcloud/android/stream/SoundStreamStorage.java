@@ -35,7 +35,7 @@ class SoundStreamStorage {
     }
 
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
-        final Query query = Query.from(Table.ACTIVITY_VIEW.name)
+        final Query query = Query.from(Table.ActivityView.name())
                 .select(
                         ActivityView.SOUND_ID,
                         ActivityView.SOUND_TYPE,
@@ -63,7 +63,7 @@ class SoundStreamStorage {
     }
 
     public Observable<Urn> trackUrns() {
-        Query query = Query.from(Table.ACTIVITY_VIEW.name)
+        Query query = Query.from(Table.ActivityView.name())
                 .select(ActivityView.SOUND_ID)
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereEq(ActivityView.SOUND_TYPE, Playable.DB_TYPE_TRACK);
@@ -71,11 +71,11 @@ class SoundStreamStorage {
     }
 
     private Query soundAssociationQuery(int collectionType, long userId) {
-        return Query.from(Table.COLLECTION_ITEMS.name, Table.SOUNDS.name)
+        return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
                 .joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID)
                 .joinOn(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE)
                 .whereEq(CollectionItems.COLLECTION_TYPE, collectionType)
-                .whereEq(Table.COLLECTION_ITEMS.name + "." + CollectionItems.USER_ID, userId);
+                .whereEq(Table.CollectionItems.name() + "." + CollectionItems.USER_ID, userId);
     }
 
     private static final class TrackUrnMapper extends RxResultMapper<Urn> {

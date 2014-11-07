@@ -36,7 +36,7 @@ public class UserWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectUserInserted(ApiUser user) {
-        assertThat(select(from(Table.USERS.name)
+        assertThat(select(from(Table.Users.name())
                         .whereEq(TableColumns.Users._ID, user.getId())
                         .whereEq(TableColumns.Users.USERNAME, user.getUsername())
                         .whereEq(TableColumns.Users.COUNTRY, user.getCountry())

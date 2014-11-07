@@ -51,7 +51,7 @@ class TrackingStorage {
     }
 
     private List<TrackingRecord> getPendingEvents(@Nullable String backend) {
-        final Query query = Query.from(EVENTS_TABLE);
+        final Query query = Query.from(EVENTS_TABLE.name());
         if (backend != null) {
             query.whereEq(TrackingDbHelper.TrackingColumns.BACKEND, backend);
         }

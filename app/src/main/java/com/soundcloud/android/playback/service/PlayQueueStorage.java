@@ -21,7 +21,7 @@ import java.util.List;
 
 public class PlayQueueStorage {
 
-    private static final String TABLE = Table.PLAY_QUEUE.name;
+    private static final Table TABLE = Table.PlayQueue;
 
     private final DatabaseScheduler scheduler;
 
@@ -55,7 +55,7 @@ public class PlayQueueStorage {
     }
 
     public Observable<PlayQueueItem> loadAsync() {
-        return scheduler.scheduleQuery(Query.from(TABLE)).map(new RxResultMapper<PlayQueueItem>() {
+        return scheduler.scheduleQuery(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
                 return PlayQueueItem.fromTrack(

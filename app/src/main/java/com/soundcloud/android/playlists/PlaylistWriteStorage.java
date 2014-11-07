@@ -33,8 +33,8 @@ public class PlaylistWriteStorage {
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (ApiPlaylist playlist : playlists) {
-                    step(propeller.upsert(Table.USERS.name, TableColumns.Users._ID, buildUserContentValues(playlist.getUser())));
-                    step(propeller.upsert(Table.SOUNDS.name, TableColumns.Sounds._ID, buildPlaylistContentValues(playlist)));
+                    step(propeller.upsert(Table.Users, buildUserContentValues(playlist.getUser())));
+                    step(propeller.upsert(Table.Sounds, buildPlaylistContentValues(playlist)));
                 }
             }
         };

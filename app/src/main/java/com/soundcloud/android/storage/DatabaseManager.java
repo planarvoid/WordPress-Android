@@ -111,7 +111,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // Explore version. Includes PlayQueue refactoring and prep for eventlogger source tags
     private static boolean upgradeTo24(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.PLAY_QUEUE.recreate(db);
+            Table.PlayQueue.recreate(db);
             return true;
         } catch (SQLException e) {
             handleUpgradeException(e, oldVersion, 24);
@@ -121,7 +121,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private static boolean upgradeTo25(SQLiteDatabase database, int oldVersion) {
         try {
-            Table.ACTIVITIES.recreate(database);
+            Table.Activities.recreate(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 25);
@@ -131,8 +131,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private static boolean upgradeTo26(SQLiteDatabase database, int oldVersion) {
         try {
-            Table.SOUNDS.alterColumns(database);
-            Table.SOUND_VIEW.recreate(database);
+            Table.Sounds.alterColumns(database);
+            Table.SoundView.recreate(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 26);
@@ -143,7 +143,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // made SoundAssiciationView inner join
     private static boolean upgradeTo27(SQLiteDatabase database, int oldVersion) {
         try {
-            Table.SOUND_ASSOCIATION_VIEW.recreate(database);
+            Table.SoundAssociationView.recreate(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 27);
@@ -154,9 +154,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // added policy, monetizable for new player / audio ads
     private static boolean upgradeTo28(SQLiteDatabase database, int oldVersion) {
         try {
-            Table.SOUNDS.alterColumns(database);
-            Table.SOUND_VIEW.recreate(database);
-            Table.ACTIVITY_VIEW.recreate(database);
+            Table.Sounds.alterColumns(database);
+            Table.SoundView.recreate(database);
+            Table.ActivityView.recreate(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 28);
@@ -167,9 +167,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // added description to track table
     private static boolean upgradeTo29(SQLiteDatabase database, int oldVersion) {
         try {
-            Table.SOUNDS.alterColumns(database);
-            Table.SOUND_VIEW.recreate(database);
-            Table.ACTIVITY_VIEW.recreate(database);
+            Table.Sounds.alterColumns(database);
+            Table.SoundView.recreate(database);
+            Table.ActivityView.recreate(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 29);
@@ -180,7 +180,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // New SoundStream syncing + storage
     private static boolean upgradeTo30(SQLiteDatabase database, int oldVersion) {
         try {
-            Table.SOUNDSTREAM.create(database);
+            Table.SoundStream.create(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 30);

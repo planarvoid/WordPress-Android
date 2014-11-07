@@ -11,7 +11,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -70,7 +69,6 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    @Ignore("broken because of broken upsert")
     public void shouldStoreAllStreamItemsWithDependencies() {
         final ApiStreamItem trackPost = ApiStreamItemFixtures.trackPost();
         final ApiStreamItem trackRepost = ApiStreamItemFixtures.trackRepost();
@@ -97,11 +95,11 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectStreamItemCountToBe(int count){
-        assertThat(select(from(Table.SOUNDSTREAM.name)), counts(count));
+        assertThat(select(from(Table.SoundStream.name())), counts(count));
     }
 
     private void expectTrackPostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SOUNDSTREAM.name)
+        assertThat(select(from(Table.SoundStream.name())
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .where(TableColumns.SoundStream.REPOSTER_ID + " IS NULL")
@@ -110,7 +108,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectTrackRepostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SOUNDSTREAM.name)
+        assertThat(select(from(Table.SoundStream.name())
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .whereEq(TableColumns.SoundStream.REPOSTER_ID, streamItem.getReposter().get().getId())
@@ -119,7 +117,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectPlaylistPostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SOUNDSTREAM.name)
+        assertThat(select(from(Table.SoundStream.name())
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                         .where(TableColumns.SoundStream.REPOSTER_ID + " IS NULL")
@@ -128,7 +126,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectPlaylistRepostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SOUNDSTREAM.name)
+        assertThat(select(from(Table.SoundStream.name())
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                         .whereEq(TableColumns.SoundStream.REPOSTER_ID, streamItem.getReposter().get().getId())

@@ -36,23 +36,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Content {
-    ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.USERS),
-    ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.COMMENTS),
-    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.USER_ASSOCIATIONS),
+    ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.Users),
+    ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.Comments),
+    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.UserAssociations),
     ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
-    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, UserAssociation.class, FOLLOWER, Table.USER_ASSOCIATIONS),
+    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, UserAssociation.class, FOLLOWER, Table.UserAssociations),
     ME_FOLLOWER("me/followers/#", null, 106, PublicApiUser.class, -1, null),
-    ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
+    ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.CollectionItems),
     ME_LIKE("me/likes/#", null, 108, PublicApiTrack.class, LIKE, null),
-    ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.COLLECTION_ITEMS),
-    ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+    ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.CollectionItems),
+    ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.CollectionItems),
     ME_USERID("me/userid", null, 111, null, -1, null),
 
-    ME_PLAYLIST("me/playlists/*", null, 112, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.COLLECTION_ITEMS),
+    ME_PLAYLIST("me/playlists/*", null, 112, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.CollectionItems),
 
-    ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.SUGGESTIONS),
-    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.SUGGESTIONS),
-    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 117, null, -1, Table.SUGGESTIONS),
+    ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.Suggestions),
+    ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.Suggestions),
+    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 117, null, -1, Table.Suggestions),
 
     /* For pushing to the api*/
     ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 120, PublicApiTrack.class, -1, null),
@@ -60,32 +60,32 @@ public enum Content {
     ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 122, PublicApiPlaylist.class, -1, null),
     ME_PLAYLIST_LIKE("me/likes/playlists/#", TempEndpoints.e1.MY_PLAYLIST_LIKE, 123, PublicApiPlaylist.class, -1, null),
 
-    ME_CONNECTION("me/connections/#", Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.CONNECTIONS),
-    ME_CONNECTIONS("me/connections", Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.CONNECTIONS),
-    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
+    ME_CONNECTION("me/connections/#", Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.Connections),
+    ME_CONNECTIONS("me/connections", Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.Connections),
+    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.CollectionItems),
 
     // the ids of the following entries should not be changed, they are referenced in th db
-    ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.ACTIVITIES),
-    ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
-    ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
+    ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.Activities),
+    ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.Activities),
+    ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.Activities),
 
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, PublicApiUser.class, -1, null),
 
-    SOUNDS("sounds", null, 200, Playable.class, -1, Table.SOUNDS),
+    SOUNDS("sounds", null, 200, Playable.class, -1, Table.Sounds),
 
-    TRACKS("tracks", Endpoints.TRACKS, 201, PublicApiTrack.class, CollectionStorage.CollectionItemTypes.TRACK, Table.SOUNDS),
-    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, PublicApiTrack.class, -1, Table.SOUNDS),
-    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.SOUNDS),
+    TRACKS("tracks", Endpoints.TRACKS, 201, PublicApiTrack.class, CollectionStorage.CollectionItemTypes.TRACK, Table.Sounds),
+    TRACK("tracks/#", Endpoints.TRACK_DETAILS, 202, PublicApiTrack.class, -1, Table.Sounds),
+    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.Sounds),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
-    TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, PublicApiUser.class, -1, Table.USERS),
-    TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, PublicApiUser.class, -1, Table.USERS),
+    TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, PublicApiUser.class, -1, Table.Users),
+    TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, PublicApiUser.class, -1, Table.Users),
     TRACK_SEARCH("search/tracks", TempEndpoints.TRACK_SEARCH, 209, PublicApiTrack.class, -1, null),
-    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 250, PublicApiTrack.class, -1, Table.SOUNDS),
+    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 250, PublicApiTrack.class, -1, Table.Sounds),
 
-    USERS("users", Endpoints.USERS, 301, PublicApiUser.class, -1, Table.USERS),
-    USER("users/#", Endpoints.USER_DETAILS, 302, PublicApiUser.class, -1, Table.USERS),
-    USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
+    USERS("users", Endpoints.USERS, 301, PublicApiUser.class, -1, Table.Users),
+    USER("users/#", Endpoints.USER_DETAILS, 302, PublicApiUser.class, -1, Table.Users),
+    USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.CollectionItems),
     USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, PublicApiTrack.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, PublicApiUser.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, PublicApiUser.class, FOLLOWING, null),
@@ -93,35 +93,35 @@ public enum Content {
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
     USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
-    USER_LOOKUP("users/q/*", Endpoints.USERS, 350, PublicApiUser.class, -1, Table.USERS),
+    USER_LOOKUP("users/q/*", Endpoints.USERS, 350, PublicApiUser.class, -1, Table.Users),
 
-    COMMENTS("comments", null, 400, PublicApiComment.class, -1, Table.COMMENTS),
-    COMMENT("comments/#", null, 401, PublicApiComment.class, -1, Table.COMMENTS),
+    COMMENTS("comments", null, 400, PublicApiComment.class, -1, Table.Comments),
+    COMMENT("comments/#", null, 401, PublicApiComment.class, -1, Table.Comments),
 
     /* Use string wildcards here since we use negative numbers for local playlists, which breaks with number wildcards */
-    PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, PublicApiTrack.class, -1, Table.PLAYLIST_TRACKS), // used for sync service
-    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.SOUNDS),
-    PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, PublicApiTrack.class, -1, Table.PLAYLIST_TRACKS),
-    PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, PublicApiUser.class, -1, Table.USERS),
-    PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, PublicApiUser.class, -1, Table.USERS),
-    PLAYLIST_LOOKUP("playlists/q/*", Endpoints.PLAYLISTS, 535, PublicApiPlaylist.class, -1, Table.SOUNDS),
+    PLAYLISTS("playlists", TempEndpoints.PLAYLISTS, 501, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.Sounds),
+    PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, PublicApiTrack.class, -1, Table.PlaylistTracks), // used for sync service
+    PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, PublicApiPlaylist.class, CollectionStorage.CollectionItemTypes.PLAYLIST, Table.Sounds),
+    PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, PublicApiTrack.class, -1, Table.PlaylistTracks),
+    PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, PublicApiUser.class, -1, Table.Users),
+    PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, PublicApiUser.class, -1, Table.Users),
+    PLAYLIST_LOOKUP("playlists/q/*", Endpoints.PLAYLISTS, 535, PublicApiPlaylist.class, -1, Table.Sounds),
 
     // LOCAL URIS
-    COLLECTIONS("collections", null, 1000, null, -1, Table.COLLECTIONS),
-    COLLECTION("collections/#", null, 1001, null, -1, Table.COLLECTIONS),
+    COLLECTIONS("collections", null, 1000, null, -1, Table.Collections),
+    COLLECTION("collections/#", null, 1001, null, -1, Table.Collections),
 
-    COLLECTION_PAGES("collection_pages", null, 1002, null, -1, Table.COLLECTION_PAGES),
-    COLLECTION_PAGE("collection_pages/#", null, 1003, null, -1, Table.COLLECTION_PAGES),
-    COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.COLLECTION_ITEMS),
-    COLLECTION_ITEM("collection_items/#", null, 1005, null, -1, Table.COLLECTION_ITEMS),
+    COLLECTION_PAGES("collection_pages", null, 1002, null, -1, Table.CollectionPages),
+    COLLECTION_PAGE("collection_pages/#", null, 1003, null, -1, Table.CollectionPages),
+    COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.CollectionItems),
+    COLLECTION_ITEM("collection_items/#", null, 1005, null, -1, Table.CollectionItems),
 
-    USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.USER_ASSOCIATIONS),
+    USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.UserAssociations),
 
-    RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.RECORDINGS),
-    RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.RECORDINGS),
+    RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.Recordings),
+    RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.Recordings),
 
-    TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TRACK_METADATA),
+    TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TrackMetadata),
 
     SEARCH("search", null, 1500, PublicApiResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, PublicApiResource.class, -1, null),
@@ -209,11 +209,11 @@ public enum Content {
     }
 
     public boolean isCollectionItem() {
-        return table == Table.COLLECTION_ITEMS;
+        return table == Table.CollectionItems;
     }
 
     public boolean isActivitiesItem() {
-        return table == Table.ACTIVITIES || table == Table.ACTIVITY_VIEW;
+        return table == Table.Activities || table == Table.ActivityView;
     }
 
     public boolean isMine() {

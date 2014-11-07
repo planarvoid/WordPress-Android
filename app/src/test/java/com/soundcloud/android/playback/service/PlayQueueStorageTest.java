@@ -27,7 +27,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueStorageTest extends StorageIntegrationTest {
 
-    private static final String PLAY_QUEUE_TABLE = Table.PLAY_QUEUE.name;
+    private static final String PLAY_QUEUE_TABLE = Table.PlayQueue.name();
 
     private PlayQueueStorage storage;
 
@@ -107,6 +107,6 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         cv.put(TableColumns.PlayQueue.TRACK_ID, playQueueItem.getTrackUrn().getNumericId());
         cv.put(TableColumns.PlayQueue.SOURCE, playQueueItem.getSource());
         cv.put(TableColumns.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
-        return testFixtures().insertInto(Table.PLAY_QUEUE, cv);
+        return testFixtures().insertInto(Table.PlayQueue, cv);
     }
 }

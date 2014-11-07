@@ -148,7 +148,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
     }
 
     private void expectPolicyInserted(Urn trackUrn, boolean monetizable, String policy) {
-        assertThat(select(from(Table.SOUND_VIEW.name)
+        assertThat(select(from(Table.SoundView.name())
                         .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
                         .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .whereEq(TableColumns.SoundView.MONETIZABLE, monetizable)

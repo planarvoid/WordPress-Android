@@ -34,27 +34,27 @@ public class TableTest {
 
     @Test
     public void shouldProvideACreateStringForViews() throws Exception {
-        Table view = Table.SOUND_VIEW;
+        Table view = Table.SoundView;
         expect(view.view).toBe(true);
-        expect(view.createString).toMatch("CREATE VIEW IF NOT EXISTS "+view.name);
+        expect(view.createString).toMatch("CREATE VIEW IF NOT EXISTS " + view);
     }
 
     @Test
     public void shouldProvideACreateStringForTables() throws Exception {
-        Table table = Table.SOUNDS;
+        Table table = Table.Sounds;
         expect(table.view).toBe(false);
-        expect(table.createString).toMatch("CREATE TABLE IF NOT EXISTS " + table.name);
+        expect(table.createString).toMatch("CREATE TABLE IF NOT EXISTS " + table);
     }
 
     @Test
     public void shouldHaveFieldMethod() throws Exception {
-        Table table = Table.SOUNDS;
+        Table table = Table.Sounds;
         expect(table.field("foo")).toEqual("Sounds.foo");
     }
 
     @Test
     public void shouldHaveAllFieldMethod() throws Exception {
-        Table table = Table.SOUNDS;
+        Table table = Table.Sounds;
         expect(table.allFields()).toEqual("Sounds.*");
     }
 
@@ -62,21 +62,21 @@ public class TableTest {
     public void shouldGetTableByName() throws Exception {
         Table t = Table.get("Sounds");
         expect(t).not.toBeNull();
-        expect(t.name).toEqual("Sounds");
+        expect(t.name()).toEqual("Sounds");
         expect(Table.get("zombo")).toBeNull();
     }
 
     @Test
     public void shouldGetColumnNames() throws Exception {
         SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
-        List<String> columns = Table.SOUNDS.getColumnNames(db);
+        List<String> columns = Table.Sounds.getColumnNames(db);
         expect(columns.isEmpty()).toBeFalse();
     }
 
     @Test
     public void shouldDropAndCreateTable() throws Exception {
         SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
-        Table table = Table.SOUNDS;
+        Table table = Table.Sounds;
 
         expect(table.exists(db)).toBeTrue();
         table.drop(db);
@@ -91,15 +91,15 @@ public class TableTest {
     public void shouldAddColumnToTracks() throws Exception {
         SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
-        String oldSchema = Table.SOUNDS.createString;
+        String oldSchema = Table.Sounds.createString;
         db.execSQL(oldSchema);
 
-        final int insertIndex = Table.SOUNDS.createString.lastIndexOf("PRIMARY");
-        String newSchema = Table.SOUNDS.createString.substring(0, insertIndex) +
-               " new_column INTEGER," + Table.SOUNDS.createString.substring(insertIndex);
+        final int insertIndex = Table.Sounds.createString.lastIndexOf("PRIMARY");
+        String newSchema = Table.Sounds.createString.substring(0, insertIndex) +
+               " new_column INTEGER," + Table.Sounds.createString.substring(insertIndex);
 
-        final int colCount = Table.alterColumns(db, Table.SOUNDS.name, newSchema, new String[0], new String[0]).size();
-        final List<String> columnNames = Table.getColumnNames(db, Table.SOUNDS.name);
+        final int colCount = Table.alterColumns(db, Table.Sounds.name(), newSchema, new String[0], new String[0]).size();
+        final List<String> columnNames = Table.getColumnNames(db, Table.Sounds.name());
         expect(columnNames).toContain("new_column");
         expect(columnNames.size()).toEqual(colCount + 1);
     }
@@ -204,8 +204,8 @@ public class TableTest {
 
         values[2] = contentValues;
 
-        expect(Table.RECORDINGS.upsert(db,values)).toBe(2);
-        Cursor cursor = db.rawQuery("select _id from " + Table.RECORDINGS.name, null);
+        expect(Table.Recordings.upsert(db,values)).toBe(2);
+        Cursor cursor = db.rawQuery("select _id from " + Table.Recordings, null);
         expect(cursor.moveToNext()).toBeTrue();
         expect(cursor).toHaveColumn(BaseColumns._ID, 1);
         expect(cursor.moveToNext()).toBeTrue();
@@ -220,26 +220,44 @@ public class TableTest {
         contentValues.put(TableColumns.Recordings._ID, 1l);
         contentValues.put(TableColumns.Recordings.DURATION, 32);
 
-        expect(Table.RECORDINGS.upsert(db, new ContentValues[]{contentValues})).toBe(1);
+        expect(Table.Recordings.upsert(db, new ContentValues[]{contentValues})).toBe(1);
 
         contentValues.put(TableColumns.Recordings.DURATION, 4000);
-        expect(Table.RECORDINGS.upsert(db, new ContentValues[]{contentValues})).toBe(1);
-        Cursor cursor = db.rawQuery("select duration from " + Table.RECORDINGS.name, null);
+        expect(Table.Recordings.upsert(db, new ContentValues[]{contentValues})).toBe(1);
+        Cursor cursor = db.rawQuery("select duration from " + Table.Recordings, null);
         expect(cursor.moveToNext()).toBeTrue();
         expect(cursor).toHaveColumn(TableColumns.Recordings.DURATION, 4000);
+    }
+
+    @Test
+    public void upsertShouldRespectCompositePrimaryKeys() throws Exception {
+        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
+
+        ContentValues trackValues = new ContentValues();
+        trackValues.put(TableColumns.Sounds._ID, 1l);
+        trackValues.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
+        ContentValues playlistValues = new ContentValues();
+        playlistValues.put(TableColumns.Sounds._ID, 1l);
+        playlistValues.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+
+        expect(Table.Sounds.upsert(db, new ContentValues[]{trackValues})).toBe(1);
+        expect(Table.Sounds.upsert(db, new ContentValues[]{playlistValues})).toBe(1);
+
+        Cursor cursor = db.query(Table.Sounds.name(), null, null, null, null, null, null);
+        expect(cursor).toHaveCount(2);
     }
 
     @Test
     public void shouldInsertAndUpsertEntries() {
         SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
 
-        long id = Table.RECORDINGS.insertOrReplaceArgs(db,
+        long id = Table.Recordings.insertOrReplaceArgs(db,
             TableColumns.Recordings.WHAT_TEXT,  "what",
             TableColumns.Recordings.WHERE_TEXT, "where"
         );
         expect(id).not.toBe(0l);
 
-        Table.RECORDINGS.upsertSingleArgs(db,
+        Table.Recordings.upsertSingleArgs(db,
             TableColumns.Recordings._ID, id,
             TableColumns.Recordings.WHAT_TEXT, "was"
         );

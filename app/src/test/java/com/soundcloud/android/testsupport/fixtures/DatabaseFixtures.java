@@ -51,7 +51,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());
         cv.put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime());
 
-        final long id = insertInto(Table.SOUNDS, cv);
+        final long id = insertInto(Table.Sounds, cv);
         track.setId(id);
         return id;
     }
@@ -60,7 +60,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, trackUrn.getNumericId());
         cv.put(TableColumns.Sounds.DESCRIPTION, description);
-        return insertInto(Table.SOUNDS, cv);
+        return insertInto(Table.Sounds, cv);
     }
 
     public ApiPlaylist insertPlaylist() {
@@ -80,7 +80,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
 
-        final long id = insertInto(Table.SOUNDS, cv);
+        final long id = insertInto(Table.Sounds, cv);
         playlist.setId(id);
         return id;
     }
@@ -91,7 +91,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getId());
         cv.put(TableColumns.PlaylistTracks.TRACK_ID, apiTrack.getId());
         cv.put(TableColumns.PlaylistTracks.POSITION, position);
-        insertInto(Table.PLAYLIST_TRACKS, cv);
+        insertInto(Table.PlaylistTracks, cv);
         return apiTrack;
     }
 
@@ -106,7 +106,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Users._ID, user.getId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
 
-        final long id = insertInto(Table.USERS, cv);
+        final long id = insertInto(Table.Users, cv);
         user.setId(id);
         return id;
     }
@@ -117,7 +117,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.CollectionItems.USER_ID, userId);
         cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, CollectionStorage.CollectionItemTypes.LIKE);
-        return insertInto(Table.COLLECTION_ITEMS, cv);
+        return insertInto(Table.CollectionItems, cv);
     }
 
     public long insertTrackPost(ApiTrack track, long timestamp) {
@@ -128,7 +128,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "track");
         cv.put(TableColumns.Activities.USER_ID, track.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public long insertTrackRepost(ApiTrack track, ApiUser reposter, long timestamp) {
@@ -139,7 +139,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "track-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public long insertTrackRepostOfOwnTrack(ApiTrack track, ApiUser reposter, long timestamp) {
@@ -150,7 +150,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "track-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public long insertPlaylistPost(ApiPlaylist playlist, long timestamp) {
@@ -161,7 +161,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "playlist");
         cv.put(TableColumns.Activities.USER_ID, playlist.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public long insertPlaylistRepost(ApiPlaylist playlist, ApiUser reposter, long timestamp) {
@@ -172,7 +172,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "playlist-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public long insertComment(PublicApiComment comment) {
@@ -184,7 +184,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "comment");
         cv.put(TableColumns.Activities.USER_ID, comment.user.getId());
         cv.put(TableColumns.Activities.CREATED_AT, comment.getCreatedAt().getTime());
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public PublicApiComment insertComment() {
@@ -199,7 +199,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Activities.TYPE, "affiliation");
         cv.put(TableColumns.Activities.USER_ID, affiliation.getUser().getId());
         cv.put(TableColumns.Activities.CREATED_AT, affiliation.getCreatedAt().getTime());
-        return insertInto(Table.ACTIVITIES, cv);
+        return insertInto(Table.Activities, cv);
     }
 
     public AffiliationActivity insertAffiliation() {
@@ -213,11 +213,11 @@ public class DatabaseFixtures {
         cv.put(TableColumns.SoundStream.SOUND_ID, apiStreamItem.getTrack().get().getId());
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.SoundStream.CREATED_AT, apiStreamItem.getTrack().get().getCreatedAt().getTime());
-        return insertInto(Table.SOUNDSTREAM, cv);
+        return insertInto(Table.SoundStream, cv);
     }
 
     public long insertInto(Table table, ContentValues cv) {
-        final long id = database.insertWithOnConflict(table.name, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        final long id = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         assertThat(id, Matchers.greaterThanOrEqualTo(0L));
         return id;
     }

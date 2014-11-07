@@ -35,7 +35,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         trackingStorage = new TrackingStorage(propeller(), networkConnectionHelper);
-        database().execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE);
+        database().execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE.name());
         database().execSQL(TrackingDbHelper.DATABASE_CREATE_EVENTS_TABLE);
     }
 
@@ -47,7 +47,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
 
         trackingStorage.insertEvent(trackingRecord);
 
-        Query events = from(EVENTS_TABLE)
+        Query events = from(EVENTS_TABLE.name())
                 .whereEq(TrackingDbHelper.TrackingColumns.BACKEND, "eventlogger")
                 .whereEq(TrackingDbHelper.TrackingColumns.TIMESTAMP, 1000L)
                 .whereEq(TrackingDbHelper.TrackingColumns.URL, "http://eventlogger.soundcloud.com/audio?keys=values");
@@ -77,7 +77,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     public void shouldQueryDatabaseForPendingEventsByBackend() throws UnsupportedEncodingException {
         trackingStorage.insertEvent(new TrackingRecord(1000L, "eventlogger", "url"));
         trackingStorage.insertEvent(new TrackingRecord(2000L, "play_counts", "url"));
-        assertThat(select(from(EVENTS_TABLE)), counts(2));
+        assertThat(select(from(EVENTS_TABLE.name())), counts(2));
 
         List<TrackingRecord> playCountEvents = trackingStorage.getPendingEventsForBackend("play_counts");
         assertThat(playCountEvents.size(), is(1));
@@ -88,7 +88,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     public void shouldQueryDatabaseForAllEvents() throws UnsupportedEncodingException {
         trackingStorage.insertEvent(new TrackingRecord(1000L, "eventlogger", "url1"));
         trackingStorage.insertEvent(new TrackingRecord(2000L, "play_counts", "url2"));
-        assertThat(select(from(EVENTS_TABLE)), counts(2));
+        assertThat(select(from(EVENTS_TABLE.name())), counts(2));
 
         List<TrackingRecord> events = trackingStorage.getPendingEvents();
         assertThat(events.size(), is(2));
@@ -108,7 +108,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
 
         trackingStorage.deleteEvents(events);
 
-        assertThat(select(from(EVENTS_TABLE)), counts(0));
+        assertThat(select(from(EVENTS_TABLE.name())), counts(0));
     }
 
     private List<TrackingRecord> insertEvents(int numEvents) throws UnsupportedEncodingException {
@@ -118,7 +118,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
             trackingStorage.insertEvent(event);
             events.add(event);
         }
-        assertThat(select(from(EVENTS_TABLE)), counts(numEvents));
+        assertThat(select(from(EVENTS_TABLE.name())), counts(numEvents));
         return events;
     }
 }

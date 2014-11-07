@@ -291,10 +291,10 @@ final class DatabaseSchema {
 
             // track+user data
             ", SoundView.*" +
-            " FROM " + Table.COLLECTION_ITEMS.name + " " +
+            " FROM " + Table.CollectionItems.name() + " " +
             " INNER JOIN SoundView ON(" +
-            "   " + Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.ITEM_ID + " = " + "SoundView." + TableColumns.SoundView._ID +
-            " AND " + Table.COLLECTION_ITEMS.name + "." + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
+            "   " + Table.CollectionItems.name() + "." + TableColumns.CollectionItems.ITEM_ID + " = " + "SoundView." + TableColumns.SoundView._ID +
+            " AND " + Table.CollectionItems.name() + "." + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
             " ORDER BY " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";
 
     /**
@@ -315,9 +315,9 @@ final class DatabaseSchema {
 
             // user data
             ", Users.*" +
-            " FROM " + Table.USER_ASSOCIATIONS.name + " " +
+            " FROM " + Table.UserAssociations.name() + " " +
             " LEFT JOIN Users ON(" +
-            "   " + Table.USER_ASSOCIATIONS.name + "." + TableColumns.UserAssociations.TARGET_ID + " = " + Table.USERS.name + "." + TableColumns.Users._ID + ")" +
+            "   " + Table.UserAssociations.name() + "." + TableColumns.UserAssociations.TARGET_ID + " = " + Table.Users.name() + "." + TableColumns.Users._ID + ")" +
             // this is the default position as returned by the server, which is ordered by last active users (subject to change)
             " ORDER BY " + TableColumns.UserAssociations.POSITION + " ASC";
 

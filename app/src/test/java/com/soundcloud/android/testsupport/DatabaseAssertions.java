@@ -36,7 +36,7 @@ public class DatabaseAssertions {
     }
 
     public void assertTrackInserted(ApiTrack track) {
-        assertThat(select(from(Table.SOUNDS.name)
+        assertThat(select(from(Table.Sounds.name())
                 .whereEq(TableColumns.Sounds._ID, track.getId())
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereEq(TableColumns.Sounds.TITLE, track.getTitle())
@@ -57,7 +57,7 @@ public class DatabaseAssertions {
     }
 
     public void assertPlayableUserInserted(ApiUser user) {
-        assertThat(select(from(Table.SOUND_VIEW.name)
+        assertThat(select(from(Table.SoundView.name())
                         .whereEq(TableColumns.SoundView.USER_ID, user.getId())
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
         ), counts(1));
@@ -70,7 +70,7 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistInserted(ApiPlaylist playlist) {
-        assertThat(select(from(Table.SOUNDS.name)
+        assertThat(select(from(Table.Sounds.name())
                 .whereEq(TableColumns.Sounds._ID, playlist.getId())
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereEq(TableColumns.Sounds.TITLE, playlist.getTitle())

@@ -41,7 +41,7 @@ public class PlaylistWriteStorageTest extends StorageIntegrationTest {
 
         storage.storePlaylists(Arrays.asList(playlist));
 
-        assertThat(select(from(Table.SOUNDS.name)), counts(1));
+        assertThat(select(from(Table.Sounds.name())), counts(1));
         databaseAssertions().assertPlaylistInserted(playlist);
     }
 

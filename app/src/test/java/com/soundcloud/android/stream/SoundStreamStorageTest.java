@@ -172,7 +172,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiTrack deletedTrack = testFixtures().insertTrack();
         testFixtures().insertTrackPost(deletedTrack, TIMESTAMP);
         testFixtures().insertTrackPost(testFixtures().insertTrack(), TIMESTAMP);
-        propeller().delete(Table.SOUNDS.name, new WhereBuilder().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
+        propeller().delete(Table.Sounds, new WhereBuilder().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
 
         TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
