@@ -18,6 +18,8 @@
 
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
         <item name="ptrHeaderStyle">@style/Widget.Custom.PtrHeader</item>
+
+        <item name="android:actionOverflowButtonStyle">@style/ActionBarOverFlow</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
@@ -28,7 +30,6 @@
 
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.SoundCloud.Widget</item>
-
     </style>
 
     <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -39,6 +40,10 @@
         <item name="logo">@drawable/actionbar_logo</item>
         <item name="android:displayOptions">homeAsUp|showTitle|useLogo|showHome</item>
         <item name="displayOptions">homeAsUp|showTitle|useLogo|showHome</item>
+    </style>
+
+    <style name="ActionBarOverFlow" parent="Widget.AppCompat.Light.ActionButton.Overflow">
+        <item name="android:src">@drawable/actionbar_overflow</item>
     </style>
 
     <style name="Widget.Custom.PtrHeader" parent="android:Widget">
