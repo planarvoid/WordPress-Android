@@ -40,9 +40,9 @@ import android.view.View;
 import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackMenuControllerTest {
+public class TrackPageMenuControllerTest {
 
-    private TrackMenuController controller;
+    private TrackPageMenuController controller;
     private PlayerTrack track;
     private PlayerTrack privateTrack;
 
@@ -60,7 +60,7 @@ public class TrackMenuControllerTest {
         privateTrack = new PlayerTrack(TestPropertySets.expectedPrivateTrackForPlayer());
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
-        controller = new TrackMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
+        controller = new TrackPageMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
                 .create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();

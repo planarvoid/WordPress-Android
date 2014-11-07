@@ -26,7 +26,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener, ScrubController.OnScrubListener {
+public class TrackPageMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener, ScrubController.OnScrubListener {
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
@@ -46,11 +46,11 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
 
     private long commentPosition;
 
-    private TrackMenuController(PlayQueueManager playQueueManager,
-                                SoundAssociationOperations associationOperations,
-                                FragmentActivity context,
-                                PopupMenuWrapper popupMenuWrapper,
-                                EventBus eventBus) {
+    private TrackPageMenuController(PlayQueueManager playQueueManager,
+                                    SoundAssociationOperations associationOperations,
+                                    FragmentActivity context,
+                                    PopupMenuWrapper popupMenuWrapper,
+                                    EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.activity = context;
@@ -205,9 +205,9 @@ public class TrackMenuController implements ProgressAware, PopupMenuWrapper.OnMe
             this.eventBus = eventBus;
         }
 
-        TrackMenuController create(View anchorView) {
+        TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
-            return new TrackMenuController(playQueueManager, associationOperations,
+            return new TrackPageMenuController(playQueueManager, associationOperations,
                     activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
         }
     }

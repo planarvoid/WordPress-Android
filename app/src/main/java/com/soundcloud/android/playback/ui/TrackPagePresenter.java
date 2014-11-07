@@ -50,7 +50,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
-    private final TrackMenuController.Factory trackMenuControllerFactory;
+    private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayController.Factory adOverlayControllerFactory;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
     private final FeatureFlags featureFlags;
@@ -60,7 +60,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
-                              TrackMenuController.Factory trackMenuControllerFactory,
+                              TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayController.Factory adOverlayControllerFactory,
                               FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
@@ -493,7 +493,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         JaggedTextView title;
         JaggedTextView user;
         WaveformViewController waveformController;
-        TrackMenuController menuController;
+        TrackPageMenuController menuController;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
         PlayerArtworkController artworkController;

@@ -60,8 +60,8 @@ public class TrackPagePresenterTest {
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private FeatureFlags featureFlags;
 
-    @Mock private TrackMenuController.Factory trackMenuControllerFactory;
-    @Mock private TrackMenuController trackMenuController;
+    @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
+    @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
 
     private TrackPagePresenter presenter;
@@ -76,7 +76,7 @@ public class TrackPagePresenterTest {
         when(waveformFactory.create(any(WaveformView.class), any(AdOverlayController.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
-        when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackMenuController);
+        when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
         when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
         trackView = presenter.createItemView(container, skipListener);
     }
@@ -273,7 +273,7 @@ public class TrackPagePresenterTest {
     @Test
     public void setProgressSetsProgressOnMenuController() {
         presenter.setProgress(trackView, playbackProgress);
-        verify(trackMenuController).setProgress(playbackProgress);
+        verify(trackPageMenuController).setProgress(playbackProgress);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
 
-        verify(trackMenuController).setIsUserRepost(true);
+        verify(trackPageMenuController).setIsUserRepost(true);
     }
 
     @Test
@@ -410,7 +410,7 @@ public class TrackPagePresenterTest {
 
         presenter.onPageChange(trackView);
 
-        verify(trackMenuController).dismiss();
+        verify(trackPageMenuController).dismiss();
     }
 
     @Test
@@ -523,7 +523,7 @@ public class TrackPagePresenterTest {
     public void onClickMoreButtonCallsShowOnTrackMenuController() {
         populateTrackPage();
         getHolder(trackView).more.performClick();
-        verify(trackMenuController).show();
+        verify(trackPageMenuController).show();
     }
 
     private TrackPageHolder getHolder(View trackView) {
