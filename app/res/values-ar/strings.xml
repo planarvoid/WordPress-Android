@@ -56,6 +56,7 @@
     <string name="website">الموقع</string>
     <string name="what_hint">ماذا</string>
     <string name="where_hint">أين</string>
+    <string name="like">إعجاب</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">بحث في SoundCloud</string>

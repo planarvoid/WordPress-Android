@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.view.adapters.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;

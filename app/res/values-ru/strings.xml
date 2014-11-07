@@ -56,6 +56,7 @@
     <string name="website">Веб-сайт</string>
     <string name="what_hint">Что</string>
     <string name="where_hint">Где</string>
+    <string name="like">Нравится</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Поиск по SoundCloud</string>

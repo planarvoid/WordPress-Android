@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -45,7 +46,7 @@ import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 public class AddToPlaylistDialogFragment extends BaseDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
+    private static final String PLAYLIST_DIALOG_TAG = "playlist_dialog";
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
@@ -117,6 +118,10 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
         return builder;
+    }
+
+    public void show(FragmentManager fragmentManager) {
+        show(fragmentManager, PLAYLIST_DIALOG_TAG);
     }
 
     private void onAddTrackToSet(long playlistId, View trackRowView) {

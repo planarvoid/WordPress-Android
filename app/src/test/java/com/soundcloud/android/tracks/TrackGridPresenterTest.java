@@ -1,7 +1,7 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.view.adapters.TrackGridPresenter.ItemViewHolder;
+import static com.soundcloud.android.tracks.TrackGridPresenter.ItemViewHolder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

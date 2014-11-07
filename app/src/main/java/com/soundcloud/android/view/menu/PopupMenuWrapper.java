@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.menu;
 
-import com.soundcloud.android.playback.ui.TrackPageMenuController;
+import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
 
 import android.content.Context;
 import android.view.MenuItem;
@@ -9,7 +9,8 @@ import android.view.View;
 public interface PopupMenuWrapper {
 
     void inflate(int menuResourceId);
-    void setOnMenuItemClickListener(TrackPageMenuController trackPageMenuController);
+    void setOnMenuItemClickListener(TrackMenuWrapperListener trackMenuWrapperListener);
+    void setOnDismissListener(TrackMenuWrapperListener trackMenuWrapperListener);
     void show();
     void setItemVisible(int itemId, boolean visible);
     void setItemEnabled(int itemId, boolean enabled);

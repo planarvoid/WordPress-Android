@@ -4,7 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
-import com.soundcloud.android.view.adapters.TrackGridPresenter;
+import com.soundcloud.android.tracks.TrackGridPresenter;
 import dagger.Module;
 import dagger.Provides;
 

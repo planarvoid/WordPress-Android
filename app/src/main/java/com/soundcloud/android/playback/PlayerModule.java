@@ -8,15 +8,11 @@ import com.soundcloud.android.playback.ui.PlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.android.view.menu.PopupMenuWrapperCompat;
-import com.soundcloud.android.view.menu.PopupMenuWrapperICS;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
 
 import android.content.res.Resources;
-import android.os.Build;
 
 import javax.inject.Named;
 
@@ -31,15 +27,6 @@ public class PlayerModule {
     @Provides @Named("GraphicsScheduler")
     public Scheduler provideGraphicsScheduler() {
         return ScSchedulers.GRAPHICS_SCHEDULER;
-    }
-
-    @Provides
-    public PopupMenuWrapper.Factory providePopupMenuWrapperFactory() {
-        if (Build.VERSION_CODES.ICE_CREAM_SANDWICH <= Build.VERSION.SDK_INT){
-            return new PopupMenuWrapperICS.Factory();
-        } else {
-            return new PopupMenuWrapperCompat.Factory();
-        }
     }
 
     @Provides

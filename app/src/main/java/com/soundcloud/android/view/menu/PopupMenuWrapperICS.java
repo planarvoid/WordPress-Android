@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.menu;
 
-import com.soundcloud.android.playback.ui.TrackPageMenuController;
+import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -26,11 +26,21 @@ public class PopupMenuWrapperICS implements PopupMenuWrapper {
     }
 
     @Override
-    public void setOnMenuItemClickListener(final TrackPageMenuController trackPageMenuController) {
+    public void setOnMenuItemClickListener(final TrackMenuWrapperListener trackMenuWrapperListener) {
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                return trackPageMenuController.onMenuItemClick(item);
+                return trackMenuWrapperListener.onMenuItemClick(item);
+            }
+        });
+    }
+
+    @Override
+    public void setOnDismissListener(final TrackMenuWrapperListener trackMenuWrapperListener) {
+        popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                trackMenuWrapperListener.onDismiss();
             }
         });
     }

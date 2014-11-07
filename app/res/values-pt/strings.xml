@@ -56,6 +56,7 @@
     <string name="website">Website</string>
     <string name="what_hint">O que</string>
     <string name="where_hint">Onde</string>
+    <string name="like">Curtir</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Pesquisar no SoundCloud</string>

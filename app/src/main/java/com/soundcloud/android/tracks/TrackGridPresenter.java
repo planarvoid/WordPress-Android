@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.tracks;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.text.TextUtils;
 import android.view.View;

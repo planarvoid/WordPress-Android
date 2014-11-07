@@ -20,6 +20,9 @@ import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.android.view.menu.PopupMenuWrapperCompat;
+import com.soundcloud.android.view.menu.PopupMenuWrapperICS;
 import com.soundcloud.android.waveform.WaveformData;
 import dagger.Module;
 import dagger.Provides;
@@ -169,5 +172,14 @@ public class ApplicationModule {
     @Provides
     public ImageProcessor provideImageProcessor(Context context) {
         return new ImageProcessorCompat();
+    }
+
+    @Provides
+    public PopupMenuWrapper.Factory providePopupMenuWrapperFactory() {
+        if (Build.VERSION_CODES.ICE_CREAM_SANDWICH <= Build.VERSION.SDK_INT){
+            return new PopupMenuWrapperICS.Factory();
+        } else {
+            return new PopupMenuWrapperCompat.Factory();
+        }
     }
 }

@@ -26,11 +26,10 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class TrackPageMenuController implements ProgressAware, PopupMenuWrapper.OnMenuItemClickListener, ScrubController.OnScrubListener {
+public class TrackPageMenuController implements ProgressAware, ScrubController.OnScrubListener, TrackMenuWrapperListener {
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
-    public static final String PLAYLIST_DIALOG_TAG = "playlist_dialog";
 
     public static final String SHARE_TYPE = "text/plain";
 
@@ -141,7 +140,7 @@ public class TrackPageMenuController implements ProgressAware, PopupMenuWrapper.
 
     private void showAddToPlaylistDialog(PlayerTrack track) {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.toPropertySet(), playQueueManager.getScreenTag());
-        from.show(activity.getSupportFragmentManager(), PLAYLIST_DIALOG_TAG);
+        from.show(activity.getSupportFragmentManager());
     }
 
     public void setTrack(PlayerTrack track) {
@@ -169,6 +168,11 @@ public class TrackPageMenuController implements ProgressAware, PopupMenuWrapper.
 
     public void dismiss() {
         popupMenuWrapper.dismiss();
+    }
+
+    @Override
+    public void onDismiss() {
+        // no-op
     }
 
     private Intent buildShareIntent(PlayerTrack track) {

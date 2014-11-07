@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -7,11 +7,12 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +27,15 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
     private final FeatureFlags featureFlags;
+    private final TrackItemMenuController trackItemMenuController;
 
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(ImageOperations imageOperations, FeatureFlags featureFlags) {
+    public TrackItemPresenter(ImageOperations imageOperations, FeatureFlags featureFlags, TrackItemMenuController trackItemMenuController) {
         this.imageOperations = imageOperations;
         this.featureFlags = featureFlags;
+        this.trackItemMenuController = trackItemMenuController;
     }
 
     @Override
@@ -56,6 +59,16 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         toggleReposterView(itemView, track);
 
         loadArtwork(itemView, track);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), track);
+    }
+
+    private void setupOverFlow(final View button, final PropertySet track) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                trackItemMenuController.show((FragmentActivity) button.getContext(), button, track);
+            }
+        });
     }
 
     private void loadArtwork(View itemView, PropertySet track) {

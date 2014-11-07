@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.view.adapters.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Module;
 import dagger.Provides;

@@ -115,6 +115,7 @@
     <string name="title_legal">Aviso legal</string>
     <string name="error_toast_user_not_logged_in">Inicia sesi?n para abrir este enlace</string>
     <string name="authentication_clear_image">Mant?n pulsado para borrar la imagen</string>
+    <string name="like">Me gusta</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Buscar SoundCloud</string>

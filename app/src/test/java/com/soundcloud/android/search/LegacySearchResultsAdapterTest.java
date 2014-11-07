@@ -20,7 +20,7 @@ import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.view.adapters.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
