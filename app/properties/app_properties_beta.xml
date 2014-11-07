@@ -24,4 +24,5 @@
     <bool name="feature_okhttp">false</bool>
     <bool name="feature_secure_stream_cache">false</bool>
     <bool name="feature_api_mobile_stream">false</bool>
+    <bool name="feature_track_item_overflow">false</bool>
 </resources>
