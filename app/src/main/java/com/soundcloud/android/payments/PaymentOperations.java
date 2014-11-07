@@ -80,7 +80,8 @@ class PaymentOperations {
         return apiScheduler.mappedResponse(request)
                 .map(CheckoutStarted.TOKEN)
                 .doOnNext(saveToken)
-                .doOnNext(launchPaymentFlow(id));
+                .doOnNext(launchPaymentFlow(id))
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     private Action1<String> launchPaymentFlow(final String id) {
