@@ -25,8 +25,6 @@ import java.util.Map;
 
 public class EventLoggerUrlBuilder {
 
-    private static final String ENDPOINT = "http://eventlogger.soundcloud.com";
-
     private static final String CLIENT_ID = "client_id";
     private static final String ANONYMOUS_ID = "anonymous_id";
     private static final String TIMESTAMP = "ts";
@@ -68,12 +66,14 @@ public class EventLoggerUrlBuilder {
     public static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
 
     private final String appId;
+    private final String endpoint;
     private final DeviceHelper deviceHelper;
     private final ExperimentOperations experimentOperations;
 
     @Inject
     public EventLoggerUrlBuilder(Resources resources, ExperimentOperations experimentOperations, DeviceHelper deviceHelper) {
         this.appId = resources.getString(R.string.app_id);
+        this.endpoint = resources.getString(R.string.event_logger_base_url);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
     }
@@ -259,7 +259,7 @@ public class EventLoggerUrlBuilder {
     }
 
     private Uri.Builder buildUriForPath(String path, long timestamp) {
-        return Uri.parse(ENDPOINT).buildUpon().appendPath(path)
+        return Uri.parse(endpoint).buildUpon().appendPath(path)
                 .appendQueryParameter(CLIENT_ID, appId)
                 .appendQueryParameter(ANONYMOUS_ID, deviceHelper.getUniqueDeviceID())
                 .appendQueryParameter(TIMESTAMP, String.valueOf(timestamp));

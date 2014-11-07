@@ -62,6 +62,7 @@ public class EventLoggerUrlBuilderTest {
     @Before
     public void setUp() throws Exception {
         when(resources.getString(R.string.app_id)).thenReturn(APP_ID);
+        when(resources.getString(R.string.event_logger_base_url)).thenReturn("http://eventlogger.soundcloud.com");
         when(trackSourceInfo.getOriginScreen()).thenReturn("origin");
         when(trackSourceInfo.getIsUserTriggered()).thenReturn(true);
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
