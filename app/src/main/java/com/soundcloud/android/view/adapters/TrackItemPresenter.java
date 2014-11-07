@@ -5,6 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -23,17 +25,23 @@ import java.util.concurrent.TimeUnit;
 public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
+    private final FeatureFlags featureFlags;
 
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(ImageOperations imageOperations) {
+    public TrackItemPresenter(ImageOperations imageOperations, FeatureFlags featureFlags) {
         this.imageOperations = imageOperations;
+        this.featureFlags = featureFlags;
     }
 
     @Override
     public View createItemView(int position, ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);
+        View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);
+        if (featureFlags.isDisabled(Feature.TRACK_ITEM_OVERFLOW)) {
+            layout.findViewById(R.id.overflow_button).setVisibility(View.GONE);
+        }
+        return layout;
     }
 
     @Override
