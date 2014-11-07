@@ -120,7 +120,8 @@ public class DatabaseFixtures {
         return insertInto(Table.CollectionItems, cv);
     }
 
-    public long insertTrackPost(ApiTrack track, long timestamp) {
+    @Deprecated
+    public long insertLegacyTrackPost(ApiTrack track, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
@@ -131,7 +132,8 @@ public class DatabaseFixtures {
         return insertInto(Table.Activities, cv);
     }
 
-    public long insertTrackRepost(ApiTrack track, ApiUser reposter, long timestamp) {
+    @Deprecated
+    public long insertLegacyTrackRepost(ApiTrack track, ApiUser reposter, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, track.getId());
@@ -153,7 +155,8 @@ public class DatabaseFixtures {
         return insertInto(Table.Activities, cv);
     }
 
-    public long insertPlaylistPost(ApiPlaylist playlist, long timestamp) {
+    @Deprecated
+    public long insertLegacyPlaylistPost(ApiPlaylist playlist, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
@@ -164,7 +167,8 @@ public class DatabaseFixtures {
         return insertInto(Table.Activities, cv);
     }
 
-    public long insertPlaylistRepost(ApiPlaylist playlist, ApiUser reposter, long timestamp) {
+    @Deprecated
+    public long insertLegacyPlaylistRepost(ApiPlaylist playlist, ApiUser reposter, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
@@ -213,6 +217,40 @@ public class DatabaseFixtures {
         cv.put(TableColumns.SoundStream.SOUND_ID, apiStreamItem.getTrack().get().getId());
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.SoundStream.CREATED_AT, apiStreamItem.getTrack().get().getCreatedAt().getTime());
+        return insertInto(Table.SoundStream, cv);
+    }
+
+    public long insertTrackPost(long trackId, long timestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.SoundStream.SOUND_ID, trackId);
+        cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
+        return insertInto(Table.SoundStream, cv);
+    }
+
+    public long insertTrackRepost(long trackId, long timestamp, long reposterId) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.SoundStream.SOUND_ID, trackId);
+        cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
+        cv.put(TableColumns.SoundStream.REPOSTER_ID, reposterId);
+        return insertInto(Table.SoundStream, cv);
+    }
+
+    public long insertPlaylistPost(long playlistId, long timestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.SoundStream.SOUND_ID, playlistId);
+        cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
+        return insertInto(Table.SoundStream, cv);
+    }
+
+    public long insertPlaylistRepost(long playlistId, long timestamp, long reposterId) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.SoundStream.SOUND_ID, playlistId);
+        cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
+        cv.put(TableColumns.SoundStream.REPOSTER_ID, reposterId);
         return insertInto(Table.SoundStream, cv);
     }
 

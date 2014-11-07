@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 public enum Table implements com.soundcloud.propeller.Table {
-    SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM, TableColumns.SoundStream.ALL_FIELDS),
-
+    SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),
     Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
     TrackMetadata(false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
     Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
@@ -50,6 +49,7 @@ public enum Table implements com.soundcloud.propeller.Table {
 
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
+    SoundStreamView(true, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM_VIEW),
     ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
     SoundAssociationView(true, DatabaseSchema.DATABASE_CREATE_SOUND_ASSOCIATION_VIEW),
     UserAssociationView(PrimaryKey.of(

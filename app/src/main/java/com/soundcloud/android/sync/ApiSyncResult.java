@@ -24,6 +24,7 @@ public class ApiSyncResult {
         this.uri = uri;
     }
 
+    @Deprecated //Use static factory methods (or add your own)
     public void setSyncData(boolean success, long synced_at, int new_size, int change){
         this.success = success;
         this.synced_at = synced_at;
@@ -44,6 +45,14 @@ public class ApiSyncResult {
         return result;
     }
 
+    public static ApiSyncResult fromSuccessWithoutChange(Uri uri) {
+        ApiSyncResult result = new ApiSyncResult(uri);
+        result.success = true;
+        result.synced_at = System.currentTimeMillis();
+        result.change = UNCHANGED;
+        return result;
+    }
+
     public static ApiSyncResult fromAuthException(Uri uri) {
         ApiSyncResult r = new ApiSyncResult(uri);
         r.syncResult.stats.numAuthExceptions++;
@@ -56,7 +65,7 @@ public class ApiSyncResult {
         return r;
     }
 
-    public static ApiSyncResult fromUnexpectedResponseException(Uri uri) {
+    public static ApiSyncResult fromGeneralFailure(Uri uri) {
         // for now, the defaults are fine
         return new ApiSyncResult(uri);
     }

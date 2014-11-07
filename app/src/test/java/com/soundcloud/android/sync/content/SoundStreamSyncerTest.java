@@ -2,12 +2,15 @@ package com.soundcloud.android.sync.content;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -15,6 +18,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamWriteStorage;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,26 +27,38 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamSyncerTest {
+
+    private static final String NEXT_URL = "some-next-url";
+    private static final String NEXT_NEXT_URL = "next-next-url";
 
     private SoundStreamSyncer soundstreamSyncer;
 
     @Mock private Context context;
     @Mock private ApiClient apiClient;
     @Mock private SoundStreamWriteStorage writeStorage;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences.Editor sharedPreferencesEditor;
 
-    @Mock private ApiStreamItem streamItem1;
-    @Mock private ApiStreamItem streamItem2;
+    private ApiStreamItem streamItem1 = ApiStreamItemFixtures.trackPost();
+    private ApiStreamItem streamItem2 = ApiStreamItemFixtures.playlistPost();
 
     @Captor private ArgumentCaptor<Iterable> iterableArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        soundstreamSyncer = new SoundStreamSyncer(apiClient, writeStorage);
+        when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
+        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+
+        soundstreamSyncer = new SoundStreamSyncer(sharedPreferences, apiClient, writeStorage);
     }
 
     @SuppressWarnings("unchecked")
@@ -50,7 +66,7 @@ public class SoundStreamSyncerTest {
     public void hardRefreshUsesStorageToReplaceStreamItems() throws Exception {
 
         when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.STREAM.path()))))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, streamItem2)));
+                .thenReturn(streamWithoutLinks());
 
         soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
@@ -61,9 +77,8 @@ public class SoundStreamSyncerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void hardRefreshUsesStorageToReplaceStreamItemsWithPromotedContent() throws Exception {
-        when(streamItem2.isPromotedStreamItem()).thenReturn(true);
         when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.STREAM.path()))))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, streamItem2)));
+                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, ApiStreamItemFixtures.promotedStreamItem())));
 
         soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
@@ -73,16 +88,128 @@ public class SoundStreamSyncerTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void hardRefreshReturnsSuccessfulChangedResult() throws Exception {
-        when(streamItem2.isPromotedStreamItem()).thenReturn(true);
+    public void hardRefreshStoresTheNextPageUrl() throws Exception {
         when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.STREAM.path()))))
-                .thenReturn(new ModelCollection<>(Arrays.asList(streamItem1, streamItem2)));
+                .thenReturn(streamWithNextLink());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
+        verify(sharedPreferencesEditor).putString(SoundStreamSyncer.PREFS_NEXT_URL, NEXT_URL);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void hardRefreshWithoutNextPageUrlClearsNextPageUrl() throws Exception {
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.STREAM.path()))))
+                .thenReturn(streamWithoutLinks());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
+        verify(sharedPreferencesEditor).remove(SoundStreamSyncer.PREFS_NEXT_URL);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void hardRefreshReturnsSuccessfulChangedResult() throws Exception {
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.STREAM.path()))))
+                .thenReturn(streamWithoutLinks());
 
         final ApiSyncResult apiSyncResult = soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
         expect(apiSyncResult.success).toBeTrue();
         expect(apiSyncResult.change).toEqual(ApiSyncResult.CHANGED);
+    }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void appendUsesStorageToInsertStreamItems() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_NEXT_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_NEXT_URL), anyString())).thenReturn(NEXT_URL);
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", NEXT_URL))))
+                .thenReturn(streamWithoutLinks());
 
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+
+        verify(writeStorage).insertStreamItems(iterableArgumentCaptor.capture());
+        expect(iterableArgumentCaptor.getValue()).toContainExactly(streamItem1, streamItem2);
+    }
+
+    @Test
+    public void appendReturnsSuccessResult() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_NEXT_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_NEXT_URL), anyString())).thenReturn(NEXT_URL);
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", NEXT_URL))))
+                .thenReturn(streamWithoutLinks());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+
+        final ApiSyncResult apiSyncResult = soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+        expect(apiSyncResult.success).toBeTrue();
+        expect(apiSyncResult.change).toEqual(ApiSyncResult.CHANGED);
+    }
+
+    @Test
+    public void appendReturnsUnchangedResultWhenEmptyCollectionReturned() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_NEXT_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_NEXT_URL), anyString())).thenReturn(NEXT_URL);
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", NEXT_URL))))
+                .thenReturn(new ModelCollection<>(new ArrayList()));
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+
+        final ApiSyncResult apiSyncResult = soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+        expect(apiSyncResult.success).toBeTrue();
+        expect(apiSyncResult.change).toEqual(ApiSyncResult.UNCHANGED);
+    }
+
+    @Test
+    public void appendReturnsUnchangedResultWhenNoNextUrlPresent() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_NEXT_URL)).thenReturn(false);
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", NEXT_URL))))
+                .thenReturn(streamWithoutLinks());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+
+        final ApiSyncResult apiSyncResult = soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+        expect(apiSyncResult.success).toBeTrue();
+        expect(apiSyncResult.change).toEqual(ApiSyncResult.UNCHANGED);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void appendStoresTheNextPageUrl() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_NEXT_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_NEXT_URL), anyString())).thenReturn(NEXT_URL);
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", NEXT_URL))))
+                .thenReturn(streamWithNextLink(NEXT_NEXT_URL));
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+        verify(sharedPreferencesEditor).putString(SoundStreamSyncer.PREFS_NEXT_URL, NEXT_NEXT_URL);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void appendWithoutNextPageUrlClearsNextPageUrl() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_NEXT_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_NEXT_URL), anyString())).thenReturn(NEXT_URL);
+        when(apiClient.fetchMappedResponse(argThat(isMobileApiRequestTo("GET", NEXT_URL))))
+                .thenReturn(streamWithoutLinks());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
+        verify(sharedPreferencesEditor).remove(SoundStreamSyncer.PREFS_NEXT_URL);
+    }
+
+    private ModelCollection<ApiStreamItem> streamWithoutLinks() {
+        return new ModelCollection<>(Arrays.asList(streamItem1, streamItem2));
+    }
+
+    private ModelCollection<ApiStreamItem> streamWithNextLink() {
+        return streamWithNextLink(NEXT_URL);
+    }
+
+    private ModelCollection<ApiStreamItem> streamWithNextLink(String nextUrl) {
+        final ModelCollection<ApiStreamItem> refreshedStream = streamWithoutLinks();
+        final HashMap<String, Link> links = new HashMap<>();
+        links.put(ModelCollection.NEXT_LINK_REL, new Link(nextUrl));
+        refreshedStream.setLinks(links);
+        return refreshedStream;
     }
 
 }

@@ -86,14 +86,14 @@ import java.io.IOException;
             result = ApiSyncResult.fromAuthException(contentUri);
         } catch (PublicCloudAPI.UnexpectedResponseException e) {
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncResult.fromUnexpectedResponseException(contentUri);
+            result = ApiSyncResult.fromGeneralFailure(contentUri);
         } catch (IOException e) {
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncResult.fromIOException(contentUri);
         } catch (Exception ex) {
             ErrorUtils.handleSilentException(ex);
             syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncResult.fromUnexpectedResponseException(contentUri);
+            result = ApiSyncResult.fromGeneralFailure(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
             PublicApiWrapper.setBackgroundMode(false);

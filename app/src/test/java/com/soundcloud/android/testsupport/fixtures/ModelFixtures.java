@@ -9,6 +9,7 @@ import com.soundcloud.android.testsupport.blueprints.ApiAudioAdBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistPostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistRepostBlueprint;
+import com.soundcloud.android.testsupport.blueprints.ApiPromotedTrackBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackPostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackRepostBlueprint;
@@ -64,6 +65,7 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(ApiTrackRepostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistRepostBlueprint.class);
+            modelFactory.registerBlueprint(ApiPromotedTrackBlueprint.class);
 
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);

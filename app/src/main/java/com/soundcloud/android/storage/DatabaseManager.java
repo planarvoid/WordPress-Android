@@ -181,6 +181,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo30(SQLiteDatabase database, int oldVersion) {
         try {
             Table.SoundStream.create(database);
+            Table.SoundStreamView.create(database);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 30);

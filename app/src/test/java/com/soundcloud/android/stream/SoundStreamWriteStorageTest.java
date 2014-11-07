@@ -28,7 +28,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreTrackPostMetadataFromApiTrackPost() {
         final ApiStreamItem streamItem = ApiStreamItemFixtures.trackPost();
-        storage.replaceStreamItems(Arrays.asList(streamItem));
+        storage.insertStreamItems(Arrays.asList(streamItem));
         expectTrackPostItemInserted(streamItem);
         databaseAssertions().assertTrackInserted(streamItem.getTrack().get());
     }
@@ -36,7 +36,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreTrackRepostMetadataFromApiTrackRepost() {
         final ApiStreamItem streamItem = ApiStreamItemFixtures.trackRepost();
-        storage.replaceStreamItems(Arrays.asList(streamItem));
+        storage.insertStreamItems(Arrays.asList(streamItem));
         expectTrackRepostItemInserted(streamItem);
         databaseAssertions().assertTrackWithUserInserted(streamItem.getTrack().get());
     }
@@ -44,7 +44,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStorePlaylistPostMetadataFromApiPlaylistPost() {
         final ApiStreamItem streamItem = ApiStreamItemFixtures.playlistPost();
-        storage.replaceStreamItems(Arrays.asList(streamItem));
+        storage.insertStreamItems(Arrays.asList(streamItem));
         expectPlaylistPostItemInserted(streamItem);
         databaseAssertions().assertPlaylistWithUserInserted(streamItem.getPlaylist().get());
     }
@@ -52,7 +52,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldStorePlaylistRepostMetadataFromApiPlaylistRepost() {
         final ApiStreamItem streamItem = ApiStreamItemFixtures.playlistRepost();
-        storage.replaceStreamItems(Arrays.asList(streamItem));
+        storage.insertStreamItems(Arrays.asList(streamItem));
         expectPlaylistRepostItemInserted(streamItem);
         databaseAssertions().assertPlaylistWithUserInserted(streamItem.getPlaylist().get());
     }
@@ -74,7 +74,7 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
         final ApiStreamItem trackRepost = ApiStreamItemFixtures.trackRepost();
         final ApiStreamItem playlistPost = ApiStreamItemFixtures.playlistPost();
         final ApiStreamItem playlistRepost = ApiStreamItemFixtures.playlistRepost();
-        storage.replaceStreamItems(Arrays.asList(
+        storage.insertStreamItems(Arrays.asList(
                 trackPost,
                 trackRepost,
                 playlistPost,
