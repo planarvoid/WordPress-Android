@@ -24,7 +24,6 @@ public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Feature.LEAVE_BEHIND);
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         setRunBasedOnResource(R.bool.run_ads_tests);

@@ -14,7 +14,6 @@
     <string name="mobile_api_base_url">https://api-mobile-beta.soundcloud.com</string>
 
     <!-- Feature flags (enabled) -->
-    <bool name="feature_leave_behind">true</bool>
     <bool name="feature_api_mobile_search">true</bool>
     <bool name="feature_interstitial">true</bool>
     <bool name="feature_adjust">true</bool>

@@ -19,8 +19,6 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
@@ -53,7 +51,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayController.Factory adOverlayControllerFactory;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
-    private final FeatureFlags featureFlags;
 
     @Inject
     public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
@@ -61,8 +58,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
-                              AdOverlayController.Factory adOverlayControllerFactory,
-                              FeatureFlags featureFlags) {
+                              AdOverlayController.Factory adOverlayControllerFactory) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.waveformControllerFactory = waveformControllerFactory;
@@ -70,7 +66,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
         this.adOverlayControllerFactory = adOverlayControllerFactory;
-        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -145,9 +140,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     public void setAdOverlay(View view, PropertySet track) {
-        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND)) {
-            getViewHolder(view).adOverlayController.initialize(track);
-        }
+        getViewHolder(view).adOverlayController.initialize(track);
     }
 
     public void clearAdOverlay(View view) {
@@ -193,9 +186,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void configureAdOverlay(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
-        if (featureFlags.isEnabled(Feature.LEAVE_BEHIND) && isCurrentTrack) {
+        if (isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
-                holder.adOverlayController.show(isForeground);
+                holder.adOverlayController.show(true);
             } else if (stateTransition.isPaused() || stateTransition.wasError()) {
                 clearAdOverlay(holder);
             }

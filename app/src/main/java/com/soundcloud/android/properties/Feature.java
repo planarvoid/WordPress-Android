@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 public enum Feature {
 
     TEST_FEATURE(-1),
-    LEAVE_BEHIND(R.bool.feature_leave_behind),
     PAYMENTS(R.bool.feature_payments),
     API_MOBILE_SEARCH(R.bool.feature_api_mobile_search),
     LOCALYTICS_PUSH(R.bool.feature_localytics_push),

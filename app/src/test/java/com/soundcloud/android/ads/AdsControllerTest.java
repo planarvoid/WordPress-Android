@@ -18,9 +18,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -38,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
-import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.schedulers.TestScheduler;
 
@@ -59,11 +55,9 @@ public class AdsControllerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private VisualAdImpressionOperations visualAdImpressionOperations;
     @Mock private AdOverlayImpressionOperations adOverlayImpressionOperations;
-    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestScheduler scheduler = Schedulers.test();
-    private TestSubscriber<Playa.StateTransition> leaveBehindSubscriber = new TestSubscriber<>();
     private ApiAdsForTrack apiAdsForTrack;
     private AdsController adsController;
 
@@ -73,7 +67,7 @@ public class AdsControllerTest {
         when(adOverlayImpressionOperations.trackImpression()).thenReturn(Observable.<TrackingEvent>never());
 
         adsController = new AdsController(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-                playQueueManager, trackOperations, featureFlags, scheduler);
+                playQueueManager, trackOperations, scheduler);
         apiAdsForTrack = AdFixtures.fullAdsForTrack();
     }
 
@@ -354,7 +348,6 @@ public class AdsControllerTest {
 
     @Test
     public void shouldPublishTrackingEventWhenLeaveBehindControllerEmitsEvent() {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         TrackingEvent trackingEvent = TestEvents.unspecifiedTrackingEvent();
         when(adOverlayImpressionOperations.trackImpression()).thenReturn(Observable.just(trackingEvent));
 

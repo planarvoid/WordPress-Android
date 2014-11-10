@@ -19,8 +19,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -58,7 +56,6 @@ public class TrackPagePresenterTest {
     @Mock private AdOverlayController adOverlayController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
-    @Mock private FeatureFlags featureFlags;
 
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackPageMenuController trackPageMenuController;
@@ -71,7 +68,7 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, featureFlags);
+                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class), any(AdOverlayController.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
@@ -455,7 +452,6 @@ public class TrackPagePresenterTest {
 
     @Test
     public void setLeaveBehindInitializesLeaveBehindController() throws Exception {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         final PropertySet track = TestPropertySets.leaveBehindForPlayer();
         populateTrackPage();
 
@@ -466,7 +462,6 @@ public class TrackPagePresenterTest {
 
     @Test
     public void clearLeaveBehindClearsLeaveBehindUsingController() throws Exception {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         populateTrackPage();
 
         presenter.clearAdOverlay(trackView);
@@ -489,7 +484,6 @@ public class TrackPagePresenterTest {
 
     @Test
     public void onPauseDismissOnLeaveBehindController() {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
 
         verify(adOverlayController).clear();
@@ -497,7 +491,6 @@ public class TrackPagePresenterTest {
 
     @Test
     public void onPlayShowsInBackgroundDoesNotShowLeaveBehind() {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, false);
 
         verify(adOverlayController, never()).show();
@@ -505,7 +498,6 @@ public class TrackPagePresenterTest {
 
     @Test
     public void onPlayShowsOnLeaveBehindController() {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
 
         verify(adOverlayController).show(true);
@@ -513,7 +505,6 @@ public class TrackPagePresenterTest {
 
     @Test
     public void onPlaybackErrorDismissOnLeaveBehindController() {
-        when(featureFlags.isEnabled(Feature.LEAVE_BEHIND)).thenReturn(true);
         presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED), true, true);
 
         verify(adOverlayController).clear();
