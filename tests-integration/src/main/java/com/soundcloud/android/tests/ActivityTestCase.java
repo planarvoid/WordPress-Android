@@ -26,7 +26,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected Waiter waiter;
 
     private Feature dependency;
-    private boolean runBasedOnResource;
+    private boolean runBasedOnResource = true;
 
     protected Han solo;
 
