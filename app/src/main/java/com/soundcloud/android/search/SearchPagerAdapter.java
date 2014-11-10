@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 
 import android.content.res.Resources;
@@ -31,23 +30,15 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return getSearchResultFragment(SearchOperations.TYPE_ALL);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_ALL, query);
             case TAB_TRACKS:
-                return getSearchResultFragment(SearchOperations.TYPE_TRACKS);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_TRACKS, query);
             case TAB_PLAYLISTS:
-                return getSearchResultFragment(SearchOperations.TYPE_PLAYLISTS);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_PLAYLISTS, query);
             case TAB_PEOPLE:
-                return getSearchResultFragment(SearchOperations.TYPE_USERS);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_USERS, query);
             default:
                 throw new IllegalArgumentException("Unexpected position for getItem " + position);
-        }
-    }
-
-    private Fragment getSearchResultFragment(int type) {
-        if (featureFlags.isEnabled(Feature.API_MOBILE_SEARCH)) {
-            return SearchResultsFragment.newInstance(type, query);
-        } else {
-            return LegacySearchResultsFragment.newInstance(type, query);
         }
     }
 

@@ -2,22 +2,17 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
-import org.jetbrains.annotations.Nullable;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -25,16 +20,10 @@ import java.util.List;
 public class UserItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
-    private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
-    @Nullable private OnToggleFollowListener toggleFollowListener;
 
     @Inject
-    public UserItemPresenter(ImageOperations imageOperations,
-                             AccountOperations accountOperations, FeatureFlags featureFlags) {
+    public UserItemPresenter(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
-        this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -51,34 +40,7 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
         ((TextView) itemView.findViewById(R.id.list_item_subheader)).setText(country);
 
         setupFollowersCount(itemView, user);
-        showFollowingStatus(position, itemView, user);
         loadImage(itemView, user);
-    }
-
-    public void setToggleFollowListener(@Nullable OnToggleFollowListener toggleFollowListener) {
-        this.toggleFollowListener = toggleFollowListener;
-    }
-
-    private void showFollowingStatus(final int position, View itemView, PropertySet user) {
-        final ToggleButton toggleButton = (ToggleButton) itemView.findViewById(R.id.toggle_btn_follow);
-        if (shouldHideToggleFollowButton(user)) {
-            toggleButton.setVisibility(View.GONE);
-        } else {
-            final boolean isFollowing = user.contains(UserProperty.IS_FOLLOWED_BY_ME) && user.get(UserProperty.IS_FOLLOWED_BY_ME);
-            toggleButton.setChecked(isFollowing);
-            toggleButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (toggleFollowListener != null) {
-                        toggleFollowListener.onToggleFollowClicked(position, (ToggleButton) v);
-                    }
-                }
-            });
-        }
-    }
-
-    private boolean shouldHideToggleFollowButton(PropertySet user) {
-        return featureFlags.isEnabled(Feature.API_MOBILE_SEARCH) || accountOperations.isLoggedInUser(user.get(UserProperty.URN));
     }
 
     private void setupFollowersCount(View itemView, PropertySet user) {
@@ -96,9 +58,5 @@ public class UserItemPresenter implements CellPresenter<PropertySet> {
         imageOperations.displayInAdapterView(
                 user.get(UserProperty.URN), ApiImageSize.getListItemImageSize(itemView.getContext()),
                 (ImageView) itemView.findViewById(R.id.image));
-    }
-
-    public interface OnToggleFollowListener {
-        void onToggleFollowClicked(int position, ToggleButton toggleButton);
     }
 }

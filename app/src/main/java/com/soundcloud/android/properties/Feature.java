@@ -6,7 +6,6 @@ public enum Feature {
 
     TEST_FEATURE(-1),
     PAYMENTS(R.bool.feature_payments),
-    API_MOBILE_SEARCH(R.bool.feature_api_mobile_search),
     LOCALYTICS_PUSH(R.bool.feature_localytics_push),
     OKHTTP(R.bool.feature_okhttp),
     INTERSTITIAL(R.bool.feature_interstitial),

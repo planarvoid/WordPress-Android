@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -26,7 +24,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -36,12 +33,12 @@ import java.util.Map;
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
-public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements FollowingOperations.FollowStatusChangedListener, UserItemPresenter.OnToggleFollowListener {
+public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements FollowingOperations.FollowStatusChangedListener {
 
     @Inject UserItemPresenter presenter;
     @Inject FollowingOperations followingOperations;
 
-    private final List<PropertySet> users = new ArrayList<PropertySet>(Consts.LIST_PAGE_SIZE);
+    private final List<PropertySet> users = new ArrayList<>(Consts.LIST_PAGE_SIZE);
 
     public UserAdapter(Uri uri) {
         super(uri);
@@ -59,12 +56,6 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     private void init() {
         followingOperations.requestUserFollowings(this);
-        presenter.setToggleFollowListener(this);
-    }
-
-    @Override
-    public void onToggleFollowClicked(int position, ToggleButton toggleButton) {
-        fireAndForget(followingOperations.toggleFollowing(((UserHolder) getItem(position)).getUser()));
     }
 
     @Override

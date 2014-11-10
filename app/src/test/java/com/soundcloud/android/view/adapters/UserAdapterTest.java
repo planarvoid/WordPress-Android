@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.associations.FollowingOperations.FollowStatusChangedListener;
-import static com.soundcloud.android.view.adapters.UserItemPresenter.OnToggleFollowListener;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
@@ -19,7 +18,6 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
@@ -32,11 +30,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import android.content.Intent;
 import android.view.ViewGroup;
-import android.widget.ToggleButton;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,21 +110,6 @@ public class UserAdapterTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent.getComponent().getClassName()).toEqual(ProfileActivity.class.getName());
         expect(intent.getParcelableExtra(ProfileActivity.EXTRA_USER)).toBe(user);
-    }
-
-    @Test
-    public void toggleFollowingSubscribesToFollowObservable() throws CreateModelException {
-        PublicApiUser user = createUser();
-        adapter.addItems(Arrays.<PublicApiResource>asList(user));
-
-        final TestObservables.MockObservable<Boolean> observable = TestObservables.emptyObservable();
-        when(followingOperations.toggleFollowing(user)).thenReturn(observable);
-
-        ArgumentCaptor<OnToggleFollowListener> captor = ArgumentCaptor.forClass(OnToggleFollowListener.class);
-        verify(userPresenter).setToggleFollowListener(captor.capture());
-
-        captor.getValue().onToggleFollowClicked(0, Mockito.mock(ToggleButton.class));
-        expect(observable.subscribedTo()).toBeTrue();
     }
 
     @Test
