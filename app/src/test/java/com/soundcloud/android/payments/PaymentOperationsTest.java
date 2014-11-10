@@ -71,6 +71,7 @@ public class PaymentOperationsTest {
 
     @Test
     public void fetchesProductIdFromProductsEndpoint() {
+        when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
         paymentOperations.queryProduct().subscribe();
 
         verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
