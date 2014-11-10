@@ -16,6 +16,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
@@ -23,32 +24,22 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class SoundStreamStorage implements ISoundStreamStorage {
 
     private final DatabaseScheduler scheduler;
+    private final PropellerDatabase database;
 
     @Inject
-    public SoundStreamStorage(DatabaseScheduler scheduler) {
+    public SoundStreamStorage(DatabaseScheduler scheduler, PropellerDatabase database) {
         this.scheduler = scheduler;
+        this.database = database;
     }
 
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(
-                        SoundStreamView.SOUND_ID,
-                        SoundStreamView.SOUND_TYPE,
-                        SoundView.TITLE,
-                        SoundView.USERNAME,
-                        SoundView.DURATION,
-                        SoundView.PLAYBACK_COUNT,
-                        SoundView.TRACK_COUNT,
-                        SoundView.LIKES_COUNT,
-                        SoundStreamView.CREATED_AT,
-                        SoundStreamView.REPOSTER_USERNAME,
-                        exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(TableColumns.SoundView.USER_LIKE),
-                        exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(TableColumns.SoundView.USER_REPOST)
-                )
+                .select(soundStreamSelection(userUrn))
                 .whereLt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
                         // TODO: poor man's check to remove orphaned tracks and playlists;
                         // We need to address this properly with a schema refactor, cf:
@@ -57,6 +48,31 @@ class SoundStreamStorage implements ISoundStreamStorage {
                 .limit(limit);
 
         return scheduler.scheduleQuery(query).map(new StreamItemMapper());
+    }
+
+    public List<PropertySet> loadStreamItemsSince(final long timestamp, final Urn userUrn, final int limit) {
+        final Query query = Query.from(Table.SoundStreamView.name())
+                .select(soundStreamSelection(userUrn))
+                .whereGt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
+                .where(TableColumns.SoundView.TITLE + " IS NOT NULL")
+                .limit(limit);
+
+        return database.query(query).toList(new StreamItemMapper());
+    }
+
+    private Object[] soundStreamSelection(Urn userUrn) {
+        return new Object[]{SoundStreamView.SOUND_ID,
+                SoundStreamView.SOUND_TYPE,
+                SoundView.TITLE,
+                SoundView.USERNAME,
+                SoundView.DURATION,
+                SoundView.PLAYBACK_COUNT,
+                SoundView.TRACK_COUNT,
+                SoundView.LIKES_COUNT,
+                SoundStreamView.CREATED_AT,
+                SoundStreamView.REPOSTER_USERNAME,
+                exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
+                exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)};
     }
 
     public Observable<Urn> trackUrns() {
@@ -91,7 +107,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
             addTitle(cursorReader, propertySet);
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
-            propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundStreamView.CREATED_AT));
+            propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             addOptionalPlaylistLike(cursorReader, propertySet);
             addOptionalLikesCount(cursorReader, propertySet);
             addOptionalPlayCount(cursorReader, propertySet);

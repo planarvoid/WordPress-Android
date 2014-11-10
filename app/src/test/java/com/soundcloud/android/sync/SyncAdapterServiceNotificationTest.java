@@ -1,15 +1,13 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import org.junit.Test;
 
 import java.util.List;
@@ -18,25 +16,17 @@ import java.util.List;
  * Tests for notification messaging.
  */
 public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBase {
-    @Test
-    public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = getActivities("/com/soundcloud/android/sync/e1_stream.json");
-        String message = NotificationMessage.getIncomingNotificationMessage(
-                DefaultTestRunner.application, activities);
-
-        expect(message).toEqual("from WADR, T-E-E-D and others");
-    }
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addCannedActivities("e1_stream_1_oldest.json", "empty_collection.json");
+        addCannedActivities("empty_collection.json", "e1_activities_1_oldest.json");
         SyncOutcome result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
 
         expect(result.getInfo().getContentText().toString()).toEqual(
-                "from Bad Panda Records, The Takeaway and others");
+                "Comments and likes from Liraz Axelrad, UnoFuego and others");
         expect(result.getInfo().getContentTitle().toString()).toEqual(
-                "22 new sounds");
-        expect(result.getIntent().getAction()).toEqual(Actions.STREAM);
+                "7 new activities");
+        expect(result.getIntent().getAction()).toEqual(Actions.ACTIVITY);
     }
 
     @Test
@@ -44,53 +34,11 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
         addCannedActivities("e1_stream_1_oldest.json", "e1_activities_1_oldest.json");
         SyncOutcome result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
 
-        expect(result.notifications.size()).toEqual(2);
+        expect(result.notifications.size()).toEqual(1);
 
         addCannedActivities("empty_collection.json", "empty_collection.json");
         result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
         expect(result.notifications).toBeEmpty();
-    }
-
-    @Test
-    public void shouldNotifyAboutIncoming() throws Exception {
-        addCannedActivities("e1_stream_1_oldest.json", "empty_collection.json");
-
-        SoundCloudApplication app = DefaultTestRunner.application;
-        List<NotificationInfo> notifications = doPerformSyncWithValidToken(app, false, null).notifications;
-
-        expect(notifications.size()).toEqual(1);
-        NotificationInfo n = notifications.get(0);
-        expect(n.info.getContentTitle().toString())
-                .toEqual("22 new sounds");
-
-        expect(n.info.getContentText().toString())
-                .toEqual("from Bad Panda Records, The Takeaway and others");
-
-        expect(n.getIntent().getAction()).toEqual(Actions.STREAM);
-    }
-
-    @Test
-    public void shouldSendTwoSeparateNotifications() throws Exception {
-        addCannedActivities("e1_stream_1_oldest.json", "e1_activities_2.json");
-
-        List<NotificationInfo> notifications = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null).notifications;
-        expect(notifications.size()).toEqual(2);
-
-        expect(notifications.get(0).info.getContentTitle().toString())
-                .toEqual("22 new sounds");
-        expect(notifications.get(0).info.getContentText().toString())
-                .toEqual("from Bad Panda Records, The Takeaway and others");
-
-        expect(notifications.get(0).getIntent().getAction())
-                .toEqual(Actions.STREAM);
-
-        expect(notifications.get(1).info.getContentTitle().toString())
-                .toEqual("2 new activities");
-        expect(notifications.get(1).info.getContentText().toString())
-                .toEqual("Comments and likes from D∃SIGNATED∀VΞ and Liraz Axelrad");
-
-        expect(notifications.get(1).getIntent().getAction())
-                .toEqual(Actions.ACTIVITY);
     }
 
     // --------------- likes ---------------
@@ -208,21 +156,6 @@ public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBa
                 "5 new activities",
                 "5 new activities",
                 "Comments and likes from Paul Ko, changmangoo and others");
-    }
-
-    @Test
-    public void shouldNotify99PlusItems() throws Exception {
-        addCannedActivities(
-                "e1_stream.json",
-                "e1_stream_2.json",
-                "e1_stream_oldest.json",
-                "empty_collection.json");
-
-        List<NotificationInfo> notifications = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null).notifications;
-        expect(notifications.size()).toEqual(1);
-        NotificationInfo n = notifications.get(0);
-        expect(n.info.getContentTitle().toString())
-                .toEqual("99+ new sounds");
     }
 
     @Test

@@ -2,9 +2,8 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,13 +21,4 @@ public class ContentStatsTest {
         ContentStats.setLastNotifiedItem(Robolectric.application, Content.ME_SOUND_STREAM, 4000);
         expect(ContentStats.getLastNotifiedItem(Robolectric.application, Content.ME_SOUND_STREAM)).toEqual(4000l);
     }
-
-    @Test
-    public void shouldInit() throws Exception {
-        ContentStats.init(Robolectric.application);
-
-        expect(ContentStats.count(Content.ME_SOUND_STREAM)).toEqual(0);
-        expect(ContentStats.count(Content.ME_ACTIVITIES)).toEqual(0);
-    }
-
 }

@@ -58,9 +58,7 @@ enum SyncContent {
         }
     }
 
-    public static void updateCollections(Context c, Bundle resultData) {
-        SyncStateManager stateManager = new SyncStateManager(c);
-
+    public static void updateCollections(SyncStateManager stateManager, Bundle resultData) {
         for (SyncContent sc : SyncContent.values()) {
             if (resultData.containsKey(sc.content.uri.toString()) &&
                 !resultData.getBoolean(sc.content.uri.toString())) {

@@ -1,20 +1,14 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.inject.Inject;
 
-public final class ContentStats {
-    private static Map<Content, Integer> sCounts = new HashMap<>();
+public class ContentStats {
 
     private static final Content[] CONTENTS = new Content[] {
             Content.ME_SOUND_STREAM,
@@ -24,76 +18,68 @@ public final class ContentStats {
     public static final String NOTIFIED_ITEM = "notified.item";
     public static final String NOTIFIED = "notified";
     public static final String SEEN = "seen";
+    private final Context context;
 
-    /**
-     * Asynchronously updates the unseen counters and broadcast change information to listeners.
-     *
-     * @param context the context.
-     */
-    public static synchronized void init(final Context context) {
-        new AsyncTask<Content, Void, Void>() {
-            @Override
-            protected Void doInBackground(Content... contents) {
-                for (Content content : contents) {
-                    updateCount(context, content,
-                        new ActivitiesStorage().getCountSince(getLastSeen(context, content), content));
-                }
-                return null;
-            }
-        }.execute(CONTENTS);
+    @Inject
+    public ContentStats(Context context) {
+        this.context = context;
     }
 
+    public long getLastSeen(Content content){
+        return getLastSeen(context, content);
+    }
+
+    public long getLastNotified(Content content){
+        return getLastNotified(context, content);
+    }
+
+    public void setLastNotified(Content content, long timestamp) {
+        setLastNotified(context, content, timestamp);
+    }
+
+    public void setLastNotifiedItem(Content content, long timestamp) {
+        setLastNotifiedItem(context, content, timestamp);
+    }
+
+    // Deprecated in favor of using non-static instances above
+
+    @Deprecated
     public static long getLastSeen(Context context, Content content) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, SEEN), 0);
     }
 
+    @Deprecated
     public static long getLastNotified(Context context, Content content) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED), 0);
     }
 
+    @Deprecated
     public static long getLastNotifiedItem(Context context, Content content) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED_ITEM), 0);
     }
 
+    @Deprecated
     public static void setLastSeen(Context context, Content content, long timestamp) {
         setTimestamp(context, SEEN, content, timestamp);
     }
 
+    @Deprecated
     public static void setLastNotified(Context context, Content content, long timestamp) {
         setTimestamp(context, NOTIFIED, content, timestamp);
     }
 
+    @Deprecated
     public static void setLastNotifiedItem(Context context, Content content, long timestamp) {
         setTimestamp(context, NOTIFIED_ITEM, content, timestamp);
     }
 
+    @Deprecated
     public static void setTimestamp(Context context, String key, Content content, long timestamp) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.putLong(prefKey(content, key), timestamp).apply();
     }
 
-    @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
-    public static void updateCount(Context context, Content content, int count) {
-        switch (content) {
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
-                if (count != count(content)) {
-                    sCounts.put(content, count);
-                    context.sendBroadcast(new Intent(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED));
-                }
-                break;
-        }
-    }
-
-    public static int count(Content content) {
-        Integer count = sCounts.get(content);
-        return count == null ? 0 : count;
-    }
-
-    private static String prefKey(Content content, String what) {
-        return "last." + what + "." + content.uri.toString();
-    }
-
+    @Deprecated
     public static void clear(Context context) {
         for (Content c : CONTENTS) {
             setLastSeen(context, c, 1);
@@ -102,6 +88,7 @@ public final class ContentStats {
         }
     }
 
+    @Deprecated
     public static void rewind(Context context, long time) {
         for (Content c : CONTENTS) {
             setLastSeen(context, c, Math.max(0, getLastSeen(context, c) - time));
@@ -110,5 +97,7 @@ public final class ContentStats {
         }
     }
 
-    private ContentStats() {}
+    private static String prefKey(Content content, String what) {
+        return "last." + what + "." + content.uri.toString();
+    }
 }

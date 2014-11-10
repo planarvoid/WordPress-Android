@@ -25,6 +25,7 @@ import rx.Observer;
 import rx.observers.TestObserver;
 
 import java.util.Date;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundStreamStorageTest extends StorageIntegrationTest {
@@ -38,7 +39,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new SoundStreamStorage(testScheduler());
+        storage = new SoundStreamStorage(testScheduler(), propeller());
     }
 
     @Test
@@ -107,7 +108,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadingStreamItemsOnlyLoadsItemsOlderThanTheGivenTimestamp() throws CreateModelException {
+    public void streamItemsBeforeOnlyLoadsItemsOlderThanTheGivenTimestamp() throws CreateModelException {
         testFixtures().insertTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
         final ApiTrack oldestTrack = testFixtures().insertTrack();
         testFixtures().insertTrackPost(oldestTrack.getId(), TIMESTAMP - 1);
@@ -117,6 +118,17 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(oldestTrack.getUrn());
+    }
+
+    @Test
+    public void loadStreamItemsSinceOnlyLoadsItemsNewerThanTheGivenTimestamp() throws CreateModelException {
+        testFixtures().insertTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
+        final ApiTrack newest = testFixtures().insertTrack();
+        testFixtures().insertTrackPost(newest.getId(), TIMESTAMP + 1);
+
+        final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP, Urn.forUser(123), 50);
+        expect(actual.size()).toBe(1);
+        expect(actual.get(0).get(PlayableProperty.URN)).toEqual(newest.getUrn());
     }
 
     @Test

@@ -17,6 +17,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
@@ -24,33 +25,22 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class LegacySoundStreamStorage implements ISoundStreamStorage {
 
     private final DatabaseScheduler scheduler;
+    private final PropellerDatabase database;
 
     @Inject
-    public LegacySoundStreamStorage(DatabaseScheduler scheduler) {
+    public LegacySoundStreamStorage(DatabaseScheduler scheduler, PropellerDatabase database) {
         this.scheduler = scheduler;
+        this.database = database;
     }
 
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
         final Query query = Query.from(Table.ActivityView.name())
-                .select(
-                        ActivityView.SOUND_ID,
-                        ActivityView.SOUND_TYPE,
-                        SoundView.TITLE,
-                        SoundView.USERNAME,
-                        SoundView.DURATION,
-                        SoundView.PLAYBACK_COUNT,
-                        SoundView.TRACK_COUNT,
-                        SoundView.LIKES_COUNT,
-                        ActivityView.CREATED_AT,
-                        ActivityView.TYPE,
-                        ActivityView.USER_USERNAME,
-                        exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
-                        exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)
-                )
+                .select(soundStreamSelection(userUrn))
                 .whereEq(ActivityView.CONTENT_ID, Content.ME_SOUND_STREAM.id)
                 .whereLt(ActivityView.CREATED_AT, timestamp)
                 // TODO: poor man's check to remove orphaned tracks and playlists;
@@ -60,6 +50,33 @@ class LegacySoundStreamStorage implements ISoundStreamStorage {
                 .limit(limit);
 
         return scheduler.scheduleQuery(query).map(new StreamItemMapper());
+    }
+
+    @Override
+    public List<PropertySet> loadStreamItemsSince(final long timestamp, final Urn userUrn, final int limit) {
+        final Query query = Query.from(Table.ActivityView.name())
+                .select(soundStreamSelection(userUrn))
+                .whereGt(ActivityView.CREATED_AT, timestamp)
+                .where(SoundView.TITLE + " IS NOT NULL")
+                .limit(limit);
+
+        return database.query(query).toList(new StreamItemMapper());
+    }
+
+    private Object[] soundStreamSelection(Urn userUrn) {
+        return new Object[]{ActivityView.SOUND_ID,
+                    ActivityView.SOUND_TYPE,
+                    SoundView.TITLE,
+                    SoundView.USERNAME,
+                    SoundView.DURATION,
+                    SoundView.PLAYBACK_COUNT,
+                    SoundView.TRACK_COUNT,
+                    SoundView.LIKES_COUNT,
+                    ActivityView.CREATED_AT,
+                    ActivityView.TYPE,
+                    ActivityView.USER_USERNAME,
+                    exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
+                    exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)};
     }
 
     public Observable<Urn> trackUrns() {

@@ -8,7 +8,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.experiments.ExperimentOperations;
@@ -214,8 +213,6 @@ public class SoundCloudApplication extends Application {
                     requestSetsSync();
                 }
             });
-
-            ContentStats.init(this);
         }
     }
 

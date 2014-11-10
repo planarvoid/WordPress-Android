@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,12 @@ public class SyncAdapterService extends Service {
 
     private AbstractThreadedSyncAdapter syncAdapter;
     private AccountOperations accountOperations;
+
+    @Inject SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory;
+
+    public SyncAdapterService() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public void onCreate() {
@@ -75,7 +82,7 @@ public class SyncAdapterService extends Service {
 
                         looper.quit();
                     }
-                })) {
+                }, syncServiceResultReceiverFactory)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApiWrapper.setBackgroundMode(false);
@@ -117,7 +124,8 @@ public class SyncAdapterService extends Service {
                                Bundle extras,
                                final SyncResult syncResult,
                                @Nullable Token token,
-                               final @Nullable Runnable onResult) {
+                               final @Nullable Runnable onResult,
+                               final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory) {
         if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -138,19 +146,16 @@ public class SyncAdapterService extends Service {
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
-            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new SyncServiceResultReceiver(app, syncResult, extras) {
+            final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, extras, new SyncServiceResultReceiver.OnResultListener() {
                 @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    try {
-                        super.onReceiveResult(resultCode, resultData);
-                    } finally {
-                        // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
-                        if (onResult != null) {
-                            onResult.run();
-                        }
+                public void onResultReceived() {
+                    // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
+                    if (onResult != null) {
+                        onResult.run();
                     }
                 }
             });
+            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, syncServiceResultReceiver);
             app.startService(syncIntent);
             return true;
         } else {
