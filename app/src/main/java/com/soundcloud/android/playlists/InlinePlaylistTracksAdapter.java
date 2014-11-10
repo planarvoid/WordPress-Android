@@ -15,8 +15,8 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<PropertySet> implements Em
 
     @Inject
     InlinePlaylistTracksAdapter(TrackItemPresenter trackPresenter, EmptyPlaylistTracksPresenter emptyViewPresenter) {
-        super(new CellPresenterEntity<PropertySet>(DEFAULT_VIEW_TYPE, trackPresenter),
-                new CellPresenterEntity<PropertySet>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
+        super(new CellPresenterEntity<>(DEFAULT_VIEW_TYPE, trackPresenter),
+                new CellPresenterEntity<>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
         this.emptyViewPresenter = emptyViewPresenter;
         this.trackPresenter = trackPresenter;
     }
