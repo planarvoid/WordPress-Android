@@ -78,6 +78,8 @@ class SubscribeController {
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
                 subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
+            } else if (status.isUnsupported()) {
+                showText(R.string.payments_connection_unavailable);
             }
         }
     }

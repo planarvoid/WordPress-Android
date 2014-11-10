@@ -311,6 +311,7 @@
 
     <!-- __PAYMENTS -->
     <string name="payments_connection_error">Connection error</string>
+    <string name="payments_connection_unavailable">Google Play billing is not available</string>
     <string name="payments_user_cancelled">User cancelled</string>
     <string name="payments_none_available">No subscription available</string>
     <string name="payments_verifying">Verifying</string>
