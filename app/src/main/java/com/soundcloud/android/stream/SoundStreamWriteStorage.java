@@ -37,7 +37,7 @@ public class SoundStreamWriteStorage {
 
     private static class ReplaceTransaction extends InsertTransaction {
 
-        private ReplaceTransaction(Iterable<ApiStreamItem> streamItems) {
+        ReplaceTransaction(Iterable<ApiStreamItem> streamItems) {
             super(streamItems);
         }
 
@@ -53,7 +53,7 @@ public class SoundStreamWriteStorage {
 
         private final Iterable<ApiStreamItem> streamItems;
 
-        private InsertTransaction(Iterable<ApiStreamItem> streamItems) {
+        InsertTransaction(Iterable<ApiStreamItem> streamItems) {
             this.streamItems = streamItems;
         }
 

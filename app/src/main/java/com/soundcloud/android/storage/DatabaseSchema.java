@@ -2,6 +2,9 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.api.legacy.model.Playable;
 
+// I have an idea for how to generate these things going forward, so let's not spend
+// time on improving the string building mess here.
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 final class DatabaseSchema {
 
     static final String DATABASE_CREATE_SOUNDSTREAM = "(" +

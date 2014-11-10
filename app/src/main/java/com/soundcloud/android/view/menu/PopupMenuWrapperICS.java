@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.menu;
 
 import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
-import com.soundcloud.android.playback.ui.TrackPageMenuController;
 
 import android.annotation.TargetApi;
 import android.content.Context;
