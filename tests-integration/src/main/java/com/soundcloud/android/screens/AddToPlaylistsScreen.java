@@ -14,7 +14,8 @@ public class AddToPlaylistsScreen extends Screen {
         return MainActivity.class;
     }
 
-    public void waitForDialog() {
-        waiter.waitForFragmentByTag("create_playlist_dialog");
+    @Override
+    public boolean isVisible() {
+        return waiter.waitForFragmentByTag("create_playlist_dialog");
     }
 }

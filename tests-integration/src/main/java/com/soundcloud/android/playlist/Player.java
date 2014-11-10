@@ -52,7 +52,6 @@ public class Player extends ActivityTestCase<MainActivity> {
                 .click();
 
         final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
-        addToPlaylistsScreen.waitForDialog();
         assertThat(addToPlaylistsScreen, is(visible()));
     }
 

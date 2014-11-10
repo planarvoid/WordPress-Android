@@ -46,7 +46,7 @@ import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 public class AddToPlaylistDialogFragment extends BaseDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String PLAYLIST_DIALOG_TAG = "playlist_dialog";
+    private static final String PLAYLIST_DIALOG_TAG = "create_playlist_dialog";
     private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
