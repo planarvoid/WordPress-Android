@@ -2,8 +2,8 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
@@ -165,5 +165,4 @@ public class Search extends ActivityTestCase<MainActivity> {
         solo.getSolo().scrollDown();
         assertEquals("Keyboard should be hidden when scrolling", false, playlistTagsScreen.isKeyboardShown());
     }
-
 }

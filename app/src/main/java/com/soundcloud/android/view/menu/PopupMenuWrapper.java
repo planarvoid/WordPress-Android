@@ -9,6 +9,7 @@ import android.view.View;
 public interface PopupMenuWrapper {
 
     void inflate(int menuResourceId);
+    MenuItem findItem(int itemId);
     void setOnMenuItemClickListener(TrackMenuWrapperListener trackMenuWrapperListener);
     void setOnDismissListener(TrackMenuWrapperListener trackMenuWrapperListener);
     void show();

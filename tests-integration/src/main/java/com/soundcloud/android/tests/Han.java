@@ -223,6 +223,10 @@ public class Han  {
         return solo.scrollListToTop(index);
     }
 
+    public void scrollListToLine(int line) {
+        solo.scrollListToLine(0, line);
+    }
+
     public void scrollToBottom(AbsListView view) {
         solo.scrollListToBottom(view);
     }

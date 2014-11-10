@@ -3,6 +3,7 @@ package com.soundcloud.android.screens.search;
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.SearchActivity;
@@ -48,9 +49,10 @@ public class SearchResultsScreen extends Screen {
         testDriver.goBack();
     }
 
-    public void touchTracksTab() {
+    public SearchResultsScreen touchTracksTab() {
         touchTab(TRACKS_TAB_TEXT);
         waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
     }
 
     public void touchPlaylistsTab() {
@@ -66,6 +68,15 @@ public class SearchResultsScreen extends Screen {
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
         testDriver.scrollToBottom((ListView) getViewPager().getCurrentPage(ListView.class));
         waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
+    public TrackItemMenuElement clickFirstTrackOverflowButton() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElements(R.id.overflow_button);
+        testDriver
+                .findElements(With.id(R.id.overflow_button))
+                .get(0).click();
+        return new TrackItemMenuElement(testDriver);
     }
 
     private void touchTab(String tabText) {

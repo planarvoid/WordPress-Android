@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
@@ -39,6 +40,15 @@ public class LikesScreen extends Screen {
     private List<ViewElement> tracks() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElements(With.id(R.id.track_list_item));
+    }
+
+    public TrackItemMenuElement clickFirstTrackOverflowButton() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElements(R.id.overflow_button);
+        testDriver
+                .findElements(With.id(R.id.overflow_button))
+                .get(0).click();
+        return new TrackItemMenuElement(testDriver);
     }
 
     @Override

@@ -2,9 +2,10 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class ProfileScreen extends Screen {
@@ -20,6 +21,15 @@ public class ProfileScreen extends Screen {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public TrackItemMenuElement clickFirstTrackOverflowButton() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElements(R.id.overflow_button);
+        testDriver
+                .findElements(With.id(R.id.overflow_button))
+                .get(0).click();
+        return new TrackItemMenuElement(testDriver);
     }
 
     private java.util.List<ViewElement> tracks() {

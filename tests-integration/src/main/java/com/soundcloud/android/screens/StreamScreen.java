@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.StreamList;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
@@ -42,6 +43,15 @@ public class StreamScreen extends Screen {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public TrackItemMenuElement clickFirstTrackOverflowButton() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElements(R.id.overflow_button);
+        testDriver
+                .findElements(With.id(R.id.overflow_button))
+                .get(0).click();
+        return new TrackItemMenuElement(testDriver);
     }
 
     private StreamList streamList() {

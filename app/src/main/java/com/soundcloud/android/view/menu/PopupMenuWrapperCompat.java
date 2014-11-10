@@ -23,6 +23,11 @@ public class PopupMenuWrapperCompat implements PopupMenuWrapper {
     }
 
     @Override
+    public MenuItem findItem(int itemId) {
+        return popupMenu.getMenu().findItem(itemId);
+    }
+
+    @Override
     public void setOnMenuItemClickListener(final TrackMenuWrapperListener listener) {
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override

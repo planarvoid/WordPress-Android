@@ -1,4 +1,4 @@
-package com.soundcloud.android;
+package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.tests.TestUser.streamUser;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,4 +33,5 @@ public class StreamTest extends ActivityTestCase<LauncherActivity> {
         streamScreen = new StreamScreen(solo);
         assertThat(streamScreen.getItemCount(), is(greaterThan(0)));
     }
+
 }
