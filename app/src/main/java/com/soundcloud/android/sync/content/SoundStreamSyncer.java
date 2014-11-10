@@ -28,11 +28,16 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Map;
 
 public class SoundStreamSyncer implements SyncStrategy {
 
+
+
     @VisibleForTesting
+    static final String FUTURE_LINK_REL = "future";
     static final String PREFS_NEXT_URL = "next_url";
+    static final String PREFS_FUTURE_URL = "future_url";
 
     private static final String SHARED_PREFS_NAME = "StreamSync";
 
@@ -61,16 +66,18 @@ public class SoundStreamSyncer implements SyncStrategy {
     @NotNull
     @Override
     public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiMapperException {
-        Log.d("syncActivities(" + uri + "); action=" + action);
+        Log.d(this, "syncActivities(" + uri + "); action=" + action);
 
-        if (ApiSyncService.ACTION_HARD_REFRESH.equals(action)) {
-            return refreshSoundStream();
-
-        } else if (ApiSyncService.ACTION_APPEND.equals(action)) {
+        if (ApiSyncService.ACTION_APPEND.equals(action)) {
             return appendStreamItems();
 
+        } else if (ApiSyncService.ACTION_HARD_REFRESH.equals(action) || missingFuturePageUrl()) {
+            return refreshSoundStream();
+
+        } else {
+            return prependActivities();
+
         }
-        return new ApiSyncResult(uri);
     }
 
     private ApiSyncResult refreshSoundStream() throws IOException, ApiMapperException {
@@ -85,6 +92,11 @@ public class SoundStreamSyncer implements SyncStrategy {
         writeStorage.replaceStreamItems(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
         setNextPageUrl(streamItems.getNextLink());
 
+        final Map<String, Link> links = streamItems.getLinks();
+        if (links.containsKey(FUTURE_LINK_REL)){
+            setFuturePageUrl(links.get(FUTURE_LINK_REL));
+        }
+
         return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
     }
 
@@ -93,7 +105,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         if (hasNextPageUrl()){
 
             final String nextPageUrl = getNextPageUrl();
-            Log.d("Building soundstream request from stored next link " + nextPageUrl);
+            Log.d(this, "Building soundstream request from stored next link " + nextPageUrl);
 
             final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
                     ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(nextPageUrl)
@@ -113,8 +125,32 @@ public class SoundStreamSyncer implements SyncStrategy {
 
         } else {
 
-            Log.d("No Next SoundStream page link found. Aborting append");
+            Log.d(this, "No Next SoundStream page link found. Aborting append");
             return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
+        }
+    }
+
+    private ApiSyncResult prependActivities() throws ApiMapperException {
+        final String previousPageUrl = getFuturePageUrl();
+        Log.d(this, "Building soundstream request from stored future link " + previousPageUrl);
+
+        final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
+                ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(previousPageUrl)
+                        .forResource(collectionTypeToken)
+                        .forPrivateApi(1);
+
+        ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build());
+        final Map<String, Link> links = streamItems.getLinks();
+        if (links.containsKey(FUTURE_LINK_REL)) {
+            setFuturePageUrl(links.get(FUTURE_LINK_REL));
+        }
+
+        if (streamItems.getCollection().isEmpty()) {
+            return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
+
+        } else {
+            writeStorage.insertStreamItems(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
+            return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
         }
     }
 
@@ -126,15 +162,29 @@ public class SoundStreamSyncer implements SyncStrategy {
         return syncPreferences.contains(PREFS_NEXT_URL);
     }
 
+    private String getFuturePageUrl() {
+        return syncPreferences.getString(PREFS_FUTURE_URL, ScTextUtils.EMPTY_STRING);
+    }
+
+    private boolean missingFuturePageUrl() {
+        return !syncPreferences.contains(PREFS_FUTURE_URL);
+    }
+
     private void setNextPageUrl(Optional<Link> nextLink) {
         if (nextLink.isPresent()) {
             final String href = nextLink.get().getHref();
-            Log.d("Writing next soundstream link to preferences : " + href);
+            Log.d(this, "Writing next soundstream link to preferences : " + href);
             syncPreferences.edit().putString(PREFS_NEXT_URL, href).apply();
         } else {
-            Log.d("No next link in soundstream response, clearing any stored link");
+            Log.d(this, "No next link in soundstream response, clearing any stored link");
             syncPreferences.edit().remove(PREFS_NEXT_URL).apply();
         }
+    }
+
+    private void setFuturePageUrl(Link futureLink) {
+        final String href = futureLink.getHref();
+        Log.d(this, "Writing future soundstream link to preferences : " + href);
+        syncPreferences.edit().putString(PREFS_FUTURE_URL, href).apply();
     }
 
 }
