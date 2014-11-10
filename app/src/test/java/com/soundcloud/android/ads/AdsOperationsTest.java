@@ -16,8 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.AdFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -51,18 +49,15 @@ public class AdsOperationsTest {
     @Mock private TrackWriteStorage trackWriteStorage;
     @Mock private DeviceHelper deviceHelper;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private FeatureFlags featureFlags;
     private PlaySessionSource playSessionSource;
 
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(trackWriteStorage, deviceHelper, playQueueManager, featureFlags, apiScheduler);
+        adsOperations = new AdsOperations(trackWriteStorage, deviceHelper, playQueueManager, apiScheduler);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         playSessionSource = new PlaySessionSource("origin");
         playSessionSource.setExploreVersion("1.0");
-
-        when(featureFlags.isEnabled(Feature.INTERSTITIAL)).thenReturn(true);
     }
 
     @Test

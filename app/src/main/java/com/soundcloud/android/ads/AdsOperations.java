@@ -11,8 +11,6 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -28,7 +26,6 @@ public class AdsOperations {
     private final TrackWriteStorage trackWriteStorage;
     private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
-    private final FeatureFlags featureFlags;
     private final ApiScheduler apiScheduler;
     private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
         @Override
@@ -47,11 +44,10 @@ public class AdsOperations {
 
     @Inject
     AdsOperations(TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper,
-                  PlayQueueManager playQueueManager, FeatureFlags featureFlags, ApiScheduler apiScheduler) {
+                  PlayQueueManager playQueueManager, ApiScheduler apiScheduler) {
         this.trackWriteStorage = trackWriteStorage;
         this.deviceHelper = deviceHelper;
         this.playQueueManager = playQueueManager;
-        this.featureFlags = featureFlags;
         this.apiScheduler = apiScheduler;
     }
 
@@ -71,7 +67,7 @@ public class AdsOperations {
         checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
         if (ads.hasAudioAd()) {
             insertAudioAd(monetizableTrack, ads.audioAd(), currentMonetizablePosition);
-        } else if (ads.hasInterstitialAd() && featureFlags.isEnabled(Feature.INTERSTITIAL)) {
+        } else if (ads.hasInterstitialAd()) {
             applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
         }
     }
