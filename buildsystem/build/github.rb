@@ -17,6 +17,7 @@ module Build
         authorized_connection.post("/repos/#{OWNER}/#{REPO}/issues", :body => {
          :title      => issue.title,
          :body       => issue.body,
+         :labels     => "release"
         }.to_json)
       end
     end
