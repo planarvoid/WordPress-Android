@@ -7,7 +7,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
-import rx.functions.Functions;
+import rx.internal.util.UtilityFunctions;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -54,7 +54,7 @@ public class PlaybackNotificationPresenter {
     }
 
     Func1<Notification, Notification> updateToPlayingState() {
-        return Functions.identity();
+        return UtilityFunctions.identity();
     }
 
     boolean updateToIdleState(Observable<Notification> notificationObservable, Subscriber<Notification> notificationSubscriber) {

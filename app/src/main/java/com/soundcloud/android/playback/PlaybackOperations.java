@@ -96,7 +96,7 @@ public class PlaybackOperations {
     }
 
     public Observable<List<Urn>> playTrackWithRecommendations(Urn track, PlaySessionSource playSessionSource) {
-        return playTracksList(Observable.from(track).toList(), track, 0, playSessionSource, true);
+        return playTracksList(Observable.just(track).toList(), track, 0, playSessionSource, true);
     }
 
     public Observable<List<Urn>> playTracksShuffled(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
@@ -118,11 +118,11 @@ public class PlaybackOperations {
 
     public Observable<List<Urn>> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
         modelManager.cache(track);
-        return playTracksList(Observable.from(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);
+        return playTracksList(Observable.just(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);
     }
 
     public Observable<List<Urn>> startPlaybackWithRecommendations(Urn urn, Screen screen) {
-        return playTracksList(Observable.from(urn).toList(), urn, 0, new PlaySessionSource(screen), true);
+        return playTracksList(Observable.just(urn).toList(), urn, 0, new PlaySessionSource(screen), true);
     }
 
     public void togglePlayback() {

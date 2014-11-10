@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -15,7 +14,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -23,6 +21,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.ListViewController;
@@ -59,7 +58,6 @@ public class SearchResultsFragmentTest {
     @Mock private Subscription subscription;
     @Mock private ListViewController listViewController;
     @Mock private SearchResultsAdapter adapter;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     @Before
     public void setUp() {
@@ -176,7 +174,7 @@ public class SearchResultsFragmentTest {
 
     private SearchResultsFragment createFragment(int searchType) {
         SearchResultsFragment fragment = new SearchResultsFragment(
-                operations, playbackOperations, listViewController, adapter, buildProvider(expandPlayerSubscriber), eventBus);
+                operations, playbackOperations, listViewController, adapter, TestSubscribers.expandPlayerSubscriber(), eventBus);
 
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
 

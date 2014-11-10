@@ -46,7 +46,7 @@ public class PlayQueueStorage {
             }
         }
 
-        return clearAsync().mergeMap(new Func1<ChangeResult, Observable<TxnResult>>() {
+        return clearAsync().flatMap(new Func1<ChangeResult, Observable<TxnResult>>() {
             @Override
             public Observable<TxnResult> call(ChangeResult changeResult) {
                 return scheduler.scheduleBulkInsert(TABLE, newItems);

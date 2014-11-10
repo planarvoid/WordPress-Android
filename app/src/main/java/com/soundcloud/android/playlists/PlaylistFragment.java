@@ -161,7 +161,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadPlaylist = bindFragment(this, legacyPlaylistOperations.loadPlaylist(getPlaylistUrn()).cache(1));
+        loadPlaylist = bindFragment(this, legacyPlaylistOperations.loadPlaylist(getPlaylistUrn()).cache());
     }
 
     @Override

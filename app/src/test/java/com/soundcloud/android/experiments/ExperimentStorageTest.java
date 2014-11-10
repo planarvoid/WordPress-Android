@@ -53,7 +53,7 @@ public class ExperimentStorageTest {
         writeAssignment(getAssignmentHandle(), JSON);
         when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenReturn(assignment);
 
-        expect(storage.loadAssignmentAsync().toBlockingObservable().first()).not.toBeNull();
+        expect(storage.loadAssignmentAsync().toBlocking().first()).not.toBeNull();
     }
 
     @Test

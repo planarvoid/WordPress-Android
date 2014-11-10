@@ -14,8 +14,9 @@
 
     <properties>
         <dagger.version>1.2.1</dagger.version>
-        <rxjava.version>0.20.0-RC3</rxjava.version>
-        <propeller.version>0.26</propeller.version>
+        <rxandroid.version>0.22.0</rxandroid.version>
+        <rxjava.version>1.0.0-rc.9</rxjava.version>
+        <propeller.version>0.27</propeller.version>
     </properties>
 
     <build>
@@ -208,12 +209,6 @@
             <version>${propeller.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.android</groupId>
-                    <artifactId>android</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -254,6 +249,12 @@
             <groupId>com.intellij</groupId>
             <artifactId>annotations</artifactId>
             <version>9.0.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -380,14 +381,19 @@
             <type>aar</type>
         </dependency>
         <dependency>
-            <groupId>com.netflix.rxjava</groupId>
-            <artifactId>rxjava-android</artifactId>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxandroid</artifactId>
+            <version>${rxandroid.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
             <version>${rxjava.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.netflix.rxjava</groupId>
+            <groupId>io.reactivex</groupId>
             <artifactId>rxjava-debug</artifactId>
-            <version>${rxjava.version}</version>
+            <version>0.21.0</version>
         </dependency>
         <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>

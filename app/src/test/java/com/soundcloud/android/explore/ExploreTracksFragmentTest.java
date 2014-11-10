@@ -12,13 +12,13 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -35,7 +35,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-import javax.inject.Provider;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -53,7 +52,6 @@ public class ExploreTracksFragmentTest {
     @Mock private PullToRefreshController pullToRefreshController;
     @Mock private ListViewController listViewController;
     @Mock private Subscription subscription;
-    @Mock private ExpandPlayerSubscriber subscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -63,12 +61,7 @@ public class ExploreTracksFragmentTest {
         when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<List<Urn>>empty());
         fragment = new ExploreTracksFragment(adapter, playbackOperations, exploreTracksOperations,
-                pullToRefreshController, listViewController, new Provider<ExpandPlayerSubscriber>() {
-            @Override
-            public ExpandPlayerSubscriber get() {
-                return subscriber;
-            }
-        });
+                pullToRefreshController, listViewController, TestSubscribers.expandPlayerSubscriber());
         fragmentArgs.putParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA, ExploreGenre.POPULAR_AUDIO_CATEGORY);
         fragmentArgs.putString(ExploreTracksFragment.SCREEN_TAG_EXTRA, "screen");
         fragment.setArguments(fragmentArgs);

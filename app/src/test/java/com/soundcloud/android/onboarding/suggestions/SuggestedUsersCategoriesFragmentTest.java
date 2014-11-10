@@ -35,8 +35,8 @@ public class SuggestedUsersCategoriesFragmentTest {
     @Before
     public void setup() throws CreateModelException {
         SuggestedUsersOperations operations = mock(SuggestedUsersOperations.class);
-        when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
-        when(operations.getMusicAndSoundsSuggestions()).thenReturn(Observable.from(audio(), music()).cache());
+        when(operations.getCategoryGroups()).thenReturn(Observable.just(audio(), music()).cache());
+        when(operations.getMusicAndSoundsSuggestions()).thenReturn(Observable.just(audio(), music()).cache());
 
         fragment = new SuggestedUsersCategoriesFragment(operations, observer, adapter);
 

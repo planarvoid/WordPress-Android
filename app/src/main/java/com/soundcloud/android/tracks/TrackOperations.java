@@ -49,7 +49,7 @@ public class TrackOperations {
     }
 
     public Observable<PropertySet> track(final Urn trackUrn) {
-        return trackFromStorage(trackUrn).toList().mergeMap(syncIfEmpty(trackUrn));
+        return trackFromStorage(trackUrn).toList().flatMap(syncIfEmpty(trackUrn));
     }
 
     Observable<PropertySet> fullTrackWithUpdate(final Urn trackUrn) {
@@ -80,7 +80,7 @@ public class TrackOperations {
 
     private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {
         return syncInitiator.syncTrack(trackUrn)
-                .mergeMap(new Func1<Boolean, Observable<PropertySet>>() {
+                .flatMap(new Func1<Boolean, Observable<PropertySet>>() {
                     @Override
                     public Observable<PropertySet> call(Boolean trackWasUpdated) {
                         return loadObservable;

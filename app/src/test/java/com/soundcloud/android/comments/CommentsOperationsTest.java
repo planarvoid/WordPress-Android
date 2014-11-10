@@ -85,7 +85,6 @@ public class CommentsOperationsTest {
         operations.addComment(Urn.forTrack(123L), "some comment text", 2001L).subscribe(subscriber);
 
         expect(subscriber.getOnNextEvents()).toContainExactly(comment);
-        subscriber.assertTerminalEvent();
-        subscriber.assertNoErrors();
+        expect(subscriber.getOnCompletedEvents()).toNumber(1);
     }
 }

@@ -77,7 +77,7 @@ public class WaveformFetcherTest {
     public void emittedWaveformIsNotNull() throws Exception {
         setupValidWaveformResponse();
 
-        WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlockingObservable().lastOrDefault(null);
+        WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlocking().lastOrDefault(null);
         expect(waveformData).not.toBeNull();
     }
 
@@ -85,7 +85,7 @@ public class WaveformFetcherTest {
     public void emittedWaveformSetsMaxAmplitude() throws Exception {
         setupValidWaveformResponse();
 
-        WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlockingObservable().lastOrDefault(null);
+        WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlocking().lastOrDefault(null);
         expect(waveformData.maxAmplitude).toEqual(140);
     }
 
@@ -93,7 +93,7 @@ public class WaveformFetcherTest {
     public void emittedWaveformSetsSamples() throws Exception {
         setupValidWaveformResponse();
 
-        WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlockingObservable().lastOrDefault(null);
+        WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlocking().lastOrDefault(null);
         assertArrayEquals(waveformData.samples, new int[]{3, 6, 8, 24, 63, 140});
     }
 
@@ -120,7 +120,7 @@ public class WaveformFetcherTest {
         final byte[] waveformBytes = VALID_WAVEFORM_DATA.getBytes(Charsets.UTF_8.name());
         when(assets.open("default_waveform.json")).thenReturn(new ByteArrayInputStream(waveformBytes));
 
-        expect(fetcher.fetchDefault().toBlockingObservable().lastOrDefault(null)).not.toBe(null);
+        expect(fetcher.fetchDefault().toBlocking().lastOrDefault(null)).not.toBe(null);
     }
 
     @Test

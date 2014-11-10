@@ -28,7 +28,7 @@ public class UserOperations extends ScheduledOperations {
                 .forPublicApi()
                 .forResource(PublicApiUser.class)
                 .build();
-        return apiScheduler.mappedResponse(request).mergeMap(new Func1<PublicApiUser, Observable<PublicApiUser>>() {
+        return apiScheduler.mappedResponse(request).flatMap(new Func1<PublicApiUser, Observable<PublicApiUser>>() {
             @Override
             public Observable<PublicApiUser> call(PublicApiUser user) {
                 return userStorage.createOrUpdateAsync(user);

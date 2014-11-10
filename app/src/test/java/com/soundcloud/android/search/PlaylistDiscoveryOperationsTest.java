@@ -133,7 +133,7 @@ public class PlaylistDiscoveryOperationsTest {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
         collection.setCollection(Arrays.asList(playlist));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.<ModelCollection<ApiPlaylist>>from(collection));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
         return collection;
     }
 

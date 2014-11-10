@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.withSubscription;
-import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -18,12 +17,12 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.propeller.PropertySet;
@@ -59,7 +58,6 @@ public class SoundStreamFragmentTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private Subscription subscription;
     @Mock private EmptyView emptyView;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     @Before
     public void setup() {
@@ -69,7 +67,8 @@ public class SoundStreamFragmentTest {
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
-        fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController, playbackOperations, buildProvider(expandPlayerSubscriber));
+        fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController,
+                playbackOperations, TestSubscribers.expandPlayerSubscriber());
         fragment.onAttach(activity);
     }
 

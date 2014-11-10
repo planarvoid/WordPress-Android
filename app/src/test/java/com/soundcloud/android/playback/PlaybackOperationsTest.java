@@ -87,7 +87,7 @@ public class PlaybackOperationsTest {
     @Test
      public void playTrackSetsPlayQueueOnPlayQueueManagerFromInitialTrack() {
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
     }
@@ -95,7 +95,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playTrackOpensCurrentTrackThroughService() {
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkLastStartedServiceForPlayCurrentAction();
     }
@@ -104,7 +104,7 @@ public class PlaybackOperationsTest {
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN));
+        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN));
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).toBeNull();
@@ -116,7 +116,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
 
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO)).subscribe();
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).not.toBeNull();
@@ -678,7 +678,7 @@ public class PlaybackOperationsTest {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
+        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
         expectUnskippableException();
     }
@@ -689,7 +689,7 @@ public class PlaybackOperationsTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.from(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkSetNewPlayQueueArgs(0, playSessionSource, track.getId());
     }

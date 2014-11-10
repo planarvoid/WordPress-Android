@@ -33,7 +33,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Functions;
+import rx.internal.util.UtilityFunctions;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -263,8 +263,8 @@ public class PlaybackNotificationControllerTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        when(playbackNotificationPresenter.updateToPlayingState()).thenReturn(Functions.<Notification>identity());
-        expect(controller.playingNotification().toBlockingObservable().lastOrDefault(null)).toBe(notification);
+        when(playbackNotificationPresenter.updateToPlayingState()).thenReturn(UtilityFunctions.<Notification>identity());
+        expect(controller.playingNotification().toBlocking().lastOrDefault(null)).toBe(notification);
     }
 
     @Test
@@ -273,8 +273,8 @@ public class PlaybackNotificationControllerTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        when(playbackNotificationPresenter.updateToPlayingState()).thenReturn(Functions.<Notification>identity());
-        controller.playingNotification().toBlockingObservable().lastOrDefault(null);
+        when(playbackNotificationPresenter.updateToPlayingState()).thenReturn(UtilityFunctions.<Notification>identity());
+        controller.playingNotification().toBlocking().lastOrDefault(null);
         verify(playbackNotificationPresenter).updateToPlayingState();
     }
 
@@ -288,7 +288,7 @@ public class PlaybackNotificationControllerTest {
 
         ArgumentCaptor<Observable> captor = ArgumentCaptor.forClass(Observable.class);
         verify(playbackNotificationPresenter).updateToIdleState(captor.capture(), any(Subscriber.class));
-        expect(captor.getValue().toBlockingObservable().lastOrDefault(null)).toBe(notification);
+        expect(captor.getValue().toBlocking().lastOrDefault(null)).toBe(notification);
     }
 
     @Test

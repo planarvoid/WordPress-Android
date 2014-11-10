@@ -64,7 +64,7 @@ public class PlaybackNotificationController {
             notificationObservable = trackOperations
                     .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
                     .map(mergeMetaData(playQueueEvent.getCurrentMetaData()))
-                    .mergeMap(toNotification).cache();
+                    .flatMap(toNotification).cache();
 
             return notificationObservable;
         }
@@ -87,7 +87,7 @@ public class PlaybackNotificationController {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .mergeMap(onPlayQueueEventFunc).subscribe(new PlaylistSubscriber());
+                .flatMap(onPlayQueueEventFunc).subscribe(new PlaylistSubscriber());
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
             @Override

@@ -69,7 +69,7 @@ class SoundStreamOperations {
     }
 
     public Observable<List<PropertySet>> updatedStreamItems() {
-        return syncInitiator.refreshSoundStream().mergeMap(handleSyncResult(INITIAL_TIMESTAMP));
+        return syncInitiator.refreshSoundStream().flatMap(handleSyncResult(INITIAL_TIMESTAMP));
     }
 
     /**
@@ -93,7 +93,7 @@ class SoundStreamOperations {
         Log.d(TAG, "Preparing page with user=" + currentUserUrn + "; timestamp=" + timestamp);
         return legacySoundStreamStorage
                 .streamItemsBefore(timestamp, currentUserUrn, PAGE_SIZE).toList()
-                .mergeMap(handleLocalResult(timestamp, syncCompleted));
+                .flatMap(handleLocalResult(timestamp, syncCompleted));
     }
 
     private Func1<List<PropertySet>, Observable<List<PropertySet>>> handleLocalResult(
@@ -119,10 +119,10 @@ class SoundStreamOperations {
         } else {
             if (timestamp == INITIAL_TIMESTAMP) {
                 Log.d(TAG, "First page; triggering full sync");
-                return syncInitiator.refreshSoundStream().mergeMap(handleSyncResult(timestamp));
+                return syncInitiator.refreshSoundStream().flatMap(handleSyncResult(timestamp));
             } else {
                 Log.d(TAG, "Not on first page; triggering backfill sync");
-                return syncInitiator.backfillSoundStream().mergeMap(handleSyncResult(timestamp));
+                return syncInitiator.backfillSoundStream().flatMap(handleSyncResult(timestamp));
             }
         }
     }

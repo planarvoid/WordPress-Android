@@ -57,7 +57,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldMarkFollowingWithoutToken() throws Exception {
         user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        expect(storage.follow(user).toBlockingObservable().last().getUser()).toEqual(user);
+        expect(storage.follow(user).toBlocking().last().getUser()).toEqual(user);
 
         UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
@@ -67,7 +67,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldMarkFollowingAndStoreToken() throws Exception {
         SuggestedUser suggestedUser = ModelFixtures.create(SuggestedUser.class);
-        expect(storage.followSuggestedUser(suggestedUser).toBlockingObservable().last().getUser()).toEqual(new PublicApiUser(suggestedUser));
+        expect(storage.followSuggestedUser(suggestedUser).toBlocking().last().getUser()).toEqual(new PublicApiUser(suggestedUser));
 
         UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, suggestedUser.getId());
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
@@ -77,7 +77,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldMarkFollowingForAdditionAndUpdateFollowersCount() throws Exception {
         user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        expect(storage.follow(user).toBlockingObservable().last().getUser()).toEqual(user);
+        expect(storage.follow(user).toBlocking().last().getUser()).toEqual(user);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT + 1);
@@ -103,7 +103,7 @@ public class UserAssociationStorageTest {
         TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
-        storage.unfollow(user).toBlockingObservable().last();
+        storage.unfollow(user).toBlocking().last();
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);// should still exist but marked for removal
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT - 1);
@@ -131,7 +131,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkInsertFollowings() throws Exception {
         final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
-        final Iterable<UserAssociation> newAssociations = storage.followList(users).toBlockingObservable().toIterable();
+        final Iterable<UserAssociation> newAssociations = storage.followList(users).toBlocking().toIterable();
 
         expect(Iterables.transform(newAssociations, new Function<UserAssociation, Object>() {
             @Override
@@ -150,7 +150,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkInsertFollowingsFromSuggestedUsers() throws Exception {
         final List<SuggestedUser> suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
-        expect(storage.followSuggestedUserList(suggestedUsers).toBlockingObservable().last().getUser()).toEqual(new PublicApiUser(suggestedUsers.get(2)));
+        expect(storage.followSuggestedUserList(suggestedUsers).toBlocking().last().getUser()).toEqual(new PublicApiUser(suggestedUsers.get(2)));
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
 
         for (SuggestedUser suggestedUser : suggestedUsers) {
@@ -163,7 +163,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkMarkFollowingsForRemoval() throws Exception {
         List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
-        storage.unfollowList(users).toBlockingObservable().last();
+        storage.unfollowList(users).toBlocking().last();
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
         for (PublicApiUser user : users) {
             expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
@@ -268,7 +268,7 @@ public class UserAssociationStorageTest {
     public void shouldQueryFollowings() {
         TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        expect(Iterables.size(storage.getFollowings().toBlockingObservable().toIterable())).toEqual(2);
+        expect(Iterables.size(storage.getFollowings().toBlocking().toIterable())).toEqual(2);
     }
 
     @Test
@@ -277,7 +277,7 @@ public class UserAssociationStorageTest {
         TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        expect(Iterables.size(storage.getFollowings().toBlockingObservable().toIterable())).toEqual(1);
+        expect(Iterables.size(storage.getFollowings().toBlocking().toIterable())).toEqual(1);
     }
 
     @Test
@@ -341,7 +341,7 @@ public class UserAssociationStorageTest {
         TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
-        List<UserAssociation> userAssociations = Lists.newArrayList(storage.getFollowings().toBlockingObservable().getIterator());
+        List<UserAssociation> userAssociations = Lists.newArrayList(storage.getFollowings().toBlocking().getIterator());
 
         UserAssociation association = userAssociations.get(0);
         association.markForAddition();
@@ -359,7 +359,7 @@ public class UserAssociationStorageTest {
         TestHelper.bulkInsertToUserAssociations(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
-        UserAssociation association = storage.getFollowings().toBlockingObservable().last();
+        UserAssociation association = storage.getFollowings().toBlocking().last();
         expect(storage.setFollowingAsSynced(association)).toBeFalse();
     }
 
@@ -433,7 +433,7 @@ public class UserAssociationStorageTest {
         UserAssociation association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());
         expect(association2.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
 
-        storage.setFollowingsAsSynced(Lists.newArrayList(association1, association2)).toBlockingObservable().last();
+        storage.setFollowingsAsSynced(Lists.newArrayList(association1, association2)).toBlocking().last();
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         association1 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(0).getId());

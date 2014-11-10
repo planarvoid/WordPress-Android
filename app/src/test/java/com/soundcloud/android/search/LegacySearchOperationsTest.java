@@ -105,7 +105,7 @@ public class LegacySearchOperationsTest {
         PublicApiResource unknown = new UnknownResource();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(
                 track, playlist, unknown, user));
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
         PublicApiTrack cachedTrack = new PublicApiTrack();
         when(modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
@@ -121,7 +121,7 @@ public class LegacySearchOperationsTest {
     public void shouldCacheSearchResultsInModelManager() throws Exception {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
@@ -133,7 +133,7 @@ public class LegacySearchOperationsTest {
     public void shouldWriteSearchResultsToLocalStorage() {
         final PublicApiTrack track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.<PublicApiResource>asList(track));
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
@@ -145,7 +145,7 @@ public class LegacySearchOperationsTest {
     public void shouldEmitCachedModelsOnSearchResults() throws Exception {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track));
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
         PublicApiTrack cachedTrack = new PublicApiTrack();
         when(modelManager.cache(track, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(cachedTrack);
@@ -163,7 +163,7 @@ public class LegacySearchOperationsTest {
         final ArrayList<PublicApiResource> results = Lists.<PublicApiResource>newArrayList(ModelFixtures.create(PublicApiTrack.class));
         SearchResultsCollection collection = new SearchResultsCollection(results, "next-href");
 
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
@@ -178,7 +178,7 @@ public class LegacySearchOperationsTest {
     public void hasNextPageWhenNextHRefNotBlank() throws Exception {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "a NextHref");
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
@@ -191,7 +191,7 @@ public class LegacySearchOperationsTest {
     public void hasNextPageIsFalseWhenNextHRefBlank() throws Exception {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "");
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 
         searchOperations.getAllSearchResults("any query").subscribe(observer);
@@ -204,7 +204,7 @@ public class LegacySearchOperationsTest {
     public void fetchesNextPageObservableBasedOnNextHref() throws Exception {
         PublicApiResource track = new PublicApiTrack();
         SearchResultsCollection collection = new SearchResultsCollection(Arrays.asList(track), "http://soundcloud.com/next-href.json");
-        Observable<SearchResultsCollection> observable = Observable.<SearchResultsCollection>from(collection);
+        Observable<SearchResultsCollection> observable = Observable.just(collection);
 
         when(apiScheduler.<SearchResultsCollection>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
 

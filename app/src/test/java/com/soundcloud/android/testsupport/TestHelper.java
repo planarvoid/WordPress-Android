@@ -306,15 +306,6 @@ public class TestHelper {
         return categoryGroup;
     }
 
-    public static <T> Provider<T> buildProvider(final T mock) {
-        return new Provider<T>() {
-            @Override
-            public T get() {
-                return mock;
-            }
-        };
-    }
-
     private static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri,
                                                     Date addedAt, Date removedAt, String token) {
         SoundCloudApplication application = (SoundCloudApplication) Robolectric.application;

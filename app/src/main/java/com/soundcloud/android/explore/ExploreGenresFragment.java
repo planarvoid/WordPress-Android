@@ -69,7 +69,7 @@ public class ExploreGenresFragment extends DefaultFragment
     @Override
     public ConnectableObservable<GenreSection<ExploreGenre>> buildObservable() {
         final ConnectableObservable<GenreSection<ExploreGenre>> observable = exploreOperations.getCategories()
-                .mergeMap(GENRES_TO_SECTIONS)
+                .flatMap(GENRES_TO_SECTIONS)
                 .observeOn(mainThread())
                 .replay();
         observable.subscribe(adapter);

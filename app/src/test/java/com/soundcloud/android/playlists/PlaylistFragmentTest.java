@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -19,7 +18,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -29,6 +27,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -70,7 +69,6 @@ public class PlaylistFragmentTest {
     @Mock private ItemAdapter adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -85,7 +83,7 @@ public class PlaylistFragmentTest {
                 ptrController,
                 playQueueManager,
                 new PlaylistPresenter(imageOperations),
-                buildProvider(expandPlayerSubscriber)
+                TestSubscribers.expandPlayerSubscriber()
         );
 
         Robolectric.shadowOf(fragment).setActivity(activity);
@@ -95,7 +93,7 @@ public class PlaylistFragmentTest {
 
         when(controllerProvider.create()).thenReturn(controller);
         when(controller.getAdapter()).thenReturn(adapter);
-        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.just(playlist));
         when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
 
         fragment.onAttach(activity);
@@ -205,7 +203,7 @@ public class PlaylistFragmentTest {
     public void shouldOpenUserProfileWhenUsernameTextIsClicked() throws Exception {
         PublicApiUser user = new PublicApiUser();
         playlist.setUser(user);
-        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.just(playlist));
         when(playQueueManager.getPlaylistUrn()).thenReturn(playlist.getUrn());
         View layout = createFragmentView();
 
@@ -320,8 +318,8 @@ public class PlaylistFragmentTest {
         playlist.tracks = Lists.newArrayList(track1);
         PublicApiPlaylist playlist2 = createPlaylist(playlist.getId());
         playlist2.tracks = Lists.newArrayList(track2);
-        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
-        when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist2));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.just(playlist));
+        when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(Observable.just(playlist2));
 
         createFragmentView();
         fragment.onRefreshStarted(mock(View.class));
@@ -348,7 +346,7 @@ public class PlaylistFragmentTest {
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         playlist.tracks = Lists.newArrayList(track);
-        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.from(playlist));
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.just(playlist));
         when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(
                 Observable.<PublicApiPlaylist>error(new Exception("cannot refresh")));
         when(controller.hasContent()).thenReturn(true);

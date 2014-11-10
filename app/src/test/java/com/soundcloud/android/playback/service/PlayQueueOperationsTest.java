@@ -117,7 +117,7 @@ public class PlayQueueOperationsTest {
 
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
-        PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlockingObservable().lastOrDefault(null);
+        PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlocking().lastOrDefault(null);
         expect(playQueue).toContainExactly(playQueueItem1, playQueueItem2);
     }
 

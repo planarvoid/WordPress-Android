@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.Pager;
 import rx.functions.Func1;
-import rx.functions.Functions;
+import rx.internal.util.UtilityFunctions;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -71,7 +71,7 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
      * not perform any item mapping.
      */
     public <T, CollT extends Iterable<T>> void setAdapter(final EndlessAdapter<T> adapter, final Pager<CollT> pager) {
-        setAdapter(adapter, pager, Functions.<CollT>identity());
+        setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
     }
 
     public void setScrollListener(@Nullable OnScrollListener scrollListener) {

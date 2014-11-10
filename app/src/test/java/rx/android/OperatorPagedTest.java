@@ -49,8 +49,8 @@ public class OperatorPagedTest {
 
     @Test
     public void itDeliversTheNextPage() {
-        Observable source = Observable.from(1, 2, 3).toList();
-        Observable<List<Integer>> nextPage = Observable.from(4, 5, 6).toList();
+        Observable source = Observable.just(1, 2, 3).toList();
+        Observable<List<Integer>> nextPage = Observable.just(4, 5, 6).toList();
 
         Observable<Page<List<Integer>>> observable = source.lift(pagedWith(endlessPagerFrom(nextPage)));
         observable.subscribe(mockObserver);

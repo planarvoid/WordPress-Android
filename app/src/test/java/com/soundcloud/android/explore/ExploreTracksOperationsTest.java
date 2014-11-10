@@ -88,7 +88,7 @@ public class ExploreTracksOperationsTest {
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
         collection.setCollection(Arrays.asList(track));
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(
-                Observable.<SuggestedTracksCollection>from(collection));
+                Observable.just(collection));
         return collection;
     }
 }

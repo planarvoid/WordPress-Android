@@ -62,7 +62,7 @@ class PlaylistDiscoveryOperations {
     }
 
     Observable<List<String>> popularPlaylistTags() {
-        return getCachedPlaylistTags().mergeMap(new Func1<List<String>, Observable<List<String>>>() {
+        return getCachedPlaylistTags().flatMap(new Func1<List<String>, Observable<List<String>>>() {
             @Override
             public Observable<List<String>> call(List<String> tags) {
                 if (tags.isEmpty()) {

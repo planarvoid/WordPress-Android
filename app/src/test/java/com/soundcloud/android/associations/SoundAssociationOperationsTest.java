@@ -101,7 +101,7 @@ public class SoundAssociationOperationsTest {
     @Test
     public void shouldObtainIdsOfLikedTracksFromLocalStorage() {
         final List<Urn> idsListFromStorage = TestHelper.createTracksUrn(1L, 2L, 3L);
-        when(storage.getLikesTrackUrnsAsync()).thenReturn(rx.Observable.<List<Urn>>from(idsListFromStorage));
+        when(storage.getLikesTrackUrnsAsync()).thenReturn(Observable.just(idsListFromStorage));
 
         operations.getLikedTracks().subscribe(observer);
 

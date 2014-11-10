@@ -59,7 +59,7 @@ public class ExperimentOperationsTest {
     @Test
     public void shouldGetAssignmentIfAssigmentIsStored() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
+        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.just(assignment));
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
 
         operations.loadAssignment();
@@ -71,7 +71,7 @@ public class ExperimentOperationsTest {
     @Test
     public void shouldFetchNewAssigmentAndSaveToFileOnInit() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        Observable<Assignment> observable = Observable.from(assignment);
+        Observable<Assignment> observable = Observable.just(assignment);
         when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
         when(activeExperiments.getRequestLayers()).thenReturn(new String[]{ "android-ui" });
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
@@ -84,7 +84,7 @@ public class ExperimentOperationsTest {
     @Test
     public void shouldGenerateTrackingParametersMapForActiveExperiments() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
+        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.just(assignment));
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(anyInt())).thenReturn(true);
 
@@ -102,7 +102,7 @@ public class ExperimentOperationsTest {
     @Test
     public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() throws Exception {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.from(assignment));
+        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.just(assignment));
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         when(activeExperiments.isActive(5)).thenReturn(true);
 

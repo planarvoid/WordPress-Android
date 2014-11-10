@@ -55,4 +55,9 @@ class ReplayEventSubject<T> extends Subject<T, T> {
     public void onNext(T t) {
         wrappedSubject.onNext(t);
     }
+
+    @Override
+    public boolean hasObservers() {
+        return wrappedSubject.hasObservers();
+    }
 }

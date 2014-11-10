@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.buildProvider;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -23,7 +22,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -31,6 +29,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -64,7 +63,6 @@ public class SoundAdapterTest {
     @Mock private TrackItemPresenter trackPresenter;
     @Mock private PlaylistItemPresenter playlistPresenter;
     @Mock private ViewGroup itemView;
-    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     @Captor private ArgumentCaptor<List<PropertySet>> propSetCaptor;
 
@@ -72,7 +70,7 @@ public class SoundAdapterTest {
     public void setup() {
         when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
         adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
-                trackPresenter, playlistPresenter, eventBus, buildProvider(expandPlayerSubscriber));
+                trackPresenter, playlistPresenter, eventBus, TestSubscribers.expandPlayerSubscriber());
     }
 
     @Test

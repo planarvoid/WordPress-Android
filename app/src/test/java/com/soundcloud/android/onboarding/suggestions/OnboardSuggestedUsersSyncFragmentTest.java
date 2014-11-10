@@ -39,7 +39,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     @Test
     public void shouldStartActivityStreamWithSuccessFlagOnSuccess() {
-        Observable<Boolean> observable = Observable.from(true);
+        Observable<Boolean> observable = Observable.just(true);
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 
@@ -50,7 +50,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     @Test
     public void shouldStartActivityStreamWithFailureFlagOnNoSuccess() {
-        Observable<Boolean> observable = Observable.from(false);
+        Observable<Boolean> observable = Observable.just(false);
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 

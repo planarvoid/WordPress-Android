@@ -90,7 +90,7 @@ public class PlaylistSyncHelperTest {
         when(playlist.getTitle()).thenReturn("Skrillex goes to Deleware");
         when(playlist.getSharing()).thenReturn(Sharing.PRIVATE);
 
-        Observable<PublicApiPlaylist> storageObservable = Observable.from(playlist);
+        Observable<PublicApiPlaylist> storageObservable = Observable.just(playlist);
         when(playlistStorage.loadPlaylistAsync(123L)).thenReturn(storageObservable);
         when(playlistStorage.store(playlist)).thenReturn(playlist);
 

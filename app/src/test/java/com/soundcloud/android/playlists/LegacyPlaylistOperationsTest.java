@@ -67,7 +67,7 @@ public class LegacyPlaylistOperationsTest {
                 syncInitiator, syncStateManager);
         playlist = new PublicApiPlaylist(123L);
 
-        Observable<PublicApiPlaylist> storageObservable = Observable.from(playlist);
+        Observable<PublicApiPlaylist> storageObservable = Observable.just(playlist);
         when(playlistStorage.loadPlaylistAsync(123L)).thenReturn(storageObservable);
     }
 

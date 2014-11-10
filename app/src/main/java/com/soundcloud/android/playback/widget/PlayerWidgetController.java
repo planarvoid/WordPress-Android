@@ -7,8 +7,8 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -20,7 +20,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-import rx.functions.Functions;
+import rx.internal.util.UtilityFunctions;
 
 import android.content.Context;
 
@@ -67,13 +67,13 @@ public class PlayerWidgetController {
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
 
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .mergeMap(onPlayQueueEventFunc).observeOn(AndroidSchedulers.mainThread())
+                .flatMap(onPlayQueueEventFunc).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CurrentTrackSubscriber());
     }
 
     public void update() {
         updatePlayState();
-        updatePlayableInformation(Functions.<PropertySet>identity());
+        updatePlayableInformation(UtilityFunctions.<PropertySet>identity());
     }
 
     private void updatePlayState() {

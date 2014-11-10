@@ -72,7 +72,7 @@ public class SoundAssociationOperations {
 
     public Observable<PropertySet> toggleLike(final Urn soundUrn, final boolean addLike) {
         return resolveLegacyModel(soundUrn)
-                .mergeMap(new Func1<Playable, Observable<PropertySet>>() {
+                .flatMap(new Func1<Playable, Observable<PropertySet>>() {
                     @Override
                     public Observable<PropertySet> call(Playable playable) {
                         return toggleLike(playable, addLike);
@@ -83,7 +83,7 @@ public class SoundAssociationOperations {
     private Observable<PropertySet> toggleLike(final Playable playable, final boolean addLike) {
         logPlayable(addLike ? "LIKE" : "UNLIKE", playable);
         return updateLikeState(playable, addLike)
-                .mergeMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
+                .flatMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
                     @Override
                     public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
                         return apiScheduler.response(buildRequestForLike(playable, addLike));
@@ -160,7 +160,7 @@ public class SoundAssociationOperations {
 
     public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         return resolveLegacyModel(soundUrn)
-                .mergeMap(new Func1<Playable, Observable<PropertySet>>() {
+                .flatMap(new Func1<Playable, Observable<PropertySet>>() {
                     @Override
                     public Observable<PropertySet> call(Playable playable) {
                         return toggleRepost(playable, addRepost);
@@ -171,7 +171,7 @@ public class SoundAssociationOperations {
     private Observable<PropertySet> toggleRepost(final Playable playable, final boolean addRepost) {
         logPlayable(addRepost ? "REPOST" : "UNPOST", playable);
         return updateRepostState(playable, addRepost)
-                .mergeMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
+                .flatMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
                     @Override
                     public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
                         return apiScheduler.response(buildRequestForRepost(playable, addRepost));

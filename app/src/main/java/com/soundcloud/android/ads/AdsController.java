@@ -167,7 +167,7 @@ public class AdsController {
             final Urn nextTrackUrn = playQueueManager.getNextTrackUrn();
             currentObservable = trackOperations.track(nextTrackUrn)
                     .filter(IS_MONETIZABLE)
-                    .mergeMap(fetchAudioAd)
+                    .flatMap(fetchAudioAd)
                     .observeOn(AndroidSchedulers.mainThread());
             audioAdSubscription = currentObservable.subscribe(new AudioAdSubscriber(playQueueManager.getCurrentPosition(), nextTrackUrn));
         }

@@ -61,15 +61,15 @@ public class LegacyPlaylistOperations {
             PublicApiUser currentUser, String title, boolean isPrivate, long firstTrackId) {
         // insert the new playlist into the database
         return playlistStorage.createNewUserPlaylistAsync(currentUser, title, isPrivate, firstTrackId)
-                .mergeMap(handlePlaylistStored())
-                .mergeMap(handlePlaylistCreationStored());
+                .flatMap(handlePlaylistStored())
+                .flatMap(handlePlaylistCreationStored());
     }
 
     public Observable<PublicApiPlaylist> loadPlaylist(final Urn playlistUrn) {
         Log.d(LOG_TAG, "Loading playlist " + playlistUrn);
         return playlistStorage.loadPlaylistWithTracksAsync(playlistUrn.getNumericId())
                 .onErrorResumeNext(handlePlaylistNotFound(playlistUrn))
-                .mergeMap(syncIfNecessary);
+                .flatMap(syncIfNecessary);
     }
 
     public Observable<PublicApiPlaylist> refreshPlaylist(final Urn playlistUrn) {
@@ -100,7 +100,7 @@ public class LegacyPlaylistOperations {
      */
     private Observable<PublicApiPlaylist> syncThenLoadPlaylist(final Urn playlistUrn) {
         Log.d(LOG_TAG, "Sending intent to sync playlist " + playlistUrn);
-        return syncInitiator.syncPlaylist(playlistUrn).mergeMap(new Func1<Boolean, Observable<PublicApiPlaylist>>() {
+        return syncInitiator.syncPlaylist(playlistUrn).flatMap(new Func1<Boolean, Observable<PublicApiPlaylist>>() {
             @Override
             public Observable<PublicApiPlaylist> call(Boolean playlistWasUpdated) {
                 Log.d(LOG_TAG, "Reloading playlist from local storage: " + playlistUrn);
@@ -126,7 +126,7 @@ public class LegacyPlaylistOperations {
                 // force to stale so we know to update the playlists next time it is viewed
                 syncStateManager.forceToStale(Content.ME_PLAYLISTS);
                 syncInitiator.requestSystemSync();
-                return Observable.from((PublicApiPlaylist) soundAssociation.getPlayable());
+                return Observable.just((PublicApiPlaylist) soundAssociation.getPlayable());
             }
         };
     }
