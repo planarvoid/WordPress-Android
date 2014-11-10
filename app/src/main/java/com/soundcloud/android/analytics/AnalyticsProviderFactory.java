@@ -10,8 +10,6 @@ import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +34,6 @@ public class AnalyticsProviderFactory {
     private final PromotedAnalyticsProvider promotedAnalyticsProvider;
     private final AdjustAnalyticsProvider adjustAnalyticsProvider;
     private final CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider;
-    private final FeatureFlags featureFlags;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
 
@@ -51,8 +48,7 @@ public class AnalyticsProviderFactory {
                                     PromotedAnalyticsProvider promotedProvider,
                                     AdjustAnalyticsProvider adjustAnalyticsProvider,
                                     @Nullable ComScoreAnalyticsProvider comScoreProvider,
-                                    CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider,
-                                    FeatureFlags featureFlags) {
+                                    CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider) {
         this.sharedPreferences = sharedPreferences;
         this.applicationProperties = applicationProperties;
         this.analyticsProperties = analyticsProperties;
@@ -63,7 +59,6 @@ public class AnalyticsProviderFactory {
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.promotedAnalyticsProvider = promotedProvider;
         this.crashlyticsAnalyticsProvider = crashlyticsAnalyticsProvider;
-        this.featureFlags = featureFlags;
     }
 
     public List<AnalyticsProvider> getProviders() {
@@ -101,10 +96,7 @@ public class AnalyticsProviderFactory {
 
     private void addOptInProviders(List<AnalyticsProvider> providers) {
         providers.add(localyticsAnalyticsProvider);
-
-        if (featureFlags.isEnabled(Feature.ADJUST_TRACKING)) {
-            providers.add(adjustAnalyticsProvider);
-        }
+        providers.add(adjustAnalyticsProvider);
 
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);

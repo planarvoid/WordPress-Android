@@ -12,8 +12,6 @@ import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.settings.GeneralSettings;
 import org.junit.Before;
@@ -40,14 +38,12 @@ public class AnalyticsProviderFactoryTest {
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
     @Mock private CrashlyticsAnalyticsProvider crashlyticsAnalyticsProvider;
-    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(featureFlags.isEnabled(Feature.ADJUST_TRACKING)).thenReturn(true);
         factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
-                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, crashlyticsAnalyticsProvider, featureFlags);
+                eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider, comScoreProvider, crashlyticsAnalyticsProvider);
     }
 
     @Test
@@ -77,20 +73,11 @@ public class AnalyticsProviderFactoryTest {
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
                 eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider,
-                null, crashlyticsAnalyticsProvider, featureFlags);
+                null, crashlyticsAnalyticsProvider);
         when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
         expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider);
-    }
-
-    @Test
-    public void getProvidersReturnsAllProvidersExceptAdjustWhenFeatureIsDisabled() {
-        when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
-        when(featureFlags.isEnabled(Feature.ADJUST_TRACKING)).thenReturn(false);
-
-        List<AnalyticsProvider> providers = factory.getProviders();
-        expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, comScoreProvider);
     }
 
     @Test

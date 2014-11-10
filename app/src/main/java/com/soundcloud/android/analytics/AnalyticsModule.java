@@ -16,7 +16,7 @@ import android.content.Context;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class, InstallReceiver.class, LocalyticsPushReceiver.class})
+@Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class, LocalyticsPushReceiver.class})
 public class AnalyticsModule {
 
     @Provides
