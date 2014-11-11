@@ -1,9 +1,9 @@
 package com.soundcloud.android.payments.googleplay;
 
-public class SubscriptionStatus {
+public final class SubscriptionStatus {
 
-    private String token;
-    private Payload payload;
+    private final String token;
+    private final Payload payload;
 
     public static SubscriptionStatus subscribed(String token, Payload payload) {
         return new SubscriptionStatus(token, payload);
