@@ -28,8 +28,14 @@ public class PaymentsTest extends ActivityTestCase<MainActivity> {
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
-    public void testUserCanNavigateToPaymentPage() {
+    public void testUserCanNavigateToSubscribePage() {
         PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
         assertThat(paymentScreen, is(visible()));
     }
+
+    public void testUserIsPresentedSubscribeOption() {
+        PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
+        paymentScreen.clickBuy();
+    }
+
 }

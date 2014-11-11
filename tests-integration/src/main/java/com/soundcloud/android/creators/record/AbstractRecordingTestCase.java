@@ -163,7 +163,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         }
 
         if (isPrivate) {
-            solo.clickOnButtonResId(R.string.sc_upload_private);
+            solo.clickOnButtonWithText(R.string.sc_upload_private);
         }
 
         solo.clickOnText(R.string.post);

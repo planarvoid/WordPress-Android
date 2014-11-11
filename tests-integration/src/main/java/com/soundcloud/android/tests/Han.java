@@ -102,8 +102,8 @@ public class Han  {
         solo.clickOnActionBarItem(itemId);
     }
 
-    public void clickOnButtonResId(int resId) {
-        solo.clickOnButton(getString(resId));
+    public void clickOnButtonWithText(int textId) {
+        solo.clickOnButton(getString(textId));
     }
 
     public String getString(int resId, Object... args) {

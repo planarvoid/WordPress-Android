@@ -40,7 +40,7 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
 
         // username (max 25 characters)
         solo.findElements(With.className(EditText.class)).get(0).typeText(generateUsername());
-        solo.clickOnButtonResId(R.string.btn_save);
+        solo.clickOnButtonWithText(R.string.btn_save);
 
         solo.assertText(R.string.side_menu_stream);
     }
@@ -50,12 +50,12 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
-        solo.clickOnButtonResId(R.string.btn_skip);
+        solo.clickOnButtonWithText(R.string.btn_skip);
 
         // Find Friends
         solo.assertText(R.string.side_menu_who_to_follow);
 
-        solo.clickOnButtonResId(R.string.done);
+        solo.clickOnButtonWithText(R.string.done);
 
         solo.assertText(R.string.side_menu_stream);
     }
@@ -112,9 +112,9 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     }
 
     public void ignore_testSignupWithoutInput() throws Exception {
-        solo.clickOnButtonResId(R.string.authentication_sign_up);
+        solo.clickOnButtonWithText(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
-        solo.clickOnButtonResId(R.string.done);
+        solo.clickOnButtonWithText(R.string.done);
         solo.assertText(R.string.authentication_error_incomplete_fields);
     }
 
@@ -129,12 +129,12 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
         performSignup(email, "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
-        solo.clickOnButtonResId(R.string.btn_skip);
+        solo.clickOnButtonWithText(R.string.btn_skip);
 
         // Find Friends
         solo.assertText(R.string.side_menu_who_to_follow);
 
-        solo.clickOnButtonResId(R.string.done);
+        solo.clickOnButtonWithText(R.string.done);
 
         solo.assertText(R.string.side_menu_stream);
 
@@ -163,13 +163,13 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     }
 
     private void performSignup(String email, String password) {
-        solo.clickOnButtonResId(R.string.authentication_sign_up);
+        solo.clickOnButtonWithText(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
         ViewElement emailField = solo.findElement(With.id(R.id.txt_email_address));
         emailField.typeText(email);
         solo.assertText(email);
 
         solo.findElement(With.id(R.id.txt_choose_a_password)).typeText(password);
-        solo.clickOnButtonResId(R.string.done);
+        solo.clickOnButtonWithText(R.string.done);
     }
 }
