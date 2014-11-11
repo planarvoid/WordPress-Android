@@ -6,8 +6,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.BillingService;
+import com.soundcloud.android.payments.googleplay.Payload;
+import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -30,6 +31,17 @@ class PaymentOperations {
             return apiResponse.isSuccess()
                     ? PurchaseStatus.VERIFYING
                     : PurchaseStatus.FAILURE;
+        }
+    };
+
+    private final Func1<SubscriptionStatus, Observable<PurchaseStatus>> verifyPendingSubscription = new Func1<SubscriptionStatus, Observable<PurchaseStatus>>() {
+        @Override
+        public Observable<PurchaseStatus> call(SubscriptionStatus subscriptionStatus) {
+            if (subscriptionStatus.isSubscribed()) {
+                paymentStorage.setCheckoutToken(subscriptionStatus.getToken());
+                return verify(subscriptionStatus.getPayload());
+            }
+            return Observable.just(PurchaseStatus.NONE);
         }
     };
 
@@ -64,6 +76,13 @@ class PaymentOperations {
         playBilling.closeConnection();
     }
 
+    public Observable<PurchaseStatus> queryStatus() {
+        return playBilling.getStatus()
+                .subscribeOn(ScSchedulers.API_SCHEDULER)
+                .flatMap(verifyPendingSubscription)
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
     public Observable<ProductStatus> queryProduct() {
         return getSubscriptionId()
                 .flatMap(productToResult)
@@ -93,8 +112,8 @@ class PaymentOperations {
         };
     }
 
-    public Observable<PurchaseStatus> verify(final BillingResult result) {
-        return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromSuccess(result)))
+    public Observable<PurchaseStatus> verify(final Payload payload) {
+        return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
                 .map(TO_PURCHASE_STATUS);
     }
 

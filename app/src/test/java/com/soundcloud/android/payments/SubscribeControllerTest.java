@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.BillingResult;
+import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -62,11 +64,11 @@ public class SubscribeControllerTest {
     @Test
     public void sendsPlayBillingSuccessForVerification() {
         BillingResult billingResult = TestBillingResults.success();
-        when(paymentOperations.verify(billingResult)).thenReturn(Observable.just(PurchaseStatus.VERIFYING));
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFYING));
 
         controller.handleBillingResult(billingResult);
 
-        verify(paymentOperations).verify(billingResult);
+        verify(paymentOperations).verify(billingResult.getPayload());
     }
 
     @Test
@@ -97,9 +99,19 @@ public class SubscribeControllerTest {
     }
 
     @Test
-    public void queriesProductDetailsWhenBillingServiceIsConnected() {
+    public void queriesPurchaseStatusWhenBillingServiceIsReady() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>empty());
+        when(paymentOperations.queryStatus()).thenReturn(Observable.<PurchaseStatus>empty());
+
+        controller.onCreate(activity);
+
+        verify(paymentOperations).queryStatus();
+    }
+
+    @Test
+    public void queriesProductDetailsWhenPurchaseStatusIsNone() throws Exception {
+        when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
+        when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
 
         controller.onCreate(activity);
 
@@ -107,9 +119,10 @@ public class SubscribeControllerTest {
     }
 
     @Test
-    public void displaysProductDetailsWhenPaymentConnectionStatusIsReady() {
+    public void displaysPurchaseOptionsWhenPurchaseStatusIsNone() {
         ProductDetails details = new ProductDetails("id", "product title", "description", "$100");
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
+        when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
         when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
 
         controller.onCreate(activity);
