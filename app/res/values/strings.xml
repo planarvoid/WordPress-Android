@@ -286,6 +286,9 @@
     <string name="recording_uploading">Uploading...</string>
     <string name="recording_upload_failed">Upload Failed</string>
     <string name="title_now_playing">Now Playing</string>
+    <string name="like_toast_overflow_action">Saved to your likes</string>
+    <string name="unlike_toast_overflow_action">Removed from your likes</string>
+    <string name="like_error_toast_overflow_action">Like status was not changed</string>
 
     <!-- __PLAYER -->
     <string name="add_to_playlist">Add to playlist</string>

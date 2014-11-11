@@ -1,12 +1,11 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
@@ -17,11 +16,14 @@ import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -31,6 +33,7 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final TrackStorage trackStorage;
     private final AccountOperations accountOperations;
+    private final Context context;
 
     private FragmentActivity activity;
     private PropertySet track;
@@ -43,13 +46,14 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
                             PopupMenuWrapper.Factory popupMenuWrapperFactory,
                             TrackStorage trackStorage,
                             AccountOperations accountOperations,
-                            EventBus eventBus) {
+                            EventBus eventBus, Context context) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackStorage = trackStorage;
         this.accountOperations = accountOperations;
         this.eventBus = eventBus;
+        this.context = context;
     }
 
     public void show(FragmentActivity activity, View button, PropertySet track) {
@@ -102,7 +106,18 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private void handleLike() {
         final Urn trackUrn = track.get(TrackProperty.URN);
         final Boolean newLikeStatus = !track.get(TrackProperty.IS_LIKED);
-        fireAndForget(associationOperations.toggleLike(trackUrn, newLikeStatus));
+        associationOperations
+                .toggleLike(trackUrn, newLikeStatus)
+                .doOnNext(new Action1<PropertySet>() {
+                    @Override
+                    public void call(PropertySet bindings) {
+                        if (newLikeStatus != bindings.get(TrackProperty.IS_LIKED)) {
+                            throw new IllegalStateException("Track did not change liked status on server side");
+                        }
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new LikeToggleSubscriber(context));
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(newLikeStatus, playQueueManager.getScreenTag(), trackUrn));
     }
 
@@ -134,6 +149,28 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
             } else {
                 item.setTitle(R.string.like);
             }
+        }
+    }
+
+    private static class LikeToggleSubscriber extends DefaultSubscriber<PropertySet> {
+        private final Context context;
+
+        private LikeToggleSubscriber(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onNext(PropertySet likeStatus) {
+            if (likeStatus.get(PlayableProperty.IS_LIKED)) {
+                Toast.makeText(context, R.string.like_toast_overflow_action, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, R.string.unlike_toast_overflow_action, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Toast.makeText(context, R.string.like_error_toast_overflow_action, Toast.LENGTH_SHORT).show();
         }
     }
 }
