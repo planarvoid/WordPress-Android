@@ -57,7 +57,7 @@ public class SkippyAdapterTest {
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private SkippyAdapter skippyAdapter;
 
-    private static final String STREAM_URL = "http://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
+    private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
     private static final long PROGRESS = 500L;
     private static final long DURATION = 1000L;
 

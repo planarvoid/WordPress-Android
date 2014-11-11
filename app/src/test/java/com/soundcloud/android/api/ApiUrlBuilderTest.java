@@ -75,10 +75,4 @@ public class ApiUrlBuilderTest {
         final String url = urlBuilder.from(ApiEndpoints.SEARCH_TRACKS).withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "x").build();
         expect(url).toEqual("https://api-mobile.soundcloud.com/search/tracks?oauth_token=x");
     }
-
-    @Test
-    public void shouldUseHttpProtocolWhenRequested() {
-        final String url = urlBuilder.from(ApiEndpoints.SEARCH_TRACKS).forceHttp().build();
-        expect(url).toEqual("http://api-mobile.soundcloud.com/search/tracks");
-    }
 }

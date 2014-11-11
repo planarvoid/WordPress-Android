@@ -134,7 +134,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
         return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
                 .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.access)
-                .forceHttp()
                 .build();
     }
 

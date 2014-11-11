@@ -9,7 +9,6 @@ public class ApiUrlBuilder {
 
     private final HttpProperties httpProperties;
     private Uri.Builder uriBuilder;
-    private boolean forceHttp;
 
     @Inject
     public ApiUrlBuilder(HttpProperties httpProperties) {
@@ -56,17 +55,12 @@ public class ApiUrlBuilder {
         return this;
     }
 
-    public ApiUrlBuilder forceHttp() {
-        this.forceHttp = true;
-        return this;
-    }
-
     public Uri.Builder builder() {
         return uriBuilder;
     }
 
     public String build() {
-        return forceHttp ? uriBuilder.toString().replaceFirst("https", "http") : uriBuilder.toString();
+        return uriBuilder.toString();
     }
 
     @Deprecated // only exists for Apache client legacy code
