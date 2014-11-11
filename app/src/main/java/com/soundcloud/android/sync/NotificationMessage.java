@@ -1,9 +1,7 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
@@ -129,16 +127,6 @@ class NotificationMessage {
         }
     }
 
-    static void showNewFollower(SoundCloudApplication app, PublicApiUser u) {
-        showDashboardNotification(app,
-                app.getString(R.string.dashboard_notifications_ticker_follower),
-                app.getString(R.string.dashboard_notifications_title_follower),
-                app.getString(R.string.dashboard_notifications_message_follower, u.username),
-                createNotificationIntent(Actions.USER_BROWSER).putExtra("user", u),
-                Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID,
-                u.avatar_url);
-    }
-
     /* package */
     static void showDashboardNotification(final Context context,
                                           final CharSequence ticker,
@@ -191,28 +179,5 @@ class NotificationMessage {
         return new Intent(action)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-    }
-
-    /* package */
-    static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
-        List<PublicApiUser> users = activites.getUniqueUsers();
-        switch (users.size()) {
-            case 0:
-                return ""; // should not get this far, but in case
-
-            case 1:
-                return String.format(
-                        app.getString(R.string.dashboard_notifications_message_incoming),
-                        users.get(0).username);
-            case 2:
-                return String.format(
-                        app.getString(R.string.dashboard_notifications_message_incoming_2),
-                        users.get(0).username, users.get(1).username);
-            default:
-                return String.format(
-                        app.getString(R.string.dashboard_notifications_message_incoming_others),
-                        users.get(0).username, users.get(1).username);
-
-        }
     }
 }

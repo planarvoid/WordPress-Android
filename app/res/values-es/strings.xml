@@ -250,15 +250,12 @@
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_activity_message_likes">A %1$s le gusta %2$s</string>
-    <string name="dashboard_notifications_message_follower">%s le está siguiendo. ¿Desea seguirle también?</string>
     <string name="dashboard_notifications_message_incoming">de %s</string>
     <string name="dashboard_notifications_message_incoming_2">de %1$s y %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s y otros</string>
     <string name="dashboard_notifications_ticker">%s nuevos sonidos</string>
-    <string name="dashboard_notifications_ticker_follower">Nuevo seguidor</string>
     <string name="dashboard_notifications_ticker_single">Un nuevo sonido</string>
     <string name="dashboard_notifications_title">%s nuevos sonidos</string>
-    <string name="dashboard_notifications_title_follower">Tiene un nuevo seguidor</string>
     <string name="dashboard_notifications_title_single">Un nuevo sonido</string>
 
     <!-- __ONBOARDING -->

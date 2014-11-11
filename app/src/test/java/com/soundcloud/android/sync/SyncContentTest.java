@@ -214,7 +214,7 @@ public class SyncContentTest {
 
         android.os.Bundle syncResult = new android.os.Bundle();
         syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),false);
-        SyncContent.updateCollections(Robolectric.application, syncResult);
+        SyncContent.updateCollections(syncStateManager, syncResult);
 
         urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT -1);

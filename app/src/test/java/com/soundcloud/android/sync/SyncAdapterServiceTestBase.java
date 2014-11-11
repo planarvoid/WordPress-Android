@@ -11,6 +11,7 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.stream.SoundStreamSyncOperations;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -126,9 +128,13 @@ public abstract class SyncAdapterServiceTestBase {
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
         m.cancelAll();
         SyncResult result = new SyncResult();
+
+        final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory = new SyncServiceResultReceiver.Factory(app,
+                Mockito.mock(SoundStreamSyncOperations.class), new SyncStateManager(Robolectric.application));
+
         SyncAdapterService.performSync(
                 app,
-                extras, result, token, null);
+                extras, result, token, null, syncServiceResultReceiverFactory);
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

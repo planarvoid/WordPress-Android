@@ -288,7 +288,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
             switch (content) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
-                    ContentStats.updateCount(getActivity(), content, 0);
                     ContentStats.setLastSeen(getActivity(), content, System.currentTimeMillis());
                     break;
             }

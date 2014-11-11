@@ -220,15 +220,12 @@
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
-    <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
     <string name="dashboard_notifications_message_incoming">from %s</string>
     <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
     <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
     <string name="dashboard_notifications_ticker">%s new sounds</string>
-    <string name="dashboard_notifications_ticker_follower">New follower</string>
     <string name="dashboard_notifications_ticker_single">1 new sound</string>
     <string name="dashboard_notifications_title">%s new sounds</string>
-    <string name="dashboard_notifications_title_follower">You have a new follower</string>
     <string name="dashboard_notifications_title_single">1 new sound</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
 

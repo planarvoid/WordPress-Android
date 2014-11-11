@@ -26,6 +26,7 @@ import rx.Observer;
 import rx.observers.TestObserver;
 
 import java.util.Date;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LegacySoundStreamStorageTest extends StorageIntegrationTest {
@@ -38,7 +39,7 @@ public class LegacySoundStreamStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new LegacySoundStreamStorage(testScheduler());
+        storage = new LegacySoundStreamStorage(testScheduler(), propeller());
     }
 
     @Test
@@ -164,6 +165,17 @@ public class LegacySoundStreamStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0).get(PlayableProperty.URN)).toEqual(oldestTrack.getUrn());
+    }
+
+    @Test
+    public void loadStreamItemsSinceOnlyLoadsItemsNewerThanTheGivenTimestamp() throws CreateModelException {
+        testFixtures().insertLegacyTrackPost(testFixtures().insertTrack(), TIMESTAMP);
+        final ApiTrack newest = testFixtures().insertTrack();
+        testFixtures().insertLegacyTrackPost(newest, TIMESTAMP + 1);
+
+        final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP, Urn.forUser(123), 50);
+        expect(actual.size()).toBe(1);
+        expect(actual.get(0).get(PlayableProperty.URN)).toEqual(newest.getUrn());
     }
 
     @Test

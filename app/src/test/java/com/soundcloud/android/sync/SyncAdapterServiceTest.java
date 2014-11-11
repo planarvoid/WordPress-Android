@@ -100,7 +100,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
     @Test public void shouldNotPerformSyncWithNullToken(){
         SyncResult syncResult = new SyncResult();
-        expect(SyncAdapterService.performSync(Mockito.mock(SoundCloudApplication.class), null, syncResult, null, null)).toBeFalse();
+        expect(SyncAdapterService.performSync(Mockito.mock(SoundCloudApplication.class), null, syncResult, null, null, Mockito.mock(SyncServiceResultReceiver.Factory.class))).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }
