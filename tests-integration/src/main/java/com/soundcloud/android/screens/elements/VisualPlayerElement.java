@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.elements;
 
+import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
@@ -7,7 +8,9 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
+import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 
 import java.util.concurrent.TimeUnit;
 
@@ -17,6 +20,18 @@ public class VisualPlayerElement extends Element {
     private static final int MILISECONDS_UNTIL_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
+    private final Condition IS_EXPANDED_CONDITION = new Condition() {
+        @Override
+        public boolean isSatisfied() {
+            return isExpanded();
+        }
+    };
+    private final Condition IS_COLLAPSED_CONDITION = new Condition() {
+        @Override
+        public boolean isSatisfied() {
+            return isCollapsed();
+        }
+    };
 
     public VisualPlayerElement(Han solo) {
         super(solo);
@@ -96,7 +111,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpanded() {
-        return !footerPlayer().isVisible();
+        return  getPlayerHeight() - getFullScreenHeight() == 0;
     }
 
     public boolean isCollapsed() {
@@ -173,11 +188,24 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean waitForExpandedPlayer() {
-        return waiter.waitForElementToBeInvisible(footerPlayerPredicate);
+        return waiter.waitForElementCondition(IS_EXPANDED_CONDITION);
+    }
+
+    private int getFullScreenHeight() {
+        final View decorView = solo.getCurrentActivity().getWindow().getDecorView();
+        final Rect dimens = new Rect();
+        decorView.getWindowVisibleDisplayFrame(dimens);
+
+        return dimens.bottom - dimens.top;
+    }
+
+    private int getPlayerHeight() {
+        final ViewElement element = solo.findElement(With.id(R.id.player_root));
+        return element.getHeight() + element.getTop();
     }
 
     public boolean waitForCollapsedPlayer() {
-        return waiter.waitForElementToBeVisible(footerPlayerPredicate);
+        return waiter.waitForElementCondition(IS_COLLAPSED_CONDITION);
     }
 
     public void waitForAdToBeFetched() {

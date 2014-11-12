@@ -144,12 +144,19 @@ public class DefaultViewElement implements ViewElement {
         return getHeight() > 0 && getWidth() > 0;
     }
 
-    private int getHeight() {
+    @Override
+    public int getHeight() {
         return view.getHeight();
     }
 
-    private int getWidth() {
+    @Override
+    public int getWidth() {
         return view.getWidth();
+    }
+
+    @Override
+    public int getTop() {
+        return view.getTop();
     }
 
     private boolean isShown() {

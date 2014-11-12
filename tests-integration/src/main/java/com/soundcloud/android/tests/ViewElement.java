@@ -35,6 +35,12 @@ public interface ViewElement extends ElementWithText, UIView {
 
     boolean isVisible();
 
+    int getHeight();
+
+    int getWidth();
+
+    int getTop();
+
     void clearText();
 
     String getText();

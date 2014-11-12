@@ -57,6 +57,21 @@ public class EmptyViewElement implements ViewElement {
     }
 
     @Override
+    public int getHeight() {
+        throw new ViewNotFoundException();
+    }
+
+    @Override
+    public int getWidth() {
+        throw new ViewNotFoundException();
+    }
+
+    @Override
+    public int getTop()  {
+        throw new ViewNotFoundException();
+    }
+
+    @Override
     public String getText() {
         return "";
     }

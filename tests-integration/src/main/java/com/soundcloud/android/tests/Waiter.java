@@ -97,6 +97,10 @@ public class Waiter {
         solo.sleep(FIVE_SECONDS);
     }
 
+    public boolean waitForElementCondition(Condition condition) {
+        return solo.waitForCondition(condition, ELEMENT_TIMEOUT);
+    }
+
     private boolean waitForListContent() {
         return solo.waitForCondition(new NoProgressBarCondition(), NETWORK_TIMEOUT);
     }
