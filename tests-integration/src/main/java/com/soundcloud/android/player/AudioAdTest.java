@@ -123,6 +123,7 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
+        waiter.waitForPlaybackToBePlaying();
         playerElement.waitForAdToBeFetched();
     }
 
