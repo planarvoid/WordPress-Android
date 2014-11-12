@@ -10,7 +10,7 @@ public class IsExpanded extends TypeSafeMatcher<VisualPlayerElement> {
 
     @Override
     public boolean matchesSafely(VisualPlayerElement playerElement) {
-        return playerElement.isExpanded();
+        return playerElement.waitForExpandedPlayer();
     }
 
     public void describeTo(Description description) {

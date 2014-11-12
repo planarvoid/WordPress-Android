@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
+import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
@@ -28,8 +29,7 @@ public class ResolveTrackLoggedIn extends ResolveBaseTest {
 
     public void testShouldOpenPlayerFromDeeplink() {
         assertThat(new StreamScreen(solo), is(visible()));
-        visualPlayer.waitForExpandedPlayer();
-        assertThat(visualPlayer.isExpanded(), is(true));
+        assertThat(visualPlayer, is(expanded()));
         assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
         // Assert track is playing
     }

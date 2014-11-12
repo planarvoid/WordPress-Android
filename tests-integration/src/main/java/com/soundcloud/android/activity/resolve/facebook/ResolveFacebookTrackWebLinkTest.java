@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve.facebook;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -21,12 +21,9 @@ public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
 
     public void testFacebookTrackDeeplinkOpensPlayerScreenAndLoadRecommendations() {
         VisualPlayerElement player = new VisualPlayerElement(solo);
-        player.waitForExpandedPlayer();
         player.waitForContent();
-
-        assertThat(player.isVisible(), is(true));
+        assertThat(player, is(expanded()));
         assertThat(player.getTrackTitle(), is(TRACK_NAME));
-        assertThat(player, is(visible()));
 
         player.swipeNext();
         assertThat(player.getTrackTitle(), is(not(TRACK_NAME)));
