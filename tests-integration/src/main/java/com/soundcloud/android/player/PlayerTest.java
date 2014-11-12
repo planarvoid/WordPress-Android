@@ -9,7 +9,6 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddCommentScreen;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
@@ -20,7 +19,6 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.helpers.NavigationHelper;
 import com.soundcloud.android.tests.helpers.PlayerHelper;
-import com.soundcloud.android.tests.with.With;
 
 public class PlayerTest extends ActivityTestCase<MainActivity> {
 
@@ -126,13 +124,6 @@ public class PlayerTest extends ActivityTestCase<MainActivity> {
         playerElement.tapNext();
 
         assertThat(playerElement.isPlayControlsVisible(), is(true));
-    }
-
-    private void playLastTrackOnPlaylist() {
-        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Two Tracks Playlist"));
-        solo.scrollToBottom(solo.getCurrentListView());
-        playerElement = playlistDetailsScreen.clickSecondTrack();
-        playerElement.waitForExpandedPlayer();
     }
 
     public void testUserButtonGoesToUserProfile() {
