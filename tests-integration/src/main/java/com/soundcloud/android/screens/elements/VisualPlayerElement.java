@@ -261,6 +261,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public ProfileScreen clickCreator() {
+        waitForExpandedPlayer();
         creator().click();
         return new ProfileScreen(solo);
     }
