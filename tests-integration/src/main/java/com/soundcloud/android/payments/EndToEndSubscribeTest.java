@@ -24,7 +24,7 @@ public class EndToEndSubscribeTest extends ActivityTestCase<MainActivity> {
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
-    public void ignore_testUserCanSubscribe() {
+    public void testUserCanSubscribe() {
         PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
         paymentScreen.clickBuy();
         waiter.waitFiveSeconds();

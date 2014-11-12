@@ -114,7 +114,9 @@ class PaymentOperations {
 
     public Observable<PurchaseStatus> verify(final Payload payload) {
         return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
-                .map(TO_PURCHASE_STATUS);
+                .subscribeOn(ScSchedulers.API_SCHEDULER)
+                .map(TO_PURCHASE_STATUS)
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<ApiResponse> cancel(final String reason) {
