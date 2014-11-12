@@ -87,9 +87,9 @@ public class PlayerTest extends ActivityTestCase<MainActivity> {
 
     public void testPlayStateCanBeToggledFromFullPlayer() {
         playExploreTrack();
-        assertThat(playerElement, is(not(Playing())));
-        playerElement.clickArtwork();
         assertThat(playerElement, is(Playing()));
+        playerElement.clickArtwork();
+        assertThat(playerElement, is(not(Playing())));
     }
 
     public void testPlayerIsExpandedAfterClickingTrack() {
