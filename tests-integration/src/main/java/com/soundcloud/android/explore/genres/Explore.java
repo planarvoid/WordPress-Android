@@ -1,5 +1,10 @@
 package com.soundcloud.android.explore.genres;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
@@ -28,26 +33,30 @@ public class Explore extends ActivityTestCase<MainActivity> {
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals(20, categoryScreen.getItemsOnList());
+        assertThat(categoryScreen.getItemsOnList(), is(greaterThan(0)));
+        assertThat(categoryScreen.getItemsOnList(), is(lessThanOrEqualTo(20)));
     }
 
     public void testElectronicMusicCategoryPullToRefresh(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals(20, categoryScreen.getItemsOnList());
-
+        assertThat(categoryScreen.getItemsOnList(), is(greaterThan(0)));
+        assertThat(categoryScreen.getItemsOnList(), is(lessThanOrEqualTo(20)));
         exploreScreen.pullToRefresh();
-        assertEquals(20, categoryScreen.getItemsOnList());
+        assertThat(categoryScreen.getItemsOnList(), is(greaterThan(0)));
+        assertThat(categoryScreen.getItemsOnList(), is(lessThanOrEqualTo(20)));
     }
 
     public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
-        assertEquals(20, categoryScreen.getItemsOnList());
+        int numberOfTracks = categoryScreen.getItemsOnList();
+        assertThat(numberOfTracks, is(greaterThan(0)));
+        assertThat(numberOfTracks, is(lessThanOrEqualTo(20)));
 
         categoryScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertTrue(20 < categoryScreen.getItemsOnList());
+        assertThat(categoryScreen.getItemsOnList(), is(greaterThan(numberOfTracks)));
     }
 }
