@@ -80,9 +80,11 @@ public class PlayerTest extends ActivityTestCase<MainActivity> {
     public void testPlayStateCanBeToggledFromPlayerFooter() {
         playExploreTrack();
         playerElement.pressBackToCollapse();
-        assertThat(playerElement.isFooterInPlayingState(), is(true));
+        assertThat(playerElement, is(collapsed()));
+        assertThat(playerElement, is(Playing()));
+
         playerElement.toggleFooterPlay();
-        assertThat(playerElement.isFooterInPlayingState(), is(false));
+        assertThat(playerElement, is(not(Playing())));
     }
 
     public void testPlayStateCanBeToggledFromFullPlayer() {

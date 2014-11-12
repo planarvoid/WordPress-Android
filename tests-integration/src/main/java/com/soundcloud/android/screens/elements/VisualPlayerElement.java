@@ -241,7 +241,11 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean waitForPlayState() {
-        return waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
+        if (isExpanded()) {
+            return waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
+        } else {
+            return waiter.waitForElementToBeChecked(With.id(R.id.footer_toggle));
+        }
     }
 
     private ViewPager getViewPager() {
@@ -259,10 +263,6 @@ public class VisualPlayerElement extends Element {
     public ProfileScreen clickCreator() {
         creator().click();
         return new ProfileScreen(solo);
-    }
-
-    public boolean isFooterInPlayingState() {
-        return footerPlayToggle().isChecked();
     }
 
     @Override

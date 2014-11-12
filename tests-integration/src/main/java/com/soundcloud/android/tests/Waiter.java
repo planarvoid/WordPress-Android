@@ -101,6 +101,10 @@ public class Waiter {
         return solo.waitForCondition(condition, ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForElementToBeChecked(With matcher) {
+        return solo.waitForCondition(new CheckedViewCondition(matcher), ELEMENT_TIMEOUT);
+    }
+
     private boolean waitForListContent() {
         return solo.waitForCondition(new NoProgressBarCondition(), NETWORK_TIMEOUT);
     }
@@ -403,6 +407,19 @@ public class Waiter {
         public boolean isSatisfied() {
             Log.i(TAG, String.format("Waiting for Activity: %s, current Activity: %s", activity.getSimpleName(), solo.getCurrentActivity().toString()));
             return solo.getCurrentActivity().getClass().getSimpleName().equals(activity.getSimpleName());
+        }
+    }
+
+    private class CheckedViewCondition implements Condition {
+        private final With matcher;
+
+        public CheckedViewCondition(With matcher) {
+            this.matcher = matcher;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return solo.findElement(matcher).isChecked();
         }
     }
 }
