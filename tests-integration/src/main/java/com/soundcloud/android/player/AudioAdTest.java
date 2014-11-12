@@ -64,9 +64,10 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
         assertThat(playerElement, is(Playing()));
     }
 
+
+
     public void testSkipShouldBeDisplayedWhenAdIsSkippable() {
         swipeToAd();
-        assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.waitForAdToBeSkippable();
         assertThat(playerElement, is(SkipAllowed()));
     }
