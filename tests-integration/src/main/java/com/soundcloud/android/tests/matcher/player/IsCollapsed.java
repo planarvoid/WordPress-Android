@@ -10,7 +10,7 @@ public class IsCollapsed extends TypeSafeMatcher<VisualPlayerElement> {
 
     @Override
     public boolean matchesSafely(VisualPlayerElement playerElement) {
-        return playerElement.isCollapsed();
+        return playerElement.waitForCollapsedPlayer();
     }
 
     public void describeTo(Description description) {
