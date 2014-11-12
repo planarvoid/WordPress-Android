@@ -80,7 +80,7 @@ class ViewFetcher {
     }
 
     class ElementWaiter {
-        private static final int ELEMENT_TIMEOUT = 3 * 1000;
+        private static final int ELEMENT_TIMEOUT = 5 * 1000;
         private static final int POLL_INTERVAL = 500;
 
         public ViewElement waitForElement(Callable<List<ViewElement>> callable) {
@@ -91,6 +91,7 @@ class ViewFetcher {
             long endTime = SystemClock.uptimeMillis() + ELEMENT_TIMEOUT;
 
             while (SystemClock.uptimeMillis() <= endTime) {
+                testDriver.sleep(POLL_INTERVAL);
                 try {
                     List<ViewElement> viewElements = callable.call();
                     if (viewElements.size() > 0) {
@@ -100,7 +101,6 @@ class ViewFetcher {
                 } catch (Exception e) {
                     throw new ViewNotFoundException(e);
                 }
-                testDriver.sleep(POLL_INTERVAL);
             }
             return new EmptyViewElement();
         }
