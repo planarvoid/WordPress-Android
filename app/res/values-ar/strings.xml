@@ -92,12 +92,10 @@
     <string name="authentication_error_incomplete_fields">يرجى تعبئة كل الحقول.</string>
     <string name="authentication_error_invalid_email">يرجى إدخال عنوان بريد إلكتروني صالح.</string>
     <string name="authentication_error_no_connection_message">هناك مشكلة في اتصال بياناتك. يرجى التحقق من إعدادات الشبكة.</string>
-    <string name="authentication_error_no_connection_title">هل أنت متأكد من الاتصال بالإنترنت؟</string>
     <string name="authentication_error_password_too_short">يجب أن تكون كلمة المرور 6 أحرف أو أكثر.</string>
     <string name="authentication_error_title">خطأ</string>
     <string name="authentication_log_in">تسجيل الدخول</string>
     <string name="authentication_log_in_with_facebook">تسجيل الدخول عبر فيسبوك</string>
-    <string name="authentication_log_in_with_facebook_ssl_error">خطأ في الاتصال بفيسبوك (SSL)</string>
     <string name="authentication_login_error_password_message">لم نتمكن من تسجيل الدخول. هل أنت متأكد من صحة عنوان البريد الإلكتروني وكلمة المرور؟</string>
     <string name="authentication_login_progress_message">تسجيل دخولك</string>
     <string name="authentication_recover_password">استعادة كلمة المرور</string>
@@ -121,9 +119,7 @@
     <string name="error_google_sign_in_failed">لم نتمكن من تسجيل دخولك في مع Google+. تفضل بزيارة plus.google.com لتفعيل حسابك في + Google وحاول مرة أخرى</string>
     <string name="auth_disclaimer_title">خطوة أخرى إضافية</string>
     <string name="auth_disclaimer_message">بالنقر فوق \"متابعة\"، فأنت توافق على شروط الاستخدام وسياسة الخصوصية لـ SoundCloud.</string>
-    <string name="facebook_authentication_error_no_connection_message">يرجى المحاولة مرة أخرى أو تسجيل الدخول باستخدام اسم مستخدم وكلمة مرور SoundCloud</string>
     <string name="facebook_authentication_failed_message">يرجى المحاولة مرة أخرى قريبًا أو تسجيل الدخول باستخدام اسم مستخدم وكلمة مرور SoundCloud</string>
-    <string name="facebook_authentication_failed_title">تعذر علينا الاتصال بفيسبوك الآن.</string>
     <string name="authentication_recover_password_msg">أدخل عنوان بريدك الالكتروني وسنرسل لك رابطًًا يسمح لك بتغيير كلمة المرور. هل هناك مشكلات؟ اتصل بخدمة الدعم.</string>
     <string name="authentication_blocked_title">تعذر علينا تسجيل إشتراكك</string>
     <string name="authentication_blocked_message">تعتقد الروبوتات لدينا أن هذا الاشتراك يبدو كثيرًا مثل البريد المزعج. إذا كنت تعتقد أن هذا خطأ، يرجى <a href="http://help.soundcloud.com/customer/portal/emails/new">الاتصال بدعمنا</a>

@@ -90,12 +90,10 @@
     <string name="authentication_error_incomplete_fields">Пожалуйста, заполните все поля.</string>
     <string name="authentication_error_invalid_email">Пожалуйста, введите существующий адрес электронной почты.</string>
     <string name="authentication_error_no_connection_message">Не удается установить соединение. Пожалуйста, проверьте настройки сети.</string>
-    <string name="authentication_error_no_connection_title">Вы уверены, что подключились к Интернету?</string>
     <string name="authentication_error_password_too_short">Пароль должен состоять из 6 или больше символов.</string>
     <string name="authentication_error_title">Ошибка</string>
     <string name="authentication_log_in">Войти</string>
     <string name="authentication_log_in_with_facebook">Войти через Facebook</string>
-    <string name="authentication_log_in_with_facebook_ssl_error">Ошибка подключения к Facebook (SSL)</string>
     <string name="authentication_login_error_password_message">Нам не удалось вас авторизовать. Вы уверены, что адрес электронной почты и пароль правильные?</string>
     <string name="authentication_login_progress_message">Авторизация...</string>
     <string name="authentication_recover_password">Восстановить пароль</string>
@@ -119,9 +117,7 @@
     <string name="error_google_sign_in_failed">Нам не удалось авторизовать вас с Google+. Посетите plus.google.com и активируйте свою учетную запись Google+, затем повторите попытку</string>
     <string name="auth_disclaimer_title">Последний шаг</string>
     <string name="auth_disclaimer_message">Нажимая \"Продолжить\", вы соглашаетесь с \"Условиями использования\" и \"Политикой конфиденциальности\" SoundCloud.</string>
-    <string name="facebook_authentication_error_no_connection_message">Повторите попытку через некоторое время или войдите, используя имя пользователя и пароль SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Повторите попытку через некоторое время или войдите, используя имя пользователя и пароль SoundCloud.</string>
-    <string name="facebook_authentication_failed_title">Хм, нам не удается связаться с Facebook прямо сейчас.</string>
     <string name="authentication_recover_password_msg">Введите ваш адрес электронной почты и мы вышлем вам ссылку, с помощью которой вы сможете поменять пароль. Вопросы? Обратитесь в службу поддержки.</string>
     <string name="authentication_blocked_title">Не удалось пройти регистрацию</string>
     <string name="authentication_blocked_message">Наши программы-роботы считают, что эта авторизация очень похожа на спам. Если вы считаете, что это не так, <a href="http://help.soundcloud.com/customer/portal/emails/new">обратитесь в службу поддержки</a>

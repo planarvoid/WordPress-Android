@@ -96,7 +96,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     }
 
     /**
-     * Used for creating SoundCloud account from {@link FacebookWebFlowActivity} and {@link FacebookSSOActivity}
+     * Used for creating SoundCloud account from Facebook SDK
      *
      * @param data contains grant data and FB token
      */

@@ -157,4 +157,10 @@
 
     <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
+
+    <!-- ignore any issues in the facebook SDK -->
+    <issue id="all">
+        <ignore path="target/classes/com/facebook/*.class" />
+        <ignore path="target/classes/com/facebook/**/*.class" />
+    </issue>
 </lint>
