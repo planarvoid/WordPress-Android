@@ -15,6 +15,7 @@ public class WhyAdsScreen extends Screen {
 
     public VisualPlayerElement clickOK() {
         testDriver.findElement(text(testDriver.getString(android.R.string.ok))).click();
+        waiter.waitForDialogToClose();
         return new VisualPlayerElement(testDriver);
     }
 
