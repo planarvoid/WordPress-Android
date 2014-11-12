@@ -15,6 +15,7 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.stream.SoundStreamWriteStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,11 +56,13 @@ public class AccountCleanupActionTest {
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock
     private AccountOperations accountOperations;
+    @Mock
+    private SoundStreamWriteStorage soundStreamWriteStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(context, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, unauthorisedRequestRegistry);
+                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, unauthorisedRequestRegistry, soundStreamWriteStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -113,6 +116,12 @@ public class AccountCleanupActionTest {
     public void shouldClearPlaylistTagStorage() {
         action.call();
         verify(tagStorage).clear();
+    }
+
+    @Test
+    public void shouldClearSoundStreamStorage() {
+        action.call();
+        verify(soundStreamWriteStorage).clear();
     }
 }
 

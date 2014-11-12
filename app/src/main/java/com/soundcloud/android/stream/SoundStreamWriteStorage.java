@@ -35,6 +35,15 @@ public class SoundStreamWriteStorage {
         return database.runTransaction(new InsertTransaction(streamItems));
     }
 
+    public void clear() {
+        database.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                step(propeller.delete(Table.SoundStream));
+            }
+        });
+    }
+
     private static class ReplaceTransaction extends InsertTransaction {
 
         ReplaceTransaction(Iterable<ApiStreamItem> streamItems) {

@@ -10,6 +10,7 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.stream.SoundStreamWriteStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
 import rx.functions.Action0;
@@ -27,13 +28,15 @@ class AccountCleanupAction implements Action0 {
     private final SoundRecorder soundRecorder;
     private final SyncStateManager syncStateManager;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    private final SoundStreamWriteStorage soundStreamWriteStorage;
 
     @Inject
     AccountCleanupAction(Context context, SyncStateManager syncStateManager,
                          CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage,
                          UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
                          SoundRecorder soundRecorder,
-                         UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+                         UnauthorisedRequestRegistry unauthorisedRequestRegistry,
+                         SoundStreamWriteStorage soundStreamWriteStorage) {
         this.context = context;
         this.syncStateManager = syncStateManager;
         this.collectionStorage = collectionStorage;
@@ -42,6 +45,7 @@ class AccountCleanupAction implements Action0 {
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
+        this.soundStreamWriteStorage = soundStreamWriteStorage;
     }
 
 
@@ -53,6 +57,7 @@ class AccountCleanupAction implements Action0 {
         syncStateManager.clear();
         collectionStorage.clear();
         activitiesStorage.clear(null);
+        soundStreamWriteStorage.clear();
         userAssociationStorage.clear();
         tagStorage.clear();
         soundRecorder.reset();

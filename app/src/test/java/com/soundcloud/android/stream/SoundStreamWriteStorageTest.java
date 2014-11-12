@@ -69,6 +69,15 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldClearSoundStreamItems() {
+        testFixtures().insertStreamTrackPost(ApiStreamItemFixtures.trackPost());
+        expectStreamItemCountToBe(1);
+
+        storage.clear();
+        expectStreamItemCountToBe(0);
+    }
+
+    @Test
     public void shouldStoreAllStreamItemsWithDependencies() {
         final ApiStreamItem trackPost = ApiStreamItemFixtures.trackPost();
         final ApiStreamItem trackRepost = ApiStreamItemFixtures.trackRepost();
