@@ -13,6 +13,8 @@ import com.android.vending.billing.IInAppBillingService;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.json.JSONException;
@@ -45,6 +47,7 @@ public class BillingServiceTest {
     @Mock private IBinder iBinder;
     @Mock private BillingServiceBinder billingBinder;
     @Mock private IInAppBillingService service;
+    @Mock private FeatureFlags flags;
 
     @Captor private ArgumentCaptor<ServiceConnection> connectionCaptor;
 
@@ -52,7 +55,7 @@ public class BillingServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor);
+        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor, flags);
         when(billingBinder.bind(iBinder)).thenReturn(service);
         when(billingBinder.canConnect()).thenReturn(true);
         when(deviceHelper.getPackageName()).thenReturn("com.package");
@@ -166,6 +169,7 @@ public class BillingServiceTest {
         Bundle bundle = okBundle();
         bundle.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
         when(service.getBuyIntent(3, "com.package", "package_id", "subs", "token")).thenReturn(bundle);
+        when(flags.isDisabled(Feature.PAYMENTS_TEST)).thenReturn(true);
 
         billingService.openConnection(activity);
         onServiceConnected();

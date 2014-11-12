@@ -6,6 +6,8 @@ import com.android.vending.billing.IInAppBillingService;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import org.json.JSONException;
@@ -35,6 +37,7 @@ public class BillingService {
     private final DeviceHelper deviceHelper;
     private final BillingServiceBinder binder;
     private final ResponseProcessor processor;
+    private final FeatureFlags flags;
 
     private final BehaviorSubject<ConnectionStatus> connectionSubject = BehaviorSubject.create();
 
@@ -58,10 +61,11 @@ public class BillingService {
     private IInAppBillingService iabService;
 
     @Inject
-    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor) {
+    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor, FeatureFlags flags) {
         this.deviceHelper = deviceHelper;
         this.binder = binder;
         this.processor = processor;
+        this.flags = flags;
     }
 
     public Observable<ConnectionStatus> openConnection(Activity bindingActivity) {
@@ -146,7 +150,7 @@ public class BillingService {
             int responseCode = getResponseCodeFromBundle(response);
             logBillingResponse("getBuyIntent", responseCode);
 
-            if (responseCode == RESULT_OK) {
+            if (responseCode == RESULT_OK && flags.isDisabled(Feature.PAYMENTS_TEST)) {
                 PendingIntent buyIntent = response.getParcelable(RESPONSE_BUY_INTENT);
                 bindingActivity.startIntentSenderForResult(buyIntent.getIntentSender(),
                         BillingResult.REQUEST_CODE, new Intent(), NO_FLAGS, NO_FLAGS, NO_FLAGS);

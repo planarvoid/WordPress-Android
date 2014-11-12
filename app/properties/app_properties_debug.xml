@@ -21,5 +21,6 @@
     <bool name="feature_api_mobile_stream">true</bool>
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
+    <bool name="feature_payments_test">false</bool>
     <bool name="feature_okhttp">false</bool>
 </resources>

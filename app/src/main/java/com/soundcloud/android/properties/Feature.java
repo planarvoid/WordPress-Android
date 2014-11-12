@@ -6,6 +6,7 @@ public enum Feature {
 
     TEST_FEATURE(-1),
     PAYMENTS(R.bool.feature_payments),
+    PAYMENTS_TEST(R.bool.feature_payments_test),
     LOCALYTICS_PUSH(R.bool.feature_localytics_push),
     OKHTTP(R.bool.feature_okhttp),
     SECURE_STREAM_CACHE(R.bool.feature_secure_stream_cache),

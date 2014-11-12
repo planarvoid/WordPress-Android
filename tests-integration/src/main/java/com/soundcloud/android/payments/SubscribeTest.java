@@ -22,7 +22,7 @@ public class SubscribeTest extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Feature.PAYMENTS);
+        setDependsOn(Feature.PAYMENTS_TEST);
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
