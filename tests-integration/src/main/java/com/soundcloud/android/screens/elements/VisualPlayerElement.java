@@ -240,6 +240,10 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.player_ad_page);
     }
 
+    public boolean waitForPlayState() {
+        return waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
+    }
+
     private ViewPager getViewPager() {
         return solo.findElement(With.id(R.id.player_track_pager)).toViewPager();
     }
@@ -260,11 +264,6 @@ public class VisualPlayerElement extends Element {
     public boolean isFooterInPlayingState() {
         return footerPlayToggle().isChecked();
     }
-
-    public boolean isPlayControlsVisible() {
-        return playButton().isVisible();
-    }
-
 
     @Override
     public boolean isVisible() {

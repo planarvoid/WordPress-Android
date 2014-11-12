@@ -46,6 +46,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public void clickHeaderPause() {
         headerPlayToggle().click();
+        waiter.waitForPlaybackToBeIdle();
     }
 
     public boolean isPlayToggleChecked() {

@@ -151,6 +151,10 @@ public class Waiter {
         return solo.waitForCondition(new PlaybackPlayingCondition(), NETWORK_TIMEOUT);
     }
 
+    public boolean waitForPlaybackToBeIdle() {
+        return solo.waitForCondition(new PlaybackIdleCondition(), NETWORK_TIMEOUT);
+    }
+
     public boolean waitForDrawerToClose() {
         return solo.waitForCondition(new DrawerStateCondition(false), TIMEOUT);
     }
@@ -327,6 +331,16 @@ public class Waiter {
             return playbackState.isPlaying();
         }
     }
+
+    private class PlaybackIdleCondition implements Condition {
+        private final PlaybackStateProvider playbackState = new PlaybackStateProvider();
+
+        @Override
+        public boolean isSatisfied() {
+            return !playbackState.isPlaying();
+        }
+    }
+
 
     private class DrawerStateCondition implements Condition {
         private final MenuScreen menuScreen;

@@ -10,7 +10,7 @@ public class IsPlaying extends TypeSafeMatcher<VisualPlayerElement> {
 
     @Override
     public boolean matchesSafely(VisualPlayerElement playerElement) {
-        return !playerElement.isPlayControlsVisible();
+        return playerElement.waitForPlayState();
     }
 
     public void describeTo(Description description) {
