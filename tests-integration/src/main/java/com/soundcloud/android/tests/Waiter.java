@@ -98,7 +98,7 @@ public class Waiter {
     }
 
     public boolean waitForElementCondition(Condition condition) {
-        return solo.waitForCondition(condition, ELEMENT_TIMEOUT);
+        return solo.waitForCondition(condition, NETWORK_TIMEOUT);
     }
 
     public boolean waitForElementToBeChecked(With matcher) {
@@ -185,6 +185,15 @@ public class Waiter {
 
     public boolean waitForElement(final int content) {
         return solo.waitForCondition(new VisibleElementCondition(content), ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForAdToBeComeSkippable(final With matcher) {
+        return solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return solo.findElement(matcher).isVisible();
+            }
+        }, 15000);
     }
 
     public boolean waitForElement(final Class<? extends View> viewClass) {

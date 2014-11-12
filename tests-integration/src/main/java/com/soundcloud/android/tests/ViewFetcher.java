@@ -80,7 +80,7 @@ class ViewFetcher {
     }
 
     class ElementWaiter {
-        private static final int ELEMENT_TIMEOUT = 5 * 1000;
+        private static final int ELEMENT_TIMEOUT = 4 * 1000;
         private static final int POLL_INTERVAL = 500;
 
         public ViewElement waitForElement(Callable<List<ViewElement>> callable) {

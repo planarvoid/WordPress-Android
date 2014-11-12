@@ -213,7 +213,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForAdToBeSkippable() {
-        solo.sleep(MILISECONDS_UNTIL_AD_SKIPPABLE);
+        waiter.waitForAdToBeComeSkippable(With.id(R.id.skip_ad));
     }
 
     public void waitForAdToBeDone() {
