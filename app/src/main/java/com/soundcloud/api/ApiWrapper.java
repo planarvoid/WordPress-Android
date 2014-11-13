@@ -221,7 +221,8 @@ public class ApiWrapper implements CloudAPI {
     @Override
     public Token extensionGrantType(String grantType) throws IOException {
         final Request req = Request.to(Endpoints.TOKEN);
-        addRequestParams(req, oAuth.getTokenRequestParamsFromExtensionGrant("facebook"));
+        addRequestParams(req, oAuth.getTokenRequestParamsFromExtensionGrant(grantType));
+
         Token token = requestToken(req);
         oAuth.setToken(token);
         return token;
