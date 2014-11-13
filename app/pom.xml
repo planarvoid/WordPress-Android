@@ -421,7 +421,7 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>skippy</artifactId>
-            <version>556</version>
+            <version>557</version>
             <type>apklib</type>
         </dependency>
         <dependency>
