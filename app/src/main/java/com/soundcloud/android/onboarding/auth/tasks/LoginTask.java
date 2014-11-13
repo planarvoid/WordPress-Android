@@ -13,7 +13,7 @@ import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;

@@ -5,7 +5,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 
 import android.net.Uri;
 
@@ -32,7 +32,7 @@ class PlayCountUrlBuilder {
 
         final Token token = accountOperations.getSoundCloudToken();
         if (token != null) {
-            builder.appendQueryParameter("oauth_token", token.access);
+            builder.appendQueryParameter("oauth_token", token.getAccessToken());
         }
 
         final String policy = event.get(PlaybackSessionEvent.KEY_POLICY);

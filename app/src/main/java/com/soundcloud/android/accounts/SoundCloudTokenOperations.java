@@ -1,6 +1,6 @@
 package com.soundcloud.android.accounts;
 
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -24,10 +24,10 @@ class SoundCloudTokenOperations {
     }
 
     public void storeSoundCloudTokenData(@Nullable Account account, Token token) {
-        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), Long.toString(token.expiresIn));
-        accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.scope);
-        accountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.access);
-        accountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.refresh);
+        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), Long.toString(token.getExpiresAt()));
+        accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.getScope());
+        accountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.getAccessToken());
+        accountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.getRefreshToken());
     }
 
     public Token getSoundCloudToken(@Nullable Account account) {
@@ -37,11 +37,11 @@ class SoundCloudTokenOperations {
     public void invalidateToken(Token expired, @Nullable Account account) {
         accountManager.invalidateAuthToken(
                 account.type,
-                expired.access);
+                expired.getAccessToken());
 
         accountManager.invalidateAuthToken(
                 account.type,
-                expired.refresh);
+                expired.getRefreshToken());
 
         accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), null);
         accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), null);

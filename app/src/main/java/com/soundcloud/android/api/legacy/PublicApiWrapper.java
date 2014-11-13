@@ -101,15 +101,15 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     public PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
                             ApplicationProperties applicationProperties) {
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
-                ANDROID_REDIRECT_URI, accountOperations, applicationProperties,
+                accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
     }
 
-    private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
+    private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret,
                              AccountOperations accountOperations, ApplicationProperties applicationProperties,
                              UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                              DeviceHelper deviceHelper) {
-        super(clientId, clientSecret, redirectUri, accountOperations.getSoundCloudToken());
+        super(clientId, clientSecret, accountOperations.getSoundCloudToken());
         // context can be null in tests
         if (context == null) {
             return;

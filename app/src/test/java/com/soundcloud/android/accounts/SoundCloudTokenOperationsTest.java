@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,21 +27,16 @@ public class SoundCloudTokenOperationsTest {
     private static final String ACCOUNTNAME = "accountname";
 
     private SoundCloudTokenOperations tokenOperations;
-    @Mock
-    private AccountManager accountManager;
-    @Mock
     private Token token;
-    @Mock
-    private Account account;
+
+    @Mock private AccountManager accountManager;
+    @Mock private Account account;
 
     @Before
     public void setUp(){
         initMocks(this);
         tokenOperations = new SoundCloudTokenOperations(accountManager);
-        token.access = ACCESSTOKEN;
-        token.refresh = REFRESHTOKEN;
-        token.scope = SCOPE;
-        token.expiresIn = EXPIRES;
+        token = new Token(ACCESSTOKEN, REFRESHTOKEN, SCOPE, EXPIRES);
         account = new Account(ACCOUNTNAME, ACCOUNTTYPE);
     }
 
@@ -62,9 +57,9 @@ public class SoundCloudTokenOperationsTest {
         when(accountManager.peekAuthToken(account, "refresh_token")).thenReturn(REFRESHTOKEN);
 
         Token token = tokenOperations.getSoundCloudToken(account);
-        expect(token.access).toEqual(ACCESSTOKEN);
-        expect(token.refresh).toEqual(REFRESHTOKEN);
-        expect(token.scope).toEqual(SCOPE);
+        expect(token.getAccessToken()).toEqual(ACCESSTOKEN);
+        expect(token.getRefreshToken()).toEqual(REFRESHTOKEN);
+        expect(token.getScope()).toEqual(SCOPE);
     }
 
     @Test

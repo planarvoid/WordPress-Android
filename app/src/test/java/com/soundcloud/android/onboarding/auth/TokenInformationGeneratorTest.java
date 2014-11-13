@@ -45,7 +45,7 @@ public class TokenInformationGeneratorTest {
         when(bundle.containsKey("code")).thenReturn(true);
         when(bundle.getString("code")).thenReturn("codeExtra");
         tokenInformationGenerator.getToken(bundle);
-        verify(cloudApi).authorizationCode("codeExtra", NON_EXPIRING_SCOPE);
+        verify(cloudApi).authorizationCode("codeExtra");
     }
 
     @Test
@@ -57,7 +57,7 @@ public class TokenInformationGeneratorTest {
         when(bundle.getString("username")).thenReturn(user);
         when(bundle.getString("password")).thenReturn(pass);
         tokenInformationGenerator.getToken(bundle);
-        verify(cloudApi).login(user,pass,NON_EXPIRING_SCOPE);
+        verify(cloudApi).login(user,pass);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TokenInformationGeneratorTest {
         String grant = "grant";
         when(bundle.getString("extensionGrantType")).thenReturn(grant);
         tokenInformationGenerator.getToken(bundle);
-        verify(cloudApi).extensionGrantType(grant, NON_EXPIRING_SCOPE);
+        verify(cloudApi).extensionGrantType(grant);
 
     }
 

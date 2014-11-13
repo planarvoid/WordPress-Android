@@ -2,7 +2,7 @@ package com.soundcloud.android.tests;
 
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.api.ApiWrapper;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 
 import android.content.Context;
 

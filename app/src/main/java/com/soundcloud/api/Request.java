@@ -1,5 +1,7 @@
 package com.soundcloud.api;
 
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -504,7 +506,7 @@ public class Request implements Iterable<NameValuePair> {
             }
 
             if (token != null) {
-                request.addHeader(ApiWrapper.createOAuthHeader(token));
+                request.addHeader(OAuth.createOAuthHeader(token));
             }
             return request;
         } catch (InstantiationException e) {

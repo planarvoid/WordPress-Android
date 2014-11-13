@@ -23,7 +23,7 @@ import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;

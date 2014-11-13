@@ -5,6 +5,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.android.api.oauth.OAuth;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.AlertDialog;
@@ -86,7 +87,7 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-                if (url.startsWith(PublicCloudAPI.ANDROID_REDIRECT_URI.toString())) {
+                if (url.startsWith(OAuth.REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
                     String code = result.getQueryParameter("code");
@@ -126,11 +127,8 @@ public class FacebookWebFlowActivity extends FacebookBaseActivity {
 
         if (IOUtils.isConnected(this)) {
             removeAllCookies();
-            String[] options = new String[TokenInformationGenerator.DEFAULT_SCOPES.length + 1];
-            options[0] = Endpoints.FACEBOOK_CONNECT;
-            System.arraycopy(TokenInformationGenerator.DEFAULT_SCOPES, 0, options, 1, TokenInformationGenerator.DEFAULT_SCOPES.length);
 
-            webview.loadUrl(publicCloudAPI.authorizationCodeUrl(options).toString());
+            webview.loadUrl(publicCloudAPI.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString());
         } else {
             showConnectionError(null);
         }

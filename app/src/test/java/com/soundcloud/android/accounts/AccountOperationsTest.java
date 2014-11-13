@@ -22,7 +22,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Lazy;

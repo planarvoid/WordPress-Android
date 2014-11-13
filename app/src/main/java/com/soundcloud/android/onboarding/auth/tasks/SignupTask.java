@@ -15,7 +15,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 

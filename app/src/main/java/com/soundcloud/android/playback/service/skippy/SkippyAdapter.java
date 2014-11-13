@@ -28,7 +28,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,7 +133,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
         Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
         return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
-                .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.access)
+                .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
                 .build();
     }
 

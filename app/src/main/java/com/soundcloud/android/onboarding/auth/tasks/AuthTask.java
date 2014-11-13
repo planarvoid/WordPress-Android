@@ -11,7 +11,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpResponse;
 
 import android.content.Intent;

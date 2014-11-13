@@ -37,7 +37,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;

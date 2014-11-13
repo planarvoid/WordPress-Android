@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -54,7 +54,7 @@ public class SoundCloudTokenListenerTest {
     @Test
     public void shouldStoreSoundCloudTokenIfAccountExistsAndTokenIsValidAndDefaultScoped(){
         when(newToken.valid()).thenReturn(true);
-        when(newToken.defaultScoped()).thenReturn(true);
+        when(newToken.hasDefaultScope()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations).storeSoundCloudTokenData(newToken);
@@ -63,7 +63,7 @@ public class SoundCloudTokenListenerTest {
     @Test
     public void shouldNotStoreSoundCloudTokenIfAccountDoesNotExistAndTokenIsValidAndDefaultScoped(){
         when(newToken.valid()).thenReturn(true);
-        when(newToken.defaultScoped()).thenReturn(true);
+        when(newToken.hasDefaultScope()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations, never()).storeSoundCloudTokenData(newToken);
@@ -72,7 +72,7 @@ public class SoundCloudTokenListenerTest {
     @Test
     public void shouldNotStoreSoundCloudTokenIfAccountExistsAndTokenIsNotValidButIsDefaultScoped(){
         when(newToken.valid()).thenReturn(false);
-        when(newToken.defaultScoped()).thenReturn(true);
+        when(newToken.hasDefaultScope()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations, never()).storeSoundCloudTokenData(newToken);
@@ -81,7 +81,7 @@ public class SoundCloudTokenListenerTest {
     @Test
     public void shouldNotStoreSoundCloudTokenIfAccountExistsAndTokenIsValidButIsNotDefaultScoped(){
         when(newToken.valid()).thenReturn(true);
-        when(newToken.defaultScoped()).thenReturn(false);
+        when(newToken.hasDefaultScope()).thenReturn(false);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         tokenListener.onTokenRefreshed(newToken);
         verify(accountOperations, never()).storeSoundCloudTokenData(newToken);

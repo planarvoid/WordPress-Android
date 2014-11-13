@@ -11,12 +11,10 @@ import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 public interface PublicCloudAPI extends CloudAPI {
     String TAG = PublicCloudAPI.class.getSimpleName();
-    URI ANDROID_REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
     Env getEnv();

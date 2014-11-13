@@ -1,5 +1,8 @@
 package com.soundcloud.api;
 
+import com.soundcloud.android.crop.util.VisibleForTesting;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -44,7 +47,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRequestDirector;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -53,17 +55,16 @@ import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Interface with SoundCloud, using OAuth2.
@@ -86,8 +87,9 @@ import java.util.Arrays;
  *
  * @see <a href="http://developers.soundcloud.com/docs">Using the SoundCloud API</a>
  */
-public class ApiWrapper implements CloudAPI, Serializable {
+public class ApiWrapper implements CloudAPI {
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
+
     public static final int BUFFER_SIZE = 8192;
     /**
      * Connection timeout
@@ -99,8 +101,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
     public static final long KEEPALIVE_TIMEOUT = 20 * 1000;
     /* maximum number of connections allowed */
     public static final int MAX_TOTAL_CONNECTIONS = 10;
-    private static final long serialVersionUID = 3662083416905771921L;
-    private static final Token EMPTY_TOKEN = new Token(null, null);
     private static final ThreadLocal<Request> defaultParams = new ThreadLocal<Request>() {
         @Override
         protected Request initialValue() {
@@ -111,15 +111,13 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * The current environment, only live possible for now
      */
     public final Env env = Env.LIVE;
-    private final String clientId, clientSecret;
-    private final URI redirectUri;
+    private final OAuth oAuth;
     /**
      * debug request details to stderr
      */
     public boolean debugRequests;
-    private Token token;
     transient private HttpClient httpClient;
-    transient private TokenListener listener;
+    transient private CloudAPI.TokenListener listener;
     private String defaultContentType;
     private String defaultAcceptEncoding;
 
@@ -128,63 +126,92 @@ public class ApiWrapper implements CloudAPI, Serializable {
      *
      * @param clientId     the application client id
      * @param clientSecret the application client secret
-     * @param redirectUri  the registered redirect url, or null
      * @param token        an valid token, or null if not known
      * @see <a href="http://developers.soundcloud.com/docs#authentication">API authentication documentation</a>
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
-                      URI redirectUri,
                       Token token) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
-        this.token = token == null ? EMPTY_TOKEN : token;
+        this.oAuth = new OAuth(clientId, clientSecret, token);
     }
 
     @Override
-    public Token login(String username, String password, String... scopes) throws IOException {
+    public Token login(String username, String password) throws IOException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
         }
-        final Request request = addScope(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, PASSWORD,
-                CLIENT_ID, clientId,
-                CLIENT_SECRET, clientSecret,
-                USERNAME, username,
-                PASSWORD, password), scopes);
-        token = requestToken(request);
+        final Request request = Request.to(Endpoints.TOKEN);
+        addRequestParams(request, oAuth.getTokenRequestParamsFromUserCredentials(username, password));
+        Token token = requestToken(request);
+        oAuth.setToken(token);
         return token;
     }
 
+    private void addRequestParams(Request request, Map<String, String> params) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            request.add(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Request an OAuth2 token from SoundCloud
+     *
+     * @param request the token request
+     * @return the token
+     * @throws java.io.IOException                               network error
+     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException unauthorized
+     * @throws com.soundcloud.api.CloudAPI.ApiResponseException  http error
+     */
+    private Token requestToken(Request request) throws IOException {
+        HttpResponse response = safeExecute(env.getSecureResourceHost(), request.buildRequest(HttpPost.class));
+        final int status = response.getStatusLine().getStatusCode();
+
+        String error;
+        try {
+            if (status == HttpStatus.SC_OK) {
+                final Token token = new Token(Http.getJSON(response));
+                if (listener != null) {
+                    listener.onTokenRefreshed(token);
+                }
+                return token;
+            } else {
+                error = Http.getJSON(response).getString("error");
+            }
+        } catch (IOException ignored) {
+            error = ignored.getMessage();
+        } catch (JSONException ignored) {
+            error = ignored.getMessage();
+        }
+        throw status == HttpStatus.SC_UNAUTHORIZED ?
+                new CloudAPI.InvalidTokenException(status, error) :
+                new CloudAPI.ApiResponseException(response, error);
+    }
+
+
+
     @Override
-    public Token authorizationCode(String code, String... scopes) throws IOException {
+    public Token authorizationCode(String code) throws IOException {
         if (code == null) {
             throw new IllegalArgumentException("code is null");
         }
-        final Request request = addScope(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, AUTHORIZATION_CODE,
-                CLIENT_ID, clientId,
-                CLIENT_SECRET, clientSecret,
-                REDIRECT_URI, redirectUri,
-                CODE, code), scopes);
-        token = requestToken(request);
+        final Request request = Request.to(Endpoints.TOKEN);
+        addRequestParams(request, oAuth.getTokenRequestParamsFromCode(code));
+        Token token = requestToken(request);
+        oAuth.setToken(token);
         return token;
     }
 
     @Override
     public Token clientCredentials(String... scopes) throws IOException {
-        final Request req = addScope(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, CLIENT_CREDENTIALS,
-                CLIENT_ID, clientId,
-                CLIENT_SECRET, clientSecret), scopes);
+        final Request req = Request.to(Endpoints.TOKEN);
+        addRequestParams(req, oAuth.getTokenRequestParamsFromClientCredentials(scopes));
 
         final Token token = requestToken(req);
         if (scopes != null) {
             for (String scope : scopes) {
-                if (!token.scoped(scope)) {
+                if (!token.hasScope(scope)) {
                     throw new InvalidTokenException(-1, "Could not obtain requested scope '" + scope + "' (got: '" +
-                            token.scope + "')");
+                            token.getScope() + "')");
                 }
             }
         }
@@ -192,71 +219,48 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     @Override
-    public Token extensionGrantType(String grantType, String... scopes) throws IOException {
-        final Request req = addScope(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, grantType,
-                CLIENT_ID, clientId,
-                CLIENT_SECRET, clientSecret), scopes);
-
-        token = requestToken(req);
+    public Token extensionGrantType(String grantType) throws IOException {
+        final Request req = Request.to(Endpoints.TOKEN);
+        addRequestParams(req, oAuth.getTokenRequestParamsFromExtensionGrant("facebook"));
+        Token token = requestToken(req);
+        oAuth.setToken(token);
         return token;
     }
 
     @Override
     public Token refreshToken() throws IOException {
-        if (token == null || token.refresh == null) {
+        if (!oAuth.getToken().hasRefreshToken()) {
             throw new IllegalStateException("no refresh token available");
         }
-        token = requestToken(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, REFRESH_TOKEN,
-                CLIENT_ID, clientId,
-                CLIENT_SECRET, clientSecret,
-                REFRESH_TOKEN, token.refresh));
+        final Request request = Request.to(Endpoints.TOKEN);
+        addRequestParams(request, oAuth.getTokenRequestParamsForRefreshToken());
+        Token token = requestToken(request);
+        oAuth.setToken(token);
         return token;
     }
 
+    @Nullable
     @Override
     public Token invalidateToken() {
-        if (token != null) {
-            Token alternative = listener == null ? null : listener.onTokenInvalid(token);
-            token.invalidate();
-            if (alternative != null) {
-                token = alternative;
-                return token;
-            } else {
-                return null;
-            }
+        Token token = oAuth.getToken();
+        Token alternative = listener == null ? null : listener.onTokenInvalid(token);
+        token.invalidate();
+        if (alternative != null) {
+            token = alternative;
+            return token;
         } else {
             return null;
         }
     }
 
     @Override
-    public URI authorizationCodeUrl(String... options) {
-        final Request req = Request.to(options.length == 0 ? Endpoints.CONNECT : options[0]).with(
-                REDIRECT_URI, redirectUri,
-                CLIENT_ID, clientId,
-                RESPONSE_TYPE, CODE);
-        if (options.length > 1) {
-            req.add(SCOPE, options[1]);
-        }
-        if (options.length > 2) {
-            req.add(DISPLAY, options[2]);
-        }
-        if (options.length > 3) {
-            req.add(STATE, options[3]);
-        }
-        return getURI(req);
-    }
-
-    /**
-     * Constructs URI path for a given resource.
-     *
-     * @param request the resource to access
-     * @return a valid URI
-     */
-    public URI getURI(Request request) {
-        return env.getSecureAuthResourceURI().resolve(request.toUrl());
+    public URI authorizationCodeUrl(String endpoint) {
+        final Request req = Request.to(endpoint).with(
+                OAuth.PARAM_REDIRECT_URI, OAuth.REDIRECT_URI,
+                OAuth.PARAM_CLIENT_ID, oAuth.getClientId(),
+                OAuth.PARAM_RESPONSE_TYPE, OAuth.RESPONSE_TYPE_CODE);
+        req.add(OAuth.PARAM_SCOPE, OAuth.DEFAULT_SCOPES);
+        return env.getSecureAuthResourceURI().resolve(req.toUrl());
     }
 
     /**
@@ -449,11 +453,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     @Override
-    public HttpResponse head(Request request) throws IOException {
-        return execute(request, HttpHead.class);
-    }
-
-    @Override
     public HttpResponse get(Request request) throws IOException {
         return execute(request, HttpGet.class);
     }
@@ -475,15 +474,15 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     @Override
     public Token getToken() {
-        return token;
+        return oAuth.getToken();
     }
 
     @Override
+    @VisibleForTesting
     public void setToken(Token newToken) {
-        token = newToken == null ? EMPTY_TOKEN : newToken;
+        oAuth.setToken(newToken);
     }
 
-    @Override
     public synchronized void setTokenListener(TokenListener listener) {
         this.listener = listener;
     }
@@ -537,18 +536,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
         }
     }
 
-    /**
-     * serialize the wrapper to a File
-     *
-     * @param f target
-     * @throws java.io.IOException IO problems
-     */
-    public void toFile(File f) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-        oos.writeObject(this);
-        oos.close();
-    }
-
     public String getDefaultContentType() {
         return (defaultContentType == null) ? DEFAULT_CONTENT_TYPE : defaultContentType;
     }
@@ -583,14 +570,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     /**
-     * Creates an OAuth2 header for the given token
-     */
-    public static Header createOAuthHeader(Token token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
-                (token == null || !token.valid() ? "invalidated" : token.access));
-    }
-
-    /**
      * Adds a default parameter which will get added to all requests in this thread.
      * Use this method carefully since it might lead to unexpected side-effects.
      *
@@ -606,40 +585,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
      */
     public static void clearDefaultParameters() {
         defaultParams.remove();
-    }
-
-    /**
-     * Request an OAuth2 token from SoundCloud
-     *
-     * @param request the token request
-     * @return the token
-     * @throws java.io.IOException                               network error
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException unauthorized
-     * @throws com.soundcloud.api.CloudAPI.ApiResponseException  http error
-     */
-    protected Token requestToken(Request request) throws IOException {
-        HttpResponse response = safeExecute(env.getSecureResourceHost(), request.buildRequest(HttpPost.class));
-        final int status = response.getStatusLine().getStatusCode();
-
-        String error;
-        try {
-            if (status == HttpStatus.SC_OK) {
-                final Token token = new Token(Http.getJSON(response));
-                if (listener != null) {
-                    listener.onTokenRefreshed(token);
-                }
-                return token;
-            } else {
-                error = Http.getJSON(response).getString("error");
-            }
-        } catch (IOException ignored) {
-            error = ignored.getMessage();
-        } catch (JSONException ignored) {
-            error = ignored.getMessage();
-        }
-        throw status == HttpStatus.SC_UNAUTHORIZED ?
-                new InvalidTokenException(status, error) :
-                new ApiResponseException(response, error);
     }
 
     /**
@@ -713,11 +658,10 @@ public class ApiWrapper implements CloudAPI, Serializable {
             }
         }
         logRequest(reqType, req);
-        return execute(addClientIdIfNecessary(req).buildRequest(reqType));
-    }
-
-    protected Request addClientIdIfNecessary(Request req) {
-        return req.getParams().containsKey(CLIENT_ID) ? req : new Request(req).add(CLIENT_ID, clientId);
+        if (!req.getParams().containsKey(OAuth.PARAM_CLIENT_ID)) {
+            req = new Request(req).add(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
+        }
+        return execute(req.buildRequest(reqType));
     }
 
     protected void logRequest(Class<? extends HttpRequestBase> reqType, Request request) {
@@ -741,18 +685,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     /**
-     * Adds an OAuth2 header to a given request
-     */
-    protected HttpUriRequest addAuthHeader(HttpUriRequest request) {
-        if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
-            if (token != EMPTY_TOKEN) {
-                request.addHeader(createOAuthHeader(token));
-            }
-        }
-        return request;
-    }
-
-    /**
      * Forces JSON
      */
     protected HttpUriRequest addAcceptHeader(HttpUriRequest request) {
@@ -766,7 +698,13 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * Adds all required headers to the request
      */
     protected HttpUriRequest addHeaders(HttpUriRequest req) {
-        return addAcceptHeader(addAuthHeader(addEncodingHeader(req)));
+        HttpUriRequest request = addEncodingHeader(req);
+        if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
+            if (oAuth.hasToken()) {
+                request.addHeader(OAuth.createOAuthHeader(oAuth.getToken()));
+            }
+        }
+        return addAcceptHeader(request);
     }
 
     protected HttpUriRequest addEncodingHeader(HttpUriRequest req) {
@@ -797,18 +735,4 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 stateHandler, params);
     }
 
-    /* package */
-    static Request addScope(Request request, String[] scopes) {
-        if (scopes != null && scopes.length > 0) {
-            StringBuilder scope = new StringBuilder();
-            for (int i = 0; i < scopes.length; i++) {
-                scope.append(scopes[i]);
-                if (i < scopes.length - 1) {
-                    scope.append(' ');
-                }
-            }
-            request.add(SCOPE, scope.toString());
-        }
-        return request;
-    }
 }

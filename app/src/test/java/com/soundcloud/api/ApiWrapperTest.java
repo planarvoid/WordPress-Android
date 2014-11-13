@@ -5,6 +5,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
@@ -19,8 +20,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.fakehttp.FakeHttpLayer;
 import com.soundcloud.api.fakehttp.RequestMatcher;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -45,12 +49,13 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
 
+@RunWith(SoundCloudTestRunner.class)
 public class ApiWrapperTest {
     private ApiWrapper api;
     private final static String TEST_CLIENT_ID = "testClientId";
@@ -59,9 +64,7 @@ public class ApiWrapperTest {
 
     @Before
     public void setup() {
-        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, URI.create("redirect://me"), null) {
-            private static final long serialVersionUID = 12345; // silence warnings
-
+        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, null) {
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
                                                          ClientConnectionManager conman,
@@ -102,11 +105,11 @@ public class ApiWrapperTest {
                 "}");
 
         Token t = api.clientCredentials();
-        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.refresh, equalTo("04u7h-r3fr35h-70k3n"));
-        assertThat(t.scope, equalTo("signup"));
-        assertTrue(t.signupScoped());
-        assertNotNull(t.getExpiresIn());
+        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.getRefreshToken(), equalTo("04u7h-r3fr35h-70k3n"));
+        assertThat(t.getScope(), equalTo("signup"));
+        assertTrue(t.hasScope(Token.SCOPE_SIGNUP));
+        assertThat(t.getExpiresAt(), is(greaterThan(0L)));
     }
 
     @Test(expected = CloudAPI.InvalidTokenException.class)
@@ -131,10 +134,10 @@ public class ApiWrapperTest {
 
         Token t = api.login("foo", "bar");
 
-        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.refresh, equalTo("04u7h-r3fr35h-70k3n"));
-        assertThat(t.scope, equalTo("*"));
-        assertNotNull(t.getExpiresIn());
+        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.getRefreshToken(), equalTo("04u7h-r3fr35h-70k3n"));
+        assertThat(t.getScope(), equalTo("*"));
+        assertThat(t.getExpiresAt(), is(greaterThan(0L)));
     }
 
     @Test
@@ -144,12 +147,12 @@ public class ApiWrapperTest {
                 "  \"scope\":         \"* non-expiring\"\n" +
                 "}");
 
-        Token t = api.login("foo", "bar", Token.SCOPE_NON_EXPIRING);
-        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.refresh, is(nullValue()));
-        assertThat(t.getExpiresIn(), is(nullValue()));
-        assertThat(t.scoped(Token.SCOPE_NON_EXPIRING), is(true));
-        assertThat(t.scoped(Token.SCOPE_DEFAULT), is(true));
+        Token t = api.login("foo", "bar");
+        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.getRefreshToken(), is(nullValue()));
+        assertThat(t.getExpiresAt(), is(0L));
+        assertThat(t.hasScope(Token.SCOPE_NON_EXPIRING), is(true));
+        assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
     }
 
     @Test
@@ -163,10 +166,10 @@ public class ApiWrapperTest {
 
         Token t = api.authorizationCode("code");
 
-        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.refresh, equalTo("04u7h-r3fr35h-70k3n"));
-        assertThat(t.scope, equalTo("*"));
-        assertNotNull(t.getExpiresIn());
+        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.getRefreshToken(), equalTo("04u7h-r3fr35h-70k3n"));
+        assertThat(t.getScope(), equalTo("*"));
+        assertThat(t.getExpiresAt(), is(greaterThan(0L)));
     }
 
     @Test
@@ -176,14 +179,14 @@ public class ApiWrapperTest {
                 "  \"scope\":         \"* non-expiring\"\n" +
                 "}");
 
-        Token t = api.authorizationCode("code", Token.SCOPE_NON_EXPIRING);
+        Token t = api.authorizationCode("code");
 
-        assertThat(t.access, equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.refresh, is(nullValue()));
+        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
+        assertThat(t.getRefreshToken(), is(nullValue()));
 
-        assertThat(t.scoped(Token.SCOPE_DEFAULT), is(true));
-        assertThat(t.scoped(Token.SCOPE_NON_EXPIRING), is(true));
-        assertNull(t.getExpiresIn());
+        assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
+        assertThat(t.hasScope(Token.SCOPE_NON_EXPIRING), is(true));
+        assertEquals(0L, t.getExpiresAt());
     }
 
     @Test(expected = CloudAPI.InvalidTokenException.class)
@@ -223,10 +226,7 @@ public class ApiWrapperTest {
 
 
         api.setToken(new Token("access", "refresh"));
-        assertThat(api
-                        .refreshToken()
-                        .access,
-                equalTo("fr3sh"));
+        assertThat(api.refreshToken().getAccessToken(), equalTo("fr3sh"));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -290,72 +290,24 @@ public class ApiWrapperTest {
 
     @Test
     public void testGetOAuthHeader() throws Exception {
-        Header h = ApiWrapper.createOAuthHeader(new Token("foo", "refresh"));
+        Header h = OAuth.createOAuthHeader(new Token("foo", "refresh"));
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth foo"));
     }
 
     @Test
     public void testGetOAuthHeaderNullToken() throws Exception {
-        Header h = ApiWrapper.createOAuthHeader(null);
+        Header h = OAuth.createOAuthHeader(null);
         assertThat(h.getName(), equalTo("Authorization"));
         assertThat(h.getValue(), equalTo("OAuth invalidated"));
     }
 
     @Test
-    public void shouldGenerateUrlForWebHost() throws Exception {
-        assertThat(
-                api.getURI(Request.to("/my-resource")).toString(),
-                equalTo("https://soundcloud.com/my-resource")
-        );
-    }
-
-
-    @Test
-    public void shouldGenerateURIForLoginAuthCode() throws Exception {
-        assertThat(
-                api.authorizationCodeUrl().toString(),
-                equalTo("https://soundcloud.com/connect" +
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code")
-        );
-    }
-
-
-    @Test
-    public void shouldGenerateURIForLoginAuthCodeWithDifferentEndPoint() throws Exception {
+    public void shouldGenerateURIForLoginAuthCodeForFacebook() throws Exception {
         assertThat(
                 api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString(),
                 equalTo("https://soundcloud.com/connect/via/facebook" +
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code")
-        );
-    }
-
-    @Test
-    public void shouldIncludeScopeInAuthorizationUrl() throws Exception {
-        assertThat(
-                api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING).toString(),
-                equalTo("https://soundcloud.com/connect/via/facebook" +
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=non-expiring")
-        );
-    }
-
-    @Test
-    public void shouldIncludeDisplayInAuthorizationUrl() throws Exception {
-        assertThat(
-                api.authorizationCodeUrl(Endpoints.CONNECT, Token.SCOPE_NON_EXPIRING, CloudAPI.POPUP).toString(),
-                equalTo("https://soundcloud.com/connect" +
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=non-expiring" +
-                        "&display=popup")
-        );
-    }
-
-    @Test
-    public void shouldIncludeStateInAuthorizationUrl() throws Exception {
-        assertThat(
-                api.authorizationCodeUrl(Endpoints.CONNECT, Token.SCOPE_DEFAULT, CloudAPI.POPUP, "stateValue").toString(),
-                equalTo("https://soundcloud.com/connect" +
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=*" +
-                        "&display=popup&state=stateValue")
+                        "?redirect_uri=soundcloud%3A%2F%2Fauth&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=non-expiring")
         );
     }
 
@@ -400,30 +352,19 @@ public class ApiWrapperTest {
     }
 
     @Test
-    public void shouldSerializeAndDeserializeWrapper() throws Exception {
-        ApiWrapper wrapper = new ApiWrapper("client", "secret", null, new Token("1", "2"));
-        File ser = File.createTempFile("serialized_wrapper", "ser");
-        wrapper.toFile(ser);
-        ApiWrapper other = ApiWrapper.fromFile(ser);
-        assertThat(wrapper.getToken(), equalTo(other.getToken()));
-        assertThat(wrapper.env, equalTo(other.env));
-
-        // make sure we can still use listeners after deserializing
-        CloudAPI.TokenListener listener = mock(CloudAPI.TokenListener.class);
-        other.setTokenListener(listener);
-
-        final Token old = other.getToken();
-        other.invalidateToken();
-        verify(listener).onTokenInvalid(old);
+    public void testShouldAlwaysAddClientIdEvenWhenAuthenticated() throws Exception {
+        layer.addHttpResponseRule("/foo?client_id=" + TEST_CLIENT_ID, "body");
+        final Request request = Request.to("/foo");
+        final HttpResponse response = api.get(request);
+        assertEquals("body", Http.getString(response));
     }
 
     @Test
-    public void testAddScope() throws Exception {
-        assertThat(ApiWrapper.addScope(new Request(), new String[]{"foo", "bar"}).getParams().get("scope"),
-                equalTo("foo bar"));
-
-        assertFalse(ApiWrapper.addScope(new Request(), new String[]{}).getParams().containsKey("scope"));
-        assertFalse(ApiWrapper.addScope(new Request(), null).getParams().containsKey("scope"));
+    public void testDontAddClientIdIfManuallyAdded() throws Exception {
+        layer.addHttpResponseRule("/foo?client_id=12345", "body");
+        final Request req = Request.to("/foo").with("client_id", "12345");
+        final HttpResponse response = api.get(req);
+        assertEquals("body", Http.getString(response));
     }
 
     @Test
@@ -444,7 +385,7 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientNPE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", null) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -464,7 +405,7 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientIAE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", null) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -484,7 +425,7 @@ public class ApiWrapperTest {
     public void shouldSafeExecute() throws Exception {
 
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", null) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -507,23 +448,6 @@ public class ApiWrapperTest {
             // make sure client retried request
             verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
-    }
-
-    @Test
-    public void testAddClientIdWithoutToken() throws Exception {
-        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo?client_id=" + TEST_CLIENT_ID));
-    }
-
-    @Test
-    public void testShouldAlwaysAddClientIdEvenWhenAuthenticated() throws Exception {
-        api.setToken(new Token("access", "refresh"));
-        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo?client_id=" + TEST_CLIENT_ID));
-    }
-
-    @Test
-    public void testDontAddClientIdIfManuallyAdded() throws Exception {
-        final Request req = Request.to("/foo").with("client_id", "12345");
-        assertThat(api.addClientIdIfNecessary(req).toUrl(), equalTo("/foo?client_id=12345"));
     }
 
     @Test

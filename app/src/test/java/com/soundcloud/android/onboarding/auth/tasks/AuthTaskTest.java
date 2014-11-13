@@ -10,7 +10,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

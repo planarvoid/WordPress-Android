@@ -12,7 +12,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import rx.Subscription;
 
 import android.accounts.Account;
@@ -62,7 +62,7 @@ public final class AccountAssistant {
     }
 
     protected static Token getToken(ApiWrapper apiWrapper, String username, String password) throws IOException {
-        return apiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+        return apiWrapper.login(username, password);
     }
 
     private static Account login(String username, String password, Instrumentation instrumentation) {
@@ -191,6 +191,6 @@ public final class AccountAssistant {
 
     static ApiWrapper createApiWrapper(Context context) {
         final HttpProperties properties = new HttpProperties(context.getResources());
-        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), PublicApiWrapper.ANDROID_REDIRECT_URI, null);
+        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), null);
     }
 }

@@ -13,7 +13,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamSyncOperations;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;

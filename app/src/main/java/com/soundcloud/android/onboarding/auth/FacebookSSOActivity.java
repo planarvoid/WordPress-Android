@@ -8,9 +8,9 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
+import com.soundcloud.android.api.oauth.OAuth;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -175,7 +175,7 @@ public class FacebookSSOActivity extends FacebookBaseActivity {
                 }
                 token.store(this);
                 // save login bundle for login in onResume
-                loginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
+                loginBundle = tokenInformationGenerator.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, token.accessToken);
 
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);

@@ -1,5 +1,7 @@
 package com.soundcloud.api;
 
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.FormattedHeader;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -69,7 +71,7 @@ class OAuth2Scheme implements AuthScheme {
         // make sure only one refresh request gets sent out
         synchronized (OAuth2Scheme.class) {
             final Token apiToken = api.getToken();
-            if (apiToken == null || apiToken.access == null || apiToken.access.equals(usedToken)) {
+            if (apiToken == null || apiToken.getAccessToken() == null || apiToken.getAccessToken().equals(usedToken)) {
                 if (api.invalidateToken() == null) {
                     // we actually need to refresh it ourselves
                     try {
@@ -79,7 +81,7 @@ class OAuth2Scheme implements AuthScheme {
                     }
                 }
             }
-            return ApiWrapper.createOAuthHeader(api.getToken());
+            return OAuth.createOAuthHeader(api.getToken());
         }
     }
 

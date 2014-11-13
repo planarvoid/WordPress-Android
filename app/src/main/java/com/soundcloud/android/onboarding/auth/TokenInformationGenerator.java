@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 
 import android.os.Bundle;
 
@@ -9,7 +9,6 @@ import java.io.IOException;
 //TODO Move into TokenOperations
 public class TokenInformationGenerator {
 
-    public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};
     private final PublicCloudAPI oldCloudAPI;
 
     public interface TokenKeys {
@@ -31,15 +30,15 @@ public class TokenInformationGenerator {
 
     public Token getToken(Bundle param) throws IOException {
         if (param.containsKey(TokenKeys.CODE_EXTRA)) {
-            return oldCloudAPI.authorizationCode(param.getString(TokenKeys.CODE_EXTRA), DEFAULT_SCOPES);
+            return oldCloudAPI.authorizationCode(param.getString(TokenKeys.CODE_EXTRA));
 
         } else if (param.containsKey(TokenKeys.USERNAME_EXTRA)
                 && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
             return oldCloudAPI.login(param.getString(TokenKeys.USERNAME_EXTRA),
-                    param.getString(TokenKeys.PASSWORD_EXTRA), DEFAULT_SCOPES);
+                    param.getString(TokenKeys.PASSWORD_EXTRA));
 
         } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
-            return oldCloudAPI.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), DEFAULT_SCOPES);
+            return oldCloudAPI.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA));
 
         } else {
             throw new IllegalArgumentException("invalid param " + param);

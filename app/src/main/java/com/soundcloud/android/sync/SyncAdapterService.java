@@ -12,7 +12,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;

@@ -3,7 +3,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.api.legacy.AsyncApiTask;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 

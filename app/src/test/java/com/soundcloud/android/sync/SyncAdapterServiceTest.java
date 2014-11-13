@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.mockito.Mockito;

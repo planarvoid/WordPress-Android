@@ -10,6 +10,7 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.api.oauth.OAuth;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -67,6 +68,6 @@ public class GooglePlusSignInTask extends LoginTask {
     }
 
     protected AuthTaskResult login(String token) {
-        return login(tokenUtils.getGrantBundle(CloudAPI.GOOGLE_PLUS_GRANT_TYPE, token));
+        return login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_GOOGLE_PLUS, token));
     }
 }

@@ -7,7 +7,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Stream;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -33,10 +33,6 @@ public class PublicApi implements PublicCloudAPI {
         apiWrapper = wrapper;
     }
 
-    public HttpResponse head(Request resource) throws IOException {
-        return apiWrapper.head(resource);
-    }
-
     public HttpResponse get(Request resource) throws IOException {
         return apiWrapper.get(resource);
     }
@@ -45,16 +41,16 @@ public class PublicApi implements PublicCloudAPI {
         return apiWrapper.clientCredentials(scopes);
     }
 
-    public Token extensionGrantType(String grantType, String... scopes) throws IOException {
-        return apiWrapper.extensionGrantType(grantType, scopes);
+    public Token extensionGrantType(String grantType) throws IOException {
+        return apiWrapper.extensionGrantType(grantType);
     }
 
-    public Token login(String username, String password, String... scopes) throws IOException {
-        return apiWrapper.login(username, password, scopes);
+    public Token login(String username, String password) throws IOException {
+        return apiWrapper.login(username, password);
     }
 
-    public URI authorizationCodeUrl(String... options) {
-        return apiWrapper.authorizationCodeUrl(options);
+    public URI authorizationCodeUrl(String connectPath) {
+        return apiWrapper.authorizationCodeUrl(connectPath);
     }
 
     public HttpResponse put(Request request) throws IOException {
@@ -85,10 +81,6 @@ public class PublicApi implements PublicCloudAPI {
         apiWrapper.setToken(token);
     }
 
-    public void setTokenListener(TokenListener listener) {
-        apiWrapper.setTokenListener(listener);
-    }
-
     public Token invalidateToken() {
         return apiWrapper.invalidateToken();
     }
@@ -101,7 +93,7 @@ public class PublicApi implements PublicCloudAPI {
         return apiWrapper.read(req);
     }
 
-    public <T extends PublicApiResource> T update(Request request) throws NotFoundException, IOException {
+    public <T extends PublicApiResource> T update(Request request) throws IOException {
         return apiWrapper.update(request);
     }
 
@@ -127,16 +119,8 @@ public class PublicApi implements PublicCloudAPI {
         return apiWrapper.readListFromIds(request, ids);
     }
 
-    public Token authorizationCode(String code, String... scopes) throws IOException {
-        return apiWrapper.authorizationCode(code, scopes);
-    }
-
-    public void setDefaultContentType(String contentType) {
-        apiWrapper.setDefaultContentType(contentType);
-    }
-
-    public void setDefaultAcceptEncoding(String encoding) {
-        apiWrapper.setDefaultAcceptEncoding(encoding);
+    public Token authorizationCode(String code) throws IOException {
+        return apiWrapper.authorizationCode(code);
     }
 
     public HttpClient getHttpClient() {

@@ -25,7 +25,7 @@ import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

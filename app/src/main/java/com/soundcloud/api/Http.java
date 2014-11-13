@@ -70,15 +70,4 @@ public final class Http {
         return etag != null ? etag.getValue() : null;
     }
 
-    public static String formatJSON(String s) {
-        try {
-            return new JSONObject(s).toString(4);
-        } catch (JSONException e) {
-            try {
-                return new JSONArray(s).toString(4);
-            } catch (JSONException e2) {
-                return s;
-            }
-        }
-    }
 }

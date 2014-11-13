@@ -1,6 +1,7 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.oauth;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -12,13 +13,15 @@ import static org.junit.Assert.assertTrue;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 
 public class TokenTest {
     @Test
     public void shouldInvalidateToken() throws Exception {
         Token t = new Token("1", "2");
         t.invalidate();
-        assertNull(t.access);
+        assertNull(t.getAccessToken());
         assertFalse(t.valid());
     }
 
@@ -43,25 +46,25 @@ public class TokenTest {
     @Test
     public void shouldDefaultScope() throws Exception {
         Token t = new Token(null, null);
-        assertFalse(t.defaultScoped());
+        assertFalse(t.hasDefaultScope());
 
         t = new Token(null, null, "*");
-        assertTrue(t.defaultScoped());
+        assertTrue(t.hasDefaultScope());
     }
 
     @Test
     public void shouldDetectSignupScope() throws Exception {
-        assertFalse(new Token(null, null).signupScoped());
-        assertTrue(new Token(null, null, "signup").signupScoped());
+        assertFalse(new Token(null, null).hasScope(Token.SCOPE_SIGNUP));
+        assertTrue(new Token(null, null, "signup").hasScope(Token.SCOPE_SIGNUP));
     }
 
     @Test
     public void shouldProperlySeparateTokens() throws Exception {
         Token t = new Token(null, null);
-        assertFalse(t.signupScoped());
+        assertFalse(t.hasScope(Token.SCOPE_SIGNUP));
 
         t = new Token(null, null, "notreallysignup");
-        assertFalse(t.signupScoped());
+        assertFalse(t.hasScope(Token.SCOPE_SIGNUP));
     }
 
     @Test
@@ -74,6 +77,7 @@ public class TokenTest {
 
     @Test
     public void shouldParseJsonResponse() throws Exception {
+        final long now = System.currentTimeMillis();
         Token t = new Token(new JSONObject("{\n" +
                 "    \"access_token\": \"1234\",\n" +
                 "    \"refresh_token\": \"5678\",\n" +
@@ -81,14 +85,16 @@ public class TokenTest {
                 "    \"scope\":    \"*\"\n" +
                 "}"));
 
-        assertThat(t.scoped("*"), is(true));
-        assertThat(t.access, equalTo("1234"));
-        assertThat(t.refresh, equalTo("5678"));
-        assertNotNull(t.getExpiresIn());
+        assertThat(t.hasScope("*"), is(true));
+        assertThat(t.getAccessToken(), equalTo("1234"));
+        assertThat(t.getRefreshToken(), equalTo("5678"));
+        assertThat(t.getExpiresAt(), greaterThanOrEqualTo(now + TimeUnit.SECONDS.toMillis(3600)));
     }
 
     @Test
     public void shouldParseJsonResponseDifferentKeyOrder() throws Exception {
+        final long now = System.currentTimeMillis();
+
         Token t = new Token(new JSONObject("{\n" +
                 "    \"expires_in\":   3600,\n" +
                 "    \"access_token\": \"1234\",\n" +
@@ -96,10 +102,10 @@ public class TokenTest {
                 "    \"refresh_token\": \"5678\"\n" +
                 "}"));
 
-        assertThat(t.scoped("*"), is(true));
-        assertThat(t.access, equalTo("1234"));
-        assertThat(t.refresh, equalTo("5678"));
-        assertNotNull(t.getExpiresIn());
+        assertThat(t.hasScope("*"), is(true));
+        assertThat(t.getAccessToken(), equalTo("1234"));
+        assertThat(t.getRefreshToken(), equalTo("5678"));
+        assertThat(t.getExpiresAt(), greaterThanOrEqualTo(now + TimeUnit.SECONDS.toMillis(3600)));
     }
 
     @Test
@@ -114,8 +120,8 @@ public class TokenTest {
                 "    \"custom2\":    23\n" +
                 "}"));
 
-        assertThat(t.customParameters.get("custom1"), equalTo("foo"));
-        assertThat(t.customParameters.get("custom2"), equalTo("23"));
+        assertThat(t.getParameter("custom1"), equalTo("foo"));
+        assertThat(t.getParameter("custom2"), equalTo("23"));
         assertThat(t.getSignup(), equalTo("baz"));
     }
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.Header;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthenticationException;

@@ -1,14 +1,18 @@
-package com.soundcloud.api;
+package com.soundcloud.android.api.oauth;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.support.v4.util.ArrayMap;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents an OAuth2 access/refresh token pair.
@@ -34,11 +38,11 @@ public class Token implements Serializable {
     private static final String SCOPE = "scope";
     private static final String EXPIRES_IN = "expires_in";
 
-    // XXX these should be private
-    public String access, refresh, scope;
-    public long expiresIn;
+    private String access, refresh;
+    @Nullable private String scope;
+    private long expiresAt;
 
-    public final Map<String, String> customParameters = new HashMap<String, String>();
+    private final Map<String, String> customParameters = new ArrayMap<>();
 
     /**
      * Constructs a new token with the given sub-tokens
@@ -51,10 +55,16 @@ public class Token implements Serializable {
         this(access, refresh, null);
     }
 
-    public Token(String access, String refresh, String scope) {
+    public Token(String access, String refresh, @Nullable String scope) {
         this.access = access;
         this.refresh = refresh;
         this.scope = scope;
+    }
+
+    @VisibleForTesting
+    public Token(String access, String refresh, @Nullable String scope, long expiresAt) {
+        this(access, refresh, scope);
+        this.expiresAt = expiresAt;
     }
 
     /**
@@ -73,7 +83,8 @@ public class Token implements Serializable {
                     // refresh token won't be set if we don't expire
                     refresh = json.getString(key);
                 } else if (EXPIRES_IN.equals(key)) {
-                    expiresIn = System.currentTimeMillis() + json.getLong(key) * 1000;
+                    final long now = System.currentTimeMillis();
+                    expiresAt = now + TimeUnit.SECONDS.toMillis(json.getLong(key));
                 } else if (SCOPE.equals(key)) {
                     scope = json.getString(key);
                 } else {
@@ -86,32 +97,40 @@ public class Token implements Serializable {
         }
     }
 
-    /**
-     * Invalidates the access token
-     */
+    public String getAccessToken() {
+        return access;
+    }
+
+    public String getRefreshToken() {
+        return refresh;
+    }
+
+    public boolean hasRefreshToken() {
+        return refresh != null;
+    }
+
+    @Nullable
+    public String getScope() {
+        return scope;
+    }
+
+    public long getExpiresAt() {
+        return expiresAt;
+    }
+
+    public String getParameter(String key) {
+        return customParameters.get(key);
+    }
+
     public void invalidate() {
         this.access = null;
     }
 
-    /**
-     * @return null or the date of expiration of this token
-     */
-    public Date getExpiresIn() {
-        return expiresIn == 0 ? null : new Date(expiresIn);
+    public boolean hasDefaultScope() {
+        return hasScope(SCOPE_DEFAULT);
     }
 
-    public boolean defaultScoped() {
-        return scoped(SCOPE_DEFAULT);
-    }
-
-    /**
-     * @return has token the signup scope ("signup")
-     */
-    public boolean signupScoped() {
-        return scoped(SCOPE_SIGNUP);
-    }
-
-    public boolean scoped(String scope) {
+    public boolean hasScope(String scope) {
         if (this.scope != null) {
             for (String s : this.scope.split(" ")) {
                 if (scope.equals(s)) {
@@ -122,11 +141,8 @@ public class Token implements Serializable {
         return false;
     }
 
-    /**
-     * @return is this token valid
-     */
     public boolean valid() {
-        return access != null && (scoped(SCOPE_NON_EXPIRING) || refresh != null);
+        return access != null && (hasScope(SCOPE_NON_EXPIRING) || refresh != null);
     }
 
     /**
@@ -142,7 +158,7 @@ public class Token implements Serializable {
                 "access='" + access + '\'' +
                 ", refresh='" + refresh + '\'' +
                 ", scope='" + scope + '\'' +
-                ", expires=" + getExpiresIn() +
+                ", expires=" + (expiresAt == 0 ? "never" : new Date(expiresAt)) +
                 '}';
     }
 

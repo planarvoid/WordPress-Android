@@ -1,5 +1,6 @@
 package com.soundcloud.api;
 
+import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -16,35 +17,12 @@ import java.net.URI;
  * @see ApiWrapper
  */
 public interface CloudAPI {
-    // OAuth2 parameters
-    String GRANT_TYPE = "grant_type";
-    String CLIENT_ID = "client_id";
-    String CLIENT_SECRET = "client_secret";
-    String USERNAME = "username";
-    String REDIRECT_URI = "redirect_uri";
-    String CODE = "code";
-    String RESPONSE_TYPE = "response_type";
-    String SCOPE = "scope";
-    String DISPLAY = "display";
-    String STATE = "state";
-
-    // standard oauth2 grant types
-    String PASSWORD = "password";
-    String AUTHORIZATION_CODE = "authorization_code";
-    String REFRESH_TOKEN = "refresh_token";
-    String CLIENT_CREDENTIALS = "client_credentials";
-
-    // custom
-    String OAUTH1_TOKEN_GRANT_TYPE = "oauth1_token"; // soundcloud
-    String FACEBOOK_GRANT_TYPE = "urn:soundcloud:oauth2:grant-type:facebook&access_token="; // oauth2 extension
-    String GOOGLE_PLUS_GRANT_TYPE = "urn:soundcloud:oauth2:grant-type:google_plus&access_token=";
 
     // other constants
     String REALM = "SoundCloud";
     String OAUTH_SCHEME = "oauth";
     String VERSION = "1.3.1";
     String USER_AGENT = "SoundCloud Java Wrapper (" + VERSION + ")";
-    String POPUP = "popup";
 
     /**
      * Request a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
@@ -52,12 +30,11 @@ public interface CloudAPI {
      *
      * @param username SoundCloud username
      * @param password SoundCloud password
-     * @param scopes   the desired scope(s), or empty for default scope
      * @return a valid token
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
      * @throws IOException                                       In case of network/server errors
      */
-    Token login(String username, String password, String... scopes) throws IOException;
+    Token login(String username, String password) throws IOException;
 
 
     /**
@@ -65,12 +42,11 @@ public interface CloudAPI {
      * Authorization Code</a>, requesting a default scope.
      *
      * @param code   the authorization code
-     * @param scopes the desired scope(s), or empty for default scope
      * @return a valid token
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
      * @throws IOException                                       In case of network/server errors
      */
-    Token authorizationCode(String code, String... scopes) throws IOException;
+    Token authorizationCode(String code) throws IOException;
 
 
     /**
@@ -95,11 +71,10 @@ public interface CloudAPI {
      * extension grant type</a>.
      *
      * @param grantType
-     * @param scopes
      * @return
      * @throws IOException
      */
-    Token extensionGrantType(String grantType, String... scopes) throws IOException;
+    Token extensionGrantType(String grantType) throws IOException;
 
     /**
      * Tries to refresh the currently used access token with the refresh token.
@@ -120,13 +95,6 @@ public interface CloudAPI {
      * (which indicates that a refresh could be tried)
      */
     Token invalidateToken();
-
-    /**
-     * @param request resource to HEAD
-     * @return the HTTP response
-     * @throws IOException IO/Error
-     */
-    HttpResponse head(Request request) throws IOException;
 
     /**
      * @param request resource to GET
@@ -187,7 +155,7 @@ public interface CloudAPI {
      *
      * @param uri         SoundCloud stream URI, e.g. https://api.soundcloud.com/tracks/25272620/stream
      * @param skipLogging skip logging the play of this track (client needs
-     *                    {@link com.soundcloud.api.Token#SCOPE_PLAYCOUNT})
+     *                    {@link com.soundcloud.android.api.oauth.Token#SCOPE_PLAYCOUNT})
      * @return the resolved stream
      * @throws IOException                                   network errors
      * @throws com.soundcloud.api.CloudAPI.ResolverException resolver error (invalid status etc)
@@ -205,14 +173,6 @@ public interface CloudAPI {
     void setToken(Token token);
 
     /**
-     * Registers a listener. The listener will be informed when an access token was found
-     * to be invalid, and when the token had to be refreshed.
-     *
-     * @param listener token listener
-     */
-    void setTokenListener(TokenListener listener);
-
-    /**
      * Request login via authorization code
      * After login, control will go to the redirect URI (wrapper specific), with
      * one of the following query parameters appended:
@@ -227,17 +187,7 @@ public interface CloudAPI {
      * @return the URI to open in a browser/WebView etc.
      * @see CloudAPI#authorizationCode(String, String...)
      */
-    URI authorizationCodeUrl(String... options);
-
-    /**
-     * Changes the default content type sent in the "Accept" header.
-     * If you don't set this it defaults to "application/json".
-     *
-     * @param contentType the request mime type.
-     */
-    void setDefaultContentType(String contentType);
-
-    void setDefaultAcceptEncoding(String encoding);
+    URI authorizationCodeUrl(String connectEndpoint);
 
     /**
      * Interested in changes to the current token.

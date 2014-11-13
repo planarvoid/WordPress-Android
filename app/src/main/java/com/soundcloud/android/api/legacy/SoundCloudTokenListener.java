@@ -2,7 +2,7 @@ package com.soundcloud.android.api.legacy;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Token;
+import com.soundcloud.android.api.oauth.Token;
 
 class SoundCloudTokenListener implements CloudAPI.TokenListener {
     private final AccountOperations accountOperations;
@@ -30,7 +30,7 @@ class SoundCloudTokenListener implements CloudAPI.TokenListener {
 
     @Override
     public void onTokenRefreshed(Token token) {
-        if (accountOperations.isUserLoggedIn() && token.valid() && token.defaultScoped()) {
+        if (accountOperations.isUserLoggedIn() && token.valid() && token.hasDefaultScope()) {
             accountOperations.storeSoundCloudTokenData(token);
         }
     }

@@ -16,6 +16,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
@@ -43,16 +44,19 @@ public class ApiClient {
     private final JsonTransformer jsonTransformer;
     private final ApiWrapperFactory wrapperFactory;
     private final DeviceHelper deviceHelper;
+    private final OAuth oAuth;
 
     @Inject
     public ApiClient(FeatureFlags featureFlags, OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
-                     JsonTransformer jsonTransformer, ApiWrapperFactory wrapperFactory, DeviceHelper deviceHelper) {
+                     JsonTransformer jsonTransformer, ApiWrapperFactory wrapperFactory, DeviceHelper deviceHelper,
+                     OAuth oAuth) {
         this.featureFlags = featureFlags;
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
         this.wrapperFactory = wrapperFactory;
         this.deviceHelper = deviceHelper;
+        this.oAuth = oAuth;
     }
 
     public ApiResponse fetchResponse(ApiRequest request) {
@@ -142,8 +146,7 @@ public class ApiClient {
             // default headers
             builder.header(HttpHeaders.ACCEPT, getContentType(request));
             builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
-            // TODO: For testing/debugging:
-            // builder.header(HttpHeaders.AUTHORIZATION, "OAuth 1-21686-36587595-a36ebb1894d692e");
+            builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
 
             // transfer other HTTP headers
             final Map<String, String> headers = request.getHeaders();
@@ -169,7 +172,12 @@ public class ApiClient {
         }
 
         private String resolveFullUrl(ApiRequest request) {
-            return urlBuilder.from(request).withQueryParams(transformQueryParameters(request)).build();
+            final Map<String, String> existingParams = transformQueryParameters(request);
+            final ApiUrlBuilder builder = urlBuilder.from(request).withQueryParams(existingParams);
+            if (!existingParams.containsKey(OAuth.PARAM_CLIENT_ID)) {
+                builder.withQueryParam(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
+            }
+            return builder.build();
         }
     }
 

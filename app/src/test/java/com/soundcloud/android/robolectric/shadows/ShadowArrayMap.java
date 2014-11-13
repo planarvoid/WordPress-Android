@@ -45,6 +45,11 @@ public class ShadowArrayMap {
     }
 
     @Implementation
+    public Set<Map.Entry> entrySet() {
+        return map.entrySet();
+    }
+
+    @Implementation
     public boolean equals(Object o) {
         return o.equals(map);
     }

@@ -17,6 +17,8 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.fakehttp.FakeHttpResponse;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -25,7 +27,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -39,6 +40,9 @@ public class ApiClientTest {
 
     private static final String PATH = "/path/to/resource";
     private static final String JSON_DATA = "{}";
+    private static final String CLIENT_ID = "testClientId";
+    private static final String CLIENT_SECRET = "testClientSecret";
+    private static final Token TOKEN = new Token("access", "refresh");
 
     private ApiClient apiClient;
     private OkHttpClient httpClient = new OkHttpClient();
@@ -57,7 +61,8 @@ public class ApiClientTest {
         initMocks(this);
         when(wrapperFactory.createWrapper(any(ApiRequest.class))).thenReturn(publicApiWrapper);
         when(deviceHelper.getUserAgent()).thenReturn("");
-        apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer, wrapperFactory, deviceHelper);
+        apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
+                wrapperFactory, deviceHelper, new OAuth(CLIENT_ID, CLIENT_SECRET, TOKEN));
     }
 
     @After
@@ -87,7 +92,7 @@ public class ApiClientTest {
         expect(response.getResponseBody()).toEqual("ok");
         final RecordedRequest recordedRequest = mockWebServer.takeRequest();
         expect(recordedRequest.getMethod()).toEqual("GET");
-        expect(recordedRequest.getPath()).toEqual(PATH);
+        expect(recordedRequest.getPath()).toStartWith(PATH);
     }
 
     @Test
@@ -102,7 +107,7 @@ public class ApiClientTest {
         expect(response.getResponseBody()).toEqual("ok");
         final RecordedRequest recordedRequest = mockWebServer.takeRequest();
         expect(recordedRequest.getMethod()).toEqual("GET");
-        expect(recordedRequest.getPath()).toEqual(PATH);
+        expect(recordedRequest.getPath()).toStartWith(PATH);
     }
 
     @Test
@@ -115,7 +120,7 @@ public class ApiClientTest {
 
         final RecordedRequest recordedRequest = mockWebServer.takeRequest();
         expect(response.isSuccess()).toBeTrue();
-        expect(recordedRequest.getPath()).toEqual(PATH);
+        expect(recordedRequest.getPath()).toStartWith(PATH);
     }
 
     @Test
@@ -197,7 +202,7 @@ public class ApiClientTest {
         apiClient.fetchResponse(request);
 
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        expect(recordedRequest.getPath()).toEqual("/path/to/resource?k1=v1&k2=v2");
+        expect(recordedRequest.getPath()).toEqual("/path/to/resource?k1=v1&k2=v2&client_id=" + CLIENT_ID);
     }
 
     @Test
@@ -231,6 +236,42 @@ public class ApiClientTest {
 
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         expect(recordedRequest.getHeaders("Accept")).toContainExactly("application/json");
+    }
+
+    @Test
+    public void shouldAddOAuthHeader() throws Exception {
+        fakeApiMobileResponse(new MockResponse());
+        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
+
+        apiClient.fetchResponse(request);
+
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getHeaders("Authorization")).toContainExactly("OAuth " + TOKEN.getAccessToken());
+    }
+
+    @Test
+    public void shouldAddOAuthClientIdParameterIfMissing() throws Exception {
+        fakeApiMobileResponse(new MockResponse());
+        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
+
+        apiClient.fetchResponse(request);
+
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getPath()).toEqual("/path/to/resource?client_id=" + CLIENT_ID);
+    }
+
+    @Test
+    public void shouldNotAddOAuthClientIdIfAlreadyGiven() throws Exception {
+        fakeApiMobileResponse(new MockResponse());
+        ApiRequest request = ApiRequest.Builder.get(PATH)
+                .forPrivateApi(1)
+                .addQueryParam("client_id", "123")
+                .build();
+
+        apiClient.fetchResponse(request);
+
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getPath()).toEqual("/path/to/resource?client_id=123");
     }
 
     @Test
