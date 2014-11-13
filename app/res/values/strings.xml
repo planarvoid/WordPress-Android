@@ -71,6 +71,7 @@
     <string name="liked">liked %s</string>
     <string name="reposted">reposted %s</string>
     <string name="commented_on">commented on %s</string>
+    <string name="mentioned_you_on">mentioned you on %s</string>
 
     <!-- __ADS -->
     <string name="advertisement">Advertisement</string>

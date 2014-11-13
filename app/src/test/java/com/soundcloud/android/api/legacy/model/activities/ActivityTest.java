@@ -84,6 +84,21 @@ public class ActivityTest {
     }
 
     @Test
+    public void shouldBuildContentValuesForUserMentionActivity() throws Exception {
+        UserMentionActivity a = new UserMentionActivity();
+        final Date date = new Date();
+        a.setCreatedAt(date);
+        a.tags = "foo";
+        a.comment = new PublicApiComment() { { setId(10L); } };
+
+        ContentValues cv = a.buildContentValues();
+        expect(cv.getAsString(TableColumns.Activities.TAGS)).toEqual("foo");
+        expect(cv.getAsString(TableColumns.Activities.TYPE)).toEqual(Activity.Type.USER_MENTION.type);
+        expect(cv.getAsLong(TableColumns.Activities.COMMENT_ID)).toEqual(10L);
+        expect(cv.getAsLong(TableColumns.Activities.CREATED_AT)).toEqual(date.getTime());
+    }
+
+    @Test
     public void shouldGenerateADateString() throws Exception {
         TrackActivity a = new TrackActivity();
         final String date = "2012/01/07 13:17:35 +0000";

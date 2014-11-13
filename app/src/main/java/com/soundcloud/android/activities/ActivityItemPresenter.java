@@ -70,6 +70,10 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
                 titleText = String.format(resources.getString(R.string.commented_on), propertySet.get(ActivityProperty.SOUND_TITLE));
                 iconId = R.drawable.stats_comment;
                 break;
+            case ActivityProperty.TYPE_USER_MENTION :
+                titleText = String.format(resources.getString(R.string.mentioned_you_on), propertySet.get(ActivityProperty.SOUND_TITLE));
+                iconId = R.drawable.stats_comment;
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected activity type");
         }

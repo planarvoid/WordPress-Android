@@ -20,6 +20,7 @@ import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackLikeActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackRepostActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
+import com.soundcloud.android.api.legacy.model.activities.UserMentionActivity;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -96,6 +97,12 @@ public class ActivitiesAdapterTest {
     public void shouldReportSpecificTypeForCommentActivity() {
         adapter.addItems(Arrays.<Activity>asList(new CommentActivity()));
         expect(adapter.getItemViewType(0)).toEqual(Activity.Type.COMMENT.ordinal());
+    }
+
+    @Test
+    public void shouldReportSpecificTypeForUserMentionActivity() {
+        adapter.addItems(Arrays.<Activity>asList(new UserMentionActivity()));
+        expect(adapter.getItemViewType(0)).toEqual(Activity.Type.USER_MENTION.ordinal());
     }
 
     @Test

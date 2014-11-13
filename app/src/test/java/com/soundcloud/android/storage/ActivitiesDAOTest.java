@@ -9,6 +9,7 @@ import com.soundcloud.android.api.legacy.model.activities.CommentActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackLikeActivity;
 import com.soundcloud.android.api.legacy.model.activities.TrackSharingActivity;
+import com.soundcloud.android.api.legacy.model.activities.UserMentionActivity;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
@@ -44,12 +45,12 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         Activities one_of_each = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class,
                 "e1_one_of_each_activity.json");
 
-        expect(getDAO().insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(7);
+        expect(getDAO().insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(8);
 
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(7);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(8);
 
         List<Activity> activities = getDAO().queryAll();
-        expect(activities.size()).toEqual(7);
+        expect(activities.size()).toEqual(8);
 
         TrackActivity trackActivity = (TrackActivity) activities.get(0);
         expect(trackActivity.getDateString()).toEqual("2012/09/25 19:09:40 +0000");
@@ -109,5 +110,17 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         expect(commentActivity.comment.user.username).toEqual("Liraz Axelrad");
         expect(commentActivity.comment.track_id).toEqual(39722328l);
         expect(commentActivity.comment.track.title).toEqual("Transaction and Services: Nfc by Hauke Meyn at droidcon");
+
+        UserMentionActivity userMentionActivity = (UserMentionActivity) activities.get(5);
+        expect(userMentionActivity.getDateString()).toEqual("2012/07/04 10:34:41 +0000");
+        expect(userMentionActivity.uuid).toEqual("41d51687-29c0-0000-6893-bd8706e59ba7");
+        expect(userMentionActivity.tags).toBeNull();
+        expect(userMentionActivity.getType()).toEqual(Activity.Type.USER_MENTION);
+        expect(userMentionActivity.comment.body).toEqual("@jonathanschmidt: Louise Huebner - Orgies - A Tool Of Witchcraft played over Mort Garson - I Ching www.discogs.com/Louise-Huebner-Loâ€¦t/release/1233819, www.discogs.com/Ataraxia-The-Unexâ€¦ed/release/591944");
+        expect(userMentionActivity.comment.timestamp).toEqual(2252507L);
+        expect(userMentionActivity.comment.user.getId()).toEqual(12705427L);
+        expect(userMentionActivity.comment.user.username).toEqual("Mo Probs");
+        expect(userMentionActivity.comment.track_id).toEqual(175333610L);
+        expect(userMentionActivity.comment.track.title).toEqual("Mo Probs Halloween Special");
     }
 }

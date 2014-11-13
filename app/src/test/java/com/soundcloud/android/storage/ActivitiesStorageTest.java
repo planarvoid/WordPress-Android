@@ -59,7 +59,7 @@ public class ActivitiesStorageTest {
         Activities one_of_each = TestHelper.readJson(Activities.class, ApiSyncServiceTest.class,
                 "e1_one_of_each_activity.json");
 
-        expect(storage.insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(7);
+        expect(storage.insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(8);
 
         first = storage.getLatestActivity(Content.ME_SOUND_STREAM);
         expect(first).not.toBeNull();

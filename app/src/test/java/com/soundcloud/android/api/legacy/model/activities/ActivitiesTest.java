@@ -97,7 +97,7 @@ public class ActivitiesTest {
     public void testFromJSON() throws Exception {
         Activities a = getDefaultActivities();
         expect(a.size()).toEqual(17);
-        expect(a.getUniquePlayables().size()).toEqual(4);
+        expect(a.getUniquePlayables().size()).toEqual(5);
         expect(a.getUniqueUsers().size()).toEqual(12);
     }
 
@@ -134,7 +134,7 @@ public class ActivitiesTest {
     @Test
     public void testGroupedByTrack() throws Exception {
         Map<Playable,Activities> grouped = getDefaultActivities().groupedByPlayable();
-        expect(grouped.size()).toEqual(5);
+        expect(grouped.size()).toEqual(6);
         for (Map.Entry<Playable,Activities> entry : grouped.entrySet()) {
             expect(entry.getValue().isEmpty()).toEqual(false);
         }

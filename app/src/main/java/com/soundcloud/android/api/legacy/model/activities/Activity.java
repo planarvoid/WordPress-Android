@@ -52,6 +52,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = TrackLikeActivity.class, name = "track-like"),
         @JsonSubTypes.Type(value = TrackRepostActivity.class, name = "track-repost"),
         @JsonSubTypes.Type(value = TrackSharingActivity.class, name = "track-sharing"),
+        @JsonSubTypes.Type(value = UserMentionActivity.class, name = "user-mention"),
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -281,6 +282,7 @@ public abstract class Activity extends ScModel implements Parcelable,
         PLAYLIST_REPOST("playlist-repost", PlaylistRepostActivity.class),
         PLAYLIST_SHARING("playlist-sharing", PlaylistSharingActivity.class),
         COMMENT("comment", CommentActivity.class),
+        USER_MENTION("user-mention", UserMentionActivity.class),
         AFFILIATION("affiliation", AffiliationActivity.class);
 
         public static final EnumSet<Type> PLAYLIST_TYPES = EnumSet.of(PLAYLIST, PLAYLIST_LIKE, PLAYLIST_REPOST, PLAYLIST_SHARING);

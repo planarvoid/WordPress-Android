@@ -10,6 +10,7 @@ public final class ActivityProperty {
     public static final int TYPE_COMMENT = 1;
     public static final int TYPE_REPOST = 2;
     public static final int TYPE_LIKE = 3;
+    public static final int TYPE_USER_MENTION = 4;
 
     public static final Property<Integer> TYPE = Property.of(ActivityProperty.class, Integer.class);
     public static final Property<String> SOUND_TITLE = Property.of(ActivityProperty.class, String.class);
