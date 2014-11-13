@@ -35,16 +35,18 @@ class SoundCloudTokenOperations {
     }
 
     public void invalidateToken(Token expired, @Nullable Account account) {
-        accountManager.invalidateAuthToken(
-                account.type,
-                expired.getAccessToken());
+        if (account != null) {
+            accountManager.invalidateAuthToken(
+                    account.type,
+                    expired.getAccessToken());
 
-        accountManager.invalidateAuthToken(
-                account.type,
-                expired.getRefreshToken());
+            accountManager.invalidateAuthToken(
+                    account.type,
+                    expired.getRefreshToken());
 
-        accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), null);
-        accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), null);
+            accountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), null);
+            accountManager.setUserData(account, TokenDataKeys.SCOPE.key(), null);
+        }
     }
 
     private String getSoundCloudTokenScope(Account account) {
