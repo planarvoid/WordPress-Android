@@ -8,7 +8,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -111,8 +110,7 @@ public class AdsController {
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          PlayQueueManager playQueueManager,
-                         TrackOperations trackOperations,
-                         FeatureFlags featureFlags) {
+                         TrackOperations trackOperations) {
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
                 playQueueManager, trackOperations, AndroidSchedulers.mainThread());
     }
