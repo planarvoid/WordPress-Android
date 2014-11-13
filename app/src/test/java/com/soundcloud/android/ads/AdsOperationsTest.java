@@ -128,6 +128,25 @@ public class AdsOperationsTest {
     }
 
     @Test
+    public void applyInterstitialMergesInterstitial() throws Exception {
+        final ApiAdsForTrack ads = AdFixtures.fullAdsForTrack();
+        adsOperations.applyInterstitialToTrack(TRACK_URN, ads);
+
+        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
+        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+
+        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        value1.execute(playQueue);
+
+        expect(playQueue.getUrn(0)).toEqual(TRACK_URN);
+        final PropertySet expectedProperties = ads.interstitialAd().toPropertySet();
+        expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
+        expectedProperties.put(TrackProperty.URN, TRACK_URN);
+        expect(playQueue.getMetaData(0)).toEqual(expectedProperties);
+    }
+
+    @Test
     public void applyAdInsertsAudioAdWhenOnlyAudioAdIsAvailable() throws Exception {
         ApiAdsForTrack adsWithOnlyAudioAd = AdFixtures.audioAd();
         adsOperations.applyAdToTrack(TRACK_URN, adsWithOnlyAudioAd);

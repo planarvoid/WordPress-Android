@@ -297,6 +297,7 @@ public class PublicApiTrackTest {
         expect(t.duration).toEqual(suggestion.getDuration());
         expect(t.sharing).toEqual(suggestion.getSharing());
         expect(t.permalink_url).toEqual(suggestion.getPermalinkUrl());
+        expect(t.policy).toEqual(suggestion.getPolicy());
 
         expect(t.likes_count).toEqual(suggestion.getStats().getLikesCount());
         expect(t.playback_count).toEqual(suggestion.getStats().getPlaybackCount());
@@ -308,6 +309,21 @@ public class PublicApiTrackTest {
     public void shouldConvertToPropertySet() throws CreateModelException {
         PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
 
+        PropertySet propertySet = assertTrackPropertiesWithoutPolicyInfo(track);
+        expect(propertySet.get(TrackProperty.POLICY)).toEqual(track.policy);
+        expect(propertySet.get(TrackProperty.MONETIZABLE)).toEqual(track.isMonetizable());
+    }
+
+    @Test
+    public void shouldConvertToPropertySetWithNoPolicy() throws CreateModelException {
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
+        track.setPolicy(null);
+
+        PropertySet propertySet = assertTrackPropertiesWithoutPolicyInfo(track);
+        expect(propertySet.get(TrackProperty.MONETIZABLE)).toBeFalse();
+    }
+
+    private PropertySet assertTrackPropertiesWithoutPolicyInfo(PublicApiTrack track) {
         PropertySet propertySet = track.toPropertySet();
         expect(propertySet.get(PlayableProperty.DURATION)).toEqual(track.duration);
         expect(propertySet.get(PlayableProperty.TITLE)).toEqual(track.title);
@@ -322,6 +338,7 @@ public class PublicApiTrackTest {
         expect(propertySet.get(PlayableProperty.IS_REPOSTED)).toEqual(track.user_repost);
         expect(propertySet.get(PlayableProperty.CREATED_AT)).toEqual(track.created_at);
         expect(propertySet.get(TrackProperty.COMMENTS_COUNT)).toEqual(track.comment_count);
+        return propertySet;
     }
 
     @Test
@@ -346,6 +363,8 @@ public class PublicApiTrackTest {
         expect(t2.getId()).toEqual(t.getId());
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);
+        expect(t2.policy).toEqual(t.policy);
+        expect(t2.isMonetizable()).toEqual(t.isMonetizable());
         expect(t2.duration).toBeGreaterThan(0);
         expect(t2.duration).toEqual(t.duration);
         expect(t2.created_at).toEqual(t.created_at);

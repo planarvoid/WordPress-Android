@@ -30,4 +30,7 @@ public class PublicApiTrackBlueprint {
 
     @Default
     Date createdAt = new Date();
+
+    @Default
+    String policy = "monetizable";
 }

@@ -72,6 +72,14 @@ public class AdsOperations {
         }
     }
 
+    public void applyInterstitialToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
+        final int currentMonetizablePosition = playQueueManager.getPositionForUrn(monetizableTrack);
+        checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
+        if (ads.hasInterstitialAd()) {
+            applyInterstitialAd(ads.interstitialAd(), currentMonetizablePosition, monetizableTrack);
+        }
+    }
+
     private void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
         PropertySet adMetaData = apiAudioAd
                 .toPropertySet()

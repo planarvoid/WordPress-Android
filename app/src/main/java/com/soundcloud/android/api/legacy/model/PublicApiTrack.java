@@ -54,7 +54,9 @@ public class PublicApiTrack extends Playable {
     };
     private static final String TAG = "Track";
     private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
+    private static final String API_MONETIZABLE_VALUE = "monetize";
     // API fields
+    @JsonView(Views.Full.class) @Nullable public String policy;
     @JsonView(Views.Full.class) @Nullable public State state;
     @JsonView(Views.Full.class) public boolean commentable;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL) public PublicApiUser label;
@@ -111,6 +113,7 @@ public class PublicApiTrack extends Playable {
         created_at = suggestion.getCreatedAt();
         sharing = suggestion.getSharing();
         permalink_url = suggestion.getPermalinkUrl();
+        policy = suggestion.getPolicy();
 
         final TrackStats stats = suggestion.getStats();
         if (stats != null) {
@@ -133,6 +136,7 @@ public class PublicApiTrack extends Playable {
         Bundle b = in.readBundle(getClass().getClassLoader());
         super.readFromBundle(b);
 
+        policy = b.getString("policy");
         state = State.fromString(b.getString("state"));
         commentable = b.getBoolean("commentable");
         label = b.getParcelable("label");
@@ -167,6 +171,7 @@ public class PublicApiTrack extends Playable {
 
     public PublicApiTrack(Cursor cursor) {
         super(cursor);
+        policy = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.POLICY));
         state = State.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STATE)));
         track_type = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TRACK_TYPE));
 
@@ -190,6 +195,14 @@ public class PublicApiTrack extends Playable {
         if (cachedIdx != -1) {
             local_cached = cursor.getInt(cachedIdx) == 1;
         }
+    }
+
+    public void setPolicy(String policy){
+        this.policy = policy;
+    }
+
+    public String getPolicy(){
+        return policy;
     }
 
     @Override
@@ -265,6 +278,7 @@ public class PublicApiTrack extends Playable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Bundle b = super.getBundle();
+        b.putString("policy", policy);
         b.putString("state", state != null ? state.value() : null);
         b.putBoolean("commentable", commentable);
         b.putParcelable("label", label);
@@ -317,11 +331,24 @@ public class PublicApiTrack extends Playable {
     }
 
     public PropertySet toPropertySet() {
-        return super.toPropertySet()
+        final PropertySet track = super.toPropertySet()
                 .put(TrackProperty.URN, Urn.forTrack(getId()))
                 .put(TrackProperty.PLAY_COUNT, playback_count)
                 .put(TrackProperty.COMMENTS_COUNT, comment_count)
                 .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
+
+        // we may not have policy in the db yet, as it was not always part of the public API
+        if (policy != null){
+            track.put(TrackProperty.POLICY, policy);
+            track.put(TrackProperty.MONETIZABLE, isMonetizable());
+        } else {
+            track.put(TrackProperty.MONETIZABLE, false);
+        }
+        return track;
+    }
+
+    boolean isMonetizable() {
+        return policy != null && policy.equalsIgnoreCase(API_MONETIZABLE_VALUE);
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
@@ -331,6 +358,10 @@ public class PublicApiTrack extends Playable {
 
         if (stream_url != null) {
             cv.put(TableColumns.Sounds.STREAM_URL, stream_url);
+        }
+        if (policy != null) {
+            cv.put(TableColumns.Sounds.POLICY, policy);
+            cv.put(TableColumns.Sounds.MONETIZABLE, isMonetizable());
         }
         if (state != null) {
             cv.put(TableColumns.Sounds.STATE, state.name);
@@ -457,6 +488,7 @@ public class PublicApiTrack extends Playable {
         return Objects.toStringHelper(this)
                 .add("id", getId())
                 .add("title", title)
+                .add("policy", policy)
                 .add("permalink_url", permalink_url)
                 .add("artwork_url", artwork_url)
                 .add("duration", duration)
@@ -498,6 +530,7 @@ public class PublicApiTrack extends Playable {
         super.updateFrom(updatedItem, cacheUpdateMode);
         stream_url = updatedItem.stream_url;
         if (cacheUpdateMode == CacheUpdateMode.FULL) {
+            policy = updatedItem.policy;
             user_like = updatedItem.user_like;
             commentable = updatedItem.commentable;
             state = updatedItem.state;
