@@ -103,7 +103,8 @@ public class PlaySessionStateProvider {
             }
 
             if (playingNewTrackFromBeginning(stateTransition, isTrackChange) || playbackStoppedMidSession(stateTransition)) {
-                saveProgress(stateTransition);
+                final long lastValidProgress = getLastProgressByUrn(currentPlayingUrn).getPosition();
+                playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : lastValidProgress);
             }
         }
     }
@@ -115,10 +116,6 @@ public class PlaySessionStateProvider {
     private boolean playingNewTrackFromBeginning(StateTransition stateTransition, boolean isTrackChange) {
         PlaybackProgressInfo info = playQueueManager.getPlayProgressInfo();
         return isTrackChange && (info == null || !info.shouldResumeTrack(stateTransition.getTrackUrn()));
-    }
-
-    private void saveProgress(StateTransition stateTransition) {
-        playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : stateTransition.getProgress().getPosition());
     }
 
     private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {

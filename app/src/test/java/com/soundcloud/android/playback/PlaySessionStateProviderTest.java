@@ -110,6 +110,13 @@ public class PlaySessionStateProviderTest {
     }
 
     @Test
+    public void onStateTransitionWithInvalidDurationUsesPreviousPosition() throws Exception {
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE, TRACK_URN, 456, 0));
+        verify(playQueueManager).saveCurrentProgress(123);
+    }
+
+    @Test
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
         when(playQueueManager.getPlayProgressInfo()).thenReturn(new PlaybackProgressInfo(TRACK_ID, 123L));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN, 0, 456));
