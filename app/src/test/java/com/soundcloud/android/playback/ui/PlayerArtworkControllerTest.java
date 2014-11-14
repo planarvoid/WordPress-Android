@@ -115,6 +115,14 @@ public class PlayerArtworkControllerTest {
     }
 
     @Test
+    public void showIdleStateWithEmptyProgressDoesNotSetProgress() {
+
+        playerArtworkController.showIdleState(PlaybackProgress.empty());
+
+        verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class));
+    }
+
+    @Test
      public void setProgressSetsProgressOnController() {
         playerArtworkController.setProgress(playbackProgress);
         verify(progressController).setPlaybackProgress(playbackProgress);

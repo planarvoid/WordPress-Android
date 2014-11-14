@@ -6,13 +6,12 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
-import com.soundcloud.android.model.Urn;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -63,7 +62,10 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public void showIdleState(PlaybackProgress progress) {
         showIdleState();
-        setProgress(progress);
+        if (!progress.isEmpty()){
+            setProgress(progress);
+        }
+
     }
 
     public void showIdleState() {

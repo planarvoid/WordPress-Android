@@ -274,6 +274,24 @@ public class TrackPagePresenterTest {
     }
 
     @Test
+    public void setProgressWithEmptyProgressDoesNotSetProgressOnWaveformController() {
+        presenter.setProgress(trackView, PlaybackProgress.empty());
+        verify(waveformViewController, never()).setProgress(playbackProgress);
+    }
+
+    @Test
+    public void setProgressWithEmptyProgressDoesNotSetProgressOnArtworkController() {
+        presenter.setProgress(trackView, PlaybackProgress.empty());
+        verify(artworkController, never()).setProgress(playbackProgress);
+    }
+
+    @Test
+    public void setProgressWithEmptyProgressDoesNotSetProgressOnMenuController() {
+        presenter.setProgress(trackView, PlaybackProgress.empty());
+        verify(trackPageMenuController, never()).setProgress(playbackProgress);
+    }
+
+    @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
         final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(TRACK_URN, true, 1);
