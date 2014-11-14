@@ -33,6 +33,7 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
 
     public void testShouldShowInterstitial() {
         playerElement.swipeNext(); // to monetizableTrack
+        playerElement.waitForPlayState();
         String trackTitle = playerElement.getTrackTitle();
         playerElement.waitForAdOverlayToLoad();
         assertThat(playerElement.interstitial(), is(visible()));
@@ -44,6 +45,7 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
+        playerElement.waitForPlayState();
         playerElement.waitForAdToBeFetched();
     }
 }
