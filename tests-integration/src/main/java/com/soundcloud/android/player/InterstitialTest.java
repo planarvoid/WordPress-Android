@@ -45,7 +45,6 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
-        playerElement.waitForPlayState();
         playerElement.waitForAdToBeFetched();
     }
 }
