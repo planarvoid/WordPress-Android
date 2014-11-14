@@ -1,13 +1,15 @@
 package com.soundcloud.android.payments;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 public final class BillingResponse {
 
     private static final int REQUEST_CODE = 1001;
-
-    private static final String SUCCESS_DATA = "{\"orderId\":\"12999763169054705758.1343597682978365\",\"packageName\":\"com.soundcloud.android\",\"productId\":\"android_test_product\",\"purchaseTime\":1414161345678,\"purchaseState\":0,\"developerPayload\":\"soundcloud:payments:orders:e72661985b8911e49a4200e081c198e9\",\"purchaseToken\":\"%s\"}";
     private static final String SUCCESS_SIGNATURE = "signature";
 
     private Activity activity;
@@ -21,13 +23,13 @@ public final class BillingResponse {
 
     public BillingResponse forSuccess() {
         responseCode = Activity.RESULT_OK;
-        data = buildPayload("VALID_" + System.currentTimeMillis());
+        data = buildPayload(FakeResult.valid(getCheckoutUrn()));
         return this;
     }
 
     public BillingResponse forInvalid() {
         responseCode = Activity.RESULT_OK;
-        data = buildPayload("INVALID_" + System.currentTimeMillis());
+        data = buildPayload(FakeResult.invalid(getCheckoutUrn()));
         return this;
     }
 
@@ -46,12 +48,24 @@ public final class BillingResponse {
         });
     }
 
-    private Intent buildPayload(String token) {
+    private String getCheckoutUrn() {
+        return activity.getSharedPreferences("payments", Context.MODE_PRIVATE).getString("pending_transaction_urn", null);
+    }
+
+    private Intent buildPayload(FakeResult result) {
         Intent billingResponse = new Intent();
         billingResponse.putExtra("RESPONSE_CODE", 0);
-        billingResponse.putExtra("INAPP_PURCHASE_DATA", String.format(SUCCESS_DATA, token));
+        billingResponse.putExtra("INAPP_PURCHASE_DATA", serialize(result));
         billingResponse.putExtra("INAPP_DATA_SIGNATURE", SUCCESS_SIGNATURE);
         return billingResponse;
+    }
+
+    private String serialize(FakeResult result) {
+        try {
+            return new ObjectMapper().writeValueAsString(result);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Could not process BillingResponse JSON");
+        }
     }
 
 }
