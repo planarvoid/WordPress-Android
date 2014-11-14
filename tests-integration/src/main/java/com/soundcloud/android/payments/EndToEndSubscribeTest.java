@@ -28,7 +28,7 @@ public class EndToEndSubscribeTest extends ActivityTestCase<MainActivity> {
         PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
         paymentScreen.clickBuy();
         waiter.waitTwoSeconds();
-        BillingResponses.ok(solo.getCurrentActivity());
+        BillingResponse.valid(solo.getCurrentActivity());
         waiter.expectToast().toHaveText("Verifying");
     }
 
