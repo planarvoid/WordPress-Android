@@ -6,10 +6,13 @@ import static org.mockito.Mockito.verify;
 
 import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -73,6 +76,13 @@ public class LocalyticsAnalyticsProviderTest {
     public void shouldTrackScreenWithGivenName() {
         localyticsProvider.handleTrackingEvent(ScreenEvent.create("main:explore"));
         verify(localyticsSession).tagScreen(eq("main:explore"));
+    }
+
+    @Test
+    public void shouldTrackAudioAdFailedToBufferEvent() {
+        final AudioAdFailedToBufferEvent event = new AudioAdFailedToBufferEvent(Urn.forTrack(123L), new PlaybackProgress(123, 1234), 6);
+        localyticsProvider.handleTrackingEvent(event);
+        verify(localyticsSession).tagEvent(eq("Ad failed to buffer"), eq(event.getAttributes()));
     }
 
     @Test

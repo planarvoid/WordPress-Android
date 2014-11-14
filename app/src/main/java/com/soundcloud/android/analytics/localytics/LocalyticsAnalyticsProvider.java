@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -129,6 +130,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             handlePlayControlEvent(event);
         } else if (event instanceof SearchEvent) {
             searchEventHandler.handleEvent((SearchEvent) event);
+        } else if (event instanceof AudioAdFailedToBufferEvent) {
+            tagEvent(LocalyticsEvents.AD_FAILED_TO_BUFFER, event.getAttributes());
         }
     }
 
