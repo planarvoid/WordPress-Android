@@ -23,7 +23,7 @@ public class SubscribeTest extends ActivityTestCase<MainActivity> {
     @Override
     public void setUp() throws Exception {
         setDependsOn(Feature.PAYMENTS_TEST);
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.subscribeUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
     }
@@ -36,6 +36,7 @@ public class SubscribeTest extends ActivityTestCase<MainActivity> {
     public void testUserIsPresentedSubscribeOption() {
         PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
         paymentScreen.clickBuy();
+        waiter.waitTwoSeconds();
         BillingResponses.cancel(solo.getCurrentActivity());
         waiter.expectToast().toHaveText("User cancelled");
     }
