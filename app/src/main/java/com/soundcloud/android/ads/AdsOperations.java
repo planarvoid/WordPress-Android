@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
@@ -17,6 +18,8 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.functions.Action1;
+
+import android.util.Log;
 
 import javax.inject.Inject;
 
@@ -59,7 +62,41 @@ public class AdsOperations {
                 .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
                 .build();
 
-        return apiScheduler.mappedResponse(request).doOnNext(cacheAudioAdTrack);
+        return apiScheduler.mappedResponse(request)
+                .doOnError(logFailedAds(sourceUrn))
+                .doOnNext(logAds(sourceUrn))
+                .doOnNext(cacheAudioAdTrack);
+    }
+
+    private Action1<? super ApiAdsForTrack> logAds(final Urn sourceUrn) {
+        return new Action1<ApiAdsForTrack>() {
+            @Override
+            public void call(ApiAdsForTrack apiAdWrappers) {
+                StringBuilder msg = new StringBuilder(100);
+                msg.append("Retrieved ads for ")
+                        .append(sourceUrn.toString())
+                        .append(": ");
+                if (apiAdWrappers.hasAudioAd()) {
+                    msg.append("audio ad, ");
+                    if (apiAdWrappers.audioAd().hasApiLeaveBehind()) {
+                        msg.append("leave behind, ");
+                    }
+                }
+                if (apiAdWrappers.hasInterstitialAd()) {
+                    msg.append("interstitial");
+                }
+                Log.i(ADS_TAG, msg.toString());
+            }
+        };
+    }
+
+    private Action1<Throwable> logFailedAds(final Urn sourceUrn) {
+        return new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.i(ADS_TAG, "Failed to retrieve ads for " + sourceUrn.toString(), throwable);
+            }
+        };
     }
 
     public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
