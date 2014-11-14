@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.coreutils.io.IO;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +46,8 @@ public class MigrationReaderTest {
 
     @Test
     public void shouldRetrieveMigrationsForValidMigrationFileWithNoNewlines() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/1.sql")).thenReturn(getTestMigrationFile("1.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/1.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("1.sql"));
         MigrationFile migrationFile = migrationReader.getMigration(1);
         assertThat(migrationFile.isValidMigrationFile(), is(true));
         Collection<String> upMigrations = migrationFile.upMigrations();
@@ -58,7 +60,8 @@ public class MigrationReaderTest {
 
     @Test
     public void shouldStripNewLineCharsFromMigration() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/8.sql")).thenReturn(getTestMigrationFile("8.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/8.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("8.sql"));
         MigrationFile migrationFile = migrationReader.getMigration(8);
         assertThat(migrationFile.isValidMigrationFile(), is(true));
         Collection<String> upMigrations = migrationFile.upMigrations();
@@ -72,7 +75,8 @@ public class MigrationReaderTest {
 
     @Test
     public void shouldRetrieveMigrationsForValidMigrationFileWithNewlines() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/2.sql")).thenReturn(getTestMigrationFile("2.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/2.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("2.sql"));
         MigrationFile migrationFile = migrationReader.getMigration(2);
         assertThat(migrationFile.isValidMigrationFile(), is(true));
         Collection<String> upMigrations = migrationFile.upMigrations();
@@ -93,35 +97,40 @@ public class MigrationReaderTest {
 
     @Test
     public void shouldReturnInvalidMigrationFileForMigrationWhichHasNoUpMigration() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/3.sql")).thenReturn(getTestMigrationFile("3.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/3.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("3.sql"));
         MigrationFile migration = migrationReader.getMigration(3);
         assertThat(migration.isValidMigrationFile(), is(false));
     }
 
     @Test
     public void shouldReturnInvalidMigrationFileForMigrationWhichHasNoDownMigration() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/4.sql")).thenReturn(getTestMigrationFile("4.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/4.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("4.sql"));
         MigrationFile migration = migrationReader.getMigration(4);
         assertThat(migration.isValidMigrationFile(), is(false));
     }
 
     @Test
     public void shouldReturnInvalidMigrationFileForMigrationWhichHasNoMigrations() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/5.sql")).thenReturn(getTestMigrationFile("5.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/5.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("5.sql"));
         MigrationFile migration = migrationReader.getMigration(5);
         assertThat(migration.isValidMigrationFile(), is(false));
     }
 
     @Test
     public void shouldReturnInvalidMigrationFileIfMigrationFileDoesNotContainDownMigrationHeader() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/6.sql")).thenReturn(getTestMigrationFile("6.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/6.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("6.sql"));
         MigrationFile migration = migrationReader.getMigration(6);
         assertThat(migration.isValidMigrationFile(), is(false));
     }
 
     @Test
     public void shouldReturnInvalidMigrationFileIfMigrationFileDoesNotContainUpMigrationHeader() throws IOException {
-        when(io.inputStreamFromPrivateDirectory("migrations/7.sql")).thenReturn(getTestMigrationFile("7.sql"));
+        when(io.inputStreamFromPrivateDirectory("migrations/7.sql")).thenReturn(in);
+        when(io.toString(in)).thenReturn(getTestMigrationFileContents("7.sql"));
         MigrationFile migration = migrationReader.getMigration(7);
         assertThat(migration.isValidMigrationFile(), is(false));
     }
@@ -209,13 +218,13 @@ public class MigrationReaderTest {
             migrationReader.copyMigrationFiles(1);
             fail("Should have thrown exception");
         } catch (MigrationCopyException e ){
-            //
+            //Expected
         }
 
         verify(io).closeQuietly(in, out);
     }
 
-    private InputStream getTestMigrationFile(String filename) {
-        return getClass().getResourceAsStream(filename);
+    private String getTestMigrationFileContents(String filename) throws IOException {
+        return IOUtils.toString(getClass().getResourceAsStream(filename));
     }
 }

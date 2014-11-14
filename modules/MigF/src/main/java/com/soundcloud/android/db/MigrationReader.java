@@ -11,7 +11,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.soundcloud.android.coreutils.io.IO;
 import com.soundcloud.android.coreutils.log.Log;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 import android.content.Context;
@@ -118,7 +117,7 @@ class MigrationReader {
             error(LOG, e, "Problem when reading in migration ", migrationFilePath);
             return "";
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            io.closeQuietly(inputStream);
         }
     }
 
