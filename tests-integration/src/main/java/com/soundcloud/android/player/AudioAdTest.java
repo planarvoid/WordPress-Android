@@ -19,11 +19,7 @@ import com.soundcloud.android.tests.R;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.with.With;
 
-import java.util.concurrent.TimeUnit;
-
 public class AudioAdTest extends ActivityTestCase<MainActivity> {
-
-    private static final int TRACK_BEFORE_AD_LENGTH_MILISECONDS = (int) TimeUnit.SECONDS.toMillis(10);
 
     private VisualPlayerElement playerElement;
     private PlaylistDetailsScreen playlistDetailsScreen;
@@ -104,7 +100,7 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
 
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
         playerElement.pressBackToCollapse();
-        playerElement.waitForTrackToFinish(TRACK_BEFORE_AD_LENGTH_MILISECONDS);
+        playerElement.waitForExpandedPlayer();
         playerElement.waitForAdPage();
 
         assertTrue(playerElement.isAdPageVisible());
