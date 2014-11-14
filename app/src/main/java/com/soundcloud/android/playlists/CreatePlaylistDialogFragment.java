@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -23,7 +24,10 @@ import javax.inject.Inject;
 
 public class CreatePlaylistDialogFragment extends BaseDialogFragment {
 
-    private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
+    private static final String CREATE_PLAYLIST_DIALOG_TAG = "create_new_set_dialog";
+
+    private static final String KEY_INVOKER_SCREEN = "INVOKER_SCREEN";
+    private static final String KEY_CONTEXT_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
     @Inject LegacyPlaylistOperations playlistOperations;
@@ -31,12 +35,22 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     @Inject ApplicationProperties properties;
     @Inject AccountOperations accountOperations;
 
-    public static CreatePlaylistDialogFragment from(long trackId, String originScreen) {
-        Bundle b = new Bundle();
-        b.putLong(KEY_TRACK_ID, trackId);
-        b.putString(KEY_ORIGIN_SCREEN, originScreen);
+
+    public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
+        return createFragment(createBundle(trackId, invokerScreen, contextScreen));
+    }
+
+    private static Bundle createBundle(long trackId, String invokerScreen, String contextScreen) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(KEY_TRACK_ID, trackId);
+        bundle.putString(KEY_INVOKER_SCREEN, invokerScreen);
+        bundle.putString(KEY_CONTEXT_SCREEN, contextScreen);
+        return bundle;
+    }
+
+    private static CreatePlaylistDialogFragment createFragment(Bundle bundle) {
         CreatePlaylistDialogFragment fragment = new CreatePlaylistDialogFragment();
-        fragment.setArguments(b);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -79,11 +93,20 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         return initialBuilder;
     }
 
+    public void show(FragmentManager fragmentManager) {
+        show(fragmentManager, CREATE_PLAYLIST_DIALOG_TAG);
+    }
+
     private void createPlaylist(final String title, final boolean isPrivate) {
         final PublicApiUser currentUser = accountOperations.getLoggedInUser();
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
         fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(originScreen, true, firstTrackId));
+        trackAddingToPlaylistEvent(firstTrackId);
+    }
+
+    private void trackAddingToPlaylistEvent(long trackId) {
+        final String invokerScreen = getArguments().getString(KEY_INVOKER_SCREEN);
+        final String contextScreen = getArguments().getString(KEY_CONTEXT_SCREEN);
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(invokerScreen, contextScreen, true, trackId));
     }
 }

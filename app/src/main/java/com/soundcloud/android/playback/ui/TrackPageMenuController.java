@@ -3,6 +3,8 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
@@ -139,7 +141,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     private void showAddToPlaylistDialog(PlayerTrack track) {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.toPropertySet(), playQueueManager.getScreenTag());
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.toPropertySet(), ScreenElement.PLAYER.get(), playQueueManager.getScreenTag());
         from.show(activity.getSupportFragmentManager());
     }
 

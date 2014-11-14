@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -38,7 +40,7 @@ class TrackPageListener extends PageListener {
 
     public void onToggleLike(boolean isLike, Urn trackUrn) {
         fireAndForget(associationOperations.toggleLike(trackUrn, isLike));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(), trackUrn));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag(), trackUrn));
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {

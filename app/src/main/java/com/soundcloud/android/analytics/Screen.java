@@ -1,15 +1,9 @@
 package com.soundcloud.android.analytics;
 
-import com.google.common.collect.Maps;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.utils.ScTextUtils;
-import org.jetbrains.annotations.NotNull;
-
 import android.content.Intent;
 import android.os.Bundle;
 
 import java.util.Locale;
-import java.util.Map;
 
 public enum Screen {
 
@@ -25,8 +19,8 @@ public enum Screen {
 
     // core screens
     SIDE_MENU_DRAWER("drawer"),
-    SIDE_MENU_STREAM("stream:main", Actions.STREAM),
-    SIDE_MENU_LIKES("collection:likes", Actions.LIKES),
+    SIDE_MENU_STREAM("stream:main"),
+    SIDE_MENU_LIKES("collection:likes"),
     SIDE_MENU_PLAYLISTS("collection:playlists"),
 
     // onboarding
@@ -35,10 +29,10 @@ public enum Screen {
     ONBOARDING_FACEBOOK("onboarding:facebook"),
 
     // your own profile
-    YOUR_POSTS("you:posts", Actions.YOUR_SOUNDS),
+    YOUR_POSTS("you:posts"),
     YOUR_INFO("you:info"),
     YOUR_PLAYLISTS("you:playlists"),
-    YOUR_LIKES("you:likes", Actions.YOUR_LIKES),
+    YOUR_LIKES("you:likes"),
     YOUR_FOLLOWINGS("you:followings"),
     YOUR_FOLLOWERS("you:followers"),
 
@@ -52,9 +46,7 @@ public enum Screen {
     USER_FOLLOWERS("users:followers"),
 
     // player screens
-    PLAYER_MAIN("tracks:main"),
     PLAYER_INFO("tracks:info"),
-
     PLAYER_LIKES("tracks:likes"),
     PLAYER_REPOSTS("tracks:reposts"),
     PLAYER_COMMENTS("tracks:comments"),
@@ -94,27 +86,15 @@ public enum Screen {
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
 
-    // context provided when we intercept a track
-    DEEPLINK("deeplink");
+    WIDGET("widget"),
+    DEEPLINK("deeplink"); // context provided when we intercept a track
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
-    private static final String EXPLORE_PREFIX = "explore";
 
-    private static final Map<String, Screen> SCREEN_TAG_MAP = Maps.newHashMap();
-
-    static {
-        for (Screen screen : Screen.values()) {
-            SCREEN_TAG_MAP.put(screen.get(), screen);
-        }
-    }
-
-    private Screen(String trackingTag, String upAction) {
-        this.trackingTag = trackingTag;
-        this.upAction = upAction;
-    }
+    private final String trackingTag;
 
     private Screen(String trackingTag) {
-        this(trackingTag, null);
+        this.trackingTag = trackingTag;
     }
 
     public String get() {
@@ -122,7 +102,7 @@ public enum Screen {
     }
 
     public String get(String postfix) {
-        return new StringBuilder(trackingTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
+        return trackingTag + ":" + postfix.toLowerCase(Locale.US).replaceAll(" ", "_");
     }
 
     public void addToBundle(Bundle bundle) {
@@ -133,39 +113,12 @@ public enum Screen {
         intent.putExtra(Screen.ORDINAL_EXTRA, ordinal());
     }
 
-    private final String trackingTag;
-    private final String upAction;
-
     public static Screen fromIntent(Intent intent) {
         return values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
-    }
-
-    public static Screen fromIntent(Intent intent, Screen defaultScreen) {
-        return intent.hasExtra(Screen.ORDINAL_EXTRA) ? values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)] : defaultScreen;
     }
 
     public static Screen fromBundle(Bundle bundle) {
         return values()[bundle.getInt(Screen.ORDINAL_EXTRA, -1)];
     }
-
-    public static Screen fromScreenTag(String screenTag) {
-        if (SCREEN_TAG_MAP.containsKey(screenTag)) {
-            return SCREEN_TAG_MAP.get(screenTag);
-        }
-        throw new IllegalArgumentException("Unrecognized screenTag: " + screenTag);
-    }
-
-    public static Intent getUpDestinationFromScreenTag(@NotNull String screenTag) {
-        if (screenTag.startsWith(EXPLORE_PREFIX)) {
-            return new Intent(Actions.EXPLORE).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        } else {
-            final String upAction = fromScreenTag(screenTag).upAction;
-            if (ScTextUtils.isNotBlank(upAction)) {
-                return new Intent(upAction).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            }
-        }
-        return null;
-    }
-
 
 }

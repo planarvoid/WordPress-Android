@@ -2,7 +2,6 @@ package com.soundcloud.android.events;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -31,6 +30,7 @@ public final class UIEvent extends TrackingEvent {
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
     private static final String KEY_METHOD = "method";
+    private static final String KEY_LOCATION = "location";
     private static final String KEY_CONTEXT = "context";
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_RESOURCES_TYPE = "resource";
@@ -77,9 +77,10 @@ public final class UIEvent extends TrackingEvent {
                 .put(KEY_USER_ID, String.valueOf(userId));
     }
 
-    public static UIEvent fromToggleLike(boolean isLike, String screenTag, @NotNull Urn resourceUrn) {
+    public static UIEvent fromToggleLike(boolean isLike, String invokerScreen, String contextScreen, @NotNull Urn resourceUrn) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
-                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_LOCATION, invokerScreen)
+                .put(KEY_CONTEXT, contextScreen)
                 .put(KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
     }
@@ -91,9 +92,10 @@ public final class UIEvent extends TrackingEvent {
                 .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
     }
 
-    public static UIEvent fromAddToPlaylist(String screenTag, boolean isNewPlaylist, long trackId) {
+    public static UIEvent fromAddToPlaylist(String invokerScreen, String contextScreen, boolean isNewPlaylist, long trackId) {
         return new UIEvent(KIND_ADD_TO_PLAYLIST)
-                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_LOCATION, invokerScreen)
+                .put(KEY_CONTEXT, contextScreen)
                 .put(KEY_IS_NEW_PLAYLIST, isNewPlaylist ? "yes" : "no")
                 .put(KEY_TRACK_ID, String.valueOf(trackId));
     }

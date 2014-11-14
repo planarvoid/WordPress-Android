@@ -80,7 +80,9 @@ public class PlaylistEngagementsController {
                 public void onClick(View view) {
                     if (playable != null) {
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(toggleLike.isChecked(),
-                                PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
+                                Screen.PLAYLIST_DETAILS.get(),
+                                PlaylistEngagementsController.this.originProvider.getScreenTag(),
+                                playable.getUrn()));
                         fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), toggleLike.isChecked()));
                     }
                 }

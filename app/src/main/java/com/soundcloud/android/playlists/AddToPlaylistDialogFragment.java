@@ -46,10 +46,14 @@ import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 public class AddToPlaylistDialogFragment extends BaseDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String PLAYLIST_DIALOG_TAG = "create_playlist_dialog";
-    private static final String KEY_ORIGIN_SCREEN = "ORIGIN_SCREEN";
+
+    private static final String KEY_CONTEXT_SCREEN = "CONTEXT_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
+    private static final String KEY_INVOKER_SCREEN = "INVOKER_LOCATION";
+
     private static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
 
     private static final int LOADER_ID = 1;
@@ -76,14 +80,22 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         }
     };
 
-    public static AddToPlaylistDialogFragment from(PropertySet track, String originScreen) {
-        Bundle b = new Bundle();
-        b.putLong(KEY_TRACK_ID, track.get(TrackProperty.URN).getNumericId());
-        b.putString(KEY_TRACK_TITLE, track.get(PlayableProperty.TITLE));
-        b.putString(KEY_ORIGIN_SCREEN, originScreen);
+    public static AddToPlaylistDialogFragment from(PropertySet track, String invokerScreen, String contextScreen) {
+        return createFragment(createBundle(track, invokerScreen, contextScreen));
+    }
 
+    private static Bundle createBundle(PropertySet track, String invokerScreen, String contextScreen) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(KEY_TRACK_ID, track.get(TrackProperty.URN).getNumericId());
+        bundle.putString(KEY_TRACK_TITLE, track.get(PlayableProperty.TITLE));
+        bundle.putString(KEY_INVOKER_SCREEN, invokerScreen);
+        bundle.putString(KEY_CONTEXT_SCREEN, contextScreen);
+        return bundle;
+    }
+
+    private static AddToPlaylistDialogFragment createFragment(Bundle bundle) {
         AddToPlaylistDialogFragment fragment = new AddToPlaylistDialogFragment();
-        fragment.setArguments(b);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -100,9 +112,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final long rowId = adapter.getItemId(position);
                 if (rowId == NEW_PLAYLIST_ITEM) {
-                    final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-                    final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-                    CreatePlaylistDialogFragment.from(firstTrackId, originScreen).show(getFragmentManager(), "create_new_set_dialog");
+                    showPlaylistCreationScreen();
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
                     onAddTrackToSet(rowId, view);
@@ -118,6 +128,13 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
         return builder;
+    }
+
+    private void showPlaylistCreationScreen() {
+        final String invokerScreen = getArguments().getString(KEY_INVOKER_SCREEN);
+        final String contextScreen = getArguments().getString(KEY_CONTEXT_SCREEN);
+        final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
+        CreatePlaylistDialogFragment.from(firstTrackId, invokerScreen, contextScreen).show(getFragmentManager());
     }
 
     public void show(FragmentManager fragmentManager) {
@@ -137,8 +154,13 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
                         .delay(CLOSE_DELAY_MILLIS, TimeUnit.MILLISECONDS, Schedulers.immediate())
         ).subscribe(new TrackAddedSubscriber());
 
-        final String originScreen = getArguments().getString(KEY_ORIGIN_SCREEN);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(originScreen, false, trackId));
+        trackAddingToPlaylistEvent(trackId);
+    }
+
+    private void trackAddingToPlaylistEvent(long trackId) {
+        final String invokerScreen = getArguments().getString(KEY_INVOKER_SCREEN);
+        final String contextScreen = getArguments().getString(KEY_CONTEXT_SCREEN);
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(invokerScreen, contextScreen, false, trackId));
     }
 
     @Override
