@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class AdsController {
 
-    public static final int FAILED_AD_WAIT_SECS = 3;
+    public static final int FAILED_AD_WAIT_SECS = 6;
     private static final int MAX_CONCURRENT_AD_FETCHES = 2;
     private static final long DEFAULT_OPERATION_STALE_TIME = TimeUnit.MINUTES.toMillis(10);
 
