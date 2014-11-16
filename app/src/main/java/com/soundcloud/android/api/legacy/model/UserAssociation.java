@@ -46,35 +46,35 @@ public class UserAssociation extends Association implements UserHolder {
             return new UserAssociation[size];
         }
     };
-    private final @NotNull PublicApiUser mUser;
-    private @Nullable Date mAddedAt;
-    private @Nullable Date mRemovedAt;
-    private @Nullable String mToken;
+    private final @NotNull PublicApiUser user;
+    private @Nullable Date addedAt;
+    private @Nullable Date removedAt;
+    private @Nullable String token;
 
     public UserAssociation(Cursor cursor) {
         super(cursor);
-        mUser = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, TableColumns.UserAssociationView._ID);
-        mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
-        mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
-        mToken = cursor.getString(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN));
+        user = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, TableColumns.UserAssociationView._ID);
+        addedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
+        removedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
+        token = cursor.getString(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN));
     }
 
     public UserAssociation(Type typeEnum, @NotNull PublicApiUser user) {
         super(typeEnum.collectionType);
-        mUser = user;
+        this.user = user;
     }
 
     public UserAssociation(Parcel in) {
         super(in);
-        mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
-        mAddedAt = (Date) in.readSerializable();
-        mRemovedAt = (Date) in.readSerializable();
-        mToken = in.readString();
+        user = in.readParcelable(ClassLoader.getSystemClassLoader());
+        addedAt = (Date) in.readSerializable();
+        removedAt = (Date) in.readSerializable();
+        token = in.readString();
     }
 
     @Override
     public PublicApiUser getUser() {
-        return mUser;
+        return user;
     }
 
     @Nullable
@@ -85,20 +85,20 @@ public class UserAssociation extends Association implements UserHolder {
 
     @Nullable
     public String getToken() {
-        return mToken;
+        return token;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeParcelable(mUser, 0);
-        dest.writeSerializable(mAddedAt);
-        dest.writeSerializable(mRemovedAt);
-        dest.writeString(mToken);
+        dest.writeParcelable(user, 0);
+        dest.writeSerializable(addedAt);
+        dest.writeSerializable(removedAt);
+        dest.writeString(token);
     }
 
     public long getItemId() {
-        return mUser.getId();
+        return user.getId();
     }
 
     @Override
@@ -109,9 +109,9 @@ public class UserAssociation extends Association implements UserHolder {
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, associationType);
         cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, getResourceType());
         cv.put(TableColumns.UserAssociations.CREATED_AT, created_at.getTime());
-        cv.put(TableColumns.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
-        cv.put(TableColumns.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
-        cv.put(TableColumns.UserAssociations.TOKEN, mToken);
+        cv.put(TableColumns.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
+        cv.put(TableColumns.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
+        cv.put(TableColumns.UserAssociations.TOKEN, token);
         return cv;
     }
 
@@ -122,7 +122,7 @@ public class UserAssociation extends Association implements UserHolder {
 
     @Override
     public Refreshable getRefreshableResource() {
-        return mUser;
+        return user;
     }
 
     public int getResourceType() {
@@ -139,7 +139,7 @@ public class UserAssociation extends Association implements UserHolder {
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
         super.putDependencyValues(destination);
-        mUser.putFullContentValues(destination);
+        user.putFullContentValues(destination);
     }
 
     public UserAssociation markForAddition() {
@@ -148,14 +148,14 @@ public class UserAssociation extends Association implements UserHolder {
 
     public UserAssociation markForAddition(@Nullable String token) {
         setLocalSyncState(LocalState.PENDING_ADDITION);
-        mUser.addAFollower();
-        mToken = token;
+        user.addAFollower();
+        this.token = token;
         return this;
     }
 
     public UserAssociation markForRemoval() {
         setLocalSyncState(LocalState.PENDING_REMOVAL);
-        mUser.removeAFollower();
+        user.removeAFollower();
         return this;
     }
 
@@ -164,9 +164,9 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     public LocalState getLocalSyncState() {
-        if (mAddedAt != null) {
+        if (addedAt != null) {
             return LocalState.PENDING_ADDITION;
-        } else if (mRemovedAt != null) {
+        } else if (removedAt != null) {
             return LocalState.PENDING_REMOVAL;
         } else {
             return LocalState.NONE;
@@ -176,20 +176,20 @@ public class UserAssociation extends Association implements UserHolder {
     private void setLocalSyncState(LocalState newState) {
         switch (newState) {
             case PENDING_ADDITION:
-                mAddedAt = new Date(System.currentTimeMillis());
-                mRemovedAt = null;
+                addedAt = new Date(System.currentTimeMillis());
+                removedAt = null;
                 break;
 
             case PENDING_REMOVAL:
-                mRemovedAt = new Date(System.currentTimeMillis());
-                mAddedAt = null;
-                mToken = null;
+                removedAt = new Date(System.currentTimeMillis());
+                addedAt = null;
+                token = null;
                 break;
 
             case NONE:
-                mRemovedAt = null;
-                mAddedAt = null;
-                mToken = null;
+                removedAt = null;
+                addedAt = null;
+                token = null;
                 break;
 
             default:
@@ -198,7 +198,7 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     public boolean hasToken() {
-        return ScTextUtils.isNotBlank(mToken);
+        return ScTextUtils.isNotBlank(token);
     }
 
     @Override
@@ -215,13 +215,13 @@ public class UserAssociation extends Association implements UserHolder {
 
         UserAssociation that = (UserAssociation) o;
 
-        if (mAddedAt != null ? !mAddedAt.equals(that.mAddedAt) : that.mAddedAt != null) {
+        if (addedAt != null ? !addedAt.equals(that.addedAt) : that.addedAt != null) {
             return false;
         }
-        if (mRemovedAt != null ? !mRemovedAt.equals(that.mRemovedAt) : that.mRemovedAt != null) {
+        if (removedAt != null ? !removedAt.equals(that.removedAt) : that.removedAt != null) {
             return false;
         }
-        if (!mUser.equals(that.mUser)) {
+        if (!user.equals(that.user)) {
             return false;
         }
 
@@ -231,9 +231,9 @@ public class UserAssociation extends Association implements UserHolder {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + mUser.hashCode();
-        result = 31 * result + (mAddedAt != null ? mAddedAt.hashCode() : 0);
-        result = 31 * result + (mRemovedAt != null ? mRemovedAt.hashCode() : 0);
+        result = 31 * result + user.hashCode();
+        result = 31 * result + (addedAt != null ? addedAt.hashCode() : 0);
+        result = 31 * result + (removedAt != null ? removedAt.hashCode() : 0);
         return result;
     }
 

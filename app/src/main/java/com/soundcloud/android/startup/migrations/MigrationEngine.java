@@ -64,17 +64,17 @@ public class MigrationEngine {
 
     private static class ApplicableMigrationsPredicate implements Predicate<Migration>{
 
-        private final int mPreviousVersionCode;
-        private final int mCurrentVersion;
+        private final int previousVersionCode;
+        private final int currentVersion;
 
         public ApplicableMigrationsPredicate(int previousVersionCode, int currentVersion) {
-            mPreviousVersionCode = previousVersionCode;
-            mCurrentVersion = currentVersion;
+            this.previousVersionCode = previousVersionCode;
+            this.currentVersion = currentVersion;
         }
 
         @Override
         public boolean apply(Migration input) {
-            return input.getApplicableAppVersionCode() > mPreviousVersionCode && input.getApplicableAppVersionCode() <= mCurrentVersion;
+            return input.getApplicableAppVersionCode() > previousVersionCode && input.getApplicableAppVersionCode() <= currentVersion;
         }
     }
 

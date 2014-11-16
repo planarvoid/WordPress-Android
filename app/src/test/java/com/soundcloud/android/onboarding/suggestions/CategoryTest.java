@@ -3,8 +3,6 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Expect;
 import com.soundcloud.android.R;
-import com.soundcloud.android.onboarding.suggestions.Category;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -21,120 +19,120 @@ import java.util.Set;
 @RunWith(SoundCloudTestRunner.class)
 public class CategoryTest {
 
-    private Category mCategory;
-    private SuggestedUser[] mAllSuggestedUsers;
+    private Category category;
+    private SuggestedUser[] allSuggestedUsers;
 
     @Before
     public void before() {
-        mCategory = new Category();
-        mAllSuggestedUsers = new SuggestedUser[]{new SuggestedUser("soundcloud:users:1"),
+        category = new Category();
+        allSuggestedUsers = new SuggestedUser[]{new SuggestedUser("soundcloud:users:1"),
                 new SuggestedUser("soundcloud:users:2"),
                 new SuggestedUser("soundcloud:users:3")};
-        mCategory.setUsers(Lists.newArrayList(mAllSuggestedUsers));
+        category.setUsers(Lists.newArrayList(allSuggestedUsers));
     }
 
     @Test
     public void shouldBeParcelable(){
-        mCategory.setKey("trapstep");
-        mCategory.setDisplayType(Category.DisplayType.PROGRESS);
+        category.setKey("trapstep");
+        category.setDisplayType(Category.DisplayType.PROGRESS);
 
         Parcel parcel = Parcel.obtain();
-        mCategory.writeToParcel(parcel, 0);
+        category.writeToParcel(parcel, 0);
 
         Category category = new Category(parcel);
-        Expect.expect(category.getKey()).toEqual(mCategory.getKey());
-        Expect.expect(category.getDisplayType()).toEqual(mCategory.getDisplayType());
+        Expect.expect(category.getKey()).toEqual(this.category.getKey());
+        Expect.expect(category.getDisplayType()).toEqual(this.category.getDisplayType());
         /*
         Not implemented by Robolectric
-        expect(category.getUsers()).toEqual(mCategory.getUsers());
+        expect(category.getUsers()).toEqual(category.getUsers());
          */
     }
 
     @Test
     public void shouldReturnAllUsersAsFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet(1L, 2L, 3L);
-        Expect.expect(mCategory.getFollowedUsers(followedSet)).toContainExactly(mAllSuggestedUsers);
+        Expect.expect(category.getFollowedUsers(followedSet)).toContainExactly(allSuggestedUsers);
     }
 
     @Test
     public void shouldReturnPartialUsersAsFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet(2L, 3L);
-        Expect.expect(mCategory.getFollowedUsers(followedSet)).toContainExactly(Arrays.copyOfRange(mAllSuggestedUsers,1,3));
+        Expect.expect(category.getFollowedUsers(followedSet)).toContainExactly(Arrays.copyOfRange(allSuggestedUsers, 1, 3));
     }
 
     @Test
     public void shouldReturnNoUsersAsFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet();
-        Expect.expect(mCategory.getFollowedUsers(followedSet)).toBeEmpty();
+        Expect.expect(category.getFollowedUsers(followedSet)).toBeEmpty();
     }
 
     @Test
     public void shouldReturnAllUsersAsNotFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet();
-        Expect.expect(mCategory.getNotFollowedUsers(followedSet)).toContainExactly(mAllSuggestedUsers);
+        Expect.expect(category.getNotFollowedUsers(followedSet)).toContainExactly(allSuggestedUsers);
     }
 
     @Test
     public void shouldReturnPartialUsersAsNotFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet(2L, 3L);
-        Expect.expect(mCategory.getNotFollowedUsers(followedSet)).toContainExactly(Arrays.copyOfRange(mAllSuggestedUsers,0,1));
+        Expect.expect(category.getNotFollowedUsers(followedSet)).toContainExactly(Arrays.copyOfRange(allSuggestedUsers, 0, 1));
     }
 
     @Test
     public void shouldReturnNoUsersAsNotFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet(1L, 2L, 3L);
-        Expect.expect(mCategory.getNotFollowedUsers(followedSet)).toBeEmpty();
+        Expect.expect(category.getNotFollowedUsers(followedSet)).toBeEmpty();
     }
 
     @Test
     public void isFollowedShouldReturnFalseIfNoUserIsBeingFollowed() {
-        Expect.expect(mCategory.isFollowed(Collections.<Long>emptySet())).toBeFalse();
-        Expect.expect(mCategory.isFollowed(Sets.newSet(100L))).toBeFalse();
+        Expect.expect(category.isFollowed(Collections.<Long>emptySet())).toBeFalse();
+        Expect.expect(category.isFollowed(Sets.newSet(100L))).toBeFalse();
     }
 
     @Test
     public void isFollowedShouldReturnTrueIfAtLeastOneUserIsBeingFollowed() {
-        Expect.expect(mCategory.isFollowed(Sets.newSet(1L, 100L))).toBeTrue();
+        Expect.expect(category.isFollowed(Sets.newSet(1L, 100L))).toBeTrue();
     }
 
     @Test
     public void shouldReturnEmptyMessage() {
-        mCategory.setDisplayType(Category.DisplayType.EMPTY);
+        category.setDisplayType(Category.DisplayType.EMPTY);
         checkEmptyMessage(R.string.suggested_users_section_empty);
     }
 
     @Test
     public void shouldReturnErrorMessage() {
-        mCategory.setDisplayType(Category.DisplayType.ERROR);
+        category.setDisplayType(Category.DisplayType.ERROR);
         checkEmptyMessage(R.string.suggested_users_section_error);
     }
 
     @Test
     public void shouldReturnNullEmptyMessage() {
-        mCategory.setDisplayType(Category.DisplayType.DEFAULT);
-        Expect.expect(mCategory.getEmptyMessage(Robolectric.application.getResources())).toBeNull();
+        category.setDisplayType(Category.DisplayType.DEFAULT);
+        Expect.expect(category.getEmptyMessage(Robolectric.application.getResources())).toBeNull();
     }
 
     @Test
     public void shouldBeFacebookCategoryForFriends() {
-        mCategory.setKey("facebook_friends");
-        Expect.expect(mCategory.isFacebookCategory()).toBeTrue();
+        category.setKey("facebook_friends");
+        Expect.expect(category.isFacebookCategory()).toBeTrue();
     }
 
     @Test
     public void shouldBeFacebookCategoryForLikes() {
-        mCategory.setKey("facebook_likes");
-        Expect.expect(mCategory.isFacebookCategory()).toBeTrue();
+        category.setKey("facebook_likes");
+        Expect.expect(category.isFacebookCategory()).toBeTrue();
     }
 
     @Test
     public void shouldNotBeFacebookCategoryForOtherCategories() {
-        mCategory.setKey("smooth_jazz");
-        Expect.expect(mCategory.isFacebookCategory()).toBeFalse();
+        category.setKey("smooth_jazz");
+        Expect.expect(category.isFacebookCategory()).toBeFalse();
     }
 
     private void checkEmptyMessage(int expectedMessageResId) {
-        final String emptyMessage = mCategory.getEmptyMessage(Robolectric.application.getResources());
+        final String emptyMessage = category.getEmptyMessage(Robolectric.application.getResources());
         Expect.expect(emptyMessage).toEqual(Robolectric.application.getResources().getString(expectedMessageResId));
     }
 

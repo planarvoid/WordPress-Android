@@ -20,34 +20,34 @@ import java.util.List;
 
 public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiComment>> {
 
-    private final List<WeakReference<LoadCommentsListener>> mListenerRefs;
-    private long mTrackId;
+    private final List<WeakReference<LoadCommentsListener>> listenerRefs;
+    private long trackId;
 
     public LoadCommentsTask(PublicCloudAPI api) {
         super(api);
-        mListenerRefs = new ArrayList<WeakReference<LoadCommentsListener>>();
+        listenerRefs = new ArrayList<WeakReference<LoadCommentsListener>>();
     }
 
     public void addListener(LoadCommentsListener listener) {
-        for (WeakReference<LoadCommentsListener> listenerRef : mListenerRefs) {
+        for (WeakReference<LoadCommentsListener> listenerRef : listenerRefs) {
             if (listener != null && listenerRef.get() != null && listenerRef.get() == listener) {
                 return;
             }
         }
-        mListenerRefs.add(new WeakReference<LoadCommentsListener>(listener));
+        listenerRefs.add(new WeakReference<LoadCommentsListener>(listener));
     }
 
     @Override
     protected List<PublicApiComment> doInBackground(Long... params) {
-        mTrackId = params[0];
-        return list(Request.to(Endpoints.TRACK_COMMENTS, mTrackId)
+        trackId = params[0];
+        return list(Request.to(Endpoints.TRACK_COMMENTS, trackId)
                 .add("limit", Consts.MAX_COMMENTS_TO_LOAD));
     }
 
     @Override
     protected void onPostExecute(List<PublicApiComment> comments) {
         if (comments != null) {
-            PublicApiTrack cached = SoundCloudApplication.sModelManager.getTrack(mTrackId);
+            PublicApiTrack cached = SoundCloudApplication.sModelManager.getTrack(trackId);
 
             if (cached != null) {
                 cached.comments = comments;
@@ -56,9 +56,9 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiCom
                 }
             }
 
-            for (WeakReference<LoadCommentsListener> listenerRef : mListenerRefs) {
+            for (WeakReference<LoadCommentsListener> listenerRef : listenerRefs) {
                 if (listenerRef != null && listenerRef.get() != null) {
-                    listenerRef.get().onCommentsLoaded(mTrackId, comments);
+                    listenerRef.get().onCommentsLoaded(trackId, comments);
                 }
             }
         }

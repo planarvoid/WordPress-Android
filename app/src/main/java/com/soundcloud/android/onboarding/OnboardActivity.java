@@ -41,7 +41,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import org.jetbrains.annotations.Nullable;
-import rx.android.IllegalThreadException;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -95,7 +94,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Nullable private SignUpLayout signUp;
     @Nullable private UserDetailsLayout userDetails;
     @Nullable private AcceptTermsLayout acceptTerms;
-    private final Animation.AnimationListener mHideScrollViewListener = new Animation.AnimationListener() {
+    private final Animation.AnimationListener hideScrollViewListener = new Animation.AnimationListener() {
         @Override
         public void onAnimationStart(Animation animation) {
         }
@@ -698,9 +697,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
-            hideView(this, overlayHolder, mHideScrollViewListener);
+            hideView(this, overlayHolder, hideScrollViewListener);
         } else {
-            mHideScrollViewListener.onAnimationEnd(null);
+            hideScrollViewListener.onAnimationEnd(null);
         }
     }
 

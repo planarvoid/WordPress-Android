@@ -14,32 +14,32 @@ import java.util.Map;
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreGenreTest {
 
-    private ExploreGenre mCategory;
+    private ExploreGenre category;
 
     @Test
     public void shouldBeParcelable() {
-        mCategory = new ExploreGenre("Title1");
+        category = new ExploreGenre("Title1");
 
         final Map<String, Link> links = new HashMap<String, Link>();
         links.put("link1", new Link("http://link1"));
         links.put("link2", new Link("http://link2"));
-        mCategory.setLinks(links);
+        category.setLinks(links);
 
         Parcel parcel = Parcel.obtain();
-        mCategory.writeToParcel(parcel, 0);
+        category.writeToParcel(parcel, 0);
 
         ExploreGenre category = ExploreGenre.CREATOR.createFromParcel(parcel);
-        Expect.expect(category.getTitle()).toEqual(mCategory.getTitle());
-        Expect.expect(category.getLinks().get("link1")).toEqual(mCategory.getLinks().get("link1"));
-        Expect.expect(category.getLinks().get("link2")).toEqual(mCategory.getLinks().get("link2"));
+        Expect.expect(category.getTitle()).toEqual(this.category.getTitle());
+        Expect.expect(category.getLinks().get("link1")).toEqual(this.category.getLinks().get("link1"));
+        Expect.expect(category.getLinks().get("link2")).toEqual(this.category.getLinks().get("link2"));
 
     }
 
     @Test
     public void shouldParcelAndUnparcelIntoPopularMusicInstance() {
-        mCategory = ExploreGenre.POPULAR_MUSIC_CATEGORY;
+        category = ExploreGenre.POPULAR_MUSIC_CATEGORY;
         Parcel parcel = Parcel.obtain();
-        mCategory.writeToParcel(parcel, 0);
+        category.writeToParcel(parcel, 0);
 
         ExploreGenre category = ExploreGenre.CREATOR.createFromParcel(parcel);
         Expect.expect(category).toBe(ExploreGenre.POPULAR_MUSIC_CATEGORY);
@@ -48,9 +48,9 @@ public class ExploreGenreTest {
 
     @Test
     public void shouldParcelAndUnparcelIntoPopularAudioInstance() {
-        mCategory = ExploreGenre.POPULAR_AUDIO_CATEGORY;
+        category = ExploreGenre.POPULAR_AUDIO_CATEGORY;
         Parcel parcel = Parcel.obtain();
-        mCategory.writeToParcel(parcel, 0);
+        category.writeToParcel(parcel, 0);
 
         ExploreGenre category = ExploreGenre.CREATOR.createFromParcel(parcel);
         Expect.expect(category).toBe(ExploreGenre.POPULAR_AUDIO_CATEGORY);
@@ -59,13 +59,13 @@ public class ExploreGenreTest {
 
     @Test
     public void shouldGetSuggestedTracksPath(){
-        mCategory = new ExploreGenre("Title1");
+        category = new ExploreGenre("Title1");
 
         final Map<String, Link> links = new HashMap<String, Link>();
         final String href = "http://link1";
         links.put(ExploreGenre.SUGGESTED_TRACKS_LINK_REL, new Link(href));
-        mCategory.setLinks(links);
+        category.setLinks(links);
 
-        Expect.expect(mCategory.getSuggestedTracksPath()).toBe(href);
+        Expect.expect(category.getSuggestedTracksPath()).toBe(href);
     }
 }

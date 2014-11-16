@@ -40,47 +40,47 @@ public class ExploreGenre implements Parcelable {
             return new ExploreGenre[size];
         }
     };
-    private String mTitle;
-    private Map<String, Link> mLinks = Collections.emptyMap();
+    private String title;
+    private Map<String, Link> links = Collections.emptyMap();
 
     public ExploreGenre() { /* For Deserialization */ }
 
     public ExploreGenre(String title) {
-        this.mTitle = title;
+        this.title = title;
     }
 
     @VisibleForTesting
     public ExploreGenre(String title, String suggestedTracksUrl) {
-        this.mTitle = title;
-        mLinks = new HashMap<String, Link>();
-        mLinks.put(SUGGESTED_TRACKS_LINK_REL, new Link(suggestedTracksUrl));
+        this.title = title;
+        links = new HashMap<String, Link>();
+        links.put(SUGGESTED_TRACKS_LINK_REL, new Link(suggestedTracksUrl));
     }
 
     public ExploreGenre(Parcel in) {
         Bundle b = in.readBundle(Link.class.getClassLoader());
-        mTitle = b.getString("title");
-        mLinks = (Map<String, Link>) b.getSerializable("links");
+        title = b.getString("title");
+        links = (Map<String, Link>) b.getSerializable("links");
     }
 
     public String getTitle() {
-        return mTitle;
+        return title;
     }
 
     public void setTitle(String title) {
-        this.mTitle = title;
+        this.title = title;
     }
 
     @JsonProperty("_links")
     public Map<String, Link> getLinks() {
-        return mLinks;
+        return links;
     }
 
     public void setLinks(Map<String, Link> links) {
-        this.mLinks = links;
+        this.links = links;
     }
 
     public String getSuggestedTracksPath() {
-        return mLinks.get(SUGGESTED_TRACKS_LINK_REL).getHref();
+        return links.get(SUGGESTED_TRACKS_LINK_REL).getHref();
     }
 
     @Override
@@ -102,8 +102,8 @@ public class ExploreGenre implements Parcelable {
         // use a bundle to avoid typing problems with the map
         Bundle b = new Bundle();
         b.setClassLoader(Link.class.getClassLoader());
-        b.putString("title", mTitle);
-        b.putSerializable("links", (Serializable) mLinks);
+        b.putString("title", title);
+        b.putSerializable("links", (Serializable) links);
         dest.writeBundle(b);
     }
 }

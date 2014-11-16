@@ -47,30 +47,30 @@ public class StreamStorage {
 
     public final int chunkSize;
 
-    private Context mContext;
-    private File mBaseDir, mCompleteDir, mIncompleteDir;
+    private Context context;
+    private File baseDir, completeDir, incompleteDir;
 
-    private final Map<String, StreamItem> mItems = new HashMap<>();
-    private final Set<String> mConvertingUrls = new HashSet<>();
+    private final Map<String, StreamItem> items = new HashMap<>();
+    private final Set<String> convertingUrls = new HashSet<>();
 
-    private final int mCleanupInterval;
-    private ApplicationProperties mApplicationProperties;
+    private final int cleanupInterval;
+    private ApplicationProperties applicationProperties;
 
     public StreamStorage(Context context, File basedir) {
         this(context, basedir, new ApplicationProperties(context.getResources()), DEFAULT_CHUNK_SIZE, CLEANUP_INTERVAL);
     }
 
     @VisibleForTesting
-    protected StreamStorage(Context context, File basedir, ApplicationProperties applicationProperties,
+    protected StreamStorage(Context context, File baseDir, ApplicationProperties applicationProperties,
                             int chunkSize, int cleanupInterval) {
-        mContext = context;
-        mBaseDir = basedir;
-        mIncompleteDir = new File(mBaseDir, "Incomplete");
-        mCompleteDir = new File(mBaseDir, "Complete");
-        mCleanupInterval = cleanupInterval;
-        mApplicationProperties = applicationProperties;
-        mkdirs(mIncompleteDir);
-        mkdirs(mCompleteDir);
+        this.context = context;
+        this.baseDir = baseDir;
+        incompleteDir = new File(baseDir, "Incomplete");
+        completeDir = new File(baseDir, "Complete");
+        this.cleanupInterval = cleanupInterval;
+        this.applicationProperties = applicationProperties;
+        mkdirs(incompleteDir);
+        mkdirs(completeDir);
 
         this.chunkSize = chunkSize;
     }
@@ -78,7 +78,7 @@ public class StreamStorage {
     public synchronized boolean storeMetadata(StreamItem item) {
         verifyMetadata(item);
 
-        mItems.put(item.urlHash, item);
+        items.put(item.urlHash, item);
         try {
             File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
             if (indexFile.exists() && !indexFile.delete()) {
@@ -98,14 +98,14 @@ public class StreamStorage {
     @NotNull
     StreamItem getMetadata(String url) {
         String hashed = StreamItem.urlHash(url);
-        if (!mItems.containsKey(hashed)) {
-            mItems.put(hashed, readMetadata(url));
+        if (!items.containsKey(hashed)) {
+            items.put(hashed, readMetadata(url));
         }
-        return mItems.get(hashed);
+        return items.get(hashed);
     }
 
     public synchronized boolean removeMetadata(String url) {
-        return mItems.remove(StreamItem.urlHash(url)) != null;
+        return items.remove(StreamItem.urlHash(url)) != null;
     }
 
     public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
@@ -191,32 +191,32 @@ public class StreamStorage {
             new CompleteFileTask(item.getContentLength(), item.etag(), chunkSize, item.downloadedChunks) {
                 @Override
                 protected void onPreExecute() {
-                    mConvertingUrls.add(url);
+                    convertingUrls.add(url);
                 }
 
                 @Override
                 protected void onPostExecute(Boolean success) {
                     if (success) {
                         removeIncompleteDataForItem(url);
-                        new UpdateMetadataTask(mContext.getContentResolver()).execute(item);
+                        new UpdateMetadataTask(context.getContentResolver()).execute(item);
                     } else {
                         removeAllDataForItem(url);
                     }
-                    mConvertingUrls.remove(url);
+                    convertingUrls.remove(url);
                 }
             }.execute(incompleteFile, completeFileForUrl(url));
         }
 
-        if (mCleanupInterval > 0) {
+        if (cleanupInterval > 0) {
             //Update the number of writes, cleanup if necessary
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             final int currentCount = prefs.getInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
 
             prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount).apply();
 
-            if (currentCount >= mCleanupInterval) {
+            if (currentCount >= cleanupInterval) {
                 if (cleanup(calculateUsableSpace())) {
-                    if (mApplicationProperties.isDevBuildRunningOnDevice()) {
+                    if (applicationProperties.isDevBuildRunningOnDevice()) {
                         // print file stats again
                         calculateUsableSpace();
                     }
@@ -261,15 +261,15 @@ public class StreamStorage {
     }
 
     /* package */ File completeFileForUrl(String url) {
-        return new File(mCompleteDir, StreamItem.urlHash(url));
+        return new File(completeDir, StreamItem.urlHash(url));
     }
 
     /* package */ File incompleteFileForUrl(String url) {
-        return new File(mIncompleteDir, StreamItem.urlHash(url) + "." + CHUNKS_EXTENSION);
+        return new File(incompleteDir, StreamItem.urlHash(url) + "." + CHUNKS_EXTENSION);
     }
 
     /* package */ File incompleteIndexFileForUrl(String url) {
-        return new File(mIncompleteDir, StreamItem.urlHash(url) + "." + INDEX_EXTENSION);
+        return new File(incompleteDir, StreamItem.urlHash(url) + "." + INDEX_EXTENSION);
     }
 
     private boolean appendToFile(ByteBuffer data, File incompleteFile) throws IOException {
@@ -321,7 +321,7 @@ public class StreamStorage {
         if (indexFile.exists()) {
             indexDeleted = indexFile.delete();
         }
-        mItems.remove(StreamItem.urlHash(url));
+        items.remove(StreamItem.urlHash(url));
         return fileDeleted && indexDeleted;
     }
 
@@ -372,7 +372,7 @@ public class StreamStorage {
         long totalSpace = getTotalSpace();
 
         int percentageOfExternal = PreferenceManager
-                .getDefaultSharedPreferences(mContext)
+                .getDefaultSharedPreferences(context)
                 .getInt(GeneralSettings.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
 
         if (percentageOfExternal < 0) {
@@ -395,7 +395,7 @@ public class StreamStorage {
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private synchronized boolean cleanup(long usableSpace) {
-        if (!mConvertingUrls.isEmpty()) {
+        if (!convertingUrls.isEmpty()) {
 
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
@@ -403,7 +403,7 @@ public class StreamStorage {
             return false;
         }
         // reset counter
-        PreferenceManager.getDefaultSharedPreferences(mContext)
+        PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0)
                 .apply();
@@ -426,11 +426,11 @@ public class StreamStorage {
                     String name = f.getName();
                     if (name.endsWith(CHUNKS_EXTENSION)) {
                         String hash = name.substring(0, name.indexOf('.'));
-                        File indexFile = new File(mIncompleteDir, hash + "." + INDEX_EXTENSION);
+                        File indexFile = new File(incompleteDir, hash + "." + INDEX_EXTENSION);
                         if (indexFile.exists() && indexFile.delete()) {
                             Log.d(LOG_TAG, "deleted " + indexFile);
                             // invalidate cache
-                            mItems.remove(hash);
+                            items.remove(hash);
                         }
                     }
                 } else {
@@ -448,12 +448,12 @@ public class StreamStorage {
 
     private List<File> allFiles(Comparator<File> comparator) {
         final List<File> files = new ArrayList<File>();
-        File[] chunks = IOUtils.nullSafeListFiles(mIncompleteDir, extension(CHUNKS_EXTENSION));
+        File[] chunks = IOUtils.nullSafeListFiles(incompleteDir, extension(CHUNKS_EXTENSION));
         if (chunks.length > 0) {
             files.addAll(Arrays.asList(chunks));
         }
 
-        File[] complete = IOUtils.nullSafeListFiles(mCompleteDir, null);
+        File[] complete = IOUtils.nullSafeListFiles(completeDir, null);
         if (complete.length > 0) {
             files.addAll(Arrays.asList(complete));
         }
@@ -467,12 +467,12 @@ public class StreamStorage {
 
     /* package */ long getUsedSpace() {
         long currentlyUsedSpace = 0;
-        File[] complete = IOUtils.nullSafeListFiles(mCompleteDir, null);
+        File[] complete = IOUtils.nullSafeListFiles(completeDir, null);
         for (File f : complete) {
             currentlyUsedSpace += f.length();
         }
 
-        File[] incomplete = IOUtils.nullSafeListFiles(mIncompleteDir, null);
+        File[] incomplete = IOUtils.nullSafeListFiles(incompleteDir, null);
         for (File f : incomplete) {
             currentlyUsedSpace += f.length();
         }
@@ -480,15 +480,15 @@ public class StreamStorage {
     }
 
     /* package */ long getSpaceLeft() {
-        return IOUtils.getSpaceLeft(mBaseDir);
+        return IOUtils.getSpaceLeft(baseDir);
     }
 
     /* package */ long getTotalSpace() {
-        return IOUtils.getTotalSpace(mBaseDir);
+        return IOUtils.getTotalSpace(baseDir);
     }
 
     /* package */ void verifyMetadata(StreamItem item) {
-        StreamItem existing = mItems.get(item.urlHash);
+        StreamItem existing = items.get(item.urlHash);
         if (existing != null &&
                 existing.etag() != null &&
                 !existing.etag().equals(item.etag())) {

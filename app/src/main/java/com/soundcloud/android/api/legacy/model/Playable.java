@@ -78,8 +78,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @JsonView(Views.Full.class) @NotNull public Sharing sharing = Sharing.UNDEFINED;  //  public | private
 
     // app fields
-    @JsonIgnore protected CharSequence mElapsedTime;
-    @JsonIgnore protected String mArtworkUri;
+    @JsonIgnore protected CharSequence elapsedTime;
+    @JsonIgnore protected String artworkUri;
 
     public Playable() {
     }
@@ -190,15 +190,15 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     }
 
     public CharSequence getTimeSinceCreated(Context context) {
-        if (mElapsedTime == null) {
+        if (elapsedTime == null) {
             refreshTimeSinceCreated(context);
         }
-        return mElapsedTime;
+        return elapsedTime;
     }
 
     public void refreshTimeSinceCreated(Context context) {
         if (created_at != null) {
-            mElapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
+            elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
         }
     }
 
@@ -243,8 +243,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         b.putInt("reposts_count", reposts_count);
         b.putString("tag_list", tag_list);
         b.putString("sharing", sharing.value());
-        b.putCharSequence("elapsedTime", mElapsedTime);
-        b.putString("list_artwork_uri", mArtworkUri);
+        b.putCharSequence("elapsedTime", elapsedTime);
+        b.putString("list_artwork_uri", artworkUri);
         return b;
     }
 
@@ -281,8 +281,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         reposts_count = b.getInt("reposts_count");
         tag_list = b.getString("tag_list");
         sharing = Sharing.from(b.getString("sharing"));
-        mElapsedTime = b.getCharSequence("elapsedTime");
-        mArtworkUri = b.getString("list_artwork_uri");
+        elapsedTime = b.getCharSequence("elapsedTime");
+        artworkUri = b.getString("list_artwork_uri");
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
@@ -383,8 +383,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
             embeddable_by = updatedItem.embeddable_by;
 
             // these will get refreshed
-            mElapsedTime = null;
-            mArtworkUri = null;
+            elapsedTime = null;
+            artworkUri = null;
 
             last_updated = updatedItem.last_updated;
         }

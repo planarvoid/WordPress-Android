@@ -194,7 +194,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
     }
 
     private class InternalViewPagerListener implements ViewPager.OnPageChangeListener {
-        private int mScrollState;
+        private int scrollState;
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -219,7 +219,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
         @Override
         public void onPageScrollStateChanged(int state) {
-            mScrollState = state;
+            scrollState = state;
 
             if (viewPagerPageChangeListener != null) {
                 viewPagerPageChangeListener.onPageScrollStateChanged(state);
@@ -228,7 +228,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
         @Override
         public void onPageSelected(int position) {
-            if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+            if (scrollState == ViewPager.SCROLL_STATE_IDLE) {
                 tabStrip.onViewPagerPageChanged(position, 0f);
                 scrollToTab(position, 0);
             }

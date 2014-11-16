@@ -26,7 +26,7 @@ public abstract class Association extends PublicApiResource implements PlayableH
     public @Nullable PublicApiUser owner;
     public int associationType;
     public Date created_at;
-    protected CharSequence mElapsedTime;
+    protected CharSequence elapsedTime;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
     public Association() {
@@ -101,15 +101,15 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
-        if (mElapsedTime == null) {
-            mElapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
+        if (elapsedTime == null) {
+            elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
         }
-        return mElapsedTime;
+        return elapsedTime;
     }
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        mElapsedTime = null;
+        elapsedTime = null;
     }
 
     @Override

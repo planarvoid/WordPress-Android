@@ -16,16 +16,16 @@ import java.util.List;
 class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
     static final long MAX_MD5_CHECK_SIZE = 5 * 1024 * 1024; // don't md5 check files over 5MB
 
-    private final long mContentLength;
-    private final String mEtag;
-    private final List<Integer> mIndexes;
-    private final int mChunkSize;
+    private final long length;
+    private final String etag;
+    private final List<Integer> indexes;
+    private final int chunkSize;
 
     public CompleteFileTask(long length, String etag, int chunkSize, List<Integer> indexes) {
-        mIndexes = indexes;
-        mChunkSize = chunkSize;
-        mContentLength = length;
-        mEtag = etag;
+        this.indexes = indexes;
+        this.chunkSize = chunkSize;
+        this.length = length;
+        this.etag = etag;
     }
 
     @Override
@@ -47,16 +47,16 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
             return false;
         }
         // optimization - if chunks have been written in order, just move and truncate file
-        else if (isOrdered(mIndexes)) {
+        else if (isOrdered(indexes)) {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "chunk file is already in order, moving");
             }
-            return move(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
+            return move(chunkFile, completeFile) && checkEtag(completeFile, etag);
         } else {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
                 Log.d(LOG_TAG, "reassembling chunkfile");
             }
-            return reassembleFile(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
+            return reassembleFile(chunkFile, completeFile) && checkEtag(completeFile, etag);
         }
     }
 
@@ -76,9 +76,9 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
 
     private Boolean move(File chunkFile, File completeFile) {
         if (chunkFile.renameTo(completeFile)) {
-            if (completeFile.length() != mContentLength) {
+            if (completeFile.length() != length) {
                 try {
-                    new RandomAccessFile(completeFile, "rw").setLength(mContentLength);
+                    new RandomAccessFile(completeFile, "rw").setLength(length);
                     return true;
                 } catch (IOException e) {
                     Log.w(LOG_TAG, e);
@@ -109,14 +109,14 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
             fos = new FileOutputStream(completeFile);
             raf = new RandomAccessFile(chunkFile, "r");
 
-            byte[] buffer = new byte[mChunkSize];
-            for (int chunkNumber = 0; chunkNumber < mIndexes.size(); chunkNumber++) {
-                int offset = mChunkSize * mIndexes.indexOf(chunkNumber);
+            byte[] buffer = new byte[chunkSize];
+            for (int chunkNumber = 0; chunkNumber < indexes.size(); chunkNumber++) {
+                int offset = chunkSize * indexes.indexOf(chunkNumber);
                 raf.seek(offset);
-                raf.readFully(buffer, 0, mChunkSize);
+                raf.readFully(buffer, 0, chunkSize);
 
-                if (chunkNumber == mIndexes.size() - 1) {
-                    fos.write(buffer, 0, (int) (mContentLength % mChunkSize));
+                if (chunkNumber == indexes.size() - 1) {
+                    fos.write(buffer, 0, (int) (length % chunkSize));
                 } else {
                     fos.write(buffer);
                 }

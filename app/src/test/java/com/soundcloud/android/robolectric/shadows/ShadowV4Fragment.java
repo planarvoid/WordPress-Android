@@ -19,7 +19,7 @@ import java.io.PrintWriter;
 @Implements(Fragment.class)
 public class ShadowV4Fragment extends ShadowFragment {
 
-    private View mView;
+    private View view;
 
     @Implementation
     public boolean isAdded() {
@@ -35,7 +35,7 @@ public class ShadowV4Fragment extends ShadowFragment {
     }
     @Implementation
     public View getView() {
-        return mView;
+        return view;
     }
 
     @Implementation
@@ -44,7 +44,7 @@ public class ShadowV4Fragment extends ShadowFragment {
     }
 
     public void setView(View view){
-        mView = view;
+        this.view = view;
     }
 
     @Implements(LoaderManager.class)

@@ -35,62 +35,62 @@ public class Category extends ScModel {
     };
     private static final String FACEBOOK_FRIENDS = "facebook_friends";
     private static final String FACEBOOK_LIKES = "facebook_likes";
-    private String mKey;
-    private List<SuggestedUser> mUsers = Collections.emptyList();
-    private DisplayType mDisplayType = DisplayType.DEFAULT;
+    private String key;
+    private List<SuggestedUser> users = Collections.emptyList();
+    private DisplayType displayType = DisplayType.DEFAULT;
 
     public Category() { /* for deserialization */ }
 
     public Category(DisplayType displayType) {
-        mDisplayType = displayType;
+        this.displayType = displayType;
     }
 
     public Category(Parcel parcel) {
         super(parcel);
-        mKey = parcel.readString();
-        mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
-        mDisplayType = DisplayType.values()[parcel.readInt()];
+        key = parcel.readString();
+        users = parcel.readArrayList(SuggestedUser.class.getClassLoader());
+        displayType = DisplayType.values()[parcel.readInt()];
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeString(mKey);
-        dest.writeList(mUsers);
-        dest.writeInt(mDisplayType.ordinal());
+        dest.writeString(key);
+        dest.writeList(users);
+        dest.writeInt(displayType.ordinal());
     }
 
     public DisplayType getDisplayType() {
-        return mDisplayType;
+        return displayType;
     }
 
     public void setDisplayType(DisplayType displayType) {
-        mDisplayType = displayType;
+        this.displayType = displayType;
     }
 
     public String getKey() {
-        return mKey;
+        return key;
     }
 
     public void setKey(String key) {
-        this.mKey = key;
+        this.key = key;
     }
 
     public String getName(Context context) {
-        int resId = context.getResources().getIdentifier("category_" + mKey, "string", context.getPackageName());
-        return resId == 0 ? mKey : context.getString(resId);
+        int resId = context.getResources().getIdentifier("category_" + key, "string", context.getPackageName());
+        return resId == 0 ? key : context.getString(resId);
     }
 
     public List<SuggestedUser> getUsers() {
-        return mUsers;
+        return users;
     }
 
     public void setUsers(List<SuggestedUser> users) {
-        this.mUsers = users;
+        this.users = users;
     }
 
     public boolean isFollowed(Set<Long> userFollowings) {
-        for (SuggestedUser user : mUsers) {
+        for (SuggestedUser user : users) {
             if (userFollowings.contains(user.getId())) {
                 return true;
             }
@@ -107,20 +107,20 @@ public class Category extends ScModel {
     }
 
     public boolean isErrorOrEmpty() {
-        return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.ERROR;
+        return displayType == DisplayType.EMPTY || displayType == DisplayType.ERROR;
     }
 
     public boolean isError() {
-        return mDisplayType == DisplayType.ERROR;
+        return displayType == DisplayType.ERROR;
     }
 
     public boolean isProgressOrEmpty() {
-        return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.PROGRESS;
+        return displayType == DisplayType.EMPTY || displayType == DisplayType.PROGRESS;
     }
 
     public boolean isFacebookCategory() {
         // Note! These keys are defined by the server (but they shouldn't change)
-        return mKey.equals(FACEBOOK_FRIENDS) || mKey.equals(FACEBOOK_LIKES);
+        return key.equals(FACEBOOK_FRIENDS) || key.equals(FACEBOOK_LIKES);
     }
 
     public String getEmptyMessage(Resources resources) {
@@ -133,7 +133,7 @@ public class Category extends ScModel {
     @Override
     public String toString() {
         return "Category{" +
-                "mKey='" + mKey + '\'' +
+                "key='" + key + '\'' +
                 '}';
     }
 
@@ -151,7 +151,7 @@ public class Category extends ScModel {
 
     private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
         List<SuggestedUser> resultSuggestedUsers = new ArrayList(userFollowings.size());
-        for (SuggestedUser user : mUsers) {
+        for (SuggestedUser user : users) {
             final boolean contains = userFollowings.contains(user.getId());
             if ((isFollowing && contains) || (!isFollowing && !contains)) {
                 resultSuggestedUsers.add(user);

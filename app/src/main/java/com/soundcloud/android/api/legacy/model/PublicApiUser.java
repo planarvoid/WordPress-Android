@@ -133,7 +133,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Override
     public void setId(long id) {
         super.setId(id);
-        mURN = Urn.forUser(id);
+        urn = Urn.forUser(id);
     }
 
     public PublicApiUser updateFromCursor(Cursor cursor) {

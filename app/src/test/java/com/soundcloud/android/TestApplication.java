@@ -21,7 +21,7 @@ import java.util.List;
 public class TestApplication extends SoundCloudApplication {
     public final Token token;
     public final List<Intent> broadcasts = new ArrayList<Intent>();
-    private PublicApiWrapper mCloudApi;
+    private PublicApiWrapper oldCloudApi;
 
     public TestApplication() {
         this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
@@ -35,12 +35,12 @@ public class TestApplication extends SoundCloudApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        mCloudApi = PublicApiWrapper.getInstance(this);
-        mCloudApi.setToken(token);
+        oldCloudApi = PublicApiWrapper.getInstance(this);
+        oldCloudApi.setToken(token);
     }
 
     public PublicCloudAPI getCloudAPI() {
-        return mCloudApi;
+        return oldCloudApi;
     }
 
     @Override

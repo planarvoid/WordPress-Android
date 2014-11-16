@@ -51,7 +51,7 @@ public class ConnectionListLayout extends LinearLayout {
     protected void handleDataChanged() {
         removeAllViews();
 
-        if (!listAdapter.mFailed) {
+        if (!listAdapter.failed) {
             for (int i = 0; i < listAdapter.getCount(); i++) {
                 if (listAdapter.getItem(i).service().enabled) {
                     View item = listAdapter.getView(i, null, this);
@@ -121,8 +121,8 @@ public class ConnectionListLayout extends LinearLayout {
 
     public static class Adapter extends BaseAdapter {
         private final PublicCloudAPI api;
-        private List<Connection> mConnections;
-        private boolean mFailed;
+        private List<Connection> connections;
+        private boolean failed;
 
         public Adapter(PublicCloudAPI api) {
             this.api = api;
@@ -130,12 +130,12 @@ public class ConnectionListLayout extends LinearLayout {
 
         @Override
         public int getCount() {
-            return mConnections == null ? 0 : mConnections.size();
+            return connections == null ? 0 : connections.size();
         }
 
         @Override
         public Connection getItem(int position) {
-            return mConnections.get(position);
+            return connections.get(position);
         }
 
         @Override
@@ -153,9 +153,9 @@ public class ConnectionListLayout extends LinearLayout {
         }
 
         public void setConnections(Set<Connection> connections, boolean addUnused) {
-            mConnections = addUnused ? Connection.addUnused(connections) : (List<Connection>) connections;
+            this.connections = addUnused ? Connection.addUnused(connections) : (List<Connection>) connections;
             notifyDataSetChanged();
-            mFailed = false;
+            failed = false;
         }
 
         @Override
@@ -193,7 +193,7 @@ public class ConnectionListLayout extends LinearLayout {
         }
 
         public Adapter loadIfNecessary(Context context) {
-            if (mFailed || mConnections == null) {
+            if (failed || connections == null) {
                 load(context);
             }
             return this;
@@ -215,7 +215,7 @@ public class ConnectionListLayout extends LinearLayout {
                             if (connections1 != null) {
                                 setConnections(connections1, true);
                             } else {
-                                mFailed = true;
+                                failed = true;
                                 notifyDataSetChanged();
                             }
                         }

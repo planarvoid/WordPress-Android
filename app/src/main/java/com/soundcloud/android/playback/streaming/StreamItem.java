@@ -51,14 +51,14 @@ public class StreamItem implements Parcelable {
     public final String urlHash;
     public final long trackId;
     private final URL url;
-    private boolean mUnavailable;  // http status 402, 404, 410
-    private int mHttpErrorStatus;
-    private long mContentLength;
-    private URL mRedirectedUrl;
-    private String mEtag;  // audio content ETag
-    private long mExpires; // expiration time of the redirect link
-    private int mBitrate;
-    private File mCachedFile;
+    private boolean unavailable;  // http status 402, 404, 410
+    private int httpErrorStatus;
+    private long contentLength;
+    private URL redirectedUrl;
+    private String etag;  // audio content ETag
+    private long expires; // expiration time of the redirect link
+    private int bitrate;
+    private File cachedFile;
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) {
@@ -78,14 +78,14 @@ public class StreamItem implements Parcelable {
 
     public StreamItem(String url, File f) {
         this(url);
-        mContentLength = f.length();
-        mCachedFile = f;
+        contentLength = f.length();
+        cachedFile = f;
     }
 
     /* package */ StreamItem(String url, long length, String etag) {
         this(url);
-        mContentLength = length;
-        mEtag = etag;
+        contentLength = length;
+        this.etag = etag;
     }
 
     public StreamItem(Parcel in) throws MalformedURLException {
@@ -93,24 +93,24 @@ public class StreamItem implements Parcelable {
         url = new URL(data.getString("url"));
         trackId = getTrackId(url.toString());
         urlHash = urlHash(url.toString());
-        mRedirectedUrl = new URL(data.getString("redirectedUrl"));
-        mEtag = data.getString("etag");
-        mUnavailable = data.getBoolean("unavailable");
-        mContentLength = data.getLong("contentLength");
-        mExpires = data.getLong("expires");
+        redirectedUrl = new URL(data.getString("redirectedUrl"));
+        etag = data.getString("etag");
+        unavailable = data.getBoolean("unavailable");
+        contentLength = data.getLong("contentLength");
+        expires = data.getLong("expires");
     }
 
     public StreamItem initializeFromStream(Stream s) {
         try {
-            mRedirectedUrl = new URL(s.streamUrl);
+            redirectedUrl = new URL(s.streamUrl);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
-        mContentLength = s.contentLength;
-        mEtag = s.eTag;
-        mExpires = s.expires;
-        mBitrate = s.bitRate;
-        mHttpErrorStatus = 0;
+        contentLength = s.contentLength;
+        etag = s.eTag;
+        expires = s.expires;
+        bitrate = s.bitRate;
+        httpErrorStatus = 0;
         return this;
     }
 
@@ -119,38 +119,38 @@ public class StreamItem implements Parcelable {
     }
 
     public String etag() {
-        if (mEtag == null && mCachedFile != null && mCachedFile.exists()) {
-            mEtag = '"' + IOUtils.md5(mCachedFile) + '"';
+        if (etag == null && cachedFile != null && cachedFile.exists()) {
+            etag = '"' + IOUtils.md5(cachedFile) + '"';
         }
-        return mEtag;
+        return etag;
     }
 
     public URL redirectUrl() {
-        return mRedirectedUrl;
+        return redirectedUrl;
     }
 
     public boolean isRedirectValid() {
-        return mContentLength > 0
-                && mRedirectedUrl != null;
+        return contentLength > 0
+                && redirectedUrl != null;
                 /* && !isRedirectExpired();  */ // unreliable, don't use
     }
 
     public boolean markUnavailable(int statusCode) {
-        mHttpErrorStatus = statusCode;
-        mUnavailable = PublicApiWrapper.isStatusCodeClientError(statusCode);
-        return mUnavailable;
+        httpErrorStatus = statusCode;
+        unavailable = PublicApiWrapper.isStatusCodeClientError(statusCode);
+        return unavailable;
     }
 
     public boolean invalidateRedirectUrl(int statusCode) {
-        mHttpErrorStatus = statusCode;
+        httpErrorStatus = statusCode;
         if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
-            mRedirectedUrl = null;
+            redirectedUrl = null;
         }
-        return mRedirectedUrl == null;
+        return redirectedUrl == null;
     }
 
     public int getHttpError() {
-        return mHttpErrorStatus;
+        return httpErrorStatus;
     }
 
     /**
@@ -160,15 +160,15 @@ public class StreamItem implements Parcelable {
      * @return true if the redirect is no longer valid.
      */
     public boolean isRedirectExpired() {
-        return System.currentTimeMillis() > mExpires;
+        return System.currentTimeMillis() > expires;
     }
 
     public long getContentLength() {
-        return mContentLength;
+        return contentLength;
     }
 
     public int getBitrate() {
-        return mBitrate;
+        return bitrate;
     }
 
     public Range byteRange() {
@@ -180,7 +180,7 @@ public class StreamItem implements Parcelable {
     }
 
     public boolean isAvailable() {
-        return !mUnavailable;
+        return !unavailable;
     }
 
     public static String urlHash(String url) {
@@ -211,13 +211,13 @@ public class StreamItem implements Parcelable {
         final StringBuilder sb = new StringBuilder(500)
                 .append("StreamItem{url='").append(url).append('\'')
                 .append(", urlHash='").append(urlHash).append('\'')
-                .append(", unavailable=").append(mUnavailable)
-                .append(", mContentLength=").append(mContentLength)
-                .append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'')
-                .append(", mEtag='").append(mEtag).append('\'')
-                .append(", mExpires=").append(mExpires == 0 ? "" : new Date(mExpires))
+                .append(", unavailable=").append(unavailable)
+                .append(", contentLength=").append(contentLength)
+                .append(", redirectedUrl='").append(redirectedUrl).append('\'')
+                .append(", etag='").append(etag).append('\'')
+                .append(", expires=").append(expires == 0 ? "" : new Date(expires))
                 .append(", chunksToDownload=").append(missingChunks)
-                .append(", httpStatus=").append(mHttpErrorStatus)
+                .append(", httpStatus=").append(httpErrorStatus)
                 .append(", downloadedChunks=").append(downloadedChunks)
                 .append('}');
         return sb.toString();
@@ -277,11 +277,11 @@ public class StreamItem implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         Bundle data = new Bundle();
         data.putString("url", url.toString());
-        data.putString("redirectedUrl", mRedirectedUrl.toString());
-        data.putString("etag", mEtag);
-        data.putBoolean("unavailable", mUnavailable);
-        data.putLong("contentLength", mContentLength);
-        data.putLong("expires", mExpires);
+        data.putString("redirectedUrl", redirectedUrl.toString());
+        data.putString("etag", etag);
+        data.putBoolean("unavailable", unavailable);
+        data.putLong("contentLength", contentLength);
+        data.putLong("expires", expires);
         // TODO index + downloaded chunks
         dest.writeBundle(data);
     }
@@ -293,8 +293,8 @@ public class StreamItem implements Parcelable {
 
     /* package */ void write(DataOutputStream dos) throws IOException {
         dos.writeUTF(url.toString());
-        dos.writeLong(mContentLength);
-        dos.writeUTF(mEtag == null ? "" : mEtag);
+        dos.writeLong(contentLength);
+        dos.writeUTF(etag == null ? "" : etag);
         dos.writeInt(downloadedChunks.size());
         for (Integer index : downloadedChunks) {
             dos.writeInt(index);
@@ -308,8 +308,8 @@ public class StreamItem implements Parcelable {
             throw new IOException("no url stored");
         }
         StreamItem item = new StreamItem(url);
-        item.mContentLength = dis.readLong();
-        item.mEtag = dis.readUTF();
+        item.contentLength = dis.readLong();
+        item.etag = dis.readUTF();
         int n = dis.readInt();
         for (int i = 0; i < n; i++) {
             item.downloadedChunks.add(dis.readInt());

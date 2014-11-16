@@ -125,7 +125,7 @@ public class PublicApiPlaylist extends Playable {
     @Override
     public void setId(long id) {
         super.setId(id);
-        mURN = Urn.forPlaylist(id);
+        urn = Urn.forPlaylist(id);
     }
 
     @Override

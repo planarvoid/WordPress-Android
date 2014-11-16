@@ -20,7 +20,7 @@ import java.util.List;
 public class CategoryGroupTest {
 
     public static final String KEY = "key1";
-    private CategoryGroup mCategoryGroup;
+    private CategoryGroup categoryGroup;
 
     @Mock
     Category category1;
@@ -32,7 +32,7 @@ public class CategoryGroupTest {
 
     @Before
     public void before() {
-        mCategoryGroup = new CategoryGroup(KEY);
+        categoryGroup = new CategoryGroup(KEY);
         suggestedUser1 = new SuggestedUser("soundcloud:users:1");
         suggestedUser2 = new SuggestedUser("soundcloud:users:2");
         suggestedUser3 = new SuggestedUser("soundcloud:users:3");
@@ -42,7 +42,7 @@ public class CategoryGroupTest {
     public void shouldImplementEqualsOnKey() {
         CategoryGroup categoryGroup = new CategoryGroup(KEY);
         categoryGroup.setCategories(Lists.newArrayList(new Category()));
-        Expect.expect(mCategoryGroup).toEqual(categoryGroup);
+        Expect.expect(this.categoryGroup).toEqual(categoryGroup);
     }
 
     @Test
@@ -51,16 +51,16 @@ public class CategoryGroupTest {
         Mockito.when(category1.getUsers()).thenReturn(suggestedUsers);
         Mockito.when(category2.getUsers()).thenReturn(suggestedUsers);
 
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
-        Expect.expect(mCategoryGroup.getNonEmptyCategories()).toContainExactly(category1, category2);
+        categoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        Expect.expect(categoryGroup.getNonEmptyCategories()).toContainExactly(category1, category2);
     }
 
     @Test
     public void shouldReturnAllSuggestedUsers() throws CreateModelException {
         Mockito.when(category1.getUsers()).thenReturn(ModelFixtures.create(SuggestedUser.class, 2));
         Mockito.when(category2.getUsers()).thenReturn(ModelFixtures.create(SuggestedUser.class, 2));
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
-        Expect.expect(mCategoryGroup.getAllSuggestedUsers().size()).toBe(4);
+        categoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        Expect.expect(categoryGroup.getAllSuggestedUsers().size()).toBe(4);
     }
 
     @Test
@@ -69,8 +69,8 @@ public class CategoryGroupTest {
         Mockito.when(category1.getUsers()).thenReturn(suggestedUsers);
         Mockito.when(category2.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
 
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
-        Expect.expect(mCategoryGroup.getNonEmptyCategories()).toContainExactly(category1);
+        categoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        Expect.expect(categoryGroup.getNonEmptyCategories()).toContainExactly(category1);
     }
 
     @Test
@@ -78,22 +78,22 @@ public class CategoryGroupTest {
         Mockito.when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
         Mockito.when(category2.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
 
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
-        Expect.expect(mCategoryGroup.isEmpty()).toBeTrue();
+        categoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        Expect.expect(categoryGroup.isEmpty()).toBeTrue();
     }
 
     @Test
     public void shouldNotBeEmptyWithProgressCategory() throws CreateModelException {
         Mockito.when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, Category.progress()));
-        Expect.expect(mCategoryGroup.isEmpty()).toBeFalse();
+        categoryGroup.setCategories(Lists.newArrayList(category1, Category.progress()));
+        Expect.expect(categoryGroup.isEmpty()).toBeFalse();
     }
 
     @Test
     public void shouldNotBeEmptyWithErrorCategory() throws CreateModelException {
         Mockito.when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, Category.error()));
-        Expect.expect(mCategoryGroup.isEmpty()).toBeFalse();
+        categoryGroup.setCategories(Lists.newArrayList(category1, Category.error()));
+        Expect.expect(categoryGroup.isEmpty()).toBeFalse();
     }
 
     @Test
@@ -104,8 +104,8 @@ public class CategoryGroupTest {
 
         Mockito.when(category1.getUsers()).thenReturn(category1Users);
         Mockito.when(category2.getUsers()).thenReturn(category2Users);
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
-        mCategoryGroup.removeDuplicateUsers(new HashSet<SuggestedUser>());
+        categoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        categoryGroup.removeDuplicateUsers(new HashSet<SuggestedUser>());
         Expect.expect(category2Users).toContainExactly(suggestedUser3);
     }
 
@@ -116,11 +116,11 @@ public class CategoryGroupTest {
 
         Mockito.when(category1.getUsers()).thenReturn(category1Users);
         Mockito.when(category2.getUsers()).thenReturn(category2Users);
-        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        categoryGroup.setCategories(Lists.newArrayList(category1, category2));
 
-        mCategoryGroup.removeDuplicateUsers(new HashSet<SuggestedUser>());
+        categoryGroup.removeDuplicateUsers(new HashSet<SuggestedUser>());
         Expect.expect(category2Users).toBeEmpty();
-        Expect.expect(mCategoryGroup.getNonEmptyCategories()).not.toContain(category2);
+        Expect.expect(categoryGroup.getNonEmptyCategories()).not.toContain(category2);
     }
 
     @Test
@@ -130,13 +130,13 @@ public class CategoryGroupTest {
 
         Mockito.when(category1.getUsers()).thenReturn(category1Users);
         Mockito.when(category2.getUsers()).thenReturn(category2Users);
-        mCategoryGroup.setCategories(Lists.newArrayList(category1));
+        categoryGroup.setCategories(Lists.newArrayList(category1));
 
         CategoryGroup categoryGroup2 = new CategoryGroup("Key2");
         categoryGroup2.setCategories(Lists.newArrayList(category2));
 
         final HashSet<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<SuggestedUser>();
-        mCategoryGroup.removeDuplicateUsers(uniqueSuggestedUsersSet);
+        categoryGroup.removeDuplicateUsers(uniqueSuggestedUsersSet);
         categoryGroup2.removeDuplicateUsers(uniqueSuggestedUsersSet);
         Expect.expect(category2Users).toContainExactly(suggestedUser3);
 

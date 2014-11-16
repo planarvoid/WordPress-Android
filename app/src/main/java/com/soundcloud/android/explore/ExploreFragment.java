@@ -73,10 +73,10 @@ public class ExploreFragment extends Fragment {
     }
 
     protected static class ExplorePagerScreenListener implements ViewPager.OnPageChangeListener {
-        private final EventBus mEventBus;
+        private final EventBus eventBus;
 
         public ExplorePagerScreenListener(EventBus eventBus) {
-            mEventBus = eventBus;
+            this.eventBus = eventBus;
         }
 
         @Override
@@ -86,13 +86,13 @@ public class ExploreFragment extends Fragment {
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
                 case ExplorePagerAdapter.TAB_GENRES:
-                    mEventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_GENRES));
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_GENRES));
                     break;
                 case ExplorePagerAdapter.TAB_TRENDING_MUSIC:
-                    mEventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
                     break;
                 case ExplorePagerAdapter.TAB_TRENDING_AUDIO:
-                    mEventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO));
+                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_AUDIO));
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");

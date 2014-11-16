@@ -24,8 +24,8 @@ public class ScModel implements Parcelable, Identifiable {
     @Deprecated
     public static final int NOT_SET = -1;
 
-    private long mID = NOT_SET;
-    protected Urn mURN;
+    private long id = NOT_SET;
+    protected Urn urn;
 
     public ScModel() {
     }
@@ -35,15 +35,15 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     public ScModel(String urn) {
-        mURN = new Urn(urn);
+        this.urn = new Urn(urn);
         setId(idFromUrn());
     }
 
     public ScModel(Parcel parcel) {
-        mID = parcel.readLong();
+        id = parcel.readLong();
         byte hasUrn = parcel.readByte();
         if (hasUrn == 1) {
-            mURN = new Urn(parcel.readString());
+            urn = new Urn(parcel.readString());
         }
     }
 
@@ -62,10 +62,10 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mID);
-        dest.writeByte((byte) (mURN == null ? 0 : 1));
-        if (mURN != null) {
-            dest.writeString(mURN.toString());
+        dest.writeLong(id);
+        dest.writeByte((byte) (urn == null ? 0 : 1));
+        if (urn != null) {
+            dest.writeString(urn.toString());
         }
     }
 
@@ -76,28 +76,28 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public long getId() {
-        return mID != NOT_SET ? mID : idFromUrn();
+        return id != NOT_SET ? id : idFromUrn();
     }
 
     @Override
     public void setId(long id) {
-        this.mID = id;
+        this.id = id;
     }
 
     @JsonIgnore
     public Urn getUrn() {
-        return mURN;
+        return urn;
     }
 
     @JsonProperty
     public final void setUrn(String urn) {
-        mURN = new Urn(urn);
-        mID = idFromUrn();
+        this.urn = new Urn(urn);
+        id = idFromUrn();
     }
 
     private long idFromUrn() {
-        if (mURN != null) {
-            return mURN.getNumericId();
+        if (urn != null) {
+            return urn.getNumericId();
         }
         return NOT_SET;
     }

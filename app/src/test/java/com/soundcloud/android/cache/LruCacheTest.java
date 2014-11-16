@@ -30,16 +30,16 @@ public class LruCacheTest {
     private static final int TEST_COUNT = 10000;
 
     static class Accessor extends Thread {
-        private final LruCache<Integer,Integer> mMap;
+        private final LruCache<Integer,Integer> map;
 
         public Accessor(LruCache<Integer, Integer> map) {
-            mMap = map;
+            this.map = map;
         }
 
         @Override
         public void run() {
             for (int i = 0; i < TEST_COUNT; ++i) {
-                mMap.get(i % 2);
+                map.get(i % 2);
             }
         }
     }

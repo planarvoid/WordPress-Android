@@ -61,7 +61,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private final ContentResolver contentResolver;
     private final Context context;
 
-    private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
+    private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
 
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK = 1;
@@ -70,7 +70,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private static final int MAX_LOCAL = 5;
     private static final int MAX_REMOTE = 5;
 
-    private final ImageOperations mImageOperations;
+    private final ImageOperations imageOperations;
 
     public static final String LOCAL = "_local";
     public static final String HIGHLIGHTS = "_highlights";
@@ -86,34 +86,34 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     };
 
     //FIXME: ported this over to use static handler classes, but why not use AsyncTask instead?
-    private final SuggestionsHandler mSuggestionsHandler;
-    private final Handler mNewSuggestionsHandler = new Handler();
-    private final HandlerThread mSuggestionsHandlerThread;
-    private String mCurrentConstraint;
-    private Pattern mCurrentPattern;
+    private final SuggestionsHandler suggestionsHandler;
+    private final Handler newSuggestionsHandler = new Handler();
+    private final HandlerThread suggestionsHandlerThread;
+    private String currentConstraint;
+    private Pattern currentPattern;
 
-    private @NotNull SearchSuggestions mLocalSuggestions = SearchSuggestions.EMPTY;
-    private @NotNull SearchSuggestions mRemoteSuggestions = SearchSuggestions.EMPTY;
+    private @NotNull SearchSuggestions localSuggestions = SearchSuggestions.EMPTY;
+    private @NotNull SearchSuggestions remoteSuggestions = SearchSuggestions.EMPTY;
 
     public SuggestionsAdapter(Context context, PublicCloudAPI api, ContentResolver contentResolver) {
         super(context, null, 0);
         this.contentResolver = contentResolver;
         this.context = context;
-        mImageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
+        imageOperations = SoundCloudApplication.fromContext(context).getImageOperations();
 
-        mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
-        mSuggestionsHandlerThread.start();
-        mSuggestionsHandler = new SuggestionsHandler(this, contentResolver, api, mSuggestionsHandlerThread.getLooper());
+        suggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
+        suggestionsHandlerThread.start();
+        suggestionsHandler = new SuggestionsHandler(this, contentResolver, api, suggestionsHandlerThread.getLooper());
     }
 
     public void onDestroy() {
-        mSuggestionsHandler.removeMessages(0);
-        mSuggestionsHandlerThread.getLooper().quit();
+        suggestionsHandler.removeMessages(0);
+        suggestionsHandlerThread.getLooper().quit();
     }
 
     @VisibleForTesting
     Looper getApiTaskLooper() {
-        return mSuggestionsHandlerThread.getLooper();
+        return suggestionsHandlerThread.getLooper();
     }
 
     @Override
@@ -198,20 +198,20 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     @Override
     public Cursor runQueryOnBackgroundThread(@Nullable final CharSequence constraint) {
-        mSuggestionsHandler.removeMessages(0);
+        suggestionsHandler.removeMessages(0);
         final String searchQuery = ScTextUtils.safeToString(constraint).trim();
         if (!TextUtils.isEmpty(searchQuery)) {
-            mCurrentConstraint = searchQuery;
-            mCurrentPattern = getHighlightPattern(mCurrentConstraint);
+            currentConstraint = searchQuery;
+            currentPattern = getHighlightPattern(currentConstraint);
 
-            mLocalSuggestions = fetchLocalSuggestions(mCurrentConstraint, MAX_LOCAL);
+            localSuggestions = fetchLocalSuggestions(currentConstraint, MAX_LOCAL);
 
-            final Message message = mSuggestionsHandler.obtainMessage(0, mCurrentConstraint);
-            mSuggestionsHandler.sendMessageDelayed(message, 300);
+            final Message message = suggestionsHandler.obtainMessage(0, currentConstraint);
+            suggestionsHandler.sendMessageDelayed(message, 300);
             return getMixedCursor();
 
         } else {
-            mLocalSuggestions = SearchSuggestions.EMPTY;
+            localSuggestions = SearchSuggestions.EMPTY;
             return super.runQueryOnBackgroundThread(searchQuery);
         }
     }
@@ -219,15 +219,15 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     // this is called from a background thread
     private void onRemoteSuggestions(final CharSequence constraint,
                                      final @NotNull SearchSuggestions suggestions) {
-        mNewSuggestionsHandler.post(new Runnable() {
+        newSuggestionsHandler.post(new Runnable() {
             @Override
             public void run() {
                 // make sure we are still relevant
-                if (constraint.equals(mCurrentConstraint)) {
-                    mRemoteSuggestions = suggestions;
+                if (constraint.equals(currentConstraint)) {
+                    remoteSuggestions = suggestions;
                     swapCursor(getMixedCursor());
 
-                    prefetchResults(mRemoteSuggestions);
+                    prefetchResults(remoteSuggestions);
                 }
             }
         });
@@ -268,14 +268,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private Cursor getMixedCursor() {
-        if (!mRemoteSuggestions.isEmpty()) {
-            if (!mLocalSuggestions.isEmpty()) {
-                return withHeader(mLocalSuggestions.merge(mRemoteSuggestions).asCursor());
+        if (!remoteSuggestions.isEmpty()) {
+            if (!localSuggestions.isEmpty()) {
+                return withHeader(localSuggestions.merge(remoteSuggestions).asCursor());
             } else {
-                return withHeader(mRemoteSuggestions.asCursor());
+                return withHeader(remoteSuggestions.asCursor());
             }
         } else {
-            return withHeader(mLocalSuggestions.asCursor());
+            return withHeader(localSuggestions.asCursor());
         }
     }
 
@@ -292,16 +292,16 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     protected SearchSuggestions getRemote() {
-        return mRemoteSuggestions;
+        return remoteSuggestions;
     }
 
     protected SearchSuggestions getLocal() {
-        return mLocalSuggestions;
+        return localSuggestions;
     }
 
     protected DetachableResultReceiver getReceiver() {
-        mDetachableReceiver.setReceiver(this);
-        return mDetachableReceiver;
+        detachableReceiver.setReceiver(this);
+        return detachableReceiver;
     }
 
     private SearchSuggestions fetchLocalSuggestions(String constraint, int max) {
@@ -321,7 +321,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private Cursor withHeader(Cursor c1) {
-        return new MergeCursor(new Cursor[]{createHeader(mCurrentConstraint), c1}) {
+        return new MergeCursor(new Cursor[]{createHeader(currentConstraint), c1}) {
             // for full screen IMEs (e.g. in landscape mode), not the view will be used but the toString method to
             // show results on the keyboard word completion list
             @Override
@@ -394,7 +394,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
             }
 
-            mImageOperations.displayInAdapterView(urn,
+            imageOperations.displayInAdapterView(urn,
                     ApiImageSize.getListItemImageSize(context),
                     tag.iv_icon);
         }
@@ -421,7 +421,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private Spanned highlightLocal(String query) {
         SpannableString spanned = new SpannableString(query);
-        Matcher m = mCurrentPattern.matcher(query);
+        Matcher m = currentPattern.matcher(query);
         if (m.find()) {
             setHighlightSpans(spanned, m.start(2), m.end(2));
         } else {
@@ -444,32 +444,32 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private static final class SuggestionsHandler extends Handler {
         private final ContentResolver resolver;
-        private final WeakReference<SuggestionsAdapter> mAdapterRef;
-        private final PublicCloudAPI mApi;
+        private final WeakReference<SuggestionsAdapter> adapterRef;
+        private final PublicCloudAPI api;
 
 
         public SuggestionsHandler(SuggestionsAdapter adapter, ContentResolver resolver, PublicCloudAPI api, Looper looper) {
             super(looper);
             this.resolver = resolver;
-            mAdapterRef = new WeakReference<SuggestionsAdapter>(adapter);
-            mApi = api;
+            adapterRef = new WeakReference<SuggestionsAdapter>(adapter);
+            this.api = api;
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final SuggestionsAdapter adapter = mAdapterRef.get();
+            final SuggestionsAdapter adapter = adapterRef.get();
             if (adapter == null) {
                 return;
             }
             final CharSequence constraint = (CharSequence) msg.obj;
             try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
+                HttpResponse resp = api.get(Request.to("/search/suggest").with(
                         "q", constraint,
                         "highlight_mode", "offsets",
                         "limit", MAX_REMOTE));
 
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
+                    final SearchSuggestions searchSuggestions = api.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
                     adapter.onRemoteSuggestions(constraint, searchSuggestions);
                     return;
                 } else {

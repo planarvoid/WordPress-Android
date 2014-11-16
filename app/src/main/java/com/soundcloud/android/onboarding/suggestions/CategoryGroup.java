@@ -21,21 +21,21 @@ public class CategoryGroup extends ScModel {
     public static final String KEY_SPEECH_AND_SOUNDS = "speech_and_sounds";
 
     @NotNull
-    private String mKey;
+    private String key;
     @NotNull
-    private List<Category> mCategories = Collections.emptyList();
+    private List<Category> categories = Collections.emptyList();
 
     public CategoryGroup() {
     }
 
     public CategoryGroup(String key) {
-        mKey = key;
+        this.key = key;
     }
 
     @NotNull
     public List<SuggestedUser> getAllSuggestedUsers() {
         List<SuggestedUser> allUsers = new ArrayList<SuggestedUser>();
-        for (Category category : mCategories) {
+        for (Category category : categories) {
             allUsers.addAll(category.getUsers());
         }
         return allUsers;
@@ -43,28 +43,28 @@ public class CategoryGroup extends ScModel {
 
     @VisibleForTesting
     public List<Category> getCategories() {
-        return mCategories;
+        return categories;
     }
 
     @NotNull
     public Collection<Category> getNonEmptyCategories() {
-        return filter(mCategories, Category.HAS_USERS_PREDICATE);
+        return filter(categories, Category.HAS_USERS_PREDICATE);
     }
 
     public void setCategories(@NotNull List<Category> categories) {
-        mCategories = categories;
+        this.categories = categories;
     }
 
     public int getCategoryCount() {
-        return mCategories.size();
+        return categories.size();
     }
 
     public String getKey() {
-        return mKey;
+        return key;
     }
 
     public void setKey(String key) {
-        this.mKey = key;
+        this.key = key;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class CategoryGroup extends ScModel {
 
         CategoryGroup that = (CategoryGroup) o;
 
-        if (!mKey.equals(that.mKey)) {
+        if (!key.equals(that.key)) {
             return false;
         }
 
@@ -91,7 +91,7 @@ public class CategoryGroup extends ScModel {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + mKey.hashCode();
+        result = 31 * result + key.hashCode();
         return result;
     }
 
@@ -108,7 +108,7 @@ public class CategoryGroup extends ScModel {
     }
 
     public boolean isFacebook() {
-        return mKey.equals(KEY_FACEBOOK);
+        return key.equals(KEY_FACEBOOK);
     }
 
     public boolean isEmpty() {
@@ -116,7 +116,7 @@ public class CategoryGroup extends ScModel {
     }
 
     public void removeDuplicateUsers(Set<SuggestedUser> currentUniqueSuggestedUsersSet) {
-        for (Category category : mCategories) {
+        for (Category category : categories) {
             Iterator<SuggestedUser> iter = category.getUsers().iterator();
             while (iter.hasNext()) {
                 final SuggestedUser suggestedUser = iter.next();

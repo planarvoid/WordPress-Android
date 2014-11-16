@@ -104,7 +104,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public int upload_status;
     // private message to another user
     @Deprecated private PublicApiUser recipient;
-    private PlaybackStream mPlaybackStream;
+    private PlaybackStream playbackStream;
 
     public Recording() {
         // No-op constr for the Blueprint
@@ -155,7 +155,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         external_upload = c.getInt(c.getColumnIndex(TableColumns.Recordings.EXTERNAL_UPLOAD)) == 1;
         upload_status = c.getInt(c.getColumnIndex(TableColumns.Recordings.UPLOAD_STATUS));
         if (!external_upload) {
-            mPlaybackStream = initializePlaybackStream(c);
+            playbackStream = initializePlaybackStream(c);
         }
     }
 
@@ -189,7 +189,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         external_upload = data.getBoolean("external_upload", false);
         upload_status = data.getInt("upload_status");
         if (!external_upload) {
-            mPlaybackStream = data.getParcelable("playback_stream");
+            playbackStream = data.getParcelable("playback_stream");
         }
     }
 
@@ -245,15 +245,15 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public
     @Nullable
     PlaybackStream getPlaybackStream() {
-        if (mPlaybackStream == null && !external_upload) {
-            mPlaybackStream = initializePlaybackStream(null);
+        if (playbackStream == null && !external_upload) {
+            playbackStream = initializePlaybackStream(null);
         }
-        return mPlaybackStream;
+        return playbackStream;
     }
 
     public void setPlaybackStream(PlaybackStream stream) {
         duration = stream == null ? 0 : stream.getDuration();
-        mPlaybackStream = stream;
+        playbackStream = stream;
     }
 
     public File generateImageFile(File imageDir) {
@@ -701,7 +701,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         data.putBoolean("external_upload", external_upload);
         data.putInt("upload_status", upload_status);
         if (!external_upload) {
-            data.putParcelable("playback_stream", mPlaybackStream);
+            data.putParcelable("playback_stream", playbackStream);
         }
         out.writeBundle(data);
     }
@@ -784,11 +784,11 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         cv.put(TableColumns.Recordings.EXTERNAL_UPLOAD, external_upload);
         cv.put(TableColumns.Recordings.TIP_KEY, tip_key);
         cv.put(TableColumns.Recordings.UPLOAD_STATUS, upload_status);
-        if (mPlaybackStream != null) {
-            cv.put(TableColumns.Recordings.TRIM_LEFT, mPlaybackStream.getStartPos());
-            cv.put(TableColumns.Recordings.TRIM_RIGHT, mPlaybackStream.getEndPos());
-            cv.put(TableColumns.Recordings.OPTIMIZE, mPlaybackStream.isOptimized() ? 1 : 0);
-            cv.put(TableColumns.Recordings.FADING, mPlaybackStream.isFading() ? 1 : 0);
+        if (playbackStream != null) {
+            cv.put(TableColumns.Recordings.TRIM_LEFT, playbackStream.getStartPos());
+            cv.put(TableColumns.Recordings.TRIM_RIGHT, playbackStream.getEndPos());
+            cv.put(TableColumns.Recordings.OPTIMIZE, playbackStream.isOptimized() ? 1 : 0);
+            cv.put(TableColumns.Recordings.FADING, playbackStream.isFading() ? 1 : 0);
         }
     }
 

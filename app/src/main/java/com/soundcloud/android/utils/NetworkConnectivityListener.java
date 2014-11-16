@@ -31,16 +31,16 @@ public class NetworkConnectivityListener {
     /**
      * Network connectivity information
      */
-    private NetworkInfo mNetworkInfo;
+    private NetworkInfo networkInfo;
 
     /**
      * In case of a Disconnect, the connectivity manager may have already
      * established, or may be attempting to establish, connectivity with another
-     * network. If so, {@code mOtherNetworkInfo} will be non-null.
+     * network. If so, {@code otherNetworkInfo} will be non-null.
      */
-    private NetworkInfo mOtherNetworkInfo;
+    private NetworkInfo otherNetworkInfo;
 
-    private final ConnectivityBroadcastReceiver mReceiver;
+    private final ConnectivityBroadcastReceiver receiver;
 
     public enum State {
         UNKNOWN,
@@ -66,7 +66,7 @@ public class NetworkConnectivityListener {
      */
     public NetworkConnectivityListener() {
         state = State.UNKNOWN;
-        mReceiver = new ConnectivityBroadcastReceiver();
+        receiver = new ConnectivityBroadcastReceiver();
     }
 
     /**
@@ -78,7 +78,7 @@ public class NetworkConnectivityListener {
                 this.context = context;
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                context.registerReceiver(mReceiver, filter);
+                context.registerReceiver(receiver, filter);
             }
         }
         return this;
@@ -90,10 +90,10 @@ public class NetworkConnectivityListener {
     public void stopListening() {
         synchronized (this) {
             if (context != null) {
-                context.unregisterReceiver(mReceiver);
+                context.unregisterReceiver(receiver);
                 context = null;
-                mNetworkInfo = null;
-                mOtherNetworkInfo = null;
+                networkInfo = null;
+                otherNetworkInfo = null;
             }
         }
     }
@@ -129,7 +129,7 @@ public class NetworkConnectivityListener {
      *         connectivity event.
      */
     public NetworkInfo getNetworkInfo() {
-        return mNetworkInfo;
+        return networkInfo;
     }
 
     /**
@@ -142,7 +142,7 @@ public class NetworkConnectivityListener {
      * @return NetworkInfo
      */
     public NetworkInfo getOtherNetworkInfo() {
-        return mOtherNetworkInfo;
+        return otherNetworkInfo;
     }
 
 
@@ -168,16 +168,16 @@ public class NetworkConnectivityListener {
                     ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
             state =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
-            mNetworkInfo = intent
+            networkInfo = intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            mOtherNetworkInfo = intent
+            otherNetworkInfo = intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
 
             if (applicationProperties.isDevBuildRunningOnDevice()) {
-                Log.d(TAG, "onReceive(): mNetworkInfo="
-                        + mNetworkInfo
-                        + " mOtherNetworkInfo = "
-                        + (mOtherNetworkInfo == null ? "[none]" : mOtherNetworkInfo + " noConn="
+                Log.d(TAG, "onReceive(): networkInfo="
+                        + networkInfo
+                        + " otherNetworkInfo = "
+                        + (otherNetworkInfo == null ? "[none]" : otherNetworkInfo + " noConn="
                         + noConnectivity) + " mState=" + state.toString());
             }
 
@@ -186,7 +186,7 @@ public class NetworkConnectivityListener {
                 target.sendMessage(Message.obtain(target, handlers.get(target),
                         old.ordinal(),
                         state.ordinal(),
-                        mNetworkInfo));
+                        networkInfo));
             }
         }
     }

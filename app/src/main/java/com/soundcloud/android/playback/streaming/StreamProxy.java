@@ -67,10 +67,10 @@ public class StreamProxy {
     private static final String PARAM_STREAM_URL = "streamUrl";
     private static final String PARAM_NEXT_STREAM_URL = "nextStreamUrl";
 
-    private boolean mIsRunning;
-    private Thread mThread;
+    private boolean isRunning;
+    private Thread thread;
 
-    private final ReplaySubject<Integer> mPortSubject = ReplaySubject.create();
+    private final ReplaySubject<Integer> portSubject = ReplaySubject.create();
 
     private static String userAgent;
 
@@ -84,40 +84,40 @@ public class StreamProxy {
     }
 
     public StreamProxy start() {
-        mThread = new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 initAndRun();
             }
         }, "StreamProxy-accept");
-        mThread.start();
+        thread.start();
         return this;
     }
 
     public void join() {
-        if (mThread != null) {
+        if (thread != null) {
             try {
-                mThread.join();
+                thread.join();
             } catch (InterruptedException ignored) {
             }
         }
     }
 
     public boolean isRunning() {
-        return mIsRunning;
+        return isRunning;
     }
 
     public void stop() {
         if (!isRunning()) {
             throw new IllegalStateException("Cannot stop proxy; it has not been started.");
         }
-        mIsRunning = false;
-        mThread.interrupt();
+        isRunning = false;
+        thread.interrupt();
         try {
-            mThread.join(5000);
+            thread.join(5000);
         } catch (InterruptedException ignored) {
         }
-        mThread = null;
+        thread = null;
         loader.stop();
     }
 
@@ -129,7 +129,7 @@ public class StreamProxy {
         if (TextUtils.isEmpty(streamUrl)) {
             return Observable.error(new IllegalArgumentException("streamUrl is empty"));
         } else {
-            return mPortSubject.map(new Func1<Integer, Uri>() {
+            return portSubject.map(new Func1<Integer, Uri>() {
                 @Override
                 public Uri call(Integer port) {
                     return createUri(port, streamUrl, nextStreamUrl);
@@ -141,12 +141,12 @@ public class StreamProxy {
     private void initAndRun() {
         try {
             ServerSocket serverSocket = initializeSocket();
-            mIsRunning = true;
-            mPortSubject.onNext(serverSocket.getLocalPort());
+            isRunning = true;
+            portSubject.onNext(serverSocket.getLocalPort());
             acceptLoop(serverSocket);
         } catch (IOException e) {
             Log.w(LOG_TAG, "error initialising socket", e);
-            mPortSubject.onError(e);
+            portSubject.onError(e);
         }
     }
 

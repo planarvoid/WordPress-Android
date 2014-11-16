@@ -208,7 +208,7 @@ public class PublicApiTrack extends Playable {
     @Override
     public void setId(long id) {
         super.setId(id);
-        mURN = Urn.forTrack(id);
+        urn = Urn.forTrack(id);
     }
 
     public List<String> humanTags() {
