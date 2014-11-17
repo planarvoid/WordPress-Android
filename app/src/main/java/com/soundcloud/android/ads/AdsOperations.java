@@ -59,7 +59,7 @@ public class AdsOperations {
         final ApiRequest<ApiAdsForTrack> request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiAdsForTrack.class))
-                .withHeader(UNIQUE_ID_HEADER, deviceHelper.getUniqueDeviceID())
+                .withHeader(UNIQUE_ID_HEADER, deviceHelper.getHashedUniqueDeviceID())
                 .build();
 
         return apiScheduler.mappedResponse(request)

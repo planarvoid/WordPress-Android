@@ -35,7 +35,7 @@ public class ExperimentOperationsTest {
     public void setUp() throws Exception {
         operations = new ExperimentOperations(experimentStorage, apiScheduler, activeExperiments,
                 deviceHelper);
-        when(deviceHelper.getUniqueDeviceID()).thenReturn("device1");
+        when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("device1");
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldNotLoadAssignmentsIfDeviceIdIsNull() {
-        when(deviceHelper.getUniqueDeviceID()).thenReturn("");
+        when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("");
         operations.loadAssignment();
         verifyZeroInteractions(apiScheduler, experimentStorage);
     }
