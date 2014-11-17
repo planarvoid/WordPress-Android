@@ -41,7 +41,7 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
     }
 
     private void playInterstitialPlaylist() {
-        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Interstitial Playlist"));
+        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("[auto] Interstitial Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
