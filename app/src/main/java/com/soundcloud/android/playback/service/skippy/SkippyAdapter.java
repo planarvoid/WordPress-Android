@@ -14,9 +14,11 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
+import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -24,7 +26,9 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -46,6 +50,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private static final String TAG = "SkippyAdapter";
     private static final long POSITION_START = 0L;
     private final SkippyFactory skippyFactory;
+    private final LockUtil lockUtil;
 
     private final EventBus eventBus;
     private final Skippy skippy;
@@ -53,6 +58,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final StateChangeHandler stateHandler;
     private final ApiUrlBuilder urlBuilder;
     private final NetworkConnectionHelper connectionHelper;
+    private final DeviceHelper deviceHelper;
 
     private volatile String currentStreamUrl;
     private Urn currentTrackUrn;
@@ -61,14 +67,17 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
-                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper) {
+                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
+                  LockUtil lockUtil, DeviceHelper deviceHelper) {
         this.skippyFactory = skippyFactory;
+        this.lockUtil = lockUtil;
         skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.urlBuilder = urlBuilder;
         stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
+        this.deviceHelper = deviceHelper;
     }
 
     public boolean init(Context context) {
@@ -109,6 +118,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             return;
         }
 
+        sendSkippyPlayEvent();
+
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
 
@@ -127,6 +138,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             }
 
         }
+    }
+
+    private void sendSkippyPlayEvent() {
+        // we can get rid of this after 100 percent launch. This is to help determind effectiveness of wakelocks
+        final boolean shouldUseLocks = shouldUseLocks();
+        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
+        eventBus.publish(EventQueue.TRACKING, new SkippyPlayEvent(currentConnectionType, shouldUseLocks));
     }
 
     private String buildStreamUrl() {
@@ -227,6 +245,28 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
+
+            final boolean shouldUseLocks = shouldUseLocks();
+            if (shouldUseLocks){
+                configureLockBasedOnNewState(transition);
+            }
+
+            if (transition.isBuffering() && position > 0){
+                ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
+                eventBus.publish(EventQueue.TRACKING, new BufferUnderrunEvent(currentConnectionType, shouldUseLocks));
+            }
+        }
+    }
+
+    private boolean shouldUseLocks() {
+        return deviceHelper.inSplitTestGroup();
+    }
+
+    private void configureLockBasedOnNewState(StateTransition transition) {
+        if (transition.isPlayerPlaying() || transition.isBuffering()){
+            lockUtil.lock();
+        } else {
+            lockUtil.unlock();
         }
     }
 

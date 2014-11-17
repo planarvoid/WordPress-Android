@@ -261,7 +261,7 @@ public class EventLoggerUrlBuilder {
     private Uri.Builder buildUriForPath(String path, long timestamp) {
         return Uri.parse(endpoint).buildUpon().appendPath(path)
                 .appendQueryParameter(CLIENT_ID, appId)
-                .appendQueryParameter(ANONYMOUS_ID, deviceHelper.getUniqueDeviceID())
+                .appendQueryParameter(ANONYMOUS_ID, deviceHelper.getHashedUniqueDeviceID())
                 .appendQueryParameter(TIMESTAMP, String.valueOf(timestamp));
     }
 

@@ -286,7 +286,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-repack</artifactId>
-            <version>14.11.04</version>
+            <version>14.11.14</version>
         </dependency>
         <dependency>
             <groupId>com.crashlytics.android</groupId>

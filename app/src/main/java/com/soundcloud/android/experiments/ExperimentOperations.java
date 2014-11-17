@@ -52,7 +52,7 @@ public class ExperimentOperations {
     }
 
     public void loadAssignment() {
-        String deviceId = deviceHelper.getUniqueDeviceID();
+        String deviceId = deviceHelper.getHashedUniqueDeviceID();
         if(isNotBlank(deviceId)) {
             experimentStorage.loadAssignmentAsync()
                     .finallyDo(fetchAndStoreAssignment(deviceId))
