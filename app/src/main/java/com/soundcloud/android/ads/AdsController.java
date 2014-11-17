@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
+import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -273,13 +274,19 @@ public class AdsController {
     private final class SkipFailedAdSubscriber extends DefaultSubscriber<Playa.StateTransition> {
 
         @Override
-        public void onNext(Playa.StateTransition state) {
+        public void onNext(final Playa.StateTransition state) {
             skipFailedAdSubscription.unsubscribe();
             skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
                     .subscribe(new DefaultSubscriber<Long>() {
                         @Override
                         public void onNext(Long args) {
                             Log.i(ADS_TAG, "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
+                            final AudioAdFailedToBufferEvent event =
+                                    new AudioAdFailedToBufferEvent(
+                                        state.getTrackUrn(),
+                                        state.getProgress(),
+                                        FAILED_AD_WAIT_SECS);
+                            eventBus.publish(EventQueue.TRACKING, event);
                             playQueueManager.autoNextTrack();
                         }
                     });

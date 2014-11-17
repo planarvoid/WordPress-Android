@@ -12,6 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.AdTrackingKeys;
+import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -319,6 +321,23 @@ public class AdsControllerTest {
         verify(playQueueManager, never()).autoNextTrack();
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
         verify(playQueueManager).autoNextTrack();
+    }
+
+    @Test
+    public void playStateChangedEventWhenBufferingAndAdAutoLogATrackingEvent() {
+        when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
+        adsController.subscribe();
+
+        final StateTransition stateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE, new Urn("provider:ad:345"), 12, 1200);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+        expect(eventBus.eventsOn(EventQueue.TRACKING)).toBeEmpty();
+
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
+
+        final AudioAdFailedToBufferEvent event = (AudioAdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
+        expect(event.getAttributes().get(AdTrackingKeys.KEY_AD_URN)).toEqual("provider:ad:345");
+        expect(event.getAttributes().get(AudioAdFailedToBufferEvent.PLAYBACK_POSITION)).toEqual("12");
+        expect(event.getAttributes().get(AudioAdFailedToBufferEvent.WAIT_PERIOD)).toEqual("6");
     }
 
     @Test
