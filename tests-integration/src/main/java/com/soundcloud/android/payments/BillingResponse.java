@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-public final class BillingResponse {
+final class BillingResponse {
 
     private static final int REQUEST_CODE = 1001;
     private static final String SUCCESS_SIGNATURE = "signature";

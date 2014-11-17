@@ -2,7 +2,7 @@ package com.soundcloud.android.payments;
 
 import java.util.Random;
 
-public final class FakeResult {
+final class FakeResult {
 
     public final String orderId;
     public final String packageName;
