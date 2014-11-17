@@ -115,7 +115,7 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
      *
      */
     private void playMonetizablePlaylist() {
-        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("[auto] AudioAd and LeaveBehind Playlist"));
+        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("[auto] AudioAd without LeaveBehind Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
