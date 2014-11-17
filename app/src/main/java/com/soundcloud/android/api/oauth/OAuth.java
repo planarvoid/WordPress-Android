@@ -102,7 +102,7 @@ public class OAuth {
         params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
         params.put(OAuth.PARAM_USERNAME, username);
         params.put(OAuth.PARAM_PASSWORD, password);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam());
+        params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
         return params;
     }
 
@@ -113,7 +113,7 @@ public class OAuth {
         params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
         params.put(OAuth.PARAM_REDIRECT_URI, REDIRECT_URI.toString());
         params.put(OAuth.PARAM_CODE, code);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam());
+        params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
         return params;
     }
 
@@ -122,7 +122,9 @@ public class OAuth {
         params.put(OAuth.PARAM_GRANT_TYPE, OAuth.GRANT_TYPE_CLIENT_CREDENTIALS);
         params.put(OAuth.PARAM_CLIENT_ID, clientId);
         params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam(scopes));
+        if (scopes.length > 0) {
+            params.put(OAuth.PARAM_SCOPE, getScopeParam(scopes));
+        }
         return params;
     }
 
@@ -131,7 +133,7 @@ public class OAuth {
         params.put(OAuth.PARAM_GRANT_TYPE, grantType);
         params.put(OAuth.PARAM_CLIENT_ID, clientId);
         params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam());
+        params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
         return params;
     }
 
@@ -145,6 +147,6 @@ public class OAuth {
     }
 
     private String getScopeParam(String... scopes) {
-        return TextUtils.join(" ", scopes.length == 0 ? DEFAULT_SCOPES : scopes);
+        return TextUtils.join(" ", scopes);
     }
 }

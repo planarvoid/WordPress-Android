@@ -56,19 +56,18 @@ public class OAuthTest {
         expect(params.entrySet()).toContainExactly(
             new SimpleEntry<>("grant_type", "client_credentials"),
             new SimpleEntry<>("client_id", "testClientId"),
-            new SimpleEntry<>("client_secret", "testClientSecret"),
-            new SimpleEntry<>("scope", "non-expiring")
+            new SimpleEntry<>("client_secret", "testClientSecret")
         );
     }
 
     @Test
     public void shouldBuildQueryParamsForTokenRequestFromClientCredentialsWithScope() {
-        final Map<String, String> params = oAuth.getTokenRequestParamsFromClientCredentials(Token.SCOPE_SIGNUP, Token.SCOPE_NON_EXPIRING);
+        final Map<String, String> params = oAuth.getTokenRequestParamsFromClientCredentials(Token.SCOPE_SIGNUP);
         expect(params.entrySet()).toContainExactly(
             new SimpleEntry<>("grant_type", "client_credentials"),
             new SimpleEntry<>("client_id", "testClientId"),
             new SimpleEntry<>("client_secret", "testClientSecret"),
-            new SimpleEntry<>("scope", "signup non-expiring")
+            new SimpleEntry<>("scope", "signup")
         );
     }
 
