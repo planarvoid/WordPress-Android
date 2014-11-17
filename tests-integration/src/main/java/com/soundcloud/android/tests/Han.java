@@ -206,6 +206,7 @@ public class Han  {
         solo.finishOpenedActivities();
     }
 
+    @Deprecated
     public void sleep(int time) {
         solo.sleep(time);
     }
