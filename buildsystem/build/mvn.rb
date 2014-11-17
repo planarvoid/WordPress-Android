@@ -81,12 +81,26 @@ module Build
       mvn
     end
 
-    def self.install_file(file, group_id, artifact_id, version)
-      self.new "mvn install:install-file -Dfile=#{file} -DgroupId=#{group_id} -DartifactId=#{artifact_id} -Dversion=#{version} -Dpackaging=jar"
+    def self.install_file(file, group_id, artifact_id, version, packaging = 'jar')
+      cmd = "mvn install:install-file"
+      cmd << " -Dfile=#{file}"
+      cmd << " -DgroupId=#{group_id}"
+      cmd << " -DartifactId=#{artifact_id}"
+      cmd << " -Dversion=#{version}"
+      cmd << " -Dpackaging=#{packaging}"
+      self.new cmd
     end
 
-    def self.deploy_file(file, group_id, artifact_id, version)
-      self.new "mvn deploy:deploy-file -Dfile=#{file} -DgroupId=#{group_id} -DartifactId=#{artifact_id} -Dversion=#{version} -Dpackaging=jar -DrepositoryId=soundcloud.internal.releases -Durl=http://maven.int.s-cloud.net/content/repositories/releases"
+    def self.deploy_file(file, group_id, artifact_id, version, packaging = 'jar')
+      cmd = "mvn deploy:deploy-file"
+      cmd << " -Dfile=#{file}"
+      cmd << " -DgroupId=#{group_id}"
+      cmd << " -DartifactId=#{artifact_id}"
+      cmd << " -Dversion=#{version}"
+      cmd << " -Dpackaging=#{packaging}"
+      cmd << " -DrepositoryId=soundcloud.internal.releases"
+      cmd << " -Durl=http://maven.int.s-cloud.net/content/repositories/releases"
+      self.new cmd
     end
 
     def projects(*array_of_projects)

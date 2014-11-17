@@ -41,18 +41,34 @@ module Build
       end
 
       namespace :repack do
+        default_options = {:dryrun => ENV['REPACK_DRY']}
+
         desc "Roll your own Guava JAR!"
         task :guava do
-          pg_rules = [
-            '-keep class com.google.common.annotations.VisibleForTesting',
-            '-keep class com.google.common.net.HttpHeaders { *; }'
-          ]
-          Repacker.repack "com/google/common", "com.google.guava", "guava", :pg_rules => pg_rules
+          options = {
+            :pg_rules => [
+              '-keep class com.google.common.annotations.VisibleForTesting',
+              '-keep class com.google.common.net.HttpHeaders { *; }'
+            ]
+          }
+          Repacker.repack "com/google/common", "com.google.guava", "guava", default_options.merge(options)
         end
 
         desc "Roll your own Jackson JAR!"
         task :jackson do
           Repacker.repack "com/fasterxml/jackson", "com.fasterxml.jackson.core", "jackson"
+        end
+
+        desc "Roll your own Google Play Services AAR!"
+        task :google_play do
+          options = {
+            :aar => true,
+            :path_filter => /\/common/, # Guava stuff is under com/google as well, ignore it
+            :pg_rules => [
+              '-keep class com.google.android.gms.auth.GoogleAuthUtil { *; }'
+            ]
+          }
+          Repacker.repack "com/google", "com.google.android.gms", "google-play-services", default_options.merge(options)
         end
       end
     end
