@@ -58,46 +58,51 @@ public class UIEventTest {
     }
 
     @Test
-    public void shouldCreateEventFromLikedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", TRACK_URN);
+    public void shouldCreateEventFromLikedToggle() {
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", TRACK_URN);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_LIKE);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("resource")).toEqual("track");
         expect(uiEvent.get("resource_id")).toEqual("30");
     }
 
     @Test
     public void shouldCreateEventFromLikedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", PLAYLIST_URN);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", PLAYLIST_URN);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_LIKE);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("resource")).toEqual("playlist");
         expect(uiEvent.get("resource_id")).toEqual("42");
     }
 
     @Test
     public void shouldCreateEventFromUnlikedTrack() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", TRACK_URN);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", TRACK_URN);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_UNLIKE);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("resource")).toEqual("track");
         expect(uiEvent.get("resource_id")).toEqual("30");
     }
 
     @Test
     public void shouldCreateEventFromUnlikedPlaylist() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, "screen", PLAYLIST_URN);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", PLAYLIST_URN);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_UNLIKE);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("resource")).toEqual("playlist");
         expect(uiEvent.get("resource_id")).toEqual("42");
     }
 
     @Test
     public void shouldCreateEventWithUnknownResourceForUnexpectedUrnType() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "screen", USER_URN);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", USER_URN);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_LIKE);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("resource")).toEqual("unknown");
         expect(uiEvent.get("resource_id")).toEqual("2");
     }
@@ -140,18 +145,20 @@ public class UIEventTest {
 
     @Test
     public void shouldCreateEventFromAddToPlaylistWhenPlaylistIsNew() {
-        UIEvent uiEvent = UIEvent.fromAddToPlaylist("screen", true, 30);
+        UIEvent uiEvent = UIEvent.fromAddToPlaylist("invoker_screen", "context_screen", true, 30);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_ADD_TO_PLAYLIST);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("is_new_playlist")).toEqual("yes");
         expect(uiEvent.get("track_id")).toEqual("30");
     }
 
     @Test
     public void shouldCreateEventFromAddToPlaylistWhenPlaylistExisted() {
-        UIEvent uiEvent = UIEvent.fromAddToPlaylist("screen", false, 30);
+        UIEvent uiEvent = UIEvent.fromAddToPlaylist("invoker_screen", "context_screen", false, 30);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_ADD_TO_PLAYLIST);
-        expect(uiEvent.get("context")).toEqual("screen");
+        expect(uiEvent.get("location")).toEqual("invoker_screen");
+        expect(uiEvent.get("context")).toEqual("context_screen");
         expect(uiEvent.get("is_new_playlist")).toEqual("no");
         expect(uiEvent.get("track_id")).toEqual("30");
     }

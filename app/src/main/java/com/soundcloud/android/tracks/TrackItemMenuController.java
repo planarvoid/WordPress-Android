@@ -2,6 +2,8 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -103,6 +105,11 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
         }
     }
 
+    private void showAddToPlaylistDialog() {
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, ScreenElement.LIST.get(), playQueueManager.getScreenTag());
+        from.show(activity.getSupportFragmentManager());
+    }
+
     private void handleLike() {
         final Urn trackUrn = track.get(TrackProperty.URN);
         final Boolean newLikeStatus = !track.get(TrackProperty.IS_LIKED);
@@ -118,12 +125,7 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(newLikeStatus, playQueueManager.getScreenTag(), trackUrn));
-    }
-
-    private void showAddToPlaylistDialog() {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, playQueueManager.getScreenTag());
-        from.show(activity.getSupportFragmentManager());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(newLikeStatus, ScreenElement.LIST.get(), playQueueManager.getScreenTag(), trackUrn));
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {

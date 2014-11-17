@@ -286,7 +286,7 @@ public class PlaylistEngagementsControllerTest {
         OriginProvider originProvider = new OriginProvider() {
             @Override
             public String getScreenTag() {
-                return Screen.PLAYER_MAIN.get();
+                return Screen.SEARCH_MAIN.get();
             }
         };
 
@@ -296,7 +296,7 @@ public class PlaylistEngagementsControllerTest {
         rootView.findViewById(R.id.btn_share).performClick();
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
-        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.PLAYER_MAIN.get());
+        expect(uiEvent.getAttributes().get("context")).toEqual(Screen.SEARCH_MAIN.get());
     }
 
     private PublicApiTrack createTrack() {

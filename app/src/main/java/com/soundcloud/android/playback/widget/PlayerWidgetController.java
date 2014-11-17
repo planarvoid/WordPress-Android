@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -111,7 +112,7 @@ public class PlayerWidgetController {
         fireAndForget(trackOperations.track(currentTrackUrn)
                 .flatMap(toggleLike(isLike))
                 .observeOn(AndroidSchedulers.mainThread()));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, playQueueManager.getScreenTag(),
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(),
                 currentTrackUrn));
     }
 

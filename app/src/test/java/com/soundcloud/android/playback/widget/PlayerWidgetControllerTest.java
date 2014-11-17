@@ -257,14 +257,14 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEvent() {
-        when(playQueueManager.getScreenTag()).thenReturn("origin_screen");
+        when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(soundAssociationOps.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
 
         controller.handleToggleLikeAction(true);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "origin_screen", WIDGET_TRACK_URN);
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "widget", "context_screen", WIDGET_TRACK_URN);
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getKind()).toEqual(expectedEvent.getKind());
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());

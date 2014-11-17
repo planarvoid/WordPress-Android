@@ -42,14 +42,14 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventLike() {
-        UIEvent event = UIEvent.fromToggleLike(true, "screen", TRACK_URN);
+        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", TRACK_URN);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Like", event.getAttributes());
     }
 
     @Test
     public void shouldHandleEventUnlike() {
-        UIEvent event = UIEvent.fromToggleLike(false, "screen", TRACK_URN);
+        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", TRACK_URN);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Unlike", event.getAttributes());
     }
@@ -70,7 +70,7 @@ public class LocalyticsUIEventHandlerTest {
 
     @Test
     public void shouldHandleEventAddToPlaylist() {
-        UIEvent event = UIEvent.fromAddToPlaylist("screen", true, 30L);
+        UIEvent event = UIEvent.fromAddToPlaylist("invoker_screen", "context_screen", true, 30L);
         localyticsUIEventHandler.handleEvent(event);
         verify(localyticsSession).tagEvent("Add to playlist", event.getAttributes());
     }

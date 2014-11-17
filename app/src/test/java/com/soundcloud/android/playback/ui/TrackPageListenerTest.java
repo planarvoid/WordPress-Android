@@ -63,23 +63,23 @@ public class TrackPageListenerTest {
 
     @Test
     public void onToggleLikeEmitsLikeEvent() {
-        when(playQueueManager.getScreenTag()).thenReturn("screen");
+        when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "screen", TRACK_URN);
+        UIEvent expectedEvent = UIEvent.fromToggleLike(true, "player", "context_screen", TRACK_URN);
         expectUIEvent(expectedEvent);
     }
 
     @Test
     public void onToggleLikeEmitsUnlikeEvent() {
-        when(playQueueManager.getScreenTag()).thenReturn("screen");
+        when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 
-        UIEvent expectedEvent = UIEvent.fromToggleLike(false, "screen", TRACK_URN);
+        UIEvent expectedEvent = UIEvent.fromToggleLike(false, "player", "context_screen", TRACK_URN);
         expectUIEvent(expectedEvent);
     }
 
