@@ -6,6 +6,8 @@ final class LocalyticsEvents {
     static final String PAGEVIEW = "Pageview";
     static final String PLAY_CONTROLS = "Play Controls";
     static final String AD_FAILED_TO_BUFFER = "Ad failed to buffer";
+    static final String BUFFER_UNDERRUN = "Buffer Underrun";
+    static final String SKIPPY_PLAY = "Skippy Play";
 
     static final class UI {
         static final String FOLLOW = "Follow";

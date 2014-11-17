@@ -36,6 +36,8 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.propeller.PropertySet;
@@ -71,6 +73,8 @@ public class SkippyAdapterTest {
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
+    @Mock private LockUtil lockUtil;
+    @Mock private DeviceHelper deviceHelper;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private Urn userUrn;
@@ -83,7 +87,7 @@ public class SkippyAdapterTest {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, new ApiUrlBuilder(httpProperties),
-                stateChangeHandler, eventBus, connectionHelper);
+                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
@@ -94,6 +98,7 @@ public class SkippyAdapterTest {
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(listener.requestAudioFocus()).thenReturn(true);
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(PlaybackPerformanceEvent.ConnectionType.FOUR_G);
     }
 
     @Test
@@ -344,6 +349,72 @@ public class SkippyAdapterTest {
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
         expect(skippyAdapter.getProgress()).toEqual(PROGRESS);
+    }
+
+    @Test
+    public void doesNotLockLockUtilWhenPlayingIfNotInTestGroup() throws Exception {
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil, never()).lock();
+    }
+
+    @Test
+    public void doesNotLockLockUtilWhenBufferingIfNotInTestGroup() throws Exception {
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil, never()).lock();
+    }
+
+    @Test
+    public void locksLockUtilWhenPlayingIfInTestGroup() throws Exception {
+        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
+
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil).lock();
+    }
+
+    @Test
+    public void locksLockUtilWhenBufferingIfInTestGroup() throws Exception {
+        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
+
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil).lock();
+    }
+
+    @Test
+    public void unlocksLockUtilWhenIdleIfInTestGroup() throws Exception {
+        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
+
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil).unlock();
+    }
+
+    @Test
+    public void unlocksLockUtilOnErrorIfInTestGroup() throws Exception {
+        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
+
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil).unlock();
+    }
+
+    @Test
+    public void unlocksLockUtilWhenCompleteIfInTestGroup() throws Exception {
+        when(deviceHelper.inSplitTestGroup()).thenReturn(true);
+
+        skippyAdapter.play(track);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.COMPLETE, Error.OK, PROGRESS, DURATION, STREAM_URL);
+
+        verify(lockUtil).unlock();
     }
 
     @Test

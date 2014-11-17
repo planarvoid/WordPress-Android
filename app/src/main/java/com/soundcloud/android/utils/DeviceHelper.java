@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.google.common.hash.Hashing;
 import com.soundcloud.android.R;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,13 +29,26 @@ public class DeviceHelper {
     /**
      * @return a unique id for this device (MD5 of IMEI / {@link android.provider.Settings.Secure#ANDROID_ID}) or null
      */
-    public String getUniqueDeviceID() {
+    @Nullable
+    public String getHashedUniqueDeviceID() {
+        String id = getUniqueDeviceId();
+        // note, we still use IOUtils here instead of guava because its a different algorithm, and tracking needs the legacy values
+        return ScTextUtils.isBlank(id) ? null : IOUtils.md5(id);
+    }
+    
+    public boolean inSplitTestGroup(){
+        String id = getUniqueDeviceId();
+        final long idAsLong = Hashing.md5().hashString(id).asLong();
+        return !ScTextUtils.isBlank(id) && (int) (Math.abs(idAsLong) % 2) == 1;
+    }
+
+    private String getUniqueDeviceId() {
         TelephonyManager tmgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String id = tmgr == null ? null : tmgr.getDeviceId();
         if (ScTextUtils.isBlank(id)) {
             id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
-        return ScTextUtils.isBlank(id) ? null : IOUtils.md5(id);
+        return id;
     }
 
     public String getDeviceName(){
