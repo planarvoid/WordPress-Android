@@ -154,9 +154,14 @@ public class AccountOperations extends ScheduledOperations {
         }
     }
 
-    private void updateLoggedInUser(final PublicApiUser user) {
-        loggedInUser = modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
-        loggedInUserUrn = user.getUrn();
+    // adding a null check here because of https://github.com/soundcloud/SoundCloud-Android/issues/2486
+    // This happens when you don't log out, but clear data; it should correct itself by going
+    // to AccountManager or constructing the Urn next time we try to get the logged in user.
+    private void updateLoggedInUser(@Nullable PublicApiUser user) {
+        if (user != null) {
+            loggedInUser = modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
+            loggedInUserUrn = user.getUrn();
+        }
     }
 
     public void clearLoggedInUser() {
