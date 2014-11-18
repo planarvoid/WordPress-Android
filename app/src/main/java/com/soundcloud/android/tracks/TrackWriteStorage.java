@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -71,6 +72,9 @@ public class TrackWriteStorage {
     }
 
     public static ContentValues buildTrackContentValues(ApiTrack track) {
+        if (track.getTitle() == null) {
+            ErrorUtils.handleSilentException(new IllegalStateException("Inserting a track with a NULL title: " + track.getUrn()));
+        }
         return ContentValuesBuilder.values()
                 .put(TableColumns.Sounds._ID, track.getId())
                 .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
