@@ -28,7 +28,7 @@ public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
     private static Han solo;
     private static final int TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
-    private static final int NETWORK_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(2);
+    private static final int NETWORK_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(1);
     private static final int TWO_SECONDS = (int) TimeUnit.SECONDS.toMillis(2);
     private static final int FIVE_SECONDS = (int) TimeUnit.SECONDS.toMillis(5);
     private static final int ELEMENT_TIMEOUT = FIVE_SECONDS;
@@ -279,7 +279,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return !solo.isElementDisplayed(With.className(PROGRESS_CLASS.getSimpleName()));
+            return !solo.isElementDisplayed(With.classSimpleName(PROGRESS_CLASS.getSimpleName().toString()));
         }
     }
 
