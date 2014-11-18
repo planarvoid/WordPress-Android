@@ -242,6 +242,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         switch (requestCode) {
             case DIALOG_PICK_IMAGE:
                 ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
