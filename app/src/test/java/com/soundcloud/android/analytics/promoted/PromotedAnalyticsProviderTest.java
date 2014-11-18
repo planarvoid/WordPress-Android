@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.promoted;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,15 +13,16 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
-import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -196,4 +198,13 @@ public class PromotedAnalyticsProviderTest {
         verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
     }
 
+    @Test
+    public void shouldSendTrackingEventAsap() throws CreateModelException {
+        final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        final PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0).withAudioAd(audioAdMetadata);
+        analyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTracker, times(2)).trackEvent(any(TrackingRecord.class));
+        verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
+    }
 }

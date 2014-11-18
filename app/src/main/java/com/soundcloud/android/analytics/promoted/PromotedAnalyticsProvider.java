@@ -110,5 +110,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
         for (String url : urls) {
             eventTracker.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
         }
+        eventTracker.flush(BACKEND_NAME);
     }
 }

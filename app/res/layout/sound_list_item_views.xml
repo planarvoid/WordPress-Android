@@ -30,7 +30,8 @@
                 android:layout_marginRight="3dp"
                 android:gravity="center_vertical"
                 android:drawableLeft="@drawable/stats_repost"
-                android:drawablePadding="6dp"/>
+                android:drawablePadding="6dp"
+                android:visibility="gone" />
 
     </LinearLayout>
 

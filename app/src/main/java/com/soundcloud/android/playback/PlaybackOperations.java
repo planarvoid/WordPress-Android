@@ -138,8 +138,10 @@ public class PlaybackOperations {
     }
 
     public void setPlayQueuePosition(int position) {
-        publishSkipEventIfAudioAd();
-        playQueueManager.setPosition(position);
+        if (position != playQueueManager.getCurrentPosition()) {
+            publishSkipEventIfAudioAd();
+            playQueueManager.setPosition(position);
+        }
     }
 
     public void previousTrack() {
