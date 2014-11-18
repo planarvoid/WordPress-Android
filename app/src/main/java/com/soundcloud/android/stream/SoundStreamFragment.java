@@ -19,6 +19,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
+import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -93,10 +94,7 @@ public class SoundStreamFragment extends DefaultFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
-        final ConnectableObservable<List<PropertySet>> observable =
-                operations.pager().page(operations.existingStreamItems()).observeOn(mainThread()).replay();
-        observable.subscribe(adapter);
-        return observable;
+        return buildPagedObservable(operations.existingStreamItems());
     }
 
     @Override
@@ -108,8 +106,12 @@ public class SoundStreamFragment extends DefaultFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
+        return buildPagedObservable(operations.updatedStreamItems());
+    }
+
+    private ConnectableObservable<List<PropertySet>> buildPagedObservable(Observable<List<PropertySet>> source) {
         final ConnectableObservable<List<PropertySet>> observable =
-                operations.updatedStreamItems().observeOn(mainThread()).replay();
+                operations.pager().page(source).observeOn(mainThread()).replay();
         observable.subscribe(adapter);
         return observable;
     }

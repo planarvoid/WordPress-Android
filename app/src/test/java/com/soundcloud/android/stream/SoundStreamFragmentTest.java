@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.rx.RxTestHelper.pagerWithNextPage;
 import static com.soundcloud.android.rx.TestObservables.withSubscription;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -80,10 +81,24 @@ public class SoundStreamFragmentTest {
     }
 
     @Test
+    public void initialSoundStreamObservableShouldBePaged() {
+        when(soundStreamOperations.pager()).thenReturn(pagerWithNextPage(Observable.<List<PropertySet>>never()));
+        fragment.buildObservable().connect();
+        expect(soundStreamOperations.pager().hasNext()).toBeTrue();
+    }
+
+    @Test
     public void refreshObservableShouldUpdateStreamItems() {
         fragment.refreshObservable().connect();
         verify(soundStreamOperations).updatedStreamItems();
         verify(adapter).onCompleted();
+    }
+
+    @Test
+    public void refreshObservableShouldBePaged() {
+        when(soundStreamOperations.pager()).thenReturn(pagerWithNextPage(Observable.<List<PropertySet>>never()));
+        fragment.refreshObservable().connect();
+        expect(soundStreamOperations.pager().hasNext()).toBeTrue();
     }
 
     @Test
