@@ -18,6 +18,7 @@ public class PlaylistScreen extends Screen {
 
     public PlaylistDetailsScreen clickPlaylist(With matcher) {
         waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.scrollToBottom(testDriver.getCurrentListView());
         testDriver.findElement(matcher).click();
         return new PlaylistDetailsScreen(testDriver);
     }
