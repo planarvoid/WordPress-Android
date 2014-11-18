@@ -71,6 +71,17 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();
     }
 
+    @Test
+    public void stateChangeEventWithValidTrackUrnInPlayingStateDoesNotPublishTwoConsecutivePlayEvents() throws Exception {
+        Playa.StateTransition playEvent = publishPlayingEvent();
+        Playa.StateTransition nextEvent = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN, PROGRESS + 1, DURATION);
+        analyticsController.onStateTransition(nextEvent);
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent);
+        expect(playbackSessionEvent.isStopEvent()).toBeFalse();
+    }
+
     private void expectCommonAudioEventData(Playa.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
         expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_TRACK_URN)).toEqual(TRACK_URN.toString());
         expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_USER_URN)).toEqual(USER_URN.toString());
