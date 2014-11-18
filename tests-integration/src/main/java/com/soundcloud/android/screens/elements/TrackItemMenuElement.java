@@ -35,7 +35,6 @@ public class TrackItemMenuElement {
     }
 
     private List<ViewElement> menuItems() {
-        waiter.waitForElement(TextView.class);
         return container().findElements(With.classSimpleName("ListMenuItemView"));
     }
 }

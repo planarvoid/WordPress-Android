@@ -72,7 +72,6 @@ public class SearchResultsScreen extends Screen {
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        waiter.waitForElements(R.id.overflow_button);
         testDriver
                 .findElements(With.id(R.id.overflow_button))
                 .get(0).click();
