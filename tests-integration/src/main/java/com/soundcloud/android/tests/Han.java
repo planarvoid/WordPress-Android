@@ -149,6 +149,10 @@ public class Han  {
         drag(screenWidth / 4, screenWidth / 4, screenHeight / 4, screenHeight / 2, 10);
     }
 
+    public boolean isElementDisplayed(With matcher) {
+        return viewFetcher.isElementDisplayed(matcher);
+    }
+
     private void swipeHorizontal(int side) {
         swipeHorizontal(side, .5f);
     }

@@ -15,16 +15,11 @@ public class IsSkipAllowed extends TypeSafeMatcher<VisualPlayerElement> {
     }
 
     private boolean isSkipAdAvailable(VisualPlayerElement playerElement) {
-        return playerElement.skipAd().isVisible();
+        return playerElement.isSkippable();
     }
 
     private boolean isSkipButtonsAvailable(VisualPlayerElement playerElement) {
-        return isClickable(playerElement.nextButton())
-                && isClickable(playerElement.previousButton());
-    }
-
-    private boolean isClickable(ViewElement element) {
-        return element.isVisible() && element.isEnabled();
+        return playerElement.isNextButtonClickable() && playerElement.isPreviousButtonClickable();
     }
 
     public void describeTo(Description description) {

@@ -15,8 +15,6 @@ public class LoginScreen extends Screen {
 
     public LoginScreen(Han testDriver) {
         super(testDriver);
-        waiter.waitForActivity(ACTIVITY);
-        waiter.waitForElement(id.content);
     }
 
     private ViewElement googleSignInButton() {

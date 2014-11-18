@@ -47,6 +47,19 @@ class ViewFetcher {
         return getDirectChildViews().get(index);
     }
 
+    public boolean isElementDisplayed(With matcher) {
+        return findVisibleElement(matcher).isVisible();
+    }
+
+    private ViewElement findVisibleElement(With matcher) {
+        List<ViewElement> viewElements = Lists.newArrayList(filter(getAllVisibleElements(), matcher));
+        if (viewElements.size() > 0) {
+            Log.i(TAG, String.format("Number of views with ID found: %d", viewElements.size()));
+            return viewElements.get(0);
+        }
+        return new EmptyViewElement();
+    }
+
     private List<ViewElement> getDirectChildViews() {
         return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
             @Override

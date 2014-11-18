@@ -276,55 +276,10 @@ public class Waiter {
 
     private class NoProgressBarCondition implements Condition {
         private final Class<ProgressBar> PROGRESS_CLASS = ProgressBar.class;
-        private ArrayList<ProgressBar> progressBars;
-
-        private NoProgressBarCondition() {
-            solo.findElement(With.id(R.id.empty_view_progress));
-        }
 
         @Override
         public boolean isSatisfied() {
-            boolean progressBarNotDisplayed = true;
-            progressBars = solo.getSolo().getCurrentViews(PROGRESS_CLASS);
-
-            for(View progressBar : progressBars ){
-                if  (progressBar.isShown() &&
-                        progressBar.getVisibility() == View.VISIBLE &&
-                        isOnScreen(progressBar) &&
-                        progressBar.getClass().getSimpleName().equals("ProgressBar")
-                    ) {
-                    Log.i(TAG, String.format("[ %s ] Spinner view found",
-                           new Timestamp( new java.util.Date().getTime())));
-                    progressBarNotDisplayed = false;
-                }
-            }
-            return progressBarNotDisplayed;
-        }
-
-        private boolean isOnScreen(View progressBar) {
-            boolean isOn = getLocation(progressBar)[0] >= 0 &&
-                    getLocation(progressBar)[0] <= getScreenHeight() &&
-                    getLocation(progressBar)[1] >= 0 &&
-                    getLocation(progressBar)[1] <= getScreenWidth();
-
-            Log.i(TAG, String.format("Onscreen: %b, Class: %s", isOn, progressBar.getClass().getSimpleName()));
-            return isOn;
-        }
-        private int[] getLocation(View view) {
-            int[] locationOnScreen = new int [2];
-            view.getLocationOnScreen(locationOnScreen);
-            return locationOnScreen;
-        }
-        private int getScreenWidth() {
-            return getDisplay().getWidth();
-        }
-
-        private int getScreenHeight() {
-            return getDisplay().getHeight();
-        }
-
-        private Display getDisplay() {
-            return ((WindowManager) solo.getCurrentActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            return !solo.isElementDisplayed(With.className(PROGRESS_CLASS.getSimpleName()));
         }
     }
 
@@ -337,7 +292,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return !solo.findElement(With.text(searchedText)).isVisible();
+            return !solo.isElementDisplayed(With.text(searchedText));
         }
     }
 

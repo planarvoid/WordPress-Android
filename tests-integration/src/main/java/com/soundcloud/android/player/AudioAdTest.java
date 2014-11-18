@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -42,7 +43,6 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
-        playerElement.tapNext();
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
@@ -115,7 +115,8 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
      *
      */
     private void playMonetizablePlaylist() {
-        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("[auto] AudioAd without LeaveBehind Playlist"));
+        PlaylistScreen ps = menuScreen.open().clickPlaylist();
+        playlistDetailsScreen = ps.clickPlaylist(With.text("[auto] AudioAd without LeaveBehind Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();

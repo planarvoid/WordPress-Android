@@ -54,7 +54,19 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.player_next));
     }
 
-    public ViewElement skipAd() {
+    public boolean isNextButtonClickable() {
+        return solo.isElementDisplayed(With.id(R.id.player_next)) && nextButton().isVisible() && nextButton().isEnabled();
+    }
+
+    public boolean isPreviousButtonClickable() {
+        return solo.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isVisible() && previousButton().isEnabled();
+    }
+
+    public boolean isSkippable() {
+        return solo.isElementDisplayed(With.id(R.id.skip_ad)) && skipAd().isVisible();
+    }
+
+    private ViewElement skipAd() {
         return solo.findElement(With.id(R.id.skip_ad));
     }
 
