@@ -39,7 +39,6 @@
     <string name="connection_list_footer">لتغيير خيارات المشاركة الافتراضية، انتقل إلى الإعدادات الخاصة بك على SoundCloud وحدد \"اتصالات\"</string>
     <string name="delete">حذف</string>
     <string name="comments">تعليقات</string>
-    <string name="menu_load_more">تحميل المزيد</string>
     <string name="new_connection_error">هناك مشكلة في إضافة الشبكة</string>
     <string name="raw">Raw</string>
     <string name="reset">تجاهل</string>
@@ -533,10 +532,6 @@
     <string name="sc_upload_public">عام</string>
     <string name="sc_upload_sharing_options_private">سيكون الصوت خاصًا على SoundCloud.</string>
     <string name="sc_upload_sharing_options_public">سيكون الصوت عامًا على SoundCloud. أي من الشبكات الأخرى ترغب في مشاركتها؟</string>
-
-    <!-- UPLOAD LOCATION -->
-    <string name="location_picker_go_to_settings">انتقل إلى إعدادات</string>
-    <string name="location_picker_no_providers_enabled">لم يتم تمكين مقدمي موقع.</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">المس لفتح SoundCloud</string>

@@ -22,7 +22,7 @@
                    android:scaleType="centerCrop"
                    android:clickable="true"/>
     </FrameLayout>
-    <TextView android:id="@+id/where"
+    <EditText android:id="@+id/where"
               android:layout_height="wrap_content"
               android:layout_toRightOf="@+id/artwork_layout"
               android:background="@drawable/rec_upload_text_bg"
@@ -37,8 +37,9 @@
               android:fadingEdge="horizontal"
               android:fadeScrollbars="true"
               android:hint="@string/where_hint"
-              android:layout_alignBottom="@+id/artwork_layout"
-              android:visibility="gone" />
+              android:inputType="textCapSentences"
+              android:textCursorDrawable="@null"
+              android:layout_alignBottom="@+id/artwork_layout"/>
 
     <EditText android:id="@+id/what"
               android:layout_height="wrap_content"

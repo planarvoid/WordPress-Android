@@ -34,7 +34,6 @@ public final class Consts {
     public static final class RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
         public static final int GALLERY_IMAGE_TAKE = 9001;
-        public static final int PICK_VENUE = 9003;
         public static final int MAKE_CONNECTION = 9004;
 
         public static final int SIGNUP_VIA_FACEBOOK = 8001;

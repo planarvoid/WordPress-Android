@@ -1,18 +1,12 @@
 package com.soundcloud.android.creators.upload;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.FoursquareVenue;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -22,27 +16,18 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RecordingMetaDataLayout extends RelativeLayout {
+
     private Recording recording;
     private File artworkFile;
 
     private EditText whatText;
-    private TextView whereText;
+    private EditText whereText;
     private ImageView artwork;
-
-    private String fourSquareVenueId;
-    private double longitude, latitude;
-
-    // used for preloading foursquare venues
-    private ArrayList<FoursquareVenue> venues = new ArrayList<>();
-    private Location location;
 
     @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaDataLayout(Context context) {
@@ -70,42 +55,16 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
         artwork = (ImageView) findViewById(R.id.artwork);
         whatText = (EditText) findViewById(R.id.what);
-        whereText = (TextView) findViewById(R.id.where);
-        if (location == null) {
-            preloadLocations();
-        }
+        whereText = (EditText) findViewById(R.id.where);
     }
 
     public void setActivity(final FragmentActivity activity) {
-        whereText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (recording == null) {
-                    return;
-                }
-                Intent intent = new Intent(getContext(), LocationPickerActivity.class);
-                intent.putExtra("name", ((TextView) v).getText().toString());
-                if (recording.longitude != 0) {
-                    intent.putExtra("long", recording.longitude);
-                }
-                if (recording.latitude != 0) {
-                    intent.putExtra("lat", recording.latitude);
-                }
-                synchronized (this) {
-                    intent.putParcelableArrayListExtra("venues", venues);
-                    intent.putExtra("location", location);
-                }
-                activity.startActivityForResult(intent, Consts.RequestCodes.PICK_VENUE);
-            }
-        });
-
         artwork.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getContext(), R.string.cloud_upload_clear_artwork, Toast.LENGTH_LONG).show();
             }
         });
-
 
         findViewById(R.id.txt_artwork_bg).setOnClickListener(
                 new OnClickListener() {
@@ -124,24 +83,6 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         });
     }
 
-    private void preloadLocations() {
-        LocationManager mgr = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-        final Location location = mgr.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        if (location != null) {
-            new FoursquareVenueTask() {
-                @Override
-                protected void onPostExecute(List<FoursquareVenue> venues) {
-                    if (venues != null && !venues.isEmpty()) {
-                        synchronized (this) {
-                            RecordingMetaDataLayout.this.location = location;
-                            RecordingMetaDataLayout.this.venues.addAll(venues);
-                        }
-                    }
-                }
-            }.execute(location);
-        }
-    }
-
     public void setRecording(Recording recording, boolean map) {
         this.recording = recording;
         if (map) {
@@ -150,13 +91,10 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     /* package */
-    public void setWhere(String where, String id, double lng, double lat) {
+    public void setWhere(String where) {
         if (where != null) {
             whereText.setTextKeepState(where);
         }
-        fourSquareVenueId = id;
-        longitude = lng;
-        latitude = lat;
     }
 
     public void onSaveInstanceState(Bundle state) {
@@ -167,16 +105,12 @@ public class RecordingMetaDataLayout extends RelativeLayout {
             state.putString("createArtworkPath", artworkFile.getAbsolutePath());
         }
 
-        state.putParcelableArrayList("venues", venues);
-        state.putParcelable("location", location);
         state.putParcelable("recording", recording);
     }
 
     public void onRestoreInstanceState(Bundle state) {
         whatText.setText(state.getString("createWhatValue"));
         whereText.setText(state.getString("createWhereValue"));
-        venues = state.getParcelableArrayList("venues");
-        location = state.getParcelable("location");
         recording = state.getParcelable("recording");
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
@@ -210,12 +144,6 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         recording.what_text = whatText.getText().toString();
         recording.where_text = whereText.getText().toString();
         recording.artwork_path = artworkFile;
-
-        if (fourSquareVenueId != null) {
-            recording.four_square_venue_id = fourSquareVenueId;
-        }
-        recording.latitude = latitude;
-        recording.longitude = longitude;
     }
 
     public void mapFromRecording(final Recording recording) {
@@ -229,11 +157,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
             setImage(recording.artwork_path);
         }
 
-        setWhere(TextUtils.isEmpty(recording.where_text) ? "" : recording.where_text,
-                TextUtils.isEmpty(recording.four_square_venue_id) ? "" : recording.four_square_venue_id,
-                recording.longitude,
-                recording.latitude);
-
+        setWhere(TextUtils.isEmpty(recording.where_text) ? "" : recording.where_text);
     }
 
     public void onDestroy() {
