@@ -37,7 +37,8 @@
               android:fadingEdge="horizontal"
               android:fadeScrollbars="true"
               android:hint="@string/where_hint"
-              android:layout_alignBottom="@+id/artwork_layout"/>
+              android:layout_alignBottom="@+id/artwork_layout"
+              android:visibility="gone" />
 
     <EditText android:id="@+id/what"
               android:layout_height="wrap_content"
