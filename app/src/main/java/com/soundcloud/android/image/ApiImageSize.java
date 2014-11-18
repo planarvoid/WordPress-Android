@@ -84,18 +84,6 @@ public enum ApiImageSize {
         }
     }
 
-    public static ApiImageSize getSearchSuggestionsListItemImageSize(Context c) {
-        if (ImageUtils.isScreenXL(c.getResources())) {
-            return ApiImageSize.T67;
-        } else {
-            if (c.getResources().getDisplayMetrics().density > 1) {
-                return ApiImageSize.BADGE;
-            } else {
-                return ApiImageSize.SMALL;
-            }
-        }
-    }
-
     public static ApiImageSize getFullImageSize(Resources resources) {
         ApiImageSize apiImageSize = ApiImageSize.fromString(resources.getString(R.string.full_image_size));
         if (apiImageSize != Unknown) {
@@ -126,26 +114,4 @@ public enum ApiImageSize {
         }
         return uri;
     }
-
-    public static ApiImageSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
-        ApiImageSize valid = null;
-        for (ApiImageSize gs : values()) {
-            if (fillDimensions) {
-                if (gs.width >= width && gs.height >= height) {
-                    valid = gs;
-                } else {
-                    break;
-                }
-            } else {
-                if (gs.width >= width || gs.height >= height) {
-                    valid = gs;
-                } else {
-                    break;
-                }
-            }
-
-        }
-        return valid == null ? Unknown : valid;
-    }
-
 }

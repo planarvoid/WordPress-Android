@@ -35,9 +35,6 @@ public class ContentTest {
     public void shouldGenerateUriForId() throws Exception {
         expect(Content.COLLECTION_ITEMS.forId(1234).toString()).toEqual(
                 "content://com.soundcloud.android.provider.ScContentProvider/collection_items/1234");
-
-        expect(Content.ME_SHORTCUTS_ICON.forId(1234).toString()).toEqual(
-                "content://com.soundcloud.android.provider.ScContentProvider/me/shortcut_icon/1234");
     }
 
     @Test

@@ -25,10 +25,10 @@ public class MigrationEngine {
 
     @Inject
     public MigrationEngine(DeviceHelper deviceHelper, SharedPreferences sharedPreferences,
-                           SettingsMigration settingsMigration) {
+                           SettingsMigration settingsMigration, DiskCacheMigration diskCacheMigration) {
         this(deviceHelper.getAppVersionCode(),
                 sharedPreferences,
-                settingsMigration);
+                settingsMigration, diskCacheMigration);
     }
 
     @VisibleForTesting

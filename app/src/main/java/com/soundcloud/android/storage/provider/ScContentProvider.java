@@ -7,15 +7,12 @@ import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTyp
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SQLiteErrors;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.HttpUtils;
-import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -29,15 +26,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.List;
 
 @SuppressWarnings({"PMD.ExcessiveClassLength"})
 public class ScContentProvider extends ContentProvider {
@@ -227,40 +220,6 @@ public class ScContentProvider extends ContentProvider {
         }
         getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
-    }
-
-    @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        switch (Content.match(uri)) {
-            case ME_SHORTCUTS_ICON:
-                List<String> segments = uri.getPathSegments();
-                long suggestId = Long.parseLong(segments.get(segments.size() - 1));
-
-                Cursor c = query(Content.ME_SHORTCUT.forId(suggestId), null, null, null, null);
-                try {
-                    if (c != null && c.moveToFirst()) {
-                        String url = c.getString(c.getColumnIndex(TableColumns.Suggestions.ICON_URL));
-                        if (url != null) {
-                            final String listUrl = ApiImageSize.getSearchSuggestionsListItemImageSize(getContext()).formatUri(url);
-                            final File iconFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(listUrl));
-                            if (!iconFile.exists()) {
-                                HttpUtils.fetchUriToFile(listUrl, iconFile, false);
-                            }
-                            return ParcelFileDescriptor.open(iconFile, ParcelFileDescriptor.MODE_READ_ONLY);
-                        } else {
-                            throw new FileNotFoundException();
-                        }
-                    } else {
-                        throw new FileNotFoundException();
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
-                    }
-                }
-            default:
-                return super.openFile(uri, mode);
-        }
     }
 
     @Override
