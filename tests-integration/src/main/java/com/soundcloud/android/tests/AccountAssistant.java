@@ -31,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public final class AccountAssistant {
 
-    private static final long INJECTION_TIMEOUT = 2000;
+    private static final long INJECTION_TIMEOUT = 10000;
 
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
@@ -142,7 +142,7 @@ public final class AccountAssistant {
         // wait for the data cleanup action
         try {
             Log.i(TAG, "Waiting for user account data cleanup...");
-            accountDataCleaned.await(5, TimeUnit.SECONDS);
+            accountDataCleaned.await(15, TimeUnit.SECONDS);
         } finally {
             lock.unlock();
             subscription.unsubscribe();
