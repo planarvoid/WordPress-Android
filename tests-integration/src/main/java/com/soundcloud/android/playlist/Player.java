@@ -1,8 +1,8 @@
 package com.soundcloud.android.playlist;
 
+import static com.soundcloud.android.tests.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -52,7 +52,7 @@ public class Player extends ActivityTestCase<MainActivity> {
                 .click();
 
         final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
-        assertThat(addToPlaylistsScreen, is(visible()));
+        assertThat(addToPlaylistsScreen, is(com.soundcloud.android.tests.matcher.screen.IsVisible.visible()));
     }
 
     private void openPlaylist() {

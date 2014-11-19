@@ -11,7 +11,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TabletTest;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;

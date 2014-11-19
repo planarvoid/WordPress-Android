@@ -6,6 +6,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.robotium.solo.Solo;
+import com.soundcloud.android.tests.viewelements.DefaultViewElement;
+import com.soundcloud.android.tests.viewelements.EmptyViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewNotFoundException;
 import com.soundcloud.android.tests.with.With;
 
 import android.os.SystemClock;
@@ -16,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-class ViewFetcher {
+public class ViewFetcher {
     private Solo testDriver;
     private View parentView;
     private ElementWaiter elementWaiter = new ElementWaiter();

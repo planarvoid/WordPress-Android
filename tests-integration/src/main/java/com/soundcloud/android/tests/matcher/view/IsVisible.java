@@ -1,17 +1,17 @@
 package com.soundcloud.android.tests.matcher.view;
 
 
-import com.soundcloud.android.screens.elements.UIView;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class IsVisible extends TypeSafeMatcher<UIView> {
+public class IsVisible extends TypeSafeMatcher<ViewElement> {
 
     @Override
-    public boolean matchesSafely(UIView uiView) {
-        return uiView.isVisible();
+    public boolean matchesSafely(ViewElement viewElement) {
+        return viewElement.isVisible();
     }
 
     public void describeTo(Description description) {
@@ -19,7 +19,7 @@ public class IsVisible extends TypeSafeMatcher<UIView> {
     }
 
     @Factory
-    public static Matcher<UIView> visible() {
+    public static Matcher<ViewElement> visible() {
         return new IsVisible();
     }
 }

@@ -5,7 +5,8 @@ import com.soundcloud.android.screens.elements.ActionBarElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
 
@@ -78,7 +79,7 @@ public class MenuScreen {
     }
 
     public String getUserName() {
-        return usernameLabel().getText();
+        return new TextElement(usernameLabel()).getText();
     }
 
     public boolean isOpened() {

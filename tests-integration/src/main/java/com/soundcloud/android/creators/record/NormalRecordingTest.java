@@ -12,6 +12,8 @@ import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.settings.DeveloperSettings;
 import com.soundcloud.android.tests.SlowTest;
 import com.soundcloud.android.tests.TestUser;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.content.Intent;
@@ -168,7 +170,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             while (getActivity().getRecorder().timeRemaining() > 10) {
                 assertState(RECORD);
                 solo.sleep(100);
-                solo.findElement(With.id(R.id.chronometer)).getText().matches("(?:\\d+|One) (?:minute|second)s? available");
+                new TextElement(solo.findElement(With.id(R.id.chronometer))).getText().matches("(?:\\d+|One) (?:minute|second)s? available");
             }
 
             solo.assertText(R.string.record_storage_is_full);
@@ -273,7 +275,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         final String title = "testDeleteWavFileAndUpload-" + tstamp;
         // give it a title
-        solo.findElement(With.id(R.id.what)).typeText(title);
+        new EditTextElement(solo.findElement(With.id(R.id.what))).typeText(title);
         solo.goBack();
 
         // doesn't exist any longer
@@ -321,7 +323,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         long id = System.currentTimeMillis();
         final String name = "A test upload " + id;
-        solo.findElements(With.className(EditText.class)).get(0).typeText(name);
+        new EditTextElement(solo.findElements(With.className(EditText.class)).get(0)).typeText(name);
 
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 

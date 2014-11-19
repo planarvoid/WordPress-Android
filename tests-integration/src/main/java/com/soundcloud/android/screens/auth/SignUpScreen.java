@@ -3,8 +3,9 @@ package com.soundcloud.android.screens.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class SignUpScreen extends Screen {
@@ -21,12 +22,12 @@ public class SignUpScreen extends Screen {
         return testDriver.findElement(With.id(R.id.facebook_btn));
     }
 
-    private ViewElement emailInputField() {
-        return testDriver.findElement(With.id(R.id.auto_txt_email_address));
+    private EditTextElement emailInputField() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.auto_txt_email_address)));
     }
 
-    private ViewElement passwordInputfield() {
-        return testDriver.findElement(With.id(R.id.txt_choose_a_password));
+    private EditTextElement passwordInputField() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_choose_a_password)));
     }
 
     private ViewElement cancelButton() {
@@ -54,7 +55,7 @@ public class SignUpScreen extends Screen {
     }
 
     public void typePassword(String password) {
-        passwordInputfield().typeText(password);
+        passwordInputField().typeText(password);
     }
 
     public boolean isDoneButtonEnabled() {

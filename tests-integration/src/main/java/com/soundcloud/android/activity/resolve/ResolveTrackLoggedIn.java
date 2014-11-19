@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.tests.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;

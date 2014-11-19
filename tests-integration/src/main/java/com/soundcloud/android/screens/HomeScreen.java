@@ -5,7 +5,7 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.LoginScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class HomeScreen extends Screen {

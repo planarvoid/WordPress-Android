@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.viewelements.TextElement;
 import com.soundcloud.android.tests.with.With;
 
 public class TrackInfoScreen extends Screen {
@@ -20,7 +21,7 @@ public class TrackInfoScreen extends Screen {
     }
 
     public String getTitle() {
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.title)).getText();
+        return new TextElement(testDriver.findElement(With.id(com.soundcloud.android.R.id.title))).getText();
     }
 
     public TrackCommentsScreen clickComments() {

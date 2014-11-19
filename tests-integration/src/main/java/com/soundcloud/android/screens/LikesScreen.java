@@ -6,7 +6,7 @@ import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.R;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import java.util.List;

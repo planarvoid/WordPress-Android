@@ -1,9 +1,9 @@
 package com.soundcloud.android.whoToFollow;
 
 import static com.soundcloud.android.tests.helpers.NavigationHelper.openWhoToFollow;
+import static com.soundcloud.android.tests.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;

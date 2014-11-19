@@ -1,8 +1,9 @@
-package com.soundcloud.android.tests;
+package com.soundcloud.android.tests.viewelements;
 
 import com.robotium.solo.Solo;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.tests.ViewFetcher;
 import com.soundcloud.android.tests.with.With;
 
 import android.content.Context;
@@ -12,13 +13,11 @@ import android.view.View;
 import android.view.ViewParent;
 import android.view.WindowManager;
 import android.webkit.WebView;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.List;
 
-public class DefaultViewElement implements ViewElement {
+public final class DefaultViewElement extends ViewElement {
     private final Solo testDriver;
     private final View view;
     private ViewFetcher viewFetcher;
@@ -71,29 +70,9 @@ public class DefaultViewElement implements ViewElement {
     }
 
     @Override
-    public void typeText(String text) {
-        testDriver.typeText((EditText) view, text);
-    }
-
-    @Override
-    public void clearText() {
-        testDriver.clearEditText((EditText) view);
-    }
-
-    @Override
     public boolean isVisible() {
         return isShown() && hasVisibility() && hasDimensions() && isOnScreen();
     }
-
-    @Override
-    public String getText() {
-        if (view instanceof TextView) {
-            return ((TextView) view).getText().toString();
-        } else {
-            return "";
-        }
-    }
-
 
     @Override
     public ListElement toListView() {
@@ -158,6 +137,12 @@ public class DefaultViewElement implements ViewElement {
     public int getTop() {
         return view.getTop();
     }
+
+    @Override
+    /* package */ View getView() { return view; }
+
+    @Override
+    /* package */  Solo getTestDriver() { return testDriver; }
 
     private boolean isShown() {
         return view.isShown();

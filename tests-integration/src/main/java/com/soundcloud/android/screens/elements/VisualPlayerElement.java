@@ -5,7 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.graphics.Rect;
@@ -180,19 +181,19 @@ public class VisualPlayerElement extends Element {
     }
 
     public String getTrackTitle() {
-        return trackTitle().getText();
+        return new TextElement(trackTitle()).getText();
     }
 
     public String interstitalNowPlayingText() {
-        return interstitialNowPlaying().getText();
+        return new TextElement(interstitialNowPlaying()).getText();
     }
 
     public String getTrackCreator() {
-        return creator().getText();
+        return new TextElement(creator()).getText();
     }
 
     public String getFooterTrackCreator() {
-        return footerUser().getText();
+        return new TextElement(footerUser()).getText();
     }
 
     public void waitForContent() {

@@ -17,7 +17,8 @@ import com.soundcloud.android.settings.DeveloperSettings;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Runner;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Env;
@@ -150,14 +151,14 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
         solo.clickOnText(R.string.btn_publish);
 
         if (title != null) {
-            solo.findElement(With.id(R.id.what)).typeText(title);
+            new EditTextElement(solo.findElement(With.id(R.id.what))).typeText(title);
         }
 
         if (location != null) {
             solo.findElement(With.id(R.id.where)).click();
 
             solo.findElement(With.id(R.id.where)).click();
-            solo.findElement(With.id(R.id.what)).typeText(location);
+            new EditTextElement(solo.findElement(With.id(R.id.what))).typeText(location);
             solo.sendKey(Solo.ENTER);
 
         }

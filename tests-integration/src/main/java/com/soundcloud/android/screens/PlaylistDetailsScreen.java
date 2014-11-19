@@ -6,7 +6,8 @@ import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class PlaylistDetailsScreen extends Screen {
@@ -31,8 +32,8 @@ public class PlaylistDetailsScreen extends Screen {
         return title().getText();
     }
 
-    private ViewElement title() {
-        return testDriver.findElement(With.id(TITLE));
+    private TextElement title() {
+        return new TextElement(testDriver.findElement(With.id(TITLE)));
     }
 
     private ViewElement headerPlayToggle() {

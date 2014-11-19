@@ -2,7 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import java.util.List;

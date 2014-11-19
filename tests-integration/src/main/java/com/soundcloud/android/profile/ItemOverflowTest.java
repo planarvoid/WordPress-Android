@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.tests.TestUser.streamUser;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.tests.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 

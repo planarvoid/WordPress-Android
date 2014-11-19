@@ -4,8 +4,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.R.id;
@@ -25,12 +26,12 @@ public class LoginScreen extends Screen {
         return testDriver.findElement(With.id(R.id.facebook_btn));
     }
 
-    private ViewElement emailInputField() {
-        return testDriver.findElement(With.id(R.id.auto_txt_email_address));
+    private EditTextElement emailInputField() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.auto_txt_email_address)));
     }
 
-    private ViewElement passwordInputfield() {
-        return testDriver.findElement(With.id(R.id.txt_password));
+    private EditTextElement passwordInputField() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_password)));
     }
 
     private ViewElement loginButton() {
@@ -70,7 +71,7 @@ public class LoginScreen extends Screen {
     public MainScreen loginAs(String username, String password) {
         emailInputField().clearText();
 
-        passwordInputfield().typeText(password);
+        passwordInputField().typeText(password);
         emailInputField().typeText(username);
         loginButton().click();
         return new MainScreen(testDriver);
@@ -80,7 +81,7 @@ public class LoginScreen extends Screen {
         emailInputField().clearText();
 
         emailInputField().typeText(username);
-        passwordInputfield().typeText(password);
+        passwordInputField().typeText(password);
 
         loginButton().click();
         if (validCredentials) {

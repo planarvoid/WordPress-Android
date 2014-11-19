@@ -4,7 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.widget.ListView;
@@ -17,7 +18,7 @@ public class TrackCommentsScreen extends Screen {
     }
 
     public String getTitle() {
-        return title().getText();
+        return new TextElement(title()).getText();
     }
 
     public ProfileScreen clickFirstUser() {

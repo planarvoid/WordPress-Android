@@ -1,8 +1,8 @@
 package com.soundcloud.android.player;
 
+import static com.soundcloud.android.tests.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.tests.matcher.player.IsPlaying.Playing;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;

@@ -1,14 +1,13 @@
-package com.soundcloud.android.tests;
+package com.soundcloud.android.tests.viewelements;
 
+import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.with.With;
 
-public class ToastElement implements ElementWithText {
+public class ToastElement {
     private final Han testDriver;
-    private final Waiter waiter;
 
-    ToastElement(Han driver) {
+    public ToastElement(Han driver) {
         testDriver = driver;
-        waiter = new Waiter(testDriver);
     }
 
     private ViewElement toastMessage() {
@@ -16,6 +15,6 @@ public class ToastElement implements ElementWithText {
     }
 
     public String getText() {
-        return toastMessage().getText();
+        return new TextElement(toastMessage()).getText();
     }
 }

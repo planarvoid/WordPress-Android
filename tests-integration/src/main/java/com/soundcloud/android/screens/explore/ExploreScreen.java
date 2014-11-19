@@ -7,7 +7,8 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
@@ -88,7 +89,7 @@ public class ExploreScreen extends Screen {
 
     public String currentTabTitle() {
         int currentPage = getViewPager().getCurrentItem();
-        return tabs().getTabAt(currentPage).getText();
+        return new TextElement(tabs().getTabAt(currentPage)).getText();
     }
 
     private ViewPager getViewPager() {

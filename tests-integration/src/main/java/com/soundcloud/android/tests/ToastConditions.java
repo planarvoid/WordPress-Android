@@ -3,6 +3,8 @@ package com.soundcloud.android.tests;
 import static junit.framework.Assert.assertTrue;
 
 import com.robotium.solo.Condition;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class ToastConditions {
 
         private boolean hasText(List<ViewElement> viewElementList, String text) {
             for (ViewElement viewElement : viewElementList) {
-                if (viewElement.getText().equals(text)) {
+                if (new TextElement(viewElement).getText().equals(text)) {
                     return true;
                 }
             }

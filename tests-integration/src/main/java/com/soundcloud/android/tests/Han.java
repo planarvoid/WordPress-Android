@@ -8,6 +8,10 @@ import com.google.common.collect.Lists;
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
+import com.soundcloud.android.tests.viewelements.DefaultViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ToastElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.app.Activity;
@@ -200,7 +204,7 @@ public class Han  {
         return Lists.newArrayList(filter(findElements(With.className(Button.class)), new Predicate<ViewElement>() {
                     @Override
                     public boolean apply(ViewElement viewElement) {
-                        return viewElement.findElement(With.text(text)).getText().equals(text);
+                        return new TextElement(viewElement.findElement(With.text(text))).getText().equals(text);
                     }
                })
         );

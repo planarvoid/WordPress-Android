@@ -4,7 +4,7 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.tests.with.With;
 
-public abstract class Element implements UIView {
+public abstract class Element {
 
     protected Han solo;
     protected Waiter waiter;
@@ -14,7 +14,6 @@ public abstract class Element implements UIView {
         this.waiter = new Waiter(solo);
     }
 
-    @Override
     public boolean isVisible() {
         return solo.findElement(With.id(getRootViewId())).isVisible();
     }

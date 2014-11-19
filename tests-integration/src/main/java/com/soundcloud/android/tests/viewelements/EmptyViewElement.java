@@ -1,16 +1,18 @@
-package com.soundcloud.android.tests;
+package com.soundcloud.android.tests.viewelements;
 
+import com.robotium.solo.Solo;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.tests.with.With;
 
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebView;
 
 import java.util.List;
 
-public class EmptyViewElement implements ViewElement {
+public final class EmptyViewElement extends ViewElement {
     @Override
     public ViewElement findElement(With with) {
         throw new ViewNotFoundException();
@@ -42,16 +44,6 @@ public class EmptyViewElement implements ViewElement {
     }
 
     @Override
-    public void typeText(String text) {
-        throw new ViewNotFoundException();
-    }
-
-    @Override
-    public void clearText() {
-        throw new ViewNotFoundException();
-    }
-
-    @Override
     public boolean isVisible() {
         return false;
     }
@@ -69,11 +61,6 @@ public class EmptyViewElement implements ViewElement {
     @Override
     public int getTop()  {
         throw new ViewNotFoundException();
-    }
-
-    @Override
-    public String getText() {
-        return "";
     }
 
     @Override
@@ -120,4 +107,10 @@ public class EmptyViewElement implements ViewElement {
     public WebView toWebView() {
         throw new ViewNotFoundException();
     }
+
+    @Override
+    /* package */  View getView() { throw new ViewNotFoundException(); }
+
+    @Override
+    /* package */  Solo getTestDriver() { throw new ViewNotFoundException(); }
 }

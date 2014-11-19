@@ -4,7 +4,7 @@ import static com.soundcloud.android.tests.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.tests.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.tests.matcher.player.IsPlaying.Playing;
 import static com.soundcloud.android.tests.matcher.player.IsSkipAllowed.SkipAllowed;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.tests.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;

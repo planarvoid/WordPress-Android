@@ -9,7 +9,9 @@ import com.soundcloud.android.screens.WhoToFollowScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.content.res.Resources;
@@ -91,17 +93,17 @@ public class ActionBarElement extends Element {
         searchInputField().typeText(query);
     }
 
-    private ViewElement title() {
-        return actionBarContainer().findElement(With.id(TITLE));
+    private TextElement title() {
+        return new TextElement(actionBarContainer().findElement(With.id(TITLE)));
     }
 
     private ViewElement actionBarContainer() {
         return solo.findElement(With.id(CONTAINER));
     }
 
-    private ViewElement searchInputField() {
+    private EditTextElement searchInputField() {
         waiter.waitForElement(AutoCompleteTextView.class);
-        return solo.findElement(With.className(AutoCompleteTextView.class));
+        return new EditTextElement(solo.findElement(With.className(AutoCompleteTextView.class)));
     }
 
     public PlaylistTagsScreen dismissSearch() {

@@ -4,8 +4,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.R.id;
@@ -48,7 +49,7 @@ public class SuggestedUsersScreen extends Screen {
 
     public String subtextAtIndexEquals(int index) {
         ViewElement categoryRow = getCategoryRow(index);
-        return categoryRow.findElement(With.id(android.R.id.text2)).getText();
+        return new EditTextElement(categoryRow.findElement(With.id(android.R.id.text2))).getText();
     }
 
     public SuggestedUsersScreen clickToggleCategoryCheckmark(int visibleIndex){

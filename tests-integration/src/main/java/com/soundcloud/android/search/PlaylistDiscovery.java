@@ -7,7 +7,8 @@ import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
         playlistTagsScreen.clickOnTag(0);
 
-        assertEquals(tags.get(0).getText(), playlistTagsScreen.actionBar().getSearchQuery());
+        assertEquals(new TextElement(tags.get(0)).getText(), playlistTagsScreen.actionBar().getSearchQuery());
     }
 
     public void testClickingOnPlaylistOpensDoesPlaylistActivity() {

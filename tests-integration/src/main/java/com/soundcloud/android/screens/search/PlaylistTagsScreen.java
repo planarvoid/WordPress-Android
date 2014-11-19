@@ -8,7 +8,8 @@ import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 import android.widget.TextView;
@@ -52,7 +53,7 @@ public class PlaylistTagsScreen extends Screen {
         return Lists.transform(getTags(), new Function<ViewElement, String>() {
             @Override
             public String apply(ViewElement input) {
-                return input.getText();
+                return new TextElement(input).getText();
             }
         });
     }

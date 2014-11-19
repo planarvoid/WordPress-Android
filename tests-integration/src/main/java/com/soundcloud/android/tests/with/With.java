@@ -1,7 +1,8 @@
 package com.soundcloud.android.tests.with;
 
 import com.google.common.base.Predicate;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 
 import android.view.View;
 
@@ -52,7 +53,11 @@ public abstract class With implements Predicate<ViewElement> {
 
         @Override
         public boolean apply(ViewElement viewElement) {
-            return viewElement.getText().equals(searchedText);
+            try {
+                return new TextElement(viewElement).getText().equals(searchedText);
+            } catch (UnsupportedOperationException ignored) {
+                return false;
+            }
         }
     }
 
@@ -65,7 +70,11 @@ public abstract class With implements Predicate<ViewElement> {
 
         @Override
         public boolean apply(ViewElement viewElement) {
-            return viewElement.getText().contains(searchedText);
+            try {
+                return new TextElement(viewElement).getText().contains(searchedText);
+            } catch (UnsupportedOperationException ignored) {
+                return false;
+            }
         }
     }
 

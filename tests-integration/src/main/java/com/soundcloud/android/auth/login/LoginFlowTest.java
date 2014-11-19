@@ -5,7 +5,7 @@ import static com.soundcloud.android.tests.TestUser.GPlusAccount;
 import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
 import static com.soundcloud.android.tests.TestUser.scAccount;
 import static com.soundcloud.android.tests.TestUser.scTestAccount;
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
+import static com.soundcloud.android.tests.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.R;

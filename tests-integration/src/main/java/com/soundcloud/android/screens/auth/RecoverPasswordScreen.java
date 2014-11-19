@@ -5,8 +5,8 @@ import android.R.id;
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.tests.viewelements.EditTextElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class RecoverPasswordScreen extends Screen {
@@ -19,8 +19,8 @@ public class RecoverPasswordScreen extends Screen {
         waiter.waitForElement(id.content);
     }
 
-    private ViewElement emailInputField() {
-        return testDriver.findElement(With.id(R.id.txt_email_address));
+    private EditTextElement emailInputField() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_email_address)));
     }
 
     public void typeEmail(String text) {

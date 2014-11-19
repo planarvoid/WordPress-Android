@@ -4,21 +4,18 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 import com.soundcloud.android.utils.Log;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Adapter;
 import android.widget.ProgressBar;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +51,7 @@ public class Waiter {
         return solo.waitForCondition(new VisibleElementCondition(matcher), timeoutMs);
     }
 
-    public ExpectedConditions expect(ElementWithText view) {
+    public ExpectedConditions expect(ViewElement view) {
         return new ExpectedConditions(this, view);
     }
 
@@ -83,10 +80,6 @@ public class Waiter {
 
     public boolean waitForKeyboardToBeShown() {
         return solo.waitForCondition(new KeyboardShownCondition(), ELEMENT_TIMEOUT);
-    }
-
-    public boolean waitForTextInView(ElementWithText textView, String text) {
-        return solo.waitForCondition(new TextInViewCondition(textView, text), ELEMENT_TIMEOUT);
     }
 
     @Deprecated //"Need for improvement"
@@ -180,10 +173,6 @@ public class Waiter {
         solo.waitForCondition(new CurrentActivityCondition(activityClass), TIMEOUT);
     }
 
-    public void waitForTextInView(ViewElement viewElement) {
-        solo.waitForCondition(new HasTextInViewCondition(viewElement), TIMEOUT);
-    }
-
     public boolean waitForFragmentByTag(String fragmentTag) {
         return solo.waitForFragmentByTag(fragmentTag, TIMEOUT);
     }
@@ -203,6 +192,10 @@ public class Waiter {
 
     public boolean waitForElement(final Class<? extends View> viewClass) {
         return solo.waitForCondition(new ByClassCondition(viewClass), TIMEOUT);
+    }
+
+    public boolean waitForElement(TextElement textView, String text) {
+        return solo.waitForCondition(new TextInViewCondition(textView, text), ELEMENT_TIMEOUT);
     }
 
     public boolean waitForElements(int elementId) {
@@ -338,29 +331,16 @@ public class Waiter {
     }
 
     private class TextInViewCondition implements Condition {
-        private final ElementWithText view;
+        private final TextElement view;
         private final String text;
 
-        private TextInViewCondition(ElementWithText view, String text) {
+        private TextInViewCondition(TextElement view, String text) {
             this.view = view;
             this.text = text;
         }
         @Override
         public boolean isSatisfied() {
             return view.getText().equals(text);
-        }
-    }
-
-    private class HasTextInViewCondition implements Condition {
-        private final ViewElement viewElement;
-
-        public HasTextInViewCondition(ViewElement viewElement) {
-            this.viewElement = viewElement;
-        }
-
-        @Override
-        public boolean isSatisfied() {
-            return !TextUtils.isEmpty(viewElement.getText());
         }
     }
 

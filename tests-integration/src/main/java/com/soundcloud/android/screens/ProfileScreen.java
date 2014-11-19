@@ -5,7 +5,8 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.ViewElement;
+import com.soundcloud.android.tests.viewelements.TextElement;
+import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
 public class ProfileScreen extends Screen {
@@ -57,15 +58,15 @@ public class ProfileScreen extends Screen {
     }
 
     public String getUserName() {
-        return userName().getText();
+        return new TextElement(userName()).getText();
     }
 
     public String getLocation() {
-        return location().getText();
+        return new TextElement(location()).getText();
     }
 
     public String getFollowersMessage() {
-        return followersMessage().getText();
+        return new TextElement(followersMessage()).getText();
     }
 
     public void clickFollowToggle() {
