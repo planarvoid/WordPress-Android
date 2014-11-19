@@ -72,9 +72,9 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
         swipeToAd();
         playerElement.waitForAdToBeSkippable();
         playerElement.waitForSkipAdButton();
-        String adTrackTitle = playerElement.getTrackTitle();
         playerElement.tapSkipAd();
-        assertThat(adTrackTitle, is(not(equalTo(playerElement.getTrackTitle()))));
+
+        assertThat(playerElement.adPage(), is(not(com.soundcloud.android.tests.matcher.view.IsVisible.visible())));
     }
 
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
