@@ -95,8 +95,8 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.footer_toggle));
     }
 
-    private ViewElement trackTitle() {
-        return solo.findElement(With.id(R.id.track_page_title));
+    private TextElement trackTitle() {
+        return new TextElement(solo.findElement(With.id(R.id.track_page_title)));
     }
 
     private ViewElement footerPlayer() {
@@ -181,7 +181,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public String getTrackTitle() {
-        return new TextElement(trackTitle()).getText();
+        return trackTitle().getText();
     }
 
     public String interstitalNowPlayingText() {
