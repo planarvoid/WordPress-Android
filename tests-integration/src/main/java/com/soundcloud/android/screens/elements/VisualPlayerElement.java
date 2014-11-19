@@ -107,7 +107,7 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.why_ads));
     }
 
-    private ViewElement adPage() {
+    public ViewElement adPage() {
         return solo.findElement(With.id(R.id.player_ad_page));
     }
 
