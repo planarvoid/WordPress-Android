@@ -204,7 +204,7 @@ public class Han  {
         return Lists.newArrayList(filter(findElements(With.className(Button.class)), new Predicate<ViewElement>() {
                     @Override
                     public boolean apply(ViewElement viewElement) {
-                        return new TextElement(viewElement.findElement(With.text(text))).getText().equals(text);
+                        return new TextElement(viewElement).getText().equals(text);
                     }
                })
         );
