@@ -74,7 +74,7 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
         playerElement.waitForSkipAdButton();
         playerElement.tapSkipAd();
 
-        assertTrue(playerElement.isAdPageVisible());
+        assertFalse(playerElement.isAdPageVisible());
     }
 
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
