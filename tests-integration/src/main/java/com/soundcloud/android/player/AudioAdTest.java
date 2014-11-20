@@ -34,11 +34,11 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
 
         super.setUp();
         setRunBasedOnResource(R.bool.run_ads_tests);
-
-        playMonetizablePlaylist();
     }
 
     public void testSkipIsNotAllowedOnAd() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
@@ -47,12 +47,16 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
     }
 
     public void testTappingArtworkPausesAd() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(Playing())));
     }
 
     public void testTappingArtworkTwiceResumePlayingAd() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         playerElement.clickArtwork();
         playerElement.waitForPlayButton();
@@ -63,12 +67,16 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
 
 
     public void skip_testSkipShouldBeDisplayedWhenAdIsSkippable() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         playerElement.waitForAdToBeSkippable();
         assertThat(playerElement, is(SkipAllowed()));
     }
 
     public void testSkipAdShouldStartTheMonetizableTrack() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         playerElement.waitForAdToBeSkippable();
         playerElement.waitForSkipAdButton();
@@ -78,6 +86,8 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
     }
 
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         playerElement.clickArtwork();
         playerElement.pressBackToCollapse();
@@ -90,6 +100,8 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
     }
 
     public void testShowWhyAdsDialogWhenClickingWhyAds() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
         assertThat(dialog, is(visible()));
@@ -99,6 +111,8 @@ public class AudioAdTest extends ActivityTestCase<MainActivity> {
     }
 
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
+        playMonetizablePlaylist();
+
         playerElement.pressBackToCollapse();
         playerElement.waitForExpandedPlayer();
         playerElement.waitForAdPage();

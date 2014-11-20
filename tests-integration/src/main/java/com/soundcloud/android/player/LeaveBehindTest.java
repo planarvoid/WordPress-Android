@@ -16,7 +16,6 @@ import com.soundcloud.android.tests.with.With;
 public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
 
     private VisualPlayerElement playerElement;
-    private PlaylistDetailsScreen playlistDetailsScreen;
 
     public LeaveBehindTest() {
         super(MainActivity.class);
@@ -27,11 +26,11 @@ public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
         TestUser.adUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         setRunBasedOnResource(R.bool.run_ads_tests);
-
-        playMonetizablePlaylist();
     }
 
     public void testFinishAdShouldShowLeaveBehind() {
+        playMonetizablePlaylist();
+
         swipeToAd();
         playerElement.waitForAdToBeDone();
         playerElement.waitForAdOverlayToLoad();
@@ -46,7 +45,7 @@ public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
      *
      */
     private void playMonetizablePlaylist() {
-        playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("Monetizable Playlist"));
+        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open().clickPlaylist().clickPlaylist(With.text("[auto] AudioAd and LeaveBehind Playlist"));
         playerElement = playlistDetailsScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.swipeNext();
