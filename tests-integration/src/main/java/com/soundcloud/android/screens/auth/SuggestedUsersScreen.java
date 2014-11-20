@@ -4,8 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.tests.viewelements.EditTextElement;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.viewelements.TextElement;
 import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.with.With;
 
@@ -47,9 +47,13 @@ public class SuggestedUsersScreen extends Screen {
         return new SuggestedUsersCategoryScreen(testDriver);
     }
 
-    public String subtextAtIndexEquals(int index) {
+    public String getSubtext(ViewElement view) {
+        return new TextElement(view.findElement(With.id(android.R.id.text2))).getText();
+    }
+
+    public String getSubtextAtIndex(int index) {
         ViewElement categoryRow = getCategoryRow(index);
-        return new EditTextElement(categoryRow.findElement(With.id(android.R.id.text2))).getText();
+        return getSubtext(categoryRow);
     }
 
     public SuggestedUsersScreen clickToggleCategoryCheckmark(int visibleIndex){
@@ -68,7 +72,7 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     private void clickOnCategoryElement(int index, int elementId) {
-        testDriver.findElement(With.id(android.R.id.list)).toListView().getItemAt(index).findElement(With.id(elementId)).click();
+        getCategoryRow(index).findElement(With.id(elementId)).click();
     }
 
     private ViewElement getCategoryRow(int index) {

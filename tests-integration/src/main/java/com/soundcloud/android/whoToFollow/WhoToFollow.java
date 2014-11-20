@@ -46,7 +46,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
         suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
         String followed = suggestedUsersCategoryScreen.followUser(2);
         solo.goBack();
-        assertEquals(followed, suggestedUsersScreen.subtextAtIndexEquals(1));
+        assertEquals(followed, suggestedUsersScreen.getSubtextAtIndex(1));
     }
 
     public void testSelectDeselectToggle() {
