@@ -23,11 +23,11 @@ public class InterstitialTest extends ActivityTestCase<MainActivity> {
 
         super.setUp();
         setRunBasedOnResource(R.bool.run_ads_tests);
-
-        playInterstitialPlaylist();
     }
 
     public void testShouldShowInterstitial() {
+        playInterstitialPlaylist();
+
         playerElement.swipeNext(); // to monetizableTrack
         playerElement.waitForPlayState();
         playerElement.waitForAdOverlayToLoad();

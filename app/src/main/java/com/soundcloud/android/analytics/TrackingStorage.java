@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.analytics.TrackingDbHelper.EVENTS_TABLE;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -11,6 +12,7 @@ import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.query.WhereBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +29,7 @@ import java.util.List;
  */
 class TrackingStorage {
 
+    @VisibleForTesting
     static final int FIXED_BATCH_SIZE = 30;
 
     private final PropellerDatabase propeller;
@@ -71,6 +74,12 @@ class TrackingStorage {
         });
     }
 
+    /**
+     * Delete these events from the database.
+     * Will perform delete in batches, and abort if one batch delete fails
+     * @param submittedEvents The events to be deleted
+     * @return the last {@link com.soundcloud.propeller.ChangeResult}
+     */
     ChangeResult deleteEvents(List<TrackingRecord> submittedEvents) {
         final List<String> idList = Lists.transform(submittedEvents, new Function<TrackingRecord, String>() {
             @Override
@@ -79,9 +88,23 @@ class TrackingStorage {
             }
         });
 
-        String[] ids = idList.toArray(new String[idList.size()]);
+        int start = 0;
+        ChangeResult changeResult;
+        do {
+            final int end = Math.min(start + FIXED_BATCH_SIZE, idList.size());
+            final List<String> idBatch = idList.subList(start, end);
+            final Where whereClause = new WhereBuilder().whereIn(TrackingDbHelper.TrackingColumns._ID, idBatch);
+            changeResult = propeller.delete(EVENTS_TABLE, whereClause);
 
-        return propeller.delete(EVENTS_TABLE, new WhereBuilder().whereIn(TrackingDbHelper.TrackingColumns._ID, ids));
+            start += FIXED_BATCH_SIZE;
+
+        } while (start < idList.size() && changeResult.success());
+
+        if (changeResult.success()) {
+            return new ChangeResult(idList.size());
+        } else {
+            return (ChangeResult) new ChangeResult(start - FIXED_BATCH_SIZE).fail(changeResult.getFailure());
+        }
     }
 
 

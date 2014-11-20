@@ -4,12 +4,12 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
@@ -23,12 +23,19 @@ public class PlaybackSessionAnalyticsController {
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
-    private PlaybackSessionEvent lastPlayEventData;
+    private PlaybackSessionEvent lastSessionEventData;
     private PropertySet lastPlayAudioAd;
 
     private TrackSourceInfo currentTrackSourceInfo;
     private Playa.StateTransition lastStateTransition = Playa.StateTransition.DEFAULT;
     private ReplaySubject<PropertySet> trackObservable;
+
+    private final Func1<PropertySet, Boolean> lastEventWasNotPlayEvent = new Func1<PropertySet, Boolean>() {
+        @Override
+        public Boolean call(PropertySet track) {
+            return lastSessionEventData == null || !lastSessionEventData.isPlayEvent();
+        }
+    };
 
     @Inject
     public PlaybackSessionAnalyticsController(EventBus eventBus, TrackOperations trackOperations,
@@ -81,7 +88,10 @@ public class PlaybackSessionAnalyticsController {
     private void publishPlayEvent(final Playa.StateTransition stateTransition) {
         currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         if (currentTrackSourceInfo != null) {
-            trackObservable.map(stateTransitionToSessionPlayEvent(stateTransition)).subscribe(eventBus.queue(EventQueue.TRACKING));
+            trackObservable
+                    .filter(lastEventWasNotPlayEvent)
+                    .map(stateTransitionToSessionPlayEvent(stateTransition))
+                    .subscribe(eventBus.queue(EventQueue.TRACKING));
         }
     }
 
@@ -92,14 +102,14 @@ public class PlaybackSessionAnalyticsController {
                 final Urn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
                 final long progress = stateTransition.getProgress().position;
                 final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
-                lastPlayEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
+                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
                 if (adsOperations.isCurrentTrackAudioAd()) {
                     lastPlayAudioAd = playQueueManager.getCurrentMetaData();
-                    lastPlayEventData = lastPlayEventData.withAudioAd(lastPlayAudioAd);
+                    lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
                     lastPlayAudioAd = null;
                 }
-                return lastPlayEventData;
+                return lastSessionEventData;
             }
         };
     }
@@ -107,10 +117,10 @@ public class PlaybackSessionAnalyticsController {
     private void publishStopEvent(final Playa.StateTransition stateTransition, final int stopReason) {
         // note that we only want to publish a stop event if we have a corresponding play event. This value
         // will be nulled out after it is used, and we will not publish another stop event until a play event
-        // creates a new value for lastPlayEventData
-        if (lastPlayEventData != null && currentTrackSourceInfo != null) {
-            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition, lastPlayEventData)).subscribe(eventBus.queue(EventQueue.TRACKING));
-            lastPlayEventData = null;
+        // creates a new value for lastSessionEventData
+        if (lastSessionEventData != null && currentTrackSourceInfo != null) {
+            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition, lastSessionEventData)).subscribe(eventBus.queue(EventQueue.TRACKING));
+            lastSessionEventData = null;
             lastPlayAudioAd = null;
         }
     }
