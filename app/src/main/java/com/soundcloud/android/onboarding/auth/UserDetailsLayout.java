@@ -71,13 +71,13 @@ public class UserDetailsLayout extends RelativeLayout {
     }
 
     public File generateTempAvatarFile() {
-        avatarFile = ImageUtils.createTempAvatarFile(getContext());
+        avatarFile = ImageUtils.createTempAvatarFile();
         return avatarFile;
     }
 
     public void onImagePick(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-            File tmpAvatar = ImageUtils.createTempAvatarFile(getContext());
+            File tmpAvatar = ImageUtils.createTempAvatarFile();
             if (tmpAvatar != null) {
                 avatarFile = tmpAvatar;
                 ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(avatarFile));

@@ -6,7 +6,6 @@ import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.OneShotTransitionDrawable;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import android.annotation.TargetApi;
@@ -272,9 +271,9 @@ public final class ImageUtils {
                 || url.contains("default_avatar"));
     }
 
-    public static File createTempAvatarFile(Context context) {
+    public static File createTempAvatarFile() {
         try {
-            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", IOUtils.getCacheDir(context));
+            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp");
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);
             return null;

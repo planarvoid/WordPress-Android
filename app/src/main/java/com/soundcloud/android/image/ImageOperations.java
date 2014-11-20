@@ -123,6 +123,14 @@ public class ImageOperations {
         imageLoader.init(builder.build());
     }
 
+    public void clearDiskCache() {
+        imageLoader.clearDiskCache();
+    }
+
+    public File getDiskCacheDirectory() {
+        return imageLoader.getDiskCache().getDirectory();
+    }
+
     public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(

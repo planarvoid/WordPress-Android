@@ -22,8 +22,9 @@ import javax.inject.Inject;
 
 public class SettingsActivity extends ScSettingsActivity {
 
-    static final int DIALOG_CACHE_DELETING = 0;
+    static final int DIALOG_STREAM_CACHE_DELETING = 0;
     static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
+    static final int DIALOG_IMAGE_CACHE_DELETING = 2;
 
     private ProgressDialog deleteDialog;
 
@@ -65,7 +66,7 @@ public class SettingsActivity extends ScSettingsActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case DIALOG_CACHE_DELETING:
+            case DIALOG_STREAM_CACHE_DELETING:
                 if (deleteDialog == null) {
                     deleteDialog = new ProgressDialog(this);
                     deleteDialog.setTitle(R.string.cache_clearing);
@@ -75,7 +76,11 @@ public class SettingsActivity extends ScSettingsActivity {
                     deleteDialog.setCancelable(false);
                 }
                 return deleteDialog;
-
+            case DIALOG_IMAGE_CACHE_DELETING:
+                final ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setTitle(R.string.cache_clearing);
+                dialog.setMessage(getString(R.string.cache_clearing_message));
+                return dialog;
             case DIALOG_USER_LOGOUT_CONFIRM:
                 return createLogoutDialog();
         }

@@ -303,7 +303,6 @@ public final class IOUtils {
 
 
     public static void createCacheDirectories(Context c) {
-        mkdirs(getCacheDir(c));
         if (isSDCardAvailable()) {
             // create external storage directory
             mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
@@ -313,18 +312,6 @@ public final class IOUtils {
             // ignore all media below files
             nomedia(Consts.FILES_PATH);
         }
-    }
-
-    public static File getCacheDir(Context c) {
-        if (isSDCardAvailable()) {
-            return Consts.EXTERNAL_CACHE_DIRECTORY;
-        } else {
-            return c.getCacheDir();
-        }
-    }
-
-    public static File getCacheFile(Context c, String name) {
-        return new File(getCacheDir(c), name);
     }
 
     public static boolean isSDCardAvailable() {

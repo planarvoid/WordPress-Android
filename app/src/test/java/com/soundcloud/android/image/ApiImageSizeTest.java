@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,15 +14,6 @@ import android.util.DisplayMetrics;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiImageSizeTest {
-
-    @Test
-    public void shouldGetMinimumImageSize() throws Exception {
-        expect(ApiImageSize.getMinimumSizeFor(99, 101, true)).toEqual(ApiImageSize.T300);
-        expect(ApiImageSize.getMinimumSizeFor(99, 101, false)).toEqual(ApiImageSize.LARGE);
-        expect(ApiImageSize.getMinimumSizeFor(67, 67, true)).toEqual(ApiImageSize.T67);
-        expect(ApiImageSize.getMinimumSizeFor(68, 67, true)).toEqual(ApiImageSize.LARGE);
-        expect(ApiImageSize.getMinimumSizeFor(68, 67, false)).toEqual(ApiImageSize.T67);
-    }
 
     @Test
     public void shouldFormatUriFromAnyKnownSizeToAnyOtherSize() throws Exception {
@@ -145,12 +135,5 @@ public class ApiImageSizeTest {
         when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
 
         expect(ApiImageSize.formatUriForNotificationLargeIcon(context, input)).toEqual(expected);
-    }
-
-    @Test
-    public void shouldFormatUriForSuggestionList() throws Exception {
-        expect(ApiImageSize.getSearchSuggestionsListItemImageSize(Robolectric.application)
-                .formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
-                .toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-small.jpg?2479809");
     }
 }

@@ -52,7 +52,6 @@ public enum Content {
 
     ME_SHORTCUT("me/shortcuts/#", TempEndpoints.i1.MY_SHORTCUTS, 115, Shortcut.class, -1, Table.Suggestions),
     ME_SHORTCUTS("me/shortcuts", TempEndpoints.i1.MY_SHORTCUTS, 116, Shortcut.class, -1, Table.Suggestions),
-    ME_SHORTCUTS_ICON("me/shortcut_icon/#", null, 117, null, -1, Table.Suggestions),
 
     /* For pushing to the api*/
     ME_TRACK_REPOST("me/reposts/tracks/#", TempEndpoints.e1.MY_TRACK_REPOST, 120, PublicApiTrack.class, -1, null),

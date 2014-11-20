@@ -21,7 +21,6 @@ public final class Consts {
             "Android/data/com.soundcloud.android/files");
 
     // dot file to have it excluded from media scanning - also use .nomedia
-    public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".lrucache");
     public static final File OLD_EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
     public static final File EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
     public static final File EXTERNAL_SKIPPY_STREAM_DIRECTORY = new File(FILES_PATH, "skippy");

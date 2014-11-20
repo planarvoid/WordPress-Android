@@ -6,8 +6,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 public class GeneralSettings {
 
@@ -49,16 +50,16 @@ public class GeneralSettings {
     private int clicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private final DeviceHelper deviceHelper;
+    private final ImageOperations imageOperations;
     private final Resources resources;
     private final Context appContext;
-    private final FeatureFlags featureFlags;
 
     @Inject
-    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper, FeatureFlags featureFlags) {
+    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper, ImageOperations imageOperations) {
         this.appContext = appContext;
         this.resources = resources;
         this.deviceHelper = deviceHelper;
-        this.featureFlags = featureFlags;
+        this.imageOperations = imageOperations;
     }
 
     public void setup(final SettingsActivity activity) {
@@ -143,9 +144,26 @@ public class GeneralSettings {
         activity.findPreference(CLEAR_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        boolean isRecursive = false;
-                        getDeleteCacheTask(isRecursive, activity).execute(IOUtils.getCacheDir(appContext));
+                        activity.safeShowDialog(SettingsActivity.DIALOG_IMAGE_CACHE_DELETING);
+
+                        final Handler handler = new Handler();
+                        final WeakReference<SettingsActivity> weakReference = new WeakReference<>(activity);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageOperations.clearDiskCache();
+                                updateActivityIfNeeded(handler, weakReference);
+                            }
+                        }).start();
                         return true;
+                    }
+
+                    private void updateActivityIfNeeded(Handler handler, WeakReference<SettingsActivity> weakReference) {
+                        final SettingsActivity settingsActivity = weakReference.get();
+                        if (settingsActivity != null && !settingsActivity.isFinishing()) {
+                            updateImageCacheSizeSync(handler, settingsActivity);
+                            settingsActivity.dismissDialog(SettingsActivity.DIALOG_IMAGE_CACHE_DELETING);
+                        }
                     }
                 }
         );
@@ -153,8 +171,7 @@ public class GeneralSettings {
         activity.findPreference(CLEAR_STREAM_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        boolean isRecursive = true;
-                        getDeleteCacheTask(isRecursive, activity)
+                        getDeleteCacheTask(activity)
                                 .execute(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
                         return true;
                     }
@@ -176,11 +193,11 @@ public class GeneralSettings {
         );
     }
 
-    private FileCache.CleanCacheTask getDeleteCacheTask(final boolean isRecursive, final SettingsActivity activity) {
-        return new FileCache.CleanCacheTask(isRecursive) {
+    private FileCache.CleanCacheTask getDeleteCacheTask(final SettingsActivity activity) {
+        return new FileCache.CleanCacheTask(true) {
             @Override
             protected void onPreExecute() {
-                activity.safeShowDialog(SettingsActivity.DIALOG_CACHE_DELETING);
+                activity.safeShowDialog(SettingsActivity.DIALOG_STREAM_CACHE_DELETING);
             }
 
             @Override
@@ -190,7 +207,7 @@ public class GeneralSettings {
 
             @Override
             protected void onPostExecute(Boolean result) {
-                activity.removeDialog(SettingsActivity.DIALOG_CACHE_DELETING);
+                activity.removeDialog(SettingsActivity.DIALOG_STREAM_CACHE_DELETING);
                 updateClearCacheTitles(activity);
             }
         };
@@ -206,9 +223,13 @@ public class GeneralSettings {
     }
 
     void updateClearCacheTitles(PreferenceActivity activity) {
-        setClearCacheTitle(activity, CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(appContext));
+        setClearCacheTitle(activity, CLEAR_CACHE, R.string.pref_clear_cache, imageOperations.getDiskCacheDirectory());
         setClearCacheTitle(activity, CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache,
                 Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
+    }
+
+    private void updateImageCacheSizeSync(Handler handler, SettingsActivity activity) {
+        setClearCacheTitleSync(handler, activity, CLEAR_CACHE, R.string.pref_clear_cache, imageOperations.getDiskCacheDirectory());
     }
 
     private void setClearCacheTitle(final PreferenceActivity activity, final String pref, final int key, final File... directories) {
@@ -216,15 +237,19 @@ public class GeneralSettings {
         new Thread() {
             @Override
             public void run() {
-                final String size = IOUtils.inMbFormatted(directories);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        activity.findPreference(pref).setTitle(resources.getString(key) + " [" + size + " MB]");
-                    }
-                });
+                setClearCacheTitleSync(handler, activity, pref, key, directories);
             }
         }.start();
+    }
+
+    private void setClearCacheTitleSync(Handler handler, final PreferenceActivity activity, final String pref, final int key, File... directories) {
+        final String size = IOUtils.inMbFormatted(directories);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                activity.findPreference(pref).setTitle(resources.getString(key) + " [" + size + " MB]");
+            }
+        });
     }
 
 }

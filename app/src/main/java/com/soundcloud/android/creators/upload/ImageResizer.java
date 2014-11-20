@@ -3,7 +3,6 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
@@ -42,7 +41,7 @@ public class ImageResizer implements Runnable {
         }
         try {
             broadcast(UploadService.RESIZE_STARTED);
-            File resized = IOUtils.getCacheFile(context, "upload_tmp_" + recording.getId() + ".jpg");
+            File resized = File.createTempFile("upload_tmp_" + recording.getId(), ".jpg");
             final long start = System.currentTimeMillis();
             if (ImageUtils.resizeImageFile(recording.artwork_path, resized, ImageUtils.RECOMMENDED_IMAGE_SIZE, ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
                 recording.resized_artwork_path = resized;
