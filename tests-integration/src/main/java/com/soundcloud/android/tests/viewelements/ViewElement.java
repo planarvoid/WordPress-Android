@@ -13,45 +13,45 @@ import android.webkit.WebView;
 import java.util.List;
 
 public abstract class ViewElement {
-    abstract public ViewElement findElement(With with);
+    public abstract ViewElement findElement(With with);
 
-    abstract public List<ViewElement> findElements(With with);
+    public abstract List<ViewElement> findElements(With with);
 
-    abstract public void dragHorizontally(int n, int steps);
+    public abstract void dragHorizontally(int n, int steps);
 
-    abstract public ViewElement getChildAt(int index);
+    public abstract ViewElement getChildAt(int index);
 
-    abstract public void click();
+    public abstract void click();
 
-    abstract public void longClick();
+    public abstract void longClick();
 
-    abstract public boolean isEnabled();
+    public abstract boolean isEnabled();
 
-    abstract public boolean isChecked();
+    public abstract boolean isChecked();
 
-    abstract public int getId();
+    public abstract int getId();
 
-    abstract public boolean isVisible();
+    public abstract boolean isVisible();
 
-    abstract public int getHeight();
+    public abstract int getHeight();
 
-    abstract public int getWidth();
+    public abstract int getWidth();
 
-    abstract public int getTop();
+    public abstract int getTop();
 
-    abstract public ListElement toListView();
+    public abstract ListElement toListView();
 
-    abstract public SlidingTabs toSlidingTabs();
+    public abstract SlidingTabs toSlidingTabs();
 
-    abstract public ViewParent getParent();
+    public abstract ViewParent getParent();
 
-    abstract public Class getViewClass();
+    public abstract Class getViewClass();
 
-    abstract public ViewPager toViewPager();
+    public abstract ViewPager toViewPager();
 
-    abstract public WebView toWebView();
+    public abstract WebView toWebView();
 
-    abstract /* package */  View getView();
+    /* package */ abstract View getView();
 
-    abstract /* package */  Solo getTestDriver();
+    /* package */ abstract Solo getTestDriver();
 }

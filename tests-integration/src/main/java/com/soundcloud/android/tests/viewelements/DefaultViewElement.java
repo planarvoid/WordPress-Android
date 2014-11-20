@@ -142,7 +142,7 @@ public final class DefaultViewElement extends ViewElement {
     /* package */ View getView() { return view; }
 
     @Override
-    /* package */  Solo getTestDriver() { return testDriver; }
+    /* package */ Solo getTestDriver() { return testDriver; }
 
     private boolean isShown() {
         return view.isShown();

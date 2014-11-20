@@ -109,8 +109,8 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    /* package */  View getView() { throw new ViewNotFoundException(); }
+    /* package */ View getView() { throw new ViewNotFoundException(); }
 
     @Override
-    /* package */  Solo getTestDriver() { throw new ViewNotFoundException(); }
+    /* package */ Solo getTestDriver() { throw new ViewNotFoundException(); }
 }
