@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -20,19 +19,6 @@ import java.io.IOException;
 
 public final class HttpUtils {
     private HttpUtils() {
-    }
-
-    public static HttpClient createHttpClient(String userAgent) {
-        return AndroidHttpClient.newInstance(userAgent);
-    }
-
-    public static void closeHttpClient(HttpClient client) {
-        if (client instanceof AndroidHttpClient) {
-            // avoid leak error logging
-            ((AndroidHttpClient) client).close();
-        } else if (client != null) {
-            client.getConnectionManager().shutdown();
-        }
     }
 
     public static
