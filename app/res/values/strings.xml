@@ -40,7 +40,6 @@
     <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
     <string name="delete">Delete</string>
     <string name="comments">Comments</string>
-    <string name="menu_load_more">Load more</string>
     <string name="new_connection_error">There was a problem adding the network</string>
     <string name="raw">Raw</string>
     <string name="reset">Discard</string>
@@ -556,10 +555,6 @@
     <string name="sc_upload_public">\u00A0Public</string>
     <string name="sc_upload_sharing_options_private">Your sound will be made private on SoundCloud.</string>
     <string name="sc_upload_sharing_options_public">Your sound will be made public on SoundCloud. Which other networks would you like to share it to?</string>
-
-    <!-- UPLOAD LOCATION -->
-    <string name="location_picker_go_to_settings">Go to settings</string>
-    <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>

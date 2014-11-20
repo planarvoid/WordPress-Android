@@ -271,15 +271,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                 }
                 break;
             }
-            case Consts.RequestCodes.PICK_VENUE:
-                if (resultCode == RESULT_OK && result != null && result.hasExtra(LocationPickerActivity.EXTRA_NAME)) {
-                    // XXX candidate for model?
-                    recordingMetadata.setWhere(result.getStringExtra(LocationPickerActivity.EXTRA_NAME),
-                            result.getStringExtra(LocationPickerActivity.EXTRA_4SQ_ID),
-                            result.getDoubleExtra(LocationPickerActivity.EXTRA_LONGITUDE, 0),
-                            result.getDoubleExtra(LocationPickerActivity.EXTRA_LATITUDE, 0));
-                }
-                break;
 
             case Consts.RequestCodes.MAKE_CONNECTION:
                 if (resultCode == RESULT_OK) {

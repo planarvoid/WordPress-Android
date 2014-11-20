@@ -76,11 +76,8 @@
     <string name="image_load_error">Ocurrió un error al cargar la imagen</string>
     <string name="image_where">¿Cómo le gustaría añadir una imagen?</string>
     <string name="comments">Comentarios</string>
-    <string name="location_picker_go_to_settings">Ir a ajustes</string>
-    <string name="location_picker_no_providers_enabled">No hay habilitados proveedores de lugares.</string>
     <string name="menu_clear_user_desc">Tiene que volver a conectar su cuenta de SoundCloud.</string>
     <string name="menu_clear_user_title">¿Borrar los datos de usuario?</string>
-    <string name="menu_load_more">Cargar más</string>
     <string name="title_settings">Ajustes</string>
     <string name="myspace">Myspace</string>
     <string name="new_connection_error">Se produjo un problema al añadir su red.</string>

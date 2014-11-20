@@ -223,13 +223,6 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldAddFoursquareMachineTags() throws Exception {
-        Recording r = createRecording();
-        r.four_square_venue_id = "abcdef";
-        expect(r.getTags()).toContain("foursquare:venue=abcdef");
-    }
-
-    @Test
     public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
         Recording r = createRecording();
         r.external_upload = true;

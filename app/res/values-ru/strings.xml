@@ -39,7 +39,6 @@
     <string name="connection_list_footer">Чтобы изменить настройки общего доступа по умолчанию, перейдите в настройки SoundCloud и выберите \"Соединения\"</string>
     <string name="delete">Удалить</string>
     <string name="comments">Комментарии</string>
-    <string name="menu_load_more">Загрузить больше</string>
     <string name="new_connection_error">Не удалось добавить сеть</string>
     <string name="raw">Сырые</string>
     <string name="reset">Удалить</string>
@@ -533,10 +532,6 @@
     <string name="sc_upload_public">Открытый доступ</string>
     <string name="sc_upload_sharing_options_private">Ваша запись будет закрыта от доступа других пользователей SoundCloud.</string>
     <string name="sc_upload_sharing_options_public">Ваша запись будет открыта для доступа других пользователей SoundCloud. В каких еще социальных сетях вы хотите ею поделиться?</string>
-
-    <!-- UPLOAD LOCATION -->
-    <string name="location_picker_go_to_settings">К настройкам</string>
-    <string name="location_picker_no_providers_enabled">Нет выбранных провайдеров местоположения.</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Нажмите, чтобы открыть SoundCloud</string>

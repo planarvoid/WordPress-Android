@@ -39,7 +39,6 @@
     <string name="connection_list_footer">Untuk mengubah opsi berbagi standar, buka pengaturanmu di SoundCloud dan pilih \'Koneksi\'</string>
     <string name="delete">Hapus</string>
     <string name="comments">Komentar</string>
-    <string name="menu_load_more">Muat lainnya</string>
     <string name="new_connection_error">Ada masalah menambahkan jaringan</string>
     <string name="raw">Data mentah</string>
     <string name="reset">Buang</string>
@@ -533,10 +532,6 @@
     <string name="sc_upload_public">Publik</string>
     <string name="sc_upload_sharing_options_private">Suaramu akan dibuat pribadi di SoundCloud.</string>
     <string name="sc_upload_sharing_options_public">Suaramu akan dipublikasikan di SoundCloud. Jaringan lain mana yang ingin kamu bagi juga?</string>
-
-    <!-- UPLOAD LOCATION -->
-    <string name="location_picker_go_to_settings">Buka pengaturan</string>
-    <string name="location_picker_no_providers_enabled">Penyedia lokasi belum diaktifkan.</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Sentuh untuk membuka SoundCloud</string>
