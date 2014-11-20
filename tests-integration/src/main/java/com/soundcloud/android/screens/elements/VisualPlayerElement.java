@@ -16,8 +16,6 @@ import android.view.View;
 import java.util.concurrent.TimeUnit;
 
 public class VisualPlayerElement extends Element {
-
-    public static final int MILISECONDS_UNTIL_AD_SKIPPABLE = (int) TimeUnit.SECONDS.toMillis(15L);
     private static final int MILISECONDS_UNTIL_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
@@ -43,24 +41,28 @@ public class VisualPlayerElement extends Element {
         return R.id.player_layout;
     }
 
-    public ViewElement previousButton() {
-        return solo.findElement(With.id(R.id.player_previous));
-    }
-
-    public ViewElement playButton() {
-        return solo.findElement(With.id(R.id.player_play));
-    }
-
-    public ViewElement nextButton() {
-        return solo.findElement(With.id(R.id.player_next));
-    }
-
     public boolean isNextButtonClickable() {
         return solo.isElementDisplayed(With.id(R.id.player_next)) && nextButton().isVisible() && nextButton().isEnabled();
     }
 
     public boolean isPreviousButtonClickable() {
         return solo.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isVisible() && previousButton().isEnabled();
+    }
+
+    public boolean isLeaveBehindVisible() {
+        return leaveBehind().isVisible();
+    }
+
+    public boolean isInterstitialVisible() {
+        return interstitial().isVisible();
+    }
+
+    private ViewElement previousButton() {
+        return solo.findElement(With.id(R.id.player_previous));
+    }
+
+    private ViewElement nextButton() {
+        return solo.findElement(With.id(R.id.player_next));
     }
 
     public boolean isSkippable() {
@@ -107,15 +109,15 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.why_ads));
     }
 
-    public ViewElement adPage() {
+    private ViewElement adPage() {
         return solo.findElement(With.id(R.id.player_ad_page));
     }
 
-    public ViewElement leaveBehind() {
+    private ViewElement leaveBehind() {
         return solo.findElement(With.id(R.id.leave_behind));
     }
 
-    public ViewElement interstitial() {
+    private ViewElement interstitial() {
         return solo.findElement(With.id(R.id.interstitial));
     }
 

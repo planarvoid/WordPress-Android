@@ -1,5 +1,8 @@
 package com.soundcloud.android.screens.elements;
 
+import com.soundcloud.android.screens.AddCommentScreen;
+import com.soundcloud.android.screens.AddToPlaylistsScreen;
+import com.soundcloud.android.screens.TrackInfoScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.viewelements.ViewElement;
 import com.soundcloud.android.tests.Waiter;
@@ -19,7 +22,24 @@ public class PlayerMenuElement {
         waiter = new Waiter(testDriver);
     }
 
-    public ViewElement addToPlaylistItem() {
+    public TrackInfoScreen clickInfo() {
+        info().click();
+        final TrackInfoScreen trackInfoScreen = new TrackInfoScreen(testDriver);
+        trackInfoScreen.waitForDialog();
+        return trackInfoScreen;
+    }
+
+    public AddToPlaylistsScreen clickAddToPlaylist() {
+        addToPlaylistItem().click();
+        return new AddToPlaylistsScreen(testDriver);
+    }
+
+    public AddCommentScreen clickComment() {
+        comment().click();
+        return new AddCommentScreen(testDriver);
+    }
+
+    private ViewElement addToPlaylistItem() {
         return menuItems().get(0);
     }
 
@@ -31,13 +51,14 @@ public class PlayerMenuElement {
         return menuItems().get(2);
     }
 
-    public ViewElement comment() {
+    private ViewElement comment() {
         return menuItems().get(3);
     }
 
-    public ViewElement info() {
+    private ViewElement info() {
         return menuItems().get(4);
     }
+
 
     private ViewElement container() {
         return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));

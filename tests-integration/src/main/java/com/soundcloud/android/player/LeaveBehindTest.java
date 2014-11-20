@@ -1,9 +1,5 @@
 package com.soundcloud.android.player;
 
-import static com.soundcloud.android.tests.matcher.view.IsVisible.visible;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -34,7 +30,7 @@ public class LeaveBehindTest extends ActivityTestCase<MainActivity> {
         swipeToAd();
         playerElement.waitForAdToBeDone();
         playerElement.waitForAdOverlayToLoad();
-        assertThat(playerElement.leaveBehind(), is(visible()));
+        assertTrue(playerElement.isLeaveBehindVisible());
     }
 
     /**

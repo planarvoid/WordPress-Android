@@ -13,7 +13,6 @@ import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
-import com.soundcloud.android.screens.TrackInfoScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -138,14 +137,15 @@ public class PlayerTest extends ActivityTestCase<MainActivity> {
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
-    public void testPlayerShowTheTrackDesciption() throws Exception {
+    public void testPlayerShowTheTrackDescription() throws Exception {
         playExploreTrack();
 
         String originalTitle = playerElement.getTrackTitle();
-        playerElement.clickMenu().info().click();
+        TrackCommentsScreen trackInfoScreen = playerElement
+                .clickMenu()
+                .clickInfo()
+                .clickComments();
 
-        final TrackInfoScreen trackInfoScreen = new TrackInfoScreen(solo);
-        assertTrue(trackInfoScreen.waitForDialog());
         assertThat(trackInfoScreen.getTitle(), is(equalTo(originalTitle)));
     }
 
@@ -153,12 +153,11 @@ public class PlayerTest extends ActivityTestCase<MainActivity> {
         playTrackFromLikes();
 
         String originalTitle = playerElement.getTrackTitle();
-        playerElement.clickMenu().info().click();
+        TrackCommentsScreen trackCommentsScreen = playerElement
+                .clickMenu()
+                .clickInfo()
+                .clickComments();
 
-        final TrackInfoScreen trackInfoScreen = new TrackInfoScreen(solo);
-        assertTrue(trackInfoScreen.waitForDialog());
-
-        TrackCommentsScreen trackCommentsScreen = trackInfoScreen.clickComments();
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
     }
 
@@ -166,9 +165,10 @@ public class PlayerTest extends ActivityTestCase<MainActivity> {
         playTrackFromLikes();
 
         String originalTitle = playerElement.getTrackTitle();
-        playerElement.clickMenu().comment().click();
+        final AddCommentScreen addCommentScreen = playerElement
+                .clickMenu()
+                .clickComment();
 
-        final AddCommentScreen addCommentScreen = new AddCommentScreen(solo);
         assertTrue(addCommentScreen.waitForDialog());
         assertTrue(addCommentScreen.getTitle().contains(originalTitle));
     }

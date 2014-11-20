@@ -46,12 +46,10 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testPlayerAddTrackToPlaylist() {
-        streamScreen.clickFirstTrack()
+        final AddToPlaylistsScreen addToPlaylistsScreen = streamScreen.clickFirstTrack()
                 .clickMenu()
-                .addToPlaylistItem()
-                .click();
+                .clickAddToPlaylist();
 
-        final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
         assertThat(addToPlaylistsScreen, is(com.soundcloud.android.tests.matcher.screen.IsVisible.visible()));
     }
 
