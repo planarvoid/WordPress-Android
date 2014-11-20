@@ -1,28 +1,52 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.crypto.SecureKey;
+
 import android.content.SharedPreferences;
 import android.util.Base64;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class KeyStorage {
 
     private final SharedPreferences preferences;
+    private final String ENCODED_EMPTY_VALUE = encodeForPrefs(SecureKey.EMPTY.getBytes());
 
     @Inject
-    public KeyStorage(SharedPreferences preferences) {
+    public KeyStorage(@Named("DeviceKeys") SharedPreferences preferences) {
         this.preferences = preferences;
     }
 
-    public void put(String name, byte[] value) {
-        final String encodedValue = encodeForPrefs(value);
-        preferences.edit().putString(name, encodedValue).apply();
+    public void put(SecureKey key) {
+        final SharedPreferences.Editor editor = preferences.edit();
+        final String encodedValue = encodeForPrefs(key.getBytes());
+        editor.putString(key.getName(), encodedValue);
+
+        if (key.hasInitVector()) {
+            final String encodedIV = encodeForPrefs(key.getInitVector());
+            final String ivKeyName = getIvKeyName(key.getName());
+            editor.putString(ivKeyName, encodedIV);
+        }
+        editor.apply();
     }
 
-    public byte[] get(String name, byte[] defaultValue) {
-        final String encodedDefaultValue = encodeForPrefs(defaultValue);
-        final String value = preferences.getString(name, encodedDefaultValue);
-        return decodeFromPrefs(value);
+    public SecureKey get(String name) {
+        if (preferences.contains(name)) {
+            final byte[] key = decodeKeyFromPrefs(name);
+            final byte[] iv = decodeKeyFromPrefs(getIvKeyName(name));
+            return new SecureKey(name, key, iv);
+        }
+        return SecureKey.EMPTY;
+    }
+
+    private String getIvKeyName(String keyName) {
+        return keyName + ".iv";
+    }
+
+    private byte[] decodeKeyFromPrefs(String name) {
+        final String encoded = preferences.getString(name, ENCODED_EMPTY_VALUE);
+        return decodeFromPrefs(encoded);
     }
 
     public boolean contains(String name) {

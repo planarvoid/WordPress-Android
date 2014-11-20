@@ -1,10 +1,10 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
 
 import com.google.common.base.Charsets;
+import com.soundcloud.android.crypto.SecureKey;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 public class KeyStorageTest {
     private KeyStorage keyStorage;
 
+    private final SecureKey testKey = getTestKeyFromString("my key é", "a portuguese valuë, 123");
     private final SharedPreferences preferences = Robolectric.application.getSharedPreferences("test", Context.MODE_PRIVATE);
 
     @Before
@@ -27,25 +28,39 @@ public class KeyStorageTest {
     }
 
     @Test
-    public void setAndGetValues() {
-        byte[] insertedValue = getBytesFromString("a portuguese valuë, 123");
-        keyStorage.put("my key é", insertedValue);
+    public void setAndGetSecretKey() {
+        keyStorage.put(testKey);
 
-        byte[] returnedValue = keyStorage.get("my key é", getBytesFromString("default"));;
-        assertThat(returnedValue, is(insertedValue));
+        final SecureKey returnedKey = keyStorage.get(testKey.getName());
+        expect(returnedKey.getName()).toEqual(testKey.getName());
+
+        expectByteArraysToBeEqual(returnedKey.getBytes(), testKey.getBytes());
+        expect(returnedKey.hasInitVector()).toBeFalse();
     }
 
     @Test
-    public void getDefaultValue() {
-        byte[] defaultValue = getBytesFromString("default value");
-        byte[] actual = keyStorage.get("unknown key", defaultValue);
-        assertThat(actual, is(defaultValue));
+    public void setAndGetSecretKeyWithIV() {
+        SecureKey keyWithIV = getTestKeyWithIV("my key");
+        keyStorage.put(keyWithIV);
+
+        final SecureKey returnedKey = keyStorage.get(keyWithIV.getName());
+        expect(returnedKey.getName()).toEqual(keyWithIV.getName());
+        expectByteArraysToBeEqual(returnedKey.getBytes(), keyWithIV.getBytes());
+
+        expect(returnedKey.hasInitVector()).toBeTrue();
+        expectByteArraysToBeEqual(returnedKey.getInitVector(), keyWithIV.getInitVector());
     }
 
     @Test
-    public void existReturnTrueWhenTheValueExists() {
-        keyStorage.put("existing key", getBytesFromString("value"));
-        expect(keyStorage.contains("existing key")).toBeTrue();
+    public void getEmptyKeyForUnknown() {
+        SecureKey key = keyStorage.get("unknown key");
+        expect(key).toEqual(SecureKey.EMPTY);
+    }
+
+    @Test
+    public void containsReturnTrueWhenTheValueExists() {
+        keyStorage.put(testKey);
+        expect(keyStorage.contains(testKey.getName())).toBeTrue();
     }
 
     @Test
@@ -55,12 +70,17 @@ public class KeyStorageTest {
 
     @Test
     public void deleteKey() {
-        keyStorage.put("key", getBytesFromString("value"));
-        keyStorage.delete("key");
-        expect(keyStorage.contains("key")).toBeFalse();
+        keyStorage.put(testKey);
+
+        keyStorage.delete(testKey.getName());
+        expect(keyStorage.contains(testKey.getName())).toBeFalse();
     }
 
-    private byte[] getBytesFromString(String value) {
-        return value.getBytes(Charsets.UTF_8);
+    private SecureKey getTestKeyFromString(String name, String key) {
+        return new SecureKey(name, key.getBytes(Charsets.UTF_8));
+    }
+
+    private SecureKey getTestKeyWithIV(String name) {
+        return new SecureKey(name, "SomeKey".getBytes(Charsets.UTF_8), "ivbytes".getBytes(Charsets.UTF_8));
     }
 }

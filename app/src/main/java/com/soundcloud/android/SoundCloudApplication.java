@@ -10,6 +10,8 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
@@ -24,6 +26,7 @@ import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -40,7 +43,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
-import com.soundcloud.android.api.oauth.Token;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
@@ -92,6 +94,7 @@ public class SoundCloudApplication extends Application {
     @Inject PlaybackNotificationController playbackNotificationController;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
+    @Inject CryptoOperations cryptoOperations;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -145,6 +148,7 @@ public class SoundCloudApplication extends Application {
         accountOperations.loadLoggedInUser();
         setupCurrentUserAccount();
         setupExperiments();
+        generateAppKey();
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
@@ -156,6 +160,12 @@ public class SoundCloudApplication extends Application {
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
         adsController.subscribe();
+    }
+
+    private void generateAppKey() {
+        if (featureFlags.isEnabled(Feature.APP_KEY_GENERATION)) {
+            cryptoOperations.generateApplicationKeyIfNeeded();
+        }
     }
 
     private void initializePreInjectionObjects() {
