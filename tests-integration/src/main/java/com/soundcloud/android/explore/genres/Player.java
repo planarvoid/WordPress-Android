@@ -10,16 +10,13 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.helpers.NavigationHelper;
 
 public class Player extends ActivityTestCase<MainActivity> {
-    private VisualPlayerElement player;
     private StreamScreen streamScreen;
-    private ExploreGenreCategoryScreen categoryScreen;
 
     public Player() {
         super(MainActivity.class);
@@ -33,7 +30,7 @@ public class Player extends ActivityTestCase<MainActivity> {
     }
 
     public void testVisualPlayerIsAccessible() {
-        player = streamScreen.clickFirstTrack();
+        final VisualPlayerElement player = streamScreen.clickFirstTrack();
         assertThat(player, is(expanded()));
         player.pressBackToCollapse();
 
@@ -51,6 +48,6 @@ public class Player extends ActivityTestCase<MainActivity> {
     private void openExploreGenreAmbient() {
         final ExploreScreen exploreScreen = NavigationHelper.openExploreFromMenu(streamScreen);
         exploreScreen.touchGenresTab();
-        categoryScreen = exploreScreen.clickGenreItem("Ambient");
+        exploreScreen.clickGenreItem("Ambient");
     }
 }
