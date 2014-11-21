@@ -25,6 +25,7 @@ public class RichNotificationPresenter extends PlaybackNotificationPresenter {
         this.remoteViewsFactory = remoteViewsFactory;
     }
 
+    @Override
     Notification createNotification(PropertySet trackProperties) {
         NotificationTrack trackViewModel = new NotificationTrack(getContext().getResources(), trackProperties);
         Notification notification = super.createNotification(trackProperties);
@@ -37,14 +38,17 @@ public class RichNotificationPresenter extends PlaybackNotificationPresenter {
         return notification;
     }
 
+    @Override
     public boolean artworkCapable() {
         return true;
     }
 
+    @Override
     void setIcon(Notification notification, Bitmap bitmap) {
         ((NotificationPlaybackRemoteViews) notification.contentView).setIcon(bitmap);
     }
 
+    @Override
     void clearIcon(Notification notification) {
         ((NotificationPlaybackRemoteViews) notification.contentView).clearIcon();
     }
