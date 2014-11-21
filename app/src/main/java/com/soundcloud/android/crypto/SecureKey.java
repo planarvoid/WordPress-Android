@@ -17,23 +17,33 @@ public class SecureKey {
         this(name, key, null);
     }
 
-    public SecureKey(String name, byte[] key, byte[] initVector) {
+    public SecureKey(String name, byte[] newKey, byte[] iVector) {
         this.name = name;
-        this.key = key;
-        this.initVector = initVector;
+        this.key = arrayCopy(newKey);
+        this.initVector = arrayCopy(iVector);
     }
-
 
     public String getName() {
         return name;
     }
 
     public byte[] getBytes() {
-        return key;
+        return arrayCopy(key);
     }
 
     public byte[] getInitVector() {
-        return initVector;
+        return arrayCopy(initVector);
+    }
+
+    private byte[] arrayCopy(byte[] origin) {
+        if (origin == null) {
+            return null;
+        }
+
+        int length = origin.length;
+        byte[] result = new byte[origin.length];
+        System.arraycopy(origin, 0, result, 0, length);
+        return result;
     }
 
     public boolean hasInitVector() {
