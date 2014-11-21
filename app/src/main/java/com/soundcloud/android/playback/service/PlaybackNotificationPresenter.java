@@ -20,8 +20,8 @@ import javax.inject.Provider;
 
 public class PlaybackNotificationPresenter {
 
-    private final Provider<NotificationCompat.Builder> builderProvider;
-    private final Context context;
+    protected final Provider<NotificationCompat.Builder> builderProvider;
+    protected final Context context;
 
     public PlaybackNotificationPresenter(Context context,
                                          Provider<NotificationCompat.Builder> builderProvider) {
@@ -65,7 +65,7 @@ public class PlaybackNotificationPresenter {
         return context;
     }
 
-    private PendingIntent createPendingIntent(Context context) {
+    protected PendingIntent createPendingIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);

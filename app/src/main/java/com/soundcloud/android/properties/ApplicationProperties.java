@@ -82,6 +82,10 @@ public class ApplicationProperties {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     }
 
+    public boolean shouldUseMediaStyleNotifications() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.L;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDevice", IS_RUNNING_ON_DEVICE).

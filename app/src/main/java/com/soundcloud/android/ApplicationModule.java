@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
+import com.soundcloud.android.playback.service.MediaStyleNotificationPresenter;
 import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
 import com.soundcloud.android.playback.service.RichNotificationPresenter;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
@@ -16,6 +17,8 @@ import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
@@ -136,10 +139,15 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public PlaybackNotificationPresenter providePlaybackNotificationPresenter(Context context, ApplicationProperties applicationProperties,
+    public PlaybackNotificationPresenter providePlaybackNotificationPresenter(Context context,
+                                                                              ApplicationProperties applicationProperties,
                                                                               NotificationPlaybackRemoteViews.Factory factory,
-                                                                              Provider<NotificationCompat.Builder> builder) {
-        if (applicationProperties.shouldUseBigNotifications()) {
+                                                                              Provider<NotificationCompat.Builder> builder,
+                                                                              FeatureFlags featureFlags) {
+        if (featureFlags.isEnabled(Feature.ANDROID_L_MEDIA_NOTIFICATION)
+                && applicationProperties.shouldUseMediaStyleNotifications()) {
+            return new MediaStyleNotificationPresenter(context, builder);
+        } else if (applicationProperties.shouldUseBigNotifications()) {
             return new BigPlaybackNotificationPresenter(context, factory, builder);
         } else if (applicationProperties.shouldUseRichNotifications()) {
             return new RichNotificationPresenter(context, factory, builder);
@@ -176,7 +184,7 @@ public class ApplicationModule {
 
     @Provides
     public PopupMenuWrapper.Factory providePopupMenuWrapperFactory() {
-        if (Build.VERSION_CODES.ICE_CREAM_SANDWICH <= Build.VERSION.SDK_INT){
+        if (Build.VERSION_CODES.ICE_CREAM_SANDWICH <= Build.VERSION.SDK_INT) {
             return new PopupMenuWrapperICS.Factory();
         } else {
             return new PopupMenuWrapperCompat.Factory();

@@ -12,7 +12,8 @@ public enum Feature {
     SECURE_STREAM_CACHE(R.bool.feature_secure_stream_cache),
     API_MOBILE_STREAM(R.bool.feature_api_mobile_stream),
     TRACK_ITEM_OVERFLOW(R.bool.feature_track_item_overflow),
-    APP_KEY_GENERATION(R.bool.feature_app_key_generation);
+    APP_KEY_GENERATION(R.bool.feature_app_key_generation),
+    ANDROID_L_MEDIA_NOTIFICATION(R.bool.feature_android_l_media_notification);
 
     private final int resourceId;
 
