@@ -88,6 +88,14 @@
                 <extensions>true</extensions>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                </configuration>
+            </plugin>
+
             <!-- use intellij's @NotNull bytecode instrumentation in maven as well -->
             <plugin>
                 <groupId>com.electriccloud</groupId>
