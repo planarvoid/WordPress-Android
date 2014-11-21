@@ -38,7 +38,7 @@ final class BillingResponse {
         return this;
     }
 
-    public  void insert() {
+    public void insert() {
         final SubscribeActivity subscribe = (SubscribeActivity) activity;
         subscribe.runOnUiThread(new Runnable() {
             @Override
