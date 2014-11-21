@@ -22,7 +22,13 @@ public class PlaybackActionController {
     }
 
     public void handleAction(String action, String source) {
-        if (PlaybackAction.PREVIOUS.equals(action)) {
+        if (PlaybackAction.PLAY.equals(action)) {
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.play(source));
+            playbackOperations.play();
+        } else if (PlaybackAction.PAUSE.equals(action)) {
+            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.pause(source));
+            playbackOperations.pause();
+        } else if (PlaybackAction.PREVIOUS.equals(action)) {
             eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(source));
             playbackOperations.previousTrack();
         } else if (PlaybackAction.NEXT.equals(action)) {

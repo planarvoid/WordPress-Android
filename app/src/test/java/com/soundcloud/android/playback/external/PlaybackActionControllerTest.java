@@ -22,10 +22,8 @@ public class PlaybackActionControllerTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
-    private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setup() {
@@ -49,21 +47,21 @@ public class PlaybackActionControllerTest {
     }
 
     @Test
-    public void shouldGoToNextTrackWhenNextPlaybackActionIsHandled() throws Exception {
+    public void shouldGoToNextTrackWhenNextPlaybackActionIsHandled() {
         controller.handleAction(PlaybackAction.NEXT, "source");
 
         verify(playbackOperations).nextTrack();
     }
 
     @Test
-    public void closeActionCallsStopServiceOnPlaybackOperations() throws Exception {
+    public void closeActionCallsStopServiceOnPlaybackOperations() {
         controller.handleAction(PlaybackAction.CLOSE, "source");
 
         verify(playbackOperations).stopService();
     }
 
     @Test
-    public void closeActionCallsTracksCloseEventWithSource() throws Exception {
+    public void closeActionCallsTracksCloseEventWithSource() {
         controller.handleAction(PlaybackAction.CLOSE, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
@@ -81,7 +79,7 @@ public class PlaybackActionControllerTest {
     }
 
     @Test
-    public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() throws Exception {
+    public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() {
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         verify(playbackOperations).togglePlayback();
@@ -101,6 +99,36 @@ public class PlaybackActionControllerTest {
     public void shouldTrackTogglePauseEventWithSource() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
+
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getAttributes().get("action")).toEqual("pause");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+    public void shouldPlayWhenPlayActionIsHandled() {
+        controller.handleAction(PlaybackAction.PLAY, "source");
+        verify(playbackOperations).play();
+    }
+
+    @Test
+    public void shouldTrackPlayEventWithSource() {
+        controller.handleAction(PlaybackAction.PLAY, "source");
+
+        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getAttributes().get("action")).toEqual("play");
+        expect(event.getAttributes().get("location")).toEqual("source");
+    }
+
+    @Test
+    public void shouldPauseWhenPauseActionIsHandled() {
+        controller.handleAction(PlaybackAction.PAUSE, "source");
+        verify(playbackOperations).pause();
+    }
+
+    @Test
+    public void shouldTrackPauseEventWithSource() {
+        controller.handleAction(PlaybackAction.PAUSE, "source");
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         expect(event.getAttributes().get("action")).toEqual("pause");

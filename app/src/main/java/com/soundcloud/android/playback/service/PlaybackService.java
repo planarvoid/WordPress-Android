@@ -17,7 +17,6 @@ import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -46,12 +45,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public static final String TAG = "CloudPlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     @Nullable static PlaybackService instance;
-    private final IBinder binder = new LocalBinder<PlaybackService>() {
-        @Override
-        public PlaybackService getService() {
-            return PlaybackService.this;
-        }
-    };
     private final Action1<Notification> startForegroundAction = new Action1<Notification>() {
         @Override
         public void call(Notification notification) {
@@ -74,7 +67,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private boolean waitingForPlaylist;
     @Nullable private PropertySet currentTrack;
     private int serviceStartId = -1;
-    private boolean serviceInUse;
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
@@ -152,39 +144,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public IBinder onBind(Intent intent) {
-        delayedStopHandler.removeCallbacksAndMessages(null);
-        serviceInUse = true;
-        return binder;
-    }
-
-    @Override
-    public void onRebind(Intent intent) {
-        delayedStopHandler.removeCallbacksAndMessages(null);
-        serviceInUse = true;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        serviceInUse = false;
-
-        if (streamPlayer.isPlaying() || focusLossState != FocusLossState.NONE) {
-            // something is currently playing, or will be playing once
-            // an in-progress call ends, so don't stop the service now.
-            return true;
-
-            // If there is a playlist but playback is paused, then wait a while
-            // before stopping the service, so that pause/resume isn't slow.
-            // Also delay stopping the service if we're transitioning between
-            // tracks.
-        } else if (!playQueueManager.isQueueEmpty()) {
-            delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
-            return true;
-
-        } else {
-            // No active playlist, OK to stop the service right now
-            stopSelf(serviceStartId);
-            return true;
-        }
+        return null;
     }
 
     @Override
@@ -421,8 +381,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             PlaybackService service = serviceRef.get();
             // Check again to make sure nothing is playing right now
             if (service != null && !service.streamPlayer.isPlaying()
-                    && service.focusLossState == FocusLossState.NONE
-                    && !service.serviceInUse) {
+                    && service.focusLossState == FocusLossState.NONE) {
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "DelayedStopHandler: stopping service");
