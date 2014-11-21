@@ -1,6 +1,7 @@
 package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -48,20 +49,12 @@ public class CryptoOperationsTest {
 
     @Test
     public void returnTheKeyWhenItExists() {
-        byte[] storedKey = "blablabla".getBytes(Charsets.US_ASCII);
-        storage.put("my key", storedKey);
+        SecureKey storedKey = new SecureKey("my key", "blablabla".getBytes(Charsets.US_ASCII));
+        storage.put(storedKey);
 
-        byte[] returnedKey = operations.getKeyOrGenerateAndStore("my key");
+        byte[] returnedKey = operations.getKeyOrGenerateAndStore(storedKey.getName());
 
-        assertThat(returnedKey, is(storedKey));
-    }
-
-    @Test
-    public void generateTheKeyAndStoreIt() {
-        byte[] defaultValue = "default".getBytes(Charsets.US_ASCII);
-        byte[] key = operations.getKeyOrGenerateAndStore("my key");
-
-        assertThat(key, is(storage.get("my key", defaultValue)));
+        expectByteArraysToBeEqual(returnedKey, storedKey.getBytes());
     }
 
     @Test

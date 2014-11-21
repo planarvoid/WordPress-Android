@@ -35,6 +35,8 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 
+import javax.inject.Named;
+
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
@@ -163,6 +165,12 @@ public class TestApplicationModule {
     @Provides
     public SQLiteDatabase provideSqliteDatabase() {
         return mock(SQLiteDatabase.class);
+    }
+
+    @Provides
+    @Named("DeviceKeys")
+    public SharedPreferences provideKyePrefs(){
+        return provideSharedPreferences();
     }
 }
 
