@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -26,7 +27,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -37,10 +37,10 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SuppressLint("ValidFragment")
-public class PlaylistFragment extends DefaultFragment implements AdapterView.OnItemClickListener, OnRefreshListener {
+public class PlaylistFragment extends DefaultFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String EXTRA_URN = "urn";
 
@@ -191,7 +191,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     }
 
     @Override
-    public void onRefreshStarted(View view) {
+    public void onRefresh() {
         playlistSubscription = legacyPlaylistOperations.refreshPlaylist(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());

@@ -330,10 +330,6 @@
     <string name="tab_title_user_followers">Seguidores</string>
     <string name="tab_title_user_followings">Siguiendo</string>
 
-    <!-- __PTR -->
-    <string name="ptr_swiping">Desliza hacia abajo para actualizar</string>
-    <string name="ptr_loading">Cargando</string>
-
     <!-- __RECORD -->
     <string name="rec_title_generating_waveform">Espera...</string>
     <string name="rec_title_idle_rec">Grabar</string>

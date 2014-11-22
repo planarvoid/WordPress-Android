@@ -89,6 +89,8 @@ public class EmptyView extends RelativeLayout {
 
         emptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
         progressView = findViewById(R.id.empty_view_progress);
+
+        setClickable(true); // needs to be clickable for swipe to refresh gesture
     }
 
     public boolean setStatus(int status) {

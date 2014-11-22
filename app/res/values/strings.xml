@@ -343,10 +343,6 @@
     <string name="discogs">Discogs</string>
     <string name="myspace">Myspace</string>
 
-    <!-- __PTR -->
-    <string name="ptr_swiping">Swipe down to refresh</string>
-    <string name="ptr_loading">Loading</string>
-
     <!-- __RECORD -->
     <string name="rec_title_generating_waveform">Please Wait...</string>
     <string name="rec_title_idle_rec">Record</string>

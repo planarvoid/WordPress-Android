@@ -327,10 +327,6 @@
     <string name="discogs">Discogs</string>
     <string name="myspace">Myspace</string>
 
-    <!-- __PTR -->
-    <string name="ptr_swiping">اسحب لأسفل للتجديد</string>
-    <string name="ptr_loading">تحميل</string>
-
     <!-- __RECORD -->
     <string name="rec_title_generating_waveform">يرجى الانتظار...</string>
     <string name="rec_title_idle_rec">تسجيل</string>
