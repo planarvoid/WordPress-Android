@@ -1,5 +1,8 @@
 package com.soundcloud.android.search;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -14,7 +17,6 @@ import java.util.List;
 
 public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
-    private MainScreen mainScreen;
     private PlaylistTagsScreen playlistTagsScreen;
 
     public PlaylistDiscovery() {
@@ -27,27 +29,27 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
 
         super.setUp();
 
-        mainScreen = new MainScreen(solo);
+        MainScreen mainScreen = new MainScreen(solo);
         playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
     }
 
     public void testTagsAreDisplayedWhenSearchScreenIsOpened() {
-        assertEquals("Playlist tags should be visible", true, playlistTagsScreen.isDisplayingTags());
+        assertTrue("Playlist tags should be visible", playlistTagsScreen.isDisplayingTags());
     }
 
     public void testTagDisplayedAsSuggestionAfterTagSearch() {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.actionBar().doTagSearch("#deep house");
         PlaylistTagsScreen tagsScreen = resultsScreen.actionBar().dismissSearch();
 
-        assertEquals("Playlist tags screen should be visible", true, tagsScreen.isVisible());
-        assertEquals("Searched tag should be in recents", true, tagsScreen.getRecentTags().contains("#deep house"));
+        assertTrue("Playlist tags screen should be visible", tagsScreen.isVisible());
+        assertTrue("Searched tag should be in recents", tagsScreen.getRecentTags().contains("#deep house"));
     }
 
     public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWith20Results() {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
 
-        assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
-        assertEquals("Playlist results should not be empty", 20, resultsScreen.getResultsCount());
+        assertTrue("Playlist results screen should be visible", resultsScreen.isVisible());
+        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), is(20));
     }
 
     public void testClickingOnPlaylistTagPopulatesSearchField() {
@@ -62,32 +64,33 @@ public class PlaylistDiscovery extends ActivityTestCase<MainActivity> {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
 
         PlaylistDetailsScreen detailsScreen = resultsScreen.clickOnPlaylist(0);
-        assertEquals("Playlist details screen should be shown", true, detailsScreen.isVisible());
+        assertTrue("Playlist details screen should be shown", detailsScreen.isVisible());
     }
 
     public void testSearchingWithHashtagQueryShowsPlaylistDiscoveryResults() {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.actionBar().doTagSearch("#deep house");
-        assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
+        assertTrue("Playlist results screen should be visible", resultsScreen.isVisible());
     }
 
     public void testSearchingHashtagFromSuggestionShortcutShowsPlaylistDiscoveryResults() {
         playlistTagsScreen.actionBar().setSearchQuery("#deep house");
         //TODO: That should actually be handled buy SearchSuggestionsElement class
         solo.clickOnText("Search for '#deep house'");
+
         PlaylistResultsScreen resultsScreen = new PlaylistResultsScreen(solo);
-        assertEquals("Playlist results screen should be visible", true, resultsScreen.isVisible());
+        assertTrue("Playlist results screen should be visible", resultsScreen.isVisible());
     }
 
     public void testSearchingEmptyHashtagDoesNotPerformSearch() {
         playlistTagsScreen.actionBar().doTagSearch("#");
-        assertEquals("Screen should not change", true, playlistTagsScreen.isVisible());
+        assertTrue("Screen should not change", playlistTagsScreen.isVisible());
     }
 
     public void testGoingBackFromPlayResultsReturnsToTagPage() {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
 
         playlistTagsScreen = resultsScreen.pressBack();
-        assertEquals("Main screen should be visible", true, playlistTagsScreen.isVisible());
-        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
+        assertTrue("Main screen should be visible", playlistTagsScreen.isVisible());
+        assertThat("Search query should be empty", playlistTagsScreen.actionBar().getSearchQuery(), is(""));
     }
 }
