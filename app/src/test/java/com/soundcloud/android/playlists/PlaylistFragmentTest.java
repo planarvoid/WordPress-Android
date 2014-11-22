@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -322,7 +321,7 @@ public class PlaylistFragmentTest {
         when(legacyPlaylistOperations.refreshPlaylist(any(Urn.class))).thenReturn(Observable.just(playlist2));
 
         createFragmentView();
-        fragment.onRefreshStarted(mock(View.class));
+        fragment.onRefresh();
 
         InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).addItem(track1.toPropertySet());
@@ -337,7 +336,7 @@ public class PlaylistFragmentTest {
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
-        fragment.onRefreshStarted(mock(View.class));
+        fragment.onRefresh();
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.connection_list_error);
     }
@@ -352,7 +351,7 @@ public class PlaylistFragmentTest {
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
-        fragment.onRefreshStarted(mock(View.class));
+        fragment.onRefresh();
 
         verify(controller, times(1)).setEmptyViewStatus(anyInt());
     }
@@ -364,7 +363,7 @@ public class PlaylistFragmentTest {
         when(controller.hasContent()).thenReturn(true);
 
         createFragmentView();
-        fragment.onRefreshStarted(mock(View.class));
+        fragment.onRefresh();
 
         verify(ptrController, times(2)).stopRefreshing();
     }

@@ -45,8 +45,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -60,13 +58,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsListView;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import javax.inject.Inject;
@@ -205,7 +205,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) inflater.inflate(R.layout.sc_list_fragment, null);
+        SwipeRefreshLayout pullToRefreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.sc_list_fragment, null);
         listView = configureList((ScListView) pullToRefreshLayout.findViewById(android.R.id.list));
         listView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, this));
 
@@ -214,8 +214,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         emptyView.setOnRetryListener(this);
         listView.setEmptyView(emptyView);
 
-        pullToRefreshLayout.addView(emptyView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        final LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        ((ViewGroup) pullToRefreshLayout.findViewById(R.id.list_contents)).addView(emptyView, layoutParams);
+
         pullToRefreshController.onBind(this);
         pullToRefreshController.setRefreshListener(this);
         pullToRefreshController.onViewCreated(pullToRefreshLayout, savedInstanceState);
@@ -443,7 +444,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     @Override
-    public void onRefreshStarted(View view) {
+    public void onRefresh() {
         refresh(true);
     }
 

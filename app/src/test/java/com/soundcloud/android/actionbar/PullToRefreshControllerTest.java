@@ -13,11 +13,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
@@ -33,12 +31,11 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.Pager;
 import rx.observables.ConnectableObservable;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -48,14 +45,13 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PullToRefreshControllerTest {
 
-    private TestEventBus eventBus = new TestEventBus();
     private RefreshableFragment fragment = new RefreshableFragment();
 
     @Mock private FragmentActivity activity;
     @Mock private Bundle bundle;
     @Mock private OnRefreshListener listener;
     @Mock private PullToRefreshWrapper wrapper;
-    @Mock private PullToRefreshLayout layout;
+    @Mock private MultiSwipeRefreshLayout layout;
     @Mock private Subscription subscription;
     @Mock private ReactiveAdapter<List<String>> adapter;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
@@ -65,15 +61,13 @@ public class PullToRefreshControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new PullToRefreshController(eventBus, wrapper);
+        controller = new PullToRefreshController(wrapper);
         controller.onBind(fragment);
 
         Robolectric.shadowOf(fragment).setActivity(activity);
-        when(layout.findViewById(R.id.ptr_layout)).thenReturn(layout);
+        when(layout.findViewById(R.id.str_layout)).thenReturn(layout);
         when(wrapper.isAttached()).thenReturn(true);
         observable = TestObservables.withSubscription(subscription, Observable.just(Arrays.asList("item"))).replay();
-
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
     @Test(expected = NullPointerException.class)
@@ -87,7 +81,7 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(listener);
         controller.onViewCreated(layout, bundle);
 
-        verify(wrapper).attach(same(activity), same(layout), same(listener));
+        verify(wrapper).attach(same(layout), same(listener));
     }
 
     @Test
@@ -96,7 +90,7 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
         controller.onViewCreated(layout, bundle);
 
-        verify(wrapper).attach(same(activity), same(layout), isA(OnRefreshListener.class));
+        verify(wrapper).attach(same(layout), isA(OnRefreshListener.class));
     }
 
     @Test
@@ -115,21 +109,6 @@ public class PullToRefreshControllerTest {
     public void shouldForwardRefreshCompletedToPTRWrapper() {
         controller.stopRefreshing();
         verify(wrapper).setRefreshing(false);
-    }
-
-    @Test
-    public void shouldNotStartRefreshingIfPlayerIsExpanded() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        controller.startRefreshing();
-        verify(wrapper, never()).setRefreshing(true);
-    }
-
-    @Test
-    public void shouldUnsubscribeFromEventsWhenViewsGetDestroyed() {
-        controller.setRefreshListener(listener);
-        controller.onViewCreated(layout, bundle);
-        controller.onDestroyView();
-        eventBus.verifyUnsubscribed();
     }
 
     @Test
@@ -169,16 +148,6 @@ public class PullToRefreshControllerTest {
         inOrder.verify(wrapper).setRefreshing(false); // onViewCreated 1
         inOrder.verify(wrapper).setRefreshing(true); // startRefreshing
         inOrder.verify(wrapper).setRefreshing(true); // onViewCreated 2
-    }
-
-    @Test
-    public void shouldStopRefreshingWhenPlayerExpandedEventIsReceived() {
-        controller.setRefreshListener(listener);
-        controller.onViewCreated(layout, bundle);
-
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-
-        verify(wrapper, times(2)).setRefreshing(false);
     }
 
     @Test
@@ -245,8 +214,8 @@ public class PullToRefreshControllerTest {
 
     private void triggerRefresh() {
         controller.onViewCreated(layout, bundle);
-        verify(wrapper).attach(refEq(activity), refEq(layout), refreshListenerCaptor.capture());
-        refreshListenerCaptor.getValue().onRefreshStarted(layout);
+        verify(wrapper).attach(refEq(layout), refreshListenerCaptor.capture());
+        refreshListenerCaptor.getValue().onRefresh();
     }
 
     private class RefreshableFragment extends Fragment

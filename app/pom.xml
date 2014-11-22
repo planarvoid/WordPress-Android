@@ -83,7 +83,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m</argLine>
+                    <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m -noverify</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -104,10 +104,6 @@
                         </fileset>
                     </filesets>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>com.crashlytics</groupId>
@@ -354,40 +350,6 @@
             <type>aar</type>
         </dependency>
         <dependency>
-            <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
-            <artifactId>extra-abc</artifactId>
-            <version>0.9.4-SOUNDCLOUD</version>
-            <type>aar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
-                    <artifactId>library</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.android.support</groupId>
-                    <artifactId>appcompat-v7</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
-            <artifactId>library</artifactId>
-            <version>0.9.4-SOUNDCLOUD</version>
-            <type>aar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.castorflex.smoothprogressbar</groupId>
-                    <artifactId>library</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.castorflex.smoothprogressbar</groupId>
-            <artifactId>library</artifactId>
-            <version>0.4.0</version>
-            <type>aar</type>
-        </dependency>
-        <dependency>
             <groupId>io.reactivex</groupId>
             <artifactId>rxandroid</artifactId>
             <version>${rxandroid.version}</version>
@@ -455,9 +417,9 @@
 
         <!-- Android dependencies, don't change the order! -->
         <dependency>
-            <groupId>com.android.support</groupId>
-            <artifactId>support-v4</artifactId>
-            <version>19.0.0</version>
+            <groupId>android.support</groupId>
+            <artifactId>compatibility-v4</artifactId>
+            <version>21.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.android.support</groupId>
@@ -496,68 +458,6 @@
     </dependencies>
 
     <profiles>
-            <profile>
-                <id>coverage</id>
-                <build>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.jacoco</groupId>
-                            <artifactId>jacoco-maven-plugin</artifactId>
-                            <version>0.7.1.201405082137</version>
-                            <configuration>
-                                <includes>
-                                    <include>com/soundcloud/android/**/*</include>
-                                </includes>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <id>default-prepare-agent</id>
-                                    <goals>
-                                        <goal>prepare-agent</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>default-report</id>
-                                    <phase>test</phase>
-                                    <goals>
-                                        <goal>report</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>default-check</id>
-                                    <goals>
-                                        <goal>check</goal>
-                                    </goals>
-                                    <configuration>
-                                        <rules>
-                                            <!-- implmentation is needed only for Maven 2 -->
-                                            <rule implementation="org.jacoco.maven.RuleConfiguration">
-                                                <element>BUNDLE</element>
-                                                <limits>
-                                                    <!-- implmentation is needed only for Maven 2 -->
-                                                    <limit implementation="org.jacoco.report.check.Limit">
-                                                        <counter>COMPLEXITY</counter>
-                                                        <value>COVEREDRATIO</value>
-                                                        <minimum>0.50</minimum>
-                                                    </limit>
-                                                </limits>
-                                            </rule>
-                                        </rules>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <configuration>
-                                <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m ${argLine}</argLine>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </build>
-            </profile>
-
         <profile>
             <id>update-android-manifest</id>
             <build>

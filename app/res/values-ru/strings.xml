@@ -327,10 +327,6 @@
     <string name="discogs">Discogs</string>
     <string name="myspace">MySpace</string>
 
-    <!-- __PTR -->
-    <string name="ptr_swiping">Проведите пальцем вниз, чтобы обновить</string>
-    <string name="ptr_loading">Загрузка</string>
-
     <!-- __RECORD -->
     <string name="rec_title_generating_waveform">Пожалуйста, подождите...</string>
     <string name="rec_title_idle_rec">Записать</string>

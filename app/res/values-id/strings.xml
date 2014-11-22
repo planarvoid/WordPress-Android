@@ -327,10 +327,6 @@
     <string name="discogs">Discogs</string>
     <string name="myspace">Myspace</string>
 
-    <!-- __PTR -->
-    <string name="ptr_swiping">Usap ke bawah untuk menyegarkan</string>
-    <string name="ptr_loading">Memuat</string>
-
     <!-- __RECORD -->
     <string name="rec_title_generating_waveform">Silakan Tunggu...</string>
     <string name="rec_title_idle_rec">Rekam</string>
