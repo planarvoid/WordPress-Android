@@ -13,6 +13,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.schedulers.TestScheduler;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,7 +28,7 @@ public class CryptoOperationsTest {
         SharedPreferences preferences = Robolectric.application.getSharedPreferences("test", Context.MODE_PRIVATE);
         preferences.edit().clear().apply();
         storage = new KeyStorage(preferences);
-        operations = new CryptoOperations(storage);
+        operations = new CryptoOperations(storage, new TestScheduler());
     }
 
     @Test

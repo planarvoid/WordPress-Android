@@ -27,6 +27,7 @@ import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
+import rx.Scheduler;
 
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
@@ -171,6 +172,11 @@ public class TestApplicationModule {
     @Named("DeviceKeys")
     public SharedPreferences provideKyePrefs(){
         return provideSharedPreferences();
+    }
+
+    @Provides
+    public Scheduler provideDatabaseScheduler() {
+        return mock(Scheduler.class);
     }
 }
 
