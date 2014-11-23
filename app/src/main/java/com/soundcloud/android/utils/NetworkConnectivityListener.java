@@ -24,7 +24,7 @@ public class NetworkConnectivityListener {
     private static final String TAG = "NetworkConnectivityListener";
 
     private final Map<Handler, Integer> handlers = new HashMap<>();
-    private @Nullable Context context;
+    @Nullable private Context context;
 
     private State state;
 

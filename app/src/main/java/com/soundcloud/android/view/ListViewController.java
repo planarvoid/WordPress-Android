@@ -33,8 +33,9 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
 
     private AbsListView absListView;
     private ListAdapter adapter;
-    private @Nullable OnScrollListener scrollListener;
-    private @Nullable Pager<?> pager;
+
+    @Nullable private OnScrollListener scrollListener;
+    @Nullable private Pager<?> pager;
 
     @Inject
     public ListViewController(EmptyViewController emptyViewController, ImageOperations imageOperations) {

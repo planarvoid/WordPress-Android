@@ -237,7 +237,8 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Publ
         }));
     }
 
-    public @Nullable Set<Uri> getPlaylistsDueForSync() {
+    @Nullable
+    public Set<Uri> getPlaylistsDueForSync() {
         Cursor c = resolver.query(Content.PLAYLIST_ALL_TRACKS.uri, new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID},
                 TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL AND " + TableColumns.PlaylistTracks.PLAYLIST_ID + " > 0", null, null);
 
@@ -252,7 +253,8 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Publ
         return null;
     }
 
-    public @Nullable List<Long> getPlaylistTrackIds(long playlistId) {
+    @Nullable
+    public List<Long> getPlaylistTrackIds(long playlistId) {
         return trackDAO.queryIdsByUri(Content.PLAYLIST_TRACKS.forId(playlistId));
     }
 

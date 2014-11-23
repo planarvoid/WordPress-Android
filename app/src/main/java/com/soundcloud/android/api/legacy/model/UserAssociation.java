@@ -37,19 +37,20 @@ public class UserAssociation extends Association implements UserHolder {
             return input.hasToken();
         }
     };
+
     public static final Parcelable.Creator<UserAssociation> CREATOR = new Parcelable.Creator<UserAssociation>() {
         public UserAssociation createFromParcel(Parcel in) {
             return new UserAssociation(in);
         }
-
         public UserAssociation[] newArray(int size) {
             return new UserAssociation[size];
         }
     };
-    private final @NotNull PublicApiUser user;
-    private @Nullable Date addedAt;
-    private @Nullable Date removedAt;
-    private @Nullable String token;
+
+    @NotNull private final PublicApiUser user;
+    @Nullable private Date addedAt;
+    @Nullable private Date removedAt;
+    @Nullable private String token;
 
     public UserAssociation(Cursor cursor) {
         super(cursor);

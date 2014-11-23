@@ -15,7 +15,9 @@ public abstract class ProgressHelper {
     }
 
     public abstract void setValue(View progressView, float value);
-    public abstract @Nullable ProgressAnimator createAnimator(View progressView, float startProportion);
+
+    @Nullable
+    public abstract ProgressAnimator createAnimator(View progressView, float startProportion);
 
     public int getEndPosition() {
         return endPosition;

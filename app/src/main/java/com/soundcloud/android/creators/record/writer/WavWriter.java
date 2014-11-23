@@ -20,7 +20,7 @@ public class WavWriter implements AudioWriter {
     public final File file;
     public final AudioConfig config;
 
-    private @Nullable RandomAccessFile writer;
+    @Nullable private RandomAccessFile writer;
 
     public WavWriter(File file, AudioConfig config) {
         this.file = file;

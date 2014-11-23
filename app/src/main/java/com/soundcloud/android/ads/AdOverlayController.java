@@ -30,7 +30,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private final AccountOperations accountOperations;
     private final AdOverlayListener listener;
 
-    private @Nullable PropertySet data;
+    @Nullable private PropertySet data;
 
     private AdOverlayPresenter presenter;
     private boolean isExpanded;

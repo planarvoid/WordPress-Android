@@ -271,15 +271,15 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         private static final int INITIAL_SELECTION_CAPACITY = 200;
 
         private final Uri contentUri;
-        private @Nullable String[] projection;
-        private @Nullable String order;
+        @Nullable private String[] projection;
+        @Nullable private String order;
         private final StringBuilder selection;
         private final List<String> selectionArgs;
         private int limit;
 
         public QueryBuilder(Uri contentUri) {
             selection = new StringBuilder(INITIAL_SELECTION_CAPACITY);
-            selectionArgs = new LinkedList<String>();
+            selectionArgs = new LinkedList<>();
             this.contentUri = contentUri;
         }
 

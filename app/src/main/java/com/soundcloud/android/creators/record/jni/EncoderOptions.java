@@ -24,12 +24,12 @@ public class EncoderOptions {
     /**
      * if not null, apply this filter to the source stream
      */
-    public final @Nullable PlaybackFilter filter;
+    @Nullable public final PlaybackFilter filter;
 
     /**
      * for reporting encoding progress
      */
-    public final @Nullable ProgressListener listener;
+    @Nullable public final ProgressListener listener;
 
     public static final EncoderOptions HI_Q = new EncoderOptions(1f, 0, -1, null, null);
     public static final EncoderOptions LO_Q = new EncoderOptions(.1f, 0, -1, null, null);

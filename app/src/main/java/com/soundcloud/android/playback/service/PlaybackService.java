@@ -72,7 +72,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject AdsOperations adsOperations;
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;
-    private @Nullable PropertySet currentTrack;
+    @Nullable private PropertySet currentTrack;
     private int serviceStartId = -1;
     private boolean serviceInUse;
     // audio focus related

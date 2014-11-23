@@ -23,7 +23,7 @@ import java.util.Date;
 
 public abstract class Association extends PublicApiResource implements PlayableHolder, Refreshable, RelatesToUser, Creation {
 
-    public @Nullable PublicApiUser owner;
+    @Nullable public PublicApiUser owner;
     public int associationType;
     public Date created_at;
     protected CharSequence elapsedTime;

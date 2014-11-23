@@ -80,11 +80,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     private final ByteBuffer playBuffer;
     private final int playBufferReadSize;
     private final LocalBroadcastManager broadcastManager;
-    /*package*/ @Nullable ReaderThread readerThread;
-    private volatile @NotNull State state;
-    private @Nullable Recording recording;
-    private @NotNull RecordStream recordStream;
-    private @Nullable PlaybackStream playbackStream;
+    @NotNull private volatile State state;
+    @NotNull private RecordStream recordStream;
+    @Nullable /*package*/ ReaderThread readerThread;
+    @Nullable private Recording recording;
+    @Nullable private PlaybackStream playbackStream;
     private PlayerThread playbackThread;
     private boolean shouldUseNotifications = true;
 
