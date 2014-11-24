@@ -6,9 +6,9 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.framework.screens.MainScreen;
-import com.soundcloud.android.framework.screens.PaymentScreen;
-import com.soundcloud.android.framework.screens.SettingsScreen;
+import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.PaymentScreen;
+import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
 

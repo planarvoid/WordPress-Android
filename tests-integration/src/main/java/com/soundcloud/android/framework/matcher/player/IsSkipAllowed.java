@@ -1,6 +1,6 @@
 package com.soundcloud.android.framework.matcher.player;
 
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;

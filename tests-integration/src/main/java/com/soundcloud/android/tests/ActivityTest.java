@@ -7,7 +7,7 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.framework.screens.MenuScreen;
+import com.soundcloud.android.screens.MenuScreen;
 
 import android.app.Activity;
 import android.app.ActivityManager;

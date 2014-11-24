@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests.auth;
 
-import com.soundcloud.android.framework.screens.HomeScreen;
-import com.soundcloud.android.framework.screens.auth.SignUpScreen;
-import com.soundcloud.android.framework.screens.auth.SuggestedUsersCategoryScreen;
-import com.soundcloud.android.framework.screens.auth.SuggestedUsersScreen;
+import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.auth.SignUpScreen;
+import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
+import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 
 public class SignUpTest extends AuthTest {
     protected HomeScreen homeScreen;

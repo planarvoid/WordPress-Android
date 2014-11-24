@@ -8,8 +8,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.MenuScreen;
-import com.soundcloud.android.framework.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.Waiter;

@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.framework.screens.StreamScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class StreamTest extends ActivityTest<LauncherActivity> {

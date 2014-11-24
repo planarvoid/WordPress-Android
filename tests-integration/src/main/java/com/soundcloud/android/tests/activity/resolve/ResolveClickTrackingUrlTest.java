@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 import com.soundcloud.android.tests.TestConsts;
-import com.soundcloud.android.framework.screens.ProfileScreen;
+import com.soundcloud.android.screens.ProfileScreen;
 
 import android.net.Uri;
 

@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.tests.auth.SignUpTest;
-import com.soundcloud.android.framework.screens.auth.signup.SignupDomainBlacklistedScreen;
+import com.soundcloud.android.screens.auth.signup.SignupDomainBlacklistedScreen;
 
 public class ByEmailShowingDomainBlacklistedDialogTest extends SignUpTest {
     public ByEmailShowingDomainBlacklistedDialogTest() {

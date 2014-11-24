@@ -5,7 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.tests.TestConsts;
-import com.soundcloud.android.framework.screens.StreamScreen;
+import com.soundcloud.android.screens.StreamScreen;
 
 import android.net.Uri;
 

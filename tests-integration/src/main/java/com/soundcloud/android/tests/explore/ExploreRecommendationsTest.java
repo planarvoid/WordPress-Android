@@ -5,10 +5,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.MainScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.framework.screens.explore.ExploreGenreCategoryScreen;
-import com.soundcloud.android.framework.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
 

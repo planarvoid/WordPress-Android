@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.auth;
 
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.framework.screens.auth.SignUpScreen;
+import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class AuthTest extends ActivityTest<LauncherActivity> {

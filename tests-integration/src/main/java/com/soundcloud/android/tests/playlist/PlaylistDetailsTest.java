@@ -7,10 +7,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.framework.screens.MenuScreen;
-import com.soundcloud.android.framework.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.framework.screens.PlaylistScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {

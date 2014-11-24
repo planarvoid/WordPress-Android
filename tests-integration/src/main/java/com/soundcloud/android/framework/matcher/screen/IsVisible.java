@@ -1,6 +1,6 @@
 package com.soundcloud.android.framework.matcher.screen;
 
-import com.soundcloud.android.framework.screens.Screen;
+import com.soundcloud.android.screens.Screen;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;

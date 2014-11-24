@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.search.intents;
 
-import com.soundcloud.android.framework.screens.search.SearchResultsScreen;
+import com.soundcloud.android.screens.search.SearchResultsScreen;
 
 import android.app.SearchManager;
 import android.content.Intent;

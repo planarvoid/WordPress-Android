@@ -3,7 +3,7 @@ package com.soundcloud.android.framework;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.framework.screens.MenuScreen;
+import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;

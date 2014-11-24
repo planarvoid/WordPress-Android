@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests.auth.signup;
 
 import com.soundcloud.android.tests.auth.SignUpTest;
-import com.soundcloud.android.framework.screens.EmailOptInScreen;
-import com.soundcloud.android.framework.screens.auth.SignUpScreen;
-import com.soundcloud.android.framework.screens.auth.SuggestedUsersScreen;
+import com.soundcloud.android.screens.EmailOptInScreen;
+import com.soundcloud.android.screens.auth.SignUpScreen;
+import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.framework.TestUser;
 
 public class EmailOptInTest extends SignUpTest {

@@ -2,10 +2,10 @@ package com.soundcloud.android.tests.whoToFollow;
 
 
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.framework.screens.HomeScreen;
-import com.soundcloud.android.framework.screens.auth.SignUpScreen;
-import com.soundcloud.android.framework.screens.auth.SuggestedUsersCategoryScreen;
-import com.soundcloud.android.framework.screens.auth.SuggestedUsersScreen;
+import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.auth.SignUpScreen;
+import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
+import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.Waiter;
 

@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.tests.TestConsts;
-import com.soundcloud.android.framework.screens.ProfileScreen;
+import com.soundcloud.android.screens.ProfileScreen;
 
 import android.net.Uri;
 

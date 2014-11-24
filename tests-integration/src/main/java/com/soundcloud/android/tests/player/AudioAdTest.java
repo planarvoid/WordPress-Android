@@ -11,10 +11,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.framework.screens.PlaylistScreen;
-import com.soundcloud.android.framework.screens.WhyAdsScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.WhyAdsScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.R;
 import com.soundcloud.android.framework.TestUser;

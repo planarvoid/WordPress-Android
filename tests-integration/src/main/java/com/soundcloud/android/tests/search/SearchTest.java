@@ -6,12 +6,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.MainScreen;
-import com.soundcloud.android.framework.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.framework.screens.ProfileScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.framework.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.framework.screens.search.SearchResultsScreen;
+import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
+import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
 

@@ -9,12 +9,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.AddCommentScreen;
-import com.soundcloud.android.framework.screens.ProfileScreen;
-import com.soundcloud.android.framework.screens.StreamScreen;
-import com.soundcloud.android.framework.screens.TrackCommentsScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.framework.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.AddCommentScreen;
+import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.TrackCommentsScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.NavigationHelper;

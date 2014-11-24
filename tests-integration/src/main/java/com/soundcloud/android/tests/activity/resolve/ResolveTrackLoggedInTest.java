@@ -7,8 +7,8 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.tests.TestConsts;
-import com.soundcloud.android.framework.screens.StreamScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.net.Uri;
 

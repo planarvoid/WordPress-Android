@@ -3,7 +3,7 @@ package com.soundcloud.android.tests.auth.signup;
 import static com.soundcloud.android.framework.TestUser.Facebook;
 
 import com.soundcloud.android.tests.auth.SignUpTest;
-import com.soundcloud.android.framework.screens.auth.FBWebViewScreen;
+import com.soundcloud.android.screens.auth.FBWebViewScreen;
 
 public class ByFacebookTest extends SignUpTest {
     FBWebViewScreen fbWebViewScreen;

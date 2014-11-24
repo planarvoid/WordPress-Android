@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.framework.screens.HomeScreen;
-import com.soundcloud.android.framework.screens.StreamScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class MenuCrashTest extends ActivityTest<OnboardActivity> {
 

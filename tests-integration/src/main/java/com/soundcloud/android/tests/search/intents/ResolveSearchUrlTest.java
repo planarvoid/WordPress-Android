@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.search.intents;
 
-import com.soundcloud.android.framework.screens.search.PlaylistTagsScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 
 import android.content.Intent;
 import android.net.Uri;

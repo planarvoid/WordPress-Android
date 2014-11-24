@@ -11,11 +11,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.auth.LoginTest;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
-import com.soundcloud.android.framework.screens.HomeScreen;
-import com.soundcloud.android.framework.screens.MenuScreen;
-import com.soundcloud.android.framework.screens.StreamScreen;
-import com.soundcloud.android.framework.screens.auth.FBWebViewScreen;
-import com.soundcloud.android.framework.screens.auth.RecoverPasswordScreen;
+import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.auth.FBWebViewScreen;
+import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Waiter;
 

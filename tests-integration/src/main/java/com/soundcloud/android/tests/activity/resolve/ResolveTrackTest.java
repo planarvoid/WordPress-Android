@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.screens.HomeScreen;
+import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Intent;

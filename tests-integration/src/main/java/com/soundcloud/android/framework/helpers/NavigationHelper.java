@@ -1,11 +1,11 @@
 package com.soundcloud.android.framework.helpers;
 
-import com.soundcloud.android.framework.screens.ActivitiesScreen;
-import com.soundcloud.android.framework.screens.Screen;
-import com.soundcloud.android.framework.screens.StreamScreen;
-import com.soundcloud.android.framework.screens.WhoToFollowScreen;
-import com.soundcloud.android.framework.screens.explore.ExploreScreen;
-import com.soundcloud.android.framework.screens.search.PlaylistTagsScreen;
+import com.soundcloud.android.screens.ActivitiesScreen;
+import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.WhoToFollowScreen;
+import com.soundcloud.android.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 
 public class NavigationHelper {
 

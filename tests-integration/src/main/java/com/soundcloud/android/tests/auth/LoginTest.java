@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.auth;
 
-import com.soundcloud.android.framework.screens.auth.LoginScreen;
+import com.soundcloud.android.screens.auth.LoginScreen;
 
 public class LoginTest extends AuthTest {
 

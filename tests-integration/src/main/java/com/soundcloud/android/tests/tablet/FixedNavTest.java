@@ -1,11 +1,11 @@
 package com.soundcloud.android.tests.tablet;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.LikesScreen;
-import com.soundcloud.android.framework.screens.MenuScreenTablet;
-import com.soundcloud.android.framework.screens.PlaylistScreen;
-import com.soundcloud.android.framework.screens.ProfileScreen;
-import com.soundcloud.android.framework.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.LikesScreen;
+import com.soundcloud.android.screens.MenuScreenTablet;
+import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TabletTest;

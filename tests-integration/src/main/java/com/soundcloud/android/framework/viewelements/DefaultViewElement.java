@@ -1,8 +1,8 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.robotium.solo.Solo;
-import com.soundcloud.android.framework.screens.elements.ListElement;
-import com.soundcloud.android.framework.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.with.With;
 

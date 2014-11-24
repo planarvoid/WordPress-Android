@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.activity.resolve;
 
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.Waiter;

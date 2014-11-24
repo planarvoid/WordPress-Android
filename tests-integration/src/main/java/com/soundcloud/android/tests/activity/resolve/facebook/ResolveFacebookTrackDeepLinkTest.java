@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.tests.activity.resolve.ResolveBaseTest;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.net.Uri;
 

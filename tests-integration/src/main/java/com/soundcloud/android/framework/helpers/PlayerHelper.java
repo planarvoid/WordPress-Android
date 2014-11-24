@@ -1,7 +1,7 @@
 package com.soundcloud.android.framework.helpers;
 
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.framework.screens.explore.ExploreScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.Waiter;
 

@@ -1,8 +1,8 @@
 package com.soundcloud.android.tests.player;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.framework.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.R;
 import com.soundcloud.android.framework.TestUser;

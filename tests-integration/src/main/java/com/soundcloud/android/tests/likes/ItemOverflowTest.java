@@ -7,9 +7,9 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.framework.screens.AddToPlaylistsScreen;
-import com.soundcloud.android.framework.screens.LikesScreen;
-import com.soundcloud.android.framework.screens.MenuScreen;
+import com.soundcloud.android.screens.AddToPlaylistsScreen;
+import com.soundcloud.android.screens.LikesScreen;
+import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
