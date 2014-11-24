@@ -134,8 +134,15 @@ page at http://checkstyle.sourceforge.net/config.html -->
 
     <module name="FallThrough">
       <property name="reliefPattern"
-       value="fall through|Fall through|fallthru|Fallthru|falls through|Falls through|fallthrough|Fallthrough|No break|NO break|no break|continue on"/>
+        value="fall through|Fall through|fallthru|Fallthru|falls through|Falls through|fallthrough|Fallthrough|No break|NO break|no break|continue on"/>
       <property name="severity" value="error"/>
+    </module>
+
+    <module name="MethodLength">
+      <property name="tokens" value="METHOD_DEF"/>
+      <property name="max" value="10"/>
+      <property name="countEmpty" value="false"/>
+      <property name="severity" value="warning"/>
     </module>
 
     <!-- MODIFIERS CHECKS -->
