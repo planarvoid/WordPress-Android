@@ -18,7 +18,7 @@
     <bool name="feature_localytics_push">true</bool>
     <bool name="feature_secure_stream_cache">true</bool>
     <bool name="feature_track_item_overflow">true</bool>
-    <bool name="feature_app_key_generation">true</bool>
+    <bool name="feature_device_key_generation">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_okhttp">false</bool>

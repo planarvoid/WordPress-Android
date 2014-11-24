@@ -24,6 +24,6 @@
     <bool name="feature_okhttp">false</bool>
     <bool name="feature_secure_stream_cache">false</bool>
     <bool name="feature_api_mobile_stream">false</bool>
-    <bool name="feature_app_key_generation">false</bool>
+    <bool name="feature_device_key_generation">false</bool>
     <bool name="feature_android_l_media_notification">false</bool>
 </resources>
