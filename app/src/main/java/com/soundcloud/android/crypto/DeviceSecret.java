@@ -1,23 +1,23 @@
 package com.soundcloud.android.crypto;
 
-public class SecureKey {
+public class DeviceSecret {
 
-    public final static SecureKey EMPTY = new SecureKey();
+    public final static DeviceSecret EMPTY = new DeviceSecret();
 
     private final String name;
     private final byte[] key;
     private final byte[] initVector;
 
-    private SecureKey() {
+    private DeviceSecret() {
         name = "empty_key";
         initVector = key = new byte[]{};
     }
 
-    public SecureKey(String name, byte[] key) {
+    public DeviceSecret(String name, byte[] key) {
         this(name, key, null);
     }
 
-    public SecureKey(String name, byte[] newKey, byte[] iVector) {
+    public DeviceSecret(String name, byte[] newKey, byte[] iVector) {
         this.name = name;
         this.key = arrayCopy(newKey);
         this.initVector = arrayCopy(iVector);
@@ -27,7 +27,7 @@ public class SecureKey {
         return name;
     }
 
-    public byte[] getBytes() {
+    public byte[] getKey() {
         return arrayCopy(key);
     }
 

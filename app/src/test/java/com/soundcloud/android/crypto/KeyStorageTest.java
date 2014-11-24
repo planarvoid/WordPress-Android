@@ -1,10 +1,9 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
 
 import com.google.common.base.Charsets;
-import com.soundcloud.android.crypto.SecureKey;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -18,7 +17,7 @@ import android.content.SharedPreferences;
 public class KeyStorageTest {
     private KeyStorage keyStorage;
 
-    private final SecureKey testKey = getTestKeyFromString("my key é", "a portuguese valuë, 123");
+    private final DeviceSecret testKey = getTestKeyFromString("my key é", "a portuguese valuë, 123");
     private final SharedPreferences preferences = Robolectric.application.getSharedPreferences("test", Context.MODE_PRIVATE);
 
     @Before
@@ -31,21 +30,21 @@ public class KeyStorageTest {
     public void setAndGetSecretKey() {
         keyStorage.put(testKey);
 
-        final SecureKey returnedKey = keyStorage.get(testKey.getName());
+        final DeviceSecret returnedKey = keyStorage.get(testKey.getName());
         expect(returnedKey.getName()).toEqual(testKey.getName());
 
-        expectByteArraysToBeEqual(returnedKey.getBytes(), testKey.getBytes());
+        expectByteArraysToBeEqual(returnedKey.getKey(), testKey.getKey());
         expect(returnedKey.hasInitVector()).toBeFalse();
     }
 
     @Test
     public void setAndGetSecretKeyWithIV() {
-        SecureKey keyWithIV = getTestKeyWithIV("my key");
+        DeviceSecret keyWithIV = getTestKeyWithIV("my key");
         keyStorage.put(keyWithIV);
 
-        final SecureKey returnedKey = keyStorage.get(keyWithIV.getName());
+        final DeviceSecret returnedKey = keyStorage.get(keyWithIV.getName());
         expect(returnedKey.getName()).toEqual(keyWithIV.getName());
-        expectByteArraysToBeEqual(returnedKey.getBytes(), keyWithIV.getBytes());
+        expectByteArraysToBeEqual(returnedKey.getKey(), keyWithIV.getKey());
 
         expect(returnedKey.hasInitVector()).toBeTrue();
         expectByteArraysToBeEqual(returnedKey.getInitVector(), keyWithIV.getInitVector());
@@ -53,8 +52,8 @@ public class KeyStorageTest {
 
     @Test
     public void getEmptyKeyForUnknown() {
-        SecureKey key = keyStorage.get("unknown key");
-        expect(key).toEqual(SecureKey.EMPTY);
+        DeviceSecret key = keyStorage.get("unknown key");
+        expect(key).toEqual(DeviceSecret.EMPTY);
     }
 
     @Test
@@ -76,11 +75,11 @@ public class KeyStorageTest {
         expect(keyStorage.contains(testKey.getName())).toBeFalse();
     }
 
-    private SecureKey getTestKeyFromString(String name, String key) {
-        return new SecureKey(name, key.getBytes(Charsets.UTF_8));
+    private DeviceSecret getTestKeyFromString(String name, String key) {
+        return new DeviceSecret(name, key.getBytes(Charsets.UTF_8));
     }
 
-    private SecureKey getTestKeyWithIV(String name) {
-        return new SecureKey(name, "SomeKey".getBytes(Charsets.UTF_8), "ivbytes".getBytes(Charsets.UTF_8));
+    private DeviceSecret getTestKeyWithIV(String name) {
+        return new DeviceSecret(name, "SomeKey".getBytes(Charsets.UTF_8), "ivbytes".getBytes(Charsets.UTF_8));
     }
 }

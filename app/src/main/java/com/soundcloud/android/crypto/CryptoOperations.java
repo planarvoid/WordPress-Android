@@ -2,7 +2,6 @@ package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.storage.KeyStorage;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -31,38 +30,38 @@ public class CryptoOperations {
         this.storageScheduler = scheduler;
     }
 
-    public void generateApplicationKeyIfNeeded() {
+    public void generateDeviceKeyIfNeeded() {
         if (!storage.contains(DEVICE_KEY)) {
-            generateAndStoreAppKeyAsync();
+            generateAndStoreDeviceKeyAsync();
         }
     }
 
     public byte[] getKeyOrGenerateAndStore(String name) {
         if (storage.contains(name)) {
-            return storage.get(name).getBytes();
+            return storage.get(name).getKey();
         } else {
-            SecureKey generatedKey = generateKey(name);
+            DeviceSecret generatedKey = generateKey(name);
             storage.put(generatedKey);
-            return generatedKey.getBytes();
+            return generatedKey.getKey();
         }
     }
 
-    private SecureKey generateKey(String name) {
+    private DeviceSecret generateKey(String name) {
         byte[] generatedKey = new byte[GENERATED_KEY_SIZE];
         secureRandom.nextBytes(generatedKey);
-        return new SecureKey(name, generatedKey);
+        return new DeviceSecret(name, generatedKey);
     }
 
-    private void generateAndStoreAppKeyAsync() {
+    private void generateAndStoreDeviceKeyAsync() {
         fireAndForget(Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
-                generateAndStoreAppKey();
+                generateAndStoreDeviceKey();
             }
         }).subscribeOn(storageScheduler));
     }
 
-    private void generateAndStoreAppKey() {
+    private void generateAndStoreDeviceKey() {
         try {
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(128, secureRandom);
@@ -70,7 +69,7 @@ public class CryptoOperations {
             byte[] iv = new byte[GENERATED_KEY_SIZE];
             secureRandom.nextBytes(iv);
 
-            final SecureKey key = new SecureKey(DEVICE_KEY, keyGen.generateKey().getEncoded(), iv);
+            final DeviceSecret key = new DeviceSecret(DEVICE_KEY, keyGen.generateKey().getEncoded(), iv);
             storage.put(key);
 
         } catch (NoSuchAlgorithmException e) {

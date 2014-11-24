@@ -148,7 +148,7 @@ public class SoundCloudApplication extends Application {
         accountOperations.loadLoggedInUser();
         setupCurrentUserAccount();
         setupExperiments();
-        generateAppKey();
+        generateDeviceKey();
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
@@ -162,9 +162,9 @@ public class SoundCloudApplication extends Application {
         adsController.subscribe();
     }
 
-    private void generateAppKey() {
-        if (featureFlags.isEnabled(Feature.APP_KEY_GENERATION)) {
-            cryptoOperations.generateApplicationKeyIfNeeded();
+    private void generateDeviceKey() {
+        if (featureFlags.isEnabled(Feature.DEVICE_KEY_GENERATION)) {
+            cryptoOperations.generateDeviceKeyIfNeeded();
         }
     }
 

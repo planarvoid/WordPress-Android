@@ -8,7 +8,6 @@ import static org.hamcrest.core.Is.is;
 
 import com.google.common.base.Charsets;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.KeyStorage;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,12 +49,12 @@ public class CryptoOperationsTest {
 
     @Test
     public void returnTheKeyWhenItExists() {
-        SecureKey storedKey = new SecureKey("my key", "blablabla".getBytes(Charsets.US_ASCII));
+        DeviceSecret storedKey = new DeviceSecret("my key", "blablabla".getBytes(Charsets.US_ASCII));
         storage.put(storedKey);
 
         byte[] returnedKey = operations.getKeyOrGenerateAndStore(storedKey.getName());
 
-        expectByteArraysToBeEqual(returnedKey, storedKey.getBytes());
+        expectByteArraysToBeEqual(returnedKey, storedKey.getKey());
     }
 
     @Test

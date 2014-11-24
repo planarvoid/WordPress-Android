@@ -1,6 +1,4 @@
-package com.soundcloud.android.storage;
-
-import com.soundcloud.android.crypto.SecureKey;
+package com.soundcloud.android.crypto;
 
 import android.content.SharedPreferences;
 import android.util.Base64;
@@ -8,19 +6,19 @@ import android.util.Base64;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class KeyStorage {
+class KeyStorage {
 
     private final SharedPreferences preferences;
-    private final String ENCODED_EMPTY_VALUE = encodeForPrefs(SecureKey.EMPTY.getBytes());
+    private final String ENCODED_EMPTY_VALUE = encodeForPrefs(DeviceSecret.EMPTY.getKey());
 
     @Inject
     public KeyStorage(@Named("DeviceKeys") SharedPreferences preferences) {
         this.preferences = preferences;
     }
 
-    public void put(SecureKey key) {
+    public void put(DeviceSecret key) {
         final SharedPreferences.Editor editor = preferences.edit();
-        final String encodedValue = encodeForPrefs(key.getBytes());
+        final String encodedValue = encodeForPrefs(key.getKey());
         editor.putString(key.getName(), encodedValue);
 
         if (key.hasInitVector()) {
@@ -31,13 +29,13 @@ public class KeyStorage {
         editor.apply();
     }
 
-    public SecureKey get(String name) {
+    public DeviceSecret get(String name) {
         if (preferences.contains(name)) {
             final byte[] key = decodeKeyFromPrefs(name);
             final byte[] iv = decodeKeyFromPrefs(getIvKeyName(name));
-            return new SecureKey(name, key, iv);
+            return new DeviceSecret(name, key, iv);
         }
-        return SecureKey.EMPTY;
+        return DeviceSecret.EMPTY;
     }
 
     private String getIvKeyName(String keyName) {

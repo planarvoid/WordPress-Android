@@ -1,19 +1,18 @@
 package com.soundcloud.android.tests.crypto;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-final class ApplicationKey {
+final class DeviceKey {
 
-    private Activity activity;
+    private Context context;
 
-    public ApplicationKey(Activity activity) {
-        this.activity = activity;
+    public DeviceKey(Context context) {
+        this.context = context;
     }
 
     public boolean isValid() {
-        final SharedPreferences sharedPreferences = activity.getSharedPreferences("device_keys", Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("device_keys", Context.MODE_PRIVATE);
         String encodedKey = sharedPreferences.getString("device_key", "");
         String encodedIV = sharedPreferences.getString("device_key.iv", "");
         return encodedKey.length() > 0 && encodedIV.length() > 0;
