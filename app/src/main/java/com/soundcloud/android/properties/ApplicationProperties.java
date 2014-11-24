@@ -83,7 +83,7 @@ public class ApplicationProperties {
     }
 
     public boolean shouldUseMediaStyleNotifications() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.L;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
     @Override
