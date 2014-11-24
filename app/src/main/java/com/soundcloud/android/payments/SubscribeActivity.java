@@ -1,5 +1,6 @@
 package com.soundcloud.android.payments;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
@@ -25,8 +26,9 @@ public class SubscribeActivity extends ScActivity {
         super.onDestroy();
     }
 
+    @VisibleForTesting
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         controller.handleBillingResult(new BillingResult(requestCode, resultCode, data));
     }
 

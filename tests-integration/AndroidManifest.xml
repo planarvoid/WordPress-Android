@@ -5,41 +5,7 @@
 
     <application>
         <uses-library android:name="android.test.runner"/>
-
-        <activity android:label="@string/fakecamera" android:name=".activity.FakeCamera">
-
-            <intent-filter>
-                <action android:name="android.media.action.IMAGE_CAPTURE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.media.action.STILL_IMAGE_CAPTURE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity android:label="@string/fakegallery" android:name=".activity.FakeGallery">
-
-            <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="image/*"/>
-            </intent-filter>
-
-
-        </activity>
-
-        <activity android:label="@string/sharesoundtarget" android:name=".activity.ShareSoundTarget">
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <data android:mimeType="audio/*"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
     </application>
 
-    <instrumentation android:label="Tests" android:name="com.soundcloud.android.tests.RandomizingRunner" android:targetPackage="com.soundcloud.android"/>
+    <instrumentation android:label="Tests" android:name="com.soundcloud.android.framework.runner.RandomizingRunner" android:targetPackage="com.soundcloud.android"/>
 </manifest>

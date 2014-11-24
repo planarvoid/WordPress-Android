@@ -1,0 +1,32 @@
+package com.soundcloud.android.tests.activity.resolve;
+
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import com.soundcloud.android.tests.TestConsts;
+import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.screens.HomeScreen;
+import com.soundcloud.android.tests.ActivityTest;
+
+import android.content.Intent;
+import android.net.Uri;
+
+public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
+
+    public ResolveTrackTest() {
+        super(ResolveActivity.class);
+    }
+
+    public void testShouldLandOnLoginScreenForAnonymousUsers() {
+        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
+        // We are not logged in
+
+        assertThat(new HomeScreen(solo), is(visible()));
+        waiter.expectToast().toHaveText("Please log in to open this link");
+    }
+
+    private Uri getUri() {
+        return TestConsts.CHE_FLUTE_URI;
+    }
+}

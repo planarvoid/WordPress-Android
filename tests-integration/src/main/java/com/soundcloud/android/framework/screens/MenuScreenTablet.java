@@ -1,0 +1,42 @@
+package com.soundcloud.android.framework.screens;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.framework.screens.explore.ExploreScreen;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
+
+public class MenuScreenTablet extends MenuScreen{
+
+    public MenuScreenTablet(Han solo) {
+        super(solo);
+    }
+
+    @Override
+    public MyProfileScreen clickUserProfile() {
+        userProfileMenuItem().click();
+        return new MyProfileScreen(testDriver);
+    }
+
+    @Override
+    public ExploreScreen clickExplore() {
+        exploreMenuItem().click();
+        return new ExploreScreen(testDriver);
+    }
+
+    @Override
+    public LikesScreen clickLikes() {
+        likesMenuItem().click();
+        return new LikesScreen(testDriver);
+    }
+
+    @Override
+    public PlaylistScreen clickPlaylist() {
+        playlistsMenuItem().click();
+        return new PlaylistScreen(testDriver);
+    }
+
+    public boolean isOpened() {
+        return testDriver.findElement(With.id(R.id.fixed_navigation_fragment_id)).isVisible();
+    }
+
+}

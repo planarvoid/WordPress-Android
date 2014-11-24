@@ -1,5 +1,6 @@
 package com.soundcloud.android.creators.record;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -976,7 +977,8 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         unsavedRecordings = null;
     }
 
-    /* package */ void reset() {
+    @VisibleForTesting
+    public void reset() {
         reset(false);
     }
 
@@ -987,7 +989,8 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         updateUi(CreateState.IDLE_RECORD);
     }
 
-    /* package, for testing */ CreateState getState() {
+    @VisibleForTesting
+    public CreateState getState() {
         return currentState;
     }
 

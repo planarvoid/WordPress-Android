@@ -2,10 +2,10 @@ package com.soundcloud.android.crypto;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
-import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.TestUser;
+import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.framework.TestUser;
 
-public class KeyGenerationTest extends ActivityTestCase<MainActivity> {
+public class KeyGenerationTest extends ActivityTest<MainActivity> {
 
     public KeyGenerationTest() {
         super(MainActivity.class);
