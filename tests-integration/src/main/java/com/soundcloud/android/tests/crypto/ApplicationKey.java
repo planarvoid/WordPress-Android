@@ -1,4 +1,4 @@
-package com.soundcloud.android.crypto;
+package com.soundcloud.android.tests.crypto;
 
 import android.app.Activity;
 import android.content.Context;
