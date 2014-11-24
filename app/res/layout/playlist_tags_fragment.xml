@@ -51,6 +51,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+            <com.soundcloud.android.view.EmptyView
+                    android:id="@android:id/empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="50dp"
+                    android:paddingBottom="50dp"/>
+
             <com.soundcloud.android.view.FlowLayout
                     android:id="@+id/all_tags"
                     android:layout_width="match_parent"
@@ -58,13 +65,6 @@
                     android:paddingLeft="5dp"
                     android:paddingTop="15dp"
                     android:animateLayoutChanges="true" />
-
-            <com.soundcloud.android.view.EmptyView
-                    android:id="@android:id/empty"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingTop="50dp"
-                    android:paddingBottom="50dp"/>
 
         </FrameLayout>
 
