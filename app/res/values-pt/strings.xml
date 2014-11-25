@@ -51,11 +51,12 @@
     <string name="this_user">Este usuário</string>
     <string name="track">som</string>
     <string name="track_by">por</string>
-    <string name="display_name">Nome de usuário</string>
+    <string name="display_name">Nome de exibição</string>
     <string name="website">Website</string>
     <string name="what_hint">O que</string>
     <string name="where_hint">Onde</string>
     <string name="like">Curtir</string>
+    <string name="unlike">Descurtir</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Pesquisar no SoundCloud</string>
@@ -69,6 +70,8 @@
     <string name="liked">curtiu %s</string>
     <string name="reposted">republicou %s</string>
     <string name="commented_on">comentou sobre %s</string>
+    <string name="mentioned_you_on">você mencionou sobre %s</string>
+
 
     <!-- __ADS -->
     <string name="advertisement">Publicidade</string>
@@ -80,6 +83,8 @@
     <string name="ad_in_progress">Publicidade em andamento</string>
     <string name="ad_resume_playing_to_continue">Retomar a reprodução do anúncio para continuar</string>
     <string name="ad_skip">Pular em: %s</string>
+    <string name="now_playing">Reproduzindo</string>
+    <string name="now_playing_with_args">Reproduzindo: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Esqueci minha senha</string>
@@ -126,7 +131,7 @@
     <string name="authentication_recover_password_msg">Digite seu endereço de e-mail, e nós lhe enviaremos um link que permite mudar sua senha. Problemas? Entre em contato com o apoio ao cliente.</string>
     <string name="authentication_blocked_title">Não conseguimos fazer sua inscrição</string>
     <string name="authentication_blocked_message">Nossos robôs acham que essa inscrição se parece muito com spam. Se você acha que isso é um erro, por favor, <a href="http://help.soundcloud.com/customer/portal/emails/new">entre em contato com o nosso suporte</a>
-  </string>
+    </string>
     <string name="authentication_captcha_message">Estamos com problemas para conectá-lo. Por favor, faça o login em nosso website móvel antes de fazer o login novamente.</string>
     <string name="authentication_email_taken_message">Este e-mail já está registrado a uma conta. Digite um e-mail diferente ou tente fazer o login.</string>
     <string name="authentication_email_invalid_message">O domínio que você digitou parece não poder receber e-mails. Você digitou corretamente?</string>
@@ -243,7 +248,7 @@
     <string name="error_onboarding_fail">Ainda estamos trabalhando para preencher sua transmissão. Vamos continuar tentando até que funcione! Enquanto isso, você pode pesquisar e descobrir outro tipo de música e áudio.</string>
 
     <!-- __ONBOARDING CATEGORIES -->
-    <string name="category_facebook_friends" tools:ignore="UnusedResources">Amigos do Facebook</string>
+    <string name="category_facebook_friends" tools:ignore="UnusedResources">Amigos do Facebook</string>
     <string name="category_facebook_likes" tools:ignore="UnusedResources">Curtidas do Facebook</string>
     <string name="category_rock" tools:ignore="UnusedResources">Rock</string>
     <string name="category_indie" tools:ignore="UnusedResources">Indie</string>
@@ -280,13 +285,16 @@
     <string name="recording_uploading">Carregando...</string>
     <string name="recording_upload_failed">Falha no carregamento</string>
     <string name="title_now_playing">Jogando agora</string>
+    <string name="like_toast_overflow_action">Salvos nos seus likes</string>
+    <string name="unlike_toast_overflow_action">Removido dos seus likes</string>
+    <string name="like_error_toast_overflow_action">Favorito não foi alterado</string>
 
     <!-- __PLAYER -->
     <string name="add_to_playlist">Adicionar à lista de reprodução</string>
     <string name="share">Compartilhar</string>
     <string name="repost">Republicar</string>
     <string name="unpost">Excluir publicação</string>
-    <string name="comment_at">Comentário às %s</string>
+    <string name="comment_at">Comentário às %s</string>
     <string name="comment_on">Comentário em %s</string>
     <string name="your_comment_has_been_posted">O seu comentário foi publicado</string>
     <string name="comment_could_not_be_created_at_this_time">Não foi possível criar o comentário neste momento</string>
@@ -303,6 +311,15 @@
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s às %2$s</string>
+
+    <!-- __PAYMENTS -->
+    <string name="payments_connection_error">Erro de conexão</string>
+    <string name="payments_connection_unavailable">A cobrança do Google Play não está disponível</string>
+    <string name="payments_user_cancelled">Usuário cancelado</string>
+    <string name="payments_none_available">Nenhuma assinatura disponível</string>
+    <string name="payments_verifying">Verificando</string>
+    <string name="payments_verification_failed">Falha na verificação</string>
+    <string name="payments_success">Sucesso</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Listas de reprodução</string>
@@ -491,6 +508,13 @@
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Forçar Player Experimental</string>
     <string name="pref_extras_skippy_desc">Reproduzir todas as faixas pelo player experimental. Isso entrará em efeito quando reproduzir a próxima faixa.</string>
+
+    <!-- __SUBSCRIPTIONS -->
+    <string name="pref_subscriptions_header">Inscrições</string>
+    <string name="pref_subscription_buy_title">Inscrever-se</string>
+    <string name="pref_subscription_buy_summary">Atualize sua conta</string>
+    <string name="title_subscribe">Inscrever</string>
+    <string name="subscribe_buy">Comprar</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d s</string>
