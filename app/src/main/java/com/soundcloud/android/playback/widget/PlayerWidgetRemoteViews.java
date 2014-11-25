@@ -34,7 +34,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
     /* package */  void setEmptyState(Context context) {
         setPlaybackStatus(false);
         setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
-        setCurrentUsername(ScTextUtils.EMPTY_STRING);
+        setCurrentCreator(ScTextUtils.EMPTY_STRING);
         linkButtonsWidget(context, Urn.NOT_SET, Urn.NOT_SET, false);
     }
 

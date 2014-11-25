@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,6 +12,7 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackSessionAnalyticsController;
+import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -23,7 +23,6 @@ import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
@@ -45,12 +44,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public static final String TAG = "CloudPlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     @Nullable static PlaybackService instance;
-    private final Action1<Notification> startForegroundAction = new Action1<Notification>() {
-        @Override
-        public void call(Notification notification) {
-            startForeground(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
-        }
-    };
     private final Handler fadeHandler = new FadeHandler(this);
     private final Handler delayedStopHandler = new DelayedStopHandler(this);
     @Inject EventBus eventBus;
@@ -265,7 +258,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private void updatePlaybackNotification(Playa.StateTransition stateTransition) {
         if (Broadcasts.PLAYSTATE_CHANGED.equals(Broadcasts.PLAYSTATE_CHANGED) && !suppressNotifications) {
             if (stateTransition.playSessionIsActive()) {
-                fireAndForget(playbackNotificationController.playingNotification().doOnNext(startForegroundAction));
+                Notification notification = playbackNotificationController.playingNotification();
+                startForeground(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
             } else {
                 if (!playbackNotificationController.notifyIdleState()) {
                     stopForeground(true);

@@ -8,10 +8,11 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.BigPlaybackNotificationPresenter;
-import com.soundcloud.android.playback.service.MediaStyleNotificationPresenter;
-import com.soundcloud.android.playback.service.PlaybackNotificationPresenter;
-import com.soundcloud.android.playback.service.RichNotificationPresenter;
+import com.soundcloud.android.playback.notification.BasicNotificationBuilder;
+import com.soundcloud.android.playback.notification.BigNotificationBuilder;
+import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
+import com.soundcloud.android.playback.notification.NotificationBuilder;
+import com.soundcloud.android.playback.notification.RichNotificationBuilder;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -46,7 +47,6 @@ import android.support.v4.util.LruCache;
 import android.telephony.TelephonyManager;
 
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Module(library = true, includes = {ApiModule.class, StorageModule.class})
@@ -138,21 +138,19 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton
-    public PlaybackNotificationPresenter providePlaybackNotificationPresenter(Context context,
-                                                                              ApplicationProperties applicationProperties,
-                                                                              NotificationPlaybackRemoteViews.Factory factory,
-                                                                              Provider<NotificationCompat.Builder> builder,
-                                                                              FeatureFlags featureFlags) {
+    public NotificationBuilder providesNotificationBuilderWrapper(Context context,
+                                                                  ApplicationProperties applicationProperties,
+                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory,
+                                                                  FeatureFlags featureFlags) {
         if (featureFlags.isEnabled(Feature.ANDROID_L_MEDIA_NOTIFICATION)
                 && applicationProperties.shouldUseMediaStyleNotifications()) {
-            return new MediaStyleNotificationPresenter(context, builder);
+            return new MediaStyleNotificationBuilder(context);
         } else if (applicationProperties.shouldUseBigNotifications()) {
-            return new BigPlaybackNotificationPresenter(context, factory, builder);
+            return new BigNotificationBuilder(context, remoteViewsFactory);
         } else if (applicationProperties.shouldUseRichNotifications()) {
-            return new RichNotificationPresenter(context, factory, builder);
+            return new RichNotificationBuilder(context, remoteViewsFactory);
         } else {
-            return new PlaybackNotificationPresenter(context, builder);
+            return new BasicNotificationBuilder(context);
         }
     }
 

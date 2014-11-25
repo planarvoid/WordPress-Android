@@ -43,7 +43,7 @@ public class PlayerWidgetRemoteViewsBuilder {
         widgetRemoteView.setCurrentTrackTitle(track.getTitle());
         widgetRemoteView.linkButtonsWidget(context, track.getUrn(), track.getUserUrn(), track.isUserLike());
 
-        widgetRemoteView.setCurrentUsername(track.isAudioAd() ? ScTextUtils.EMPTY_STRING : track.getUserName());
+        widgetRemoteView.setCurrentCreator(track.isAudioAd() ? ScTextUtils.EMPTY_STRING : track.getUserName());
         widgetRemoteView.setLikeShown(!track.isAudioAd());
     }
 

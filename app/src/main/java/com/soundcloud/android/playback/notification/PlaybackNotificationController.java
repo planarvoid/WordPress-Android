@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -15,6 +15,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
@@ -24,12 +25,13 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
 public class PlaybackNotificationController {
 
-    static final int PLAYBACKSERVICE_STATUS_ID = 1;
+    public static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
     private final Resources resources;
     private final PlaybackNotificationPresenter presenter;
@@ -37,18 +39,18 @@ public class PlaybackNotificationController {
     private final NotificationManager notificationManager;
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
+    private final Provider<NotificationBuilder> builderProvider;
 
     private final int targetIconWidth;
     private final int targetIconHeight;
-    private final Func1<PropertySet, Observable<Notification>> toNotification = new Func1<PropertySet, Observable<Notification>>() {
+    private final Func1<PropertySet, Observable<NotificationBuilder>> toNotification = new Func1<PropertySet, Observable<NotificationBuilder>>() {
         @Override
-        public Observable<Notification> call(final PropertySet propertySet) {
-            final Notification notification = presenter.createNotification(propertySet);
-            // TODO: put model creation back in presenter, that will fix the test back.
-            if (presenter.artworkCapable()) {
-                loadAndSetArtwork(propertySet.get(TrackProperty.URN), notification);
+        public Observable<NotificationBuilder> call(final PropertySet trackProperties) {
+            presenter.updateTrackInfo(notificationBuilder, trackProperties);
+            if (notificationBuilder.hasArtworkSupport()) {
+                loadAndSetArtwork(trackProperties.get(TrackProperty.URN), notificationBuilder);
             }
-            return Observable.just(notification);
+            return Observable.just(notificationBuilder);
         }
     };
     /**
@@ -56,10 +58,10 @@ public class PlaybackNotificationController {
      * * One way to fix this would be to make the queue a replay queue, but its currently not necessary
      */
     private PlayerLifeCycleEvent lastPlayerLifecycleEvent = PlayerLifeCycleEvent.forDestroyed();
-    private Observable<Notification> notificationObservable;
-    private final Func1<CurrentPlayQueueTrackEvent, Observable<Notification>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<Notification>>() {
+    private Observable<NotificationBuilder> notificationObservable;
+    private final Func1<CurrentPlayQueueTrackEvent, Observable<NotificationBuilder>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<NotificationBuilder>>() {
         @Override
-        public Observable<Notification> call(CurrentPlayQueueTrackEvent playQueueEvent) {
+        public Observable<NotificationBuilder> call(CurrentPlayQueueTrackEvent playQueueEvent) {
             imageSubscription.unsubscribe();
             notificationObservable = trackOperations
                     .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
@@ -70,24 +72,37 @@ public class PlaybackNotificationController {
         }
     };
     private Subscription imageSubscription = Subscriptions.empty();
+    private NotificationBuilder notificationBuilder;
+    private Action1<CurrentPlayQueueTrackEvent> createNotificationBuilder;
 
     @Inject
     public PlaybackNotificationController(Resources resources, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
-                                          NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations) {
+                                          NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
+                                          Provider<NotificationBuilder> builderProvider) {
         this.resources = resources;
         this.trackOperations = trackOperations;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
+        this.builderProvider = builderProvider;
 
         this.targetIconWidth = resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
         this.targetIconHeight = resources.getDimensionPixelSize(R.dimen.notification_image_large_height);
     }
 
     public void subscribe() {
+        createNotificationBuilder = new Action1<CurrentPlayQueueTrackEvent>() {
+            @Override
+            public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+                createNotificationBuilder();
+            }
+        };
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
-                .flatMap(onPlayQueueEventFunc).subscribe(new PlaylistSubscriber());
+                .doOnNext(createNotificationBuilder)
+                .flatMap(onPlayQueueEventFunc)
+                .subscribe(new PlaylistSubscriber());
+
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
             @Override
@@ -100,6 +115,34 @@ public class PlaybackNotificationController {
         });
     }
 
+
+    private ApiImageSize getApiImageSize() {
+        return ApiImageSize.getListItemImageSize(resources);
+    }
+
+    private void loadAndSetArtwork(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
+        final ApiImageSize apiImageSize = getApiImageSize();
+        final Bitmap cachedBitmap = imageOperations.getCachedBitmap(trackUrn, apiImageSize, targetIconWidth, targetIconHeight);
+
+        if (cachedBitmap != null) {
+            notificationBuilder.setIcon(cachedBitmap);
+        } else {
+            notificationBuilder.clearIcon();
+
+            imageSubscription = imageOperations.artwork(trackUrn, getApiImageSize(), targetIconWidth, targetIconHeight)
+                    .subscribe(new DefaultSubscriber<Bitmap>() {
+                        @Override
+                        public void onNext(Bitmap bitmap) {
+                            notificationBuilder.setIcon(bitmap);
+                            if (lastPlayerLifecycleEvent.isServiceRunning()) {
+                                notificationManager.cancel(PLAYBACKSERVICE_STATUS_ID);
+                                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notificationBuilder.build());
+                            }
+                        }
+                    });
+        }
+    }
+
     private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
         return new Func1<PropertySet, PropertySet>() {
             @Override
@@ -109,45 +152,31 @@ public class PlaybackNotificationController {
         };
     }
 
-    private ApiImageSize getApiImageSize() {
-        return ApiImageSize.getListItemImageSize(resources);
+    void createNotificationBuilder() {
+        notificationBuilder = builderProvider.get();
+        presenter.init(notificationBuilder);
     }
 
-    private void loadAndSetArtwork(final Urn trackUrn, final Notification notification) {
-        final ApiImageSize apiImageSize = getApiImageSize();
-        final Bitmap cachedBitmap = imageOperations.getCachedBitmap(trackUrn, apiImageSize, targetIconWidth, targetIconHeight);
+    public Notification playingNotification() {
+        presenter.updateToPlayingState(notificationBuilder);
+        return notificationBuilder.build();
+    }
 
-        if (cachedBitmap != null) {
-            presenter.setIcon(notification, cachedBitmap);
-        } else {
-            presenter.clearIcon(notification);
-
-            imageSubscription = imageOperations.artwork(trackUrn, getApiImageSize(), targetIconWidth, targetIconHeight)
-                    .subscribe(new DefaultSubscriber<Bitmap>() {
-                        @Override
-                        public void onNext(Bitmap bitmap) {
-                            presenter.setIcon(notification, bitmap);
-                            if (lastPlayerLifecycleEvent.isServiceRunning()) {
-                                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
-                            }
-                        }
-                    });
+    public boolean notifyIdleState() {
+        if (notificationBuilder.hasPlayStateSupport()) {
+            presenter.updateToIdleState(notificationBuilder);
+            notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notificationBuilder.build());
+            return true;
         }
+        return false;
     }
 
-    Observable<Notification> playingNotification() {
-        return notificationObservable.map(presenter.updateToPlayingState());
-    }
-
-    boolean notifyIdleState() {
-        return presenter.updateToIdleState(notificationObservable, new PlaylistSubscriber());
-    }
-
-    private class PlaylistSubscriber extends DefaultSubscriber<Notification> {
+    private class PlaylistSubscriber extends DefaultSubscriber<NotificationBuilder> {
         @Override
-        public void onNext(Notification notification) {
+        public void onNext(NotificationBuilder notification) {
             if (lastPlayerLifecycleEvent.isServiceRunning()) {
-                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notification);
+                notificationBuilder = notification;
+                notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notificationBuilder.build());
             }
         }
     }
