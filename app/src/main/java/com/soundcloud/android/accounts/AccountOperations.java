@@ -246,10 +246,17 @@ public class AccountOperations extends ScheduledOperations {
                 accountCleanupAction.get().call();
                 clearLoggedInUser();
                 eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
-                context.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
+                resetPlaybackService();
                 subscriber.onCompleted();
             }
         }));
+    }
+
+    // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency
+    private void resetPlaybackService() {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(PlaybackService.Actions.RESET_ALL);
+        context.startService(intent);
     }
 
     @Nullable

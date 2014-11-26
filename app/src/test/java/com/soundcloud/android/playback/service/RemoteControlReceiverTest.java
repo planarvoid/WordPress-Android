@@ -22,14 +22,9 @@ import android.view.KeyEvent;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RemoteControlReceiverTest {
-
-    RemoteControlReceiver receiver;
-
-    @Mock
-    Context context;
-
-    @Captor
-    ArgumentCaptor<Intent> captor;
+    private RemoteControlReceiver receiver;
+    @Mock private Context context;
+    @Captor private ArgumentCaptor<Intent> captor;
 
     @Before
     public void setUp() throws Exception {
@@ -69,7 +64,7 @@ public class RemoteControlReceiverTest {
     public void shouldSendPlaybackPauseEventToThePlaybackServiceOnReceivingMediaPauseEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PAUSE);
 
-        verifyActionSentToService(PlaybackService.Actions.PAUSE_ACTION);
+        verifyBroadcastedAction(PlaybackAction.PAUSE);
     }
 
     @Test
@@ -77,7 +72,7 @@ public class RemoteControlReceiverTest {
     public void shouldPutExtraEventSourceWhenMediaPauseEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PAUSE);
 
-        verifySourceRemoteSentToService();
+        verifySourceRemoteBroadcasted();
     }
 
     @Test
@@ -85,7 +80,7 @@ public class RemoteControlReceiverTest {
     public void shouldSendPlaybackPlayEventToThePlaybackServiceOnReceivingMediaPlayEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PLAY);
 
-        verifyActionSentToService(PlaybackService.Actions.PLAY_ACTION);
+        verifyBroadcastedAction(PlaybackAction.PLAY);
     }
 
     @Test
@@ -93,7 +88,7 @@ public class RemoteControlReceiverTest {
     public void shouldPutExtraEventSourceWhenMediaPlayEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PLAY);
 
-        verifySourceRemoteSentToService();
+        verifySourceRemoteBroadcasted();
     }
 
     @Test
@@ -149,16 +144,6 @@ public class RemoteControlReceiverTest {
 
     private void verifySourceRemoteBroadcasted() {
         verify(context).sendBroadcast(captor.capture());
-        expectExtraEqualsRemoteSource();
-    }
-
-    private void verifyActionSentToService(final String playbackAction) {
-        verify(context).startService(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(playbackAction);
-    }
-
-    private void verifySourceRemoteSentToService() {
-        verify(context).startService(captor.capture());
         expectExtraEqualsRemoteSource();
     }
 

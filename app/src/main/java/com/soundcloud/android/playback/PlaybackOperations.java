@@ -127,14 +127,22 @@ public class PlaybackOperations {
 
     public void togglePlayback() {
         if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
-            context.startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+            context.startService(createExplicitServiceIntent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
         } else {
             playCurrent();
         }
     }
 
+    public void play() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_ACTION));
+    }
+
+    public void pause() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PAUSE_ACTION));
+    }
+
     public void playCurrent() {
-        context.startService(new Intent(PlaybackService.Actions.PLAY_CURRENT));
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_CURRENT));
     }
 
     public void setPlayQueuePosition(int position) {
@@ -175,13 +183,17 @@ public class PlaybackOperations {
     }
 
     public void stopService() {
-        context.startService(new Intent(PlaybackService.Actions.STOP_ACTION));
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.STOP_ACTION));
+    }
+
+    public void resetService() {
+        context.startService(createExplicitServiceIntent(PlaybackService.Actions.RESET_ALL));
     }
 
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
             if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
-                Intent intent = new Intent(PlaybackService.Actions.SEEK);
+                Intent intent = createExplicitServiceIntent(PlaybackService.Actions.SEEK);
                 intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
                 context.startService(intent);
             } else {
@@ -194,6 +206,12 @@ public class PlaybackOperations {
     public boolean shouldDisableSkipping() {
         return adsOperations.isCurrentTrackAudioAd() &&
                 playSessionStateProvider.getCurrentPlayQueueTrackProgress().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+    }
+
+    private Intent createExplicitServiceIntent(String action) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(action);
+        return intent;
     }
 
     private Action1<List<Urn>> playNewQueueAction(final int startPosition,

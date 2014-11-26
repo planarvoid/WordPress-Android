@@ -320,45 +320,7 @@
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
         <service android:name=".creators.record.SoundRecorderService"/>
-        <service android:exported="false" android:name=".playback.service.PlaybackService">
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.playback.start"/>
-                <data android:host="com.soundcloud.android.provider.ScContentProvider" android:scheme="content"/>
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.soundcloud.android.playback.start"/>
-                <action android:name="com.soundcloud.android.playback.toggleplayback"/>
-                <action android:name="com.soundcloud.android.playback.playcurrent"/>
-                <action android:name="com.soundcloud.android.playback.pause"/>
-                <action android:name="com.soundcloud.android.playback.seek"/>
-                <action android:name="com.soundcloud.android.playback.close"/>
-                <action android:name="com.soundcloud.android.playback.reset"/>
-                <action android:name="com.soundcloud.android.playback.stop"/>
-                <action android:name="com.soundcloud.android.reloadqueue"/>
-                <action android:name="com.soundcloud.android.loadTrackInfo"/>
-                <action android:name="com.soundcloud.android.retryRelatedTracks"/>
-            </intent-filter>
-
-          <intent-filter>
-              <action android:name="com.soundcloud.android.playback.start"/>
-              <action android:name="com.soundcloud.android.like.add"/>
-              <action android:name="com.soundcloud.android.like.remove"/>
-              <action android:name="com.soundcloud.android.repost.add"/>
-              <action android:name="com.soundcloud.android.repost.remove"/>
-              <data android:host="com.soundcloud.android.provider.ScContentProvider" android:mimeType="vnd.soundcloud.playable/*" android:pathPrefix="" android:scheme="content"/>
-          </intent-filter>
-        </service>
-
-        <receiver android:name=".playback.external.PlaybackActionReceiver">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.playback.external.toggleplayback"/>
-                <action android:name="com.soundcloud.android.playback.external.previous"/>
-                <action android:name="com.soundcloud.android.playback.external.next"/>
-                <action android:name="com.soundcloud.android.playback.external.close"/>
-            </intent-filter>
-        </receiver>
+        <service android:exported="false" android:name=".playback.service.PlaybackService"/>
 
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>
@@ -384,6 +346,17 @@
         </service>
 
         <!-- receivers -->
+        <receiver android:name=".playback.external.PlaybackActionReceiver">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.playback.external.toggleplayback"/>
+                <action android:name="com.soundcloud.android.playback.external.play"/>
+                <action android:name="com.soundcloud.android.playback.external.pause"/>
+                <action android:name="com.soundcloud.android.playback.external.previous"/>
+                <action android:name="com.soundcloud.android.playback.external.next"/>
+                <action android:name="com.soundcloud.android.playback.external.close"/>
+            </intent-filter>
+        </receiver>
+
         <receiver android:label="SoundCloud Player" android:name=".playback.service.PlayerAppWidgetProvider">
           <intent-filter>
               <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>

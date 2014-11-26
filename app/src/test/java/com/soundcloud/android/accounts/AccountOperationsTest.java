@@ -13,6 +13,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -22,7 +23,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.api.oauth.Token;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Lazy;
@@ -44,8 +44,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AccountOperationsTest {
@@ -441,9 +439,8 @@ public class AccountOperationsTest {
     public void shouldBroadcastResetAllIntentIfAccountRemovalSucceeds() {
         accountOperations.purgeUserData().subscribe(observer);
 
-        final List<Intent> intents = Robolectric.getShadowApplication().getBroadcastIntents();
-        expect(intents).not.toBeEmpty();
-        expect(intents.get(0).getAction()).toEqual(PlaybackService.Actions.RESET_ALL);
+        final Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent.getAction()).toEqual(PlaybackService.Actions.RESET_ALL);
     }
 
     private void mockExpiredEmailConfirmationReminder() {

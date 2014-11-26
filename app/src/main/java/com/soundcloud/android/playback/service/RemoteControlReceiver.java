@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.playback.service.PlaybackService.Actions;
-
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.external.PlaybackAction;
 
@@ -23,10 +21,10 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                         sendPlaybackAction(context, PlaybackAction.TOGGLE_PLAYBACK);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        sendLegacyPlaybackAction(context, Actions.PAUSE_ACTION);
+                        sendPlaybackAction(context, PlaybackAction.PAUSE);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        sendLegacyPlaybackAction(context, Actions.PLAY_ACTION);
+                        sendPlaybackAction(context, PlaybackAction.PLAY);
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                         sendPlaybackAction(context, PlaybackAction.PREVIOUS);
@@ -39,11 +37,6 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 }
             }
         }
-    }
-
-    @Deprecated
-    private void sendLegacyPlaybackAction(Context context, String action) {
-        context.startService(createIntentForAction(action));
     }
 
     private void sendPlaybackAction(Context context, String action) {

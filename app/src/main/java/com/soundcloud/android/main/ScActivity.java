@@ -11,7 +11,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -64,10 +64,10 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     protected NetworkConnectivityListener connectivityListener;
     @Inject protected AccountOperations accountOperations;
     @Inject protected EventBus eventBus;
-    @Nullable
-    protected ActionBarController actionBarController;
+    @Nullable protected ActionBarController actionBarController;
     @Inject ImageOperations imageOperations;
     @Inject ActionBarController.Factory actionBarControllerFactory;
+    @Inject PlaybackOperations playbackOperations;
     private long currentUserId;
     private Boolean isConnected;
     private boolean isForeground;
@@ -302,7 +302,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
         registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!accountOperations.isUserLoggedIn()) {
-            sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
+            playbackOperations.resetService();
             finish();
             return;
         }
