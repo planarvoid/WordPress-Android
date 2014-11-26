@@ -11,26 +11,41 @@ import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
+import rx.Scheduler;
+import rx.Statement;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.app.Activity;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 class PaymentOperations {
 
-    private final ApiScheduler apiScheduler;
+    private static final int API_VERSION = 1;
+    private static final int VERIFY_THROTTLE_SECONDS = 2;
+
+    private final Scheduler scheduler;
+    private final ApiScheduler api;
     private final BillingService playBilling;
     private final PaymentStorage paymentStorage;
 
-    private static final Func1<ApiResponse, PurchaseStatus> TO_PURCHASE_STATUS = new Func1<ApiResponse, PurchaseStatus>() {
+    private static final Func1<ApiResponse, PurchaseStatus> TO_STATUS = new Func1<ApiResponse, PurchaseStatus>() {
         @Override
         public PurchaseStatus call(ApiResponse apiResponse) {
             return apiResponse.isSuccess()
-                    ? PurchaseStatus.VERIFYING
-                    : PurchaseStatus.FAILURE;
+                    ? PurchaseStatus.PENDING
+                    : PurchaseStatus.UPDATE_FAIL;
+        }
+    };
+
+    private static final Func1<PurchaseStatus, Boolean> IGNORE_PENDING = new Func1<PurchaseStatus, Boolean>() {
+        @Override
+        public Boolean call(PurchaseStatus purchaseStatus) {
+            return !purchaseStatus.isPending();
         }
     };
 
@@ -62,8 +77,13 @@ class PaymentOperations {
     };
 
     @Inject
-    PaymentOperations(ApiScheduler apiScheduler, BillingService playBilling, PaymentStorage paymentStorage) {
-        this.apiScheduler = apiScheduler;
+    PaymentOperations(ApiScheduler api, BillingService playBilling, PaymentStorage paymentStorage) {
+        this(ScSchedulers.API_SCHEDULER, api, playBilling, paymentStorage);
+    }
+
+    PaymentOperations(Scheduler scheduler, ApiScheduler api, BillingService playBilling, PaymentStorage paymentStorage) {
+        this.scheduler = scheduler;
+        this.api = api;
         this.playBilling = playBilling;
         this.paymentStorage = paymentStorage;
     }
@@ -78,7 +98,7 @@ class PaymentOperations {
 
     public Observable<PurchaseStatus> queryStatus() {
         return playBilling.getStatus()
-                .subscribeOn(ScSchedulers.API_SCHEDULER)
+                .subscribeOn(scheduler)
                 .flatMap(verifyPendingSubscription)
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -90,13 +110,12 @@ class PaymentOperations {
     }
 
     public Observable<String> purchase(final String id) {
-        final ApiRequest<CheckoutStarted> request =
-                ApiRequest.Builder.<CheckoutStarted>post(ApiEndpoints.CHECKOUT.path())
-                        .forPrivateApi(1)
+        final ApiRequest<CheckoutStarted> request = ApiRequest.Builder.<CheckoutStarted>post(ApiEndpoints.CHECKOUT.path())
+                        .forPrivateApi(API_VERSION)
                         .withContent(new StartCheckout(id))
                         .forResource(CheckoutStarted.class)
                         .build();
-        return apiScheduler.mappedResponse(request)
+        return api.mappedResponse(request)
                 .map(CheckoutStarted.TOKEN)
                 .doOnNext(saveToken)
                 .doOnNext(launchPaymentFlow(id))
@@ -113,26 +132,75 @@ class PaymentOperations {
     }
 
     public Observable<PurchaseStatus> verify(final Payload payload) {
-        return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
-                .subscribeOn(ScSchedulers.API_SCHEDULER)
-                .map(TO_PURCHASE_STATUS)
+        return update(payload)
+                .flatMap(new Func1<PurchaseStatus, Observable<PurchaseStatus>>() {
+                    @Override
+                    public Observable<PurchaseStatus> call(PurchaseStatus purchaseStatus) {
+                        if (purchaseStatus.isPending()) {
+                            return pollStatus();
+                        }
+                        return Observable.just(PurchaseStatus.UPDATE_FAIL);
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    private Observable<PurchaseStatus> update(final Payload payload) {
+        return api.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
+                .map(TO_STATUS);
+    }
+
+    private Observable<PurchaseStatus> pollStatus() {
+        final PollingState pollingState = new PollingState();
+        return Statement.doWhile(delayGetStatus(), pollingState.shouldContinue())
+                .doOnNext(new Action1<PurchaseStatus>() {
+                    @Override
+                    public void call(PurchaseStatus purchaseStatus) {
+                        if (purchaseStatus.isPending()) {
+                            pollingState.increment();
+                        } else {
+                            pollingState.resultObtained();
+                        }
+                    }
+                })
+                .filter(IGNORE_PENDING)
+                .defaultIfEmpty(PurchaseStatus.VERIFY_TIMEOUT);
+    }
+
+    private Observable<PurchaseStatus> delayGetStatus() {
+        return Observable.timer(VERIFY_THROTTLE_SECONDS, TimeUnit.SECONDS, scheduler)
+                .flatMap(new Func1<Long, Observable<PurchaseStatus>>() {
+                    @Override
+                    public Observable<PurchaseStatus> call(Long time) {
+                        return getStatus();
+                    }
+                });
+    }
+
+    private Observable<PurchaseStatus> getStatus() {
+        final ApiRequest<CheckoutUpdated> request =
+                ApiRequest.Builder.<CheckoutUpdated>get(ApiEndpoints.CHECKOUT_URN.path(paymentStorage.getCheckoutToken()))
+                .forPrivateApi(API_VERSION)
+                .forResource(CheckoutUpdated.class)
+                .build();
+        return api.mappedResponse(request)
+                .map(CheckoutUpdated.TO_STATUS);
+    }
+
     public Observable<ApiResponse> cancel(final String reason) {
-        return apiScheduler.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)));
+        return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)));
     }
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {
         return ApiRequest.Builder.post(ApiEndpoints.CHECKOUT_URN.path(paymentStorage.getCheckoutToken()))
-                .forPrivateApi(1)
+                .forPrivateApi(API_VERSION)
                 .withContent(update)
                 .build();
     }
 
     private Observable<ProductDetails> queryProduct(String id) {
         return playBilling.getDetails(id)
-                .subscribeOn(ScSchedulers.API_SCHEDULER);
+                .subscribeOn(scheduler);
     }
 
     private Observable<Product> getSubscriptionId() {
@@ -143,10 +211,36 @@ class PaymentOperations {
     private Observable<AvailableProducts> fetchAvailableProducts() {
         final ApiRequest<AvailableProducts> request =
                 ApiRequest.Builder.<AvailableProducts>get(ApiEndpoints.PRODUCTS.path())
-                        .forPrivateApi(1)
+                        .forPrivateApi(API_VERSION)
                         .forResource(AvailableProducts.class)
                         .build();
-        return apiScheduler.mappedResponse(request);
+        return api.mappedResponse(request);
+    }
+
+    private static class PollingState {
+
+        private static final int MAX_RETRIES = 3;
+
+        private boolean resultObtained = false;
+        private int requestCount = 0;
+
+        public Func0<Boolean> shouldContinue() {
+            return new Func0<Boolean>() {
+                @Override
+                public Boolean call() {
+                    return requestCount <= MAX_RETRIES && !resultObtained;
+                }
+            };
+        }
+
+        public void resultObtained() {
+            resultObtained = true;
+        }
+
+        public void increment() {
+            requestCount++;
+        }
+
     }
 
 }

@@ -316,7 +316,8 @@
     <string name="payments_user_cancelled">User cancelled</string>
     <string name="payments_none_available">No subscription available</string>
     <string name="payments_verifying">Verifying</string>
-    <string name="payments_verification_failed">Verification failed</string>
+    <string name="payments_verify_fail">Verification failed</string>
+    <string name="payments_verify_timeout">Unable to verify purchase</string>
     <string name="payments_success">Success</string>
 
     <!-- __PLAYLISTS -->

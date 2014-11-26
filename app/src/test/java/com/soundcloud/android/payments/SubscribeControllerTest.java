@@ -64,7 +64,7 @@ public class SubscribeControllerTest {
     @Test
     public void sendsPlayBillingSuccessForVerification() {
         BillingResult billingResult = TestBillingResults.success();
-        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFYING));
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.PENDING));
 
         controller.handleBillingResult(billingResult);
 

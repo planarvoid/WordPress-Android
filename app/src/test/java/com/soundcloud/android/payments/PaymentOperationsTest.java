@@ -14,18 +14,16 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.BillingService;
-import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
-import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.observers.TestObserver;
+import rx.schedulers.Schedulers;
 
 import android.app.Activity;
 
@@ -34,29 +32,24 @@ import java.util.ArrayList;
 @RunWith(SoundCloudTestRunner.class)
 public class PaymentOperationsTest {
 
-    @Mock private ApiScheduler apiScheduler;
+    @Mock private ApiScheduler api;
     @Mock private BillingService billingService;
     @Mock private PaymentStorage paymentStorage;
     @Mock private Activity activity;
 
     private PaymentOperations paymentOperations;
-    private BillingResult billingResult;
 
     @Before
     public void setUp() throws Exception {
-        paymentOperations = new PaymentOperations(apiScheduler, billingService, paymentStorage);
-        billingResult = TestBillingResults.success();
-        when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
+        paymentOperations = new PaymentOperations(Schedulers.immediate(), api, billingService, paymentStorage);
+        when(api.mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
                 .thenReturn(availableProductsObservable());
-        when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
+        when(api.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
                 .withContent(new StartCheckout("product_id")))))
                 .thenReturn(checkoutResultObservable());
-        when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
+        when(api.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromFailure("user cancelled")))))
                 .thenReturn(Observable.<ApiResponse>empty());
-        when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
     }
 
     @Test
@@ -72,24 +65,37 @@ public class PaymentOperationsTest {
     }
 
     @Test
-    public void fetchesProductIdFromProductsEndpoint() {
-        when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
-        paymentOperations.queryProduct().subscribe();
+    public void queryStatusReturnsNoneIfBillingServiceReturnsNoExistingSubscription() {
+        when(billingService.getStatus()).thenReturn(Observable.just(SubscriptionStatus.notSubscribed()));
+        TestObserver<PurchaseStatus> observer = new TestObserver<>();
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
+        paymentOperations.queryStatus().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(PurchaseStatus.NONE);
     }
 
     @Test
-    public void returnsFailedStatusWhenNoProductsAreAvailable() {
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(noProductsObservable());
+    public void queryProductFetchesProductIdFromApi() {
+        when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
 
-        ProductStatus result = paymentOperations.queryProduct().toBlocking().firstOrDefault(null);
+        paymentOperations.queryProduct().subscribe();
 
+        verify(api).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
+    }
+
+    @Test
+    public void queryProductReturnsFailedStatusWhenNoProductsAreAvailable() {
+        when(api.mappedResponse(any(ApiRequest.class))).thenReturn(noProductsObservable());
+        TestObserver<ProductStatus> observer = new TestObserver<>();
+
+        paymentOperations.queryProduct().subscribe(observer);
+
+        ProductStatus result = observer.getOnNextEvents().get(0);
         expect(result.isSuccess()).toBeFalse();
     }
 
     @Test
-    public void requestsProductDetailsForSubscriptionId() {
+    public void requestsProductDetailsForId() {
         when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
 
         paymentOperations.queryProduct().subscribe();
@@ -101,56 +107,21 @@ public class PaymentOperationsTest {
     public void returnsProductDetailsFromBillingService()  {
         ProductDetails details = new ProductDetails("id", "Subscription", "Blah", "$100");
         when(billingService.getDetails(anyString())).thenReturn(Observable.just(details));
+        TestObserver<ProductStatus> observer = new TestObserver<>();
 
-        ProductStatus result = paymentOperations.queryProduct().toBlocking().firstOrDefault(null);
+        paymentOperations.queryProduct().subscribe(observer);
 
+        ProductStatus result = observer.getOnNextEvents().get(0);
         expect(result.isSuccess()).toBeTrue();
         expect(result.getDetails()).toBe(details);
     }
 
     @Test
-    public void queryStatusReturnsNoneIfBillingServiceGivesNotSubscribed() {
-        when(billingService.getStatus()).thenReturn(Observable.just(SubscriptionStatus.notSubscribed()));
-
-        PurchaseStatus status = paymentOperations.queryStatus().toBlocking().firstOrDefault(null);
-
-        expect(status).toEqual(PurchaseStatus.NONE);
-    }
-
-    @Test
-    public void queryStatusReturnsVerifyingIfBillingServiceGivesSubscription() {
-        setupPendingSubscription(new Payload("data", "signature"));
-
-        PurchaseStatus status = paymentOperations.queryStatus().toBlocking().firstOrDefault(null);
-
-        expect(status).toEqual(PurchaseStatus.VERIFYING);
-    }
-
-    @Test
-    public void queryStatusVerifiesPendingSubscription() {
-        Payload payload = new Payload("data", "signature");
-        setupPendingSubscription(payload);
-
-        paymentOperations.queryStatus().toBlocking().firstOrDefault(null);
-
-        verify(paymentStorage).setCheckoutToken("token_123");
-        verify(apiScheduler).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromSuccess(payload))));
-    }
-
-    @Test
-    public void postsCheckoutStart() {
+    public void purchasePostsCheckoutStart() {
         paymentOperations.purchase("product_id").subscribe();
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
+        verify(api).mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
                 .withContent(new StartCheckout("product_id"))));
-    }
-
-    @Test
-    public void beginsPurchaseWithTokenFromCheckoutStart() {
-        paymentOperations.purchase("product_id").subscribe();
-
-        verify(billingService).startPurchase("product_id", "token_123");
     }
 
     @Test
@@ -161,43 +132,19 @@ public class PaymentOperationsTest {
     }
 
     @Test
-    public void postsCheckoutSuccess() {
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
+    public void startsPurchaseWithTokenFromCheckoutStart() {
+        paymentOperations.purchase("product_id").subscribe();
 
-        paymentOperations.verify(billingResult.getPayload());
-
-        verify(apiScheduler).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload()))));
+        verify(billingService).startPurchase("product_id", "token_123");
     }
 
     @Test
-    public void verifyReturnsVerifyingStatusIfUpdateWasSuccessful() {
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
-
-        PurchaseStatus status = paymentOperations.verify(billingResult.getPayload()).toBlocking().firstOrDefault(null);
-
-        expect(status).toEqual(PurchaseStatus.VERIFYING);
-    }
-
-    @Test
-    public void verifyReturnsFailureStatusIfUpdateFailed() {
-        when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_FORBIDDEN, null)));
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
-
-        PurchaseStatus status = paymentOperations.verify(billingResult.getPayload()).toBlocking().firstOrDefault(null);
-
-        expect(status).toEqual(PurchaseStatus.FAILURE);
-    }
-
-    @Test
-    public void postsCheckoutFailure() {
+    public void cancelPostsCheckoutFailure() {
         when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
 
         paymentOperations.cancel("user cancelled").subscribe();
 
-        verify(apiScheduler).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
+        verify(api).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromFailure("user cancelled"))));
     }
 
@@ -212,14 +159,6 @@ public class PaymentOperationsTest {
 
     private Observable<AvailableProducts> noProductsObservable() {
         return Observable.just(new AvailableProducts(new ArrayList<AvailableProducts.Product>()));
-    }
-
-    private void setupPendingSubscription(Payload payload) {
-        when(billingService.getStatus()).thenReturn(Observable.just(SubscriptionStatus.subscribed("token_123", payload)));
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
-        when(apiScheduler.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromSuccess(payload)))))
-                .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
     }
 
 }

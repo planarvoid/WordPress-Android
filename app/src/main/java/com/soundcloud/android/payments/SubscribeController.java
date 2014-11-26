@@ -53,6 +53,7 @@ class SubscribeController {
     public void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
+                showText(R.string.payments_verifying);
                 subscription.add(paymentOperations.verify(result.getPayload()).subscribe(new StatusSubscriber()));
             } else {
                 showText(R.string.payments_user_cancelled);
@@ -117,14 +118,14 @@ class SubscribeController {
         @Override
         public void onNext(PurchaseStatus result) {
             switch(result) {
-                case VERIFYING:
-                    showText(R.string.payments_verifying);
-                    break;
-                case FAILURE:
-                    showText(R.string.payments_verification_failed);
-                    break;
                 case SUCCESS:
                     showText(R.string.payments_success);
+                    break;
+                case VERIFY_FAIL:
+                    showText(R.string.payments_verify_fail);
+                    break;
+                case VERIFY_TIMEOUT:
+                    showText(R.string.payments_verify_timeout);
                     break;
                 case NONE:
                     loadPurchaseOptions();

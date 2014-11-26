@@ -29,7 +29,17 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
         paymentScreen.clickBuy();
         waiter.waitTwoSeconds();
         new BillingResponse(solo.getCurrentActivity()).forSuccess().insert();
-        waiter.expectToast().toHaveText("Verifying");
+        waiter.waitTwoSeconds();
+        waiter.expectToast().toHaveText("Success");
+    }
+
+    public void testInvalidPayment() {
+        PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
+        paymentScreen.clickBuy();
+        waiter.waitTwoSeconds();
+        new BillingResponse(solo.getCurrentActivity()).forInvalid().insert();
+        waiter.waitTwoSeconds();
+        waiter.expectToast().toHaveText("Verification failed");
     }
 
 }

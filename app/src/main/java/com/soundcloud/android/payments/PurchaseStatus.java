@@ -2,9 +2,15 @@ package com.soundcloud.android.payments;
 
 enum PurchaseStatus {
 
-    VERIFYING,
+    PENDING,
     SUCCESS,
-    FAILURE,
-    NONE
+    UPDATE_FAIL,
+    VERIFY_FAIL,
+    VERIFY_TIMEOUT,
+    NONE;
+
+    public boolean isPending() {
+        return this == PurchaseStatus.PENDING;
+    }
 
 }
