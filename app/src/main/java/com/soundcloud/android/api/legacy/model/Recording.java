@@ -84,8 +84,8 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public boolean is_private;
     public String[] tags;
     public String description, genre;
-    public double longitude;
-    public double latitude;
+    @Deprecated public double longitude;
+    @Deprecated public double latitude;
     public String tip_key;
     // assets
     @NotNull
@@ -93,7 +93,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     @Nullable public File artwork_path;
     @Nullable public File resized_artwork_path;
     // sharing
-    public String four_square_venue_id; /* hex */
+    @Deprecated public String four_square_venue_id; /* hex */
     public String service_ids;
     @Deprecated public String shared_emails;
     @Deprecated public String shared_ids;
