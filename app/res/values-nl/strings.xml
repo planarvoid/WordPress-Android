@@ -311,7 +311,7 @@
     <string name="payments_user_cancelled">Gebruiker geannuleerd</string>
     <string name="payments_none_available">Geen abonnement beschikbaar</string>
     <string name="payments_verifying">Aan het verifiëren</string>
-    <string name="payments_verification_failed">Verificatie is mislukt</string>
+    <string name="payments_verify_fail">Verificatie is mislukt</string>
     <string name="payments_success">Succes</string>
 
     <!-- __PLAYLISTS -->

@@ -311,7 +311,7 @@
     <string name="payments_user_cancelled">تم إلغاء المستخدم</string>
     <string name="payments_none_available">لا توجد اشتراكات متاحة</string>
     <string name="payments_verifying">جارِ التحقق</string>
-    <string name="payments_verification_failed">فشل التحقق</string>
+    <string name="payments_verify_fail">فشل التحقق</string>
     <string name="payments_success">نجاح</string>
 
     <!-- __PLAYLISTS -->

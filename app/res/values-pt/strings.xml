@@ -317,7 +317,7 @@
     <string name="payments_user_cancelled">Usuário cancelado</string>
     <string name="payments_none_available">Nenhuma assinatura disponível</string>
     <string name="payments_verifying">Verificando</string>
-    <string name="payments_verification_failed">Falha na verificação</string>
+    <string name="payments_verify_fail">Falha na verificação</string>
     <string name="payments_success">Sucesso</string>
 
     <!-- __PLAYLISTS -->

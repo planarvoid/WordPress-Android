@@ -311,7 +311,7 @@
     <string name="payments_user_cancelled">Pengguna dibatalkan</string>
     <string name="payments_none_available">Tidak ada langganan tersedia</string>
     <string name="payments_verifying">Memverifikasi</string>
-    <string name="payments_verification_failed">Verifikasi gagal</string>
+    <string name="payments_verify_fail">Verifikasi gagal</string>
     <string name="payments_success">Berhasil</string>
 
     <!-- __PLAYLISTS -->
