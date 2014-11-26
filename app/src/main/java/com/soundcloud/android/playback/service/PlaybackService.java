@@ -261,9 +261,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 Notification notification = playbackNotificationController.playingNotification();
                 startForeground(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
             } else {
-                if (!playbackNotificationController.notifyIdleState()) {
-                    stopForeground(true);
-                }
+                final boolean displayedNotification = playbackNotificationController.notifyIdleState();
+                stopForeground(!displayedNotification);
             }
         }
     }

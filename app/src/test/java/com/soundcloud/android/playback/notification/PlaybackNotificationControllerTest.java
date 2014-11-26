@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -58,6 +59,7 @@ public class PlaybackNotificationControllerTest {
     @Mock private Bitmap bitmap;
     @Mock private Uri uri;
     @Mock private Subscription subscription;
+    @Mock private PlaybackStateProvider playbackStateProvider;
     @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
     private PropertySet trackProperties;
 
@@ -78,7 +80,8 @@ public class PlaybackNotificationControllerTest {
                     public NotificationBuilder get() {
                         return notificationBuilder;
                     }
-                }
+                },
+                playbackStateProvider
         );
     }
 

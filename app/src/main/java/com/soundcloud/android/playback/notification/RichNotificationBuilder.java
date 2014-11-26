@@ -17,6 +17,7 @@ public class RichNotificationBuilder implements NotificationBuilder {
     @Inject
     public RichNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
         builder = new NotificationCompat.Builder(context);
+        builder.setOngoing(true);
         remoteViews = remoteViewsFactory.create(context.getPackageName());
         remoteViews.linkButtonsNotification(context);
     }
@@ -47,12 +48,12 @@ public class RichNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setContentTitle(String title) {
+    public void setTrackTitle(String title) {
         remoteViews.setCurrentTrackTitle(title);
     }
 
     @Override
-    public void setContentText(String creator) {
+    public void setCreatorName(String creator) {
         remoteViews.setCurrentCreator(creator);
     }
 

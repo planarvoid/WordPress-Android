@@ -1,19 +1,60 @@
 package com.soundcloud.android.playback.notification;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.playback.external.PlaybackAction;
+
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class MediaStyleNotificationBuilder implements NotificationBuilder {
+
+    private static final int PENDING_INTENT_REQUEST_CODE = MediaStyleNotificationBuilder.class.hashCode();
+    private static final int TOGGLE_PLAY_ACTION_INDEX = 1;
+    private static final int NEXT_ACTION_INDEX = 2;
+
     private final Notification.Builder builder;
+    private final Notification.Action togglePlayAction;
+    private final Notification.Action nextAction;
+    private final Notification.Action previousAction;
 
     public MediaStyleNotificationBuilder(Context context) {
         builder = new Notification.Builder(context);
-        builder.setStyle(new Notification.MediaStyle());
+
+        Notification.MediaStyle style = new Notification.MediaStyle();
+        style.setShowActionsInCompactView(TOGGLE_PLAY_ACTION_INDEX, NEXT_ACTION_INDEX);
+        builder.setStyle(style);
+        builder.setUsesChronometer(false);
+        builder.setShowWhen(false);
+
+        previousAction = new Notification.Action(R.drawable.notifications_previous, context.getString(R.string.previous), createPendingIntent(context, PlaybackAction.PREVIOUS));
+        togglePlayAction = new Notification.Action(R.drawable.notifications_play, context.getString(R.string.toggle_play), createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
+        nextAction = new Notification.Action(R.drawable.notifications_next, context.getString(R.string.next), createPendingIntent(context, PlaybackAction.NEXT));
+        builder.addAction(previousAction);
+        builder.addAction(togglePlayAction);
+        builder.addAction(nextAction);
+    }
+
+    private PendingIntent createPendingIntent(Context context, String playbackAction) {
+        return PendingIntent.getBroadcast(context, PENDING_INTENT_REQUEST_CODE, createIntent(playbackAction), 0);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    private Intent createIntent(String playbackAction) {
+        final Intent intent = new Intent(playbackAction)
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
+
+        // add this or it will not trigger a process start (as of 3.1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1){
+            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        }
+        return intent;
     }
 
     @Override
@@ -42,18 +83,23 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setContentTitle(String title) {
-        builder.setContentTitle(title);
+    public void setTrackTitle(String trackTitle) {
+        builder.setContentText(trackTitle);
     }
 
     @Override
-    public void setContentText(String creatorName) {
-        builder.setContentText(creatorName);
+    public void setCreatorName(String creatorName) {
+        builder.setContentTitle(creatorName);
     }
 
     @Override
     public void setPlayingStatus(boolean isPlaying) {
-        // TODO: Change play/pause action
+        if (isPlaying) {
+            togglePlayAction.icon = R.drawable.notifications_pause;
+        } else {
+            togglePlayAction.icon = R.drawable.notifications_play;
+        }
+        setOngoing(isPlaying);
     }
 
     @Override

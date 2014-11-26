@@ -33,7 +33,7 @@ public class PlaybackNotificationPresenterTest {
     @Test
     public void createTrackSeSetsUsernameAsTextOnNotificationBuilder() {
         presenter.updateTrackInfo(notificationBuilder, trackProperties);
-        verify(notificationBuilder).setContentText(trackProperties.get(PlayableProperty.CREATOR_NAME));
+        verify(notificationBuilder).setCreatorName(trackProperties.get(PlayableProperty.CREATOR_NAME));
     }
 
     @Test

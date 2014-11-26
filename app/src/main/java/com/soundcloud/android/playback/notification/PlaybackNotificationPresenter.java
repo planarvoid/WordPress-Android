@@ -21,16 +21,16 @@ public class PlaybackNotificationPresenter {
         this.context = context;
     }
 
-    void init(NotificationBuilder builder){
-        builder.setOngoing(true);
+    void init(NotificationBuilder builder, boolean isPlaying){
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(createPendingIntent(context));
+        builder.setPlayingStatus(isPlaying);
     }
 
     void updateTrackInfo(NotificationBuilder notificationBuilder, PropertySet trackProperties) {
         final NotificationTrack trackViewModel = new NotificationTrack(context.getResources(), trackProperties);
-        notificationBuilder.setContentTitle(trackViewModel.getTitle());
-        notificationBuilder.setContentText(trackViewModel.getCreatorName());
+        notificationBuilder.setTrackTitle(trackViewModel.getTitle());
+        notificationBuilder.setCreatorName(trackViewModel.getCreatorName());
     }
 
     void updateToPlayingState(NotificationBuilder notificationBuilder) {

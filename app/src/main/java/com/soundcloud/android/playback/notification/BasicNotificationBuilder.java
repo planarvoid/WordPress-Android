@@ -14,6 +14,7 @@ public class BasicNotificationBuilder implements NotificationBuilder {
     @Inject
     public BasicNotificationBuilder(Context context) {
         builder = new NotificationCompat.Builder(context);
+        builder.setOngoing(true);
     }
 
     @Override
@@ -42,12 +43,12 @@ public class BasicNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setContentTitle(String title) {
+    public void setTrackTitle(String title) {
         builder.setContentTitle(title);
     }
 
     @Override
-    public void setContentText(String creatorName) {
+    public void setCreatorName(String creatorName) {
         builder.setContentText(creatorName);
     }
 

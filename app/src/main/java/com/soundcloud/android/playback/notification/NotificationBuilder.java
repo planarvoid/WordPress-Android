@@ -15,9 +15,9 @@ public interface NotificationBuilder {
 
     void setContentIntent(PendingIntent pendingIntent);
 
-    void setContentTitle(String title);
+    void setTrackTitle(String title);
 
-    void setContentText(String creatorName);
+    void setCreatorName(String creatorName);
 
     void setPlayingStatus(boolean isPlaying);
 

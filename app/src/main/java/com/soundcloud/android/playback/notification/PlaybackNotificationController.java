@@ -7,6 +7,7 @@ import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -40,6 +41,7 @@ public class PlaybackNotificationController {
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
     private final Provider<NotificationBuilder> builderProvider;
+    private final PlaybackStateProvider playbackStateProvider;
 
     private final int targetIconWidth;
     private final int targetIconHeight;
@@ -78,7 +80,7 @@ public class PlaybackNotificationController {
     @Inject
     public PlaybackNotificationController(Resources resources, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
                                           NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
-                                          Provider<NotificationBuilder> builderProvider) {
+                                          Provider<NotificationBuilder> builderProvider, PlaybackStateProvider playbackStateProvider) {
         this.resources = resources;
         this.trackOperations = trackOperations;
         this.presenter = presenter;
@@ -86,6 +88,7 @@ public class PlaybackNotificationController {
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
         this.builderProvider = builderProvider;
+        this.playbackStateProvider = playbackStateProvider;
 
         this.targetIconWidth = resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
         this.targetIconHeight = resources.getDimensionPixelSize(R.dimen.notification_image_large_height);
@@ -135,7 +138,6 @@ public class PlaybackNotificationController {
                         public void onNext(Bitmap bitmap) {
                             notificationBuilder.setIcon(bitmap);
                             if (lastPlayerLifecycleEvent.isServiceRunning()) {
-                                notificationManager.cancel(PLAYBACKSERVICE_STATUS_ID);
                                 notificationManager.notify(PLAYBACKSERVICE_STATUS_ID, notificationBuilder.build());
                             }
                         }
@@ -154,7 +156,7 @@ public class PlaybackNotificationController {
 
     void createNotificationBuilder() {
         notificationBuilder = builderProvider.get();
-        presenter.init(notificationBuilder);
+        presenter.init(notificationBuilder, playbackStateProvider.isPlaying());
     }
 
     public Notification playingNotification() {

@@ -22,6 +22,7 @@ public class BigNotificationBuilder implements NotificationBuilder {
     @Inject
     public BigNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
         builder = new NotificationCompat.Builder(context);
+        builder.setOngoing(true);
         smallRemoteViews = remoteViewsFactory.create(context.getPackageName());
         smallRemoteViews.linkButtonsNotification(context);
         bigRemoteViews = remoteViewsFactory.create(context.getPackageName(), R.layout.playback_status_large_v16);
@@ -56,13 +57,13 @@ public class BigNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setContentTitle(String title) {
+    public void setTrackTitle(String title) {
         smallRemoteViews.setCurrentTrackTitle(title);
         bigRemoteViews.setCurrentTrackTitle(title);
     }
 
     @Override
-    public void setContentText(String creator) {
+    public void setCreatorName(String creator) {
         smallRemoteViews.setCurrentCreator(creator);
         bigRemoteViews.setCurrentCreator(creator);
     }
