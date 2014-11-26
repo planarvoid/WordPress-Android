@@ -50,7 +50,7 @@
     <string name="this_user">هذا المستخدم</string>
     <string name="track">صوت</string>
     <string name="track_by">بواسطة</string>
-    <string name="display_name">اسم المستخدم</string>
+    <string name="display_name">عرض الاسم</string>
     <string name="website">الموقع</string>
     <string name="what_hint">ماذا</string>
     <string name="where_hint">أين</string>
@@ -79,6 +79,8 @@
     <string name="ad_in_progress">الإعلان قيد التقدم</string>
     <string name="ad_resume_playing_to_continue">استئناف إعلان اللعب للمتابعة</string>
     <string name="ad_skip">تخطي في: %s</string>
+    <string name="now_playing">جارِ التشغيل الآن</string>
+    <string name="now_playing_with_args">جارِ التشغيل الآن: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">نسيت كلمة المرور الخاصة بي</string>
@@ -125,7 +127,7 @@
     <string name="authentication_recover_password_msg">أدخل عنوان بريدك الالكتروني وسنرسل لك رابطًًا يسمح لك بتغيير كلمة المرور. هل هناك مشكلات؟ اتصل بخدمة الدعم.</string>
     <string name="authentication_blocked_title">تعذر علينا تسجيل إشتراكك</string>
     <string name="authentication_blocked_message">تعتقد الروبوتات لدينا أن هذا الاشتراك يبدو كثيرًا مثل البريد المزعج. إذا كنت تعتقد أن هذا خطأ، يرجى <a href="http://help.soundcloud.com/customer/portal/emails/new">الاتصال بدعمنا</a>
-  </string>
+    </string>
     <string name="authentication_captcha_message">واجهنا بعض المتاعب في تسجيل دخولك. الرجاء تسجيل الدخول من خلال موقع الجوال لدينا، وقبل تسجيل الدخول مرة أخرى.</string>
     <string name="authentication_email_taken_message">تم تسجيل عنوان البريد الإلكتروني هذا بالفعل مع أحد الحسابات. أدخل عنوان بريد إلكتروني آخر أو حاول تسجيل الدخول</string>
     <string name="authentication_email_invalid_message">يبدو أن المجال الذي أدخلته غير قادر على استقبال رسائل البريد الإلكتروني. هل كتبته بشكل صحيح؟</string>
@@ -291,8 +293,8 @@
     <string name="comment_could_not_be_created_at_this_time">لا يمكن إنشاء تعليق في هذا الوقت</string>
     <string name="reposted_to_followers">إعادة نشر لمتابعيك</string>
     <string name="unposted_to_followers">غير منشور</string>
-    <string name="share_track_by_artist_on_soundcloud">استماع إلى %1$s من %2$s #np on #SoundCloud %3$s</string>
-    <string name="share_track_on_soundcloud">استماع إلى %1$s np on #SoundCloud# %2$s</string>
+    <string name="share_track_by_artist_on_soundcloud">استمع إلى %1$s من خلال %2$s  #np on # على SoundCloud %3$s</string>
+    <string name="share_track_on_soundcloud">استمع إلى %1$s #np on # على SoundCloud %2$s</string>
     <string name="share_subject">%s - SoundCloud</string>
     <string name="info">معلومات</string>
     <string name="uploaded_at">تم تحميل %s</string>
@@ -302,6 +304,15 @@
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s في %2$s</string>
+
+    <!-- __PAYMENTS -->
+    <string name="payments_connection_error">خطأ في الاتصال</string>
+    <string name="payments_connection_unavailable">فوترة Google Play غير متوفرة</string>
+    <string name="payments_user_cancelled">تم إلغاء المستخدم</string>
+    <string name="payments_none_available">لا توجد اشتراكات متاحة</string>
+    <string name="payments_verifying">جارِ التحقق</string>
+    <string name="payments_verification_failed">فشل التحقق</string>
+    <string name="payments_success">نجاح</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">قوائم التشغيل</string>
@@ -372,13 +383,13 @@
     <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">ألديك فكرة عظيمة؟ هيا التقطها بضغطة على زر REC.</string>
     <string name="rectip_social_good_joke" tools:ignore="UnusedResources">هل سمعت نكتة جديدة مؤخرًا؟ هيا شاركها!</string>
     <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">أتستمتع بمحادثة رائعة؟ لماذا لا تقوم بالتسجيل لأبنائك؟</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">التقط لحظة المرحة وسجِّلها صوتيًا</string>
+    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">التقط لحظة المرحة وسجِّلها صوتيًا</string>
     <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">هل تعلم أنه يمكنك حفظ التسجيلات الخاصة إذا كنت لا ترغب في مشاركتها؟</string>
     <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">أحيانًا يكون أفضل جهاز تسجيل هو الذي بين يديك.</string>
     <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">استمتع بإلغاء كتم نفسك!</string>
     <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">قم بإلغاء كتم الإنترنت,</string>
     <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">إلغاء كتم العالم.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">عبِّر عن نفسك!</string>
+    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">عبِّر عن نفسك!</string>
     <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">لماذا لا تُسجل محضر الاجتماع المقبل؟</string>
     <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">استخدم زر REC لالتقاط الأفكار لتذكرها في وقت لاحق.</string>
     <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">استخدم زر REC كوسيلة دراسة مساعدة: قم بتخزين ملاحظاتك أثناء تنقلاتك.</string>
@@ -429,7 +440,7 @@
     <string name="pref_revoke_access">تسجيل الخروج</string>
     <string name="pref_revoke_desc">تسجيل خروج المستخدم الحالي</string>
     <string name="pref_sync_my_likes">إعجاباتي</string>
-    <string name="pref_sync_my_likes_description">احتفظ بإعجاباتي مُحدثَّة محليًا</string>
+    <string name="pref_sync_my_likes_description">احتفظ بإعجاباتي مُحدثَّة محليًا</string>
     <string name="pref_sync_my_followers">متابعيني</string>
     <string name="pref_sync_my_followers_description">احتفظ بالأشخاص الذين يتابعونني قيد التحديث محليًا</string>
     <string name="pref_sync_my_following">متابعاتي</string>
@@ -486,6 +497,13 @@
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">إجبار المشغل التجريبي</string>
     <string name="pref_extras_skippy_desc">تشغيل كافة المسارات باستخدام المشغل التجريبي. سوف يتم تطبيق ذلك عند تشغيل المسار التالي.</string>
+
+    <!-- __SUBSCRIPTIONS -->
+    <string name="pref_subscriptions_header">اشتراكات</string>
+    <string name="pref_subscription_buy_title">اشتراك</string>
+    <string name="pref_subscription_buy_summary">ترقية حسابك</string>
+    <string name="title_subscribe">اشتراك</string>
+    <string name="subscribe_buy">شراء</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d ثانية</string>

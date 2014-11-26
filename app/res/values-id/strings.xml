@@ -50,7 +50,7 @@
     <string name="this_user">Pengguna ini</string>
     <string name="track">suara</string>
     <string name="track_by">oleh</string>
-    <string name="display_name">Nama pengguna</string>
+    <string name="display_name">Tampilkan Nama</string>
     <string name="website">Situs Web</string>
     <string name="what_hint">Apa</string>
     <string name="where_hint">Di mana</string>
@@ -79,6 +79,8 @@
     <string name="ad_in_progress">Iklan sedang ditayangkan</string>
     <string name="ad_resume_playing_to_continue">Teruskan pemutaran iklan untuk lanjut</string>
     <string name="ad_skip">Lewatkan dalam waktu: %s</string>
+    <string name="now_playing">Sedang Diputar</string>
+    <string name="now_playing_with_args">Sedang Diputar: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Saya lupa kata sandi</string>
@@ -125,7 +127,7 @@
     <string name="authentication_recover_password_msg">Masukkan alamat surelmu dan kami akan mengirimi kamu sebuah tautan yang akan memungkinkan kamu untuk mengubah kata sandi. Ada masalah? Hubungi Dukungan.</string>
     <string name="authentication_blocked_title">Kami tidak bisa mendaftarkanmu</string>
     <string name="authentication_blocked_message">Robot kami menganggap pendaftaran ini terlalu mirip spam. Jika kamu yakin ini kesalahan, silakan <a href="http://help.soundcloud.com/customer/portal/emails/new"> hubungi dukungan kami </a>
-  </string>
+    </string>
     <string name="authentication_captcha_message">Kami mengalami masalah saat memasukkanmu. Silakan masuk melalui website seluler kami sebelum masuk lagi.</string>
     <string name="authentication_email_taken_message">Surel ini sudah terdaftar dengan sebuah akun. Masukkan surel lain atau silakan mencoba masuk</string>
     <string name="authentication_email_invalid_message">Domain yang kamu masukkan tampaknya tidak mampu menerima surel. Apakah kamu memasukkannya dengan benar?</string>
@@ -167,7 +169,7 @@
     <!-- __ERRORS -->
     <string name="error_loading_message">Terjadi masalah saat menghubungi SoundCloud.</string>
     <string name="error_loading_title">Kesalahan jaringan</string>
-    <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
+    <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
     <string name="error_unauthorized_message">Kami sedang mengalami masalah dengan akunmu dan kamu harus masuk lagi ke SoundCloud sebelum kamu dapat terus menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Kesalahan Akun</string>
     <string name="error_loading_url">Ada masalah saat memuat url tersebut</string>
@@ -302,6 +304,15 @@
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s di %2$s</string>
+
+    <!-- __PAYMENTS -->
+    <string name="payments_connection_error">Kesalahan koneksi</string>
+    <string name="payments_connection_unavailable">Penagihan Google Play tidak tersedia</string>
+    <string name="payments_user_cancelled">Pengguna dibatalkan</string>
+    <string name="payments_none_available">Tidak ada langganan tersedia</string>
+    <string name="payments_verifying">Memverifikasi</string>
+    <string name="payments_verification_failed">Verifikasi gagal</string>
+    <string name="payments_success">Berhasil</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Daftar putar</string>
@@ -486,6 +497,13 @@
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Paksakan Pemutar Eksperimental</string>
     <string name="pref_extras_skippy_desc">Putar semua lagu dengan pemutar eksperimental. Hal ini akan memberikan efek saat memutar lagu selanjutnya.</string>
+
+    <!-- __SUBSCRIPTIONS -->
+    <string name="pref_subscriptions_header">Langganan</string>
+    <string name="pref_subscription_buy_title">Berlangganan</string>
+    <string name="pref_subscription_buy_summary">Tingkatkan akun Anda</string>
+    <string name="title_subscribe">Berlangganan</string>
+    <string name="subscribe_buy">Beli</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d detik.</string>
