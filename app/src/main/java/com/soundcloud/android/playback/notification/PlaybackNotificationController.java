@@ -45,6 +45,12 @@ public class PlaybackNotificationController {
 
     private final int targetIconWidth;
     private final int targetIconHeight;
+    private final Action1<CurrentPlayQueueTrackEvent> createNotificationBuilder = new Action1<CurrentPlayQueueTrackEvent>() {
+        @Override
+        public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
+            createNotificationBuilder();
+        }
+    };
     private final Func1<PropertySet, Observable<NotificationBuilder>> toNotification = new Func1<PropertySet, Observable<NotificationBuilder>>() {
         @Override
         public Observable<NotificationBuilder> call(final PropertySet trackProperties) {
@@ -60,22 +66,18 @@ public class PlaybackNotificationController {
      * * One way to fix this would be to make the queue a replay queue, but its currently not necessary
      */
     private PlayerLifeCycleEvent lastPlayerLifecycleEvent = PlayerLifeCycleEvent.forDestroyed();
-    private Observable<NotificationBuilder> notificationObservable;
     private final Func1<CurrentPlayQueueTrackEvent, Observable<NotificationBuilder>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<NotificationBuilder>>() {
         @Override
         public Observable<NotificationBuilder> call(CurrentPlayQueueTrackEvent playQueueEvent) {
             imageSubscription.unsubscribe();
-            notificationObservable = trackOperations
+            return trackOperations
                     .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
                     .map(mergeMetaData(playQueueEvent.getCurrentMetaData()))
                     .flatMap(toNotification).cache();
-
-            return notificationObservable;
         }
     };
     private Subscription imageSubscription = Subscriptions.empty();
     private NotificationBuilder notificationBuilder;
-    private Action1<CurrentPlayQueueTrackEvent> createNotificationBuilder;
 
     @Inject
     public PlaybackNotificationController(Resources resources, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
@@ -95,17 +97,10 @@ public class PlaybackNotificationController {
     }
 
     public void subscribe() {
-        createNotificationBuilder = new Action1<CurrentPlayQueueTrackEvent>() {
-            @Override
-            public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
-                createNotificationBuilder();
-            }
-        };
         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK)
                 .doOnNext(createNotificationBuilder)
                 .flatMap(onPlayQueueEventFunc)
                 .subscribe(new PlaylistSubscriber());
-
 
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new DefaultSubscriber<PlayerLifeCycleEvent>() {
             @Override
