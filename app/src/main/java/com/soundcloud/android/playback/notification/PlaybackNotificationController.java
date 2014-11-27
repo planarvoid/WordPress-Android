@@ -156,7 +156,7 @@ public class PlaybackNotificationController {
 
     void createNotificationBuilder() {
         notificationBuilder = builderProvider.get();
-        presenter.init(notificationBuilder, playbackStateProvider.isPlaying());
+        presenter.init(notificationBuilder, playbackStateProvider.isSupposedToBePlaying());
     }
 
     public Notification playingNotification() {
