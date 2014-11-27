@@ -22,8 +22,6 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
 
     private final Notification.Builder builder;
     private final Notification.Action togglePlayAction;
-    private final Notification.Action nextAction;
-    private final Notification.Action previousAction;
     private final Resources resources;
 
     public MediaStyleNotificationBuilder(Context context) {
@@ -36,12 +34,10 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
         builder.setUsesChronometer(false);
         builder.setShowWhen(false);
 
-        previousAction = createAction(context, PlaybackAction.PREVIOUS);
+        builder.addAction(createAction(context, PlaybackAction.PREVIOUS));
         togglePlayAction = createAction(context, PlaybackAction.TOGGLE_PLAYBACK);
-        nextAction = createAction(context, PlaybackAction.NEXT);
-        builder.addAction(previousAction);
         builder.addAction(togglePlayAction);
-        builder.addAction(nextAction);
+        builder.addAction(createAction(context, PlaybackAction.NEXT));
     }
 
     private Notification.Action createAction(Context context, String action) {
