@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.PaymentScreen;
+import com.soundcloud.android.screens.SubscribeScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
@@ -29,13 +29,13 @@ public class SubscribeTest extends ActivityTest<MainActivity> {
     }
 
     public void testUserCanNavigateToSubscribePage() {
-        PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
-        assertThat(paymentScreen, is(visible()));
+        SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
+        assertThat(subscribeScreen, is(visible()));
     }
 
     public void testUserIsPresentedSubscribeOption() {
-        PaymentScreen paymentScreen = settingsScreen.clickSubscribe();
-        paymentScreen.clickBuy();
+        SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
+        subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
         new BillingResponse(solo.getCurrentActivity()).forCancel().insert();
         waiter.expectToast().toHaveText("User cancelled");

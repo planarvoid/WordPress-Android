@@ -11,9 +11,9 @@ public class SettingsScreen extends Screen {
         super(solo);
     }
 
-    public PaymentScreen clickSubscribe() {
+    public SubscribeScreen clickSubscribe() {
         testDriver.clickOnText(R.string.pref_subscription_buy_title);
-        return new PaymentScreen(testDriver);
+        return new SubscribeScreen(testDriver);
     }
 
     @Override
