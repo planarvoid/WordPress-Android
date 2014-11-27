@@ -4,10 +4,11 @@ import com.soundcloud.android.payments.SubscribeActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.R;
 
-public class PaymentScreen extends Screen {
+public class SubscribeScreen extends Screen {
+
     private static final Class ACTIVITY = SubscribeActivity.class;
 
-    public PaymentScreen(Han solo) {
+    public SubscribeScreen(Han solo) {
         super(solo);
     }
 

@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -37,8 +39,9 @@ public class SubscribeControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SubscribeController(Robolectric.application, paymentOperations);
-        contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.payments_activity, null, false);
+        controller = new SubscribeController(paymentOperations);
+        contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.subscribe_activity, null, false);
+        when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
@@ -46,7 +49,7 @@ public class SubscribeControllerTest {
     @Test
     public void onCreateSetsActivityContentView() {
         controller.onCreate(activity);
-        verify(activity).setContentView(R.layout.payments_activity);
+        verify(activity).setContentView(R.layout.subscribe_activity);
     }
 
     @Test
@@ -66,6 +69,7 @@ public class SubscribeControllerTest {
         BillingResult billingResult = TestBillingResults.success();
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.PENDING));
 
+        controller.onCreate(activity);
         controller.handleBillingResult(billingResult);
 
         verify(paymentOperations).verify(billingResult.getPayload());
@@ -75,6 +79,7 @@ public class SubscribeControllerTest {
     public void cancelsTransactionForPlayBillingFailure() {
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
+        controller.onCreate(activity);
         controller.handleBillingResult(TestBillingResults.cancelled());
 
         verify(paymentOperations).cancel("user cancelled");
@@ -84,6 +89,7 @@ public class SubscribeControllerTest {
     public void cancelsTransactionPlayBillingError() {
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
+        controller.onCreate(activity);
         controller.handleBillingResult(TestBillingResults.error());
 
         verify(paymentOperations).cancel(anyString());
@@ -130,6 +136,17 @@ public class SubscribeControllerTest {
         expect(getText(R.id.subscribe_title)).toEqual(details.getTitle());
         expect(getText(R.id.subscribe_description)).toEqual(details.getDescription());
         expect(getText(R.id.subscribe_price)).toEqual(details.getPrice());
+    }
+
+    @Test
+    public void startsSuccessActivityWhenPurchaseIsSuccess() {
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
+
+        controller.onCreate(activity);
+        controller.handleBillingResult(TestBillingResults.success());
+
+        verify(activity).finish();
+        verify(activity).startActivity(eq(new Intent(activity, SubscribeSuccessActivity.class)));
     }
 
     private String getText(int id) {

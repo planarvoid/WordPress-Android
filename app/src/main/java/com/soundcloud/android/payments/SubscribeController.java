@@ -11,7 +11,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 class SubscribeController {
 
-    private final Context context;
     private final PaymentOperations paymentOperations;
 
     @InjectView(R.id.subscribe_title) TextView title;
@@ -31,16 +30,17 @@ class SubscribeController {
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
+    private Activity activity;
     private ProductDetails details;
 
     @Inject
-    SubscribeController(Context context, PaymentOperations paymentOperations) {
-        this.context = context;
+    SubscribeController(PaymentOperations paymentOperations) {
         this.paymentOperations = paymentOperations;
     }
 
     public void onCreate(Activity activity) {
-        activity.setContentView(R.layout.payments_activity);
+        this.activity = activity;
+        activity.setContentView(R.layout.subscribe_activity);
         ButterKnife.inject(this, activity.findViewById(android.R.id.content));
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
     }
@@ -119,7 +119,7 @@ class SubscribeController {
         public void onNext(PurchaseStatus result) {
             switch(result) {
                 case SUCCESS:
-                    showText(R.string.payments_success);
+                    showSuccessScreen();
                     break;
                 case VERIFY_FAIL:
                     showText(R.string.payments_verify_fail);
@@ -141,6 +141,11 @@ class SubscribeController {
         }
     }
 
+    private void showSuccessScreen() {
+        activity.finish();
+        activity.startActivity(new Intent(activity, SubscribeSuccessActivity.class));
+    }
+
     private void loadPurchaseOptions() {
         subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
     }
@@ -150,7 +155,7 @@ class SubscribeController {
     }
 
     private void showText(int messageId) {
-        Toast.makeText(context, messageId, Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity.getApplicationContext(), messageId, Toast.LENGTH_SHORT).show();
     }
 
 }
