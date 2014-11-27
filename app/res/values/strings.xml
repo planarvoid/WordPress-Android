@@ -306,7 +306,8 @@
     <string name="track_info_no_description">No description available</string>
     <string name="playback_error_connection">Please check your connection</string>
     <string name="playback_error_unable_to_play">Unable to playback track</string>
-    <string name="toggle_play">Toggle Play</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
 

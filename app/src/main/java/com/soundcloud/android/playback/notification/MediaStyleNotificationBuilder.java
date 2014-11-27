@@ -9,6 +9,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
 
@@ -23,8 +24,10 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     private final Notification.Action togglePlayAction;
     private final Notification.Action nextAction;
     private final Notification.Action previousAction;
+    private final Resources resources;
 
     public MediaStyleNotificationBuilder(Context context) {
+        resources = context.getResources();
         builder = new Notification.Builder(context);
 
         Notification.MediaStyle style = new Notification.MediaStyle();
@@ -33,12 +36,34 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
         builder.setUsesChronometer(false);
         builder.setShowWhen(false);
 
-        previousAction = new Notification.Action(R.drawable.notifications_previous, context.getString(R.string.previous), createPendingIntent(context, PlaybackAction.PREVIOUS));
-        togglePlayAction = new Notification.Action(R.drawable.notifications_play, context.getString(R.string.toggle_play), createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
-        nextAction = new Notification.Action(R.drawable.notifications_next, context.getString(R.string.next), createPendingIntent(context, PlaybackAction.NEXT));
+        previousAction = createAction(context, PlaybackAction.PREVIOUS);
+        togglePlayAction = createAction(context, PlaybackAction.TOGGLE_PLAYBACK);
+        nextAction = createAction(context, PlaybackAction.NEXT);
         builder.addAction(previousAction);
         builder.addAction(togglePlayAction);
         builder.addAction(nextAction);
+    }
+
+    private Notification.Action createAction(Context context, String action) {
+        int icon;
+        String title;
+        switch (action) {
+            case PlaybackAction.PREVIOUS:
+                icon = R.drawable.notifications_previous;
+                title = resources.getString(R.string.previous);
+                break;
+            case PlaybackAction.TOGGLE_PLAYBACK:
+                icon = R.drawable.notifications_play;
+                title = resources.getString(R.string.play);
+                break;
+            case PlaybackAction.NEXT:
+                icon = R.drawable.notifications_next;
+                title = resources.getString(R.string.next);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown action : " + action);
+        }
+        return new Notification.Action(icon, title, createPendingIntent(context, action));
     }
 
     private PendingIntent createPendingIntent(Context context, String playbackAction) {
@@ -51,7 +76,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
                 .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
 
         // add this or it will not trigger a process start (as of 3.1)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
             intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         }
         return intent;
@@ -96,8 +121,10 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     public void setPlayingStatus(boolean isPlaying) {
         if (isPlaying) {
             togglePlayAction.icon = R.drawable.notifications_pause;
+            togglePlayAction.title = resources.getString(R.string.pause);
         } else {
             togglePlayAction.icon = R.drawable.notifications_play;
+            togglePlayAction.title = resources.getString(R.string.play);
         }
         setOngoing(isPlaying);
     }
