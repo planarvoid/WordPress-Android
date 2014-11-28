@@ -10,6 +10,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -51,8 +52,17 @@ public class PeripheralsController {
         intent.putExtra("id", track.get(TrackProperty.URN).getNumericId());
         intent.putExtra("track", ScTextUtils.getClippedString(track.get(PlayableProperty.TITLE), 40));
         intent.putExtra("duration", track.get(PlayableProperty.DURATION));
-        intent.putExtra("artist", ScTextUtils.getClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
+        intent.putExtra("artist", getSafeClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
         context.sendBroadcast(intent);
+    }
+
+    private String getSafeClippedString(String string, int maxLength) {
+        if (ScTextUtils.isBlank(string)) {
+            ErrorUtils.handleSilentException(new IllegalStateException("String is null or empty"));
+            return ScTextUtils.EMPTY_STRING;
+        } else {
+            return ScTextUtils.getClippedString(string, maxLength);
+        }
     }
 
     private void resetTrackInformation() {

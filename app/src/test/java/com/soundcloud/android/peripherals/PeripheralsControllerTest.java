@@ -7,19 +7,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,18 +111,22 @@ public class PeripheralsControllerTest {
         expect(secondBroadcast.getExtras().get("duration")).toEqual(0);
     }
 
+    @Test
+    public void shouldNotifyWithAnEmptyArtistName() {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        track.put(PlayableProperty.CREATOR_NAME, "");
+        final Urn trackUrn = track.get(TrackProperty.URN);
+        when(trackOperations.track(eq(trackUrn))).thenReturn(Observable.just(track));
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
+
+        Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
+        expect(secondBroadcast.getExtras().get("artist")).toEqual("");
+    }
+
     private Intent verifyTwoBroadcastsSentAndCaptureTheSecond() {
         verify(context, times(2)).sendBroadcast(captor.capture());
         return captor.getAllValues().get(1);
     }
 
-    private PublicApiTrack createTrack() {
-        PublicApiTrack track = new PublicApiTrack(1L);
-        PublicApiUser user = new PublicApiUser("soundcloud:users:1");
-        user.username = "the artist";
-        track.setUser(user);
-        track.title = "a title";
-        track.duration = 123;
-        return track;
-    }
 }
