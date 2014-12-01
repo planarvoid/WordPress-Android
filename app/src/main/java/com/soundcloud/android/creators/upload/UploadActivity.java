@@ -290,7 +290,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
                                 .setData(Content.ME_CONNECTIONS.uri));
                     }
                 }
-
+                break;
             default:
                 throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }
