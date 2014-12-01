@@ -1,7 +1,6 @@
 package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
-import static com.soundcloud.android.utils.ScTextUtils.getClippedString;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -50,10 +49,18 @@ public class PeripheralsController {
     private void notifyPlayQueueChanged(PropertySet track) {
         Intent intent = new Intent(AVRCP_META_CHANGED);
         intent.putExtra("id", track.get(TrackProperty.URN).getNumericId());
-        intent.putExtra("track", getClippedString(track.get(PlayableProperty.TITLE), 40));
+        intent.putExtra("track", ScTextUtils.getClippedString(track.get(PlayableProperty.TITLE), 40));
         intent.putExtra("duration", track.get(PlayableProperty.DURATION));
-        intent.putExtra("artist", getClippedString(track.getOrElse(PlayableProperty.CREATOR_NAME, ScTextUtils.EMPTY_STRING), 30));
+        intent.putExtra("artist", getSafeClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
         context.sendBroadcast(intent);
+    }
+
+    private String getSafeClippedString(String string, int maxLength) {
+        if (ScTextUtils.isBlank(string)) {
+            return ScTextUtils.EMPTY_STRING;
+        } else {
+            return ScTextUtils.getClippedString(string, maxLength);
+        }
     }
 
     private void resetTrackInformation() {
