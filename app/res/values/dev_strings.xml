@@ -25,6 +25,9 @@
     <string name="pref_dev_clear_recordings">Clear recordings</string>
     <string name="pref_dev_clear_recordings_summary">Deletes all local recordings</string>
 
+    <string name="pref_dev_offline_sync">Offline sync</string>
+    <string name="pref_dev_offline_sync_summary">Offline sync a sample track</string>
+
     <string name="dev_clear_recordings">Clear all recordings?</string>
 
 </resources>

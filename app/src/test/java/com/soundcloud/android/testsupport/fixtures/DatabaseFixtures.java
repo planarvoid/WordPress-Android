@@ -254,6 +254,13 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
+    public long insertRequestedTrackDownload(long timestamp, Urn trackUrn) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, timestamp);
+        return insertInto(Table.TrackDownloads, cv);
+    }
+
     public long insertInto(Table table, ContentValues cv) {
         final long id = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         assertThat(id, Matchers.greaterThanOrEqualTo(0L));

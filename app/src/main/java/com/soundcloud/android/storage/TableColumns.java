@@ -259,6 +259,14 @@ public final class TableColumns {
         public static final String SOURCE_VERSION = "source_version";
     }
 
+    /**
+     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_TRACK_DOWNLOADS}
+     */
+    public final static class TrackDownloads implements BaseColumns {
+        public static final String REQUESTED_AT = "requested_at";
+        public static final String DOWNLOADED_AT = "downloaded_at";
+    }
+
     public static class SoundView extends ResourceTable implements BaseColumns {
         public static final String LAST_UPDATED = Sounds.LAST_UPDATED;
         public static final String PERMALINK = Sounds.PERMALINK;

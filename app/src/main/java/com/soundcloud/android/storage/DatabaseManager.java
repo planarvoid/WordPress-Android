@@ -15,7 +15,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 30;
+    public static final int DATABASE_VERSION = 31;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -76,6 +76,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 30:
                             success = upgradeTo30(db, oldVersion);
+                            break;
+                        case 31:
+                            success = upgradeTo31(db, oldVersion);
                             break;
                         default:
                             break;
@@ -188,6 +191,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    //added download queue table
+    private static boolean upgradeTo31(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.TrackDownloads.create(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 31);
+        }
+        return false;
+    }
+
 
     private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
         final String message =

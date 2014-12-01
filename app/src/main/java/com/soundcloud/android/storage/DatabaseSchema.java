@@ -181,6 +181,12 @@ final class DatabaseSchema {
             "source_version VARCHAR(255)" +
             ");";
 
+    static final String DATABASE_CREATE_TRACK_DOWNLOADS = "(" +
+            "_id INTEGER PRIMARY KEY," +
+            "requested_at INTEGER NOT NULL," +
+            "downloaded_at INTEGER DEFAULT 0" +
+            ");";
+
     /**
      * {@link com.soundcloud.android.storage.TableColumns.Collections}
      */

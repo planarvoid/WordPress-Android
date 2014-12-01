@@ -7,6 +7,8 @@ import static org.junit.Assert.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadResult;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.query.Query;
@@ -82,6 +84,25 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount())
                 .whereEq(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
                 .whereEq(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))), counts(1));
+    }
+
+    public void assertDownloadResultsInserted(DownloadResult result) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                    .whereEq(TableColumns.TrackDownloads._ID, result.getUrn().getNumericId())
+                    .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getDownloadedAt())), counts(1));
+    }
+
+    public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
+        for (Urn urn : tracksToDownload) {
+            assertThat(select(from(Table.TrackDownloads.name())
+                    .whereEq(TableColumns.TrackDownloads._ID, urn.getNumericId())), counts(1));
+        }
+    }
+
+    public void assertExistingDownloadRequest(long timestamp, Urn trackUrn) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
+                .whereEq(TableColumns.TrackDownloads.REQUESTED_AT, timestamp)), counts(1));
     }
 
     protected QueryBinding select(Query query) {

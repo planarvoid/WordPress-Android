@@ -4,6 +4,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineTracksOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 public class DeveloperSettings {
 
@@ -36,12 +39,15 @@ public class DeveloperSettings {
     public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
+    public static final String DEV_OFFLINE_SYNC = "dev.offlineSync";
 
     private final SoundCloudApplication application;
+    private final OfflineTracksOperations operations;
 
     @Inject
-    public DeveloperSettings(SoundCloudApplication application) {
+    public DeveloperSettings(SoundCloudApplication application, OfflineTracksOperations offlineOperations) {
         this.application = application;
+        this.operations = offlineOperations;
     }
 
     public void setup(final PreferenceActivity activity) {
@@ -134,6 +140,15 @@ public class DeveloperSettings {
                 return false;
             }
         });
+
+        activity.findPreference(DEV_OFFLINE_SYNC).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        operations.enqueueTracks(Arrays.asList(Urn.forTrack(162026010), Urn.forTrack(141566537)));
+                        return true;
+                    }
+                });
 
         SharedPreferencesUtils.listWithLabel((ListPreference) activity.findPreference(DEV_RECORDING_TYPE),
                 R.string.pref_dev_record_type);
