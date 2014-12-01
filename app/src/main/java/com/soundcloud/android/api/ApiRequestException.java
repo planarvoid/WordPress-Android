@@ -30,15 +30,7 @@ public final class ApiRequestException extends Exception {
     }
 
     public static ApiRequestException unexpectedResponse(ApiRequest request) {
-        return new ApiRequestException(UNEXPECTED_RESPONSE, request, (Exception) null);
-    }
-
-    public static ApiRequestException unexpectedResponse(ApiRequest request, Exception exception) {
-        return new ApiRequestException(UNEXPECTED_RESPONSE, request, exception);
-    }
-
-    public static ApiRequestException unexpectedResponse(ApiRequest request, String msg) {
-        return new ApiRequestException(UNEXPECTED_RESPONSE, request, msg);
+        return new ApiRequestException(UNEXPECTED_RESPONSE, request, null);
     }
 
     public static ApiRequestException networkError(ApiRequest request, IOException ioException) {
@@ -46,15 +38,15 @@ public final class ApiRequestException extends Exception {
     }
 
     public static ApiRequestException notAllowed(ApiRequest request) {
-        return new ApiRequestException(NOT_ALLOWED, request, (Exception) null);
+        return new ApiRequestException(NOT_ALLOWED, request, null);
     }
 
     public static ApiRequestException notFound(ApiRequest request) {
-        return new ApiRequestException(NOT_FOUND, request, (Exception) null);
+        return new ApiRequestException(NOT_FOUND, request, null);
     }
 
     public static ApiRequestException rateLimited(ApiRequest request) {
-        return new ApiRequestException(RATE_LIMITED, request, (Exception) null);
+        return new ApiRequestException(RATE_LIMITED, request, null);
     }
 
     public static ApiRequestException authError(ApiRequest request, CloudAPI.InvalidTokenException e) {
@@ -67,12 +59,6 @@ public final class ApiRequestException extends Exception {
 
     private ApiRequestException(Reason errorReason, ApiRequest request, @Nullable Exception e) {
         super(e);
-        this.errorReason = errorReason;
-        this.request = request;
-    }
-
-    private ApiRequestException(Reason errorReason, ApiRequest request, String msg) {
-        super(msg);
         this.errorReason = errorReason;
         this.request = request;
     }
