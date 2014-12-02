@@ -4,13 +4,12 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.AddToPlaylistsScreen;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
 
@@ -22,7 +21,6 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Feature.TRACK_ITEM_OVERFLOW);
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
 
         super.setUp();

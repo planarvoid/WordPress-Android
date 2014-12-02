@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.AddToPlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -21,7 +20,6 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        setDependsOn(Feature.TRACK_ITEM_OVERFLOW);
         streamUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
     }
