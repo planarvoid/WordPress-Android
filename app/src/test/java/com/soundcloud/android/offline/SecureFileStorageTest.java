@@ -20,6 +20,7 @@ import java.io.InputStream;
 public class SecureFileStorageTest {
 
     private SecureFileStorage storage;
+    private final String testContent = "content";
 
     @Before
     public void setUp() throws Exception {
@@ -32,18 +33,31 @@ public class SecureFileStorageTest {
     }
 
     @Test
+    public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException {
+        File file = new File(storage.OFFLINE_DIR, "track124.mp3");
+        SecureFileStorage otherStorage = new SecureFileStorage();
+
+        otherStorage.storeTrack(Urn.forTrack(124), sampleDataStream());
+
+        expect(file.exists()).toBeTrue();
+    }
+
+    @Test
     public void storeTrackSavesDataToAFile() throws IOException {
-        String expectedContent = "someContent";
         File file = new File(storage.OFFLINE_DIR, "track123.mp3");
-        InputStream someData = new ByteArrayInputStream(expectedContent.getBytes(Charsets.UTF_8));
+        InputStream someData = sampleDataStream();
 
         storage.storeTrack(Urn.forTrack(123), someData);
 
         expect(file.exists()).toBeTrue();
-        expect(readFileContent(file)).toEqual(expectedContent);
+        expect(readFileContent(file)).toEqual(testContent);
     }
 
     private String readFileContent(File file) throws IOException {
         return IOUtils.readInputStream(new FileInputStream(file));
+    }
+
+    private InputStream sampleDataStream() {
+        return new ByteArrayInputStream(testContent.getBytes(Charsets.UTF_8));
     }
 }

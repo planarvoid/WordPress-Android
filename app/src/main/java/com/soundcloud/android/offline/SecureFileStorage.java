@@ -14,19 +14,17 @@ import java.io.OutputStream;
 public class SecureFileStorage {
 
     private static final String DIRECTORY_NAME = "offline";
-    private final boolean directoryExists;
-
     protected final File OFFLINE_DIR;
 
     @Inject
     public SecureFileStorage() {
         OFFLINE_DIR = new File(Consts.FILES_PATH, DIRECTORY_NAME);
-        directoryExists = IOUtils.mkdirs(OFFLINE_DIR);
+        createDirectoryIfNeeded();
     }
 
     // TODO: Encrypt before storage. Separate story.
     public void storeTrack(Urn urn, InputStream input) throws IOException {
-        if (!directoryExists) {
+        if (!createDirectoryIfNeeded()) {
             throw new IOException("Failed to create directory for " + OFFLINE_DIR.getAbsolutePath());
         }
 
@@ -49,5 +47,9 @@ public class SecureFileStorage {
     protected String generateFileName(Urn urn) {
         // Todo: this is part of encryption story
         return "track" + urn.getNumericId() + ".mp3";
+    }
+
+    private boolean createDirectoryIfNeeded() {
+        return OFFLINE_DIR.exists() || IOUtils.mkdirs(OFFLINE_DIR);
     }
 }
