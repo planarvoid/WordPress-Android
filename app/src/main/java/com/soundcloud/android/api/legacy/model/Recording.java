@@ -385,18 +385,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
 
-    public void record(Context context) {
-        context.startService(getRecordIntent());
-    }
-
-    public void upload(Context context) {
-        context.startService(getUploadIntent());
-    }
-
-    public void cancelUpload(Context context) {
-        context.startService(getCancelIntent());
-    }
-
     public Intent getMonitorIntent() {
         return new Intent(Actions.UPLOAD_MONITOR).setData(toUri());
     }
@@ -810,18 +798,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
             id = R.string.recorded_night;
         }
         return res.getString(id, time.format("%A"));
-    }
-
-    private Intent getRecordIntent() {
-        return new Intent(Actions.RECORD).putExtra(UploadService.EXTRA_RECORDING, this);
-    }
-
-    private Intent getUploadIntent() {
-        return new Intent(Actions.UPLOAD).putExtra(SoundRecorder.EXTRA_RECORDING, this);
-    }
-
-    private Intent getCancelIntent() {
-        return new Intent(Actions.UPLOAD_CANCEL).putExtra(SoundRecorder.EXTRA_RECORDING, this);
     }
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {

@@ -5,11 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.record.RecordOperations;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
@@ -36,6 +36,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
     private RadioGroup rdoPrivacy;
@@ -45,7 +47,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     private RecordingMetaDataLayout recordingMetadata;
     private boolean uploading;
 
-    private ImageOperations imageOperations;
+    @Inject ImageOperations imageOperations;
+    @Inject RecordOperations recordOperations;
 
     private RecordingStorage storage;
     private PublicCloudAPI oldCloudAPI;
@@ -60,7 +63,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         oldCloudAPI = new PublicApi(this);
         setTitle(R.string.share);
 
-        imageOperations = SoundCloudApplication.fromContext(this).getImageOperations();
         storage = new RecordingStorage();
 
         final Intent intent = getIntent();
@@ -109,7 +111,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             public void onClick(View v) {
                 if (recording != null) {
                     saveRecording();
-                    recording.upload(UploadActivity.this);
+                    recordOperations.upload(UploadActivity.this, recording);
                     setResult(RESULT_OK, new Intent().setData(recording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING, true));
                     uploading = true;
                     finish();

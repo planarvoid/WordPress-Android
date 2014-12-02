@@ -2,10 +2,12 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.record.RecordOperations;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
@@ -25,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import javax.inject.Inject;
 
 public class UploadMonitorActivity extends TrackedActivity {
 
@@ -80,9 +84,15 @@ public class UploadMonitorActivity extends TrackedActivity {
     private TextView trackTitle;
     private boolean transferState;
     private int progress;
+    @Inject RecordOperations recordOperations;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SoundCloudApplication.getObjectGraph().inject(this);
+        init();
+    }
+
+    @VisibleForTesting void init() {
         setContentView(R.layout.upload_monitor);
 
         uploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
@@ -117,7 +127,7 @@ public class UploadMonitorActivity extends TrackedActivity {
                 showUploading();
                 setProcessProgress(-1);
 
-                recording.upload(UploadMonitorActivity.this);
+                recordOperations.upload(UploadMonitorActivity.this, recording);
             }
         }), R.string.retry);
 
@@ -300,7 +310,7 @@ public class UploadMonitorActivity extends TrackedActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (recording.isUploading()) {
-                            recording.cancelUpload(UploadMonitorActivity.this);
+                            recordOperations.cancelUpload(UploadMonitorActivity.this, recording);
                             onCancelling();
                         }
                     }

@@ -4,6 +4,7 @@ import com.soundcloud.android.accounts.AccountsModule;
 import com.soundcloud.android.activities.ActivitiesModule;
 import com.soundcloud.android.associations.LikesModule;
 import com.soundcloud.android.comments.CommentsModule;
+import com.soundcloud.android.creators.record.RecordModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.main.MainModule;
 import com.soundcloud.android.offline.OfflineModule;
@@ -30,6 +31,7 @@ import dagger.Module;
         TrackModule.class,
         CommentsModule.class,
         PaymentModule.class,
-        OfflineModule.class
+        OfflineModule.class,
+        RecordModule.class
 })
 public class FeaturesModule {}
