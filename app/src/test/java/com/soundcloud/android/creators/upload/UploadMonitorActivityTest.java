@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,16 +31,15 @@ import android.widget.TextView;
 @RunWith(DefaultTestRunner.class)
 @DisableStrictI18n
 public class UploadMonitorActivityTest {
-    UploadMonitorActivity um;
-    LocalBroadcastManager lbm;
-    ProgressBar process, upload;
-    TextView title, message;
-
+    private UploadMonitorActivity um;
+    private LocalBroadcastManager lbm;
+    private ProgressBar process, upload;
+    private TextView title, message;
 
     private UploadMonitorActivity setupMonitor(Recording r) {
         um = new UploadMonitorActivity();
         um.setIntent(new Intent().putExtra(Recording.EXTRA, r));
-        um.onCreate(null);
+        um.init();
 
         upload = (ProgressBar) um.findViewById(R.id.progress_bar_uploading);
         process = (ProgressBar) um.findViewById(R.id.progress_bar_processing);
@@ -116,7 +115,7 @@ public class UploadMonitorActivityTest {
     public void shouldHandleNullRecordingAndFinish() throws Exception {
         UploadMonitorActivity monitor = new UploadMonitorActivity();
         monitor.setIntent(new Intent().setData(Content.RECORDINGS.forId(1234)));
-        monitor.onCreate(null);
+        monitor.init();
         expect(monitor.isFinishing()).toBeTrue();
     }
 
