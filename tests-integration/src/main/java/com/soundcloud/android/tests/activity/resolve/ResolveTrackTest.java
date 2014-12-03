@@ -4,10 +4,10 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -23,10 +23,15 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
         // We are not logged in
 
         assertThat(new HomeScreen(solo), is(visible()));
-        waiter.expectToast().toHaveText("Please log in to open this link");
+        assertTrue(waiter.expectToastWithText(toastObserver, "Please log in to open this link"));
     }
 
     private Uri getUri() {
         return TestConsts.CHE_FLUTE_URI;
+    }
+
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
     }
 }

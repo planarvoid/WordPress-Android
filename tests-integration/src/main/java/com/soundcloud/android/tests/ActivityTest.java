@@ -1,10 +1,10 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.screens.MenuScreen;
@@ -25,9 +25,9 @@ import android.util.Log;
 public abstract class ActivityTest<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
 
     protected String testCaseName;
-    protected ApplicationProperties applicationProperties;
     protected MenuScreen menuScreen;
     protected Waiter waiter;
+    protected ToastObserver toastObserver;
 
     private Feature dependency;
     private boolean runBasedOnResource = true;
@@ -42,29 +42,21 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
         waiter = new Waiter(solo);
-
+        observeToasts();
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
         LogCollector.startCollecting(testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
-        getActivity();
-        //TODO: Why? We cannot assume that menu is always visible on startup.
         menuScreen = new MenuScreen(solo);
+        getActivity();
 
         super.setUp(); // do not move, this has to run after the above
-
-
-        getInstrumentation().getContext()
-                .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean("hasShot1", true)
-                .commit();
-        applicationProperties = new ApplicationProperties(getActivity().getResources());
     }
 
     @Override
     protected void tearDown() throws Exception {
+        toastObserver.stopObserving();
         if (solo != null) {
             solo.finishOpenedActivities();
         }
@@ -136,6 +128,14 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     public MenuScreen getMenuScreen() {
         return menuScreen;
+    }
+
+    public final void observeToasts() {
+        toastObserver = new ToastObserver(solo);
+        observeToastsHelper();
+    }
+
+    protected void observeToastsHelper() {
     }
 
     public Waiter getWaiter() {

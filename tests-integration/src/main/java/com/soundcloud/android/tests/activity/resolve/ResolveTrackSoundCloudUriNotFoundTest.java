@@ -12,6 +12,11 @@ public class ResolveTrackSoundCloudUriNotFoundTest extends ResolveBaseTest {
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() {
-        waiter.expectToast().toHaveText("There was a problem loading that url");
+        assertTrue(waiter.expectToastWithText(toastObserver, "There was a problem loading that url"));
+    }
+
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
     }
 }

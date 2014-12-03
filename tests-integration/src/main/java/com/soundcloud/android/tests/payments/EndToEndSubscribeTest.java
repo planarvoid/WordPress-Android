@@ -40,7 +40,11 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
         waiter.waitTwoSeconds();
         new BillingResponse(solo.getCurrentActivity()).forInvalid().insert();
         waiter.waitTwoSeconds();
-        waiter.expectToast().toHaveText("Verification failed");
+        assertTrue(waiter.expectToastWithText(toastObserver, "Verification failed"));
     }
 
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
+    }
 }

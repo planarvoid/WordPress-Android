@@ -38,7 +38,11 @@ public class SubscribeTest extends ActivityTest<MainActivity> {
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
         new BillingResponse(solo.getCurrentActivity()).forCancel().insert();
-        waiter.expectToast().toHaveText("User cancelled");
+        assertTrue(waiter.expectToastWithText(toastObserver, "User cancelled"));
     }
 
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
+    }
 }

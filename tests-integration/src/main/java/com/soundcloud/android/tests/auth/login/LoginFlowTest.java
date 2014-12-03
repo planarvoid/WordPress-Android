@@ -169,7 +169,7 @@ public class LoginFlowTest extends LoginTest {
         recoveryScreen.clickOkButton();
 
         String message = solo.getString(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
-        waiter.expectToast().toHaveText(message);
+        assertTrue(waiter.expectToastWithText(toastObserver, message));
     }
 
     /*
@@ -183,6 +183,11 @@ public class LoginFlowTest extends LoginTest {
         loginScreen.clickOkButton();
 
         String message = solo.getString(R.string.authentication_error_incomplete_fields);
-        waiter.expectToast().toHaveText(message);
+        assertTrue(waiter.expectToastWithText(toastObserver, message));
+    }
+
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
     }
 }

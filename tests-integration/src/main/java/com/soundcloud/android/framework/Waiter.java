@@ -2,11 +2,12 @@ package com.soundcloud.android.framework;
 
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
+import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.utils.Log;
 
 import android.app.Activity;
@@ -51,12 +52,8 @@ public class Waiter {
         return solo.waitForCondition(new VisibleElementCondition(matcher), timeoutMs);
     }
 
-    public ExpectedConditions expect(ViewElement view) {
-        return new ExpectedConditions(this, view);
-    }
-
-    public ToastConditions expectToast() {
-        return new ToastConditions(this, solo);
+    public boolean expectToastWithText(ToastObserver toastObserver, String text) {
+        return solo.waitForCondition(new ToastWithTextCondition(toastObserver, text), TIMEOUT);
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
@@ -266,6 +263,20 @@ public class Waiter {
         }
     }
 
+    private class ToastWithTextCondition implements Condition {
+        private final ToastObserver toastObserver;
+        private final String text;
+
+        public ToastWithTextCondition(ToastObserver toastObserver, String text) {
+            this.toastObserver = toastObserver;
+            this.text = text;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return toastObserver.assertToastOccurred(text);
+        }
+    }
 
     private class NoProgressBarCondition implements Condition {
         private final Class<ProgressBar> PROGRESS_CLASS = ProgressBar.class;
