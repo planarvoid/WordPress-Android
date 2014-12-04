@@ -5,25 +5,20 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
-import java.util.ArrayDeque;
+import java.util.LinkedHashMap;
 
 public class ToastObserver {
+    private LinkedHashMap<String, TextElement> observedToasts = new LinkedHashMap<>();
     private final ToastObserverRunnable toastObserverRunnable;
-    private ArrayDeque<TextElement> toasts = new ArrayDeque<>();
     private Thread toastObserverThread;
 
     public ToastObserver(Han testDriver) {
-        this.toastObserverRunnable = new ToastObserverRunnable(testDriver, toasts);
+        this.toastObserverRunnable = new ToastObserverRunnable(testDriver, observedToasts);
         this.toastObserverThread = new Thread(toastObserverRunnable);
     }
 
     public boolean assertToastOccurred(String text) {
-        for (TextElement element : toasts) {
-            if (element.getText().equals(text)) {
-                return true;
-            }
-        }
-        return false;
+        return observedToasts.containsKey(text);
     }
 
     public void observe() {
@@ -37,39 +32,24 @@ public class ToastObserver {
     private class ToastObserverRunnable implements Runnable{
         private Han testDriver;
         private boolean running = true;
-        private ArrayDeque<TextElement> toasts;
+        private LinkedHashMap<String, TextElement> observedToasts;
 
-        public ToastObserverRunnable(Han testDriver, ArrayDeque<TextElement> toasts) {
+        public ToastObserverRunnable(Han testDriver, LinkedHashMap<String, TextElement> observedToasts) {
             this.testDriver = testDriver;
-            this.toasts = toasts;
+            this.observedToasts = observedToasts;
         }
 
         public void setRunning(boolean state) {
             running = state;
         }
 
-        //TODO Refactor this later
         @Override
         public void run() {
             while (running) {
                 ViewElement element = testDriver.findElement(With.id(android.R.id.message));
                 if (element.isVisible()) {
                     TextElement toast = new TextElement(element);
-                    if (!toasts.isEmpty()) {
-                        boolean match = false;
-                        for (TextElement textElement : toasts) {
-                            if (textElement.getText().equals(toast.getText())) {
-                                match = true;
-                                break;
-                            }
-                        }
-                        if (!match) {
-                            toasts.add(toast);
-                        }
-                    }
-                    else {
-                        toasts.add(toast);
-                    }
+                    observedToasts.put(toast.getText(), toast);
                 }
             }
         }
