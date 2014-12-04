@@ -17,7 +17,7 @@ public class ToastObserver {
         this.toastObserverThread = new Thread(toastObserverRunnable);
     }
 
-    public boolean assertToastOccurred(String text) {
+    public boolean wasToastObserved(String text) {
         return observedToasts.containsKey(text);
     }
 

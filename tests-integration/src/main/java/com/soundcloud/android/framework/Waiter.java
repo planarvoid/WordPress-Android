@@ -274,7 +274,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return toastObserver.assertToastOccurred(text);
+            return toastObserver.wasToastObserved(text);
         }
     }
 
