@@ -13,7 +13,7 @@ public class ToastObserver {
     private Thread toastObserverThread;
 
     public ToastObserver(Han testDriver) {
-        this.toastObserverRunnable = new ToastObserverRunnable(testDriver);
+        this.toastObserverRunnable = new ToastObserverRunnable(testDriver, toasts);
         this.toastObserverThread = new Thread(toastObserverRunnable);
     }
 
@@ -37,9 +37,11 @@ public class ToastObserver {
     private class ToastObserverRunnable implements Runnable{
         private Han testDriver;
         private boolean running = true;
+        private ArrayDeque<TextElement> toasts;
 
-        public ToastObserverRunnable(Han testDriver) {
+        public ToastObserverRunnable(Han testDriver, ArrayDeque<TextElement> toasts) {
             this.testDriver = testDriver;
+            this.toasts = toasts;
         }
 
         public void setRunning(boolean state) {
@@ -49,7 +51,6 @@ public class ToastObserver {
         //TODO Refactor this later
         @Override
         public void run() {
-            toasts = new ArrayDeque<>();
             while (running) {
                 ViewElement element = testDriver.findElement(With.id(android.R.id.message));
                 if (element.isVisible()) {
