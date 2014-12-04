@@ -1,7 +1,9 @@
 package com.soundcloud.android.coreutils.text;
 
-public class Strings {
+public final class Strings {
 
+    private Strings(){}
+    
     public static boolean isBlank(String string) {
         return string == null || string.trim().isEmpty();
     }

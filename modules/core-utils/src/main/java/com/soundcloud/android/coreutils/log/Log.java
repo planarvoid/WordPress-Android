@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Log {
+public final class Log {
 
     private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("\\.(\\w+)$");
     private static final String LOG_IDENTIFIER = "sclog.";

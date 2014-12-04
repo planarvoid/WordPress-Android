@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'provided-base'
+apply plugin: 'pmd'
 
 
 dependencies {
@@ -50,4 +51,11 @@ publishing {
 }
 
 
+
+
+pmd {
+  consoleOutput true
+  ruleSetFiles = files("$project.path/../../../app/static-analysis/pmd.xml")
+  sourceSets = [sourceSets.main]
+}
 

@@ -20,7 +20,7 @@ import java.io.OutputStream;
 public class IO {
 
     private static final int DEFAULT_BUFFER_SIZE = 4096;
-    private Context context;
+    private final Context context;
 
     public IO(Context context) {
         this.context = context.getApplicationContext();
@@ -73,6 +73,7 @@ public class IO {
         return count;
     }
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void closeQuietly(Closeable... closeables) {
         checkNotNull(closeables);
         for(Closeable closeable : closeables) {
@@ -82,6 +83,7 @@ public class IO {
                 }
             } catch (IOException io) {
                 // ignore
+
             }
         }
     }

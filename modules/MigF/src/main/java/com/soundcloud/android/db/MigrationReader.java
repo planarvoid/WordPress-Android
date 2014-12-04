@@ -106,7 +106,7 @@ class MigrationReader {
         InputStream inputStream;
         try {
             inputStream = io.inputStreamFromPrivateDirectory(migrationFilePath);
-        } catch (Exception e) {
+        } catch (IOException e) {
             error(LOG, e, "Could not find migration file for ", migrationFilePath);
             return "";
         }
@@ -176,7 +176,7 @@ class MigrationReader {
         private String downMigration;
         private Collection<String> upMigrations;
         private Collection<String> downMigrations;
-        private int version;
+        private final int version;
 
         protected MigrationFile(String upMigration, String downMigration, int version) {
             checkArgument(version >= 0);
