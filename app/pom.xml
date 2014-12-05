@@ -16,7 +16,7 @@
         <dagger.version>1.2.1</dagger.version>
         <rxandroid.version>0.23.pre</rxandroid.version>
         <rxjava.version>1.0.0-rc.9</rxjava.version>
-        <propeller.version>0.27</propeller.version>
+        <propeller.version>0.28</propeller.version>
     </properties>
 
     <build>
