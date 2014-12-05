@@ -90,7 +90,7 @@ public class LoginFlowTest extends LoginTest {
     }
 
     /*
-    * As a Facebook User that has installed FB application on the phone
+    * As a Facebook User that has not installed FB application on the phone
     * I want to sign in with my FB credentials
     * So that I don't need to create another account
     */

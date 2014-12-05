@@ -18,12 +18,12 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
 public class ActionBarElement extends Element {
 
-    private static final int SEARCH_SELECTOR = R.id.action_search;
-    private static final int TITLE = Resources.getSystem().getIdentifier( "action_bar_title", "id", "android");
-    private static final int CONTAINER = Resources.getSystem().getIdentifier( "action_bar_container", "id", "android");
+    private static final int SEARCH_SELECTOR = R.id.action_bar;
+    private static final int CONTAINER = R.id.action_bar_container;
     private final Han testDriver;
 
     public ActionBarElement(Han solo) {
@@ -94,7 +94,7 @@ public class ActionBarElement extends Element {
     }
 
     private TextElement title() {
-        return new TextElement(actionBarContainer().findElement(With.id(TITLE)));
+        return new TextElement(actionBarContainer().findElement(With.id(R.id.action_bar)).findElement(With.className(TextView.class)));
     }
 
     private ViewElement actionBarContainer() {
