@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
@@ -34,22 +36,29 @@ public class DownloadController {
 
         while (!tracks.isEmpty()) {
             DownloadResult result = fetchSingleTrack(tracks.pop());
-            downloadsStorage.updateDownload(result);
+            if (result.isSuccessful()) {
+                downloadsStorage.updateDownload(result);
+            }
         }
     }
 
     private DownloadResult fetchSingleTrack(DownloadRequest track) {
         Log.d(OfflineContentService.TAG, "Downloading track: " + track.urn + " from " + track.fileUrl);
+        InputStream input = null;
         try {
-            final InputStream input = downloadHttpClient.downloadFile(track.fileUrl);
+            input = downloadHttpClient.downloadFile(track.fileUrl);
             fileStorage.storeTrack(track.urn, input);
 
             Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
             return DownloadResult.forSuccess(track.urn);
+
         } catch (IOException e) {
-            // TODO: Error handling is a separate story
-            Log.e(OfflineContentService.TAG, "Track download failed", e);
-            return DownloadResult.forFailure(track.urn);
+            Log.e(OfflineContentService.TAG, "Failed to download file", e);
+        } catch (EncryptionException e) {
+            Log.e(OfflineContentService.TAG, "Failed to encrypt file", e);
+        } finally {
+            IOUtils.close(input);
         }
+        return DownloadResult.forFailure(track.urn);
     }
 }
