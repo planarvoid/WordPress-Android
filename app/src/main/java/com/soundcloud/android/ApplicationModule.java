@@ -2,8 +2,12 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
+import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.DefaultCastConnectionHelper;
+import com.soundcloud.android.cast.UselessCastConnectionHelper;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
@@ -187,5 +191,24 @@ public class ApplicationModule {
         } else {
             return new PopupMenuWrapperCompat.Factory();
         }
+    }
+
+    @Provides
+    @Singleton
+    public CastConnectionHelper provideCastConnectionHelper(Context context, FeatureFlags featureFlags, ApplicationProperties applicationProperties){
+        // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
+        // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
+
+        if (featureFlags.isEnabled(Feature.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
+            return new DefaultCastConnectionHelper(context, provideVideoCastManager(context, applicationProperties));
+        } else {
+            return new UselessCastConnectionHelper();
+        }
+    }
+
+    @Provides
+    @Singleton
+    public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties){
+        return VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), null, "urn:x-cast:com.soundcloud.cast.sender");
     }
 }

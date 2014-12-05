@@ -414,6 +414,12 @@
             <version>5.1.2</version>
         </dependency>
         <dependency>
+            <groupId>com.google.sample</groupId>
+            <artifactId>castcompanionlibrary</artifactId>
+            <version>1.11</version>
+            <type>aar</type>
+        </dependency>
+        <dependency>
             <groupId>com.cocosw</groupId>
             <artifactId>undobar</artifactId>
             <version>1.4</version>
@@ -427,9 +433,9 @@
             <version>21.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.android.support</groupId>
-            <artifactId>appcompat-v7</artifactId>
-            <version>19.0.0</version>
+            <groupId>android.support</groupId>
+            <artifactId>compatibility-v7-appcompat</artifactId>
+            <version>21.0.2</version>
             <type>apklib</type>
             <exclusions>
                 <exclusion>
@@ -443,15 +449,42 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.android.support</groupId>
-            <artifactId>appcompat-v7</artifactId>
-            <version>19.0.0</version>
+            <groupId>android.support</groupId>
+            <artifactId>compatibility-v7-appcompat</artifactId>
+            <version>21.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>android.support</groupId>
+            <artifactId>compatibility-v7-mediarouter</artifactId>
+            <version>21.0.2</version>
+            <type>apklib</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.android</groupId>
+                    <artifactId>support-v4</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.android</groupId>
+                    <artifactId>support-v7-appcompat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>android.support</groupId>
+            <artifactId>compatibility-v7-mediarouter</artifactId>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.android.gms</groupId>
-            <artifactId>google-play-services</artifactId>
-            <version>4.0.30-stripped</version>
+            <artifactId>play-services-repack</artifactId>
+            <version>14.12.01</version>
             <type>aar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.android.support</groupId>
+                    <artifactId>support-v4</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>android</groupId>

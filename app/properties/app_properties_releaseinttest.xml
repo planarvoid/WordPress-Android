@@ -24,4 +24,5 @@
     <bool name="feature_api_mobile_stream">false</bool>
     <bool name="feature_device_key_generation">false</bool>
     <bool name="feature_android_l_media_notification">false</bool>
+    <bool name="feature_google_cast">false</bool>
 </resources>

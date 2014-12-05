@@ -65,4 +65,11 @@ public class ApplicationPropertiesTest {
         expect(ApplicationProperties.IS_RUNNING_ON_EMULATOR).toBeFalse();
     }
 
+    @Test
+    public void shouldReturnCastReceiverAppId(){
+        when(resources.getString(string.build_type)).thenReturn("debug");
+        when(resources.getString(string.cast_receiver_app_id)).thenReturn("123");
+        expect(new ApplicationProperties(resources).getCastReceiverAppId()).toEqual("123");
+    }
+
 }
