@@ -63,7 +63,7 @@ public class DefaultCastConnectionHelper implements CastConnectionHelper {
     }
 
     static class CastConsumer extends VideoCastConsumerImpl {
-        private CastConnectionListener listener;
+        private final CastConnectionListener listener;
 
         CastConsumer(CastConnectionListener listener) {
             this.listener = listener;

@@ -20,7 +20,7 @@ public class ApplicationProperties {
 
     private static BuildType BUILD_TYPE;
     private static boolean VERBOSE_LOGGING;
-    private String castReceiverAppId;
+    private final String castReceiverAppId;
 
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;

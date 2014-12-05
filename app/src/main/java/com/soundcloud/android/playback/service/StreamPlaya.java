@@ -215,6 +215,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
     }
 
     @Override
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
     public void onConnectedToReceiverApp() {
         if (currentPlaya != bufferingPlayaDelegate) {
             if (lastStateTransition.isPlaying()){
@@ -249,6 +250,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
         }
     }
 
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
     private Playa getNextPlaya() {
         if (castPlayer.isConnected()){
             return castPlayer;
