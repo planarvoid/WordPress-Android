@@ -47,7 +47,7 @@ public class SecureFileStorage {
     }
 
     @VisibleForTesting
-    protected boolean createDirectoryIfNeeded() {
+    protected final boolean createDirectoryIfNeeded() {
         return OFFLINE_DIR.exists() || IOUtils.mkdirs(OFFLINE_DIR);
     }
 }
