@@ -97,7 +97,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public void mergeMetaData(int position, PropertySet metadata) {
         checkElementIndex(position, size());
 
-        playQueueItems.get(position).getMetaData().merge(metadata);
+        playQueueItems.get(position).getMetaData().update(metadata);
     }
 
     String getTrackSource(int position) {

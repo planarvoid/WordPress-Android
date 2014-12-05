@@ -18,6 +18,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -93,17 +94,7 @@ public class PlayerWidgetController {
     }
 
     private Observable<PropertySet> loadTrackWithAdMeta(Urn urn, PropertySet metaData) {
-        return trackOperations.track(urn)
-                .map(mergeMetaData(metaData));
-    }
-
-    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
-        return new Func1<PropertySet, PropertySet>() {
-            @Override
-            public PropertySet call(PropertySet propertySet) {
-                return propertySet.merge(metaData);
-            }
-        };
+        return trackOperations.track(urn).map(PropertySetFunctions.mergeWith(metaData));
     }
 
     // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
@@ -133,12 +124,7 @@ public class PlayerWidgetController {
         @Override
         public void onNext(final PlayableUpdatedEvent event) {
             if (playQueueManager.isCurrentTrack(event.getUrn())) {
-                updatePlayableInformation(new Func1<PropertySet, PropertySet>() {
-                    @Override
-                    public PropertySet call(PropertySet propertySet) {
-                        return propertySet.merge(event.getChangeSet());
-                    }
-                });
+                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getChangeSet()));
             }
         }
     }

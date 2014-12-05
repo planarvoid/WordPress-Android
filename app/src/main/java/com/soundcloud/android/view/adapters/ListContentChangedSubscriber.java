@@ -17,7 +17,7 @@ public final class ListContentChangedSubscriber extends DefaultSubscriber<Playab
     public void onNext(final PlayableUpdatedEvent event) {
         for (PropertySet item : adapter.getItems()) {
             if (item.getOrElse(PlayableProperty.URN, Urn.NOT_SET).equals(event.getUrn())) {
-                item.merge(event.getChangeSet());
+                item.update(event.getChangeSet());
                 adapter.notifyDataSetChanged();
                 break;
             }

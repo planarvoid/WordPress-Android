@@ -65,7 +65,7 @@ class SearchOperations {
                 final Optional<PropertySet> matchingPlaylistLikeStatus =
                         Iterables.tryFind(playlistsIsLikedStati, matchingUrnPredicate(itemUrn));
                 if (itemUrn.isPlaylist() && matchingPlaylistLikeStatus.isPresent()) {
-                    resultItem.merge(matchingPlaylistLikeStatus.get());
+                    resultItem.update(matchingPlaylistLikeStatus.get());
                 }
             }
             return searchResult;

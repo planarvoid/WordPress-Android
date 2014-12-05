@@ -32,8 +32,8 @@ public class TrackOperationsTest {
 
     private Urn trackUrn = Urn.forTrack(123L);
     private Urn userUrn = Urn.forUser(123L);
-    private PropertySet propertySet;
-    private PropertySet descriptionPropertySet;
+    private PropertySet track;
+    private PropertySet trackDescription;
     private TestEventBus eventBus;
 
     @Mock private TrackStorage trackStorage;
@@ -47,17 +47,17 @@ public class TrackOperationsTest {
         trackOperations = new TrackOperations(trackStorage, accountOperations, eventBus, syncInitiator);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
-        propertySet = PropertySet.from(TrackProperty.URN.bind(trackUrn),
+        track = PropertySet.from(TrackProperty.URN.bind(trackUrn),
                 PlayableProperty.TITLE.bind(TITLE),
                 PlayableProperty.CREATOR_NAME.bind(CREATOR));
 
-        descriptionPropertySet = PropertySet.from(TrackProperty.DESCRIPTION.bind(DESCRIPTION));
+        trackDescription = PropertySet.from(TrackProperty.DESCRIPTION.bind(DESCRIPTION));
     }
 
     @Test
     public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() {
-        when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(propertySet));
-        expect(trackOperations.track(trackUrn).toBlocking().last()).toBe(propertySet);
+        when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(track));
+        expect(trackOperations.track(trackUrn).toBlocking().last()).toBe(track);
     }
 
     @Test
@@ -74,8 +74,8 @@ public class TrackOperationsTest {
     @Test
     public void fullTrackWithUpdateReturnsTrackDetailsFromStorage() {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.<Boolean>empty());
-        when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(propertySet));
-        when(trackStorage.trackDetails(trackUrn)).thenReturn(Observable.just(descriptionPropertySet));
+        when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(track));
+        when(trackStorage.trackDetails(trackUrn)).thenReturn(Observable.just(trackDescription));
 
         final PropertySet first = trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().first();
         expect(first.get(PlayableProperty.TITLE)).toEqual(TITLE);
@@ -86,10 +86,11 @@ public class TrackOperationsTest {
     @Test
     public void fullTrackWithUpdateEmitsTrackFromStorageTwice() throws CreateModelException {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(propertySet));
-        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(descriptionPropertySet));
+        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(trackDescription));
 
-        expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toBe(propertySet);
+        expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toEqual(
+                track.merge(trackDescription));
 
         verify(trackStorage, times(2)).track(trackUrn, userUrn);
     }
@@ -97,11 +98,13 @@ public class TrackOperationsTest {
     @Test
     public void fullTrackWithUpdatePublishesPlayableChangedEvent() throws CreateModelException {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(propertySet));
-        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(descriptionPropertySet));
+        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(trackDescription));
 
-        expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toBe(propertySet);
+        expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toEqual(
+                track.merge(trackDescription));
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet()).toEqual(propertySet);
+        expect(eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet()).toEqual(
+                track.merge(trackDescription));
     }
 }
