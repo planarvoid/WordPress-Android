@@ -2,19 +2,18 @@ package com.soundcloud.android.screens.elements;
 
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EditTextElement;
+import com.soundcloud.android.framework.viewelements.TextElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.WhoToFollowScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.EditTextElement;
-import com.soundcloud.android.framework.viewelements.TextElement;
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.with.With;
 
-import android.content.res.Resources;
 import android.os.Build;
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 
 public class ActionBarElement extends Element {
 
-    private static final int SEARCH_SELECTOR = R.id.action_bar;
+    private static final int SEARCH_SELECTOR = R.id.action_search;
     private static final int CONTAINER = R.id.action_bar_container;
     private final Han testDriver;
 
@@ -37,7 +36,7 @@ public class ActionBarElement extends Element {
 
     @Override
     protected int getRootViewId() {
-        return SEARCH_SELECTOR;
+        return R.id.action_bar;
     }
 
     public void clickHomeButton() {
@@ -50,26 +49,22 @@ public class ActionBarElement extends Element {
 
     public PlaylistTagsScreen clickSearchButton() {
         waiter.waitForElement(SEARCH_SELECTOR);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
-            solo.clickOnActionBarItem(SEARCH_SELECTOR);
-        } else {
-            solo.findElement(With.id(SEARCH_SELECTOR)).click();
-        }
+        solo.findElement(With.id(SEARCH_SELECTOR)).click();
         return new PlaylistTagsScreen(solo);
     }
 
     public ActivitiesScreen clickActivityOverflowButton() {
-        testDriver.clickOnActionBarItem(R.id.action_activity);
+        clickOverflowButton("Activity");
         return new ActivitiesScreen(testDriver);
     }
 
     public WhoToFollowScreen clickWhoToFollowOverflowButton() {
-        testDriver.clickOnActionBarItem(R.id.action_who_to_follow);
+        clickOverflowButton("Who to follow");
         return new WhoToFollowScreen(testDriver);
     }
 
     public SettingsScreen clickSettingsOverflowButton() {
-        testDriver.clickOnActionBarItem(R.id.action_settings);
+        clickOverflowButton("Settings");
         return new SettingsScreen(testDriver);
     }
 
@@ -91,6 +86,11 @@ public class ActionBarElement extends Element {
 
     public void setSearchQuery(final String query) {
         searchInputField().typeText(query);
+    }
+
+    private void clickOverflowButton(String buttonText) {
+        solo.findElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton")).click();
+        solo.findElement(With.text(buttonText)).click();
     }
 
     private TextElement title() {
