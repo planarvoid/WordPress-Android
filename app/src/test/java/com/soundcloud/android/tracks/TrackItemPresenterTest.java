@@ -9,8 +9,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -58,21 +56,6 @@ public class TrackItemPresenterTest {
         presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
 
         expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
-    }
-
-    @Test // this is until we remedy the numerous sources of null data on tracks
-    public void shouldTurnNullTitlesToEmptyStrings() {
-        presenter.bindItemView(0, itemView, Arrays.asList(PropertySet.from(
-                // these shouldn't be allowed going forward, but have to deal with it now
-                TrackProperty.TITLE.bind(null),
-                TrackProperty.CREATOR_NAME.bind(null),
-                TrackProperty.DURATION.bind(227000),
-                TrackProperty.URN.bind(Urn.forTrack(123)),
-                TrackProperty.PLAY_COUNT.bind(870)
-        )));
-
-        expect(textView(R.id.list_item_subheader).getText()).toEqual("");
-        expect(textView(R.id.list_item_header).getText()).toEqual("");
     }
 
     @Test

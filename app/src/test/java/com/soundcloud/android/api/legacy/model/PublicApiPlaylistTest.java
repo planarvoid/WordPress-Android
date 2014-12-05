@@ -153,7 +153,7 @@ public class PublicApiPlaylistTest {
     }
 
     @Test
-    public void shouldConcertToPropertySet() throws CreateModelException {
+    public void shouldConvertToPropertySet() throws CreateModelException {
         PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         PropertySet propertySet = playlist.toPropertySet();
 
