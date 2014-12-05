@@ -619,7 +619,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
+        if (currentFacebookSession != null) {
+            currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
+        }
         switch (requestCode) {
             case RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getUserDetails() != null) {
