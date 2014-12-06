@@ -28,46 +28,32 @@ public class SoundStreamWriteStorage {
     }
 
     public TxnResult replaceStreamItems(Iterable<ApiStreamItem> streamItems) {
-        return database.runTransaction(new ReplaceTransaction(streamItems));
+        return database.runTransaction(new InsertTransaction(true, streamItems));
     }
 
     public TxnResult insertStreamItems(Iterable<ApiStreamItem> streamItems) {
-        return database.runTransaction(new InsertTransaction(streamItems));
+        return database.runTransaction(new InsertTransaction(false, streamItems));
     }
 
     public void clear() {
-        database.runTransaction(new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(Table.SoundStream));
-            }
-        });
-    }
-
-    private static class ReplaceTransaction extends InsertTransaction {
-
-        ReplaceTransaction(Iterable<ApiStreamItem> streamItems) {
-            super(streamItems);
-        }
-
-        @Override
-        public void steps(PropellerDatabase propeller) {
-            // clear DB first
-            step(propeller.delete(Table.SoundStream));
-            super.steps(propeller);
-        }
+        database.delete(Table.SoundStream);
     }
 
     private static class InsertTransaction extends PropellerDatabase.Transaction {
 
+        private final boolean clearTable;
         private final Iterable<ApiStreamItem> streamItems;
 
-        InsertTransaction(Iterable<ApiStreamItem> streamItems) {
+        InsertTransaction(boolean clearTable, Iterable<ApiStreamItem> streamItems) {
+            this.clearTable = clearTable;
             this.streamItems = streamItems;
         }
 
         @Override
         public void steps(PropellerDatabase propeller) {
+            if (clearTable) {
+                step(propeller.delete(Table.SoundStream));
+            }
             for (ApiStreamItem streamItem : streamItems) {
                 step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem)));
                 step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
