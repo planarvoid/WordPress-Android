@@ -23,7 +23,6 @@ public class ByFacebookTest extends SignUpTest {
         signUpScreen.clickFacebookButton();
         signUpScreen.acceptTerms();
         fbWebViewScreen = new FBWebViewScreen(solo);
-        fbWebViewScreen.waitForContent();
 
         //otherwise field suggestions pop put and don't allow password field to be clicked
         fbWebViewScreen.typePassword(Facebook.getPassword());
