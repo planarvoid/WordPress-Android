@@ -31,6 +31,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
         Notification.MediaStyle style = new Notification.MediaStyle();
         style.setShowActionsInCompactView(TOGGLE_PLAY_ACTION_INDEX, NEXT_ACTION_INDEX);
         builder.setStyle(style);
+        builder.setVisibility(Notification.VISIBILITY_PUBLIC);
         builder.setUsesChronometer(false);
         builder.setShowWhen(false);
 
