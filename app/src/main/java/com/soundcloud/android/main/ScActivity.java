@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -221,8 +222,6 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
         unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
-        // Volume mode should always be music in this app
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver);
         if (getSupportActionBar() != null) {
@@ -326,6 +325,14 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         isForeground = false;
         onCreateCalled = false;
         super.onPause();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (castConnectionHelper.onDispatchVolumeEvent(event)) {
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     /**

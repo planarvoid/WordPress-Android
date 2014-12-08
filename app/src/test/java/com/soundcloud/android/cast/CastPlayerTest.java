@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -195,6 +196,45 @@ public class CastPlayerTest {
     }
 
     @Test
+    public void playWithUrnAlreadyLoadedDoesNotLoadMedia() throws Exception {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final MediaInfo media = getMediaInfoForTrack(track);
+        when(castManager.getRemoteMediaInformation()).thenReturn(media);
+
+        castPlayer.play(track);
+
+        verify(castManager, never()).loadMedia(any(MediaInfo.class), anyBoolean(), anyInt());
+    }
+
+    @Test
+    public void playWithUrnAlreadyLoadedOutputsExistingState() throws Exception {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final MediaInfo media = getMediaInfoForTrack(track);
+        when(castManager.getRemoteMediaInformation()).thenReturn(media);
+        when(castManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
+        when(castManager.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_NONE);
+
+        castPlayer.play(track);
+
+        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.PLAYING);
+        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+        expect(stateTransition.getTrackUrn()).toEqual(track.get(TrackProperty.URN));
+
+    }
+
+    private MediaInfo getMediaInfoForTrack(PropertySet track) {
+        MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
+        mediaMetadata.putString(CastPlayer.KEY_URN, String.valueOf(track.get(TrackProperty.URN)));
+
+        return new MediaInfo.Builder("some-url")
+                .setContentType("audio/mpeg")
+                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                .setMetadata(mediaMetadata)
+                .build();
+    }
+
+    @Test
     public void playCallsLoadOnRemoteMediaPlayerStreamContent() throws Exception {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         when(imageOperations.getUrlForLargestImage(resources, track.get(TrackProperty.URN))).thenReturn(HTTP_IMAGE_URL);
@@ -207,6 +247,7 @@ public class CastPlayerTest {
         expect(value.getContentType()).toEqual("audio/mpeg");
         expect(value.getMetadata().getImages().get(0).getUrl().toString()).toEqual(HTTP_IMAGE_URL);
         expect(value.getContentId()).toEqual(track.get(TrackProperty.STREAM_URL) + "?client_id=" + CLIENT_ID);
+        expect(new Urn(value.getMetadata().getString(CastPlayer.KEY_URN))).toEqual(track.get(TrackProperty.URN));
     }
 
     @Test

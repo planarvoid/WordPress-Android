@@ -9,6 +9,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -27,6 +28,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +52,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayController.Factory adOverlayControllerFactory;
+    private final CastConnectionHelper castConnectionHelper;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
@@ -58,7 +61,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
-                              AdOverlayController.Factory adOverlayControllerFactory) {
+                              AdOverlayController.Factory adOverlayControllerFactory,
+                              CastConnectionHelper castConnectionHelper) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.waveformControllerFactory = waveformControllerFactory;
@@ -66,6 +70,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
         this.adOverlayControllerFactory = adOverlayControllerFactory;
+        this.castConnectionHelper = castConnectionHelper;
     }
 
     @Override
@@ -229,12 +234,17 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     @Override
     public void onBackground(View trackPage) {
-        getViewHolder(trackPage).waveformController.onBackground();
+        final TrackPageHolder viewHolder = getViewHolder(trackPage);
+        viewHolder.waveformController.onBackground();
+        castConnectionHelper.removeMediaRouterButton(viewHolder.mediaRouteButton);
+
     }
 
     @Override
     public void onForeground(View trackPage) {
-        getViewHolder(trackPage).waveformController.onForeground();
+        final TrackPageHolder viewHolder = getViewHolder(trackPage);
+        viewHolder.waveformController.onForeground();
+        castConnectionHelper.addMediaRouterButton(viewHolder.mediaRouteButton);
     }
 
     private void showRepostToast(final Context context, final boolean isReposted) {
@@ -417,6 +427,10 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.playButton = trackView.findViewById(R.id.player_play);
         holder.profileLink = trackView.findViewById(R.id.profile_link);
 
+        // set initial media route button state
+        holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
+        castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
+
         holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
         holder.footerTitle = (TextView) trackView.findViewById(R.id.footer_title);
@@ -426,9 +440,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveform, holder.adOverlayController);
-
-
-
         holder.playerOverlayControllers = new PlayerOverlayController[] {
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark)),
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
@@ -499,6 +510,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         PlayerOverlayController[] playerOverlayControllers;
         AdOverlayController adOverlayController;
         ToggleButton likeToggle;
+        MediaRouteButton mediaRouteButton;
         View more;
         View close;
         View bottomClose;

@@ -226,6 +226,11 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
         }
     }
 
+    @Override
+    public void onMetaDataUpdated(Urn currentUrn) {
+        // no-op
+    }
+
 
     private void configureNextPlayaToUseViaPreferences(){
         configureNextPlayaToUse(getNextPlaya());

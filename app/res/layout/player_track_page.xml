@@ -51,6 +51,10 @@
         android:layout_alignParentBottom="true"
         android:gravity="right|center_vertical">
 
+        <android.support.v7.app.MediaRouteButton
+                android:id="@+id/media_route_button"
+                style="@style/PlayerMediaRouteButton"/>
+
         <ToggleButton
             android:id="@+id/track_page_like"
             style="@style/PlayerLike" />
