@@ -1,27 +1,17 @@
 apply plugin: 'java'
 apply plugin: 'provided-base'
 apply plugin: 'pmd'
-
+apply plugin: 'maven-publish'
 
 dependencies {
-  compile "com.intellij:annotations:9.0.4"
   compile "org.slf4j:slf4j-android:1.6.1-RC1"
+  provided "com.intellij:annotations:9.0.4"
   provided "com.google.android:android:4.1.1.4"
   provided "com.google.guava:guava:16.0"
   testCompile "junit:junit:4.11"
   testCompile "org.mockito:mockito-core:1.9.5"
 }
 
-test {
-  testLogging {
-    showStandardStreams = true
-    showStackTraces = true
-    exceptionFormat = "full"
-  }
-}
-
-pmd {
-  consoleOutput true
-  ruleSetFiles = files("$project.path/../../../app/static-analysis/pmd.xml")
-  sourceSets = [sourceSets.main]
-}
+applyTestLoggingConfig(test)
+applyPmdConfig(pmd, project)
+applyMavenJavaPublishingConfig(project, publishing, "CoreUtils","core-utils")
