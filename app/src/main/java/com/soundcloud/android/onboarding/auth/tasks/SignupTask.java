@@ -106,7 +106,7 @@ public class SignupTask extends AuthTask {
 
     private AuthTaskResult handleSuccess(HttpResponse response) throws IOException {
         final PublicApiUser user = publicApi.getMapper().readValue(response.getEntity().getContent(), PublicApiUser.class);
-        return AuthTaskResult.success(user, SignupVia.API);
+        return AuthTaskResult.success(user, SignupVia.API, false);
     }
 
     private AuthTaskResult handleUnprocessableEntity(SoundCloudApplication application, HttpResponse response) throws IOException {

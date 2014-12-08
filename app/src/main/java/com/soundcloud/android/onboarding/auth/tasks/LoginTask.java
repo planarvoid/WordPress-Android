@@ -65,7 +65,7 @@ public class LoginTask extends AuthTask {
 
             app.getEventBus().publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
 
-            return AuthTaskResult.success(user, signupVia);
+            return AuthTaskResult.success(user, signupVia, tokenUtils.isFromFacebook(data));
 
         } catch (IOException e) {
             Log.e("Error retrieving SC API token" + e.getMessage());

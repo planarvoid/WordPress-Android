@@ -4,18 +4,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 
 public class AuthTaskResult {
-
-    private final Kind  kind;
-    private PublicApiUser        user;
-    private SignupVia   signupVia;
-    private Exception   exception;
-
-    public enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID
-    }
-
-    public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia) {
-        return new AuthTaskResult(user,signupVia);
+    public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
+        return new AuthTaskResult(user, signupVia, showFacebookSuggestions);
     }
 
     public static AuthTaskResult failure(Exception exception) {
@@ -42,19 +32,35 @@ public class AuthTaskResult {
         return new AuthTaskResult(Kind.EMAIL_INVALID);
     }
 
-    private AuthTaskResult(PublicApiUser user, SignupVia signupVia) {
-        this.kind = Kind.SUCCESS;
+    private final Kind kind;
+    private final PublicApiUser user;
+    private final SignupVia signupVia;
+    private final Exception exception;
+    private final boolean showFacebookSuggestions;
+
+    private enum Kind {
+        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID
+    }
+
+    private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
+        this(Kind.SUCCESS, user, signupVia, null, showFacebookSuggestions);
+    }
+
+    private AuthTaskResult(Exception exception) {
+        this(Kind.FAILURE, null, null, exception, false);
+
+    }
+
+    private AuthTaskResult(Kind kind) {
+        this(kind, null, null, null, false);
+    }
+
+    private AuthTaskResult(Kind kind, PublicApiUser user, SignupVia signupVia, Exception exception, boolean showFacebookSuggestions) {
+        this.kind = kind;
         this.user = user;
         this.signupVia = signupVia;
-    }
-
-    private AuthTaskResult(Exception exception){
-        this.kind = Kind.FAILURE;
         this.exception = exception;
-    }
-
-    public AuthTaskResult(Kind kind) {
-        this.kind = kind;
+        this.showFacebookSuggestions = showFacebookSuggestions;
     }
 
     public boolean wasSuccess() {
@@ -93,7 +99,11 @@ public class AuthTaskResult {
         return exception;
     }
 
-    public String[] getErrors(){
+    public boolean getShowFacebookSuggestions() {
+        return showFacebookSuggestions;
+    }
+
+    public String[] getErrors() {
         return exception instanceof AuthTaskException ? ((AuthTaskException) exception).getErrors() : null;
     }
 }

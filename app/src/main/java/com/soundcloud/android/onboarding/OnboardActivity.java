@@ -133,27 +133,10 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     };
     @Nullable private Bundle loginBundle, signUpBundle, userDetailsBundle, acceptTermsBundle;
 
+    private final Session.StatusCallback sessionStatusCallback = new FacebookSessionCallback(this);
     private PublicCloudAPI oldCloudAPI;
     private ApplicationProperties applicationProperties;
     private EventBus eventBus;
-
-    private Session.StatusCallback sessionStatusCallback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            if (state == SessionState.OPENED && !session.getPermissions().contains(DEFAULT_FACEBOOK_PUBLISH_PERMISSION)) {
-                Session.NewPermissionsRequest newPermissionRequest = new Session.NewPermissionsRequest(
-                        OnboardActivity.this, DEFAULT_FACEBOOK_PUBLISH_PERMISSION);
-                session.requestNewPublishPermissions(newPermissionRequest);
-            } else if (ScTextUtils.isNotBlank(session.getAccessToken())) {
-                TokenInformationGenerator tokenInformationGenerator = new TokenInformationGenerator(new PublicApi(OnboardActivity.this));
-                login(tokenInformationGenerator.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, session.getAccessToken()));
-            } else if (exception != null && !(exception instanceof FacebookOperationCanceledException)) {
-                Log.w(TAG, "Facebook returned an exception", exception);
-                ErrorUtils.handleSilentException(exception);
-                onError(getString(R.string.facebook_authentication_failed_message));
-            }
-        }
-    };
     private Session currentFacebookSession;
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
@@ -267,32 +250,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         tourPages.get(0).setLoadHandler(new TourHandler(this, splash));
     }
 
-    private static class TourHandler extends Handler {
-        private final WeakReference<OnboardActivity> onboardActivityRef;
-        private final WeakReference<View> splashRef;
-
-        public TourHandler(OnboardActivity onboardActivity, View splash) {
-            this.onboardActivityRef = new WeakReference<>(onboardActivity);
-            this.splashRef = new WeakReference<>(splash);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case TourLayout.IMAGE_LOADED:
-                case TourLayout.IMAGE_ERROR:
-                    final OnboardActivity onboardActivity = onboardActivityRef.get();
-                    final View splash = splashRef.get();
-                    if (onboardActivity != null && splash != null) {
-                        hideView(onboardActivity, splash, true);
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
-            }
-        }
-    }
-
     @Override
     public void onLogin(String email, String password) {
         LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
@@ -339,7 +296,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
             @Override
             protected void onPostExecute(AuthTaskResult result) {
-                onAuthTaskComplete(user, SignupVia.API, false);
+                onAuthTaskComplete(user, SignupVia.API, false, false);
             }
         }.execute();
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.skippedUserInfo());
@@ -535,7 +492,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     @Override
-    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask) {
+    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask, boolean showFacebookSuggestions) {
         if (wasApiSignupTask) {
             SignupLog.writeNewSignupAsync();
             this.user = user;
@@ -543,7 +500,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_USER_DETAILS));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
-            super.onAuthTaskComplete(user, via, false);
+            super.onAuthTaskComplete(user, via, false, showFacebookSuggestions);
         }
     }
 
@@ -812,4 +769,60 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS
     }
+
+    private static class TourHandler extends Handler {
+        private final WeakReference<OnboardActivity> onboardActivityRef;
+        private final WeakReference<View> splashRef;
+
+        public TourHandler(OnboardActivity onboardActivity, View splash) {
+            this.onboardActivityRef = new WeakReference<>(onboardActivity);
+            this.splashRef = new WeakReference<>(splash);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case TourLayout.IMAGE_LOADED:
+                case TourLayout.IMAGE_ERROR:
+                    final OnboardActivity onboardActivity = onboardActivityRef.get();
+                    final View splash = splashRef.get();
+                    if (onboardActivity != null && splash != null) {
+                        hideView(onboardActivity, splash, true);
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
+            }
+        }
+    }
+
+    private static class FacebookSessionCallback implements Session.StatusCallback {
+        private final WeakReference<OnboardActivity> activityRef;
+
+        public FacebookSessionCallback(OnboardActivity onboardActivity) {
+            this.activityRef = new WeakReference<>(onboardActivity);
+        }
+
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            OnboardActivity activity = activityRef.get();
+            if (activity == null) {
+                return;
+            }
+
+            if (state == SessionState.OPENED && !session.getPermissions().contains(DEFAULT_FACEBOOK_PUBLISH_PERMISSION)) {
+                Session.NewPermissionsRequest newPermissionRequest = new Session.NewPermissionsRequest(
+                        activity, DEFAULT_FACEBOOK_PUBLISH_PERMISSION);
+                session.requestNewPublishPermissions(newPermissionRequest);
+            } else if (ScTextUtils.isNotBlank(session.getAccessToken())) {
+                TokenInformationGenerator tokenInformationGenerator = new TokenInformationGenerator(new PublicApi(activity));
+                activity.login(tokenInformationGenerator.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, session.getAccessToken()));
+            } else if (exception != null && !(exception instanceof FacebookOperationCanceledException)) {
+                Log.w(TAG, "Facebook returned an exception", exception);
+                ErrorUtils.handleSilentException(exception);
+                activity.onError(activity.getString(R.string.facebook_authentication_failed_message));
+            }
+        }
+    }
+
 }
