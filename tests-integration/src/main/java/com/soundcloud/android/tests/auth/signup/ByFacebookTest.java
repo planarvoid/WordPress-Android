@@ -36,9 +36,8 @@ public class ByFacebookTest extends SignUpTest {
         // I presume this needs fixing on the server side?
         // There's a story (DROID-505) to investigate this
         //assertTrue(suggestedUsersScreen.hasFacebookSection());
-
-        suggestedUsersCategoryScreen = suggestedUsersScreen.goToFacebook();
-        assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
-        suggestedUsersCategoryScreen.deselectAll();
+//        suggestedUsersCategoryScreen = suggestedUsersScreen.goToFacebook();
+//        assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
+//        suggestedUsersCategoryScreen.deselectAll();
     }
 }
