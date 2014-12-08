@@ -98,7 +98,7 @@ public class CryptoOperationsTest {
 
         operations.encryptStream(inputStream, outputStream);
 
-        verify(encryptor).encryptFile(inputStream, outputStream, deviceSecret);
+        verify(encryptor).encrypt(inputStream, outputStream, deviceSecret);
     }
 
     @Test

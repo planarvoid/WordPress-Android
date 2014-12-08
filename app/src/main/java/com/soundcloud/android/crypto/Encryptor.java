@@ -6,7 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -20,14 +20,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class Encryptor {
 
-    private static final int BLOCK_SIZE = 32768;
-    private static final int HMAC_LENGTH = 16;
+    private static final int BLOCK_SIZE = 8192;
     private static final String CIPHER_ALG = "AES/CBC/PKCS7Padding";
-    private static final String HMAC_ALG = "HmacMD5";
     private static final String KEY_ALG = "AES";
     private static final String HASH_ALG = "sha1";
 
-    private Mac mac;
     private Cipher cipher;
 
     @Inject
@@ -35,44 +32,49 @@ public class Encryptor {
         /* no - op */
     }
 
-    private void initEncryption(DeviceSecret secret) throws EncryptionException {
+    private void initCipher(DeviceSecret secret, int cipherMode) throws EncryptionException {
         try {
             final IvParameterSpec ivParam = new IvParameterSpec(secret.getInitVector());
             final SecretKey key = new SecretKeySpec(secret.getKey(), 0, secret.getKey().length, KEY_ALG);
 
-            if (cipher == null || mac == null) {
-                cipher = Cipher.getInstance(CIPHER_ALG);
-                mac = Mac.getInstance(HMAC_ALG);
-            }
-
-            cipher.init(Cipher.ENCRYPT_MODE, key, ivParam);
-            mac.init(key);
+            getCipher().init(cipherMode, key, ivParam);
         } catch (GeneralSecurityException e) {
             throw new EncryptionException("Encryption algorithms not found", e);
         }
     }
 
-    public void encryptFile(InputStream in, OutputStream fos, DeviceSecret secret) throws EncryptionException, IOException {
+    public void encrypt(InputStream in, OutputStream fos, DeviceSecret secret) throws EncryptionException, IOException {
+        runCipher(in, fos, secret, Cipher.ENCRYPT_MODE);
+    }
+
+    public void decrypt(InputStream in, OutputStream fos, DeviceSecret secret) throws EncryptionException, IOException {
+        runCipher(in, fos, secret, Cipher.DECRYPT_MODE);
+    }
+
+    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+        if (cipher == null) {
+            cipher = Cipher.getInstance(CIPHER_ALG);
+        }
+        return cipher;
+    }
+
+    private void runCipher(InputStream input, OutputStream output, DeviceSecret secret, int cipherMode) throws EncryptionException, IOException {
         try {
-            initEncryption(secret);
-            byte[] block = new byte[BLOCK_SIZE - HMAC_LENGTH];
+            initCipher(secret, cipherMode);
 
             int readBytes;
-            while ((readBytes = in.read(block)) != -1) {
+            int cipherBytes;
+            byte[] buffer = new byte[BLOCK_SIZE];
+            byte[] encrypted = new byte[cipher.getOutputSize(buffer.length)];
 
-                byte[] encrypted;
-                if (readBytes < block.length) {
-                    byte[] slice = new byte[readBytes];
-                    System.arraycopy(block, 0, slice, 0, readBytes);
-                    encrypted = cipher.doFinal(slice);
-                } else {
-                    encrypted = cipher.update(block);
-                }
-
-                byte[] hmac = mac.doFinal(encrypted);
-                fos.write(encrypted);
-                fos.write(hmac);
+            while ((readBytes = input.read(buffer)) != -1) {
+                cipherBytes = cipher.update(buffer, 0, readBytes, encrypted);
+                output.write(encrypted, 0, cipherBytes);
             }
+
+            cipherBytes = cipher.doFinal(encrypted, 0);
+            output.write(encrypted, 0, cipherBytes);
+
         } catch (GeneralSecurityException e) {
             throw new EncryptionException("Failed to encrypt a file", e);
         }
