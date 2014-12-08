@@ -45,6 +45,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     public static final int MAX_CONNECT_RETRIES = 2;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
+    public static final String PLAYER_NAME = "MediaPlayer";
 
     private final StreamProxy proxy;
     private final Context context;
@@ -366,6 +367,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         if (playaListener != null) {
             final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PLAYER_NAME);
+            stateTransition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
             playaListener.onPlaystateChanged(stateTransition);
         }
     }

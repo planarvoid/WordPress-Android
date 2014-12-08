@@ -49,6 +49,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
     private static final long POSITION_START = 0L;
+    private static final String PLAYER_NAME = "Skippy";
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
 
@@ -238,6 +239,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration);
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PLAYER_NAME);
+            transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;

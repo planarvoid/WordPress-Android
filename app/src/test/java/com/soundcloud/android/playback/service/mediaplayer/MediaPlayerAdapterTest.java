@@ -91,6 +91,7 @@ public class MediaPlayerAdapterTest {
         when(listener.requestAudioFocus()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(PlaybackPerformanceEvent.ConnectionType.FOUR_G);
         mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, streamProxy, playerHandler, eventBus, networkConnectionHelper, accountOperations);
         mediaPlayerAdapter.setListener(listener);
     }

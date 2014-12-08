@@ -32,6 +32,8 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", DURATION);
+    private static final String PLAYER_TYPE = "PLAYA";
+    private static final String CONNECTION_TYPE = "CONNECTION";
 
     private LocalyticsAnalyticsProvider localyticsProvider;
 
@@ -56,7 +58,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         long startTime = System.currentTimeMillis();
         long stopTime = startTime + 1000L;
 
-        startEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, "hls", trackSourceInfo, 0, startTime);
+        startEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, 0, startTime, "hls", PLAYER_TYPE, CONNECTION_TYPE);
         stopEvent = createStopEventWithStopTimeAndDuration(stopTime, DURATION);
     }
 
@@ -184,9 +186,8 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     }
 
     private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
-        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, "hls", trackSourceInfo, startEvent,
-                PlaybackSessionEvent.STOP_REASON_BUFFERING, 0L,
-                (long) (startEvent.getTimeStamp() + DURATION * percent));
+        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, startEvent, 0L, (long) (startEvent.getTimeStamp() + DURATION * percent), "hls", "playa", "3g", PlaybackSessionEvent.STOP_REASON_BUFFERING
+        );
     }
 
     private PlaybackSessionEvent createStopEventWithDuration(int duration) {
@@ -196,11 +197,11 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
     private PlaybackSessionEvent createStopEventWithStopTimeAndDuration(long stopTime, int duration) {
         return PlaybackSessionEvent.forStop(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", duration),
-                USER_URN, "hls", trackSourceInfo, startEvent,
-                PlaybackSessionEvent.STOP_REASON_BUFFERING, 0L, stopTime);
+                USER_URN, trackSourceInfo, startEvent, 0L, stopTime, "hls", "playa", "3g", PlaybackSessionEvent.STOP_REASON_BUFFERING
+        );
     }
 
     private PlaybackSessionEvent createStopEventWithWithReason(int reason) {
-        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, "hls", trackSourceInfo, startEvent, reason, 0);
+        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, startEvent, 0, "hls", "playa", "3g", reason);
     }
 }
