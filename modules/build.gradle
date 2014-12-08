@@ -60,7 +60,7 @@ subprojects {
 }
 
 
-
+//Ensure we cannot call the publish tasks without specific env variables set, makes accidental publishing not possible
 gradle.taskGraph.whenReady { graph ->
   subprojects.each { subproject ->
     subproject.tasks.withType(GenerateMavenPom).each { task ->

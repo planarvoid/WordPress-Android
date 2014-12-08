@@ -16,4 +16,4 @@ dependencies {
 
 applyTestLoggingConfig(test)
 applyPmdConfig(pmd, project)
-applyMavenJavaPublishingConfig(project, publishing, "MigF","migf")
+applyMavenJavaPublishingConfig(project, publishing, "DatabaseMigrator","dbmigrator")
