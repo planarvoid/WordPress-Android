@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.notification.BigNotificationBuilder;
 import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
 import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
+import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -178,10 +179,13 @@ public class ApplicationModule {
         return new LruCache<>(DEFAULT_WAVEFORM_CACHE_SIZE);
     }
 
-    @SuppressWarnings("unchecked")
     @Provides
     public ImageProcessor provideImageProcessor(Context context) {
-        return new ImageProcessorCompat();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return new ImageProcessorJB(context);
+        } else {
+            return new ImageProcessorCompat();
+        }
     }
 
     @Provides
