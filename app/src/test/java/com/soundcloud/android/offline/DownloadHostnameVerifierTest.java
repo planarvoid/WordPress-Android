@@ -34,6 +34,7 @@ public class DownloadHostnameVerifierTest {
 
     @Test
     public void verifyValidHostname() {
+        expect(downloadHostnameVerifier.verify("soundcloud.com", session)).toBeTrue();
         expect(downloadHostnameVerifier.verify("myapi.soundcloud.com", session)).toBeTrue();
         expect(downloadHostnameVerifier.verify("vader.sndcdn.com", session)).toBeTrue();
         expect(downloadHostnameVerifier.verify("tony.stark.hs.llnwd.net", session)).toBeTrue();
@@ -51,7 +52,7 @@ public class DownloadHostnameVerifierTest {
         List<List<?>> result = new ArrayList<>();
         List<Object> entry = new ArrayList<>();
         entry.add(0, DownloadHostnameVerifier.ALT_TYPE_DNS);
-        entry.add(1, "myapi.soundcloud.com");
+        entry.add(1, "*.soundcloud.com");
         result.add(entry);
         return result;
     }
