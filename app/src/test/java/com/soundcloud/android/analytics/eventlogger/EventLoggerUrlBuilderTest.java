@@ -1,7 +1,8 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import com.soundcloud.android.events.ConnectionType;
+
+import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

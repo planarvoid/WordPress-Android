@@ -1,8 +1,10 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+
+import com.soundcloud.android.events.ConnectionType;
+
+import com.soundcloud.android.events.PlayerType;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

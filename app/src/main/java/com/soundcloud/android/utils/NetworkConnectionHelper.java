@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
+import com.soundcloud.android.events.ConnectionType;
 
 import com.soundcloud.android.SoundCloudApplication;
 

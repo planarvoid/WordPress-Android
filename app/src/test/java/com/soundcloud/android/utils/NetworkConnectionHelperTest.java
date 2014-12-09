@@ -1,7 +1,8 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
+
+import com.soundcloud.android.events.ConnectionType;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.when;
 
