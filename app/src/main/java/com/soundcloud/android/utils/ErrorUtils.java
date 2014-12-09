@@ -125,10 +125,4 @@ public class ErrorUtils {
         return false;
     }
 
-    // we use this exception to signal fatal conditions that should crash the app
-    public static class FatalException extends RuntimeException {
-        public FatalException(Throwable throwable) {
-            super(throwable);
-        }
-    }
 }
