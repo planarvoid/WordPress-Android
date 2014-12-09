@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -72,7 +73,7 @@ public class PlaybackNotificationController {
             imageSubscription.unsubscribe();
             return trackOperations
                     .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
-                    .map(mergeMetaData(playQueueEvent.getCurrentMetaData()))
+                    .map(PropertySetFunctions.mergeInto(playQueueEvent.getCurrentMetaData()))
                     .flatMap(toNotification).cache();
         }
     };
@@ -138,15 +139,6 @@ public class PlaybackNotificationController {
                         }
                     });
         }
-    }
-
-    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
-        return new Func1<PropertySet, PropertySet>() {
-            @Override
-            public PropertySet call(PropertySet propertySet) {
-                return propertySet.merge(metaData);
-            }
-        };
     }
 
     void createNotificationBuilder() {

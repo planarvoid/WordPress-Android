@@ -2,7 +2,6 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -139,7 +138,7 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
 
         @Override
         public void onNext(PropertySet details) {
-            track.merge(details);
+            track.update(details);
             updateLikeActionTitle(track.get(TrackProperty.IS_LIKED));
             menu.setItemEnabled(R.id.add_to_likes, true);
         }

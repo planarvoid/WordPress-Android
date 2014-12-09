@@ -16,6 +16,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.rx.PropertySetFunctions;
 import dagger.Lazy;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -85,22 +86,13 @@ public class PlaySessionController {
         }
     }
 
-    private Func1<PropertySet, PropertySet> mergeMetaData(final PropertySet metaData) {
-        return new Func1<PropertySet, PropertySet>() {
-            @Override
-            public PropertySet call(PropertySet propertySet) {
-                return propertySet.merge(metaData);
-            }
-        };
-    }
-
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
             currentTrackSubscription.unsubscribe();
             currentTrackSubscription = trackOperations
                     .track(event.getCurrentTrackUrn())
-                    .map(mergeMetaData(event.getCurrentMetaData()))
+                    .map(PropertySetFunctions.mergeInto(event.getCurrentMetaData()))
                     .subscribe(new CurrentTrackSubscriber());
 
             if (playSessionStateProvider.isPlaying()) {

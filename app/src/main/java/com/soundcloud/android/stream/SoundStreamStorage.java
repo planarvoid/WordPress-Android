@@ -44,7 +44,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
                         // TODO: poor man's check to remove orphaned tracks and playlists;
                         // We need to address this properly with a schema refactor, cf:
                         // https://github.com/soundcloud/SoundCloud-Android/issues/1524
-                .where(TableColumns.SoundView.TITLE + " IS NOT NULL")
+                .whereNotNull(TableColumns.SoundView.TITLE)
                 .limit(limit);
 
         return scheduler.scheduleQuery(query).map(new StreamItemMapper());
@@ -54,7 +54,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(soundStreamSelection(userUrn))
                 .whereGt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
-                .where(TableColumns.SoundView.TITLE + " IS NOT NULL")
+                .whereNotNull(TableColumns.SoundView.TITLE)
                 .limit(limit);
 
         return database.query(query).toList(new StreamItemMapper());

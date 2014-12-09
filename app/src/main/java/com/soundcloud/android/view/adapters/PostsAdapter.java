@@ -229,7 +229,7 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
             });
 
             if (index > -1) {
-                propertySets.get(index).merge(event.getChangeSet());
+                propertySets.get(index).update(event.getChangeSet());
                 notifyDataSetChanged();
             }
         }

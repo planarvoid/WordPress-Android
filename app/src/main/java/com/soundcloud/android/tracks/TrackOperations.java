@@ -7,10 +7,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -30,13 +30,6 @@ public class TrackOperations {
         public void call(PropertySet propertySet) {
             final PlayableUpdatedEvent event = PlayableUpdatedEvent.forUpdate(propertySet.get(TrackProperty.URN), propertySet);
             eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
-        }
-    };
-
-    private final Func2<PropertySet, PropertySet, PropertySet> mergePropertySets = new Func2<PropertySet, PropertySet, PropertySet>() {
-        @Override
-        public PropertySet call(PropertySet propertySet, PropertySet propertySet2) {
-            return propertySet.merge(propertySet2);
         }
     };
 
@@ -75,7 +68,7 @@ public class TrackOperations {
     }
 
     private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
-        return trackFromStorage(trackUrn).zipWith(trackStorage.trackDetails(trackUrn), mergePropertySets);
+        return trackFromStorage(trackUrn).zipWith(trackStorage.trackDetails(trackUrn), PropertySetFunctions.mergeLeft());
     }
 
     private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {
