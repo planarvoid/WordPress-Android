@@ -43,12 +43,12 @@ public class Encryptor {
         }
     }
 
-    public void encrypt(InputStream in, OutputStream fos, DeviceSecret secret) throws EncryptionException, IOException {
-        runCipher(in, fos, secret, Cipher.ENCRYPT_MODE);
+    public void encrypt(InputStream in, OutputStream out, DeviceSecret secret) throws EncryptionException, IOException {
+        runCipher(in, out, secret, Cipher.ENCRYPT_MODE);
     }
 
-    public void decrypt(InputStream in, OutputStream fos, DeviceSecret secret) throws EncryptionException, IOException {
-        runCipher(in, fos, secret, Cipher.DECRYPT_MODE);
+    public void decrypt(InputStream in, OutputStream out, DeviceSecret secret) throws EncryptionException, IOException {
+        runCipher(in, out, secret, Cipher.DECRYPT_MODE);
     }
 
     private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
@@ -58,7 +58,8 @@ public class Encryptor {
         return cipher;
     }
 
-    private void runCipher(InputStream input, OutputStream output, DeviceSecret secret, int cipherMode) throws EncryptionException, IOException {
+    private void runCipher(InputStream in, OutputStream out, DeviceSecret secret, int cipherMode)
+            throws EncryptionException, IOException {
         try {
             initCipher(secret, cipherMode);
 
@@ -67,13 +68,13 @@ public class Encryptor {
             byte[] buffer = new byte[BLOCK_SIZE];
             byte[] encrypted = new byte[cipher.getOutputSize(buffer.length)];
 
-            while ((readBytes = input.read(buffer)) != -1) {
+            while ((readBytes = in.read(buffer)) != -1) {
                 cipherBytes = cipher.update(buffer, 0, readBytes, encrypted);
-                output.write(encrypted, 0, cipherBytes);
+                out.write(encrypted, 0, cipherBytes);
             }
 
             cipherBytes = cipher.doFinal(encrypted, 0);
-            output.write(encrypted, 0, cipherBytes);
+            out.write(encrypted, 0, cipherBytes);
 
         } catch (GeneralSecurityException e) {
             throw new EncryptionException("Failed to encrypt a file", e);
