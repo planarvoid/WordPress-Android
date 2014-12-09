@@ -75,10 +75,10 @@ public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
         @Override
         public void onError(Throwable error) {
             if (error instanceof ApiRequestException) {
-                boolean commsError = ((ApiRequestException) error).reason() == ApiRequestException.Reason.NETWORK_ERROR;
-                updateEmptyViewStatus(commsError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
+                boolean networkError = ((ApiRequestException) error).reason() == ApiRequestException.Reason.NETWORK_ERROR;
+                updateEmptyViewStatus(networkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
             } else {
-                updateEmptyViewStatus(EmptyView.Status.ERROR);
+                super.onError(error);
             }
         }
     }

@@ -7,7 +7,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.exceptions.OnErrorNotImplementedException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -54,10 +53,8 @@ public class ErrorUtils {
         if (Crashlytics.getInstance().isInitialized()) {
             Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
-        if (t instanceof OnErrorNotImplementedException) {
-            throw new FatalException(t.getCause());
-        } else if (t instanceof RuntimeException || t instanceof Error) {
-            throw new OnErrorNotImplementedException(t);
+        if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
         } else if (!excludeFromReports(t)) {
             // don't rethrow checked exceptions
             handleSilentException(t);
@@ -128,10 +125,4 @@ public class ErrorUtils {
         return false;
     }
 
-    // we use this exception to signal fatal conditions that should crash the app
-    public static class FatalException extends RuntimeException {
-        public FatalException(Throwable throwable) {
-            super(throwable);
-        }
-    }
 }

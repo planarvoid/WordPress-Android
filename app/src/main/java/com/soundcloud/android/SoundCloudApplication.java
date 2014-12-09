@@ -28,7 +28,6 @@ import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.GeneralSettings;
@@ -46,7 +45,6 @@ import com.soundcloud.android.utils.MemoryReporter;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
-import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -120,7 +118,6 @@ public class SoundCloudApplication extends Application {
 
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
-        registerRxGlobalErrorHandler();
         objectGraph.inject(this);
 
         // reroute to a static field for legacy code
@@ -183,13 +180,6 @@ public class SoundCloudApplication extends Application {
         if (isReportingCrashes()) {
             Crashlytics.start(this);
             ErrorUtils.setupOOMInterception(memoryReporter);
-        }
-    }
-
-    private void registerRxGlobalErrorHandler() {
-        final RxJavaPlugins rxJavaPlugins = RxJavaPlugins.getInstance();
-        if (rxJavaPlugins.getErrorHandler() == null) {
-            rxJavaPlugins.registerErrorHandler(new RxGlobalErrorHandler());
         }
     }
 
