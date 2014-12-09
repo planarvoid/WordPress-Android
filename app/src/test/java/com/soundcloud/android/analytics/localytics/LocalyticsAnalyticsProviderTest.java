@@ -9,9 +9,9 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.BufferUnderrunEvent;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.Urn;
@@ -108,7 +108,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldTrackBufferUnderrunEvent() {
-        BufferUnderrunEvent event = new BufferUnderrunEvent(PlaybackPerformanceEvent.ConnectionType.FOUR_G, true);
+        BufferUnderrunEvent event = new BufferUnderrunEvent(ConnectionType.FOUR_G, "player", true);
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Buffer Underrun"), eq(event.getAttributes()));
@@ -116,7 +116,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldTrackSkippyPlayEvent() {
-        SkippyPlayEvent event = new SkippyPlayEvent(PlaybackPerformanceEvent.ConnectionType.FOUR_G, true);
+        SkippyPlayEvent event = new SkippyPlayEvent(ConnectionType.FOUR_G, true);
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Skippy Play"), eq(event.getAttributes()));

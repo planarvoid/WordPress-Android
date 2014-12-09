@@ -15,7 +15,7 @@ public class TestEvents {
     public static PlaybackSessionEvent playbackSessionPlayEventWithProgress(int playbackProgress) {
         return PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L)),
-                Urn.forUser(1), "hls", new TrackSourceInfo("screen", false), playbackProgress, 1000L);
+                Urn.forUser(1), new TrackSourceInfo("screen", false), playbackProgress, 1000L, "hls", "playa", "3g");
     }
 
     public static PlaybackSessionEvent playbackSessionStopEvent() throws CreateModelException {
@@ -30,8 +30,8 @@ public class TestEvents {
         PlaybackSessionEvent previousPlayEvent = playbackSessionPlayEvent();
         return PlaybackSessionEvent.forStop(
                 TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L)),
-                Urn.forUser(1), "hls", new TrackSourceInfo("screen", false),
-                previousPlayEvent, stopReason, 0, 1000L);
+                Urn.forUser(1), new TrackSourceInfo("screen", false), previousPlayEvent, 0, 1000L, "hls", "playa", "3g", stopReason
+        );
 
     }
 

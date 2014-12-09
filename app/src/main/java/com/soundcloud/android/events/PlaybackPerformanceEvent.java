@@ -88,36 +88,4 @@ public final class PlaybackPerformanceEvent {
         return urn;
     }
 
-    public enum ConnectionType {
-        TWO_G("2G"),
-        THREE_G("3G"),
-        FOUR_G("4g"),
-        WIFI("wifi"),
-        UNKNOWN("unknown");
-        private final String value;
-
-        ConnectionType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-    }
-
-    public enum PlayerType {
-        SKIPPY("Skippy"), MEDIA_PLAYER("MediaPlayer");
-
-        private final String value;
-
-        PlayerType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
 }

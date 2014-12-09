@@ -101,8 +101,10 @@ public class PlaybackSessionAnalyticsController {
             public PlaybackSessionEvent call(PropertySet track) {
                 final Urn loggedInUserUrn = accountOperations.getLoggedInUserUrn();
                 final long progress = stateTransition.getProgress().position;
-                final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
-                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, protocol, currentTrackSourceInfo, progress);
+                final String protocol = getProtocol(stateTransition);
+                final String playerType = getPlayerType(stateTransition);
+                final String connectionType = getConnectionType(stateTransition);
+                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo, progress, protocol, playerType, connectionType);
                 if (adsOperations.isCurrentTrackAudioAd()) {
                     lastPlayAudioAd = playQueueManager.getCurrentMetaData();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
@@ -130,9 +132,10 @@ public class PlaybackSessionAnalyticsController {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
                 final long progress = stateTransition.getProgress().position;
-                final String protocol = stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
-                PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(), protocol,
-                        currentTrackSourceInfo, lastPlayEventData, stopReason, progress);
+                final String protocol = getProtocol(stateTransition);
+                final String playerType = getPlayerType(stateTransition);
+                final String connectionType = getConnectionType(stateTransition);
+                PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(), currentTrackSourceInfo, lastPlayEventData, progress, protocol, playerType, connectionType, stopReason);
 
                 if (lastPlayAudioAd != null) {
                     stopEvent = stopEvent.withAudioAd(lastPlayAudioAd);
@@ -140,5 +143,18 @@ public class PlaybackSessionAnalyticsController {
                 return stopEvent;
             }
         };
+    }
+
+    private String getPlayerType(Playa.StateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE);
+    }
+
+
+    private String getConnectionType(Playa.StateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_CONNECTION_TYPE);
+    }
+
+    private String getProtocol(Playa.StateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
     }
 }

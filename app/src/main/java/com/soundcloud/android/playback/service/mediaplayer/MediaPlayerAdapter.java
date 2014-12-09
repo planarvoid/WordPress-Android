@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import com.soundcloud.android.events.PlayerType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -10,6 +10,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.playback.streaming.StreamProxy;
@@ -53,6 +54,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final AccountOperations accountOperations;
+    private final BufferUnderrunListener bufferUnderrunListener;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
@@ -75,10 +77,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager, StreamProxy streamProxy,
                               PlayerHandler playerHandler, EventBus eventBus, NetworkConnectionHelper networkConnectionHelper,
-                              AccountOperations accountOperations) {
+                              AccountOperations accountOperations, BufferUnderrunListener bufferUnderrunListener) {
+        this.bufferUnderrunListener = bufferUnderrunListener;
         this.context = context.getApplicationContext();
         this.mediaPlayerManager = mediaPlayerManager;
-        proxy = streamProxy;
+        this.proxy = streamProxy;
         this.playerHandler = playerHandler;
         this.eventBus = eventBus;
         this.playerHandler.setMediaPlayerAdapter(this);
@@ -367,7 +370,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         if (playaListener != null) {
             final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), getTrackUrn(), progress, duration);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
+            stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
+            stateTransition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
             playaListener.onPlaystateChanged(stateTransition);
+            bufferUnderrunListener.onPlaystateChanged(stateTransition);
         }
     }
 
@@ -458,6 +465,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                     playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
                     seekPos = newPos;
                     waitingForSeek = true;
+                    bufferUnderrunListener.onSeek();
                     mediaPlayer.seekTo((int) newPos);
                 }
                 return newPos;

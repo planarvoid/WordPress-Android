@@ -1,7 +1,9 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+
+import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static org.mockito.Matchers.any;
@@ -21,6 +23,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.StreamPlaya;
@@ -67,6 +70,7 @@ public class MediaPlayerAdapterTest {
     @Mock private StreamPlaya.PlayaListener listener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private AccountOperations accountOperations;
+    @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private PropertySet track;
@@ -78,7 +82,7 @@ public class MediaPlayerAdapterTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         track = TestPropertySets.expectedTrackForPlayer();
         streamUrlWithId = track.get(TrackProperty.STREAM_URL) + "?track_id="+ track.get(TrackProperty.URN).getNumericId();
         streamUriWithId = Uri.parse(streamUrlWithId);
@@ -91,22 +95,23 @@ public class MediaPlayerAdapterTest {
         when(listener.requestAudioFocus()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, streamProxy, playerHandler, eventBus, networkConnectionHelper, accountOperations);
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
+        mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, streamProxy, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener);
         mediaPlayerAdapter.setListener(listener);
     }
 
     @Test
-    public void constructorShouldStartProxy() throws Exception {
+    public void constructorShouldStartProxy() {
         verify(streamProxy).start();
     }
 
     @Test
-    public void constructorSetsPlayerListener() throws Exception {
+    public void constructorSetsPlayerListener() {
         verify(playerHandler).setMediaPlayerAdapter(mediaPlayerAdapter);
     }
 
     @Test
-    public void playUrlShouldCreateConfiguredMediaPlayer() throws Exception {
+    public void playUrlShouldCreateConfiguredMediaPlayer() {
         mediaPlayerAdapter.play(track);
         verify(mediaPlayerManager).create();
         verify(mediaPlayer).setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
@@ -120,7 +125,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void playUrlShouldCallBufferingState() throws Exception {
+    public void playUrlShouldCallBufferingState() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn(duration);
         mediaPlayerAdapter.play(track);
@@ -129,14 +134,14 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void preparedListenerShouldStartPlayback() throws Exception {
+    public void preparedListenerShouldStartPlayback() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer).start();
     }
 
     @Test
-    public void preparedListenerShouldNotStartPlaybackIfFocusNotGranted() throws Exception {
+    public void preparedListenerShouldNotStartPlaybackIfFocusNotGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -144,7 +149,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void preparedListenerShouldCallStatesBufferingToPlaying() throws Exception {
+    public void preparedListenerShouldCallStatesBufferingToPlaying() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
 
         mediaPlayerAdapter.play(track);
@@ -156,7 +161,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void shouldAddStreamingProtocolToPlayStateEvent() throws Exception {
+    public void shouldAddStreamingProtocolToPlayStateEvent() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
 
         mediaPlayerAdapter.play(track);
@@ -167,8 +172,8 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void preparedListenerShouldReportTimeToPlay() throws Exception {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(PlaybackPerformanceEvent.ConnectionType.TWO_G);
+    public void preparedListenerShouldReportTimeToPlay() {
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         mediaPlayerAdapter.play(track, 123L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
@@ -178,26 +183,26 @@ public class MediaPlayerAdapterTest {
         expect(event.getCdnHost()).toEqual(track.get(TrackProperty.STREAM_URL));
         expect(event.getPlayerType()).toEqual(PlayerType.MEDIA_PLAYER);
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HTTPS);
-        expect(event.getConnectionType()).toEqual(PlaybackPerformanceEvent.ConnectionType.TWO_G);
+        expect(event.getConnectionType()).toEqual(ConnectionType.TWO_G);
         expect(event.getUserUrn()).toEqual(userUrn);
     }
 
     @Test
-    public void playUrlShouldResetAndReuseOldMediaPlayer() throws Exception {
+    public void playUrlShouldResetAndReuseOldMediaPlayer() {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.play(track);
         verify(mediaPlayer).reset();
     }
 
     @Test
-    public void pauseShouldStopReleaseMediaPlayerIfPausedWhilePreparing() throws Exception {
+    public void pauseShouldStopReleaseMediaPlayerIfPausedWhilePreparing() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.pause();
         verify(mediaPlayerManager).stopAndRelease(mediaPlayer);
     }
 
     @Test
-    public void pauseNotifyIdleStateIfPausedWhilePreparing() throws Exception {
+    public void pauseNotifyIdleStateIfPausedWhilePreparing() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.pause();
 
@@ -207,7 +212,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void playUrlShouldSubscribeToProxyObservable() throws Exception {
+    public void playUrlShouldSubscribeToProxyObservable() throws IOException {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         verify(mediaPlayer).setDataSource(streamUrlWithId);
@@ -345,7 +350,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void seekRemovesSeekPosClearingThroughHandlerThroughHandler() throws Exception {
+    public void seekRemovesSeekPosClearingThroughHandlerThroughHandler() {
         playUrlAndSetPrepared();
 
         mediaPlayerAdapter.seek(456l);
@@ -354,7 +359,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void playUrlShouldSetErrorStateIfProxyObservableCallsOnError() throws Exception {
+    public void playUrlShouldSetErrorStateIfProxyObservableCallsOnError() {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
         mediaPlayerAdapter.play(track);
 
@@ -364,7 +369,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void playUrlShouldSetErrorStateWithNotFoundIfProxyObservableCallsOnErrorWhileConnected() throws Exception {
+    public void playUrlShouldSetErrorStateWithNotFoundIfProxyObservableCallsOnErrorWhileConnected() {
         when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
         mediaPlayerAdapter.play(track);
@@ -375,7 +380,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void playUrlShouldRetryMaxTimesIfMediaPlayerFailsToPrepare() throws Exception {
+    public void playUrlShouldRetryMaxTimesIfMediaPlayerFailsToPrepare() throws IOException {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         Mockito.doThrow(new IOException()).when(mediaPlayer).setDataSource(any(String.class));
         mediaPlayerAdapter.play(track);
@@ -386,21 +391,21 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void playUrlSetsDataSourceOnMediaPlayer() throws Exception {
+    public void playUrlSetsDataSourceOnMediaPlayer() throws IOException {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         verify(mediaPlayer).setDataSource(streamUriWithId.toString());
     }
 
     @Test
-    public void playUrlCallsPrepareAsyncOnMediaPlayer() throws Exception {
+    public void playUrlCallsPrepareAsyncOnMediaPlayer() {
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.just(streamUriWithId));
         mediaPlayerAdapter.play(track);
         verify(mediaPlayer).prepareAsync();
     }
 
     @Test
-    public void playUrlUnsubscribesFromPreviousProxySubscription() throws Exception {
+    public void playUrlUnsubscribesFromPreviousProxySubscription() {
         final Subscription subscription = Mockito.mock(Subscription.class);
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(TestObservables.<Uri>endlessObservablefromSubscription(subscription));
         mediaPlayerAdapter.play(track);
@@ -409,7 +414,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void stopUnsubscribesFromPreviousProxySubscription() throws Exception {
+    public void stopUnsubscribesFromPreviousProxySubscription() {
         final Subscription subscription = Mockito.mock(Subscription.class);
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(TestObservables.<Uri>endlessObservablefromSubscription(subscription));
         mediaPlayerAdapter.play(track);
@@ -483,7 +488,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() throws Exception {
+    public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         when(mediaPlayer.getDuration()).thenReturn(duration);
@@ -495,7 +500,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onSeekCompleteShouldPauseIfInPauseState() throws Exception {
+    public void onSeekCompleteShouldPauseIfInPauseState() {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.pause();
         Mockito.reset(mediaPlayer);
@@ -506,7 +511,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onSeekCompleteShouldNotPauseIfInTrackComplete() throws Exception {
+    public void onSeekCompleteShouldNotPauseIfInTrackComplete() {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.onTrackEnded();
         Mockito.reset(mediaPlayer);
@@ -517,7 +522,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onSeekCompleteShouldNotStartMediaPlayerIfTrackComplete() throws Exception {
+    public void onSeekCompleteShouldNotStartMediaPlayerIfTrackComplete() {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.onTrackEnded();
         Mockito.reset(mediaPlayer);
@@ -528,7 +533,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onSeekCompleteShouldPauseAndPlayMediaPlayerIfInPlayStateOnKitKat() throws Exception {
+    public void onSeekCompleteShouldPauseAndPlayMediaPlayerIfInPlayStateOnKitKat() {
         TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN + 1);
         playUrlAndSetPrepared();
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
@@ -538,7 +543,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onSeekCompletePublishesPlayingEventIfNotPaused() throws Exception {
+    public void onSeekCompletePublishesPlayingEventIfNotPaused() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
 
@@ -549,7 +554,7 @@ public class MediaPlayerAdapterTest {
 
 
     @Test
-    public void onSeekCompletePublishesPlayingEventWithAdjustedPosition() throws Exception {
+    public void onSeekCompletePublishesPlayingEventWithAdjustedPosition() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(duration + 1);
 
@@ -559,7 +564,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onSeekCompleteShouldClearSeekPosThroughHandler() throws Exception {
+    public void onSeekCompleteShouldClearSeekPosThroughHandler() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
@@ -569,13 +574,13 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void stopShouldDoNothingWithIncorrectMediaPlayer() throws Exception {
+    public void stopShouldDoNothingWithIncorrectMediaPlayer() {
         mediaPlayerAdapter.stop(mediaPlayer);
         verifyZeroInteractions(listener);
     }
 
     @Test
-    public void onBufferingListenerClearsSeekMessageThroughHandlerWhenBuffering() throws Exception {
+    public void onBufferingListenerClearsSeekMessageThroughHandlerWhenBuffering() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
@@ -584,7 +589,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onBufferingListenerSetsBufferingStateWhenBuffering() throws Exception {
+    public void onBufferingListenerSetsBufferingStateWhenBuffering() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
@@ -592,7 +597,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onBufferingListenerClearsSeekPosThroughHandlerWhenBufferingComplete() throws Exception {
+    public void onBufferingListenerClearsSeekPosThroughHandlerWhenBufferingComplete() {
         playUrlAndSetPrepared();
 
         mediaPlayerAdapter.seek(456l);
@@ -609,7 +614,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onBufferingListenerPausesWhenNotPlayingInOnBufferingComplete() throws Exception {
+    public void onBufferingListenerPausesWhenNotPlayingInOnBufferingComplete() {
         playUrlAndSetPrepared();
 
         mediaPlayerAdapter.pause();
@@ -619,7 +624,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void shouldSetStateToPlayingAfterBufferingCompletes() throws Exception {
+    public void shouldSetStateToPlayingAfterBufferingCompletes() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
@@ -627,20 +632,20 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void stopDoesNothingWithNoMediaPlayer() throws Exception {
+    public void stopDoesNothingWithNoMediaPlayer() {
         mediaPlayerAdapter.stop();
         verifyZeroInteractions(listener);
     }
 
     @Test
-    public void stopDoesNothingIfNotStoppable() throws Exception {
+    public void stopDoesNothingIfNotStoppable() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer, never()).stop();
     }
 
     @Test
-    public void stopCallsStopAndSetsIdleStateIfStoppable() throws Exception {
+    public void stopCallsStopAndSetsIdleStateIfStoppable() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
@@ -649,14 +654,14 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void shouldNotSeekIfPlayFromPositionIsZero() throws Exception {
+    public void shouldNotSeekIfPlayFromPositionIsZero() {
         mediaPlayerAdapter.play(track, 0L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer, never()).seekTo(anyInt());
     }
 
     @Test
-    public void shouldResumePlaybackAtSpecifiedTime() throws Exception {
+    public void shouldResumePlaybackAtSpecifiedTime() {
         when(mediaPlayer.getDuration()).thenReturn(duration);
 
         mediaPlayerAdapter.play(track, 123L);
@@ -669,33 +674,33 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void setVolumeDoesNothingWithNoPlayer() throws Exception {
+    public void setVolumeDoesNothingWithNoPlayer() {
         mediaPlayerAdapter.setVolume(1.0f);
         verifyZeroInteractions(mediaPlayer);
     }
 
     @Test
-    public void setVolumeSetsVolumeOnPlayer() throws Exception {
+    public void setVolumeSetsVolumeOnPlayer() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.setVolume(1.0f);
         verify(mediaPlayer).setVolume(1.0f, 1.0f);
     }
 
     @Test
-    public void destroyShouldCallStop() throws Exception {
+    public void destroyShouldCallStop() {
         playUrlAndSetPrepared();
         mediaPlayerAdapter.destroy();
         verify(mediaPlayer).stop();
     }
 
     @Test
-    public void destroyShouldClearHandler() throws Exception {
+    public void destroyShouldClearHandler() {
         mediaPlayerAdapter.destroy();
         verify(playerHandler).removeCallbacksAndMessages(null);
     }
 
     @Test
-    public void destroyShouldStopProxy() throws Exception {
+    public void destroyShouldStopProxy() {
         when(streamProxy.isRunning()).thenReturn(true);
         mediaPlayerAdapter.destroy();
         verify(streamProxy).stop();
@@ -707,6 +712,15 @@ public class MediaPlayerAdapterTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(accountOperations, never()).getLoggedInUserUrn();
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+    }
+
+    @Test
+    public void shouldNotSendBufferUnderrunEventWhenBufferingInitially() {
+        playUrlAndSetPrepared();
+        when(mediaPlayer.getCurrentPosition()).thenReturn(0);
+        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+
+        expect(eventBus.eventsOn(EventQueue.TRACKING)).toBeEmpty();
     }
 
     @Test

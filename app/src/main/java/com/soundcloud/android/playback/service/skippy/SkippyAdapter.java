@@ -2,8 +2,6 @@ package com.soundcloud.android.playback.service.skippy;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
@@ -14,14 +12,17 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
-import com.soundcloud.android.events.BufferUnderrunEvent;
+import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
@@ -32,7 +33,6 @@ import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,6 +59,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final ApiUrlBuilder urlBuilder;
     private final NetworkConnectionHelper connectionHelper;
     private final DeviceHelper deviceHelper;
+    private final BufferUnderrunListener bufferUnderrunListener;
 
     private volatile String currentStreamUrl;
     private Urn currentTrackUrn;
@@ -68,16 +69,18 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
-                  LockUtil lockUtil, DeviceHelper deviceHelper) {
+                  LockUtil lockUtil, DeviceHelper deviceHelper, BufferUnderrunListener bufferUnderrunListener) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
-        skippy = skippyFactory.create(this);
+        this.bufferUnderrunListener = bufferUnderrunListener;
+        this.skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.urlBuilder = urlBuilder;
-        stateHandler = stateChangeHandler;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
         this.deviceHelper = deviceHelper;
+        this.stateHandler = stateChangeHandler;
+        this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
     }
 
     public boolean init(Context context) {
@@ -114,7 +117,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         if (!playaListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            playaListener.onPlaystateChanged(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION)));
+            final StateTransition stateTransition = new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, track.get(PlayableProperty.DURATION));
+            playaListener.onPlaystateChanged(stateTransition);
+            bufferUnderrunListener.onPlaystateChanged(stateTransition);
             return;
         }
 
@@ -170,6 +175,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public long seek(long position, boolean performSeek) {
         if (performSeek) {
+            bufferUnderrunListener.onSeek();
             skippy.seek(position);
             if (playaListener != null){
                 playaListener.onProgressEvent(position, skippy.getDuration());
@@ -205,7 +211,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void setListener(PlayaListener playaListener) {
         this.playaListener = playaListener;
-        stateHandler.setPlayaListener(playaListener);
+        this.stateHandler.setPlayaListener(playaListener);
     }
 
     @Override
@@ -237,7 +243,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration);
+            final boolean shouldUseLocks = shouldUseLocks();
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
+            transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
+            transition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(shouldUseLocks));
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;
@@ -246,14 +256,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
 
-            final boolean shouldUseLocks = shouldUseLocks();
             if (shouldUseLocks){
                 configureLockBasedOnNewState(transition);
-            }
-
-            if (transition.isBuffering() && position > 0){
-                ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-                eventBus.publish(EventQueue.TRACKING, new BufferUnderrunEvent(currentConnectionType, shouldUseLocks));
             }
         }
     }
@@ -373,8 +377,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     static class StateChangeHandler extends Handler {
 
-        @Nullable
-        private PlayaListener playaListener;
+        @Nullable private PlayaListener playaListener;
+        @Nullable private BufferUnderrunListener bufferUnderrunListener;
 
         @Inject
         StateChangeHandler(@Named("MainLooper") Looper looper) {
@@ -385,10 +389,18 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             this.playaListener = playaListener;
         }
 
+        public void setBufferUnderrunListener(BufferUnderrunListener bufferUnderrunListener) {
+            this.bufferUnderrunListener = bufferUnderrunListener;
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            final StateTransition stateTransition = (StateTransition) msg.obj;
             if (playaListener != null) {
-                playaListener.onPlaystateChanged((StateTransition) msg.obj);
+                playaListener.onPlaystateChanged(stateTransition);
+            }
+            if (bufferUnderrunListener != null) {
+                bufferUnderrunListener.onPlaystateChanged(stateTransition);
             }
         }
     }
@@ -417,4 +429,5 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             return stack;
         }
     }
+
 }
