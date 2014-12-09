@@ -3,7 +3,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 
-public class AuthTaskResult {
+public final class AuthTaskResult {
     public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
         return new AuthTaskResult(user, signupVia, showFacebookSuggestions);
     }
