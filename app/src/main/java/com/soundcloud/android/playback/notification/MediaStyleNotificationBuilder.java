@@ -110,7 +110,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setCreatorName(String creatorName) {
+    public void setHeader(String creatorName) {
         builder.setContentTitle(creatorName);
     }
 

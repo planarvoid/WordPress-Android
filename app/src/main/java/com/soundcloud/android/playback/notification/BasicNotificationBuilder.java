@@ -48,7 +48,7 @@ public class BasicNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setCreatorName(String creatorName) {
+    public void setHeader(String creatorName) {
         builder.setContentText(creatorName);
     }
 
