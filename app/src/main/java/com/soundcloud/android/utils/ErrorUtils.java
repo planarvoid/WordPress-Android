@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
-public class ErrorUtils {
+public final class ErrorUtils {
 
     public static final String ERROR_CONTEXT_TAG = "error-context";
     private static final String OOM_TREND_LABEL = "OOM Trend";
