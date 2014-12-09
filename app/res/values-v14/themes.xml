@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
-        <item name="android:actionBarItemBackground">@drawable/item_background_dark</item>
+    <style name="Theme.SoundCloud" parent="BaseTheme">
         <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
         <item name="android:actionDropDownStyle">@style/DropDownNav</item>
-        <item name="android:actionBarStyle">@style/ActionBar.SoundCloud</item>
-
         <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
-
-        <!-- Light.DarkActionBar specific -->
-        <item name="android:actionBarWidgetTheme">@style/Theme.SoundCloud.Widget</item>
     </style>
 
-    <style name="Theme.SoundCloud.Widget">
+    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
     </style>
