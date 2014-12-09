@@ -1,72 +1,107 @@
 package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
+import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
+import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
+import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
-import org.apache.http.HttpStatus;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.MockWebServer;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.net.HttpURLConnection;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackingApiTest {
 
-    private final String eventUrl = "http://some_url.com";
-    private final TrackingRecord event = new TrackingRecord(1L, 1000L, "backend", eventUrl);
-
+    private TrackingRecord event;
     private TrackingApi trackingApi;
 
-    @Mock private HttpURLConnection connection;
-    @Mock private HttpURLConnection badConnection;
-    @Mock private TrackingApiConnectionFactory connectionFactory;
+    private OkHttpClient httpClient = new OkHttpClient();
+    private MockWebServer mockWebServer = new MockWebServer();
+    private String fakeUrl;
+
     @Mock private DeviceHelper deviceHelper;
 
     @Before
-    public void setup() {
-        trackingApi = new TrackingApi(connectionFactory, deviceHelper);
+    public void setup() throws IOException {
+        trackingApi = new TrackingApi(httpClient, deviceHelper);
+        mockWebServer.play();
+        fakeUrl = mockWebServer.getUrl("").toString();
+        event = new TrackingRecord(1L, 1000L, "backend", fakeUrl);
+        when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android");
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        mockWebServer.shutdown();
     }
 
     @Test
     public void shouldTreatEntire2xxTo4xxStatusRangeAsSuccessSoWeDoNotRetryClientErrors() throws Exception {
-        final String badUrl = "http://some_bad_url.com";
-        TrackingRecord failedEvent = new TrackingRecord(2L, 1000L, "backend", badUrl);
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+        mockWebServer.enqueue(new MockResponse().setResponseCode(499));
+        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
+        TrackingRecord failedEvent = new TrackingRecord(2L, 1000L, "backend", fakeUrl);
 
-        when(connection.getResponseCode()).thenReturn(200, 499, 500);
-        when(badConnection.getResponseCode()).thenReturn(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-
-        when(connectionFactory.create(event)).thenReturn(connection);
-        when(connectionFactory.create(failedEvent)).thenReturn(badConnection);
-
-        List<TrackingRecord> successes = trackingApi.pushToRemote(Lists.newArrayList(event, event, failedEvent));
+        List<TrackingRecord> successes = trackingApi.pushToRemote(Arrays.asList(event, event, failedEvent));
         expect(successes).toNumber(2);
         expect(successes.get(0).getId()).toEqual(1L);
         expect(successes.get(1).getId()).toEqual(1L);
     }
 
     @Test
-    public void shouldSetConnectionParams() throws Exception {
-        when(connectionFactory.create(event)).thenReturn(connection);
-        when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
+    public void shouldSetUserAgentHeader() throws Exception {
+        mockWebServer.enqueue(new MockResponse());
 
-        trackingApi.pushToRemote(Lists.newArrayList(event));
-        verify(connection).setRequestProperty("User-Agent", "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
-        verify(connection).setConnectTimeout(anyInt());
-        verify(connection).setReadTimeout(anyInt());
+        trackingApi.pushToRemote(Arrays.asList(event));
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getHeaders("User-Agent").get(0)).toEqual("SoundCloud-Android");
     }
 
     @Test
-    public void shouldDisconectConnection() throws Exception {
-        when(connectionFactory.create(event)).thenReturn(connection);
-        trackingApi.pushToRemote(Lists.newArrayList(event));
-        verify(connection).disconnect();
+    public void shouldBuildHEADRequestForEventLogger() throws Exception {
+        mockWebServer.enqueue(new MockResponse());
+        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, fakeUrl);
+
+        trackingApi.pushToRemote(Arrays.asList(event));
+
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getMethod()).toEqual("HEAD");
+    }
+
+    @Test
+    public void shouldBuildGETRequestForPromoted() throws Exception {
+        mockWebServer.enqueue(new MockResponse());
+        TrackingRecord event = new TrackingRecord(1L, PromotedAnalyticsProvider.BACKEND_NAME, fakeUrl);
+
+        trackingApi.pushToRemote(Arrays.asList(event));
+
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getMethod()).toEqual("GET");
+    }
+
+    @Test
+    public void shouldBuildPOSTRequestForPublicApiPlayCounts() throws Exception {
+        mockWebServer.enqueue(new MockResponse());
+        TrackingRecord event = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, fakeUrl);
+
+        trackingApi.pushToRemote(Arrays.asList(event));
+
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        expect(recordedRequest.getMethod()).toEqual("POST");
+        expect(recordedRequest.getBody().length).toEqual(0);
+        expect(recordedRequest.getHeader("Content-Length")).toEqual("0");
     }
 }

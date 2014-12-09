@@ -1,5 +1,6 @@
 package com.soundcloud.android.api.oauth;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.HttpProperties;
 import org.apache.http.Header;
@@ -55,7 +56,7 @@ public class OAuth {
                 accountOperations.getSoundCloudToken());
     }
 
-    @Deprecated // remove along with ApiWrapper
+    @VisibleForTesting
     public OAuth(String clientId, String clientSecret, @Nullable Token token) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
