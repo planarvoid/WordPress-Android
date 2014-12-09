@@ -1,12 +1,12 @@
 package com.soundcloud.android.cast;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.google.sample.castcompanionlibrary.cast.callbacks.IVideoCastConsumer;
 import com.soundcloud.android.cast.CastConnectionHelper.CastConnectionListener;
-import com.soundcloud.android.cast.DefaultCastConnectionHelper.CastConsumer;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class DefaultCastConnectionHelperTest {
     @Mock private Context context;
     @Mock private VideoCastManager videoCastmanager;
     @Mock private CastConnectionListener castConnectionListener;
-    @Captor private ArgumentCaptor<CastConsumer> castConsumerCaptor;
+    @Captor private ArgumentCaptor<IVideoCastConsumer> castConsumerCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -64,7 +64,7 @@ public class DefaultCastConnectionHelperTest {
 
         captureVideoCastConsumer().onApplicationConnected(null, null, false);
 
-        verify(castConnectionListener).onConnectedToReceiverApp();
+        verify(castConnectionListener, never()).onConnectedToReceiverApp();
     }
 
     private IVideoCastConsumer captureVideoCastConsumer() {

@@ -87,6 +87,13 @@
 
     <style name="PlayerLike" parent="PlayerLikeBase"/>
 
+    <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
     <style name="PlayerMoreBase">
         <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>

@@ -4,6 +4,7 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.common.images.WebImage;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.google.sample.castcompanionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.google.sample.castcompanionlibrary.cast.exceptions.CastException;
@@ -17,6 +18,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Resources;
@@ -27,6 +29,9 @@ import javax.inject.Singleton;
 
 @Singleton
 public class CastPlayer extends VideoCastConsumerImpl implements Playa, ProgressReporter.ProgressPusher {
+    @VisibleForTesting
+    static final String KEY_URN = "urn";
+
     private final static String TAG = "CastPlayer";
 
     private final VideoCastManager castManager;
@@ -68,7 +73,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
     }
 
     public void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
-        Log.d(TAG, "New player state and reason "+ playerState + " " + idleReason);
+        Log.d(TAG, "New player state and reason " + playerState + " " + idleReason);
         if (playaListener == null){
             return;
         }
@@ -159,29 +164,61 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
 
     @Override
     public void play(PropertySet track, long fromPos) {
-        currentTrackUrn = track.get(TrackProperty.URN);
-        shouldBePlaying = true;
+        final Urn urn = track.get(TrackProperty.URN);
+        if (isCurrentlyLoadedInPlayer(urn)){
+            reconnectToExistingSession(urn);
 
-        try {
-            MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-            mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.get(TrackProperty.TITLE));
-            mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.get(TrackProperty.CREATOR_NAME));
-            mediaMetadata.addImage(new WebImage(Uri.parse(imageOperations.getUrlForLargestImage(resources, currentTrackUrn))));
+        } else {
 
-            final String streamUrlWithClientId = getStreamUrlWithClientId(track);
-            MediaInfo mediaInfo = new MediaInfo.Builder(streamUrlWithClientId)
-                    .setContentType("audio/mpeg")
-                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                    .setMetadata(mediaMetadata)
-                    .build();
+            currentTrackUrn = urn;
+            shouldBePlaying = true;
 
-            reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN)));
-            castManager.loadMedia(mediaInfo, true, (int) fromPos);
+            try {
+                MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
+                mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.get(TrackProperty.TITLE));
+                mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.get(TrackProperty.CREATOR_NAME));
+                mediaMetadata.putString(KEY_URN, urn.toString());
+                mediaMetadata.addImage(new WebImage(Uri.parse(imageOperations.getUrlForLargestImage(resources, currentTrackUrn))));
 
-        } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(TAG, "Unable to load track", e);
-            e.printStackTrace();
+                final String streamUrlWithClientId = getStreamUrlWithClientId(track);
+                MediaInfo mediaInfo = new MediaInfo.Builder(streamUrlWithClientId)
+                        .setContentType("audio/mpeg")
+                        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                        .setMetadata(mediaMetadata)
+                        .build();
+
+                reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, urn));
+                castManager.loadMedia(mediaInfo, true, (int) fromPos);
+
+            } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
+                Log.e(TAG, "Unable to load track", e);
+            }
         }
+    }
+
+    private boolean isCurrentlyLoadedInPlayer(Urn urn) {
+        final Urn currentPlayingUrn = getCurrentPlayingUrn();
+        return currentPlayingUrn != Urn.NOT_SET && currentPlayingUrn.equals(urn);
+    }
+
+    private Urn getCurrentPlayingUrn(){
+        MediaInfo mediaInfo = getCurrentRemoteMediaInfo();
+        return mediaInfo == null ? Urn.NOT_SET : getUrnFromMediaMetadata(mediaInfo);
+    }
+
+    @Nullable
+    private MediaInfo getCurrentRemoteMediaInfo(){
+        try {
+            return castManager.getRemoteMediaInformation();
+        } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
+            Log.e(TAG, "Unable to get remote media information", e);
+        }
+        return null;
+    }
+
+    private void reconnectToExistingSession(Urn currentPlayingUrn) {
+        currentTrackUrn = currentPlayingUrn;
+        onMediaPlayerStatusUpdatedListener(castManager.getPlaybackStatus(), castManager.getIdleReason());
     }
 
     private String getStreamUrlWithClientId(PropertySet track) {
@@ -275,5 +312,10 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
     public boolean isNotSeekablePastBuffer() {
         return false;
     }
+
+    public static Urn getUrnFromMediaMetadata(@NotNull MediaInfo mediaInfo){
+        return new Urn(mediaInfo.getMetadata().getString(CastPlayer.KEY_URN));
+    }
+
 
 }

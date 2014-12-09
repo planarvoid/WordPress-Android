@@ -213,6 +213,8 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties){
-        return VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), null, "urn:x-cast:com.soundcloud.cast.sender");
+        final VideoCastManager initialize = VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), null, "urn:x-cast:com.soundcloud.cast.sender");
+        initialize.enableFeatures(VideoCastManager.FEATURE_LOCKSCREEN | VideoCastManager.FEATURE_DEBUGGING);
+        return initialize;
     }
 }

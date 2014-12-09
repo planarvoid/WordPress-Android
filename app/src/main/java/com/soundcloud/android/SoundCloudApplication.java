@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.cast.CastSessionReconnector;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
@@ -93,6 +94,7 @@ public class SoundCloudApplication extends Application {
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
+    @Inject CastSessionReconnector castSessionReconnector;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -157,6 +159,10 @@ public class SoundCloudApplication extends Application {
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
         adsController.subscribe();
+
+        if (featureFlags.isEnabled(Feature.GOOGLE_CAST)){
+            castSessionReconnector.startListening();
+        }
     }
 
     private void generateDeviceKey() {
