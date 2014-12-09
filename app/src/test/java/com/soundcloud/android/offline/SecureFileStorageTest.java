@@ -1,30 +1,38 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.google.common.base.Charsets;
+import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.utils.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SecureFileStorageTest {
 
+    @Mock private CryptoOperations operations;
+    @Mock private InputStream inputStream;
+
     private SecureFileStorage storage;
-    private final String testContent = "content";
+    private final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Before
     public void setUp() throws Exception {
-        storage = new SecureFileStorage();
+        storage = new SecureFileStorage(operations);
+        when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
     }
 
     @Test
@@ -33,31 +41,33 @@ public class SecureFileStorageTest {
     }
 
     @Test
-    public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException {
-        File file = new File(storage.OFFLINE_DIR, "track124.mp3");
-        SecureFileStorage otherStorage = new SecureFileStorage();
+    public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException, EncryptionException {
+        final SecureFileStorage otherStorage = new SecureFileStorage(operations);
 
-        otherStorage.storeTrack(Urn.forTrack(124), sampleDataStream());
-
-        expect(file.exists()).toBeTrue();
+        expect(otherStorage.createDirectoryIfNeeded()).toBeTrue();
     }
 
     @Test
-    public void storeTrackSavesDataToAFile() throws IOException {
-        File file = new File(storage.OFFLINE_DIR, "track123.mp3");
-        InputStream someData = sampleDataStream();
+    public void storeTrackGeneratesFileNameFromTrackUrn() throws IOException, EncryptionException {
+        storage.storeTrack(TRACK_URN, inputStream);
 
-        storage.storeTrack(Urn.forTrack(123), someData);
+        verify(operations).generateHashForUrn(TRACK_URN);
+    }
+
+    @Test
+    public void storeTrackUsesCryptoOperationsToEncryptTheStream() throws IOException, EncryptionException {
+        storage.storeTrack(TRACK_URN, inputStream);
+
+        verify(operations).encryptStream(eq(inputStream), any(OutputStream.class));
+    }
+
+    @Test
+    public void storeTrackSavesDataToAFile() throws Exception {
+        File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString());
+
+        storage.storeTrack(TRACK_URN, inputStream);
 
         expect(file.exists()).toBeTrue();
-        expect(readFileContent(file)).toEqual(testContent);
     }
 
-    private String readFileContent(File file) throws IOException {
-        return IOUtils.readInputStream(new FileInputStream(file));
-    }
-
-    private InputStream sampleDataStream() {
-        return new ByteArrayInputStream(testContent.getBytes(Charsets.UTF_8));
-    }
 }

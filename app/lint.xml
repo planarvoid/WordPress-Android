@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+    <!-- ignore any issues in the google play services lib -->
+    <issue id="all">
+        <ignore path="target/classes/com/google/android/gms/*.class" />
+        <ignore path="target/classes/com/google/android/gms/**/*.class" />
+        <ignore path="target/classes/com/google/sample/castcompanionlibrary/*.class" />
+        <ignore path="target/classes/com/google/sample/castcompanionlibrary/**/*.class" />
+    </issue>
      
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
@@ -150,4 +157,10 @@
 
     <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
+
+    <!-- ignore any issues in the facebook SDK -->
+    <issue id="all">
+        <ignore path="target/classes/com/facebook/*.class" />
+        <ignore path="target/classes/com/facebook/**/*.class" />
+    </issue>
 </lint>

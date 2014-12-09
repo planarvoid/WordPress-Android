@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.campaigns.InAppCampaignController;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -63,6 +64,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject AdPlayerController adPlayerController;
     @Inject InAppCampaignController inAppCampaignController;
     @Inject FeatureFlags featureFlags;
+    @Inject CastConnectionHelper castConnectionHelper;
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -92,6 +94,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
+
+        castConnectionHelper.reconnectSessionIfPossible();
     }
 
     private void setupEmailOptIn() {

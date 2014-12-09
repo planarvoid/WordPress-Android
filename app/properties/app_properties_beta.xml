@@ -13,15 +13,17 @@
     <string name="public_api_base_url">https://api.soundcloud.com</string>
     <string name="mobile_api_base_url">https://api-mobile-beta.soundcloud.com</string>
     <string name="event_logger_base_url">http://eventlogger.soundcloud.com</string>
+    <string name="cast_receiver_app_id">CC1AD845</string>
 
     <!-- Feature flags (enabled) -->
+    <bool name="feature_api_mobile_stream">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_okhttp">false</bool>
     <bool name="feature_secure_stream_cache">false</bool>
-    <bool name="feature_api_mobile_stream">false</bool>
     <bool name="feature_device_key_generation">false</bool>
     <bool name="feature_android_l_media_notification">false</bool>
+    <bool name="feature_google_cast">false</bool>
 </resources>

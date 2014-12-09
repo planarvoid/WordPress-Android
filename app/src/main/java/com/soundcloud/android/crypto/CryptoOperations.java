@@ -2,6 +2,7 @@ package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -10,30 +11,29 @@ import rx.Subscriber;
 
 import javax.crypto.KeyGenerator;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class CryptoOperations {
 
     private static final String TAG = "CryptoOps";
-    private static final String DEVICE_KEY = "device_key";
     private static final int GENERATED_KEY_SIZE = 16;
+    protected static final String DEVICE_KEY = "device_key";
 
     private final KeyStorage storage;
+    private final Encryptor encryptor;
     private final SecureRandom secureRandom;
     private final Scheduler storageScheduler;
 
     @Inject
-    public CryptoOperations(KeyStorage storage, Scheduler scheduler) {
+    public CryptoOperations(KeyStorage storage, Encryptor encryptor, Scheduler scheduler) {
         this.secureRandom = new SecureRandom();
+        this.encryptor = encryptor;
         this.storage = storage;
         this.storageScheduler = scheduler;
-    }
-
-    public void generateDeviceKeyIfNeeded() {
-        if (!storage.contains(DEVICE_KEY)) {
-            generateAndStoreDeviceKeyAsync();
-        }
     }
 
     public byte[] getKeyOrGenerateAndStore(String name) {
@@ -46,19 +46,35 @@ public class CryptoOperations {
         }
     }
 
+    public void generateAndStoreDeviceKeyIfNeeded() {
+        fireAndForget(Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+                checkAndGetDeviceKey();
+            }
+        }).subscribeOn(storageScheduler));
+    }
+
+    public String generateHashForUrn(Urn urn) throws EncryptionException {
+        return encryptor.hash(urn);
+    }
+
+    public void encryptStream(InputStream stream, OutputStream outputStream) throws IOException, EncryptionException {
+        final DeviceSecret secret = checkAndGetDeviceKey();
+        encryptor.encryptFile(stream, outputStream, secret);
+    }
+
+    private synchronized DeviceSecret checkAndGetDeviceKey() {
+        if (!storage.contains(DEVICE_KEY)) {
+            generateAndStoreDeviceKey();
+        }
+        return storage.get(DEVICE_KEY);
+    }
+
     private DeviceSecret generateKey(String name) {
         byte[] generatedKey = new byte[GENERATED_KEY_SIZE];
         secureRandom.nextBytes(generatedKey);
         return new DeviceSecret(name, generatedKey);
-    }
-
-    private void generateAndStoreDeviceKeyAsync() {
-        fireAndForget(Observable.create(new Observable.OnSubscribe<Object>() {
-            @Override
-            public void call(Subscriber<? super Object> subscriber) {
-                generateAndStoreDeviceKey();
-            }
-        }).subscribeOn(storageScheduler));
     }
 
     private void generateAndStoreDeviceKey() {

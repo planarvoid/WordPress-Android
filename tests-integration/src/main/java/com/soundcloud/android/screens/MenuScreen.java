@@ -28,8 +28,7 @@ public class MenuScreen {
 
     public HomeScreen logout() {
         testDriver.openSystemMenu();
-        testDriver.clickOnActionBarItem(R.id.action_settings);
-        new SettingsScreen(testDriver);
+        clickSystemSettings();
         testDriver.findElement(With.text(testDriver.getString(R.string.pref_revoke_access))).click();
         testDriver.assertText(R.string.menu_clear_user_title);
         testDriver.clickOnText(android.R.string.ok);
@@ -38,7 +37,7 @@ public class MenuScreen {
 
     //TODO: Move this to systemSettingsScreen
     public SettingsScreen clickSystemSettings() {
-        testDriver.clickOnActionBarItem(R.id.action_settings);
+        testDriver.findElement(With.text("Settings")).click();
         return new SettingsScreen(testDriver);
     }
 

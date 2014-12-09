@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
@@ -149,6 +148,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         this.track = track;
         setIsUserRepost(track.isUserRepost());
         setMenuPrivacy(track.isPrivate());
+        updateCommentPosition(lastProgress.getPosition());
     }
 
     public void setIsUserRepost(boolean isUserRepost) {

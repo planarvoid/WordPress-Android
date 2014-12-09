@@ -8,7 +8,7 @@ module Build
       VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
       EventLogger PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
       DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage FollowingOperations
-      LoadItemsObserver EventBus Propeller
+      LoadItemsObserver EventBus Propeller CastManager BaseCastManager
     )
     DISABLED_LEVELS = %w()
 

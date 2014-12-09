@@ -16,6 +16,7 @@ import com.soundcloud.android.framework.with.With;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -103,7 +104,13 @@ public class Han  {
     }
 
     public void clickOnActionBarItem(int itemId) {
-        solo.clickOnActionBarItem(itemId);
+        final ArrayList<ActionMenuItemView> currentViews = solo.getCurrentViews(ActionMenuItemView.class);
+        for (View view : currentViews){
+            if (view.getId() == itemId){
+                solo.clickOnView(view);
+                break;
+            }
+        }
     }
 
     public void clickOnButtonWithText(int textId) {

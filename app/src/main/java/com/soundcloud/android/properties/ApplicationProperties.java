@@ -20,6 +20,7 @@ public class ApplicationProperties {
 
     private static BuildType BUILD_TYPE;
     private static boolean VERBOSE_LOGGING;
+    private final String castReceiverAppId;
 
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
@@ -40,6 +41,7 @@ public class ApplicationProperties {
         checkArgument(ScTextUtils.isNotBlank(buildType), "Build type not found in application package resources");
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
         VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
+        castReceiverAppId = resources.getString(R.string.cast_receiver_app_id);
     }
 
     public boolean useVerboseLogging() {
@@ -84,6 +86,10 @@ public class ApplicationProperties {
 
     public boolean shouldUseMediaStyleNotifications() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public String getCastReceiverAppId() {
+        return castReceiverAppId;
     }
 
     @Override

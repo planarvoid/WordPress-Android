@@ -358,6 +358,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private void setInternalState(PlaybackState playbackState, long progress, long duration) {
         internalState = playbackState;
 
+        // TODO : Replace this with ProgressReporter next time we are in here
         playerHandler.removeMessages(PlayerHandler.SEND_PROGRESS);
         if (playbackState == PlaybackState.PLAYING){
             playerHandler.sendEmptyMessage(PlayerHandler.SEND_PROGRESS);

@@ -92,12 +92,10 @@
     <string name="authentication_error_incomplete_fields">Vul a.u.b. alle velden in.</string>
     <string name="authentication_error_invalid_email">Voer a.u.b. een geldig e-mailadres in.</string>
     <string name="authentication_error_no_connection_message">Er is een probleem met uw dataverbinding. Controleer uw netwerkinstellingen a.u.b.</string>
-    <string name="authentication_error_no_connection_title">Bent u er zeker van dat u bent aangesloten op het internet?</string>
     <string name="authentication_error_password_too_short">Uw wachtwoord moet 6 of meer tekens bevatten.</string>
     <string name="authentication_error_title">Fout</string>
     <string name="authentication_log_in">Inloggen</string>
     <string name="authentication_log_in_with_facebook">Log in met Facebook</string>
-    <string name="authentication_log_in_with_facebook_ssl_error">Fout bij het verbinden met Facebook (SSL)</string>
     <string name="authentication_login_error_password_message">We konden u niet inloggen. Weet u zeker dat dit het juiste e-mailadres en wachtwoord is?</string>
     <string name="authentication_login_progress_message">U aan het inloggen</string>
     <string name="authentication_recover_password">Wachtwoord herstellen</string>
@@ -121,9 +119,7 @@
     <string name="error_google_sign_in_failed">Het is niet gelukt om u met Google+ aan te melden. Bezoek plus.google.com om uw Google+ account te activeren en probeer het nog eens</string>
     <string name="auth_disclaimer_title">Nog één stap</string>
     <string name="auth_disclaimer_message">Door op \'\'Doorgaan\'\' te tikken, gaat u akkoord met de Gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
-    <string name="facebook_authentication_error_no_connection_message">Probeer het snel nog eens of meld u aan met uw SoundCloud gebruikersnaam en wachtwoord.</string>
     <string name="facebook_authentication_failed_message">Probeer het snel nog eens of meld u aan met uw SoundCloud gebruikersnaam en wachtwoord.</string>
-    <string name="facebook_authentication_failed_title">Hmm, we zijn op het moment niet in staat om verbinding te maken met Facebook.</string>
     <string name="authentication_recover_password_msg">Vul uw e-mailadres in en dan sturen wij u een link die u uw wachtwoord laat veranderen. Problemen? Neem contact op met de helpdesk.</string>
     <string name="authentication_blocked_title">Het is ons niet gelukt u aan te melden</string>
     <string name="authentication_blocked_message">Onze robots vinden deze aanmelding te veel op spam lijken. Als dit volgens u een fout is, neem dan <a href="http://help.soundcloud.com/customer/portal/emails/new">contact op met onze helpdesk</a>

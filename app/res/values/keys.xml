@@ -8,12 +8,8 @@
     <!-- http://soundcloud.com/apps/android -->
     <string name='app_id'>3152</string>
 
-
     <!-- production fb sc app id -->
     <string name='production_facebook_app_id'>19507961798</string>
-
-    <!-- sandbox fb sc app id -->
-    <string name='sandbox_facebook_app_id'>18665667761</string>
 
     <string name="account_type">com.soundcloud.android.account</string>
 

@@ -6,6 +6,11 @@ import static com.soundcloud.android.utils.AnimUtils.hideView;
 import static com.soundcloud.android.utils.AnimUtils.showView;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
+import com.facebook.FacebookOperationCanceledException;
+import com.facebook.NonCachingTokenCachingStrategy;
+import com.facebook.Session;
+import com.facebook.SessionLoginBehavior;
+import com.facebook.SessionState;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -14,6 +19,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -21,8 +27,6 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
-import com.soundcloud.android.onboarding.auth.FacebookSwitcherActivity;
 import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.onboarding.auth.LoginLayout;
 import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
@@ -31,6 +35,7 @@ import com.soundcloud.android.onboarding.auth.SignUpLayout;
 import com.soundcloud.android.onboarding.auth.SignupLog;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -38,6 +43,8 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +70,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,6 +92,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
     private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
+    private static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends");
+    private static final String DEFAULT_FACEBOOK_PUBLISH_PERMISSION = "publish_actions";
     private StartState lastAuthState;
     private StartState state = StartState.TOUR;
     private String lastGoogleAccountSelected;
@@ -126,6 +137,25 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private ApplicationProperties applicationProperties;
     private EventBus eventBus;
 
+    private Session.StatusCallback sessionStatusCallback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            if (state == SessionState.OPENED && !session.getPermissions().contains(DEFAULT_FACEBOOK_PUBLISH_PERMISSION)) {
+                Session.NewPermissionsRequest newPermissionRequest = new Session.NewPermissionsRequest(
+                        OnboardActivity.this, DEFAULT_FACEBOOK_PUBLISH_PERMISSION);
+                session.requestNewPublishPermissions(newPermissionRequest);
+            } else if (ScTextUtils.isNotBlank(session.getAccessToken())) {
+                TokenInformationGenerator tokenInformationGenerator = new TokenInformationGenerator(new PublicApi(OnboardActivity.this));
+                login(tokenInformationGenerator.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, session.getAccessToken()));
+            } else if (exception != null && !(exception instanceof FacebookOperationCanceledException)) {
+                Log.w(TAG, "Facebook returned an exception", exception);
+                ErrorUtils.handleSilentException(exception);
+                onError(getString(R.string.facebook_authentication_failed_message));
+            }
+        }
+    };
+    private Session currentFacebookSession;
+
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -142,7 +172,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         overlayBg = findViewById(R.id.overlay_bg);
         overlayHolder = findViewById(R.id.overlay_holder);
 
-        tourPages = new ArrayList<TourLayout>();
+        tourPages = new ArrayList<>();
         tourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
         tourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
         tourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
@@ -234,19 +264,33 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         // don't show splash screen on config changes
         splash.setVisibility(bundle == null ? View.VISIBLE : View.GONE);
 
-        tourPages.get(0).setLoadHandler(new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case TourLayout.IMAGE_LOADED:
-                    case TourLayout.IMAGE_ERROR:
-                        hideView(OnboardActivity.this, splash, true);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
-                }
+        tourPages.get(0).setLoadHandler(new TourHandler(this, splash));
+    }
+
+    private static class TourHandler extends Handler {
+        private final WeakReference<OnboardActivity> onboardActivityRef;
+        private final WeakReference<View> splashRef;
+
+        public TourHandler(OnboardActivity onboardActivity, View splash) {
+            this.onboardActivityRef = new WeakReference<>(onboardActivity);
+            this.splashRef = new WeakReference<>(splash);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case TourLayout.IMAGE_LOADED:
+                case TourLayout.IMAGE_ERROR:
+                    final OnboardActivity onboardActivity = onboardActivityRef.get();
+                    final View splash = splashRef.get();
+                    if (onboardActivity != null && splash != null) {
+                        hideView(onboardActivity, splash, true);
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
             }
-        });
+        }
     }
 
     @Override
@@ -459,9 +503,17 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
                 break;
             case FACEBOOK_SSO:
-                startActivityForResult(new Intent(this, FacebookSwitcherActivity.class)
-                                .putExtra(FacebookSSOActivity.VIA_SIGNUP_SCREEN, lastAuthState == StartState.SIGN_UP),
-                        RequestCodes.SIGNUP_VIA_FACEBOOK);
+                currentFacebookSession = new Session.Builder(getApplicationContext())
+                        .setTokenCachingStrategy(new NonCachingTokenCachingStrategy())
+                        .setApplicationId(getString(R.string.production_facebook_app_id))
+                        .build();
+                currentFacebookSession.addCallback(sessionStatusCallback);
+
+                Session.OpenRequest openRequest = new Session.OpenRequest(this);
+                openRequest.setRequestCode(Session.DEFAULT_AUTHORIZE_ACTIVITY_CODE);
+                openRequest.setLoginBehavior(SessionLoginBehavior.SSO_WITH_FALLBACK);
+                openRequest.setPermissions(DEFAULT_FACEBOOK_READ_PERMISSIONS);
+                currentFacebookSession.openForRead(openRequest);
                 break;
             case API:
                 SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
@@ -491,7 +543,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_USER_DETAILS));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
-            super.onAuthTaskComplete(user, via, wasApiSignupTask);
+            super.onAuthTaskComplete(user, via, false);
         }
     }
 
@@ -567,6 +619,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (currentFacebookSession != null) {
+            currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
+        }
         switch (requestCode) {
             case RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getUserDetails() != null) {
@@ -735,9 +790,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     /**
      * Set signup params on accept terms view and change state
-     *
-     * @param signupVia
-     * @param params
      */
     private void proposeTermsOfUse(SignupVia signupVia, Bundle params) {
         getAcceptTerms().setSignupParams(signupVia, params);
@@ -758,6 +810,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     }
 
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS
     }
 }

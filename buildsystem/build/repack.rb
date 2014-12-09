@@ -22,7 +22,9 @@ module Build
 
       if (options[:aar])
         puts "Rebundling AAR..."
-        unpack_dir = Dir.glob("app/target/unpack/apklibs/#{group_id}_#{artifact_id}_aar_*").first
+        dir_string = "app/target/unpack/apklibs/#{group_id}_#{artifact_id}_aar_*"
+        puts "Looking for unpack location string #{dir_string}"
+        unpack_dir = Dir.glob(dir_string).first
         FileUtils.cp(REPACK_JAR, "#{unpack_dir}/classes.jar")
         `cd #{unpack_dir} && zip -r ../../../repack.aar *`
       end

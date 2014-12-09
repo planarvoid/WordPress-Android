@@ -200,6 +200,11 @@ public class TrackPageMenuControllerTest {
     }
 
     @Test
+    public void displayFormattedCommentTimeWhenNoProgressWasSet() {
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:00");
+    }
+
+    @Test
     public void shouldNotShowTheMenuIfWeHaveAnEmptyTrack() {
         controller.setTrack(PlayerTrack.EMPTY);
 

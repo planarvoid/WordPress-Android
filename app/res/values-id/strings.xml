@@ -92,12 +92,10 @@
     <string name="authentication_error_incomplete_fields">Silakan isi semua kolom.</string>
     <string name="authentication_error_invalid_email">Silakan masukkan surel yang valid.</string>
     <string name="authentication_error_no_connection_message">Ada masalah dengan koneksi datamu. Silakan periksa pengaturan jaringanmu.</string>
-    <string name="authentication_error_no_connection_title">Yakin kamu terhubung dengan Internet?</string>
     <string name="authentication_error_password_too_short">Kata Sandi kamu minimal terdiri dari 6 karakter.</string>
     <string name="authentication_error_title">Kesalahan</string>
     <string name="authentication_log_in">Masuk</string>
     <string name="authentication_log_in_with_facebook">Masuk melalui Facebook</string>
-    <string name="authentication_log_in_with_facebook_ssl_error">Kesalahan koneksi dengan Facebook (SSL)</string>
     <string name="authentication_login_error_password_message">Kami tak dapat memasukkanmu. Yakin kamu telah memasukkan surel dan kata sandi yang benar?</string>
     <string name="authentication_login_progress_message">Memasukkan kamu ke</string>
     <string name="authentication_recover_password">Pulihkan kata sandi</string>
@@ -121,9 +119,7 @@
     <string name="error_google_sign_in_failed">Kami tidak bisa memasukkanmu dengan Google+. Kunjungi plus.google.com untuk mengaktifkan akun Google+ kamu dan coba lagi</string>
     <string name="auth_disclaimer_title">Satu langkah lagi</string>
     <string name="auth_disclaimer_message">Dengan menekan \"Lanjut\", Anda setuju dengan Syarat Penggunaan dan Kebijakan Privasi SoundCloud.</string>
-    <string name="facebook_authentication_error_no_connection_message">Coba sesaat lagi atau masuk dengan nama pengguna dan kata sandi SoundCloud-mu.</string>
     <string name="facebook_authentication_failed_message">Coba sesaat lagi atau masuk dengan nama pengguna dan kata sandi SoundCloud-mu.</string>
-    <string name="facebook_authentication_failed_title">Hmm, kami tidak dapat terhubung dengan Facebook saat ini.</string>
     <string name="authentication_recover_password_msg">Masukkan alamat surelmu dan kami akan mengirimi kamu sebuah tautan yang akan memungkinkan kamu untuk mengubah kata sandi. Ada masalah? Hubungi Dukungan.</string>
     <string name="authentication_blocked_title">Kami tidak bisa mendaftarkanmu</string>
     <string name="authentication_blocked_message">Robot kami menganggap pendaftaran ini terlalu mirip spam. Jika kamu yakin ini kesalahan, silakan <a href="http://help.soundcloud.com/customer/portal/emails/new"> hubungi dukungan kami </a>

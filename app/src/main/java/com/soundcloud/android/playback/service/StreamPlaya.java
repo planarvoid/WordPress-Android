@@ -2,11 +2,14 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.CastConnectionHelper.CastConnectionListener;
+import com.soundcloud.android.cast.CastPlayer;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.settings.GeneralSettings;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -15,7 +18,7 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 
 //Not a hater
-public class StreamPlaya implements Playa, Playa.PlayaListener {
+public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionListener {
 
     public static final String TAG = "StreamPlaya";
     @VisibleForTesting
@@ -29,6 +32,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences sharedPreferences;
     private final PlayerSwitcherInfo playerSwitcherInfo;
+    private final CastPlayer castPlayer;
+    private final CastConnectionHelper castConnectionHelper;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -39,12 +44,17 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo){
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo, CastPlayer castPlayer,
+                       CastConnectionHelper castConnectionHelper){
         this.sharedPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
+        this.castPlayer = castPlayer;
+        this.castConnectionHelper = castConnectionHelper;
         currentPlaya = bufferingPlayaDelegate;
+
+        castConnectionHelper.addConnectionListener(this);
 
         this.playerSwitcherInfo = playerSwitcherInfo;
 
@@ -154,6 +164,8 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         if(!skippyFailedToInitialize) {
             skippyPlayaDelegate.destroy();
         }
+
+        castConnectionHelper.removeConnectionListener(this);
     }
 
     @Override
@@ -202,6 +214,19 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         }
     }
 
+    @Override
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
+    public void onConnectedToReceiverApp() {
+        if (currentPlaya != bufferingPlayaDelegate) {
+            if (lastStateTransition.isPlaying()){
+                play(lastTrackPlayed, currentPlaya.getProgress());
+            } else {
+                configureNextPlayaToUse(castPlayer);
+            }
+        }
+    }
+
+
     private void configureNextPlayaToUseViaPreferences(){
         configureNextPlayaToUse(getNextPlaya());
     }
@@ -225,13 +250,17 @@ public class StreamPlaya implements Playa, Playa.PlayaListener {
         }
     }
 
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
     private Playa getNextPlaya() {
-        if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()){
-            return mediaPlayaDelegate;
-        }
+        if (castPlayer.isConnected()){
+            return castPlayer;
 
-        if (isInForceSkippyMode()) {
+        } else if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()){
+            return mediaPlayaDelegate;
+
+        } else  if (isInForceSkippyMode()) {
             return skippyPlayaDelegate;
+
         } else if (lastPlaya == skippyPlayaDelegate){
 
             if (sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveSkippyPlays()) {

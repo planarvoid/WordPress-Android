@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -68,6 +69,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Inject ImageOperations imageOperations;
     @Inject ActionBarController.Factory actionBarControllerFactory;
     @Inject PlaybackOperations playbackOperations;
+    @Inject CastConnectionHelper castConnectionHelper;
     private long currentUserId;
     private Boolean isConnected;
     private boolean isForeground;
@@ -148,6 +150,9 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     public boolean onCreateOptionsMenu(Menu menu) {
         if (actionBarController != null) {
             actionBarController.onCreateOptionsMenu(menu);
+        }
+        if (menu.findItem(R.id.media_route_menu_item) != null){
+            castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
         }
         return true;
     }
@@ -300,6 +305,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
         imageOperations.resume();
 
+        castConnectionHelper.startDeviceDiscovery();
+
         registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!accountOperations.isUserLoggedIn()) {
             playbackOperations.resetService();
@@ -314,7 +321,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     protected void onPause() {
         lifeCycleDispatcher.onPause();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
-
+        castConnectionHelper.stopDeviceDiscovery();
         safeUnregisterReceiver(unauthoriedRequestReceiver);
         isForeground = false;
         onCreateCalled = false;
