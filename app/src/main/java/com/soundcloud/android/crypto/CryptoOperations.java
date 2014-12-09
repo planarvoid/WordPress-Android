@@ -61,7 +61,7 @@ public class CryptoOperations {
 
     public void encryptStream(InputStream stream, OutputStream outputStream) throws IOException, EncryptionException {
         final DeviceSecret secret = checkAndGetDeviceKey();
-        encryptor.encryptFile(stream, outputStream, secret);
+        encryptor.encrypt(stream, outputStream, secret);
     }
 
     private synchronized DeviceSecret checkAndGetDeviceKey() {
