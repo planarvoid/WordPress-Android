@@ -82,7 +82,7 @@ module Build
 
     def parse_issue_template(template_file)
       IO.read(template_file).split(/^$\n{2}/).map{|issue|
-        array = issue.lines
+        array = issue.lines.to_a
         Github::Issue.new(array.first, array[1..-1])
       }
     end
