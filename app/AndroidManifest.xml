@@ -316,7 +316,9 @@
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
         <!-- providers -->
-        <provider android:authorities="com.soundcloud.android.provider.ScContentProvider" android:name=".storage.provider.ScContentProvider"/>
+        <provider android:authorities="com.soundcloud.android.provider.ScContentProvider"
+                  android:name=".storage.provider.ScContentProvider"
+                  android:exported="false"/>
 
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
