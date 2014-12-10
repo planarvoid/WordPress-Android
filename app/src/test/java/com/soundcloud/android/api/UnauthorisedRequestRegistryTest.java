@@ -20,26 +20,23 @@ import java.util.concurrent.atomic.AtomicLong;
 public class UnauthorisedRequestRegistryTest {
 
     private UnauthorisedRequestRegistry registry;
-    @Mock
-    private Context context;
-    private AtomicLong lastObservedTime;
+    @Mock private Context context;
 
     @Before
     public void setup() {
         when(context.getApplicationContext()).thenReturn(context);
-        lastObservedTime = new AtomicLong(0L);
-        registry = new UnauthorisedRequestRegistry(context, lastObservedTime);
+        registry = new UnauthorisedRequestRegistry(context, new AtomicLong(0L));
     }
 
     @Test
-    public void shouldUpdateObservedTimeOfUnauthorisedRequestsIfNoneObservedBefore(){
+    public void shouldUpdateObservedTimeOfUnauthorisedRequestsIfNoneObservedBefore() {
         final Long currentTime = System.currentTimeMillis();
         registry.updateObservedUnauthorisedRequestTimestamp();
         expect(registry.getLastObservedTime() >= currentTime).toBeTrue();
     }
 
     @Test
-    public void shouldNotUpdateObservedTimeOfUnauthorisedRequestsIfObservedBefore(){
+    public void shouldNotUpdateObservedTimeOfUnauthorisedRequestsIfObservedBefore() {
         expect(registry.getLastObservedTime()).toBe(0L);
         registry.updateObservedUnauthorisedRequestTimestamp();
         long timestamp = registry.getLastObservedTime();
@@ -49,7 +46,7 @@ public class UnauthorisedRequestRegistryTest {
     }
 
     @Test
-    public void shouldResetFirstObservedTimeOfUnauthorisedRequest(){
+    public void shouldResetFirstObservedTimeOfUnauthorisedRequest() {
         expect(registry.getLastObservedTime()).toBe(0L);
         registry.updateObservedUnauthorisedRequestTimestamp();
         expect(registry.getLastObservedTime()).toBeGreaterThan(0L);
@@ -58,25 +55,25 @@ public class UnauthorisedRequestRegistryTest {
     }
 
     @Test
-    public void shouldReturnTrueIfTimeLimitForFirstObservedUnauthorisedRequestHasExpired(){
-        registry.setLastObservedTime(22L);
+    public void shouldReturnTrueIfTimeLimitForFirstObservedUnauthorisedRequestHasExpired() {
+        registry = new UnauthorisedRequestRegistry(context, new AtomicLong(22L));
         expect(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).toBeTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfTimeLimitForFirstObservedUnauthorisedRequestHasNotExpired(){
-        registry.setLastObservedTime(System.currentTimeMillis());
+    public void shouldReturnFalseIfTimeLimitForFirstObservedUnauthorisedRequestHasNotExpired() {
+        registry = new UnauthorisedRequestRegistry(context, new AtomicLong(System.currentTimeMillis()));
         expect(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).toBeFalse();
     }
 
     @Test
-    public void shouldReturnFalseIfTimeLimitForFirstObservedUnauthorisedRequestDoesNotExist(){
+    public void shouldReturnFalseIfTimeLimitForFirstObservedUnauthorisedRequestDoesNotExist() {
         expect(registry.getLastObservedTime()).toEqual(0L);
         expect(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).toBeFalse();
     }
 
     @Test
-    public void shouldSendIntentAfterUpdatingObservedTimestamp(){
+    public void shouldSendIntentAfterUpdatingObservedTimestamp() {
         registry.updateObservedUnauthorisedRequestTimestamp();
         verify(context).sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
     }
