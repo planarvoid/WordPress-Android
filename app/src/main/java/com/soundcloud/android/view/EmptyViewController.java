@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.main.DefaultFragmentLifeCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
@@ -77,6 +78,9 @@ public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
             if (error instanceof ApiRequestException) {
                 boolean networkError = ((ApiRequestException) error).reason() == ApiRequestException.Reason.NETWORK_ERROR;
                 updateEmptyViewStatus(networkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
+            } if (error instanceof SyncFailedException) {
+                // default Sync Failures to connection for now as we can't tell the diff
+                updateEmptyViewStatus(EmptyView.Status.CONNECTION_ERROR);
             } else {
                 super.onError(error);
             }
