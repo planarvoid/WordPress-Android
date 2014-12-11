@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import javax.net.ssl.HostnameVerifier;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-class DownloadHostnameVerifier implements HostnameVerifier {
+class SoundCloudHostnameVerifier implements HostnameVerifier {
     static final int ALT_TYPE_DNS = 2;
     private static final String PATTERN = ".*.\\.hs\\.llnwd\\.net$|.*.\\.sndcdn\\.com$|.*.?soundcloud\\.com$";
 
@@ -26,6 +27,7 @@ class DownloadHostnameVerifier implements HostnameVerifier {
 
             return verifyHostName(hostname, names);
         } catch (SSLException e) {
+            Log.e(OfflineContentService.TAG, "Error retrieving peer certificates for " + hostname, e);
             return false;
         }
     }

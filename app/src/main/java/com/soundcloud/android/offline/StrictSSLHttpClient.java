@@ -4,7 +4,6 @@ import static com.soundcloud.android.offline.OfflineContentService.TAG;
 
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.squareup.okhttp.OkHttpClient;
@@ -13,30 +12,20 @@ import com.squareup.okhttp.Response;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.net.ssl.HostnameVerifier;
 import java.io.IOException;
 import java.io.InputStream;
 
-class DownloadHttpClient {
+class StrictSSLHttpClient {
 
     private final OkHttpClient httpClient;
     private final OAuth oAuth;
     private final DeviceHelper deviceHelper;
 
     @Inject
-    public DownloadHttpClient(@Named("DownloadHttpClient") OkHttpClient client, DeviceHelper helper, OAuth oAuth,
-                              HostnameVerifier hostnameVerifier, ApplicationProperties properties) {
-        this.httpClient = configureClient(client, hostnameVerifier, properties);
+    public StrictSSLHttpClient(@Named("StrictSSLHttpClient") OkHttpClient client, DeviceHelper helper, OAuth oAuth) {
+        this.httpClient = client;
         this.deviceHelper = helper;
         this.oAuth = oAuth;
-    }
-
-    private OkHttpClient configureClient(OkHttpClient httpClient, HostnameVerifier hostnameVerifier,
-                                         ApplicationProperties properties) {
-        if (!properties.isDebugBuild()) {
-            httpClient.setHostnameVerifier(hostnameVerifier);
-        }
-        return httpClient;
     }
 
     public InputStream downloadFile(String fileUrl) throws IOException {

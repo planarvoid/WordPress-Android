@@ -12,14 +12,14 @@ import java.util.LinkedList;
 
 public class DownloadController {
 
-    private final DownloadHttpClient downloadHttpClient;
+    private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
     private final TrackDownloadsStorage downloadsStorage;
 
     @Inject
-    public DownloadController(DownloadHttpClient httpClient, SecureFileStorage fileStorage,
+    public DownloadController(StrictSSLHttpClient httpClient, SecureFileStorage fileStorage,
                               TrackDownloadsStorage downloadsStorage) {
-        this.downloadHttpClient = httpClient;
+        this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.downloadsStorage = downloadsStorage;
     }
@@ -46,7 +46,7 @@ public class DownloadController {
         Log.d(OfflineContentService.TAG, "Downloading track: " + track.urn + " from " + track.fileUrl);
         InputStream input = null;
         try {
-            input = downloadHttpClient.downloadFile(track.fileUrl);
+            input = strictSSLHttpClient.downloadFile(track.fileUrl);
             fileStorage.storeTrack(track.urn, input);
 
             Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);

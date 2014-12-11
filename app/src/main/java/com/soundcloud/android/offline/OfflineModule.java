@@ -1,12 +1,12 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
 
 import javax.inject.Named;
-import javax.net.ssl.HostnameVerifier;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
@@ -15,14 +15,12 @@ import javax.net.ssl.HostnameVerifier;
 public class OfflineModule {
 
     @Provides
-    @Named("DownloadHttpClient")
-    public OkHttpClient provideOkHttpClient() {
-        return new OkHttpClient();
+    @Named("StrictSSLHttpClient")
+    public OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties) {
+        final OkHttpClient client = new OkHttpClient();
+        if (!applicationProperties.isDebugBuild()) {
+            client.setHostnameVerifier(new SoundCloudHostnameVerifier());
+        }
+        return client;
     }
-
-    @Provides
-    public HostnameVerifier provideHostnameVerifier() {
-        return new DownloadHostnameVerifier();
-    }
-
 }
