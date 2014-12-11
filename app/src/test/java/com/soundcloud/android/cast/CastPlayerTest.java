@@ -3,6 +3,7 @@ package com.soundcloud.android.cast;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -299,10 +300,10 @@ public class CastPlayerTest {
     }
 
     @Test
-    public void setVolumeSetsVolumeOnRemotePlayer() throws Exception {
+    public void setVolumeDoesNotSetVolumeOnRemotePlayer() throws Exception {
         castPlayer.setVolume(123F);
 
-        verify(castManager).setVolume(123F);
+        verify(castManager, never()).setVolume(anyFloat());
     }
 
     @Test
