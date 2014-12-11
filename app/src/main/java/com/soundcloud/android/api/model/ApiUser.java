@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 import android.os.Parcel;
 
@@ -20,7 +20,7 @@ public class ApiUser extends ScModel implements PropertySetSource {
             return new ApiUser[size];
         }
     };
-    private String country;
+    @Nullable private String country;
     private int followersCount;
     private String username;
     private String avatarUrl;
@@ -55,13 +55,13 @@ public class ApiUser extends ScModel implements PropertySetSource {
         this.avatarUrl = avatarUrl;
     }
 
+    @Nullable
     public String getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
-        // country can come back as null from the API
-        this.country = ScTextUtils.safeToString(country);
+    public void setCountry(@Nullable String country) {
+        this.country = country;
     }
 
     public int getFollowersCount() {
@@ -87,11 +87,16 @@ public class ApiUser extends ScModel implements PropertySetSource {
 
     @Override
     public PropertySet toPropertySet() {
-        return PropertySet.from(
+        final PropertySet bindings = PropertySet.from(
                 UserProperty.URN.bind(urn),
                 UserProperty.USERNAME.bind(username),
-                UserProperty.COUNTRY.bind(country),
                 UserProperty.FOLLOWERS_COUNT.bind(followersCount)
         );
+        // this should be modeled with an Option type instead:
+        // https://github.com/soundcloud/propeller/issues/32
+        if (country != null) {
+            bindings.put(UserProperty.COUNTRY, country);
+        }
+        return bindings;
     }
 }
