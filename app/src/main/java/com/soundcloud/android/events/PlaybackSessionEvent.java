@@ -1,6 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -26,6 +27,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final String KEY_USER_URN = "user_urn";
     public static final String KEY_PROTOCOL = "protocol";
     public static final String KEY_POLICY = "policy";
+    public static final String PLAYER_TYPE = "player_type";
+    public static final String CONNECTION_TYPE = "connection_type";
 
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
@@ -40,40 +43,44 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private List<String> adImpressionUrls = Collections.emptyList();
     private List<String> adFinishedUrls = Collections.emptyList();
 
-    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn,
-                                               String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
-        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, protocol, trackSourceInfo, progress, timestamp);
+    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress,
+                                               String protocol, String playerType, String connectionType) {
+        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis(), protocol, playerType, connectionType);
     }
 
-    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn,
-                                               String protocol, TrackSourceInfo trackSourceInfo, long progress) {
-        return forPlay(trackData, userUrn, protocol, trackSourceInfo, progress, System.currentTimeMillis());
+    @VisibleForTesting
+    public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
+                                               String protocol, String playerType, String connectionType) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType);
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
-                                               String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
-                                               int stopReason, long progress, long timestamp) {
+                                               TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent, long progress,
+                                               String protocol, String playerType, String connectionType, int stopReason) {
+        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, progress, System.currentTimeMillis(), protocol, playerType, connectionType, stopReason);
+    }
+
+    @VisibleForTesting
+    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
+                                               TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent, long progress, long timestamp,
+                                               String protocol, String playerType, String connectionType, int stopReason) {
         final PlaybackSessionEvent playbackSessionEvent =
-                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, protocol, trackSourceInfo, progress, timestamp);
+                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType);
         playbackSessionEvent.setListenTime(playbackSessionEvent.timeStamp - lastPlayEvent.getTimeStamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
     }
 
-    public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
-                                               String protocol, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent,
-                                               int stopReason, long progress) {
-        return forStop(trackData, userUrn, protocol, trackSourceInfo, lastPlayEvent, stopReason, progress, System.currentTimeMillis());
-    }
-
     // Use this constructor for an ordinary audio playback event
-    private PlaybackSessionEvent(String eventKind, PropertySet track, Urn userUrn,
-                                 String protocol, TrackSourceInfo trackSourceInfo, long progress, long timestamp) {
+    private PlaybackSessionEvent(String eventKind, PropertySet track, Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
+                                 String protocol, String playerType, String connectionType) {
         super(eventKind, timestamp);
         put(KEY_TRACK_URN, track.get(TrackProperty.URN).toString());
         put(KEY_USER_URN, userUrn.toString());
         put(KEY_PROTOCOL, protocol);
         put(KEY_POLICY, track.getOrElseNull(TrackProperty.POLICY));
+        put(PLAYER_TYPE, playerType);
+        put(CONNECTION_TYPE, connectionType);
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.duration = track.get(PlayableProperty.DURATION);

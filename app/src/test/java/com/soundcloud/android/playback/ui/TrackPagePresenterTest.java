@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -56,6 +57,7 @@ public class TrackPagePresenterTest {
     @Mock private AdOverlayController adOverlayController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
+    @Mock private CastConnectionHelper castConnectionHelper;
 
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackPageMenuController trackPageMenuController;
@@ -68,7 +70,7 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory);
+                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, castConnectionHelper);
         when(container.getContext()).thenReturn(Robolectric.application);
         when(waveformFactory.create(any(WaveformView.class), any(AdOverlayController.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);

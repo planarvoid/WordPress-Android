@@ -1,7 +1,8 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+import com.soundcloud.android.events.ConnectionType;
+
+import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -50,6 +51,8 @@ public class EventLoggerUrlBuilderTest {
     private static final String CDN_URL = "host.com";
     private static final String PROTOCOL = "hls";
     private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(123L));
+    private static final String PLAYER_TYPE = "PLAYA";
+    private static final String CONNECTION_TYPE = "3g";
 
     @Mock private Resources resources;
     @Mock private TrackSourceInfo trackSourceInfo;
@@ -73,20 +76,23 @@ public class EventLoggerUrlBuilderTest {
 
     @Test
     public void createAudioEventUrlWithOriginAndTrigger() throws Exception {
-        final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createPlayEvent(userUrn, trackSourceInfo, 321L));
+
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
-                + "client_id=123"
-                + "&anonymous_id=9876"
-                + "&action=play"
-                + "&ts=321"
-                + "&duration=1000"
-                + "&protocol=hls"
-                + "&sound=soundcloud%3Asounds%3A123"
-                + "&user=" + userUrn.toEncodedString()
-                + "&policy=allow"
-                + "&trigger=manual"
-                + "&page_name=origin")));
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&action=play"
+                        + "&ts=321"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud%3Asounds%3A123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&policy=allow"
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+        )));
     }
 
     @Test
@@ -94,8 +100,8 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.hasSource()).thenReturn(true);
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
-        final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createPlayEvent(userUrn, trackSourceInfo, 321L));
+
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -109,7 +115,10 @@ public class EventLoggerUrlBuilderTest {
                 + "&page_name=origin"
                 + "&policy=allow"
                 + "&source=source1"
-                + "&source_version=version1")));
+                + "&source_version=version1"
+                + "&player_type=PLAYA"
+                + "&connection_type=3g"
+        )));
     }
 
     @Test
@@ -117,8 +126,7 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
         when(trackSourceInfo.getPlaylistUrn()).thenReturn(Urn.forPlaylist(123L));
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
-        final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createPlayEvent(userUrn, trackSourceInfo, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -132,7 +140,10 @@ public class EventLoggerUrlBuilderTest {
                 + "&page_name=origin"
                 + "&policy=allow"
                 + "&set_id=123"
-                + "&set_position=2")));
+                + "&set_position=2"
+                + "&player_type=PLAYA"
+                + "&connection_type=3g"
+        )));
     }
 
     @Test
@@ -141,8 +152,7 @@ public class EventLoggerUrlBuilderTest {
         experimentParams.put("exp_android-ui", 4);
         experimentParams.put("exp_android-listen", 5);
         when(experimentOperations.getTrackingParams()).thenReturn(experimentParams);
-        final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createPlayEvent(userUrn, trackSourceInfo, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -156,19 +166,21 @@ public class EventLoggerUrlBuilderTest {
                 + "&page_name=origin"
                 + "&policy=allow"
                 + "&exp_android-ui=4"
-                + "&exp_android-listen=5")));
+                + "&exp_android-listen=5"
+                + "&player_type=PLAYA"
+                + "&connection_type=3g"
+        )));
     }
 
     @Test
-    public void createFullAudioEventUrl() throws Exception {
+    public void createFullPlayAudioEventUrl() {
         when(trackSourceInfo.hasSource()).thenReturn(true);
         when(trackSourceInfo.getSource()).thenReturn("source1");
         when(trackSourceInfo.getSourceVersion()).thenReturn("version1");
         when(trackSourceInfo.isFromPlaylist()).thenReturn(true);
         when(trackSourceInfo.getPlaylistUrn()).thenReturn(Urn.forPlaylist(123L));
         when(trackSourceInfo.getPlaylistPosition()).thenReturn(2);
-        final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(TRACK_DATA, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L));
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createPlayEvent(userUrn, trackSourceInfo, 321L));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -184,15 +196,186 @@ public class EventLoggerUrlBuilderTest {
                 + "&source_version=version1"
                 + "&policy=allow"
                 + "&set_id=123"
-                + "&set_position=2")));
+                + "&set_position=2"
+                + "&player_type=PLAYA"
+                + "&connection_type=3g"
+        )));
+    }
+
+
+    @Test
+    public void createStopForPauseAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_PAUSE));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=pause"
+        )));
     }
 
     @Test
+    public void createStopForBufferingAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=buffering"
+        )));
+    }
+
+    @Test
+    public void createStopForSkipAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_SKIP));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=skip"
+        )));
+    }
+
+    @Test
+    public void createStopForTrackFinishedAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=track_finished"
+        )));
+    }
+
+    @Test
+    public void createStopForEndOfQueueAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=end_of_content"
+        )));
+    }
+
+    @Test
+    public void createStopForNewQueueAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_NEW_QUEUE));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=context_change"
+        )));
+    }
+
+    @Test
+    public void createStopForErrorAudioEventUrl() {
+        final String url = eventLoggerUrlBuilder.buildForAudioEvent(createDefaultStopEventForReason(PlaybackSessionEvent.STOP_REASON_ERROR));
+
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
+                        + "client_id=123"
+                        + "&anonymous_id=9876"
+                        + "&ts=100000"
+                        + "&action=stop"
+                        + "&duration=1000"
+                        + "&protocol=hls"
+                        + "&sound=soundcloud:sounds:123"
+                        + "&user=" + userUrn.toEncodedString()
+                        + "&trigger=manual"
+                        + "&page_name=origin"
+                        + "&policy=allow"
+                        + "&player_type=PLAYA"
+                        + "&connection_type=3g"
+                        + "&reason=playback_error"
+        )));
+    }
+
+    PlaybackSessionEvent createDefaultStopEventForReason(int reason) {
+        final PlaybackSessionEvent playEvent = createPlayEvent(userUrn, trackSourceInfo, 3000L);
+        return createStopEvent(userUrn, trackSourceInfo, playEvent, 100000L, reason);
+    }
+
+    private PlaybackSessionEvent createPlayEvent(Urn user, TrackSourceInfo trackSourceInfo, long timestamp) {
+        return PlaybackSessionEvent.forPlay(TRACK_DATA, user, trackSourceInfo, 0L, timestamp, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+    }
+
+    private PlaybackSessionEvent createStopEvent(Urn user, TrackSourceInfo trackSourceInfo, PlaybackSessionEvent playEvent, long timestamp, int stopReason) {
+        return PlaybackSessionEvent.forStop(TRACK_DATA, user, trackSourceInfo, playEvent, 0L, timestamp, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, stopReason);
+    }
+
+        @Test
     public void createAudioEventUrlForAudioAdPlaybackEvent() throws UnsupportedEncodingException {
         final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAudioEvent(
-                PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L).withAudioAd(audioAdMetadata));
+                PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE).withAudioAd(audioAdMetadata));
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio?"
                 + "client_id=123"
                 + "&anonymous_id=9876"
@@ -206,7 +389,10 @@ public class EventLoggerUrlBuilderTest {
                 + "&protocol=hls"
                 + "&ad_urn=" + URLEncoder.encode(audioAdMetadata.get(AdProperty.AD_URN), "utf8")
                 + "&monetization_type=audio_ad"
-                + "&monetized_object=" + audioAdMetadata.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString())));
+                + "&monetized_object=" + audioAdMetadata.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()
+                + "&player_type=PLAYA"
+                + "&connection_type=3g"
+        )));
     }
 
     @Test
@@ -214,7 +400,7 @@ public class EventLoggerUrlBuilderTest {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
         final String url = eventLoggerUrlBuilder.buildForAudioAdImpression(
-                PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, PROTOCOL, trackSourceInfo, 0L, 321L).withAudioAd(audioAd));
+                PlaybackSessionEvent.forPlay(audioAdTrack, userUrn, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE).withAudioAd(audioAd));
 
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/impression?"
                 + "client_id=123"

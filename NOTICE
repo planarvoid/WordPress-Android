@@ -13,26 +13,17 @@ Copyright 1997-2007, Xiph.org Foundation, http://www.xiph.org/
 liboggz
 Copyright 2003, CSIRO Australia
 
-SoundCloud java-api-wrapper
-Copyright 2011, SoundCloud Ltd.
-
 Apache HttpComponents
 Copyright 2013, The Apache Software Foundation
 
-android-change-log
-Copyright 2011, Karsten Priegnitz
-
-ActionBar-PullToRefresh
-Copyright 2014, Chris Banes
-
-SeekBarPreference
-Copyright 2009, Matthew Wiggins
-
-DiskLruCache
-Copyright 2012, Jake Wharton
-
 Google Guava
 Copyright 2009-2013, Google Inc.
+
+json
+Copyright 2002 JSON.org
+
+Facebook Android SDK
+Copyright 2014 Facebook
 
 This software contains code derived from code developed by
 The Android Open Source Project (http://www.android.com/).

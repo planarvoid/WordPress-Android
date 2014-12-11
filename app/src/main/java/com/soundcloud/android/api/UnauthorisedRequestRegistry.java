@@ -55,13 +55,7 @@ public class UnauthorisedRequestRegistry {
     }
 
     @VisibleForTesting
-    public long getLastObservedTime() {
+    long getLastObservedTime() {
         return lastObservedTime.get();
     }
-
-    @VisibleForTesting
-    public void setLastObservedTime(long value) {
-        lastObservedTime.set(value);
-    }
-
 }

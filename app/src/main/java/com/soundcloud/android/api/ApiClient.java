@@ -22,6 +22,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 
 import javax.inject.Inject;
@@ -45,11 +46,12 @@ public class ApiClient {
     private final ApiWrapperFactory wrapperFactory;
     private final DeviceHelper deviceHelper;
     private final OAuth oAuth;
+    private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     @Inject
     public ApiClient(FeatureFlags featureFlags, OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, ApiWrapperFactory wrapperFactory, DeviceHelper deviceHelper,
-                     OAuth oAuth) {
+                     OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         this.featureFlags = featureFlags;
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
@@ -57,6 +59,7 @@ public class ApiClient {
         this.wrapperFactory = wrapperFactory;
         this.deviceHelper = deviceHelper;
         this.oAuth = oAuth;
+        this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
 
     public ApiResponse fetchResponse(ApiRequest request) {
@@ -130,6 +133,9 @@ public class ApiClient {
             final com.squareup.okhttp.Request httpRequest = builder.build();
             logRequest(httpRequest);
             final Response response = httpClient.newCall(httpRequest).execute();
+            if (response.code() == HttpStatus.SC_UNAUTHORIZED) {
+                unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+            }
             logResponse(response);
             return new ApiResponse(request, response.code(), response.body().string());
         }

@@ -321,6 +321,10 @@ public class ImageOperations {
         return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
     }
 
+    public String getUrlForLargestImage(Resources resources, Urn urn){
+        return buildUrlIfNotPreviouslyMissing(urn, ApiImageSize.getFullImageSize(resources));
+    }
+
     /**
      * Adjust urls to use insecure protocol. Will result in more cache hits
      */

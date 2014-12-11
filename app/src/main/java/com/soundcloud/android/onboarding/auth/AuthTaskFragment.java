@@ -30,7 +30,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private WeakReference<OnAuthResultListener> listenerRef;
 
     public interface OnAuthResultListener {
-        void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
+        void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);
         void onError(String message);
         void onEmailTaken();
         void onSpam();
@@ -141,7 +141,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         if (listener != null) {
             if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
-                        this instanceof SignupTaskFragment);
+                        this instanceof SignupTaskFragment, result.getShowFacebookSuggestions());
             } else if (result.wasEmailTaken()) {
                 listener.onEmailTaken();
             } else if (result.wasSpam()) {

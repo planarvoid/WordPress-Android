@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.cast.CastSessionReconnector;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
@@ -28,7 +29,6 @@ import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.rx.RxGlobalErrorHandler;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.GeneralSettings;
@@ -46,7 +46,6 @@ import com.soundcloud.android.utils.MemoryReporter;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
-import rx.plugins.RxJavaPlugins;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -95,6 +94,7 @@ public class SoundCloudApplication extends Application {
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
+    @Inject CastSessionReconnector castSessionReconnector;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -120,7 +120,6 @@ public class SoundCloudApplication extends Application {
 
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
-        registerRxGlobalErrorHandler();
         objectGraph.inject(this);
 
         // reroute to a static field for legacy code
@@ -160,11 +159,15 @@ public class SoundCloudApplication extends Application {
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
         adsController.subscribe();
+
+        if (featureFlags.isEnabled(Feature.GOOGLE_CAST)){
+            castSessionReconnector.startListening();
+        }
     }
 
     private void generateDeviceKey() {
         if (featureFlags.isEnabled(Feature.DEVICE_KEY_GENERATION)) {
-            cryptoOperations.generateDeviceKeyIfNeeded();
+            cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
         }
     }
 
@@ -183,13 +186,6 @@ public class SoundCloudApplication extends Application {
         if (isReportingCrashes()) {
             Crashlytics.start(this);
             ErrorUtils.setupOOMInterception(memoryReporter);
-        }
-    }
-
-    private void registerRxGlobalErrorHandler() {
-        final RxJavaPlugins rxJavaPlugins = RxJavaPlugins.getInstance();
-        if (rxJavaPlugins.getErrorHandler() == null) {
-            rxJavaPlugins.registerErrorHandler(new RxGlobalErrorHandler());
         }
     }
 

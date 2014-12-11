@@ -94,12 +94,10 @@
     <string name="authentication_error_incomplete_fields">Es obligatorio rellenar todos los campos.</string>
     <string name="authentication_error_invalid_email">Por favor, introduce un correo electrónico válido.</string>
     <string name="authentication_error_no_connection_message">Hay un problema con la conexión de datos. Por favor, revise la configuración de red.</string>
-    <string name="authentication_error_no_connection_title">¿Seguro que estás conectado a Internet?</string>
     <string name="authentication_error_password_too_short">Tu contraseña debe tener 6 o más caracteres.</string>
     <string name="authentication_error_title">Error</string>
     <string name="authentication_log_in">Iniciar sesión</string>
     <string name="authentication_log_in_with_facebook">Conectate con Facebook</string>
-    <string name="authentication_log_in_with_facebook_ssl_error">Error al conectar con Facebook (SSL)</string>
     <string name="authentication_login_error_password_message">No has podido conectarte. ¿Estás seguro que tenías el correo electrónico y la contraseña correctos?</string>
     <string name="authentication_login_progress_message">Iniciando sesión</string>
     <string name="authentication_recover_password">Recuperar contraseña</string>
@@ -123,9 +121,7 @@
     <string name="error_google_sign_in_failed">No has podido iniciar sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ y vuelve a intentarlo</string>
     <string name="auth_disclaimer_title">Un paso más</string>
     <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las condiciones de uso y la política de privacidad de SoundCloud.</string>
-    <string name="facebook_authentication_error_no_connection_message">Por favor, inténtalo de nuevo en breve o inicia sesión con tu nombre de usuario y contraseña de SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Por favor, inténtalo de nuevo en breve o inicia sesión con tu nombre de usuario y contraseña de SoundCloud.</string>
-    <string name="facebook_authentication_failed_title">No podemos conectarnos a Facebook en este momento.</string>
     <string name="authentication_recover_password_msg">Ingresa tu correo electrónico y te enviaremos un enlace que te permitirá cambiar tu contraseña.¿Problemas? Puedes contactar al soporte.</string>
     <string name="authentication_blocked_title">No hemos podido registrarte.</string>
     <string name="authentication_blocked_message">Nuestros robots piensan que este registro parece spam. Si crees que esto es un error, por favor <a href="http://help.soundcloud.com/customer/portal/emails/new"> contáctate con nuestro soporte </a>

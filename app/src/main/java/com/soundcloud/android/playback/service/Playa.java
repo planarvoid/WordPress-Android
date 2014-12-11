@@ -32,6 +32,9 @@ public interface Playa {
 
     static class StateTransition {
         public static final int EXTRA_PLAYBACK_PROTOCOL = 0;
+        public static final int EXTRA_PLAYER_TYPE = 1;
+        public static final int EXTRA_CONNECTION_TYPE = 2;
+        public static final int EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE = 3;
 
         private static final String TRACK_URN_EXTRA = "TRACK_URN_EXTRA";
         private static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";

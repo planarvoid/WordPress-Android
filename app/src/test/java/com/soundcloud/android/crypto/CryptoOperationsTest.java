@@ -1,64 +1,115 @@
 package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.CryptoAssertions.expectByteArraysToBeEqual;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.google.common.base.Charsets;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import rx.schedulers.TestScheduler;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import rx.schedulers.Schedulers;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CryptoOperationsTest {
+
     private CryptoOperations operations;
-    private KeyStorage storage;
+
+    @Mock private KeyStorage storage;
+    @Mock private InputStream inputStream;
+    @Mock private OutputStream outputStream;
+    @Mock private Encryptor encryptor;
+    @Mock private DeviceSecret deviceSecret;
+
+    private final static String KEY_NAME = "some key";
 
     @Before
     public void setUp() throws Exception {
-        SharedPreferences preferences = Robolectric.application.getSharedPreferences("test", Context.MODE_PRIVATE);
-        preferences.edit().clear().apply();
-        storage = new KeyStorage(preferences);
-        operations = new CryptoOperations(storage, new TestScheduler());
+        operations = new CryptoOperations(storage, encryptor, Schedulers.immediate());
+        when(storage.contains(KEY_NAME)).thenReturn(true);
+        when(storage.get(KEY_NAME)).thenReturn(deviceSecret);
     }
 
     @Test
     public void generateKeyWhenItDoesNotExist() {
-        byte[] key1 = operations.getKeyOrGenerateAndStore("my key");
-        storage.delete("my key");
-        byte[] key2 = operations.getKeyOrGenerateAndStore("my key");
+        when(storage.contains(KEY_NAME)).thenReturn(false);
 
-        assertThat(key1, is(not(key2)));
+        operations.getKeyOrGenerateAndStore("my key");
+
+        verify(storage).put(any(DeviceSecret.class));
+        verify(storage, never()).get(KEY_NAME);
     }
 
     @Test
     public void doNotRegenerateKeyIfItExists() {
-        byte[] key1 = operations.getKeyOrGenerateAndStore("my key");
-        byte[] key2 = operations.getKeyOrGenerateAndStore("my key");
+        operations.getKeyOrGenerateAndStore(KEY_NAME);
 
-        assertThat(key1, is(key2));
-    }
-
-    @Test
-    public void returnTheKeyWhenItExists() {
-        DeviceSecret storedKey = new DeviceSecret("my key", "blablabla".getBytes(Charsets.US_ASCII));
-        storage.put(storedKey);
-
-        byte[] returnedKey = operations.getKeyOrGenerateAndStore(storedKey.getName());
-
-        expectByteArraysToBeEqual(returnedKey, storedKey.getKey());
+        verify(storage).get(KEY_NAME);
+        verify(storage, never()).put(any(DeviceSecret.class));
     }
 
     @Test
     public void keyLengthShouldBe16() {
         expect(operations.getKeyOrGenerateAndStore("my key").length).toBe(16);
     }
+
+    @Test
+    public void generateAndStoreDeviceKeyGeneratedAndStoreDeviceKey() {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(false);
+
+        operations.generateAndStoreDeviceKeyIfNeeded();
+
+        InOrder inOrder = inOrder(storage);
+        inOrder.verify(storage).put(any(DeviceSecret.class));
+        inOrder.verify(storage).get(CryptoOperations.DEVICE_KEY);
+    }
+
+    @Test
+    public void generateAndStoreDeviceDoesNotRegeneratesKeyWhenAlreadyExist() {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(true);
+
+        operations.generateAndStoreDeviceKeyIfNeeded();
+
+        verify(storage).get(CryptoOperations.DEVICE_KEY);
+        verify(storage, never()).put(any(DeviceSecret.class));
+    }
+
+    @Test
+    public void generateHashForUrnCallsEncryptor() throws EncryptionException {
+        final Urn trackUrn = Urn.forTrack(123L);
+        operations.generateHashForUrn(trackUrn);
+
+        verify(encryptor).hash(trackUrn);
+    }
+
+    @Test
+    public void encryptStreamDelegatesToEncryptor() throws Exception {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(true);
+        when(storage.get(CryptoOperations.DEVICE_KEY)).thenReturn(deviceSecret);
+
+        operations.encryptStream(inputStream, outputStream);
+
+        verify(encryptor).encrypt(inputStream, outputStream, deviceSecret);
+    }
+
+    @Test
+    public void encryptStreamShouldRegenerateDeviceKeyIfNotPresent() throws Exception {
+        when(storage.contains(CryptoOperations.DEVICE_KEY)).thenReturn(false);
+
+        operations.encryptStream(inputStream, outputStream);
+
+        InOrder inOrder = inOrder(storage);
+        inOrder.verify(storage).contains(CryptoOperations.DEVICE_KEY);
+        inOrder.verify(storage).put(any(DeviceSecret.class));
+     }
+
 }

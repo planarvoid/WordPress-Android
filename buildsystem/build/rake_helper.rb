@@ -65,10 +65,12 @@ module Build
             :aar => true,
             :path_filter => /\/common/, # Guava stuff is under com/google as well, ignore it
             :pg_rules => [
-              '-keep class com.google.android.gms.auth.GoogleAuthUtil { *; }'
+              '-keep class com.google.android.gms.auth.GoogleAuthUtil { *; }',
+              '-keep class com.google.android.gms.cast.** { *; }',
+              '-keepclassmembers class com.google.android.gms.cast.** { *; }'
             ]
           }
-          Repacker.repack "com/google", "com.google.android.gms", "google-play-services", default_options.merge(options)
+          Repacker.repack "com/google", "com.google.android.gms", "play-services", default_options.merge(options)
         end
       end
     end

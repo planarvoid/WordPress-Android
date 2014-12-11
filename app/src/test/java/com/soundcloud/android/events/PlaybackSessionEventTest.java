@@ -29,51 +29,53 @@ public class PlaybackSessionEventTest {
     );
     private static final PropertySet AUDIO_AD_DATA = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
     private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
+    private static final String PLAYER_TYPE = "PLAYA";
+    private static final String CONNECTION_TYPE = "CONNECTION";
 
     @Mock TrackSourceInfo trackSourceInfo;
 
     @Test
     public void stopEventSetsTimeElapsedSinceLastPlayEvent() throws Exception {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, PROGRESS);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, playEvent,
-                PlaybackSessionEvent.STOP_REASON_BUFFERING, PROGRESS);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING
+        );
         expect(stopEvent.getListenTime()).toEqual(stopEvent.getTimeStamp() - playEvent.getTimeStamp());
     }
 
     @Test
     public void stopEventSetsStopReason() throws Exception {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, PROGRESS);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, playEvent,
-                PlaybackSessionEvent.STOP_REASON_BUFFERING, PROGRESS);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING
+        );
         expect(stopEvent.getStopReason()).toEqual(PlaybackSessionEvent.STOP_REASON_BUFFERING);
     }
 
     @Test
     public void aPlayEventWithProgressZeroIsAFirstPlay() throws Exception {
         long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, progress);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         expect(playEvent.isFirstPlay()).toBeTrue();
     }
 
     @Test
     public void aPlayEventWithProgressOtherThanZeroIsNotAFirstPlay() {
         long progress = 1000L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, progress);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         expect(playEvent.isFirstPlay()).toBeFalse();
     }
 
     @Test
     public void aStopEventWithProgressZeroIsNotAFirstPlay() {
         long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, progress);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, playEvent,
-                PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, progress);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
+        );
         expect(stopEvent.isFirstPlay()).toBeFalse();
     }
 
     @Test
     public void noAdUrnIndicatesNoAd() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, PROTOCOL, trackSourceInfo, PROGRESS);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         expect(playEvent.isAd()).toBeFalse();
     }
 
@@ -82,9 +84,9 @@ public class PlaybackSessionEventTest {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
                 AUDIO_AD_TRACK_DATA,
                 USER_URN,
-                "hls",
-                trackSourceInfo,
-                0L).withAudioAd(AUDIO_AD_DATA);
+                trackSourceInfo, 0L, "hls",
+                PLAYER_TYPE,
+                CONNECTION_TYPE).withAudioAd(AUDIO_AD_DATA);
 
         expect(playEvent.isAd()).toBeTrue();
     }
@@ -95,7 +97,7 @@ public class PlaybackSessionEventTest {
 
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(TRACK_URN),
-                USER_URN, PROTOCOL, trackSourceInfo, PROGRESS, 1000L).withAudioAd(audioAd);
+                USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE).withAudioAd(audioAd);
 
         expect(event.isAd()).toBeTrue();
         expect(event.get(AdTrackingKeys.KEY_AD_URN)).toEqual("advertisement:123");

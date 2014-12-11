@@ -1,8 +1,6 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.ConnectionType;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;

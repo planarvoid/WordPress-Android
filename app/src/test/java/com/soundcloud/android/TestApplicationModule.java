@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.cast.CastSessionReconnector;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
@@ -177,6 +178,11 @@ public class TestApplicationModule {
     @Provides
     public Scheduler provideDatabaseScheduler() {
         return mock(Scheduler.class);
+    }
+
+    @Provides
+    public CastSessionReconnector provideCastSessionReconnector() {
+        return mock(CastSessionReconnector.class);
     }
 }
 

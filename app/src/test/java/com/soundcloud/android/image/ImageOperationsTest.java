@@ -384,6 +384,11 @@ public class ImageOperationsTest {
         verify(blurCache).put(URN, blurredBitmap);
     }
 
+    @Test
+    public void buildUrlIfNotPreviouslyMissingReturnsFullSizeUrl() throws Exception {
+        expect(imageOperations.getUrlForLargestImage(resources, URN)).toEqual("https://api-mobile.soundcloud.com/images/soundcloud:tracks:1/t500x500");
+    }
+
     private void verifyFullCacheOptions() {
         expect(displayOptionsCaptor.getValue().isCacheOnDisk()).toBeTrue();
         expect(displayOptionsCaptor.getValue().isCacheInMemory()).toBeTrue();

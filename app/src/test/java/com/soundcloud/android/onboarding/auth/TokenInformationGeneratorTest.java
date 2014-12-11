@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 
+import static com.pivotallabs.greatexpectations.Expect.expect;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,4 +72,24 @@ public class TokenInformationGeneratorTest {
 
     }
 
+    @Test
+    public void shouldRecognizeFacebookGrants() throws IOException {
+        Bundle bundle = tokenInformationGenerator.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, "some_token_string_here");
+
+        expect(tokenInformationGenerator.isFromFacebook(bundle)).toBeTrue();
+    }
+
+    @Test
+    public void shouldRecognizeNonFacebookGrants() throws IOException {
+        Bundle bundle = tokenInformationGenerator.getGrantBundle(OAuth.GRANT_TYPE_GOOGLE_PLUS, "some_token_string_here");
+
+        expect(tokenInformationGenerator.isFromFacebook(bundle)).toBeFalse();
+    }
+
+    @Test
+    public void shouldHandleBundleWithNoGrantType() throws IOException {
+        Bundle bundle = new Bundle();
+
+        expect(tokenInformationGenerator.isFromFacebook(bundle)).toBeFalse();
+    }
 }

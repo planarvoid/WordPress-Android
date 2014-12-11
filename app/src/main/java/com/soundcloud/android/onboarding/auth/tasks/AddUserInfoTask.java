@@ -55,7 +55,7 @@ public class AddUserInfoTask extends AuthTask {
                 case HttpStatus.SC_OK:
                     PublicApiUser u = oldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), PublicApiUser.class);
                     addAccount(u, oldCloudAPI.getToken(), SignupVia.API);
-                    return AuthTaskResult.success(u, SignupVia.API);
+                    return AuthTaskResult.success(u, SignupVia.API, false);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:
                     return AuthTaskResult.failure(extractErrors(resp));

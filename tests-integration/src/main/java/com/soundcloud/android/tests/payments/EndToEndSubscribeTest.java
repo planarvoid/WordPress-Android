@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.payments;
 
+import com.soundcloud.android.framework.annotation.End2End;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.screens.MainScreen;
@@ -25,6 +26,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
+    @End2End
     public void testUserCanSubscribe() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
@@ -34,6 +36,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
         assertTrue(new SubscribeSuccessScreen(solo).isVisible());
     }
 
+    @End2End
     public void testInvalidPayment() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
@@ -47,4 +50,5 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
     protected void observeToastsHelper() {
         toastObserver.observe();
     }
+
 }

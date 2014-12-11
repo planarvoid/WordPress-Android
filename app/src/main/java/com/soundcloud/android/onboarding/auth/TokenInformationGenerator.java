@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 
 import android.os.Bundle;
@@ -38,12 +39,20 @@ public class TokenInformationGenerator {
                     param.getString(TokenKeys.PASSWORD_EXTRA));
 
         } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
-            return oldCloudAPI.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA));
+            return oldCloudAPI.extensionGrantType(extractGrantType(param));
 
         } else {
             throw new IllegalArgumentException("invalid param " + param);
         }
     }
 
+    public boolean isFromFacebook(Bundle data) {
+        final String grantType = extractGrantType(data);
+        return grantType != null && grantType.startsWith(OAuth.GRANT_TYPE_FACEBOOK);
+    }
+
+    private String extractGrantType(Bundle data) {
+        return data.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA);
+    }
 
 }

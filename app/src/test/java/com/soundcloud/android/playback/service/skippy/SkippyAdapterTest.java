@@ -1,7 +1,9 @@
 package com.soundcloud.android.playback.service.skippy;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.PlaybackPerformanceEvent.PlayerType;
+
+import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.skippy.Skippy.Error;
 import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
@@ -26,6 +28,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -75,6 +78,7 @@ public class SkippyAdapterTest {
     @Mock private Skippy.Configuration configuration;
     @Mock private LockUtil lockUtil;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private Urn userUrn;
@@ -87,7 +91,7 @@ public class SkippyAdapterTest {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, new ApiUrlBuilder(httpProperties),
-                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper);
+                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
@@ -98,7 +102,7 @@ public class SkippyAdapterTest {
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(listener.requestAudioFocus()).thenReturn(true);
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
-        when(connectionHelper.getCurrentConnectionType()).thenReturn(PlaybackPerformanceEvent.ConnectionType.FOUR_G);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
     }
 
     @Test

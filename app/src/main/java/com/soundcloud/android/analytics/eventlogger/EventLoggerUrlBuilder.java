@@ -64,6 +64,7 @@ public class EventLoggerUrlBuilder {
     private static final String CLICK_OBJECT = "click_object";
     private static final String CLICK_TARGET = "click_target";
     public static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
+    private static final String REASON = "reason";
 
     private final String appId;
     private final String endpoint;
@@ -192,7 +193,12 @@ public class EventLoggerUrlBuilder {
 
         // audio event specific params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md#android
-        builder.appendQueryParameter(ACTION, event.isPlayEvent() ? "play" : "stop");
+        if (event.isPlayEvent()) {
+            builder.appendQueryParameter(ACTION, "play");
+        } else {
+            builder.appendQueryParameter(ACTION, "stop");
+            builder.appendQueryParameter(REASON, getStopReason(event));
+        }
         builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
         // EventLogger v0 requires us to pass URNs in the legacy format
         builder.appendQueryParameter(SOUND, event.get(PlaybackSessionEvent.KEY_TRACK_URN).replaceFirst(":tracks:", ":sounds:"));
@@ -211,6 +217,8 @@ public class EventLoggerUrlBuilder {
         }
         builder.appendQueryParameter(PAGE_NAME, formatOriginUrl(trackSourceInfo.getOriginScreen()));
         builder.appendQueryParameter(PROTOCOL, event.get(PlaybackSessionEvent.KEY_PROTOCOL));
+        builder.appendQueryParameter(PLAYER_TYPE, event.get(PlaybackSessionEvent.PLAYER_TYPE));
+        builder.appendQueryParameter(CONNECTION_TYPE, event.get(PlaybackSessionEvent.CONNECTION_TYPE));
 
         if (trackSourceInfo.hasSource()) {
             builder.appendQueryParameter(SOURCE, trackSourceInfo.getSource());
@@ -231,6 +239,27 @@ public class EventLoggerUrlBuilder {
         }
 
         return builder.build().toString();
+    }
+
+    private String getStopReason(PlaybackSessionEvent eventData) {
+        switch (eventData.getStopReason()) {
+            case PlaybackSessionEvent.STOP_REASON_PAUSE:
+                return "pause";
+            case PlaybackSessionEvent.STOP_REASON_BUFFERING:
+                return "buffering";
+            case PlaybackSessionEvent.STOP_REASON_SKIP:
+                return "skip";
+            case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:
+                return "track_finished";
+            case PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE:
+                return "end_of_content";
+            case PlaybackSessionEvent.STOP_REASON_NEW_QUEUE:
+                return "context_change";
+            case PlaybackSessionEvent.STOP_REASON_ERROR:
+                return "playback_error";
+            default:
+                throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
+        }
     }
 
     public String build(PlaybackPerformanceEvent event) {

@@ -20,7 +20,7 @@ public class AuthTaskResultTest {
         PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
         SignupVia signupVia = SignupVia.NONE;
 
-        AuthTaskResult result = AuthTaskResult.success(user, signupVia);
+        AuthTaskResult result = AuthTaskResult.success(user, signupVia, false);
 
         expect(result.wasSuccess()).toBeTrue();
         expect(result.getUser()).toEqual(user);

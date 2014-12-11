@@ -33,7 +33,6 @@ import java.util.Locale;
 public abstract class AbstractLoginActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     protected static final String LOGIN_DIALOG_TAG = "login_dialog";
     private static final String SIGNUP_WITH_CAPTCHA_URI = "https://soundcloud.com/connect?c=true&highlight=signup&client_id=%s&redirect_uri=soundcloud://auth&response_type=code&scope=non-expiring";
-    private static final String EXTRA_WAS_SIGNUP = "wasSignup";
 
     /**
      * Extracted account authenticator functions. Extracted because of Fragment usage, we have to extend FragmentActivity.
@@ -96,7 +95,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     }
 
     /**
-     * Used for creating SoundCloud account from {@link FacebookWebFlowActivity} and {@link FacebookSSOActivity}
+     * Used for creating SoundCloud account from Facebook SDK
      *
      * @param data contains grant data and FB token
      */
@@ -107,20 +106,20 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
     }
 
     @Override
-    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean shouldAddUserInfo) {
+    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean shouldAddUserInfo, boolean showFacebookSuggestions) {
         final Bundle result = new Bundle();
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-        result.putBoolean(EXTRA_WAS_SIGNUP, via != SignupVia.NONE);
+        boolean wasSignup = via != SignupVia.NONE;
         resultBundle = result;
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                 .putExtra(PublicApiUser.EXTRA_ID, user.getId())
                 .putExtra(SignupVia.EXTRA, via.name));
 
-        if (result.getBoolean(EXTRA_WAS_SIGNUP) || wasAuthorizedViaSignupScreen()) {
+        if (wasSignup || wasAuthorizedViaSignupScreen()) {
             startActivity(new Intent(this, SuggestedUsersActivity.class)
-                    .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, this instanceof FacebookBaseActivity)
+                    .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, showFacebookSuggestions)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } else {
             startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
