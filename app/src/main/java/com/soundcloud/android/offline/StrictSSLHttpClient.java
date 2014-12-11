@@ -11,17 +11,18 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
 
-class DownloadHttpClient {
+class StrictSSLHttpClient {
 
     private final OkHttpClient httpClient;
     private final OAuth oAuth;
     private final DeviceHelper deviceHelper;
 
     @Inject
-    public DownloadHttpClient(OkHttpClient client, DeviceHelper helper, OAuth oAuth) {
+    public StrictSSLHttpClient(@Named("StrictSSLHttpClient") OkHttpClient client, DeviceHelper helper, OAuth oAuth) {
         this.httpClient = client;
         this.deviceHelper = helper;
         this.oAuth = oAuth;

@@ -28,7 +28,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class DownloadControllerTest {
 
-    @Mock private DownloadHttpClient httpClient;
+    @Mock private StrictSSLHttpClient httpClient;
     @Mock private SecureFileStorage trackStorage;
     @Mock private TrackDownloadsStorage downloadsStorage;
     @Mock private InputStream inputStream;
