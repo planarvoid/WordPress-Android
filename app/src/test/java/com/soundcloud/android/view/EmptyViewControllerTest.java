@@ -2,12 +2,15 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.sync.SyncFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,6 +60,27 @@ public class EmptyViewControllerTest {
         controller.onViewCreated(layout, null);
         controller.connect(reactiveComponent, Observable.empty());
         verify(emptyView).setStatus(EmptyView.Status.OK);
+    }
+
+    @Test
+    public void shouldSetEmptyViewStateToServerErrorWhenControllerReceivesErrorForApiRequestExceptionNotRelatedToNetwork() {
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, Observable.error(ApiRequestException.notFound(null)));
+        verify(emptyView).setStatus(EmptyView.Status.SERVER_ERROR);
+    }
+
+    @Test
+    public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForApiRequestExceptionRelatedToNetwork() {
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, Observable.error(ApiRequestException.networkError(null, null)));
+        verify(emptyView).setStatus(EmptyView.Status.CONNECTION_ERROR);
+    }
+
+    @Test
+    public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForSyncFailedException() {
+        controller.onViewCreated(layout, null);
+        controller.connect(reactiveComponent, Observable.error(mock(SyncFailedException.class)));
+        verify(emptyView).setStatus(EmptyView.Status.CONNECTION_ERROR);
     }
 
     @Test
