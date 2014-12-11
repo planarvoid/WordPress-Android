@@ -270,11 +270,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
 
     @Override
     public void setVolume(float v) {
-        try {
-            castManager.setVolume(v);
-        } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException  e) {
-            Log.e(TAG, "Unable to set volume", e);
-        }
+        // Cast volume is handled directly by VideCastManager
     }
 
     @Override
