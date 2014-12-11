@@ -47,7 +47,7 @@ public class ApiPlaylistBlueprint {
     Sharing sharing = Sharing.PUBLIC;
 
     @Default
-    String permalinkUrn = "http://permalinkUrn";
+    String permalinkUrl = "http://permalink";
 
     @Default
     PlayableStats stats = new PlayableStats() {
