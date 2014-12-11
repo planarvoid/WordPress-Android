@@ -2,6 +2,8 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -54,6 +56,7 @@ public class ApiClientTest {
     @Mock private PublicApiWrapper publicApiWrapper;
     @Mock private HttpProperties httpProperties;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Captor private ArgumentCaptor<Request> requestCaptor;
 
     @Before
@@ -62,7 +65,7 @@ public class ApiClientTest {
         when(wrapperFactory.createWrapper(any(ApiRequest.class))).thenReturn(publicApiWrapper);
         when(deviceHelper.getUserAgent()).thenReturn("");
         apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
-                wrapperFactory, deviceHelper, new OAuth(CLIENT_ID, CLIENT_SECRET, TOKEN));
+                wrapperFactory, deviceHelper, new OAuth(CLIENT_ID, CLIENT_SECRET, TOKEN), unauthorisedRequestRegistry);
     }
 
     @After
@@ -275,6 +278,16 @@ public class ApiClientTest {
     }
 
     @Test
+    public void shouldRegister401sWithUnauthorizedRequestRegistry() throws IOException {
+        fakeApiMobileResponse(new MockResponse().setResponseCode(200), new MockResponse().setResponseCode(401));
+        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
+        apiClient.fetchResponse(request); // 200 -- no interaction with registry expected
+        verifyZeroInteractions(unauthorisedRequestRegistry);
+        apiClient.fetchResponse(request); // 401 -- interaction with registry expected
+        verify(unauthorisedRequestRegistry).updateObservedUnauthorisedRequestTimestamp();
+    }
+
+    @Test
     public void shouldFailRequestIfApiReturnsErrorCode() throws IOException {
         when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(404, "not found"));
         ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
@@ -456,9 +469,11 @@ public class ApiClientTest {
         apiClient.fetchMappedResponse(request);
     }
 
-    private void fakeApiMobileResponse(MockResponse mockResponse) throws IOException {
+    private void fakeApiMobileResponse(MockResponse... mockResponses) throws IOException {
         when(featureFlags.isEnabled(Feature.OKHTTP)).thenReturn(true);
-        mockWebServer.enqueue(mockResponse);
+        for (MockResponse response : mockResponses) {
+            mockWebServer.enqueue(response);
+        }
         mockWebServer.play();
         when(httpProperties.getMobileApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }
