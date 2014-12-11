@@ -344,7 +344,7 @@ public class PublicApiTrackTest {
     @Test
     public void shouldConvertToPropertySetWithBlankUsernameIfUsernameNull() throws CreateModelException {
         PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        track.setUser(new PublicApiUser());
+        track.setUser(new PublicApiUser(1L));
 
         PropertySet propertySet = track.toPropertySet();
         expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(ScTextUtils.EMPTY_STRING);

@@ -7,6 +7,8 @@ import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
+import java.util.Date;
+
 @Deprecated
 @Blueprint(PublicApiPlaylist.class)
 public class PublicApiPlaylistBlueprint {
@@ -22,6 +24,9 @@ public class PublicApiPlaylistBlueprint {
 
     @Default
     String title = "new playlist " + System.currentTimeMillis();
+
+    @Default
+    Date createdAt = new Date();
 
     @Mapped
     PublicApiUser user;
