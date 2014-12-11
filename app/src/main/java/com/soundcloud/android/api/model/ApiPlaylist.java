@@ -23,7 +23,7 @@ public class ApiPlaylist extends ScModel implements PropertySetSource {
     private PlayableStats stats;
     private int duration;
     private Sharing sharing;
-    private String permalinkUrn;
+    private String permalinkUrl;
 
     /**
      * Required for Jackson
@@ -101,13 +101,13 @@ public class ApiPlaylist extends ScModel implements PropertySetSource {
         this.sharing = sharing;
     }
 
-    public String getPermalinkUrn() {
-        return permalinkUrn;
+    public String getPermalinkUrl() {
+        return permalinkUrl;
     }
 
-    @JsonProperty("permalink_urn")
-    public void setPermalinkUrn(String permalinkUrn) {
-        this.permalinkUrn = permalinkUrn;
+    @JsonProperty("permalink_url")
+    public void setPermalinkUrl(String permalinkUrl) {
+        this.permalinkUrl = permalinkUrl;
     }
 
     @Deprecated
@@ -138,13 +138,13 @@ public class ApiPlaylist extends ScModel implements PropertySetSource {
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(
-                PlaylistProperty.URN.bind(getUrn()),
-                PlaylistProperty.TITLE.bind(getTitle()),
-                PlaylistProperty.CREATED_AT.bind(getCreatedAt()),
-                PlaylistProperty.DURATION.bind(getDuration()),
-                PlaylistProperty.PERMALINK_URL.bind(getPermalinkUrn()),
+                PlaylistProperty.URN.bind(urn),
+                PlaylistProperty.TITLE.bind(title),
+                PlaylistProperty.CREATED_AT.bind(createdAt),
+                PlaylistProperty.DURATION.bind(duration),
+                PlaylistProperty.PERMALINK_URL.bind(permalinkUrl),
                 PlaylistProperty.IS_PRIVATE.bind(!isPublic()),
-                PlaylistProperty.TRACK_COUNT.bind(getTrackCount()),
+                PlaylistProperty.TRACK_COUNT.bind(trackCount),
                 PlaylistProperty.LIKES_COUNT.bind(getStats().getLikesCount()),
                 PlaylistProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 PlaylistProperty.CREATOR_NAME.bind(getUsername()),

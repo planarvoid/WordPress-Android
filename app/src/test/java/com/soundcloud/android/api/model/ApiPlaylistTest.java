@@ -22,7 +22,7 @@ public class ApiPlaylistTest {
         expect(propertySet.get(PlaylistProperty.TITLE)).toEqual(playlist.getTitle());
         expect(propertySet.get(PlaylistProperty.CREATED_AT)).toEqual(playlist.getCreatedAt());
         expect(propertySet.get(PlaylistProperty.DURATION)).toEqual(playlist.getDuration());
-        expect(propertySet.get(PlaylistProperty.PERMALINK_URL)).toEqual(playlist.getPermalinkUrn());
+        expect(propertySet.get(PlaylistProperty.PERMALINK_URL)).toEqual(playlist.getPermalinkUrl());
         expect(propertySet.get(PlaylistProperty.IS_PRIVATE)).toEqual(!playlist.isPublic());
         expect(propertySet.get(PlaylistProperty.TRACK_COUNT)).toEqual(playlist.getTrackCount());
         expect(propertySet.get(PlaylistProperty.LIKES_COUNT)).toEqual(playlist.getStats().getLikesCount());

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
 import android.os.Parcel;
@@ -59,7 +60,8 @@ public class ApiUser extends ScModel implements PropertySetSource {
     }
 
     public void setCountry(String country) {
-        this.country = country;
+        // country can come back as null from the API
+        this.country = ScTextUtils.safeToString(country);
     }
 
     public int getFollowersCount() {
@@ -86,10 +88,10 @@ public class ApiUser extends ScModel implements PropertySetSource {
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(
-                UserProperty.URN.bind(getUrn()),
-                UserProperty.USERNAME.bind(getUsername()),
-                UserProperty.COUNTRY.bind(getCountry()),
-                UserProperty.FOLLOWERS_COUNT.bind(getFollowersCount())
+                UserProperty.URN.bind(urn),
+                UserProperty.USERNAME.bind(username),
+                UserProperty.COUNTRY.bind(country),
+                UserProperty.FOLLOWERS_COUNT.bind(followersCount)
         );
     }
 }
