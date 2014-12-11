@@ -39,7 +39,6 @@ import android.content.res.Resources;
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlayerTest {
 
-    private static final String CLIENT_ID = "123asdf";
     public static final String HTTP_IMAGE_URL = "http://image.url";
 
     private CastPlayer castPlayer;
@@ -59,9 +58,8 @@ public class CastPlayerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(httpProperties.getClientId()).thenReturn(CLIENT_ID);
 
-        castPlayer = new CastPlayer(castManager, httpProperties, progressReporter, imageOperations, resources);
+        castPlayer = new CastPlayer(castManager, progressReporter, imageOperations, resources);
         castPlayer.setListener(playerListener);
     }
 
@@ -246,7 +244,7 @@ public class CastPlayerTest {
         final MediaInfo value = mediaInfoArgumentCaptor.getValue();
         expect(value.getContentType()).toEqual("audio/mpeg");
         expect(value.getMetadata().getImages().get(0).getUrl().toString()).toEqual(HTTP_IMAGE_URL);
-        expect(value.getContentId()).toEqual(track.get(TrackProperty.STREAM_URL) + "?client_id=" + CLIENT_ID);
+        expect(value.getContentId()).toEqual(track.get(TrackProperty.URN).toString());
         expect(new Urn(value.getMetadata().getString(CastPlayer.KEY_URN))).toEqual(track.get(TrackProperty.URN));
     }
 

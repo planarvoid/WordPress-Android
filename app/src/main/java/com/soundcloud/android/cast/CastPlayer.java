@@ -10,7 +10,6 @@ import com.google.sample.castcompanionlibrary.cast.callbacks.VideoCastConsumerIm
 import com.google.sample.castcompanionlibrary.cast.exceptions.CastException;
 import com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException;
 import com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ProgressReporter;
@@ -35,7 +34,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
     private final static String TAG = "CastPlayer";
 
     private final VideoCastManager castManager;
-    private final HttpProperties httpProperties;
     private final ProgressReporter progressReporter;
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -45,10 +43,9 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
     private boolean shouldBePlaying;
 
     @Inject
-    public CastPlayer(VideoCastManager castManager,  HttpProperties httpProperties, ProgressReporter progressReporter,
+    public CastPlayer(VideoCastManager castManager, ProgressReporter progressReporter,
                       ImageOperations imageOperations, Resources resources) {
         this.castManager = castManager;
-        this.httpProperties = httpProperties;
         this.progressReporter = progressReporter;
         this.imageOperations = imageOperations;
         this.resources = resources;
@@ -180,8 +177,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
                 mediaMetadata.putString(KEY_URN, urn.toString());
                 mediaMetadata.addImage(new WebImage(Uri.parse(imageOperations.getUrlForLargestImage(resources, currentTrackUrn))));
 
-                final String streamUrlWithClientId = getStreamUrlWithClientId(track);
-                MediaInfo mediaInfo = new MediaInfo.Builder(streamUrlWithClientId)
+                MediaInfo mediaInfo = new MediaInfo.Builder(urn.toString())
                         .setContentType("audio/mpeg")
                         .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                         .setMetadata(mediaMetadata)
@@ -219,11 +215,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
     private void reconnectToExistingSession(Urn currentPlayingUrn) {
         currentTrackUrn = currentPlayingUrn;
         onMediaPlayerStatusUpdatedListener(castManager.getPlaybackStatus(), castManager.getIdleReason());
-    }
-
-    private String getStreamUrlWithClientId(PropertySet track) {
-        // we will eventually be able to play with just a urn, this is temporary
-        return track.get(TrackProperty.STREAM_URL) + "?client_id=" + httpProperties.getClientId();
     }
 
     @Override

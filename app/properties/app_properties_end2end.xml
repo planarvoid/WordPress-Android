@@ -13,7 +13,7 @@
     <string name="public_api_base_url">https://api.soundcloud.com</string>
     <string name="mobile_api_base_url">https://api-mobile-dev.soundcloud.com</string>
     <string name="event_logger_base_url">http://eventlogger.soundcloud.com</string>
-    <string name="cast_receiver_app_id">CC1AD845</string>
+    <string name="cast_receiver_app_id">41B52ABB</string>
 
     <!-- Feature flags (enabled) -->
     <bool name="feature_secure_stream_cache">true</bool>
