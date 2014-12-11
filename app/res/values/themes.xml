@@ -16,15 +16,20 @@
 
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
         <item name="actionBarStyle">@style/ActionBar.SoundCloud</item>
+        <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
 
-        <item name="colorPrimaryDark">@color/dark_bg</item>
-        <item name="colorPrimary">@color/dark_bg</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/sc_orange</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="BaseTheme">
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
         <item name="actionDropDownStyle">@style/DropDownNav</item>
+    </style>
+
+    <style name="SearchView.SoundCloud" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/ic_search</item>
     </style>
 
     <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid">
