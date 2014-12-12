@@ -89,6 +89,16 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
+    public boolean isConnected() {
+        return videoCastManager.isConnected();
+    }
+
+    @Override
+    public String getCastingDeviceName() {
+        return videoCastManager.getDeviceName();
+    }
+
+    @Override
     public void onRemoteMediaPlayerMetadataUpdated() {
         try {
             final Urn urnFromMediaMetadata = CastPlayer.getUrnFromMediaMetadata(videoCastManager.getRemoteMediaInformation());

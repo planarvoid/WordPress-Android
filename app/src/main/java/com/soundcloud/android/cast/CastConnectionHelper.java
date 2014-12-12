@@ -27,6 +27,10 @@ public interface CastConnectionHelper {
 
     void removeConnectionListener(final CastConnectionListener listener);
 
+    boolean isConnected();
+
+    String getCastingDeviceName();
+
     public static interface CastConnectionListener {
         void onConnectedToReceiverApp();
         void onMetaDataUpdated(Urn currentUrn);

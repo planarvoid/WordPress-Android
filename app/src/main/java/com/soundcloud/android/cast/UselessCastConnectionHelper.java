@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast;
 
+import com.soundcloud.android.utils.ScTextUtils;
+
 import android.view.KeyEvent;
 import android.view.Menu;
 
@@ -48,5 +50,15 @@ public class UselessCastConnectionHelper implements CastConnectionHelper {
     @Override
     public void removeConnectionListener(CastConnectionListener listener) {
         // no-op
+    }
+
+    @Override
+    public boolean isConnected() {
+        return false;
+    }
+
+    @Override
+    public String getCastingDeviceName() {
+        return ScTextUtils.EMPTY_STRING;
     }
 }
