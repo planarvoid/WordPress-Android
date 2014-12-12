@@ -11,7 +11,7 @@ public class StringsTest {
 
     @Test
     public void shouldReturnTrueIfNullArrayProvided(){
-        assertThat(allInArrayAreBlank((String[])null), is(true));
+        assertThat(allInArrayAreBlank(null), is(true));
     }
 
     @Test

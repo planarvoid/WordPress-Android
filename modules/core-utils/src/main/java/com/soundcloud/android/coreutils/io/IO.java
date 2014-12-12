@@ -1,6 +1,7 @@
 package com.soundcloud.android.coreutils.io;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+
+import static com.soundcloud.android.coreutils.check.Preconditions.checkNotNull;
 
 import android.content.Context;
 

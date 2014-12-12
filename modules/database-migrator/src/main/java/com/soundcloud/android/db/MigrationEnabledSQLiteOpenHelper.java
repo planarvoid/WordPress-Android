@@ -1,35 +1,32 @@
 package com.soundcloud.android.db;
 
-import static com.soundcloud.android.coreutils.log.Log.error;
-import static com.soundcloud.android.coreutils.log.Log.info;
+import static com.soundcloud.android.coreutils.log.Logger.error;
+import static com.soundcloud.android.coreutils.log.Logger.info;
 import static com.soundcloud.android.coreutils.text.Strings.allInArrayAreBlank;
 import static com.soundcloud.android.db.MigrationReader.MigrationFile;
+import static com.soundcloud.android.db.MigrationReader.MigrationType;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.coreutils.io.IO;
-import com.soundcloud.android.coreutils.log.Log;
-import org.slf4j.Logger;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import java.util.Collection;
 
 public abstract class MigrationEnabledSQLiteOpenHelper extends SQLiteOpenHelper {
-    private static final Logger LOG = Log.getLogger();
+    private static final String TAG = "Migrator";
 
     private final Context context;
-    private String name;
+    private final String name;
     private final int version;
-    private MigrationReader migrationReader;
-    private IO io;
+    private final MigrationReader migrationReader;
+    private final IO io;
 
-    public MigrationEnabledSQLiteOpenHelper(Context context, String name, int version) {
-        this(context, name, version, new MigrationReader(context), new IO(context));
-    }
 
-    @VisibleForTesting
-    protected MigrationEnabledSQLiteOpenHelper(Context context, String name, int version,
+    public MigrationEnabledSQLiteOpenHelper(Context context, String name, int version,
                                                MigrationReader migrationReader, IO io) {
         super(context, name, null, version);
         this.context = context;
@@ -46,36 +43,33 @@ public abstract class MigrationEnabledSQLiteOpenHelper extends SQLiteOpenHelper 
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int fromVersion, int toVersion) {
-        info(LOG, "Performing up migration from version %d to %d", fromVersion, toVersion);
+        info(TAG, "Performing up migration from version %d to %d", fromVersion, toVersion);
         for(int nextVersion = fromVersion+1; nextVersion <= toVersion; nextVersion++){
-
-            MigrationFile migration = migrationReader.getMigration(nextVersion);
-
-            if(!migration.isValidMigrationFile()){
-                throw new MigrationFileFormatException(nextVersion);
-            }
-
-            info(LOG, "Executing query %s", migration);
-            for(String sql : migration.upMigrations()){
-                db.execSQL(sql);
-            }
+            runMigrationsForVersion(db, nextVersion, MigrationType.UP);
         }
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int fromVersion, int toVersion) {
-        info(LOG, "Performing down migration from version %d to %d", fromVersion, toVersion);
+        info(TAG, "Performing down migration from version %d to %d", fromVersion, toVersion);
         for(int nextVersion = fromVersion; nextVersion > toVersion; nextVersion--){
-            MigrationFile migration = migrationReader.getMigration(nextVersion);
+            runMigrationsForVersion(db, nextVersion, MigrationType.DOWN);
+        }
+    }
 
-            if(!migration.isValidMigrationFile()){
-                throw new MigrationFileFormatException(nextVersion);
-            }
+    private void runMigrationsForVersion(SQLiteDatabase db, int nextVersion, MigrationType migrationType) {
+        MigrationFile migration = migrationReader.getMigration(nextVersion);
 
-            info(LOG, "Executing query %s", migration);
-            for(String sql : migration.downMigrations()){
-                db.execSQL(sql);
-            }
+        if(!migration.isValidMigrationFile()){
+            throw new MigrationFileFormatException(nextVersion);
+        }
+
+        Collection<String> migrations = MigrationType.UP.equals(migrationType) ?
+                migration.upMigrations() : migration.downMigrations();
+
+        Log.d(TAG, String.format("Executing query %s", migration));
+        for(String sql : migrations){
+            db.execSQL(sql);
         }
     }
 
@@ -92,7 +86,7 @@ public abstract class MigrationEnabledSQLiteOpenHelper extends SQLiteOpenHelper 
             db = context.openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
             return db.getVersion() != version;
         } catch(SQLiteException e){
-            error(LOG, "Cannot open db file to check for version",e);
+            error(TAG, "Cannot open db file to check for version", e);
             return true;
         } finally {
             io.closeQuietly(db);

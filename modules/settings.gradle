@@ -1,2 +1,2 @@
 include ':core-utils'
-include 'DatabaseMigrator'
+include ':database-migrator'

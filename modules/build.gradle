@@ -21,6 +21,7 @@ subprojects {
   ext.applyPmdConfig = { pmd, project ->
     pmd.consoleOutput true
     pmd.ruleSetFiles = files("$project.path/../../../app/static-analysis/pmd.xml")
+
     pmd.sourceSets = [project.sourceSets.main]
   }
 
@@ -48,13 +49,11 @@ subprojects {
       }
     }
 
-
     publishing.repositories {
       maven {
         url "http://maven.int.s-cloud.net/content/repositories/releases"
       }
     }
-
   }
 
 }

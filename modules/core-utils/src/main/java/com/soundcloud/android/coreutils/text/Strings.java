@@ -8,7 +8,7 @@ public final class Strings {
         return string == null || string.trim().isEmpty();
     }
 
-    public static boolean allInArrayAreBlank(String... strings) {
+    public static boolean allInArrayAreBlank(String[] strings) {
         if(strings == null) {
             return true;
         }

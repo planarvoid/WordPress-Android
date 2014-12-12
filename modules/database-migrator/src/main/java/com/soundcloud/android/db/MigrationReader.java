@@ -1,24 +1,19 @@
 package com.soundcloud.android.db;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.transform;
-import static com.soundcloud.android.coreutils.log.Log.error;
+import static com.soundcloud.android.coreutils.check.Preconditions.checkArgument;
+import static com.soundcloud.android.coreutils.check.Preconditions.checkState;
+import static com.soundcloud.android.coreutils.log.Logger.error;
 import static com.soundcloud.android.coreutils.text.Strings.isBlank;
+import static operators.CollectionOperators.transform;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.soundcloud.android.coreutils.io.IO;
-import com.soundcloud.android.coreutils.log.Log;
-import org.slf4j.Logger;
-
-import android.content.Context;
+import operators.Function;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -57,17 +52,12 @@ class MigrationReader {
         }
     }
 
-    private static final Logger LOG = Log.getLogger();
+    private static final String TAG = "MigrationReader";
     private static final Pattern MIGRATION_PATTERN = Pattern.compile("\\n*--!UP!\\n(.+?)--!DOWN!\\n(.+?)", Pattern.DOTALL);
 
-    private IO io;
+    private final IO io;
 
-    public MigrationReader(Context context) {
-        this(new IO(context));
-    }
-
-    @VisibleForTesting
-    protected MigrationReader(IO io) {
+    public MigrationReader(IO io) {
         this.io = io;
     }
 
@@ -83,15 +73,23 @@ class MigrationReader {
      */
     public MigrationFile getMigration(int version) {
 
-        Matcher matcher = MIGRATION_PATTERN.matcher(migrationFileContents(version));
+        String input = "";
+
+        try {
+            input = migrationFileContents(version);
+        } catch (IOException e) {
+            error(TAG, e, "Could not read contents of migration file for version %d", version);
+        }
+
+        Matcher matcher = MIGRATION_PATTERN.matcher(input);
 
         if (!matcher.matches()) {
-            error(LOG, "Migration file contents are not valid for version %d", version);
+            error(TAG, "Migration file contents are not valid for version %d", version);
             return NO_OR_INVALID_MIGRATION;
         }
 
         if (matcher.groupCount() != 2) {
-            error(LOG, "Both up and down migration could not be found in file for version %d", version);
+            error(TAG, "Both up and down migration could not be found in file for version %d", version);
             return NO_OR_INVALID_MIGRATION;
         }
 
@@ -101,21 +99,12 @@ class MigrationReader {
                 new MigrationFile(upMigration, downMigration, version);
     }
 
-    private CharSequence migrationFileContents(int version) {
+    private String migrationFileContents(int version) throws IOException {
         String migrationFilePath = String.format(MIGRATION_FILENAME_FORMAT, version);
-        InputStream inputStream;
-        try {
-            inputStream = io.inputStreamFromPrivateDirectory(migrationFilePath);
-        } catch (IOException e) {
-            error(LOG, e, "Could not find migration file for ", migrationFilePath);
-            return "";
-        }
+        InputStream inputStream = io.inputStreamFromPrivateDirectory(migrationFilePath);
 
         try {
             return io.toString(inputStream);
-        } catch (IOException e) {
-            error(LOG, e, "Problem when reading in migration ", migrationFilePath);
-            return "";
         } finally {
             io.closeQuietly(inputStream);
         }
@@ -195,7 +184,7 @@ class MigrationReader {
         public Collection<String> upMigrations() {
             checkState(isValidMigrationFile(), "Migration File is not valid");
             if (upMigrations == null) {
-                upMigrations = transform(newArrayList(upMigration.split(";")), TRIM_FUNCTION);
+                upMigrations = transform(Arrays.asList(upMigration.split(";")), TRIM_FUNCTION);
                 upMigrations = Collections.unmodifiableCollection(upMigrations);
             }
             return upMigrations;
@@ -204,7 +193,7 @@ class MigrationReader {
         public Collection<String> downMigrations() {
             checkState(isValidMigrationFile(), "Migration File is not valid");
             if (downMigrations == null) {
-                downMigrations = transform(newArrayList(downMigration.split(";")), TRIM_FUNCTION);
+                downMigrations = transform(Arrays.asList(downMigration.split(";")), TRIM_FUNCTION);
                 downMigrations = Collections.unmodifiableCollection(downMigrations);
             }
             return downMigrations;

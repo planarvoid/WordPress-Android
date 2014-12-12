@@ -29,7 +29,7 @@ import java.sql.SQLException;
 public class MigrationEnabledSQLiteOpenHelperTest {
 
     private static final int VERSION = 1;
-    public static final String DB_NAME = "mydb";
+    private static final String DB_NAME = "mydb";
     private MigrationEnabledSQLiteOpenHelper migrationEnabledSQLiteOpenHelper;
 
     @Mock private SQLiteDatabase database;
