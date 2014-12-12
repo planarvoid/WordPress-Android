@@ -584,6 +584,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         uriSubscription.unsubscribe();
     }
 
+    @Override
+    public void stopForTrackTransition() {
+        stop();
+    }
+
     private boolean isPastBuffer(long pos) {
         return mediaPlayer == null || (pos / (double) mediaPlayer.getDuration()) * 100 > loadPercent;
     }

@@ -1,9 +1,6 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
 import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.Reason;
 import static org.mockito.Matchers.any;
@@ -19,14 +16,15 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.service.StreamPlaya;
 import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -67,7 +65,7 @@ public class MediaPlayerAdapterTest {
     @Mock private MediaPlayerManager mediaPlayerManager;
     @Mock private StreamProxy streamProxy;
     @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
-    @Mock private StreamPlaya.PlayaListener listener;
+    @Mock private Playa.PlayaListener listener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
@@ -649,6 +647,15 @@ public class MediaPlayerAdapterTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         mediaPlayerAdapter.stop();
+        verify(mediaPlayer).stop();
+        verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
+    }
+
+    @Test
+    public void stopForTransitionCallsStopAndSetsIdleStateIfStoppable() {
+        playUrlAndSetPrepared();
+        when(mediaPlayer.getCurrentPosition()).thenReturn(123);
+        mediaPlayerAdapter.stopForTrackTransition();
         verify(mediaPlayer).stop();
         verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.IDLE, Reason.NONE, track.get(TrackProperty.URN), 123, duration)));
     }

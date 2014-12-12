@@ -10,17 +10,18 @@ public class BufferingPlaya implements Playa {
 
     @Inject
     public BufferingPlaya() {
+        // no-op
     }
 
 
     @Override
     public void play(PropertySet track) {
-
+        // no-op
     }
 
     @Override
     public void play(PropertySet track, long fromPos) {
-
+        // no-op
     }
 
     @Override
@@ -35,7 +36,7 @@ public class BufferingPlaya implements Playa {
 
     @Override
     public void pause() {
-
+        // no-op
     }
 
     @Override
@@ -50,22 +51,27 @@ public class BufferingPlaya implements Playa {
 
     @Override
     public void setVolume(float v) {
-
+        // no-op
     }
 
     @Override
     public void stop() {
+        // no-op
+    }
 
+    @Override
+    public void stopForTrackTransition() {
+        // no-op
     }
 
     @Override
     public void destroy() {
-
+        // no-op
     }
 
     @Override
     public void setListener(PlayaListener playaListener) {
-
+        // no-op
     }
 
     @Override

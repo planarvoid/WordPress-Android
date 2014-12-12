@@ -176,7 +176,7 @@ public class StreamPlayaTest {
         streamPlayerWrapper.play(track);
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(true);
         streamPlayerWrapper.play(track);
-        verify(mediaPlayerAdapter).stop();
+        verify(mediaPlayerAdapter).stopForTrackTransition();
     }
 
     @Test
@@ -186,7 +186,7 @@ public class StreamPlayaTest {
         streamPlayerWrapper.play(track);
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(false);
         streamPlayerWrapper.play(track);
-        verify(skippyAdapter).stop();
+        verify(skippyAdapter).stopForTrackTransition();
     }
 
     @Test
@@ -203,7 +203,7 @@ public class StreamPlayaTest {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
-        verify(mediaPlayerAdapter).stop();
+        verify(mediaPlayerAdapter).stopForTrackTransition();
     }
 
     @Test
@@ -212,7 +212,7 @@ public class StreamPlayaTest {
         streamPlayerWrapper.play(track);
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(true);
         streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
-        verify(mediaPlayerAdapter).stop();
+        verify(mediaPlayerAdapter).stopForTrackTransition();
     }
 
     @Test
@@ -238,7 +238,7 @@ public class StreamPlayaTest {
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(true);
         streamPlayerWrapper.play(track);
         streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
-        verify(skippyAdapter).stop();
+        verify(skippyAdapter).stopForTrackTransition();
     }
 
     @Test

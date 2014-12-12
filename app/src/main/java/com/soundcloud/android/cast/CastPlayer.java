@@ -279,6 +279,11 @@ public class CastPlayer extends VideoCastConsumerImpl implements Playa, Progress
     }
 
     @Override
+    public void stopForTrackTransition() {
+        // no-op, we don't want to go to
+    }
+
+    @Override
     public void destroy() {
         castManager.onDeviceSelected(null);
         castManager.removeVideoCastConsumer(this);

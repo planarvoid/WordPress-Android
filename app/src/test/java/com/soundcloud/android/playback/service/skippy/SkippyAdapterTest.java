@@ -1,9 +1,6 @@
 package com.soundcloud.android.playback.service.skippy;
 
 import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.skippy.Skippy.Error;
 import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
@@ -24,12 +21,16 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.HttpProperties;
+import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playback.service.BufferUnderrunListener;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -38,11 +39,9 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -193,6 +192,12 @@ public class SkippyAdapterTest {
     @Test
     public void stopCallsPauseOnSkippy() {
         skippyAdapter.stop();
+        verify(skippy).pause();
+    }
+
+    @Test
+    public void stopForTrackTransitionCallsPauseOnSkippy() {
+        skippyAdapter.stopForTrackTransition();
         verify(skippy).pause();
     }
 

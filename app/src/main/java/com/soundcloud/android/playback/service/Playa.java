@@ -24,6 +24,7 @@ public interface Playa {
     long getProgress();
     void setVolume(float v);
     void stop();
+    void stopForTrackTransition();
     void destroy();
     void setListener(PlayaListener playaListener);
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy

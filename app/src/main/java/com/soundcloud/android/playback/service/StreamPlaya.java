@@ -7,6 +7,10 @@ import com.soundcloud.android.cast.CastConnectionHelper.CastConnectionListener;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
+import com.soundcloud.android.playback.service.Playa.PlayaListener;
+import com.soundcloud.android.playback.service.Playa.PlayaState;
+import com.soundcloud.android.playback.service.Playa.Reason;
+import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.settings.GeneralSettings;
@@ -18,7 +22,7 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 
 //Not a hater
-public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionListener {
+public class StreamPlaya implements PlayaListener, CastConnectionListener {
 
     public static final String TAG = "StreamPlaya";
     @VisibleForTesting
@@ -70,7 +74,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
         return lastStateTransition;
     }
 
-    @Deprecated
     public PlayaState getState() {
         return lastStateTransition.getNewState();
     }
@@ -95,69 +98,57 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
         return lastStateTransition.isPaused();
     }
 
-    @Override
     public void play(PropertySet track) {
         lastTrackPlayed = track;
         configureNextPlayaToUseViaPreferences();
         currentPlaya.play(track);
     }
 
-    @Override
     public void play(PropertySet track, long fromPos) {
         lastTrackPlayed = track;
         configureNextPlayaToUseViaPreferences();
         currentPlaya.play(track, fromPos);
     }
 
-    @Override
     public void playUninterrupted(PropertySet track) {
         lastTrackPlayed = track;
         configureNextPlayaToUseViaPreferences();
         currentPlaya.playUninterrupted(track);
     }
 
-    @Override
     public boolean resume() {
         return currentPlaya.resume();
     }
 
-    @Override
     public void pause() {
         currentPlaya.pause();
     }
 
-    @Override
     public long seek(long ms, boolean performSeek) {
         return currentPlaya.seek(ms, performSeek);
     }
 
-    @Override
     public long getProgress() {
         return currentPlaya.getProgress();
     }
 
-    @Override
     public void setVolume(float v) {
         currentPlaya.setVolume(v);
     }
 
-    @Override
     public void stop() {
         currentPlaya.stop();
     }
 
-    @Override
     public boolean isSeekable() {
         return currentPlaya.isSeekable();
     }
 
-    @Override
     public boolean isNotSeekablePastBuffer() {
         return currentPlaya.isNotSeekablePastBuffer();
     }
 
 
-    @Override
     public void destroy() {
         // call stop first as it will save the queue/position
         mediaPlayaDelegate.destroy();
@@ -168,7 +159,6 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
         castConnectionHelper.removeConnectionListener(this);
     }
 
-    @Override
     public void setListener(PlayaListener playaListener) {
         this.playaListener = playaListener;
         if (currentPlaya != null){
@@ -210,7 +200,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
 
         if (lastPlaya != null) {
             lastPlaya.setListener(null);
-            lastPlaya.stop();
+            lastPlaya.stopForTrackTransition();
         }
     }
 
@@ -238,7 +228,7 @@ public class StreamPlaya implements Playa, Playa.PlayaListener, CastConnectionLi
 
     private void configureNextPlayaToUse(Playa nextPlaya){
         if (currentPlaya != null && currentPlaya != nextPlaya){
-            currentPlaya.stop();
+            currentPlaya.stopForTrackTransition();
         }
 
         currentPlaya = nextPlaya;

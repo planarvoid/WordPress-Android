@@ -204,6 +204,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
+    public void stopForTrackTransition() {
+        stop();
+    }
+
+    @Override
     public void destroy() {
         skippy.destroy();
     }
