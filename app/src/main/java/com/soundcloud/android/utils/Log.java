@@ -30,6 +30,12 @@ public final class Log {
         i(obj.getClass().getSimpleName(), message);
     }
 
+    public static void i(@NotNull final String tag, @NotNull final String message, @NotNull final Throwable t) {
+        if (android.util.Log.isLoggable(tag, android.util.Log.INFO)) {
+            android.util.Log.i(tag, message, t);
+        }
+    }
+
     public static void i(@NotNull final String message) {
         i(SoundCloudApplication.TAG, message);
     }
