@@ -777,106 +777,9 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
 
-            case PLAYABLE_CLEANUP:
-                long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
-                if (userId > 0) {
-                    final String ignore_ceiling = uri.getQueryParameter("ignore_ceiling");
-                    if (!("true".equals(ignore_ceiling)) &&
-                            getCountFromTable(db, Table.Sounds) < PLAYABLE_CACHE_CEILING) {
-                        log("Aborting track cleanup. Under ceiling");
-                        return 0;
-                    }
-
-                    final long start = System.currentTimeMillis();
-
-                    // remove unassociated playlists
-                    where = "_id NOT IN ("
-                            + "SELECT _id FROM " + Table.Sounds.name() + " WHERE EXISTS("
-                            + getPlaylistAssociationsSelect(userId)
-                            + ") AND " + TableColumns.SoundView._TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
-                    count = db.delete(Table.Sounds.name(), where, null);
-
-                    // delete stale playlist associations
-                    where = TableColumns.PlaylistTracks.PLAYLIST_ID + " NOT IN ("
-                            + "SELECT _id FROM " + Table.Sounds.name() + " WHERE " + TableColumns.Sounds._TYPE
-                            + " = " + Playable.DB_TYPE_PLAYLIST
-                            + ")";
-                    count += db.delete(Table.PlaylistTracks.name(), where, null);
-
-                    // finally, remove tracks
-                    where = "_id NOT IN ("
-                            + "SELECT _id FROM " + Table.Sounds.name() + " WHERE EXISTS("
-                            + getTrackAssociationsSelect(userId)
-                            + " UNION SELECT DISTINCT " + TableColumns.PlayQueue.TRACK_ID + " FROM " + Table.PlayQueue.name()
-                            + " UNION SELECT DISTINCT " + TableColumns.PlaylistTracks.TRACK_ID + " FROM " + Table.PlaylistTracks.name()
-                            + ") AND " + TableColumns.SoundView._TYPE + " = " + Playable.DB_TYPE_TRACK;
-
-                    count += db.delete(Table.Sounds.name(), where, null);
-                    log("Track cleanup done: deleted " + count + " items in " + (System.currentTimeMillis() - start) + " ms");
-                    return count;
-                }
-                return 0;
-
-            case USERS_CLEANUP:
-                userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
-                if (userId > 0) {
-                    where = "_id NOT IN (SELECT DISTINCT " + TableColumns.Sounds.USER_ID + " FROM " + Table.Sounds.name() + " UNION "
-                            + "SELECT _id FROM " + Table.Users.name() + " WHERE EXISTS("
-                            + "SELECT 1 FROM CollectionItems WHERE "
-                            + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionStorage.CollectionItemTypes.FOLLOWER + " ," + CollectionStorage.CollectionItemTypes.FOLLOWING + " ," + CollectionStorage.CollectionItemTypes.FRIEND + ") "
-                            + " AND " + TableColumns.CollectionItems.USER_ID + " = " + userId
-                            + " AND  " + TableColumns.CollectionItems.ITEM_ID + " = " + Table.Users.id
-                            + " UNION SELECT DISTINCT " + TableColumns.ActivityView.USER_ID + " FROM " + Table.Activities.name()
-                            + ")"
-                            + ") AND _id <> " + userId;
-                    final long start = System.currentTimeMillis();
-                    count = db.delete(Table.Users.name(), where, null);
-                    log("User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
-                    getContext().getContentResolver().notifyChange(Content.USERS.uri, null, false);
-                    return count;
-                }
-                return 0;
-
-            case SOUND_STREAM_CLEANUP:
-                String limit = uri.getQueryParameter(Parameter.LIMIT);
-                long start = System.currentTimeMillis();
-                count = cleanupActivities(Content.ME_SOUND_STREAM, db, limit);
-                log("SoundStream cleanup done: deleted " + count + " stream items in " + (System.currentTimeMillis() - start) + " ms");
-                getContext().getContentResolver().notifyChange(Content.ME_SOUND_STREAM.uri, null, false);
-                return count;
-
-            case ACTIVITIES_CLEANUP:
-                limit = uri.getQueryParameter(Parameter.LIMIT);
-                start = System.currentTimeMillis();
-                count = cleanupActivities(Content.ME_ACTIVITIES, db, limit);
-                log("Activities cleanup done: deleted " + count + " activities in " + (System.currentTimeMillis() - start) + " ms");
-                getContext().getContentResolver().notifyChange(Content.ME_ACTIVITIES.uri, null, false);
-                return count;
-
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-    }
-
-    private String getTrackAssociationsSelect(long userId) {
-        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionStorage.CollectionItemTypes.TRACK),
-                userId, Playable.DB_TYPE_TRACK, Playable.DB_TYPE_TRACK);
-    }
-
-    private String getPlaylistAssociationsSelect(long userId) {
-        return String.format(selectAssociationsAndActivities, String.valueOf(CollectionStorage.CollectionItemTypes.PLAYLIST),
-                userId, Playable.DB_TYPE_PLAYLIST, Playable.DB_TYPE_PLAYLIST);
-    }
-
-    private int cleanupActivities(Content content, SQLiteDatabase db, String limit) {
-        int count;
-        String where = TableColumns.ActivityView.CONTENT_ID + "=" + content.id + " AND _id NOT IN ("
-                + "SELECT _id FROM " + Table.ActivityView.name() + " WHERE "
-                + TableColumns.ActivityView.CONTENT_ID + "=" + content.id
-                + " LIMIT " + (limit == null ? 200 : limit) + ")";
-
-        count = db.delete(Table.Activities.name(), where, null);
-        return count;
     }
 
     /**
@@ -953,22 +856,6 @@ public class ScContentProvider extends ContentProvider {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
         }
-    }
-
-    private static int getCountFromTable(SQLiteDatabase db, Table table) {
-        Cursor cursor = null;
-        try {
-            cursor = db.rawQuery("SELECT COUNT (*) FROM " + table.name(), null);
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                return cursor.getInt(0);
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return -1;
     }
 
     // don't die on disk i/o problems

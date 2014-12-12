@@ -9,7 +9,6 @@ import static com.soundcloud.android.testsupport.TestHelper.readJson;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -65,92 +64,6 @@ public class ScContentProviderTest {
 
         Cursor c = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
-    }
-
-    @Test
-    public void shouldCleanupTracks() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
-        int i = 0;
-        for (PublicApiTrack t : tracks) {
-            TestHelper.insertAsSoundAssociation(t, i < tracks.size() / 2 ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.TRACK_REPOST);
-            i++;
-        }
-
-        expect(Content.TRACKS).toHaveCount(15);
-        expect(Content.USERS).toHaveCount(14);
-
-        PublicApiPlaylist playlist = readJson(PublicApiPlaylist.class, "/com/soundcloud/android/sync/playlist.json");
-        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
-
-        expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.USERS).toHaveCount(46); // added 32 from playlist
-
-        // insert extra tracks that should be cleaned up
-        tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/tracks.json");
-        TestHelper.bulkInsert(tracks.collection);
-
-        expect(Content.TRACKS).toHaveCount(59);
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.USERS).toHaveCount(47);
-
-        final Uri build = Content.PLAYABLE_CLEANUP.uri.buildUpon().appendQueryParameter("ignore_ceiling", "true").build();
-        resolver.update(build, null, null, null);
-        resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
-
-        expect(Content.TRACKS).toHaveCount(56);
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.USERS).toHaveCount(46);
-        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41); // playlist > track relational
-    }
-
-    @Test
-    public void shouldCleanupPlaylist() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
-        int i = 0;
-        for (PublicApiTrack t : tracks) {
-            TestHelper.insertAsSoundAssociation(t, i < tracks.size() / 2 ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.TRACK_REPOST);
-            i++;
-        }
-        expect(Content.TRACKS).toHaveCount(15);
-        expect(Content.USERS).toHaveCount(14);
-
-        PublicApiPlaylist playlist = readJson(PublicApiPlaylist.class, "/com/soundcloud/android/sync/playlist.json");
-        TestHelper.insertWithDependencies(playlist);
-
-        expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.USERS).toHaveCount(46); // added 32 from playlist
-
-        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41); // playlist > track relational
-
-        final Uri build = Content.PLAYABLE_CLEANUP.uri.buildUpon().appendQueryParameter("ignore_ceiling", "true").build();
-        resolver.update(build, null, null, null);
-        resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
-
-        expect(Content.TRACKS).toHaveCount(15);
-        expect(Content.PLAYLISTS).toHaveCount(0);
-        expect(Content.USERS).toHaveCount(14);
-        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(0);
-    }
-
-
-    @Test
-    public void shouldCleanupSoundStream() throws Exception {
-        Activities a = getActivities("/com/soundcloud/android/sync/e1_stream.json");
-
-        expect(activitiesStorage.insert(Content.ME_SOUND_STREAM, a)).toBe(50);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
-        expect(resolver.update(Uri.parse(Content.SOUND_STREAM_CLEANUP.uri.toString() + "?limit=10"), null, null, null)).toBe(40);
-    }
-
-    @Test
-    public void shouldCleanupActivities() throws Exception {
-        Activities a = getActivities("/com/soundcloud/android/sync/e1_activities.json");
-
-        expect(activitiesStorage.insert(Content.ME_ACTIVITIES, a)).toBe(17);
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(resolver.update(Uri.parse(Content.ACTIVITIES_CLEANUP.uri.toString() + "?limit=5"), null, null, null)).toBe(12);
     }
 
     @Test
