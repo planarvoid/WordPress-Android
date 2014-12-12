@@ -7,6 +7,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.exceptions.OnErrorFailedException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +45,8 @@ public final class ErrorUtils {
      * onError method, and also logs them silenty into Crashlytics (unless they're blacklisted.)
      * <p/>
      * see https://github.com/Netflix/RxJava/issues/969
-     * @param t the Exception or Error that was raised
+     *
+     * @param t       the Exception or Error that was raised
      * @param context an extra message that can be attached to clarify the error context
      */
     public static synchronized void handleThrowable(Throwable t, String context) {
@@ -65,7 +67,7 @@ public final class ErrorUtils {
     /*
          * Call this AFTER initialising crash logger (e.g. Crashlytics) to aggregate OOM errors
          */
-    public static void setupOOMInterception(final MemoryReporter memoryReporter) {
+    public static void setupUncaughtExceptionHandler(final MemoryReporter memoryReporter) {
         final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -73,6 +75,10 @@ public final class ErrorUtils {
                 if (isCausedByOutOfMemory(e)) {
                     memoryReporter.reportOomStats();
                     crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError(OOM_TREND_LABEL));
+                } else if (e.getCause() instanceof OnErrorFailedException) {
+                    // This is to remove clutter from exceptions that are caught and redirected on RxJava worker threads.
+                    // See ScheduledAction.java. It should give us cleaner stack traces containing just the root cause.
+                    crashlyticsHandler.uncaughtException(thread, findRootCause(e));
                 } else {
                     crashlyticsHandler.uncaughtException(thread, e);
                 }
@@ -92,10 +98,10 @@ public final class ErrorUtils {
         handleSilentException(e, null, null);
     }
 
-    public static void handleSilentException(Throwable e, @NotNull Map<String,String> customLogs){
+    public static void handleSilentException(Throwable e, @NotNull Map<String, String> customLogs) {
         if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
-            for (Map.Entry<String,String> entry : customLogs.entrySet()){
+            for (Map.Entry<String, String> entry : customLogs.entrySet()) {
                 Crashlytics.setString(entry.getKey(), entry.getValue());
             }
             Crashlytics.logException(e);
@@ -115,14 +121,24 @@ public final class ErrorUtils {
 
     @VisibleForTesting
     static boolean isCausedByOutOfMemory(Throwable uncaught) {
-        Throwable crash = uncaught;
-        while (crash != null) {
-            if (crash instanceof OutOfMemoryError) {
-                return true;
-            }
-            crash = crash.getCause();
+        final Throwable rootCause = findRootCause(uncaught);
+        if (rootCause != null) {
+            return rootCause instanceof OutOfMemoryError;
         }
         return false;
+    }
+
+    @Nullable
+    static Throwable findRootCause(@Nullable Throwable throwable) {
+        if (throwable == null) {
+            return null;
+        } else {
+            Throwable rootCause = throwable;
+            while (rootCause.getCause() != null) {
+                rootCause = rootCause.getCause();
+            }
+            return rootCause;
+        }
     }
 
 }

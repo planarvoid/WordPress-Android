@@ -185,7 +185,7 @@ public class SoundCloudApplication extends Application {
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
             Crashlytics.start(this);
-            ErrorUtils.setupOOMInterception(memoryReporter);
+            ErrorUtils.setupUncaughtExceptionHandler(memoryReporter);
         }
     }
 
