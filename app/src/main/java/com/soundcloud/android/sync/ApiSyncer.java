@@ -141,24 +141,8 @@ public class ApiSyncer extends LegacySyncStrategy {
                     result = syncMyConnections();
                     break;
             }
-        } else {
-            switch (c) {
-                case PLAYABLE_CLEANUP:
-                case USERS_CLEANUP:
-                case SOUND_STREAM_CLEANUP:
-                case ACTIVITIES_CLEANUP:
-                    result = new ApiSyncResult(c.uri);
-                    result.success = true;
-                    if (resolver.update(uri, null, null, null) > 0) {
-                        result.change = ApiSyncResult.CHANGED;
-                    }
-                    result.setSyncData(System.currentTimeMillis(), -1);
-                    break;
-                default:
-                    Log.w(TAG, "no remote URI defined for " + c);
-            }
-
         }
+
         return result;
     }
 

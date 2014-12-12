@@ -125,11 +125,6 @@ public enum Content {
     SEARCH("search", null, 1500, PublicApiResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, PublicApiResource.class, -1, null),
 
-    SOUND_STREAM_CLEANUP("cleanup/soundstream", null, 9996, null, -1, null),
-    ACTIVITIES_CLEANUP("cleanup/activities", null, 9997, null, -1, null),
-    PLAYABLE_CLEANUP("cleanup/tracks", null, 9998, null, -1, null),
-    USERS_CLEANUP("cleanup/users", null, 9999, null, -1, null),
-
     //Android global search
     ANDROID_SEARCH_SUGGEST(SearchManager.SUGGEST_URI_PATH_QUERY, null, 10000, null, -1, null),
     ANDROID_SEARCH_SUGGEST_PATH(SearchManager.SUGGEST_URI_PATH_QUERY + "/*", null, 10001, null, -1, null),

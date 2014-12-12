@@ -214,11 +214,6 @@ public class SyncAdapterService extends Service {
             urisToSync.addAll(playlistsDueForSync);
         }
 
-        final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(manual);
-        Log.d(TAG, "cleanups due for sync:" + dueForSync);
-
-        urisToSync.addAll(dueForSync);
-
         if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.USER_STALE_TIME) || manual) {
             urisToSync.add(Content.ME.uri);
         }
