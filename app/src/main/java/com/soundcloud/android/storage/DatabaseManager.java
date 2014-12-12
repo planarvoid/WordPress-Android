@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.File;
 import java.util.Locale;
 
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"}) // We know
@@ -25,6 +26,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
             instance = new DatabaseManager(context);
         }
         return instance;
+    }
+
+    public static long getDatabaseFileSize(Context context){
+        final File databasePath = context.getDatabasePath(DATABASE_NAME);
+        return databasePath != null ? databasePath.length() : -1L;
     }
 
     // Do NOT use this constructor outside older tests. We need a single instance of this class going forward.

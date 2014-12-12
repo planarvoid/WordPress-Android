@@ -12,6 +12,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.events.DeviceMetricsEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
@@ -32,6 +34,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -157,6 +160,9 @@ public class SoundCloudApplication extends Application {
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
         adsController.subscribe();
+
+        final long dbSize = DatabaseManager.getDatabaseFileSize(this);
+        eventBus.publish(EventQueue.TRACKING, new DeviceMetricsEvent(dbSize));
     }
 
     private void generateDeviceKey() {
