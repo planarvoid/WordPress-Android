@@ -36,7 +36,7 @@ class SearchResult implements Iterable<PropertySet> {
                         "%d/%d empty items in search result with nextHref %s",
                         emptyItems,
                         items.size(),
-                        (nextHref != null && nextHref.isPresent()) ? nextHref.get() : "none"));
+                        (nextHref != null && nextHref.isPresent()) ? nextHref.get().getHref() : "none"));
     }
 
     @Override
