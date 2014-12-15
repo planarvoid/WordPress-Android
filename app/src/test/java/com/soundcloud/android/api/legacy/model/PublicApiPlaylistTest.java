@@ -9,6 +9,7 @@ import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -23,7 +24,7 @@ import android.os.Parcel;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class PublicApiPlaylistTest {
 
     @Test

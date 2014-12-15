@@ -1,26 +1,19 @@
 package com.soundcloud.android.robolectric.shadows;
 
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 import com.xtremelabs.robolectric.shadows.ShadowParcel;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Implements(Parcel.class)
 public class ScShadowParcel extends ShadowParcel {
@@ -263,7 +256,7 @@ public class ScShadowParcel extends ShadowParcel {
             return;
         }
         int N = val.length;
-        int i=0;
+        int i = 0;
         writeInt(N);
         while (i < N) {
             writeValue(val[i]);
@@ -307,12 +300,10 @@ public class ScShadowParcel extends ShadowParcel {
         String[] array = null;
 
         int length = readInt();
-        if (length >= 0)
-        {
+        if (length >= 0) {
             array = new String[length];
 
-            for (int i = 0 ; i < length ; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 array[i] = readString();
             }
         }
@@ -328,7 +319,7 @@ public class ScShadowParcel extends ShadowParcel {
         // the size of a stored boolean in the stream.
         if (N >= 0) {
             boolean[] val = new boolean[N];
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 val[i] = readInt() != 0;
             }
             return val;
@@ -347,12 +338,10 @@ public class ScShadowParcel extends ShadowParcel {
         CharSequence[] array = null;
 
         int length = readInt();
-        if (length >= 0)
-        {
+        if (length >= 0) {
             array = new CharSequence[length];
 
-            for (int i = 0 ; i < length ; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 array[i] = readCharSequence();
             }
         }
@@ -365,7 +354,7 @@ public class ScShadowParcel extends ShadowParcel {
         int N = readInt();
         if (N >= 0) {
             int[] val = new int[N];
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 val[i] = readInt();
             }
             return val;
@@ -380,7 +369,7 @@ public class ScShadowParcel extends ShadowParcel {
         // >>3 because stored longs are 64 bits
         if (N >= 0) {
             long[] val = new long[N];
-            for (int i=0; i<N; i++) {
+            for (int i = 0; i < N; i++) {
                 val[i] = readLong();
             }
             return val;
