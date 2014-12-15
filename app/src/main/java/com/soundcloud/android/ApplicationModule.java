@@ -2,6 +2,8 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
+import android.net.wifi.WifiManager;
+import android.os.PowerManager;
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -29,6 +31,7 @@ import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.PowerManagerWrapper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.menu.PopupMenuWrapperCompat;
 import com.soundcloud.android.view.menu.PopupMenuWrapperICS;
@@ -216,5 +219,15 @@ public class ApplicationModule {
         final VideoCastManager initialize = VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), null, "urn:x-cast:com.soundcloud.cast.sender");
         initialize.enableFeatures(VideoCastManager.FEATURE_LOCKSCREEN | VideoCastManager.FEATURE_DEBUGGING);
         return initialize;
+    }
+
+    @Provides
+    public WifiManager provideWifiManager() {
+        return (WifiManager) application.getSystemService(Context.WIFI_SERVICE);
+    }
+
+    @Provides
+    public PowerManager providePowerManager() {
+        return (PowerManager) application.getSystemService(Context.POWER_SERVICE);
     }
 }

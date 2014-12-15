@@ -12,30 +12,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.net.wifi.WifiManager;
-import android.os.PowerManager;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LockUtilTest {
 
     private LockUtil lockUtil;
 
-    @Mock private Context context;
     @Mock private WifiManager wifiManager;
     @Mock private WifiManager.WifiLock wifiLock;
-    @Mock private PowerManager powerManager;
-    @Mock private PowerManager.WakeLock wakeLock;
+    @Mock private PowerManagerWrapper powerManager;
+    @Mock private PowerManagerWakeLockWrapper wakeLock;
 
     @Before
     public void setUp() throws Exception {
-        when(context.getSystemService(Context.WIFI_SERVICE)).thenReturn(wifiManager);
+        when(powerManager.newPartialWakeLock(anyString())).thenReturn(wakeLock);
         when(wifiManager.createWifiLock(eq(WifiManager.WIFI_MODE_FULL), anyString())).thenReturn(wifiLock);
 
-        when(context.getSystemService(Context.POWER_SERVICE)).thenReturn(powerManager);
-        when(powerManager.newWakeLock(eq(PowerManager.PARTIAL_WAKE_LOCK), anyString())).thenReturn(wakeLock);
-
-        lockUtil = new LockUtil(context);
+        lockUtil = new LockUtil(wifiManager, powerManager);
     }
 
     @Test
