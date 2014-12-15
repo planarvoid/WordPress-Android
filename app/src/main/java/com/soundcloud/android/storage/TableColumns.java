@@ -28,6 +28,7 @@ public final class TableColumns {
         public static final String SOUND_ID = "sound_id";
         public static final String SOUND_TYPE = "sound_type";
         public static final String REPOSTER_ID = "reposter_id";
+        public static final String PROMOTED_ID = "promoted_id";
         public static final String CREATED_AT = "created_at";
     }
 
@@ -35,6 +36,16 @@ public final class TableColumns {
         public static final String _TYPE = "_type";
         public static final String CREATED_AT = "created_at";
         public static final String REMOVED_AT = "removed_at";
+    }
+
+    public static class PromotedTracks implements BaseColumns {
+        public static final String URN = "urn";
+        public static final String PROMOTER_ID = "promoter_id";
+        public static final String TRACKING_TRACK_CLICKED_URLS = "tracking_track_clicked_urls";
+        public static final String TRACKING_PROFILE_CLICKED_URLS = "tracking_profile_clicked_urls";
+        public static final String TRACKING_PROMOTER_CLICKED_URLS = "tracking_promoter_clicked_urls";
+        public static final String TRACKING_TRACK_PLAYED_URLS = "tracking_track_played_urls";
+        public static final String TRACKING_TRACK_IMPRESSION_URLS = "tracking_track_impression_urls";
     }
 
     /**

@@ -4,8 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.PromotedFixtures;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -95,5 +97,83 @@ public class ApiStreamItemTest {
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistRepost);
         expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistRepost.getCreatedAtTime());
     }
+
+    @Test
+    public void getCreatedAtWithPromotedTrackReturnsMaxVaue() throws Exception {
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        expect(streamItem.getCreatedAtTime()).toEqual(Long.MAX_VALUE);
+    }
+
+    @Test
+    public void getPromoterWithPromotedTrackReturnsValidPromoter() throws Exception {
+        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithPromoter(apiUser);
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        expect(streamItem.getPromoter().get()).toEqual(apiUser);
+    }
+
+    @Test
+    public void getPromoterWithPromotedTrackReturnsAbsentPromoter() throws Exception {
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        expect(streamItem.getPromoter().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromoterWithTrackPostReturnsAbsentPromoter() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackPost.class));
+        expect(streamItem.getPromoter().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromoterWithTrackRepostReturnsAbsentPromoter() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackRepost.class));
+        expect(streamItem.getPromoter().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromoterWithPlaylistPostReturnsAbsentPromoter() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistPost.class));
+        expect(streamItem.getPromoter().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromoterWithPlaylistRepostReturnsAbsentPromoter() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistRepost.class));
+        expect(streamItem.getPromoter().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getUrnWithPromotedTrackReturnsUrn() throws Exception {
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        expect(streamItem.getPromotedUrn().get()).toEqual(new Urn("adswizz:ads:123"));
+    }
+
+    @Test
+    public void getPromotedUrnWithTrackPostReturnsAbsentPromotedUrn() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackPost.class));
+        expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromotedUrnWithTrackRepostReturnsAbsentPromotedUrn() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackRepost.class));
+        expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromotedUrnWithPlaylistPostReturnsAbsentPromotedUrn() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistPost.class));
+        expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
+    }
+
+    @Test
+    public void getPromotedUrnWithPlaylistRepostReturnsAbsentPromotedUrn() throws Exception {
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistRepost.class));
+        expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
+    }
+
 
 }

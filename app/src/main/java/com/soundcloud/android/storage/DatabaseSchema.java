@@ -12,9 +12,21 @@ final class DatabaseSchema {
             "sound_id INTEGER, " +
             "sound_type INTEGER," +
             "reposter_id INTEGER," +
+            "promoted_id INTEGER," +
             "created_at INTEGER," +
-            "FOREIGN KEY(sound_id) REFERENCES Sounds(_id)" +
+            "FOREIGN KEY(sound_id) REFERENCES Sounds(_id) " +
             ");";
+
+    static final String DATABASE_CREATE_PROMOTED_TRACKS = "(" +
+        "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "urn TEXT, " +
+        "promoter_id INTEGER," +
+        "tracking_track_clicked_urls TEXT," +
+        "tracking_profile_clicked_urls TEXT," +
+        "tracking_promoter_clicked_urls TEXT," +
+        "tracking_track_played_urls TEXT," +
+        "tracking_track_impression_urls TEXT" +
+        ");";
 
     static final String DATABASE_CREATE_SOUNDS = "(" +
             "_id INTEGER," +
