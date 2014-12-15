@@ -13,12 +13,16 @@ import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public final class ApiRequestException extends Exception {
 
     private final ApiRequest request;
     private final Reason errorReason;
 
+    public static final List<Reason> LOGGABLE_REASONS =
+            Arrays.asList(UNEXPECTED_RESPONSE, MALFORMED_INPUT, RATE_LIMITED);
     public enum Reason {
         AUTH_ERROR,
         NETWORK_ERROR,
@@ -65,6 +69,10 @@ public final class ApiRequestException extends Exception {
 
     public Reason reason() {
         return errorReason;
+    }
+
+    public boolean loggable() {
+        return LOGGABLE_REASONS.contains(reason());
     }
 
     @Override

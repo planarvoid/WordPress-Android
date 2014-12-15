@@ -73,20 +73,24 @@ public class ApiClient {
         }
     }
 
-    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest<ResourceType> request) throws ApiMapperException {
+    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest<ResourceType> request) throws IOException, ApiRequestException, ApiMapperException {
         return mapResponse(request, fetchResponse(request));
     }
 
     @SuppressWarnings("unchecked")
-    <T> T mapResponse(final ApiRequest<T> apiRequest, final ApiResponse apiResponse) throws ApiMapperException {
-        if (apiResponse.isSuccess() && apiResponse.hasResponseBody()) {
-            return (T) parseJsonResponse(apiResponse, apiRequest);
+    <T> T mapResponse(final ApiRequest<T> apiRequest, final ApiResponse apiResponse) throws IOException, ApiRequestException, ApiMapperException {
+        if (apiResponse.isSuccess()) {
+            if (apiResponse.hasResponseBody()) {
+                return (T) parseJsonResponse(apiResponse, apiRequest);
+            } else {
+                throw new ApiMapperException("Empty response body");
+            }
         } else {
-            throw new ApiMapperException("Empty response body or request failed", apiResponse.getFailure());
+            throw apiResponse.getFailure();
         }
     }
 
-    private Object parseJsonResponse(ApiResponse apiResponse, ApiRequest apiRequest) throws ApiMapperException {
+    private Object parseJsonResponse(ApiResponse apiResponse, ApiRequest apiRequest) throws IOException, ApiMapperException {
         Object resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), apiRequest.getResourceType());
 
         if (resource == null || UnknownResource.class.isAssignableFrom(resource.getClass())) {

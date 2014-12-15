@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
@@ -65,7 +66,7 @@ public class SoundStreamSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiMapperException {
+    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiRequestException, ApiMapperException  {
         Log.d(this, "syncActivities(" + uri + "); action=" + action);
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
@@ -80,7 +81,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult refreshSoundStream() throws IOException, ApiMapperException {
+    private ApiSyncResult refreshSoundStream() throws IOException, ApiRequestException, ApiMapperException {
 
         final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
                 ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(ApiEndpoints.STREAM.path())
@@ -101,7 +102,7 @@ public class SoundStreamSyncer implements SyncStrategy {
     }
 
 
-    private ApiSyncResult appendStreamItems() throws ApiMapperException {
+    private ApiSyncResult appendStreamItems() throws IOException, ApiRequestException, ApiMapperException {
         if (hasNextPageUrl()){
 
             final String nextPageUrl = getNextPageUrl();
@@ -130,7 +131,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult prependActivities() throws ApiMapperException {
+    private ApiSyncResult prependActivities() throws IOException, ApiRequestException, ApiMapperException {
         final String previousPageUrl = getFuturePageUrl();
         Log.d(this, "Building soundstream request from stored future link " + previousPageUrl);
 

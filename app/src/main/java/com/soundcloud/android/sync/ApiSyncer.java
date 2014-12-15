@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -284,7 +285,7 @@ public class ApiSyncer extends LegacySyncStrategy {
             user = apiClient.fetchMappedResponse(request);
             user.setUpdated();
             SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
-        } catch (ApiMapperException e) {
+        } catch (IOException | ApiRequestException | ApiMapperException e) {
             e.printStackTrace();
             user = null;
         }

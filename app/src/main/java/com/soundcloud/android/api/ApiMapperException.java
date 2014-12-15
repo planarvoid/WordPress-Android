@@ -10,7 +10,4 @@ public class ApiMapperException extends Exception {
         super(message);
     }
 
-    public ApiMapperException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

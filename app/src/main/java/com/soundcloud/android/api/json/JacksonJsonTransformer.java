@@ -22,10 +22,10 @@ public class JacksonJsonTransformer implements JsonTransformer {
     }
 
     @Override
-    public <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws ApiMapperException {
+    public <T> T fromJson(String json, TypeToken<?> classToTransformTo) throws IOException, ApiMapperException {
         try {
             return objectMapper.readValue(json, typeFactory.constructType(classToTransformTo.getType()));
-        } catch (IOException e) {
+        } catch (JsonProcessingException e) {
             throw new ApiMapperException(e);
         }
     }
