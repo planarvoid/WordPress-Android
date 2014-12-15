@@ -446,7 +446,7 @@ public class ApiClientTest {
         apiClient.fetchMappedResponse(request);
     }
 
-    @Test(expected = ApiMapperException.class)
+    @Test(expected = ApiRequestException.class)
     public void shouldThrowMappingExceptionIfResponseWasUnsuccessful() throws Exception {
         when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(400, "bad request"));
         ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
