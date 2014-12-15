@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -16,7 +17,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import com.soundcloud.android.api.oauth.OAuth;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
@@ -82,7 +82,7 @@ public class ApiClient {
         if (apiResponse.isSuccess() && apiResponse.hasResponseBody()) {
             return (T) parseJsonResponse(apiResponse, apiRequest);
         } else {
-            throw new ApiMapperException("Empty response body or request failed");
+            throw new ApiMapperException("Empty response body or request failed", apiResponse.getFailure());
         }
     }
 
