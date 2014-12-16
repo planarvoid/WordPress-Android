@@ -23,7 +23,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -64,7 +63,6 @@ public class PlayQueueManagerTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueueOperations playQueueOperations;
-    @Mock private CastConnectionHelper castConnectionHelper;
 
     private PublicApiPlaylist playlist;
     private PlaySessionSource playSessionSource;

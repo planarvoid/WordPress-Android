@@ -46,6 +46,7 @@ import rx.observers.TestObserver;
 
 import android.content.Intent;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,13 +69,24 @@ public class PlaybackOperationsTest {
     @Mock private PlaybackToastViewController playbackToastViewController;
     @Mock private AdsOperations adsOperations;
     @Mock private AccountOperations accountOperations;
+    @Mock private PlaybackStrategy playbackStrategy;
     private TestObserver<List<Urn>> observer;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
+
+        final Provider<PlaybackStrategy> playbackStrategyProvider = new Provider<PlaybackStrategy>() {
+            @Override
+            public PlaybackStrategy get() {
+                return playbackStrategy;
+            }
+        };
+
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus, adsOperations, accountOperations);
+                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus, adsOperations, accountOperations,
+                playbackStrategyProvider);
+
         track = ModelFixtures.create(PublicApiTrack.class);
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
@@ -97,7 +109,7 @@ public class PlaybackOperationsTest {
         Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -111,15 +123,14 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playTrackShouldSendServiceIntentIfTrackAlreadyPlayingWithDifferentContext() {
+    public void playTrackShouldPlayCurrentIfTrackAlreadyPlayingWithDifferentContext() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
 
         Urn track1 = track.getUrn();
         playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO)).subscribe();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService()).not.toBeNull();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -142,7 +153,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playTrackWithRecommendations(track.getUrn(), playSessionSource).subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -187,11 +198,11 @@ public class PlaybackOperationsTest {
                 .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
-    public void startsServiceIfPlayingQueueHasSameContextWithDifferentPlaylistSources() throws CreateModelException {
+    public void playsCurrentIfPlayingQueueHasSameContextWithDifferentPlaylistSources() throws CreateModelException {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
         PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
@@ -210,8 +221,7 @@ public class PlaybackOperationsTest {
                 .subscribe(observer);
         expect(observer.getOnNextEvents()).not.toBeEmpty();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService()).not.toBeNull();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -248,29 +258,33 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void togglePlaybackShouldSendTogglePlaybackIntentIfPlayingCurrentTrack() {
+    public void togglePlaybackShouldTogglePlaybackOnPlaybackStrategyIfPlayingCurrentTrack() {
         when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         playbackOperations.togglePlayback();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
+        verify(playbackStrategy).togglePlayback();
     }
 
     @Test
-    public void togglePlaybackShouldPlayCurrentIfNotPlayingCurrentTrack() {
+    public void togglePlaybackShouldNotTogglePlaybackOnPlaybackStrategyIfNotPlayingCurrentTrack() {
         when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(false);
         playbackOperations.togglePlayback();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.PLAY_CURRENT);
+        verify(playbackStrategy, never()).togglePlayback();
     }
 
     @Test
-    public void shouldPlayCurrentQueueTrack() {
+    public void playCurrentCallsPlayCurrentOnPlaybackStrategy() {
         playbackOperations.playCurrent();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService().getAction()).toBe(PlaybackService.Actions.PLAY_CURRENT);
+        verify(playbackStrategy).playCurrent();
+    }
+
+    @Test
+    public void playCurrentFromPositoinCallsPlayCurrentOnPlaybackStrategyWithPosition() {
+        playbackOperations.playCurrent(123L);
+
+        verify(playbackStrategy).playCurrent(123L);
     }
 
     @Test
@@ -329,10 +343,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent sentIntent = application.getNextStartedService();
-        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
-        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(0L);
+        verify(playbackStrategy).seek(0);
     }
 
     @Test
@@ -342,10 +353,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent sentIntent = application.getNextStartedService();
-        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
-        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(0L);
+        verify(playbackStrategy).seek(0);
     }
 
     @Test
@@ -482,10 +490,7 @@ public class PlaybackOperationsTest {
         when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(true);
         playbackOperations.seek(350L);
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent sentIntent = application.getNextStartedService();
-        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
-        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(350L);
+        verify(playbackStrategy).seek(350L);
     }
 
     @Test
@@ -503,10 +508,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.seek(350L);
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent sentIntent = application.getNextStartedService();
-        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.SEEK);
-        expect(sentIntent.getLongExtra(PlaybackService.ActionsExtras.SEEK_POSITION, 0L)).toEqual(350L);
+        verify(playbackStrategy).seek(350L);
     }
 
     @Test
@@ -553,25 +555,27 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
-    public void playTracksWithTrackListContainsTracksOpensCurrentTrackThroughPlaybackService() {
+    public void playTracksWithTrackListContainsTracksOpensCurrentTrack() {
         final Observable<Urn> tracks = Observable.just(Urn.forTrack(123L));
         playbackOperations
                 .playTracks(tracks, TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
-        checkLastStartedServiceForPlayCurrentAction();
+
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
-    public void playTracksWithEmptyTrackListDoesNotOpenCurrentTrackThroughPlaybackService() {
+    public void playTracksWithEmptyTrackListDoesNotOpenCurrentTrack() {
         Observable<Urn> tracks = Observable.empty();
         playbackOperations
                 .playTracks(tracks, TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
-        expectLastStartedServiceToBeNull();
+
+        verify(playbackStrategy, never()).playCurrent();
     }
 
     @Test
@@ -598,7 +602,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -640,7 +644,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -663,7 +667,7 @@ public class PlaybackOperationsTest {
     public void startPlaybackWithRecommendationsByIdOpensCurrentThroughPlaybackService() {
         playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN).subscribe();
 
-        checkLastStartedServiceForPlayCurrentAction();
+        verify(playbackStrategy).playCurrent();
     }
 
     @Test
@@ -756,15 +760,6 @@ public class PlaybackOperationsTest {
                 eq(playSessionSource));
     }
 
-    protected void checkLastStartedServiceForPlayCurrentAction() {
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_CURRENT);
-    }
-
-    private void expectLastStartedServiceToBeNull() {
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService()).toBeNull();
-    }
 
     private void expectUnskippableException() {
         expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(PlaybackOperations.UnSkippablePeriodException.class);
