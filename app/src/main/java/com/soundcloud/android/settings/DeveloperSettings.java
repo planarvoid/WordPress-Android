@@ -4,8 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineTracksOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -26,7 +25,6 @@ import android.widget.Toast;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 public class DeveloperSettings {
 
@@ -42,10 +40,10 @@ public class DeveloperSettings {
     public static final String DEV_OFFLINE_SYNC = "dev.offlineSync";
 
     private final SoundCloudApplication application;
-    private final OfflineTracksOperations operations;
+    private final OfflineContentOperations operations;
 
     @Inject
-    public DeveloperSettings(SoundCloudApplication application, OfflineTracksOperations offlineOperations) {
+    public DeveloperSettings(SoundCloudApplication application, OfflineContentOperations offlineOperations) {
         this.application = application;
         this.operations = offlineOperations;
     }
@@ -145,7 +143,7 @@ public class DeveloperSettings {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        operations.enqueueTracks(Arrays.asList(Urn.forTrack(162026010), Urn.forTrack(141566537)));
+                        operations.updateOfflineLikes();
                         return true;
                     }
                 });

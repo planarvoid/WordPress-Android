@@ -561,4 +561,12 @@
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>
+    <string name="downloads_started">Starting downloading your tracks</string>
+    <string name="downloads_completed">All tracks downloaded!</string>
+    <string name="downloads_in_progress">Download in progress</string>
+
+    <plurals name="downloading_track_of_tracks">
+        <item quantity="one">1 track</item>
+        <item quantity="other">%1$d of %2$d tracks</item>
+    </plurals>
 </resources>

@@ -10,6 +10,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.observers.TestObserver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,71 +19,73 @@ import java.util.List;
 public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     private TrackDownloadsStorage storage;
-    private DownloadResult downloadResult;
-    private List<Urn> tracksToDownload;
 
-    private final Urn track1 = Urn.forTrack(123L);
-    private final Urn track2 = Urn.forTrack(124L);
+    private final Urn TRACK_URN1 = Urn.forTrack(123L);
+    private final Urn TRACK_URN2 = Urn.forTrack(124L);
+    private final List<Urn> TRACK_URNS = Arrays.asList(TRACK_URN1, TRACK_URN2);
+    private final DownloadResult DOWNLOAD_RESULT = new DownloadResult(true, TRACK_URN1);
 
     @Before
     public void setUp() {
-        storage = new TrackDownloadsStorage(propeller());
-        downloadResult = DownloadResult.forSuccess(Urn.forTrack(123));
-        tracksToDownload = getTracksToDownload();
+        storage = new TrackDownloadsStorage(propeller(), testScheduler());
 
-        insertTrackToSounds(track1, "http://streamUrl1");
-        insertTrackToSounds(track2, "http://streamUrl2");
+        insertTrackToSounds(TRACK_URN1, "http://streamUrl1");
+        insertTrackToSounds(TRACK_URN2, "http://streamUrl2");
     }
 
     @Test
     public void storeRequestedDownloads() {
-        storage.storeRequestedDownloads(tracksToDownload);
-        databaseAssertions().assertDownloadRequestsInserted(tracksToDownload);
+        storage.filterAndStoreNewDownloadRequests(TRACK_URNS).subscribe();
+
+        databaseAssertions().assertDownloadRequestsInserted(TRACK_URNS);
     }
 
     @Test
     public void storeRequestedDownloadDoesNotOverrideExistingRecords() {
         long timestamp = 100;
-        testFixtures().insertRequestedTrackDownload(timestamp, track1);
+        testFixtures().insertRequestedTrackDownload(timestamp, TRACK_URN1);
 
-        storage.storeRequestedDownloads(Arrays.asList(track1));
+        storage.filterAndStoreNewDownloadRequests(Arrays.asList(TRACK_URN1, TRACK_URN2)).subscribe();
 
-        databaseAssertions().assertExistingDownloadRequest(timestamp, track1);
+        databaseAssertions().assertExistingDownloadRequest(timestamp, TRACK_URN1);
+        databaseAssertions().assertDownloadRequestsInserted(Arrays.asList(TRACK_URN2));
     }
 
     @Test
     public void updatesDownloadTracksWithDownloadResults() {
-        storage.storeRequestedDownloads(tracksToDownload);
+        storage.filterAndStoreNewDownloadRequests(TRACK_URNS).subscribe();;
 
-        storage.updateDownload(downloadResult);
+        storage.updateDownload(DOWNLOAD_RESULT);
 
-        databaseAssertions().assertDownloadResultsInserted(downloadResult);
-        databaseAssertions().assertDownloadRequestsInserted(tracksToDownload);
+        databaseAssertions().assertDownloadResultsInserted(DOWNLOAD_RESULT);
+        databaseAssertions().assertDownloadRequestsInserted(TRACK_URNS);
     }
 
     @Test
     public void getRequestedDownloadsEmptyListWhenAllDownloadsCompleted() {
-        storage.storeRequestedDownloads(tracksToDownload);
-        storage.updateDownload(downloadResult);
+        TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
+        storage.filterAndStoreNewDownloadRequests(Arrays.asList(TRACK_URN1));
 
-        List<DownloadRequest> result = storage.getPendingDownloads();
-        expect(result).toNumber(1);
+        storage.updateDownload(DOWNLOAD_RESULT);
+        storage.getPendingDownloads().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        List<DownloadRequest> requests = observer.getOnNextEvents().get(0);
+        expect(requests).toNumber(0);
     }
 
     @Test
     public void getRequestedDownloadsReturnsNotDownloadedTracks() {
+        TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
         ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         testFixtures().insertTrack(apiTrack);
-        storage.storeRequestedDownloads(Arrays.asList(apiTrack.getUrn()));
+        storage.filterAndStoreNewDownloadRequests(Arrays.asList(apiTrack.getUrn())).subscribe();
 
-        List<DownloadRequest> result = storage.getPendingDownloads();
+        storage.getPendingDownloads().subscribe(observer);
+        List<DownloadRequest> result = observer.getOnNextEvents().get(0);
         expect(result.size()).toBe(1);
         expect(result.get(0).urn).toEqual(apiTrack.getUrn());
         expect(result.get(0).fileUrl).toEqual(apiTrack.getStreamUrl());
-    }
-
-    private List<Urn> getTracksToDownload() {
-        return Arrays.asList(track1, track2);
     }
 
     private void insertTrackToSounds(Urn urn, String streamUrl) {

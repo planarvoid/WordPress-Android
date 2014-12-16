@@ -1,6 +1,6 @@
 package com.soundcloud.android.creators.upload;
 
-import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
+import static com.soundcloud.android.NotificationConstants.UPLOADING_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;

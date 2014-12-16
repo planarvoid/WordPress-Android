@@ -16,6 +16,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
+import com.soundcloud.android.offline.OfflineContentController;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
@@ -94,6 +95,7 @@ public class SoundCloudApplication extends Application {
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
+    @Inject OfflineContentController offlineContentController;
     @Inject CastSessionReconnector castSessionReconnector;
 
     // we need this object to exist throughout the life time of the app,
@@ -160,8 +162,12 @@ public class SoundCloudApplication extends Application {
         playbackNotificationController.subscribe();
         adsController.subscribe();
 
-        if (featureFlags.isEnabled(Feature.GOOGLE_CAST)){
+        if (featureFlags.isEnabled(Feature.GOOGLE_CAST)) {
             castSessionReconnector.startListening();
+        }
+
+        if (featureFlags.isEnabled(Feature.OFFLINE_SYNC_FROM_LIKES)) {
+            offlineContentController.subscribe();
         }
     }
 
@@ -277,7 +283,7 @@ public class SoundCloudApplication extends Application {
      *
      * Alternatively, sync sets lazily where needed.
      */
-    private void requestSetsSync(){
+    private void requestSetsSync() {
         Intent intent = new Intent(this, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_PLAYLISTS.uri);

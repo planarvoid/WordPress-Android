@@ -1,21 +1,51 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.subscriptions.Subscriptions;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.List;
 
-public class OfflineContentService extends IntentService {
+@Singleton
+public class OfflineContentService extends Service {
 
-    protected static final String ACTION_DOWNLOAD_TRACKS = "action_download_tracks";
-    protected static final String TAG = "OfflineContent";
+    public static final String TAG = "OfflineContent";
+    static final String ACTION_DOWNLOAD_TRACKS = "action_download_tracks";
 
-    @Inject DownloadController downloadController;
+    @Inject DownloadOperations downloadOperations;
+    @Inject DownloadNotificationController notificationController;
+
+    private Subscription subscription = Subscriptions.empty();
+
+    private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
+        @Override
+        public void call(List<DownloadRequest> downloadRequests) {
+            notificationController.onNewPendingRequests(downloadRequests.size());
+        }
+    };
+
+    private final Func1<List<DownloadRequest>, Observable<DownloadResult>> toDownloadResult = new Func1<List<DownloadRequest>, Observable<DownloadResult>>() {
+        @Override
+        public Observable<DownloadResult> call(List<DownloadRequest> downloadRequests) {
+            return downloadOperations.processDownloadRequests(downloadRequests);
+        }
+    };
 
     public static void syncOfflineContent(Context context) {
         context.startService(getDownloadIntent(context));
@@ -28,24 +58,69 @@ public class OfflineContentService extends IntentService {
     }
 
     public OfflineContentService() {
-        super(TAG);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    OfflineContentService(DownloadController downloadController) {
-        super(TAG);
-        this.downloadController = downloadController;
+    OfflineContentService(DownloadOperations downloadOperations, DownloadNotificationController notificationController) {
+        this.downloadOperations = downloadOperations;
+        this.notificationController = notificationController;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent.getAction();
-        Log.d(TAG, "Starting offlineContentService for action: " + action);
+        Log.d(TAG, Thread.currentThread().getName() + " Starting offlineContentService for action: " + action);
 
         if (ACTION_DOWNLOAD_TRACKS.equalsIgnoreCase(action)) {
-            downloadController.downloadTracks();
+
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.create());
+            subscription.unsubscribe();
+
+            subscription = downloadOperations
+                    .pendingDownloads()
+                    .doOnNext(updateNotification)
+                    .flatMap(toDownloadResult)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DownloadResultSubscriber());
         }
+        return START_NOT_STICKY;
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    private void stop() {
+        Log.d(TAG, "Stopping the service");
+        stopForeground(true);
+        subscription.unsubscribe();
+        stopSelf();
+    }
+
+    @Override
+    public void onDestroy() {
+        subscription.unsubscribe();
+    }
+
+    private final class DownloadResultSubscriber extends DefaultSubscriber<DownloadResult> {
+        @Override
+        public void onCompleted() {
+            stop();
+            notificationController.onCompleted();
+        }
+
+        @Override
+        public void onNext(DownloadResult result) {
+            Log.d(OfflineContentService.TAG, "Downloaded track: " + result);
+            notificationController.onProgressUpdate();
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            //TODO: error handling and notifications for it: other story
+            Log.e(OfflineContentService.TAG, "something bad happened", throwable);
+        }
+    }
 }

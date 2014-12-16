@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 
 public final class DownloadResult {
@@ -8,18 +9,10 @@ public final class DownloadResult {
     private final boolean isSuccessful;
     private final long downloadedAt;
 
-    private DownloadResult(boolean success, Urn urn) {
+    DownloadResult(boolean success, Urn urn) {
         this.urn = urn;
         this.isSuccessful = success;
         this.downloadedAt = System.currentTimeMillis();
-    }
-
-    public static DownloadResult forSuccess(Urn trackUrn) {
-        return new DownloadResult(true, trackUrn);
-    }
-
-    public static DownloadResult forFailure(Urn trackUrn) {
-        return new DownloadResult(false, trackUrn);
     }
 
     public long getDownloadedAt() {
@@ -30,7 +23,11 @@ public final class DownloadResult {
         return urn;
     }
 
-    public boolean isSuccessful() {
-        return isSuccessful;
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("urn", urn)
+                .add("isSuccessful", isSuccessful)
+                .add("downloadedAt", downloadedAt).toString();
     }
 }

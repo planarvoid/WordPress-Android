@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.record;
 
-import static com.soundcloud.android.Consts.Notifications.PLAYBACK_NOTIFY_ID;
-import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
+import static com.soundcloud.android.NotificationConstants.PLAYBACK_NOTIFY_ID;
+import static com.soundcloud.android.NotificationConstants.RECORD_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;

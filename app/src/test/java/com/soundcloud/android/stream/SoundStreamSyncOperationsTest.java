@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
@@ -81,7 +81,7 @@ public class SoundStreamSyncOperationsTest {
 
         syncOperations.createNotificationForUnseenItems();
 
-        verify(notificationManager).notify(Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, notification);
+        verify(notificationManager).notify(NotificationConstants.DASHBOARD_NOTIFY_STREAM_ID, notification);
     }
 
     @Test
