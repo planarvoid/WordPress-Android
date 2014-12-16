@@ -47,6 +47,7 @@ public enum Table implements com.soundcloud.propeller.Table {
     Suggestions(false, DatabaseSchema.DATABASE_CREATE_SUGGESTIONS, TableColumns.Suggestions.ALL_FIELDS),
     Connections(false, DatabaseSchema.DATABASE_CREATE_CONNECTIONS),
     TrackDownloads(false, DatabaseSchema.DATABASE_CREATE_TRACK_DOWNLOADS),
+    Likes(PrimaryKey.of(TableColumns.Likes._ID, TableColumns.Likes._TYPE), false, DatabaseSchema.DATABASE_CREATE_LIKES),
 
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
