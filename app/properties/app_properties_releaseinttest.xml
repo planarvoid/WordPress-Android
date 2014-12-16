@@ -15,7 +15,6 @@
     <string name="event_logger_base_url">http://eventlogger.soundcloud.com</string>
 
     <!-- Feature flags (enabled) -->
-    <bool name="feature_api_mobile_stream">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
@@ -25,4 +24,5 @@
     <bool name="feature_device_key_generation">false</bool>
     <bool name="feature_android_l_media_notification">false</bool>
     <bool name="feature_google_cast">false</bool>
+    <bool name="feature_api_mobile_stream">false</bool>
 </resources>
