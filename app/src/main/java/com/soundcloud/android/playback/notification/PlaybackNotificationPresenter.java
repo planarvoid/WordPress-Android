@@ -22,7 +22,7 @@ public class PlaybackNotificationPresenter {
     }
 
     void init(NotificationBuilder builder, boolean isPlaying){
-        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setSmallIcon(R.drawable.ic_stat_action_notification);
         builder.setContentIntent(createPendingIntent(context));
         builder.setPlayingStatus(isPlaying);
     }

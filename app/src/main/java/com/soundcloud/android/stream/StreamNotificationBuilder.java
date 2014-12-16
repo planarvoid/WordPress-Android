@@ -50,7 +50,7 @@ public class StreamNotificationBuilder {
         final CharSequence message = getIncomingNotificationMessage(streamItems);
 
         Builder builder = builderProvider.get();
-        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setSmallIcon(R.drawable.ic_stat_action_notification);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
         builder.setTicker(ticker);
