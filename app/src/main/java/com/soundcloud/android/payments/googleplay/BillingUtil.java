@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments.googleplay;
 
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,6 +35,8 @@ final class BillingUtil {
 
     public static final String REQUEST_PRODUCT_DETAILS = "ITEM_ID_LIST";
 
+    private static final String IN_PARENTHESES = "\\(.*?\\)";
+
     private BillingUtil() {}
 
     /*
@@ -63,7 +66,7 @@ final class BillingUtil {
     }
 
     public static String removeAppName(String productTitle) {
-        return productTitle.replaceAll("\\(.*?\\)", "").trim();
+        return productTitle.replaceAll(IN_PARENTHESES, ScTextUtils.EMPTY_STRING).trim();
     }
 
     public static void log(String message) {
