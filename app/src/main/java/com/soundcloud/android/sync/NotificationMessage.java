@@ -162,7 +162,7 @@ class NotificationMessage {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.drawable.ic_stat_action_notification);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
         builder.setTicker(ticker);

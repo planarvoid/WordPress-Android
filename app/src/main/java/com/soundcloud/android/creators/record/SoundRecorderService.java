@@ -163,7 +163,7 @@ public class SoundRecorderService extends Service {
 
     public static Notification createOngoingNotification(Context context, PendingIntent pendingIntent) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.drawable.ic_stat_action_notification);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(pendingIntent);
         builder.setOngoing(true);
         return builder.build();
