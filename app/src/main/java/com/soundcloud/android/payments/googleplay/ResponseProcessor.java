@@ -13,14 +13,14 @@ class ResponseProcessor {
 
     public ProductDetails parseProduct(String productJson) throws JSONException {
         JSONObject json = new JSONObject(productJson);
-        return new ProductDetails(json.optString("productId"),
+        return new ProductDetails(json.getString("productId"),
                 BillingUtil.removeAppName(json.optString("title")),
                 json.optString("description"),
                 json.optString("price"));
     }
 
     public String extractToken(String json) throws JSONException {
-        return new JSONObject(json).optString("developerPayload");
+        return new JSONObject(json).getString("developerPayload");
     }
 
 }
