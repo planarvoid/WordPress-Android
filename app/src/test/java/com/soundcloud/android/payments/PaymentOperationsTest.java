@@ -148,6 +148,15 @@ public class PaymentOperationsTest {
                 .withContent(UpdateCheckout.fromFailure("user cancelled"))));
     }
 
+    @Test
+    public void cancelClearsToken() {
+        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
+
+        paymentOperations.cancel("user cancelled").subscribe();
+
+        verify(paymentStorage).clear();
+    }
+
     private Observable<AvailableProducts> availableProductsObservable() {
         AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("product_id")));
         return Observable.just(products);

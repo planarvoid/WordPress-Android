@@ -14,6 +14,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Statement;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func0;
 import rx.functions.Func1;
@@ -73,6 +74,13 @@ class PaymentOperations {
         @Override
         public void call(String checkoutToken) {
             paymentStorage.setCheckoutToken(checkoutToken);
+        }
+    };
+
+    private final Action0 clearToken = new Action0() {
+        @Override
+        public void call() {
+            paymentStorage.clear();
         }
     };
 
@@ -142,6 +150,7 @@ class PaymentOperations {
                         return Observable.just(PurchaseStatus.UPDATE_FAIL);
                     }
                 })
+                .doOnCompleted(clearToken)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -188,7 +197,8 @@ class PaymentOperations {
     }
 
     public Observable<ApiResponse> cancel(final String reason) {
-        return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)));
+        return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)))
+                .doOnCompleted(clearToken);
     }
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {

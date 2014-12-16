@@ -155,6 +155,17 @@ public class PaymentOperationsVerifyTest {
                 .withContent(UpdateCheckout.fromSuccess(payload))));
     }
 
+    @Test
+    public void verifyClearsTokenWhenFinished() {
+        when(api.mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+                .thenReturn(pendingObservable());
+
+        paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
+        scheduler.advanceTimeBy(8, TimeUnit.SECONDS);
+
+        verify(paymentStorage).clear();
+    }
+
     private Observable<CheckoutUpdated> successObservable() {
         return Observable.just(new CheckoutUpdated("successful", "ok", "token_123"));
     }
