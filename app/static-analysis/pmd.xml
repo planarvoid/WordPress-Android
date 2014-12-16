@@ -26,7 +26,9 @@
 <!--
     <rule ref="rulesets/java/naming.xml"/>
 -->
-    <rule ref="rulesets/java/strictexception.xml"/>
+    <rule ref="rulesets/java/strictexception.xml">
+        <exclude name="AvoidThrowingNullPointerException" />
+    </rule>
     <rule ref="rulesets/java/strings.xml"/>
     <rule ref="rulesets/java/typeresolution.xml"/>
     <rule ref="rulesets/java/unnecessary.xml">
@@ -35,6 +37,7 @@
     <rule ref="rulesets/java/unusedcode.xml">
         <exclude name="UnusedModifier"/>
     </rule>
+
     <rule ref="rulesets/java/optimizations.xml">
         <exclude name="LocalVariableCouldBeFinal"/>
         <exclude name="MethodArgumentCouldBeFinal"/>
