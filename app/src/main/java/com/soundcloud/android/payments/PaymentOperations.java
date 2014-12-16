@@ -32,7 +32,7 @@ class PaymentOperations {
     private final Scheduler scheduler;
     private final ApiScheduler api;
     private final BillingService playBilling;
-    private final PaymentStorage paymentStorage;
+    private final TokenStorage tokenStorage;
 
     private static final Func1<ApiResponse, PurchaseStatus> TO_STATUS = new Func1<ApiResponse, PurchaseStatus>() {
         @Override
@@ -54,7 +54,7 @@ class PaymentOperations {
         @Override
         public Observable<PurchaseStatus> call(SubscriptionStatus subscriptionStatus) {
             if (subscriptionStatus.isSubscribed()) {
-                paymentStorage.setCheckoutToken(subscriptionStatus.getToken());
+                tokenStorage.setCheckoutToken(subscriptionStatus.getToken());
                 return verify(subscriptionStatus.getPayload());
             }
             return Observable.just(PurchaseStatus.NONE);
@@ -73,27 +73,27 @@ class PaymentOperations {
     private final Action1<String> saveToken = new Action1<String>() {
         @Override
         public void call(String checkoutToken) {
-            paymentStorage.setCheckoutToken(checkoutToken);
+            tokenStorage.setCheckoutToken(checkoutToken);
         }
     };
 
     private final Action0 clearToken = new Action0() {
         @Override
         public void call() {
-            paymentStorage.clear();
+            tokenStorage.clear();
         }
     };
 
     @Inject
-    PaymentOperations(ApiScheduler api, BillingService playBilling, PaymentStorage paymentStorage) {
-        this(ScSchedulers.API_SCHEDULER, api, playBilling, paymentStorage);
+    PaymentOperations(ApiScheduler api, BillingService playBilling, TokenStorage tokenStorage) {
+        this(ScSchedulers.API_SCHEDULER, api, playBilling, tokenStorage);
     }
 
-    PaymentOperations(Scheduler scheduler, ApiScheduler api, BillingService playBilling, PaymentStorage paymentStorage) {
+    PaymentOperations(Scheduler scheduler, ApiScheduler api, BillingService playBilling, TokenStorage tokenStorage) {
         this.scheduler = scheduler;
         this.api = api;
         this.playBilling = playBilling;
-        this.paymentStorage = paymentStorage;
+        this.tokenStorage = tokenStorage;
     }
 
     public Observable<ConnectionStatus> connect(Activity activity) {
@@ -188,7 +188,7 @@ class PaymentOperations {
 
     private Observable<PurchaseStatus> getStatus() {
         final ApiRequest<CheckoutUpdated> request =
-                ApiRequest.Builder.<CheckoutUpdated>get(ApiEndpoints.CHECKOUT_URN.path(paymentStorage.getCheckoutToken()))
+                ApiRequest.Builder.<CheckoutUpdated>get(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
                 .forPrivateApi(API_VERSION)
                 .forResource(CheckoutUpdated.class)
                 .build();
@@ -202,7 +202,7 @@ class PaymentOperations {
     }
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {
-        return ApiRequest.Builder.post(ApiEndpoints.CHECKOUT_URN.path(paymentStorage.getCheckoutToken()))
+        return ApiRequest.Builder.post(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
                 .forPrivateApi(API_VERSION)
                 .withContent(update)
                 .build();

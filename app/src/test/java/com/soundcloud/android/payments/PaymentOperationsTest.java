@@ -34,14 +34,14 @@ public class PaymentOperationsTest {
 
     @Mock private ApiScheduler api;
     @Mock private BillingService billingService;
-    @Mock private PaymentStorage paymentStorage;
+    @Mock private TokenStorage tokenStorage;
     @Mock private Activity activity;
 
     private PaymentOperations paymentOperations;
 
     @Before
     public void setUp() throws Exception {
-        paymentOperations = new PaymentOperations(Schedulers.immediate(), api, billingService, paymentStorage);
+        paymentOperations = new PaymentOperations(Schedulers.immediate(), api, billingService, tokenStorage);
         when(api.mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
                 .thenReturn(availableProductsObservable());
         when(api.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
@@ -128,7 +128,7 @@ public class PaymentOperationsTest {
     public void savesCheckoutTokenFromCheckoutStart() {
         paymentOperations.purchase("product_id").subscribe();
 
-        verify(paymentStorage).setCheckoutToken("token_123");
+        verify(tokenStorage).setCheckoutToken("token_123");
     }
 
     @Test
@@ -140,7 +140,7 @@ public class PaymentOperationsTest {
 
     @Test
     public void cancelPostsCheckoutFailure() {
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
+        when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
 
         paymentOperations.cancel("user cancelled").subscribe();
 
@@ -150,11 +150,11 @@ public class PaymentOperationsTest {
 
     @Test
     public void cancelClearsToken() {
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
+        when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
 
         paymentOperations.cancel("user cancelled").subscribe();
 
-        verify(paymentStorage).clear();
+        verify(tokenStorage).clear();
     }
 
     private Observable<AvailableProducts> availableProductsObservable() {

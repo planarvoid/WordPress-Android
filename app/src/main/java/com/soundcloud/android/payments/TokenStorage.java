@@ -7,14 +7,14 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-class PaymentStorage {
+class TokenStorage {
 
     private static final String KEY_PENDING_URN = "pending_transaction_urn";
 
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public PaymentStorage(@Named("Payments") SharedPreferences sharedPreferences) {
+    public TokenStorage(@Named("Payments") SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 

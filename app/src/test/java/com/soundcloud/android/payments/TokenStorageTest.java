@@ -12,27 +12,27 @@ import org.junit.runner.RunWith;
 import android.content.SharedPreferences;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PaymentStorageTest {
+public class TokenStorageTest {
 
-    private PaymentStorage paymentStorage;
+    private TokenStorage tokenStorage;
 
     @Before
     public void setUp() throws Exception {
         SharedPreferences prefs = ShadowPreferenceManager.getDefaultSharedPreferences(Robolectric.application);
-        paymentStorage = new PaymentStorage(prefs);
+        tokenStorage = new TokenStorage(prefs);
     }
 
     @Test
     public void savesPendingTransactionUrn() {
-        paymentStorage.setCheckoutToken("blah:payment:123");
-        expect(paymentStorage.getCheckoutToken()).toEqual("blah:payment:123");
+        tokenStorage.setCheckoutToken("blah:payment:123");
+        expect(tokenStorage.getCheckoutToken()).toEqual("blah:payment:123");
     }
 
     @Test
     public void clearsPendingTransactionUrn() {
-        paymentStorage.setCheckoutToken("blah:payment:123");
-        paymentStorage.clear();
-        expect(paymentStorage.getCheckoutToken()).toBeNull();
+        tokenStorage.setCheckoutToken("blah:payment:123");
+        tokenStorage.clear();
+        expect(tokenStorage.getCheckoutToken()).toBeNull();
     }
 
 }

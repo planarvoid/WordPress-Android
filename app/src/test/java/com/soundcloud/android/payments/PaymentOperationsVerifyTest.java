@@ -34,7 +34,7 @@ public class PaymentOperationsVerifyTest {
 
     @Mock private ApiScheduler api;
     @Mock private BillingService billingService;
-    @Mock private PaymentStorage paymentStorage;
+    @Mock private TokenStorage tokenStorage;
 
     private PaymentOperations paymentOperations;
     private BillingResult billingResult;
@@ -44,10 +44,10 @@ public class PaymentOperationsVerifyTest {
     @Before
     public void setUp() throws Exception {
         scheduler = new TestScheduler();
-        paymentOperations = new PaymentOperations(scheduler, api, billingService, paymentStorage);
+        paymentOperations = new PaymentOperations(scheduler, api, billingService, tokenStorage);
         billingResult = TestBillingResults.success();
         observer = new TestObserver<>();
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
+        when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
         when(api.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
                 .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
@@ -150,7 +150,7 @@ public class PaymentOperationsVerifyTest {
         paymentOperations.queryStatus().subscribe();
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        verify(paymentStorage).setCheckoutToken("token_123");
+        verify(tokenStorage).setCheckoutToken("token_123");
         verify(api).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromSuccess(payload))));
     }
@@ -163,7 +163,7 @@ public class PaymentOperationsVerifyTest {
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(8, TimeUnit.SECONDS);
 
-        verify(paymentStorage).clear();
+        verify(tokenStorage).clear();
     }
 
     private Observable<CheckoutUpdated> successObservable() {
@@ -180,7 +180,7 @@ public class PaymentOperationsVerifyTest {
 
     private void setupPendingSubscription(Payload payload) {
         when(billingService.getStatus()).thenReturn(Observable.just(SubscriptionStatus.subscribed("token_123", payload)));
-        when(paymentStorage.getCheckoutToken()).thenReturn("token_123");
+        when(tokenStorage.getCheckoutToken()).thenReturn("token_123");
         when(api.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromSuccess(payload)))))
                 .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
