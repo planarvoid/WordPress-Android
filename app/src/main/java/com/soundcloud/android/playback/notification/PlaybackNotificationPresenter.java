@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.service.NotificationTrack;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -16,48 +15,34 @@ import javax.inject.Inject;
 public class PlaybackNotificationPresenter {
 
     protected final Context context;
-    private final CastConnectionHelper castConnectionHelper;
-    private NotificationTrack trackViewModel;
 
     @Inject
-    public PlaybackNotificationPresenter(Context context, CastConnectionHelper castConnectionHelper) {
+    public PlaybackNotificationPresenter(Context context) {
         this.context = context;
-        this.castConnectionHelper = castConnectionHelper;
     }
 
-    void init(NotificationBuilder builder, boolean isPlaying) {
+    void init(NotificationBuilder builder, boolean isPlaying){
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(createPendingIntent(context));
         builder.setPlayingStatus(isPlaying);
     }
 
     void updateTrackInfo(NotificationBuilder notificationBuilder, PropertySet trackProperties) {
-        trackViewModel = new NotificationTrack(context.getResources(), trackProperties);
+        final NotificationTrack trackViewModel = new NotificationTrack(context.getResources(), trackProperties);
         notificationBuilder.setTrackTitle(trackViewModel.getTitle());
-        configureCastMode(notificationBuilder);
-
+        notificationBuilder.setCreatorName(trackViewModel.getCreatorName());
     }
 
     void updateToPlayingState(NotificationBuilder notificationBuilder) {
-        updatePlaybackStatusFunc(notificationBuilder, true);
-        configureCastMode(notificationBuilder);
+         updatePlaybackStatusFunc(notificationBuilder, true);
     }
 
     void updateToIdleState(NotificationBuilder notificationBuilder) {
-        updatePlaybackStatusFunc(notificationBuilder, false);
-        configureCastMode(notificationBuilder);
-    }
-
-    private void configureCastMode(NotificationBuilder notificationBuilder) {
-        if (castConnectionHelper.isConnected()) {
-            notificationBuilder.setHeader(context.getString(R.string.casting_to_device, castConnectionHelper.getCastingDeviceName()));
-        } else {
-            notificationBuilder.setHeader(trackViewModel.getCreatorName());
-        }
+         updatePlaybackStatusFunc(notificationBuilder, false);
     }
 
     private void updatePlaybackStatusFunc(NotificationBuilder notificationBuilder, final boolean isPlaying) {
-        notificationBuilder.setPlayingStatus(isPlaying);
+         notificationBuilder.setPlayingStatus(isPlaying);
     }
 
     protected PendingIntent createPendingIntent(Context context) {

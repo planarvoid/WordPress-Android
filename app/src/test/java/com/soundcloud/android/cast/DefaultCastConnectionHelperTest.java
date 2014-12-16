@@ -1,10 +1,8 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.google.sample.castcompanionlibrary.cast.callbacks.IVideoCastConsumer;
@@ -67,12 +65,6 @@ public class DefaultCastConnectionHelperTest {
         captureVideoCastConsumer().onApplicationConnected(null, null, false);
 
         verify(castConnectionListener, never()).onConnectedToReceiverApp();
-    }
-
-    @Test
-    public void isConnectedReturnsIsConnectedFromVideoCastManager() throws Exception {
-        when(videoCastmanager.isConnected()).thenReturn(true);
-        expect(defaultCastConnectionHelper.isConnected()).toBeTrue();
     }
 
     private IVideoCastConsumer captureVideoCastConsumer() {

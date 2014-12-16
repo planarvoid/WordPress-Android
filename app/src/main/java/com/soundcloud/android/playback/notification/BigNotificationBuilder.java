@@ -63,7 +63,7 @@ public class BigNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setHeader(String creator) {
+    public void setCreatorName(String creator) {
         smallRemoteViews.setCurrentCreator(creator);
         bigRemoteViews.setCurrentCreator(creator);
     }

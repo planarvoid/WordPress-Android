@@ -17,7 +17,7 @@ public interface NotificationBuilder {
 
     void setTrackTitle(String title);
 
-    void setHeader(String creatorName);
+    void setCreatorName(String creatorName);
 
     void setPlayingStatus(boolean isPlaying);
 

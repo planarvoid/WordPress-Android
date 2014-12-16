@@ -53,7 +53,7 @@ public class RichNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setHeader(String creator) {
+    public void setCreatorName(String creator) {
         remoteViews.setCurrentCreator(creator);
     }
 
