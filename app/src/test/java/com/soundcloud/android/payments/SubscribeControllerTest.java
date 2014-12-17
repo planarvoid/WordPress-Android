@@ -22,8 +22,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -32,14 +32,15 @@ import android.widget.TextView;
 public class SubscribeControllerTest {
 
     @Mock private PaymentOperations paymentOperations;
-    @Mock private Activity activity;
+    @Mock private PaymentErrorController paymentErrorController;
+    @Mock private FragmentActivity activity;
 
     private SubscribeController controller;
     private View contentView;
 
     @Before
     public void setUp() throws Exception {
-        controller = new SubscribeController(paymentOperations);
+        controller = new SubscribeController(paymentOperations, paymentErrorController);
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.subscribe_activity, null, false);
         when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
@@ -56,6 +57,12 @@ public class SubscribeControllerTest {
     public void onCreateConnectsPaymentOperations() {
         controller.onCreate(activity);
         verify(paymentOperations).connect(activity);
+    }
+
+    @Test
+    public void onCreateBindsErrorHandler() {
+        controller.onCreate(activity);
+        verify(paymentErrorController).bind(activity);
     }
 
     @Test

@@ -104,7 +104,6 @@
     <string name="authentication_sign_up">Зарегистрируйтесь на SoundCloud</string>
     <string name="authentication_signup_error_message">Что-то не так. Возможно, вам нужно зарегистрироваться на SoundCloud.com.</string>
     <string name="authentication_support">Поддержка</string>
-    <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
     <string name="authentication_terms_of_use">Правила пользования</string>
     <string name="authentication_your_email_address">Ваш электронный адрес</string>
     <string name="authentication_your_password">Ваш пароль</string>

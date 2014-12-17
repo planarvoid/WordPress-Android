@@ -7,8 +7,12 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ApiResponse {
+
+    private static final String BAD_REQUEST_ERROR_KEY = "error_key";
     private static final int SC_REQUEST_TOO_MANY_REQUESTS = 429;
 
     private final int statusCode;
@@ -29,6 +33,8 @@ public class ApiResponse {
             failure = ApiRequestException.notFound(request);
         } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
             failure = ApiRequestException.notAllowed(request);
+        } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+            failure = ApiRequestException.badRequest(request, getErrorKey());
         } else if (!isSuccessCode(statusCode)) {
             failure = ApiRequestException.unexpectedResponse(request);
         }
@@ -67,6 +73,14 @@ public class ApiResponse {
 
     public String getResponseBody() {
         return responseBody;
+    }
+
+    private String getErrorKey() {
+        try {
+            return new JSONObject(responseBody).getString(BAD_REQUEST_ERROR_KEY);
+        } catch (JSONException e) {
+            return ApiRequestException.ERROR_KEY_NONE;
+        }
     }
 
     @Override

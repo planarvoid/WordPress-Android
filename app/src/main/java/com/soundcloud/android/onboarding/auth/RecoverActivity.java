@@ -72,7 +72,7 @@ public class RecoverActivity extends TrackedActivity {
                     public void onClick() {
                         startActivity(
                                 new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(getString(R.string.authentication_support_uri))));
+                                        Uri.parse(getString(R.string.support_uri))));
                     }
                 }, true, false);
 

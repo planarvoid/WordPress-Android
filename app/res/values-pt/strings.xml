@@ -109,7 +109,6 @@
     <string name="authentication_sign_up">Increva-se no SoundCloud</string>
     <string name="authentication_signup_error_message">Parece haver um problema. Tente se inscrever em SoundCloud.com.</string>
     <string name="authentication_support">Suporte</string>
-    <string name="authentication_support_uri">http://soundcloud.com/help#contact-forma</string>
     <string name="authentication_terms_of_use">Termos de Uso</string>
     <string name="authentication_your_email_address">Seu endereço de e-mail</string>
     <string name="authentication_your_password">Sua senha</string>

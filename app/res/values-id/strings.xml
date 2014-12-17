@@ -106,7 +106,6 @@
     <string name="authentication_sign_up">Mendaftar di SoundCloud</string>
     <string name="authentication_signup_error_message">Tampaknya ada masalah. Silakan mendaftar di SoundCloud.com.</string>
     <string name="authentication_support">Dukungan</string>
-    <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
     <string name="authentication_terms_of_use">Syarat Penggunaan</string>
     <string name="authentication_your_email_address">Alamat surelmu</string>
     <string name="authentication_your_password">Kata sandimu</string>

@@ -1,0 +1,6 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+           tools:ignore="MissingTranslation">
+
+    <string name="support_uri">http://soundcloud.com/help#contact-form</string>
+
+</resources>
