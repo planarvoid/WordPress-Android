@@ -89,9 +89,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
     private static final String BUNDLE_ACCEPT_TERMS = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
-    private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
-    private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
-    private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
+    private static final Uri TERMS_OF_USE_URL = Uri.parse("https://soundcloud.com/terms-of-use");
+    private static final Uri PRIVACY_POLICY_URL = Uri.parse("https://soundcloud.com/pages/privacy");
+    private static final Uri COOKIE_POLICY_URL = Uri.parse("https://soundcloud.com/pages/privacy#cookies");
     private static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends");
     private static final String DEFAULT_FACEBOOK_PUBLISH_PERMISSION = "publish_actions";
     private StartState lastAuthState;
@@ -228,7 +228,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
                 if (!applicationProperties.isDevBuildRunningOnDevice() && SignupLog.shouldThrottleSignup()) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://soundcloud.com")));
                     finish();
                 } else {
                     setState(StartState.SIGN_UP);

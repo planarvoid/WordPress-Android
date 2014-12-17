@@ -33,7 +33,7 @@
                 android:title="@string/imprint"
             >
         <intent android:action="android.intent.action.VIEW"
-                android:data="http://m.soundcloud.com/imprint"/>
+                android:data="https://soundcloud.com/imprint"/>
     </Preference>
 
 </PreferenceScreen>
