@@ -31,6 +31,12 @@ public final class TableColumns {
         public static final String CREATED_AT = "created_at";
     }
 
+    public static final class Likes implements BaseColumns {
+        public static final String _TYPE = "_type";
+        public static final String CREATED_AT = "created_at";
+        public static final String REMOVED_AT = "removed_at";
+    }
+
     /**
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_SOUNDS}
      */

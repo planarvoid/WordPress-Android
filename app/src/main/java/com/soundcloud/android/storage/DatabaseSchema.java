@@ -226,6 +226,15 @@ final class DatabaseSchema {
             "PRIMARY KEY(user_id, item_id, collection_type, resource_type) ON CONFLICT REPLACE" +
             ");";
 
+    static final String DATABASE_CREATE_LIKES = "(" +
+            "_id INTEGER NOT NULL," +
+            "_type INTEGER NOT NULL," +
+            "created_at INTEGER NOT NULL," +
+            "removed_at INTEGER DEFAULT NULL," +
+            "PRIMARY KEY (_id, _type)," +
+            "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
+            ");";
+
     /**
      * {@link com.soundcloud.android.storage.TableColumns.UserAssociations}
      */
