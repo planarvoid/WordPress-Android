@@ -56,7 +56,7 @@ public final class ErrorUtils {
         }
         if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
-        } else if (!excludeFromReports(t)) {
+        } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
             handleSilentException(t);
         }
@@ -81,14 +81,15 @@ public final class ErrorUtils {
         });
     }
 
-    private static boolean excludeFromReports(Throwable t) {
+    @VisibleForTesting
+    static boolean includeInReports(Throwable t) {
         if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t)) {
-            return true;
+            return false;
         }
         if (t instanceof ApiRequestException) {
             return ((ApiRequestException) t).loggable();
         }
-        return false;
+        return true;
     }
 
     private static boolean isIOExceptionUnrelatedToParsing(Throwable t) {
