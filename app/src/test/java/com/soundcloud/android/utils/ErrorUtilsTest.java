@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -14,7 +13,6 @@ import com.soundcloud.android.sync.SyncFailedException;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -112,6 +110,6 @@ public class ErrorUtilsTest {
 
     @Test
     public void shouldIncludeOtherExceptions() {
-        expect(ErrorUtils.includeInReports(new InvalidStateException("foo"))).toBeTrue();
+        expect(ErrorUtils.includeInReports(new IllegalStateException("foo"))).toBeTrue();
     }
 }
