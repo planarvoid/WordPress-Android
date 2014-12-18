@@ -22,7 +22,7 @@ public class StaleCheckoutDialog extends DialogFragment {
             final Activity activity = getActivity();
             if (activity != null) {
                 activity.startActivity(new Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse(getString(R.string.support_uri))));
+                        .setData(Uri.parse(getString(R.string.url_contact_support))));
             }
             dismiss();
         }

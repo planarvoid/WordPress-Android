@@ -4,36 +4,30 @@
 
     <Preference
             android:key="copyright_information"
-            android:title="@string/copyright_information"
-            >
-
+            android:title="@string/copyright_information">
         <intent
                 android:action="android.intent.action.VIEW"
                 android:targetPackage="com.soundcloud.android"
-                android:targetClass="com.soundcloud.android.settings.AboutActivity"/>
+                android:targetClass="com.soundcloud.android.settings.AboutActivity" />
     </Preference>
 
     <Preference android:key="terms_of_service"
-            android:title="@string/terms_of_use"
-            >
-
+                android:title="@string/terms_of_use">
         <intent android:action="android.intent.action.VIEW"
-                android:data="http://pages.soundcloud.com/legal/plain/terms-of-use-ios.html?format=ios"/>
+                android:data="@string/url_terms" />
 
     </Preference>
 
     <Preference android:key="privacy_policy"
-            android:title="@string/privacy_policy"
-            >
+                android:title="@string/privacy_policy">
         <intent android:action="android.intent.action.VIEW"
-                android:data="http://pages.soundcloud.com/legal/plain/privacy-policy.html?format=ios"/>
+                android:data="@string/url_privacy" />
     </Preference>
 
     <Preference android:key="imprint"
-                android:title="@string/imprint"
-            >
+                android:title="@string/imprint">
         <intent android:action="android.intent.action.VIEW"
-                android:data="https://soundcloud.com/imprint"/>
+                android:data="@string/url_imprint" />
     </Preference>
 
 </PreferenceScreen>

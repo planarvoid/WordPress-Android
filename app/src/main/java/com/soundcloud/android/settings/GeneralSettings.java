@@ -134,8 +134,8 @@ public class GeneralSettings {
         activity.findPreference(HELP).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://help.soundcloud.com/"));
-                        activity.startActivity(browserIntent);
+                        Intent supportIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appContext.getString(R.string.url_support)));
+                        activity.startActivity(supportIntent);
                         return true;
                     }
                 }

@@ -31,7 +31,6 @@ import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -388,7 +387,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                                     public void onClick(DialogInterface dialog, int which) {
                                         startActivity(
                                                 new Intent(Intent.ACTION_VIEW,
-                                                        Uri.parse(getString(R.string.support_uri))));
+                                                        Uri.parse(getString(R.string.url_contact_support))));
                                         removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
                                     }
                                 }).create();

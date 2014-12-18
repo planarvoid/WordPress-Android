@@ -1,6 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools"
            tools:ignore="MissingTranslation">
 
-    <string name="support_uri">http://soundcloud.com/help#contact-form</string>
+    <string name="url_site">https://soundcloud.com</string>
+    <string name="url_support">"http://help.soundcloud.com</string>
+    <string name="url_contact_support">http://help.soundcloud.com/customer/portal/emails/new</string>
+    <string name="url_imprint">https://soundcloud.com/imprint</string>
+    <string name="url_terms">http://pages.soundcloud.com/legal/plain/terms-of-use-ios.html?format=ios</string>
+    <string name="url_privacy">http://pages.soundcloud.com/legal/plain/privacy-policy.html?format=ios</string>
+    <string name="url_cookies">http://pages.soundcloud.com/legal/plain/privacy-policy.html?format=ios#cookies</string>
 
 </resources>

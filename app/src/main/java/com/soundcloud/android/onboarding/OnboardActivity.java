@@ -89,9 +89,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
     private static final String BUNDLE_ACCEPT_TERMS = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
-    private static final Uri TERMS_OF_USE_URL = Uri.parse("https://soundcloud.com/terms-of-use");
-    private static final Uri PRIVACY_POLICY_URL = Uri.parse("https://soundcloud.com/pages/privacy");
-    private static final Uri COOKIE_POLICY_URL = Uri.parse("https://soundcloud.com/pages/privacy#cookies");
     private static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends");
     private static final String DEFAULT_FACEBOOK_PUBLISH_PERMISSION = "publish_actions";
     private StartState lastAuthState;
@@ -228,7 +225,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
                 if (!applicationProperties.isDevBuildRunningOnDevice() && SignupLog.shouldThrottleSignup()) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://soundcloud.com")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_site))));
                     finish();
                 } else {
                     setState(StartState.SIGN_UP);
@@ -430,17 +427,17 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onShowTermsOfUse() {
-        startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_terms))));
     }
 
     @Override
     public void onShowPrivacyPolicy() {
-        startActivity(new Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_privacy))));
     }
 
     @Override
     public void onShowCookiePolicy() {
-        startActivity(new Intent(Intent.ACTION_VIEW, COOKIE_POLICY_URL));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_cookies))));
     }
 
     @Override
