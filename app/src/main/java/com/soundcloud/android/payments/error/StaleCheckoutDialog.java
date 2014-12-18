@@ -16,11 +16,7 @@ public class StaleCheckoutDialog extends DialogFragment {
 
     private static final String TAG = "StaleCheckout";
 
-    public static void show(FragmentManager fragmentManager) {
-        new StaleCheckoutDialog().show(fragmentManager, TAG);
-    }
-
-    private DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
             final Activity activity = getActivity();
@@ -31,6 +27,10 @@ public class StaleCheckoutDialog extends DialogFragment {
             dismiss();
         }
     };
+
+    public static void show(FragmentManager fragmentManager) {
+        new StaleCheckoutDialog().show(fragmentManager, TAG);
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

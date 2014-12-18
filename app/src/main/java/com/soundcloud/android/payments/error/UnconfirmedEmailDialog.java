@@ -13,16 +13,16 @@ public class UnconfirmedEmailDialog extends DialogFragment {
 
     private static final String TAG = "UnconfirmedEmail";
 
-    public static void show(FragmentManager fragmentManager) {
-        new UnconfirmedEmailDialog().show(fragmentManager, TAG);
-    }
-
-    private DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
             dismiss();
         }
     };
+
+    public static void show(FragmentManager fragmentManager) {
+        new UnconfirmedEmailDialog().show(fragmentManager, TAG);
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
