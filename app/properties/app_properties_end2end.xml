@@ -26,4 +26,5 @@
     <bool name="feature_okhttp">false</bool>
     <bool name="feature_payments">true</bool>
     <bool name="feature_payments_test">true</bool>
+    <bool name="feature_track_likes_screen">false</bool>
 </resources>

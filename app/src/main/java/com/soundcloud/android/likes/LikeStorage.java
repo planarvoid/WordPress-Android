@@ -28,7 +28,7 @@ public class LikeStorage {
                 .whereNull(TableColumns.Likes.REMOVED_AT);
         return scheduler.scheduleQuery(query).map(new LikeMapper());
     }
-    
+
     private static class LikeMapper extends RxResultMapper<PropertySet> {
         @Override
         public PropertySet map(CursorReader cursorReader) {
