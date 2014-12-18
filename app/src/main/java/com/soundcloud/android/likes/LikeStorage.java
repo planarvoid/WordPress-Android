@@ -11,12 +11,15 @@ import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
+import javax.inject.Inject;
+
 
 public class LikeStorage {
 
     private final DatabaseScheduler scheduler;
     private final PropellerDatabase propellerDatabase;
 
+    @Inject
     public LikeStorage(DatabaseScheduler scheduler, PropellerDatabase propellerDatabase) {
         this.scheduler = scheduler;
         this.propellerDatabase = propellerDatabase;
