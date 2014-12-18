@@ -11,28 +11,24 @@ import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
-import java.util.List;
-
 
 public class LikeStorage {
 
     private final DatabaseScheduler scheduler;
+    private final PropellerDatabase propellerDatabase;
 
-    public LikeStorage(DatabaseScheduler scheduler) {
+    public LikeStorage(DatabaseScheduler scheduler, PropellerDatabase propellerDatabase) {
         this.scheduler = scheduler;
+        this.propellerDatabase = propellerDatabase;
     }
 
     public Observable<PropertySet> trackLikes() {
         final Query query = Query.from(Table.Likes.name())
-                .select(
-                        TableColumns.Likes._ID,
-                        TableColumns.Likes.CREATED_AT
-                )
-                .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TRACK_TYPE)
+                .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereNull(TableColumns.Likes.REMOVED_AT);
         return scheduler.scheduleQuery(query).map(new LikeMapper());
     }
-
+    
     private static class LikeMapper extends RxResultMapper<PropertySet> {
         @Override
         public PropertySet map(CursorReader cursorReader) {

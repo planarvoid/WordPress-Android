@@ -116,7 +116,7 @@ public class DatabaseFixtures {
     public long insertTrackLike(long id, Date createdAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Likes._ID, id);
-        cv.put(TableColumns.Likes._TYPE, TableColumns.Sounds.TRACK_TYPE);
+        cv.put(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Likes.CREATED_AT, createdAt.getTime());
         return insertInto(Table.Likes, cv);
     }

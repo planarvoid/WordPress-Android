@@ -3,13 +3,10 @@ package com.soundcloud.android.likes;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +15,6 @@ import org.mockito.Mock;
 import rx.Observer;
 
 import java.util.Date;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LikeStorageTest extends StorageIntegrationTest {
@@ -29,7 +25,7 @@ public class LikeStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() {
-        storage = new LikeStorage(testScheduler());
+        storage = new LikeStorage(testScheduler(), propeller());
     }
 
     @Test
@@ -42,9 +38,9 @@ public class LikeStorageTest extends StorageIntegrationTest {
         storage.trackLikes().subscribe(observer);
 
         PropertySet trackLike1 = PropertySet.from(LikeProperty.TARGET_URN.bind(track1.getUrn()),
-                LikeProperty.CREATED_AT.bind(track1.getCreatedAt()));
+                LikeProperty.CREATED_AT.bind(new Date(100)));
         PropertySet trackLike2 = PropertySet.from(LikeProperty.TARGET_URN.bind(track2.getUrn()),
-                LikeProperty.CREATED_AT.bind(track2.getCreatedAt()));
+                LikeProperty.CREATED_AT.bind(new Date(200)));
 
         verify(observer).onNext(eq(trackLike1));
         verify(observer).onNext(eq(trackLike2));
