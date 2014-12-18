@@ -8,6 +8,7 @@ import com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDi
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
@@ -59,13 +60,16 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void startDeviceDiscovery(){
+    public void onActivityResume(Activity activity) {
+        videoCastManager.setContext(activity);
         videoCastManager.startCastDiscovery();
+        videoCastManager.incrementUiCounter();
     }
 
     @Override
-    public void stopDeviceDiscovery(){
+    public void onActivityPause() {
         videoCastManager.stopCastDiscovery();
+        videoCastManager.decrementUiCounter();
     }
 
     @Override
@@ -86,6 +90,11 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     @Override
     public void removeConnectionListener(final CastConnectionListener listener) {
         castConnectionListeners.remove(listener);
+    }
+
+    @Override
+    public boolean isConnected() {
+        return videoCastManager.isConnected();
     }
 
     @Override

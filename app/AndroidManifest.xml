@@ -407,6 +407,27 @@
             </intent-filter>
         </receiver>
 
+        <!-- Google Cast Companion -->
+        <receiver android:name="com.google.sample.castcompanionlibrary.remotecontrol.VideoIntentReceiver" >
+            <intent-filter>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="com.google.sample.castcompanionlibrary.action.toggleplayback" />
+                <action android:name="com.google.sample.castcompanionlibrary.action.stop" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.google.sample.castcompanionlibrary.notification.VideoCastNotificationService"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.sample.castcompanionlibrary.action.toggleplayback" />
+                <action android:name="com.google.sample.castcompanionlibrary.action.stop" />
+                <action android:name="com.google.sample.castcompanionlibrary.action.notificationvisibility" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.google.sample.castcompanionlibrary.cast.reconnection.ReconnectionService"/>
+
         <meta-data android:name="LOCALYTICS_APP_KEY" android:value="@string/localytics_app_key"/>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>

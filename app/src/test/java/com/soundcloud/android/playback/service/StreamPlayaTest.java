@@ -11,14 +11,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.cast.CastConnectionHelper.CastConnectionListener;
-import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -26,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -47,8 +43,6 @@ public class StreamPlayaTest {
     @Mock private BufferingPlaya bufferingPlaya;
     @Mock private Playa.PlayaListener playaListener;
     @Mock private StreamPlaya.PlayerSwitcherInfo playerSwitcherInfo;
-    @Mock private CastPlayer castPlayer;
-    @Mock private CastConnectionHelper castConnectionHelper;
 
     private PropertySet track;
 
@@ -69,7 +63,7 @@ public class StreamPlayaTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, playerSwitcherInfo, castPlayer, castConnectionHelper);
+        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, playerSwitcherInfo);
         streamPlayerWrapper.setListener(playaListener);
     }
 
@@ -598,77 +592,6 @@ public class StreamPlayaTest {
         instantiateStreamPlaya();
         streamPlayerWrapper.destroy();
         verify(skippyAdapter, never()).destroy();
-    }
-
-    @Test
-    public void playUrlCallsPlayUrlOnCastPlayerIfConnected() throws Exception {
-        when(castPlayer.isConnected()).thenReturn(true);
-        instantiateStreamPlaya();
-        streamPlayerWrapper.play(track);
-        verify(castPlayer).play(track);
-    }
-
-    @Test
-    public void playUrlSetsListenerOnCastPlayerIfCOnnected() throws Exception {
-        when(castPlayer.isConnected()).thenReturn(true);
-        instantiateStreamPlaya();
-        streamPlayerWrapper.play(track);
-        verify(castPlayer).setListener(streamPlayerWrapper);
-    }
-
-    @Test
-    public void connectingToCastAppWhileInBufferingModeDoesNotStartPlayback() throws Exception {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
-        streamPlayerWrapper.startBufferingMode(track.get(TrackProperty.URN));
-
-        when(castPlayer.isConnected()).thenReturn(true);
-        captureCastConnectionListener().onConnectedToReceiverApp();
-
-        verify(castPlayer, never()).play(any(PropertySet.class), anyLong());
-    }
-
-    @Test
-    public void connectingToCastAppWhileNotPlayingConfiguresCastPlayerAsCurrentPlayer() throws Exception {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.play(track);
-
-        when(castPlayer.isConnected()).thenReturn(true);
-        captureCastConnectionListener().onConnectedToReceiverApp();
-
-        streamPlayerWrapper.resume();
-
-        verify(castPlayer).resume();
-
-    }
-
-    @Test
-    public void connectingToCastAppWhilePlayingShouldStartPlaybackOnCastDeviceFromLastPosition() throws Exception {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.play(track);
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
-        when(mediaPlayerAdapter.getProgress()).thenReturn(123L);
-
-        when(castPlayer.isConnected()).thenReturn(true);
-        captureCastConnectionListener().onConnectedToReceiverApp();
-
-        verify(castPlayer).play(track, 123);
-
-    }
-
-    @Test
-    public void removesCastConnectionListenerInOnDestroy() throws Exception {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.destroy();
-        final CastConnectionListener listener = captureCastConnectionListener();
-        verify(castConnectionHelper).removeConnectionListener(listener);
-
-    }
-
-    private CastConnectionListener captureCastConnectionListener() {
-        ArgumentCaptor<CastConnectionListener> castConnectionListenerCaptor = ArgumentCaptor.forClass(CastConnectionListener.class);
-        verify(castConnectionHelper).addConnectionListener(castConnectionListenerCaptor.capture());
-        return castConnectionListenerCaptor.getValue();
     }
 
     private void startPlaybackOnSkippy() {

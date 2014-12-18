@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
@@ -13,6 +14,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.cast.CastSessionReconnector;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
@@ -43,7 +45,7 @@ import javax.inject.Named;
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
 @Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncer.class,
-        LocalyticsPushReceiver.class, ApiSyncService.class})
+        LocalyticsPushReceiver.class, ApiSyncService.class}, library = true)
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;
@@ -183,6 +185,16 @@ public class TestApplicationModule {
     @Provides
     public CastSessionReconnector provideCastSessionReconnector() {
         return mock(CastSessionReconnector.class);
+    }
+
+    @Provides
+    public VideoCastManager provideVideoCastManager() {
+        return mock(VideoCastManager.class);
+    }
+
+    @Provides
+    public PlaybackStrategy providePlaybackStrategy() {
+        return mock(PlaybackStrategy.class);
     }
 }
 

@@ -302,8 +302,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
 
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
         imageOperations.resume();
-
-        castConnectionHelper.startDeviceDiscovery();
+        castConnectionHelper.onActivityResume(this);
 
         registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!accountOperations.isUserLoggedIn()) {
@@ -319,7 +318,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     protected void onPause() {
         lifeCycleDispatcher.onPause();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
-        castConnectionHelper.stopDeviceDiscovery();
+        castConnectionHelper.onActivityPause();
         safeUnregisterReceiver(unauthoriedRequestReceiver);
         isForeground = false;
         onCreateCalled = false;

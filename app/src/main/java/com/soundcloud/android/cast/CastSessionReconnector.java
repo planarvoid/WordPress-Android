@@ -1,7 +1,9 @@
 package com.soundcloud.android.cast;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -19,15 +21,17 @@ public class CastSessionReconnector implements CastConnectionHelper.CastConnecti
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
     private final PlaybackToastViewController playbackToastViewController;
+    private final PlaySessionStateProvider playSessionStateProvider;
 
     @Inject
     public CastSessionReconnector(PlaybackOperations playbackOperations, PlayQueueManager playQueueManager,
-                                  CastConnectionHelper castConnectionHelper, EventBus eventBus, PlaybackToastViewController playbackToastViewController) {
+                                  CastConnectionHelper castConnectionHelper, EventBus eventBus, PlaybackToastViewController playbackToastViewController, PlaySessionStateProvider playSessionStateProvider) {
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
         this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
         this.playbackToastViewController = playbackToastViewController;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     public void startListening() {
@@ -36,7 +40,11 @@ public class CastSessionReconnector implements CastConnectionHelper.CastConnecti
 
     @Override
     public void onConnectedToReceiverApp() {
-        // no-op
+        if (playSessionStateProvider.isPlaying()){
+            playbackOperations.stopService();
+            final PlaybackProgress lastProgressByUrn = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn());
+            playbackOperations.playCurrent(lastProgressByUrn.getPosition());
+        }
     }
 
     @Override

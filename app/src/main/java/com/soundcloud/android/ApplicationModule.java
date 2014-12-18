@@ -2,24 +2,27 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
-import android.net.wifi.WifiManager;
-import android.os.PowerManager;
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.UselessCastConnectionHelper;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
+import com.soundcloud.android.image.ImageProcessorJB;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.CastPlaybackStrategy;
+import com.soundcloud.android.playback.DefaultPlaybackStrategy;
+import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.BasicNotificationBuilder;
 import com.soundcloud.android.playback.notification.BigNotificationBuilder;
 import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
 import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
-import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
@@ -31,11 +34,11 @@ import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.PowerManagerWrapper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.menu.PopupMenuWrapperCompat;
 import com.soundcloud.android.view.menu.PopupMenuWrapperICS;
 import com.soundcloud.android.waveform.WaveformData;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 
@@ -46,8 +49,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -216,9 +221,19 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties){
-        final VideoCastManager initialize = VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), null, "urn:x-cast:com.soundcloud.cast.sender");
-        initialize.enableFeatures(VideoCastManager.FEATURE_LOCKSCREEN | VideoCastManager.FEATURE_DEBUGGING);
-        return initialize;
+        final VideoCastManager manager = VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), MainActivity.class, "urn:x-cast:com.soundcloud.cast.sender");
+        manager.enableFeatures(VideoCastManager.FEATURE_LOCKSCREEN | VideoCastManager.FEATURE_DEBUGGING |
+                VideoCastManager.FEATURE_NOTIFICATION | VideoCastManager.FEATURE_WIFI_RECONNECT);
+        return manager;
+    }
+
+    @Provides
+    public PlaybackStrategy providePlaybackStrategy(Context context, CastConnectionHelper castConnectionHelper, Lazy<CastPlayer> castPlayer) {
+        if (castConnectionHelper.isConnected()){
+            return new CastPlaybackStrategy(castPlayer.get());
+        } else {
+            return new DefaultPlaybackStrategy(context);
+        }
     }
 
     @Provides

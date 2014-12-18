@@ -10,7 +10,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.cast.CastConnectionHelper.CastConnectionListener;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
@@ -37,6 +39,7 @@ public class CastSessionReconnectorTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private PlaybackToastViewController playbackToastViewController;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Captor private ArgumentCaptor<CastConnectionListener> connectionListenerCaptor;
 
@@ -45,13 +48,46 @@ public class CastSessionReconnectorTest {
 
     @Before
     public void setUp() throws Exception {
-        castSessionReconnector = new CastSessionReconnector(playbackOperations, playQueueManager, castConnectionHelper, eventBus, playbackToastViewController);
+        castSessionReconnector = new CastSessionReconnector(playbackOperations, playQueueManager, castConnectionHelper, eventBus, playbackToastViewController, playSessionStateProvider);
         when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
     }
 
     @Test
     public void isNotListeningByDefault() throws Exception {
         verify(castConnectionHelper, never()).addConnectionListener(any(CastConnectionListener.class));
+    }
+
+    @Test
+    public void onConnectedToReceiverAppDoesNothingIfNotPlaying() throws Exception {
+        castSessionReconnector.startListening();
+
+        callOnConnectedToReceiverApp();
+
+        verifyZeroInteractions(playbackOperations);
+    }
+
+    @Test
+    public void onConnectedToReceiverAppStopsPlaybackServiceIfPlaying() throws Exception {
+        castSessionReconnector.startListening();
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
+        when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(new PlaybackProgress(123, 456));
+
+        callOnConnectedToReceiverApp();
+
+        verify(playbackOperations).stopService();
+    }
+
+    @Test
+    public void onConnectedToReceiverAppPlaysCurrentTrackFromLastPosition() throws Exception {
+        castSessionReconnector.startListening();
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
+        when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(new PlaybackProgress(123, 456));
+
+        callOnConnectedToReceiverApp();
+
+        verify(playbackOperations).playCurrent(123);
     }
 
     @Test
@@ -79,5 +115,10 @@ public class CastSessionReconnectorTest {
     private void callOnMetadatUpdated() {
         verify(castConnectionHelper).addConnectionListener(connectionListenerCaptor.capture());
         connectionListenerCaptor.getValue().onMetaDataUpdated(URN);
+    }
+
+    private void callOnConnectedToReceiverApp() {
+        verify(castConnectionHelper).addConnectionListener(connectionListenerCaptor.capture());
+        connectionListenerCaptor.getValue().onConnectedToReceiverApp();
     }
 }

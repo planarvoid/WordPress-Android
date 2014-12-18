@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +60,7 @@ public class PlaybackOperations {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
+    private final Provider<PlaybackStrategy> playbackStrategyProvider;
 
 
     @Inject
@@ -66,7 +68,8 @@ public class PlaybackOperations {
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
                               PlaybackToastViewController playbackToastViewController, EventBus eventBus,
-                              AdsOperations adsOperations, AccountOperations accountOperations) {
+                              AdsOperations adsOperations, AccountOperations accountOperations,
+                              Provider<PlaybackStrategy> playbackStrategyProvider) {
         this.context = context;
         this.modelManager = modelManager;
         this.trackStorage = trackStorage;
@@ -76,6 +79,7 @@ public class PlaybackOperations {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
+        this.playbackStrategyProvider = playbackStrategyProvider;
     }
 
     public Observable<List<Urn>> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
@@ -127,22 +131,26 @@ public class PlaybackOperations {
 
     public void togglePlayback() {
         if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
-            context.startService(createExplicitServiceIntent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+            playbackStrategyProvider.get().togglePlayback();
         } else {
             playCurrent();
         }
     }
 
     public void play() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_ACTION));
+        playbackStrategyProvider.get().resume();
     }
 
     public void pause() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PAUSE_ACTION));
+        playbackStrategyProvider.get().pause();
     }
 
     public void playCurrent() {
-        context.startService(createExplicitServiceIntent(PlaybackService.Actions.PLAY_CURRENT));
+        playbackStrategyProvider.get().playCurrent();
+    }
+
+    public void playCurrent(long fromPosition) {
+        playbackStrategyProvider.get().playCurrent(fromPosition);
     }
 
     public void setPlayQueuePosition(int position) {
@@ -193,9 +201,7 @@ public class PlaybackOperations {
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
             if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
-                Intent intent = createExplicitServiceIntent(PlaybackService.Actions.SEEK);
-                intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);
-                context.startService(intent);
+                playbackStrategyProvider.get().seek(position);
             } else {
                 playQueueManager.saveCurrentProgress(position);
             }

@@ -3,7 +3,6 @@ package com.soundcloud.android.cast;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -19,13 +18,18 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.api.HttpProperties;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ProgressReporter;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -34,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.content.res.Resources;
 
@@ -41,8 +46,11 @@ import android.content.res.Resources;
 public class CastPlayerTest {
 
     public static final String HTTP_IMAGE_URL = "http://image.url";
+    private static final Urn URN = Urn.forTrack(123L);
 
     private CastPlayer castPlayer;
+
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private VideoCastManager castManager;
     @Mock private ApplicationProperties applicationProperties;
@@ -52,16 +60,15 @@ public class CastPlayerTest {
     @Mock private GoogleApiClient googleApiClient;
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
-    @Mock private Playa.PlayaListener playerListener;
+    @Mock private TrackOperations trackOperations;
+    @Mock private PlayQueueManager playQueueManager;
 
     @Captor private ArgumentCaptor<Playa.StateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPusher> progressPusherArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-
-        castPlayer = new CastPlayer(castManager, progressReporter, imageOperations, resources);
-        castPlayer.setListener(playerListener);
+        castPlayer = new CastPlayer(castManager, progressReporter, imageOperations, resources, eventBus, trackOperations, playQueueManager);
     }
 
     @Test
@@ -72,7 +79,7 @@ public class CastPlayerTest {
         verify(progressReporter).setProgressPusher(progressPusherArgumentCaptor.capture());
         progressPusherArgumentCaptor.getValue().pushProgress();
 
-        verify(playerListener).onProgressEvent(123, 456);
+        verifyProgress(123L, 456L);
     }
 
     @Test
@@ -98,15 +105,6 @@ public class CastPlayerTest {
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
-    }
-
-    @Test
-    public void onStatusUpdatedWithPausedStateWhileShouldBePlayingDoesNotEmitState() throws Exception {
-        castPlayer.resume();
-
-        castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
-
-        verify(playerListener, never()).onPlaystateChanged(any(Playa.StateTransition.class));
     }
 
     @Test
@@ -184,36 +182,37 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleInterruptedStateDoesNotReportTranslatedState() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_INTERRUPTED);
 
-        verify(playerListener, never()).onPlaystateChanged(any(Playa.StateTransition.class));
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
     @Test
     public void onStatusUpdatedWithIdleUnknownStateDoesNotReportTranslatedState() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_INTERRUPTED);
 
-        verify(playerListener, never()).onPlaystateChanged(any(Playa.StateTransition.class));
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
     @Test
     public void playWithUrnAlreadyLoadedDoesNotLoadMedia() throws Exception {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final PropertySet track = setupSuccesfulTrackInfoLoad();
+
         final MediaInfo media = getMediaInfoForTrack(track);
         when(castManager.getRemoteMediaInformation()).thenReturn(media);
 
-        castPlayer.play(track);
+        castPlayer.playCurrent();
 
         verify(castManager, never()).loadMedia(any(MediaInfo.class), anyBoolean(), anyInt());
     }
 
     @Test
     public void playWithUrnAlreadyLoadedOutputsExistingState() throws Exception {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final PropertySet track = setupSuccesfulTrackInfoLoad();
         final MediaInfo media = getMediaInfoForTrack(track);
         when(castManager.getRemoteMediaInformation()).thenReturn(media);
         when(castManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
         when(castManager.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_NONE);
 
-        castPlayer.play(track);
+        castPlayer.playCurrent();
 
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.PLAYING);
@@ -235,10 +234,10 @@ public class CastPlayerTest {
 
     @Test
     public void playCallsLoadOnRemoteMediaPlayerStreamContent() throws Exception {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final PropertySet track = setupSuccesfulTrackInfoLoad();
         when(imageOperations.getUrlForLargestImage(resources, track.get(TrackProperty.URN))).thenReturn(HTTP_IMAGE_URL);
 
-        castPlayer.play(track);
+        castPlayer.playCurrent();
 
         ArgumentCaptor<MediaInfo> mediaInfoArgumentCaptor = ArgumentCaptor.forClass(MediaInfo.class);
         verify(castManager).loadMedia(mediaInfoArgumentCaptor.capture(), anyBoolean(), anyInt());
@@ -251,38 +250,63 @@ public class CastPlayerTest {
 
     @Test
     public void playCallsLoadOnRemoteMediaPlayerWithAutoPlayTrue() throws Exception {
+        setupSuccesfulTrackInfoLoad();
+
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
-        castPlayer.play(TestPropertySets.expectedTrackForPlayer());
+        castPlayer.playCurrent();
 
         verify(castManager).loadMedia(any(MediaInfo.class), eq(true), anyInt());
     }
 
     @Test
     public void playCallsLoadOnRemoteMediaPlayerWithDefaultPosition() throws Exception {
+        setupSuccesfulTrackInfoLoad();
+
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
-        castPlayer.play(TestPropertySets.expectedTrackForPlayer());
+        castPlayer.playCurrent();
 
         verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(0));
     }
 
     @Test
     public void playCallsLoadOnRemoteMediaPlayerWithRequestedPosition() throws Exception {
+        setupSuccesfulTrackInfoLoad();
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
-        castPlayer.play(TestPropertySets.expectedTrackForPlayer(), 100);
+        castPlayer.playCurrent(100);
 
         verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100));
     }
 
     @Test
     public void playReportsBufferingEvent() throws Exception {
+        final PropertySet track = setupSuccesfulTrackInfoLoad();
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        castPlayer.play(track, 100);
+        castPlayer.playCurrent(100);
 
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.BUFFERING);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
         expect(stateTransition.getTrackUrn()).toEqual(track.get(TrackProperty.URN));
+    }
+
+    private PropertySet setupSuccesfulTrackInfoLoad() {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
+        when(trackOperations.track(URN)).thenReturn(Observable.just(track));
+        return track;
+    }
+
+    @Test
+    public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
+        when(trackOperations.track(URN)).thenReturn(Observable.<PropertySet>error(new Throwable("loading error")));
+
+        castPlayer.playCurrent();
+
+        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
+        expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
+        expect(stateTransition.getTrackUrn()).toBe(URN);
     }
 
     @Test
@@ -297,13 +321,6 @@ public class CastPlayerTest {
         castPlayer.pause();
 
         verify(castManager).pause();
-    }
-
-    @Test
-    public void setVolumeDoesNotSetVolumeOnRemotePlayer() throws Exception {
-        castPlayer.setVolume(123F);
-
-        verify(castManager, never()).setVolume(anyFloat());
     }
 
     @Test
@@ -329,16 +346,6 @@ public class CastPlayerTest {
     }
 
     @Test
-    public void isSeekableIsTrue() throws Exception {
-        expect(castPlayer.isSeekable()).toBeTrue();
-    }
-
-    @Test
-    public void isNotSeekablePastBufferIsFalse() throws Exception {
-        expect(castPlayer.isNotSeekablePastBuffer()).toBeFalse();
-    }
-
-    @Test
     public void onDisconnectedBroadcastsIdleState() throws Exception {
         castPlayer.onDisconnected();
 
@@ -348,7 +355,12 @@ public class CastPlayerTest {
     }
 
     private Playa.StateTransition captureFirstStateTransition() {
-        verify(playerListener).onPlaystateChanged(transitionArgumentCaptor.capture());
-        return transitionArgumentCaptor.getValue();
+        return eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+    }
+
+    private void verifyProgress(long position, long duration) {
+        PlaybackProgress playbackProgress = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS).getPlaybackProgress();
+        expect(playbackProgress.getPosition()).toEqual(position);
+        expect(playbackProgress.getDuration()).toEqual(duration);
     }
 }

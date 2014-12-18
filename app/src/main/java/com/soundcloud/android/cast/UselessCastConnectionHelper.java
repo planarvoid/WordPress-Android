@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast;
 
+import android.app.Activity;
 import android.view.KeyEvent;
 import android.view.Menu;
 
@@ -21,12 +22,12 @@ public class UselessCastConnectionHelper implements CastConnectionHelper {
     }
 
     @Override
-    public void startDeviceDiscovery() {
+    public void onActivityResume(Activity activity) {
         // no-op
     }
 
     @Override
-    public void stopDeviceDiscovery() {
+    public void onActivityPause() {
         // no-op
     }
 
@@ -48,5 +49,10 @@ public class UselessCastConnectionHelper implements CastConnectionHelper {
     @Override
     public void removeConnectionListener(CastConnectionListener listener) {
         // no-op
+    }
+
+    @Override
+    public boolean isConnected() {
+        return false;
     }
 }
