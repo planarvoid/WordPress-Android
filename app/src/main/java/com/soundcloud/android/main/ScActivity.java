@@ -388,7 +388,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
                                     public void onClick(DialogInterface dialog, int which) {
                                         startActivity(
                                                 new Intent(Intent.ACTION_VIEW,
-                                                        Uri.parse(getString(R.string.authentication_support_uri))));
+                                                        Uri.parse(getString(R.string.support_uri))));
                                         removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
                                     }
                                 }).create();

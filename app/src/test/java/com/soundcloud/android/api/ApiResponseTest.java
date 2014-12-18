@@ -79,4 +79,25 @@ public class ApiResponseTest {
         expect(response.getFailure()).toBeInstanceOf(ApiRequestException.class);
         expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.UNEXPECTED_RESPONSE);
     }
+
+    @Test
+    public void shouldFailWithBadRequestOn400() {
+        final ApiResponse response = new ApiResponse(request, 400, "response");
+        expect(response.isNotSuccess()).toBeTrue();
+        expect(response.getFailure()).toBeInstanceOf(ApiRequestException.class);
+        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.BAD_REQUEST);
+    }
+
+    @Test
+    public void shouldExtractErrorKeyFromBadRequestBody() {
+        final ApiResponse response = new ApiResponse(request, 400, "{\"error_key\":\"my_error\"}");
+        expect(response.getFailure().errorKey()).toEqual("my_error");
+    }
+
+    @Test
+    public void shouldReturnDefaultIfErrorKeyCouldNotBeExtractedFromBadRequestBody() {
+        final ApiResponse response = new ApiResponse(request, 400, "not even json");
+        expect(response.getFailure().errorKey()).toEqual(ApiRequestException.ERROR_KEY_NONE);
+    }
+
 }

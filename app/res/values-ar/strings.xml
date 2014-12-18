@@ -106,7 +106,6 @@
     <string name="authentication_sign_up">الاشتراك في SoundCloud</string>
     <string name="authentication_signup_error_message">يبدو أن هناك مشكلة. يرجى محاولة الاشتراك على موقع SoundCloud.com.</string>
     <string name="authentication_support">دعم</string>
-    <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
     <string name="authentication_terms_of_use">شروط الاستخدام</string>
     <string name="authentication_your_email_address">عنوان بريدك الإلكتروني</string>
     <string name="authentication_your_password">كلمة المرور</string>

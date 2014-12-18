@@ -12,6 +12,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 class SubscribeController {
 
     private final PaymentOperations paymentOperations;
+    private final PaymentErrorController paymentErrorController;
 
     @InjectView(R.id.subscribe_title) TextView title;
     @InjectView(R.id.subscribe_description) TextView description;
@@ -34,14 +36,16 @@ class SubscribeController {
     private ProductDetails details;
 
     @Inject
-    SubscribeController(PaymentOperations paymentOperations) {
+    SubscribeController(PaymentOperations paymentOperations, PaymentErrorController paymentErrorController) {
         this.paymentOperations = paymentOperations;
+        this.paymentErrorController = paymentErrorController;
     }
 
-    public void onCreate(Activity activity) {
+    public void onCreate(FragmentActivity activity) {
         this.activity = activity;
         activity.setContentView(R.layout.subscribe_activity);
         ButterKnife.inject(this, activity.findViewById(android.R.id.content));
+        paymentErrorController.bind(activity);
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
     }
 
@@ -85,9 +89,6 @@ class SubscribeController {
         }
     }
 
-    /*
-     * TODO: All the error case handling & messaging will depend on the subscription flow designs
-     */
     private class DetailsSubscriber extends DefaultSubscriber<ProductStatus> {
         @Override
         public void onNext(ProductStatus result) {
@@ -102,7 +103,7 @@ class SubscribeController {
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            showConnectionError();
+            paymentErrorController.onError(e);
         }
     }
 
@@ -110,14 +111,14 @@ class SubscribeController {
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            showConnectionError();
+            paymentErrorController.onError(e);
         }
     }
 
     private class StatusSubscriber extends DefaultSubscriber<PurchaseStatus> {
         @Override
         public void onNext(PurchaseStatus result) {
-            switch(result) {
+            switch (result) {
                 case SUCCESS:
                     showSuccessScreen();
                     break;
@@ -137,7 +138,7 @@ class SubscribeController {
 
         @Override
         public void onError(Throwable e) {
-            showConnectionError();
+            paymentErrorController.onError(e);
         }
     }
 
@@ -148,10 +149,6 @@ class SubscribeController {
 
     private void loadPurchaseOptions() {
         subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
-    }
-
-    private void showConnectionError() {
-        showText(R.string.payments_connection_error);
     }
 
     private void showText(int messageId) {

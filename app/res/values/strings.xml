@@ -109,7 +109,6 @@
     <string name="authentication_sign_up">Sign up for SoundCloud</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
     <string name="authentication_support">Support</string>
-    <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
@@ -311,6 +310,7 @@
     <string name="user_commented_at">%1$s at %2$s</string>
 
     <!-- __PAYMENTS -->
+    <string name="payments_unknown_error">Unknown error</string>
     <string name="payments_connection_error">Connection error</string>
     <string name="payments_connection_unavailable">Google Play billing is not available</string>
     <string name="payments_user_cancelled">User cancelled</string>
@@ -319,6 +319,11 @@
     <string name="payments_verify_fail">Verification failed</string>
     <string name="payments_verify_timeout">Unable to verify purchase</string>
     <string name="payments_success">Success</string>
+    <string name="payments_error_title">Payment error</string>
+    <string name="payments_error_already_subscribed">There is already a subscription associated with your account. Continued problems? Contact support.</string>
+    <string name="payments_error_unconfirmed_email">Please follow the link in your confirmation email and try again.</string>
+    <string name="payments_error_stale_checkout">It was not possible to restore your subscription.</string>
+    <string name="payments_error_contact_support">Contact support</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
