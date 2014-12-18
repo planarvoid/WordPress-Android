@@ -24,8 +24,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     private TrackStorage storage;
 
-    @Mock
-    private Observer<PropertySet> observer;
+    @Mock private Observer<PropertySet> observer;
 
     @Before
     public void setup() {

@@ -45,7 +45,7 @@ public class LikesListFragment extends ScListFragment {
         public void call() {
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffleMyLikes());
         }
-    };;
+    };
 
     public LikesListFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);

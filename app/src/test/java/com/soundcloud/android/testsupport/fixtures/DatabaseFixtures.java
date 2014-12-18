@@ -18,6 +18,8 @@ import org.hamcrest.Matchers;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.Date;
+
 public class DatabaseFixtures {
 
     private final SQLiteDatabase database;
@@ -109,6 +111,14 @@ public class DatabaseFixtures {
         final long id = insertInto(Table.Users, cv);
         user.setId(id);
         return id;
+    }
+
+    public long insertTrackLike(long id, Date createdAt) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Likes._ID, id);
+        cv.put(TableColumns.Likes._TYPE, TableColumns.Sounds.TRACK_TYPE);
+        cv.put(TableColumns.Likes.CREATED_AT, createdAt.getTime());
+        return insertInto(Table.Likes, cv);
     }
 
     public long insertPlaylistLike(long playlistId, long userId) {
