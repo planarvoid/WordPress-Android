@@ -33,6 +33,13 @@ public class LikesScreen extends Screen {
         return visualPlayerElement;
     }
 
+    public VisualPlayerElement clickShuffleButton() {
+        testDriver.findElement(With.text(testDriver.getString(R.string.shuffle))).click();
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
+    }
+
     private ListElement likesList() {
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
