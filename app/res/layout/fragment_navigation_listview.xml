@@ -4,6 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:choiceMode="singleChoice"
-    android:background="#F3F3F3"
+    android:background="@color/gray_background"
     android:listSelector="@drawable/list_selector_gray"
     tools:context="com.soundcloud.android.fragment.NavigationFragment" />
