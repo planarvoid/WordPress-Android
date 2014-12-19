@@ -5,10 +5,20 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncFailedException;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.exceptions.OnErrorFailedException;
+
+import android.content.SyncResult;
+import android.os.Bundle;
+
+import java.io.IOException;
 
 @RunWith(RobolectricTestRunner.class)
 public class ErrorUtilsTest {
@@ -91,5 +101,41 @@ public class ErrorUtilsTest {
         decoratedHandler.uncaughtException(Thread.currentThread(), causalChain);
 
         verify(proxiedHandler).uncaughtException(Thread.currentThread(), rootCause);
+    }
+
+    public void shouldExcludeApiNetworkErrors() {
+        final ApiRequestException apiRequestException = ApiRequestException.networkError(null, new IOException());
+
+        expect(ErrorUtils.includeInReports(apiRequestException)).toBeFalse();
+    }
+
+    @Test
+    public void shouldIncludeMappingErrors() {
+        final ApiRequestException apiRequestException = ApiRequestException.malformedInput(null, new ApiMapperException("foo"));
+
+        expect(ErrorUtils.includeInReports(apiRequestException)).toBeTrue();
+    }
+
+    @Test
+    public void shouldExcludeSyncFailures() {
+        final Bundle syncResultBundle = new Bundle();
+        syncResultBundle.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, new SyncResult());
+
+        expect(ErrorUtils.includeInReports(new SyncFailedException(syncResultBundle))).toBeFalse();
+    }
+
+    @Test
+    public void shouldExcludeIOExceptions() {
+        expect(ErrorUtils.includeInReports(new IOException())).toBeFalse();
+    }
+
+    @Test
+    public void shouldIncludeJsonProcessingExceptions() {
+        expect(ErrorUtils.includeInReports(new JsonParseException(null, null))).toBeTrue();
+    }
+
+    @Test
+    public void shouldIncludeOtherExceptions() {
+        expect(ErrorUtils.includeInReports(new IllegalStateException("foo"))).toBeTrue();
     }
 }

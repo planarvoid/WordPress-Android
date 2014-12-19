@@ -13,6 +13,8 @@ import com.google.common.base.Objects;
 import com.soundcloud.api.CloudAPI;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public final class ApiRequestException extends Exception {
 
@@ -22,6 +24,8 @@ public final class ApiRequestException extends Exception {
     private final Reason errorReason;
     private final String errorKey;
 
+    public static final List<Reason> LOGGABLE_REASONS =
+            Arrays.asList(UNEXPECTED_RESPONSE, MALFORMED_INPUT, RATE_LIMITED);
     public enum Reason {
         AUTH_ERROR,
         NETWORK_ERROR,
@@ -90,6 +94,10 @@ public final class ApiRequestException extends Exception {
 
     public String errorKey() {
         return errorKey;
+    }
+
+    public boolean loggable() {
+        return LOGGABLE_REASONS.contains(reason());
     }
 
     @Override

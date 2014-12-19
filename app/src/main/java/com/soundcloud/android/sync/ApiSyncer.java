@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -141,24 +142,8 @@ public class ApiSyncer extends LegacySyncStrategy {
                     result = syncMyConnections();
                     break;
             }
-        } else {
-            switch (c) {
-                case PLAYABLE_CLEANUP:
-                case USERS_CLEANUP:
-                case SOUND_STREAM_CLEANUP:
-                case ACTIVITIES_CLEANUP:
-                    result = new ApiSyncResult(c.uri);
-                    result.success = true;
-                    if (resolver.update(uri, null, null, null) > 0) {
-                        result.change = ApiSyncResult.CHANGED;
-                    }
-                    result.setSyncData(System.currentTimeMillis(), -1);
-                    break;
-                default:
-                    Log.w(TAG, "no remote URI defined for " + c);
-            }
-
         }
+
         return result;
     }
 
@@ -300,7 +285,7 @@ public class ApiSyncer extends LegacySyncStrategy {
             user = apiClient.fetchMappedResponse(request);
             user.setUpdated();
             SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
-        } catch (ApiMapperException e) {
+        } catch (IOException | ApiRequestException | ApiMapperException e) {
             e.printStackTrace();
             user = null;
         }

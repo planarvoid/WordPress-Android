@@ -55,6 +55,7 @@
     <string name="what_hint">Wat</string>
     <string name="where_hint">Waar</string>
     <string name="like">Vind ik leuk</string>
+    <string name="unlike">Vind ik niet leuk</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Zoek SoundCloud</string>
@@ -68,6 +69,7 @@
     <string name="liked">vond %s leuk</string>
     <string name="reposted">gedeeld %s</string>
     <string name="commented_on">reageerde op %s</string>
+    <string name="mentioned_you_on">vermelde u op %s</string>
 
     <!-- __ADS -->
     <string name="advertisement">Advertentie</string>
@@ -276,6 +278,9 @@
     <string name="recording_uploading">Bezig met uploaden...</string>
     <string name="recording_upload_failed">Upload Mislukt</string>
     <string name="title_now_playing">Nu aan het afspelen</string>
+    <string name="like_toast_overflow_action">Opgeslagen bij uw vind-ik-leuks</string>
+    <string name="unlike_toast_overflow_action">Verwijderd uit uw vind-ik-leuks</string>
+    <string name="like_error_toast_overflow_action">Vind-ik-leuk-status is niet veranderd</string>
 
     <!-- __PLAYER -->
     <string name="add_to_playlist">Voeg toe aan afspeellijst</string>
@@ -296,6 +301,10 @@
     <string name="track_info_no_description">Geen beschrijving beschikbaar</string>
     <string name="playback_error_connection">Controleer uw internetverbinding</string>
     <string name="playback_error_unable_to_play">Niet in staat om nummer terug te spelen</string>
+    <string name="play">Afspelen</string>
+    <string name="pause">Pauze</string>
+    <string name="previous">Vorig</string>
+    <string name="next">Volgend</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s op %2$s</string>
@@ -306,7 +315,8 @@
     <string name="payments_user_cancelled">Gebruiker geannuleerd</string>
     <string name="payments_none_available">Geen abonnement beschikbaar</string>
     <string name="payments_verifying">Aan het verifiëren</string>
-    <string name="payments_verify_fail">Verificatie is mislukt</string>
+    <string name="payments_verify_fail">Verificatie mislukt</string>
+    <string name="payments_verify_timeout">Kan aankoop niet verifiëren</string>
     <string name="payments_success">Succes</string>
 
     <!-- __PLAYLISTS -->
@@ -467,6 +477,7 @@
     <string name="title_about">Over</string>
     <string name="title_legal">Legaal</string>
     <string name="pref_extras">Extra\'s</string>
+    <string name="title_account_settings">Accountinstellingen</string>
     <string name="title_notification_settings">Notificatie Instellingen</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -478,7 +489,7 @@
     <string name="pref_notifications_favoritings">Likes</string>
     <string name="pref_notifications_favoritings_description">Ontvang updates over nieuwe likes van uw geluiden</string>
     <string name="pref_notifications_followers">Volgers</string>
-    <string name="pref_notifications_followers_description">Ontvang updates wanneer u een nieuwe volger heeft</string>
+    <string name="pref_notifications_followers_description">Ontvang updates wanneer u een nieuwe volger hebt</string>
     <string name="pref_notifications_frequency">Notificatiefrequentie</string>
     <string name="pref_notifications_frequency_description">Stel de frequentie tussen updates in</string>
     <string name="pref_notifications_incoming">Inkomende Geluiden</string>

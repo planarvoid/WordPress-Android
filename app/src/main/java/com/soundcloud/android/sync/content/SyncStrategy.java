@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.content;
 
 import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.ApiSyncResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,5 +12,5 @@ import java.io.IOException;
 
 public interface SyncStrategy {
     @NotNull
-    ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiMapperException;
+    ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiMapperException, ApiRequestException;
 }

@@ -16,7 +16,6 @@
     <string name="cast_receiver_app_id">DCAC4134</string>
 
     <!-- Feature flags (enabled) -->
-    <bool name="feature_api_mobile_stream">true</bool>
     <bool name="feature_secure_stream_cache">true</bool>
     <bool name="feature_device_key_generation">true</bool>
     <bool name="feature_android_l_media_notification">true</bool>
@@ -28,4 +27,5 @@
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_track_likes_screen">false</bool>
     <bool name="feature_offline_sync_from_likes">false</bool>
+    <bool name="feature_api_mobile_stream">false</bool>
 </resources>

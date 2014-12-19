@@ -17,10 +17,8 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.MotionEvent;
@@ -33,7 +31,6 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final float EXPAND_THRESHOLD = 0.5f;
-    private static final int EMPTY_SYSTEM_UI_FLAGS = 0;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
@@ -173,7 +170,6 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     private void toggleActionBarAndSysBarVisibility() {
         boolean panelExpanded = !slidingPanel.isPanelHidden() && slidingPanel.isPanelExpanded();
         actionBarController.setVisible(!panelExpanded);
-        dimSystemBars(panelExpanded);
     }
 
     @Override
@@ -197,20 +193,10 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
 
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
             actionBarController.setVisible(false);
-            dimSystemBars(true);
             isExpanding = true;
         } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
             actionBarController.setVisible(true);
-            dimSystemBars(false);
             isExpanding = false;
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    private void dimSystemBars(boolean shouldDim) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            View decorView = activity.getWindow().getDecorView();
-            decorView.setSystemUiVisibility(shouldDim ? View.SYSTEM_UI_FLAG_LOW_PROFILE : EMPTY_SYSTEM_UI_FLAGS);
         }
     }
 

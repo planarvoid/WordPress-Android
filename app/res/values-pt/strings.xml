@@ -69,8 +69,7 @@
     <string name="liked">curtiu %s</string>
     <string name="reposted">republicou %s</string>
     <string name="commented_on">comentou sobre %s</string>
-    <string name="mentioned_you_on">você mencionou sobre %s</string>
-
+    <string name="mentioned_you_on">mencionou você em %s</string>
 
     <!-- __ADS -->
     <string name="advertisement">Publicidade</string>
@@ -242,7 +241,7 @@
     <string name="error_onboarding_fail">Ainda estamos trabalhando para preencher sua transmissão. Vamos continuar tentando até que funcione! Enquanto isso, você pode pesquisar e descobrir outro tipo de música e áudio.</string>
 
     <!-- __ONBOARDING CATEGORIES -->
-    <string name="category_facebook_friends" tools:ignore="UnusedResources">Amigos do Facebook</string>
+    <string name="category_facebook_friends" tools:ignore="UnusedResources">Amigos do Facebook</string>
     <string name="category_facebook_likes" tools:ignore="UnusedResources">Curtidas do Facebook</string>
     <string name="category_rock" tools:ignore="UnusedResources">Rock</string>
     <string name="category_indie" tools:ignore="UnusedResources">Indie</string>
@@ -279,16 +278,16 @@
     <string name="recording_uploading">Carregando...</string>
     <string name="recording_upload_failed">Falha no carregamento</string>
     <string name="title_now_playing">Jogando agora</string>
-    <string name="like_toast_overflow_action">Salvos nos seus likes</string>
-    <string name="unlike_toast_overflow_action">Removido dos seus likes</string>
-    <string name="like_error_toast_overflow_action">Favorito não foi alterado</string>
+    <string name="like_toast_overflow_action">salvo suas curtidas</string>
+    <string name="unlike_toast_overflow_action">removido de suas curtidas</string>
+    <string name="like_error_toast_overflow_action">Status do curtir não foi alterado</string>
 
     <!-- __PLAYER -->
     <string name="add_to_playlist">Adicionar à lista de reprodução</string>
     <string name="share">Compartilhar</string>
     <string name="repost">Republicar</string>
     <string name="unpost">Excluir publicação</string>
-    <string name="comment_at">Comentário às %s</string>
+    <string name="comment_at">Comentário às %s</string>
     <string name="comment_on">Comentário em %s</string>
     <string name="your_comment_has_been_posted">O seu comentário foi publicado</string>
     <string name="comment_could_not_be_created_at_this_time">Não foi possível criar o comentário neste momento</string>
@@ -302,6 +301,10 @@
     <string name="track_info_no_description">Sem descrição disponível</string>
     <string name="playback_error_connection">Por favor, verifique sua conexão</string>
     <string name="playback_error_unable_to_play">Não é possível reproduzir música</string>
+    <string name="play">Jogar</string>
+    <string name="pause">Pausa</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Próximo</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s às %2$s</string>
@@ -312,7 +315,8 @@
     <string name="payments_user_cancelled">Usuário cancelado</string>
     <string name="payments_none_available">Nenhuma assinatura disponível</string>
     <string name="payments_verifying">Verificando</string>
-    <string name="payments_verify_fail">Falha na verificação</string>
+    <string name="payments_verify_fail">Verificação falhou</string>
+    <string name="payments_verify_timeout">Não foi possível verificar a compra</string>
     <string name="payments_success">Sucesso</string>
 
     <!-- __PLAYLISTS -->
@@ -473,6 +477,7 @@
     <string name="title_about">Sobre</string>
     <string name="title_legal">Legal</string>
     <string name="pref_extras">Extras</string>
+    <string name="title_account_settings">Configurações de Conta</string>
     <string name="title_notification_settings">Configurações de notificação</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -484,7 +489,7 @@
     <string name="pref_notifications_favoritings">Curtidas</string>
     <string name="pref_notifications_favoritings_description">Receba atualizações sobre novas curtidas em seus sons</string>
     <string name="pref_notifications_followers">Seguidores</string>
-    <string name="pref_notifications_followers_description">Receba as atualizações quando tiver um novo seguidor</string>
+    <string name="pref_notifications_followers_description">Receber atualizações quando você tiver um novo seguidor</string>
     <string name="pref_notifications_frequency">Frequência de notificações</string>
     <string name="pref_notifications_frequency_description">Defina a frequência entre as atualizações</string>
     <string name="pref_notifications_incoming">Sons de entrada</string>

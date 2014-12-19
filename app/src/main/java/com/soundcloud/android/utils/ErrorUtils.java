@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import com.crashlytics.android.Crashlytics;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
@@ -57,7 +58,7 @@ public final class ErrorUtils {
         }
         if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
-        } else if (!excludeFromReports(t)) {
+        } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
             handleSilentException(t);
         }
@@ -86,8 +87,19 @@ public final class ErrorUtils {
         });
     }
 
-    private static boolean excludeFromReports(Throwable t) {
-        return t instanceof IOException || t instanceof ApiRequestException || t instanceof SyncFailedException;
+    @VisibleForTesting
+    static boolean includeInReports(Throwable t) {
+        if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t)) {
+            return false;
+        }
+        if (t instanceof ApiRequestException) {
+            return ((ApiRequestException) t).loggable();
+        }
+        return true;
+    }
+
+    private static boolean isIOExceptionUnrelatedToParsing(Throwable t) {
+        return IOException.class.isAssignableFrom(t.getClass()) && !JsonProcessingException.class.isAssignableFrom(t.getClass());
     }
 
     public static void handleSilentException(String message, Throwable e) {

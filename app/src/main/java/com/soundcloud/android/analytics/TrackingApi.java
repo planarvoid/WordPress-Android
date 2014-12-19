@@ -65,8 +65,6 @@ class TrackingApi {
                 }
             } catch (IOException e) {
                 Log.w(EventTracker.TAG, "Failed with IOException pushing event: " + event, e);
-                ErrorUtils.handleSilentException(EventTracker.TAG,
-                        new Exception("Tracking request failed with IOException: " + e.getClass().getName(), e));
             }
         }
 

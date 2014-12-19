@@ -5,6 +5,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 public class ApiScheduler {
 
@@ -44,7 +45,7 @@ public class ApiScheduler {
                     } else {
                         subscriber.onError(response.getFailure());
                     }
-                } catch (ApiMapperException e) {
+                } catch (ApiRequestException | ApiMapperException | IOException e) {
                     subscriber.onError(e);
                 }
             }

@@ -55,6 +55,7 @@
     <string name="what_hint">Apa</string>
     <string name="where_hint">Di mana</string>
     <string name="like">Suka</string>
+    <string name="unlike">Tidak suka</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Cari SoundCloud</string>
@@ -68,6 +69,7 @@
     <string name="liked">menyukai %s</string>
     <string name="reposted">kirim ulang %s</string>
     <string name="commented_on">mengomentari %s</string>
+    <string name="mentioned_you_on">menyebut Anda pada %s</string>
 
     <!-- __ADS -->
     <string name="advertisement">Iklan</string>
@@ -164,7 +166,7 @@
     <!-- __ERRORS -->
     <string name="error_loading_message">Terjadi masalah saat menghubungi SoundCloud.</string>
     <string name="error_loading_title">Kesalahan jaringan</string>
-    <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
+    <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
     <string name="error_unauthorized_message">Kami sedang mengalami masalah dengan akunmu dan kamu harus masuk lagi ke SoundCloud sebelum kamu dapat terus menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Kesalahan Akun</string>
     <string name="error_loading_url">Ada masalah saat memuat url tersebut</string>
@@ -276,6 +278,9 @@
     <string name="recording_uploading">Mengunggah...</string>
     <string name="recording_upload_failed">Unggahan Gagal</string>
     <string name="title_now_playing">Sedang Diputar</string>
+    <string name="like_toast_overflow_action">Disimpan pada hal yang Anda sukai</string>
+    <string name="unlike_toast_overflow_action">Dihapus dari hal yang Anda sukai</string>
+    <string name="like_error_toast_overflow_action">Status suka tidak berubah</string>
 
     <!-- __PLAYER -->
     <string name="add_to_playlist">Tambah ke daftar putar</string>
@@ -296,6 +301,10 @@
     <string name="track_info_no_description">Tidak ada deskripsi yang tersedia</string>
     <string name="playback_error_connection">Periksa koneksi kamu</string>
     <string name="playback_error_unable_to_play">Tidak dapat memutar lagu</string>
+    <string name="play">Putar</string>
+    <string name="pause">Jeda</string>
+    <string name="previous">Sebelumnya</string>
+    <string name="next">Selanjutnya</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s di %2$s</string>
@@ -307,6 +316,7 @@
     <string name="payments_none_available">Tidak ada langganan tersedia</string>
     <string name="payments_verifying">Memverifikasi</string>
     <string name="payments_verify_fail">Verifikasi gagal</string>
+    <string name="payments_verify_timeout">Tidak dapat memverifikasi pembelian</string>
     <string name="payments_success">Berhasil</string>
 
     <!-- __PLAYLISTS -->
@@ -467,6 +477,7 @@
     <string name="title_about">Tentang</string>
     <string name="title_legal">Hukum</string>
     <string name="pref_extras">Ekstra</string>
+    <string name="title_account_settings">Pengaturan Akun</string>
     <string name="title_notification_settings">Pengaturan Notifikasi</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -478,7 +489,7 @@
     <string name="pref_notifications_favoritings">Suka</string>
     <string name="pref_notifications_favoritings_description">Menerima pemberitahuan suka yang baru dari suaramu</string>
     <string name="pref_notifications_followers">Pengikut</string>
-    <string name="pref_notifications_followers_description">Terima pemberitahuan ketika memiliki pengikut baru</string>
+    <string name="pref_notifications_followers_description">Menerima pembaruan saat Anda mendapatkan pengikut baru</string>
     <string name="pref_notifications_frequency">Frekuensi Notifikasi</string>
     <string name="pref_notifications_frequency_description">Mengatur frekuensi antar pembaruan</string>
     <string name="pref_notifications_incoming">Suara Masuk</string>

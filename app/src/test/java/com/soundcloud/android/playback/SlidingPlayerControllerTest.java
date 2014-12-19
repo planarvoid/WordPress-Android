@@ -22,15 +22,14 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -301,32 +300,6 @@ public class SlidingPlayerControllerTest {
         expandPanel();
 
         verify(actionBarController, times(1)).setVisible(false);
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    @Test
-    public void dimsSystemBarsWhenExpanding() {
-        expandPanel();
-
-        verify(decorView).setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    @Test
-    public void clearsSystemUiFlagsWhenCollapsed() {
-        collapsePanel();
-
-        verify(decorView).setSystemUiVisibility(0);
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    @Test
-    public void dimsSystemBarsWhenResumingToExpandedPlayer() {
-        when(slidingPanel.isPanelExpanded()).thenReturn(true);
-
-        controller.onResume();
-
-        verify(decorView).setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
     }
 
     @Test

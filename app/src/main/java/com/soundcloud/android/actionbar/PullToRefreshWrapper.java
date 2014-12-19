@@ -25,7 +25,7 @@ class PullToRefreshWrapper {
         this.swipeRefreshLayout = pullToRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(listener);
         swipeRefreshLayout.setSwipeableChildren(android.R.id.list, android.R.id.empty);
-        swipeRefreshLayout.setColorSchemeResources(R.color.sc_orange, R.color.sc_dark_orange);
+        swipeRefreshLayout.setColorSchemeResources(R.color.sc_orange);
     }
 
     void detach() {

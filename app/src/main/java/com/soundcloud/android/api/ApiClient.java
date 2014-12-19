@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -16,7 +17,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import com.soundcloud.android.api.oauth.OAuth;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
@@ -76,20 +76,24 @@ public class ApiClient {
         }
     }
 
-    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest<ResourceType> request) throws ApiMapperException {
+    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest<ResourceType> request) throws IOException, ApiRequestException, ApiMapperException {
         return mapResponse(request, fetchResponse(request));
     }
 
     @SuppressWarnings("unchecked")
-    <T> T mapResponse(final ApiRequest<T> apiRequest, final ApiResponse apiResponse) throws ApiMapperException {
-        if (apiResponse.isSuccess() && apiResponse.hasResponseBody()) {
-            return (T) parseJsonResponse(apiResponse, apiRequest);
+    <T> T mapResponse(final ApiRequest<T> apiRequest, final ApiResponse apiResponse) throws IOException, ApiRequestException, ApiMapperException {
+        if (apiResponse.isSuccess()) {
+            if (apiResponse.hasResponseBody()) {
+                return (T) parseJsonResponse(apiResponse, apiRequest);
+            } else {
+                throw new ApiMapperException("Empty response body");
+            }
         } else {
-            throw new ApiMapperException("Empty response body or request failed");
+            throw apiResponse.getFailure();
         }
     }
 
-    private Object parseJsonResponse(ApiResponse apiResponse, ApiRequest apiRequest) throws ApiMapperException {
+    private Object parseJsonResponse(ApiResponse apiResponse, ApiRequest apiRequest) throws IOException, ApiMapperException {
         Object resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), apiRequest.getResourceType());
 
         if (resource == null || UnknownResource.class.isAssignableFrom(resource.getClass())) {
