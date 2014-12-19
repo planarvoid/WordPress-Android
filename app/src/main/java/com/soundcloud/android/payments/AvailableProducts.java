@@ -8,12 +8,17 @@ import java.util.List;
 
 class AvailableProducts {
 
+    private static final String CONSUMER_SUB = "consumer_sub";
+
     public static final Func1<AvailableProducts, Product> TO_PRODUCT = new Func1<AvailableProducts, Product>() {
         @Override
         public Product call(AvailableProducts availableProducts) {
-            return availableProducts.hasProduct()
-                    ? availableProducts.products.get(0)
-                    : Product.empty();
+            for (Product product : availableProducts.products) {
+                if (product.clientProductId.equals(CONSUMER_SUB)) {
+                    return product;
+                }
+            }
+            return Product.empty();
         }
     };
 
@@ -24,23 +29,21 @@ class AvailableProducts {
         this.products = products;
     }
 
-    public boolean hasProduct() {
-        return !products.isEmpty();
-    }
-
     public static class Product {
 
         private static final String EMPTY = "unavailable";
 
         public final String id;
+        public final String clientProductId;
 
         @JsonCreator
-        public Product(@JsonProperty("id") String id) {
+        public Product(@JsonProperty("id") String id, @JsonProperty("client_product_id") String clientProductId) {
             this.id = id;
+            this.clientProductId = clientProductId;
         }
 
         public static Product empty() {
-            return new Product(EMPTY);
+            return new Product(EMPTY, EMPTY);
         }
 
         public boolean isEmpty() {
