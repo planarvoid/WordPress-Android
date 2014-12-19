@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -131,7 +131,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
                 NotificationMessage msg = new NotificationMessage(app.getResources(), notifyable, likes, comments, reposts);
                 NotificationMessage.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
                         NotificationMessage.createNotificationIntent(Actions.ACTIVITY),
-                        Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
+                        NotificationConstants.DASHBOARD_NOTIFY_ACTIVITIES_ID,
                         notifyable.getFirstAvailableAvatar());
 
                 ContentStats.setLastNotifiedItem(app, Content.ME_ACTIVITIES, notifyable.getTimestamp());

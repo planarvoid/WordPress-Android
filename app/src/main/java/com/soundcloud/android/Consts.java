@@ -63,15 +63,6 @@ public final class Consts {
         public static final String UNAUTHORIZED = SoundCloudApplication.class.getSimpleName() + ".unauthorized";
     }
 
-    // these need to be unique across app
-    public static final class Notifications {
-        public static final int RECORD_NOTIFY_ID = 0;
-        public static final int PLAYBACK_NOTIFY_ID = 1;
-        public static final int UPLOADING_NOTIFY_ID = 2;
-        public static final int DASHBOARD_NOTIFY_STREAM_ID = 4;
-        public static final int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
-    }
-
     public static final class ResourceStaleTimes {
         public static final long USER = TimeUnit.DAYS.toMillis(1);
         public static final long TRACK = TimeUnit.HOURS.toMillis(4);

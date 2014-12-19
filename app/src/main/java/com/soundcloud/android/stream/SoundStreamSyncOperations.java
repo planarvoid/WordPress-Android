@@ -3,7 +3,7 @@ package com.soundcloud.android.stream;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
@@ -35,7 +35,7 @@ public class SoundStreamSyncOperations {
         @Override
         public void onNext(Notification args) {
             ((NotificationManager) appContext.getSystemService(Context.NOTIFICATION_SERVICE))
-                    .notify(Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, args);
+                    .notify(NotificationConstants.DASHBOARD_NOTIFY_STREAM_ID, args);
         }
     };
 

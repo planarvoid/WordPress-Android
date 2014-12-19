@@ -26,5 +26,6 @@
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_okhttp">false</bool>
     <bool name="feature_google_cast">false</bool>
+    <bool name="feature_offline_sync_from_likes">false</bool>
     <bool name="feature_track_likes_screen">false</bool>
 </resources>

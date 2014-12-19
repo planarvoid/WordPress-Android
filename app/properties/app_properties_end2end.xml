@@ -20,11 +20,12 @@
     <bool name="feature_device_key_generation">true</bool>
     <bool name="feature_android_l_media_notification">true</bool>
     <bool name="feature_api_mobile_stream">true</bool>
+    <bool name="feature_payments">true</bool>
+    <bool name="feature_payments_test">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_okhttp">false</bool>
-    <bool name="feature_payments">true</bool>
-    <bool name="feature_payments_test">true</bool>
+    <bool name="feature_offline_sync_from_likes">false</bool>
     <bool name="feature_track_likes_screen">false</bool>
 </resources>
