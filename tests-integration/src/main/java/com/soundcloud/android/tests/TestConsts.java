@@ -30,4 +30,7 @@ public final class TestConsts {
     public static final Uri JOBS_PAGE = Uri.parse("https://soundcloud.com/jobs");
 
     public static final Uri BROKEN_LINK = Uri.parse("soundcloud:ounds:274334> Track</a></td>");
+
+    public static final Uri AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI = Uri.parse("https://soundcloud.com/scandroidad1/sets/monetizable-playlist");
+    public static final Uri INTERSTITIAL_PLAYLIST_URI = Uri.parse("https://soundcloud.com/scandroidad1/sets/monetizable2");
 }

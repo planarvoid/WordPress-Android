@@ -1,10 +1,17 @@
 package com.soundcloud.android.tests.player.ads;
 
+import com.soundcloud.android.tests.TestConsts;
+
+import android.net.Uri;
+
 public class LeaveBehindTest extends AdBaseTest {
 
-    public void testFinishAdShouldShowLeaveBehind() {
-        playMonetizablePlaylist();
+    @Override
+    protected Uri getUri() {
+        return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+    }
 
+    public void testFinishAdShouldShowLeaveBehind() {
         swipeToAd();
         playerElement.waitForAdToBeDone();
         playerElement.waitForAdOverlayToLoad();

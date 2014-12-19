@@ -11,12 +11,18 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.screens.WhyAdsScreen;
+import com.soundcloud.android.tests.TestConsts;
+
+import android.net.Uri;
 
 public class AudioAdTest extends AdBaseTest {
 
-    public void testSkipIsNotAllowedOnAd() {
-        playMonetizablePlaylist();
+    @Override
+    protected Uri getUri() {
+        return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+    }
 
+    public void testSkipIsNotAllowedOnAd() {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
         playerElement.clickArtwork();
@@ -24,16 +30,12 @@ public class AudioAdTest extends AdBaseTest {
     }
 
     public void testTappingArtworkPausesAd() {
-        playMonetizablePlaylist();
-
         swipeToAd();
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(Playing())));
     }
 
     public void testTappingArtworkTwiceResumePlayingAd() {
-        playMonetizablePlaylist();
-
         swipeToAd();
         playerElement.clickArtwork();
         playerElement.waitForPlayButton();
@@ -42,18 +44,13 @@ public class AudioAdTest extends AdBaseTest {
     }
 
 
-
     public void skip_testSkipShouldBeDisplayedWhenAdIsSkippable() {
-        playMonetizablePlaylist();
-
         swipeToAd();
         playerElement.waitForAdToBeSkippable();
         assertThat(playerElement, is(SkipAllowed()));
     }
 
     public void testSkipAdShouldStartTheMonetizableTrack() {
-        playMonetizablePlaylist();
-
         swipeToAd();
         playerElement.waitForAdToBeSkippable();
         playerElement.waitForSkipAdButton();
@@ -63,8 +60,6 @@ public class AudioAdTest extends AdBaseTest {
     }
 
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
-        playMonetizablePlaylist();
-
         swipeToAd();
         playerElement.clickArtwork();
         playerElement.pressBackToCollapse();
@@ -77,8 +72,6 @@ public class AudioAdTest extends AdBaseTest {
     }
 
     public void testShowWhyAdsDialogWhenClickingWhyAds() {
-        playMonetizablePlaylist();
-
         swipeToAd();
         WhyAdsScreen dialog = playerElement.clickWhyAds();
         assertThat(dialog, is(visible()));
@@ -88,8 +81,6 @@ public class AudioAdTest extends AdBaseTest {
     }
 
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
-        playMonetizablePlaylist();
-
         playerElement.pressBackToCollapse();
         playerElement.waitForExpandedPlayer();
         playerElement.waitForAdPage();
