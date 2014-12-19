@@ -251,8 +251,8 @@ public class VisualPlayerElement extends Element {
         waiter.waitForElement(R.id.player_play);
     }
 
-    public void waitForAdPage() {
-        waiter.waitForElement(R.id.player_ad_page);
+    public boolean waitForAdPage() {
+        return waiter.waitForElement(R.id.player_ad_page);
     }
 
     public boolean waitForPlayState() {

@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.player;
+package com.soundcloud.android.tests.player.ads;
 
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
@@ -10,32 +10,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
-import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.tests.R;
-import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.with.With;
 
-public class AudioAdTest extends ActivityTest<MainActivity> {
-
-    private VisualPlayerElement playerElement;
-    private PlaylistDetailsScreen playlistDetailsScreen;
-
-    public AudioAdTest() {
-        super(MainActivity.class);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        TestUser.adUser.logIn(getInstrumentation().getTargetContext());
-
-        super.setUp();
-        setRunBasedOnResource(R.bool.run_ads_tests);
-    }
+public class AudioAdTest extends AdBaseTest {
 
     public void testSkipIsNotAllowedOnAd() {
         playMonetizablePlaylist();
@@ -119,27 +96,5 @@ public class AudioAdTest extends ActivityTest<MainActivity> {
 
         assertTrue(playerElement.isAdPageVisible());
         assertThat(playerElement, is(expanded()));
-    }
-
-    /**
-     *
-     * We have 2 tracks before the monetizable track, due to a known behaviour (#2025),
-     * in which you will not get an ad on a fresh install if you open play queue and the monetizable track is the second track
-     * This will happen when we stop using the policies endpoint to get track policies on a play queue change
-     *
-     */
-    private void playMonetizablePlaylist() {
-        PlaylistScreen ps = menuScreen.open().clickPlaylist();
-        playlistDetailsScreen = ps.clickPlaylist(With.text("[auto] AudioAd without LeaveBehind Playlist"));
-        playerElement = playlistDetailsScreen.clickFirstTrack();
-        playerElement.waitForExpandedPlayer();
-        playerElement.swipeNext();
-        waiter.waitForPlaybackToBePlaying();
-        playerElement.waitForAdToBeFetched();
-    }
-
-    private void swipeToAd() {
-        playerElement.swipeNext();
-        playerElement.waitForAdPage();
     }
 }
