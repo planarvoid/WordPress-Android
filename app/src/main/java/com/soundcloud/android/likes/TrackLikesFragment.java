@@ -49,10 +49,16 @@ public class TrackLikesFragment extends DefaultFragment
     }
 
     @VisibleForTesting
-    TrackLikesFragment(TrackLikesAdapter adapter, LikeOperations likeOperations, TrackOperations trackOperations) {
+    TrackLikesFragment(TrackLikesAdapter adapter,
+                       LikeOperations likeOperations,
+                       TrackOperations trackOperations,
+                       ListViewController listViewController,
+                       PullToRefreshController pullToRefreshController) {
         this.adapter = adapter;
         this.likeOperations = likeOperations;
         this.trackOperations = trackOperations;
+        this.listViewController = listViewController;
+        this.pullToRefreshController = pullToRefreshController;
         addLifeCycleComponents();
     }
 

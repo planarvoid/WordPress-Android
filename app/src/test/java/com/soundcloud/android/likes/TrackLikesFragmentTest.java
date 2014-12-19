@@ -5,8 +5,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
+import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,13 +28,16 @@ public class TrackLikesFragmentTest {
     @Mock private LikeOperations likeOperations;
     @Mock private TrackOperations trackOperations;
     @Mock private TrackLikesAdapter adapter;
+    @Mock private ListViewController listViewController;
+    @Mock private PullToRefreshController pullToRefreshController;
     @Mock private Subscription subscription;
 
     @Before
     public void setUp() {
         Observable<PropertySet> likedTracks = withSubscription(subscription, just(PropertySet.create()));
         when(likeOperations.likedTracks()).thenReturn(likedTracks);
-        fragment = new TrackLikesFragment(adapter, likeOperations, trackOperations);
+        fragment = new TrackLikesFragment(adapter, likeOperations, trackOperations, listViewController,
+                pullToRefreshController);
     }
 
     @Test
