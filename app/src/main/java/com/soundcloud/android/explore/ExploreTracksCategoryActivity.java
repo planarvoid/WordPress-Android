@@ -17,8 +17,8 @@ public class ExploreTracksCategoryActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
 
     public ExploreTracksCategoryActivity() {
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
+        lightCycleDispatcher.add(playerController);
+        lightCycleDispatcher.add(adPlayerController);
         presenter.attach(this);
     }
 

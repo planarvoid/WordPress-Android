@@ -35,8 +35,8 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject ImageOperations imageOperations;
 
     public TrackCommentsActivity() {
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
+        lightCycleDispatcher.add(playerController);
+        lightCycleDispatcher.add(adPlayerController);
         presenter.attach(this);
     }
 

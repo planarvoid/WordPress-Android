@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.TextView;
 
@@ -32,7 +33,7 @@ import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ShuffleViewControllerTest {
-
+    @Mock Fragment fragment;
     @Mock private PlaybackOperations playbackOperations;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -43,7 +44,7 @@ public class ShuffleViewControllerTest {
         controller = new ShuffleViewController(TestSubscribers.expandPlayerSubscriber(), playbackOperations, eventBus);
         View view = mock(View.class);
         when(view.getContext()).thenReturn(Robolectric.application);
-        controller.onViewCreated(view, null);
+        controller.onViewCreated(fragment, view, null);
     }
 
     @Test

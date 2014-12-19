@@ -11,7 +11,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -34,7 +34,7 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class PlaylistResultsFragment extends DefaultFragment
+public class PlaylistResultsFragment extends LightCycleFragment
         implements ReactiveListComponent<ConnectableObservable<ApiPlaylistCollection>> {
 
     public static final String TAG = "playlist_results";

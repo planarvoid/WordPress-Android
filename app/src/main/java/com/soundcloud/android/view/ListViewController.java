@@ -6,7 +6,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.DefaultFragmentLifeCycle;
+import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -26,7 +26,7 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
-public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
+public class ListViewController extends DefaultFragmentLightCycle {
 
     private final EmptyViewController emptyViewController;
     private final ImageOperations imageOperations;
@@ -103,9 +103,9 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         Preconditions.checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
-        emptyViewController.onViewCreated(view, savedInstanceState);
+        emptyViewController.onViewCreated(fragment, view, savedInstanceState);
 
         absListView = (AbsListView) view.findViewById(android.R.id.list);
         absListView.setEmptyView(emptyViewController.getEmptyView());
@@ -138,8 +138,8 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     @Override
-    public void onDestroyView() {
-        emptyViewController.onDestroyView();
+    public void onDestroyView(Fragment fragment) {
+        emptyViewController.onDestroyView(fragment);
         compatSetAdapter(null);
         absListView = null;
     }

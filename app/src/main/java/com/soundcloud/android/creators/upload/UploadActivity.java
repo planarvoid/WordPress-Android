@@ -18,6 +18,7 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
@@ -223,7 +224,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     }
 
     private void recordingNotFound() {
-        showToast(R.string.recording_not_found);
+        AndroidUtils.showToast(this, R.string.recording_not_found);
         finish();
     }
 

@@ -22,8 +22,8 @@ public class ActivitiesActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
 
     public ActivitiesActivity() {
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
+        lightCycleDispatcher.add(playerController);
+        lightCycleDispatcher.add(adPlayerController);
         presenter.attach(this);
     }
 

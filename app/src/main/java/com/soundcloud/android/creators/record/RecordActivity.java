@@ -435,7 +435,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                         recorder.stopRecording();
                         // XXX use prefs
                         if (accountOperations.getAccountDataBoolean(PublicApiUser.DataKeys.SEEN_CREATE_AUTOSAVE)) {
-                            showToast(R.string.create_autosave_message);
+                            AndroidUtils.showToast(RecordActivity.this, R.string.create_autosave_message);
                             accountOperations.setAccountData(PublicApiUser.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
                         }
                         break;

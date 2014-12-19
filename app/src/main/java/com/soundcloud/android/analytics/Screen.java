@@ -87,6 +87,9 @@ public enum Screen {
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
 
     WIDGET("widget"),
+    SUBSCRIBE("subscribe"),
+    SUBSCRIBE_SUCCESS("subscribe_success"),
+    SUGGESTED_USERS("suggested_users"),
     VOICE_COMMAND("voice:command"), // context when we play from voice search
     DEEPLINK("deeplink"); // context provided when we intercept a track
 

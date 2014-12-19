@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -37,7 +37,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class SoundStreamFragment extends DefaultFragment
+public class SoundStreamFragment extends LightCycleFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
     @VisibleForTesting

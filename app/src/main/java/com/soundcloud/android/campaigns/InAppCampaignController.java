@@ -2,8 +2,7 @@ package com.soundcloud.android.campaigns;
 
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.DefaultActivityLifeCycle;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,10 +14,9 @@ import javax.inject.Inject;
 /**
  * http://support.localytics.com/Android
  */
-public class InAppCampaignController extends DefaultActivityLifeCycle<ScActivity> {
+public class InAppCampaignController extends DefaultActivityLightCycle {
 
     private LocalyticsAmpSession localyticsAmpSession;
-    private FragmentActivity owner;
 
     @Inject
     public InAppCampaignController(LocalyticsAmpSession session) {
@@ -26,14 +24,9 @@ public class InAppCampaignController extends DefaultActivityLifeCycle<ScActivity
     }
 
     @Override
-    public void onBind(ScActivity owner) {
-        this.owner = owner;
-    }
-
-    @Override
-    public void onCreate(Bundle bundle) {
-        final Intent intent = owner.getIntent();
-        this.localyticsAmpSession.registerPush(owner.getString(R.string.google_api_key));
+    public void onCreate(FragmentActivity activity, Bundle bundle) {
+        final Intent intent = activity.getIntent();
+        this.localyticsAmpSession.registerPush(activity.getString(R.string.google_api_key));
         this.localyticsAmpSession.handlePushReceived(intent);           // Only needed if using Localytics Push
         this.localyticsAmpSession.open();
         this.localyticsAmpSession.upload();
@@ -41,16 +34,16 @@ public class InAppCampaignController extends DefaultActivityLifeCycle<ScActivity
     }
 
     @Override
-    public void onResume() {
-        final Intent intent = owner.getIntent();
+    public void onResume(FragmentActivity activity) {
+        final Intent intent = activity.getIntent();
         localyticsAmpSession.open();
-        localyticsAmpSession.attach(owner);
+        localyticsAmpSession.attach(activity);
         localyticsAmpSession.handleIntent(intent);
         localyticsAmpSession.handlePushReceived(intent);
     }
 
     @Override
-    public void onPause() {
+    public void onPause(FragmentActivity activity) {
         localyticsAmpSession.detach();
         localyticsAmpSession.close();
     }
