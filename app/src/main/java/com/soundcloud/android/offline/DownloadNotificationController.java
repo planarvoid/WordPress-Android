@@ -64,6 +64,7 @@ class DownloadNotificationController {
         completedNotification.setOngoing(false);
         completedNotification.setAutoCancel(true);
         completedNotification.setContentTitle(resources.getString(R.string.downloads_completed));
+        completedNotification.setContentText(resources.getString(R.string.downloads_completed_desc));
         notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, completedNotification.build());
     }
 
