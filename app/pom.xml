@@ -436,7 +436,7 @@
         <dependency>
             <groupId>com.google.sample</groupId>
             <artifactId>castcompanionlibrary</artifactId>
-            <version>1.11</version>
+            <version>1.11-SOUNDCLOUD</version>
             <type>aar</type>
         </dependency>
         <dependency>
