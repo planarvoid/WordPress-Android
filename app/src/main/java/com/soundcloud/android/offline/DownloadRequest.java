@@ -19,8 +19,12 @@ final class DownloadRequest {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final DownloadRequest request = (DownloadRequest) o;
         return Objects.equal(fileUrl, request.fileUrl) && Objects.equal(urn, request.urn);
