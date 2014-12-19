@@ -4,12 +4,16 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.PromotedFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +59,27 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
         storage.insertStreamItems(Arrays.asList(streamItem));
         expectPlaylistRepostItemInserted(streamItem);
         databaseAssertions().assertPlaylistWithUserInserted(streamItem.getPlaylist().get());
+    }
+
+    @Test
+    public void shouldStorePromotionMetadataFromApiPromotedTrackWithPromoter() {
+        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithPromoter(apiUser);
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        storage.insertStreamItems(Arrays.asList(streamItem));
+        expectPromotedTrackPostItemInserted(streamItem);
+        databaseAssertions().assertPromotionInserted(apiPromotedTrack);
+        databaseAssertions().assertTrackWithUserInserted(streamItem.getTrack().get());
+        databaseAssertions().assertUserInserted(apiUser);
+    }
+
+    @Test
+    public void shouldStorePromotionMetadataFromApiPromotedTrackWithoutPromoter() {
+        final ApiPromotedTrack apiPromotedTrack = PromotedFixtures.promotedStreamItemWithoutPromoter();
+        final ApiStreamItem streamItem = new ApiStreamItem(apiPromotedTrack);
+        storage.insertStreamItems(Arrays.asList(streamItem));
+        databaseAssertions().assertPromotionWithoutPromoterInserted(apiPromotedTrack);
+        databaseAssertions().assertTrackWithUserInserted(streamItem.getTrack().get());
     }
 
     @Test
@@ -113,6 +138,16 @@ public class SoundStreamWriteStorageTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .where(TableColumns.SoundStream.REPOSTER_ID + " IS NULL")
                         .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getTrack().get().getCreatedAt().getTime())
+        ), counts(1));
+    }
+
+    private void expectPromotedTrackPostItemInserted(ApiStreamItem streamItem) {
+        assertThat(select(from(Table.SoundStream.name())
+                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
+                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
+                        .where(TableColumns.SoundStream.REPOSTER_ID + " IS NULL")
+                        .whereEq(TableColumns.SoundStream.CREATED_AT, Long.MAX_VALUE)
+                        .whereNotNull(TableColumns.SoundStream.PROMOTED_ID)
         ), counts(1));
     }
 

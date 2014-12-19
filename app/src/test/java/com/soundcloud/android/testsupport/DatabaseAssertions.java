@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadResult;
 import com.soundcloud.android.storage.Table;
@@ -84,6 +85,41 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount())
                 .whereEq(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
                 .whereEq(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))), counts(1));
+    }
+
+    public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
+        assertThat(select(attachPromotedTrackingQueries(
+                        from(Table.PromotedTracks.name())
+                                .whereEq(TableColumns.PromotedTracks.URN, promotedTrack.getUrn())
+                                .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedTrack.getPromoter().getId()),
+                        promotedTrack)
+                ), counts(1));
+    }
+
+    public void assertPromotionWithoutPromoterInserted(ApiPromotedTrack promotedTrack) {
+        assertThat(select(attachPromotedTrackingQueries(
+                        from(Table.PromotedTracks.name())
+                                .whereEq(TableColumns.PromotedTracks.URN, promotedTrack.getUrn())
+                                .whereNull(TableColumns.PromotedTracks.PROMOTER_ID),
+                        promotedTrack)
+        ), counts(1));
+    }
+
+    private Query attachPromotedTrackingQueries(Query query, ApiPromotedTrack promotedTrack) {
+        return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackPlayedUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackClickedUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackImpressionUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingProfileClickedUrls()))
+                .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingPromoterClickedUrls()));
+    }
+
+    public void assertUserInserted(ApiUser user) {
+        assertThat(select(from(Table.Users.name())
+                        .whereEq(TableColumns.Users._ID, user.getId())
+                        .whereEq(TableColumns.Users.USERNAME, user.getUsername())
+                        .whereEq(TableColumns.Users.COUNTRY, user.getCountry())
+                        .whereEq(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount())
+        ), counts(1));
     }
 
     public void assertDownloadResultsInserted(DownloadResult result) {

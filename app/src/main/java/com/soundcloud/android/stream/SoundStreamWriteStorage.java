@@ -4,6 +4,7 @@ import static com.soundcloud.android.playlists.PlaylistWriteStorage.buildPlaylis
 import static com.soundcloud.android.tracks.TrackWriteStorage.buildTrackContentValues;
 import static com.soundcloud.android.users.UserWriteStorage.buildUserContentValues;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -11,6 +12,7 @@ import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
@@ -55,13 +57,24 @@ public class SoundStreamWriteStorage {
                 step(propeller.delete(Table.SoundStream));
             }
             for (ApiStreamItem streamItem : streamItems) {
-                step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem)));
                 step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
                 step(propeller.upsert(Table.Users, getContentValuesForSoundOwner(streamItem)));
 
                 final Optional<ApiUser> reposter = streamItem.getReposter();
                 if (reposter.isPresent()){
                     step(propeller.upsert(Table.Users, buildUserContentValues(reposter.get())));
+                }
+
+                if (streamItem.isPromotedStreamItem()){
+                    final Optional<ApiUser> promoter = streamItem.getPromoter();
+                    if (promoter.isPresent()){
+                        step(propeller.upsert(Table.Users, buildUserContentValues(promoter.get())));
+                    }
+
+                    InsertResult insertResult = step(propeller.insert(Table.PromotedTracks, buildPromotedContentValues(streamItem)));
+                    step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem, insertResult.getRowId()).get()));
+                } else {
+                    step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem).get()));
                 }
             }
         }
@@ -85,8 +98,7 @@ public class SoundStreamWriteStorage {
             }
         }
 
-        private ContentValues buildSoundStreamContentValues(ApiStreamItem streamItem) {
-
+        private ContentValuesBuilder buildSoundStreamContentValues(ApiStreamItem streamItem) {
             final ContentValuesBuilder builder = ContentValuesBuilder.values()
                     .put(TableColumns.SoundStream.SOUND_ID, getSoundId(streamItem))
                     .put(TableColumns.SoundStream.SOUND_TYPE, getSoundType(streamItem))
@@ -95,6 +107,30 @@ public class SoundStreamWriteStorage {
             final Optional<ApiUser> reposter = streamItem.getReposter();
             if (reposter.isPresent()){
                 builder.put(TableColumns.SoundStream.REPOSTER_ID, reposter.get().getId());
+            }
+            return builder;
+        }
+
+        private ContentValuesBuilder buildSoundStreamContentValues(ApiStreamItem streamItem, long promotedId) {
+            ContentValuesBuilder builder = buildSoundStreamContentValues(streamItem);
+            builder.put(TableColumns.SoundStream.PROMOTED_ID, promotedId);
+            return builder;
+        }
+
+        private ContentValues buildPromotedContentValues(ApiStreamItem streamItem) {
+            final Joiner urlJoiner = Joiner.on(" ");
+
+            final ContentValuesBuilder builder = ContentValuesBuilder.values()
+                    .put(TableColumns.PromotedTracks.URN, streamItem.getPromotedUrn().get().toString())
+                    .put(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingProfileClickedUrls()))
+                    .put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingPromoterClickedUrls()))
+                    .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingTrackClickedUrls()))
+                    .put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, urlJoiner.join(streamItem.getTrackingTrackImpressionUrls()))
+                    .put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, urlJoiner.join(streamItem.getTrackingTrackPlayedUrls()));
+
+            final Optional<ApiUser> promoter = streamItem.getPromoter();
+            if (promoter.isPresent()){
+                builder.put(TableColumns.PromotedTracks.PROMOTER_ID, promoter.get().getId());
             }
             return builder.get();
         }
