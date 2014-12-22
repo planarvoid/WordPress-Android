@@ -36,13 +36,18 @@ public class SecureFileStorageTest {
     }
 
     @Test
-    public void offlineTracksDirectoryIsCreated() {
+    public void offlineTracksDirectoryIsCreated() throws IOException, EncryptionException {
+        storage.storeTrack(TRACK_URN, inputStream);
+
         expect(storage.OFFLINE_DIR.exists()).toBeTrue();
     }
 
     @Test
     public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException, EncryptionException {
         final SecureFileStorage otherStorage = new SecureFileStorage(operations);
+
+        storage.storeTrack(TRACK_URN, inputStream);
+        otherStorage.storeTrack(Urn.forTrack(234L), inputStream);
 
         expect(otherStorage.createDirectoryIfNeeded()).toBeTrue();
     }
@@ -63,7 +68,7 @@ public class SecureFileStorageTest {
 
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
-        File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString());
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
 
         storage.storeTrack(TRACK_URN, inputStream);
 
