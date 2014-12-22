@@ -34,15 +34,15 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void storeRequestedDownloads() {
+    public void filterAndStoreNewDownloadRequestsSavesRequestedDownloads() {
         storage.filterAndStoreNewDownloadRequests(TRACK_URNS).subscribe();
 
         databaseAssertions().assertDownloadRequestsInserted(TRACK_URNS);
     }
 
     @Test
-    public void storeRequestedDownloadDoesNotOverrideExistingRecords() {
-        long timestamp = 100;
+    public void filterAndStoreNewDownloadRequestsDoesNotOverrideExistingRecords() {
+        final long timestamp = 100;
         testFixtures().insertRequestedTrackDownload(timestamp, TRACK_URN1);
 
         storage.filterAndStoreNewDownloadRequests(Arrays.asList(TRACK_URN1, TRACK_URN2)).subscribe();
@@ -53,7 +53,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void updatesDownloadTracksWithDownloadResults() {
-        storage.filterAndStoreNewDownloadRequests(TRACK_URNS).subscribe();;
+        storage.filterAndStoreNewDownloadRequests(TRACK_URNS).subscribe();
 
         storage.updateDownload(DOWNLOAD_RESULT);
 
@@ -62,27 +62,27 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void getRequestedDownloadsEmptyListWhenAllDownloadsCompleted() {
-        TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
+    public void getPendingDownloadsReturnsEmptyListForAllDownloadsCompleted() {
+        final TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
         storage.filterAndStoreNewDownloadRequests(Arrays.asList(TRACK_URN1));
 
         storage.updateDownload(DOWNLOAD_RESULT);
         storage.getPendingDownloads().subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
-        List<DownloadRequest> requests = observer.getOnNextEvents().get(0);
-        expect(requests).toNumber(0);
+        expect(observer.getOnNextEvents().get(0)).toNumber(0);
     }
 
     @Test
-    public void getRequestedDownloadsReturnsNotDownloadedTracks() {
-        TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
-        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+    public void getPendingDownloadsReturnsOnlyNotDownloadedTracks() {
+        final TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         testFixtures().insertTrack(apiTrack);
         storage.filterAndStoreNewDownloadRequests(Arrays.asList(apiTrack.getUrn())).subscribe();
 
         storage.getPendingDownloads().subscribe(observer);
-        List<DownloadRequest> result = observer.getOnNextEvents().get(0);
+
+        final List<DownloadRequest> result = observer.getOnNextEvents().get(0);
         expect(result.size()).toBe(1);
         expect(result.get(0).urn).toEqual(apiTrack.getUrn());
         expect(result.get(0).fileUrl).toEqual(apiTrack.getStreamUrl());
