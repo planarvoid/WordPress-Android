@@ -25,8 +25,8 @@ import java.util.List;
 @Singleton
 public class OfflineContentService extends Service {
 
-    public static final String TAG = "OfflineContent";
-    static final String ACTION_DOWNLOAD_TRACKS = "action_download_tracks";
+    protected static final String TAG = "OfflineContent";
+    protected static final String ACTION_DOWNLOAD_TRACKS = "action_download_tracks";
 
     @Inject DownloadOperations downloadOperations;
     @Inject DownloadNotificationController notificationController;
@@ -40,12 +40,13 @@ public class OfflineContentService extends Service {
         }
     };
 
-    private final Func1<List<DownloadRequest>, Observable<DownloadResult>> toDownloadResult = new Func1<List<DownloadRequest>, Observable<DownloadResult>>() {
-        @Override
-        public Observable<DownloadResult> call(List<DownloadRequest> downloadRequests) {
-            return downloadOperations.processDownloadRequests(downloadRequests);
-        }
-    };
+    private final Func1<List<DownloadRequest>, Observable<DownloadResult>> toDownloadResult =
+            new Func1<List<DownloadRequest>, Observable<DownloadResult>>() {
+                @Override
+                public Observable<DownloadResult> call(List<DownloadRequest> downloadRequests) {
+                    return downloadOperations.processDownloadRequests(downloadRequests);
+                }
+            };
 
     public static void syncOfflineContent(Context context) {
         context.startService(getDownloadIntent(context));
@@ -62,15 +63,15 @@ public class OfflineContentService extends Service {
     }
 
     @VisibleForTesting
-    OfflineContentService(DownloadOperations downloadOperations, DownloadNotificationController notificationController) {
-        this.downloadOperations = downloadOperations;
+    OfflineContentService(DownloadOperations downloadOps, DownloadNotificationController notificationController) {
+        this.downloadOperations = downloadOps;
         this.notificationController = notificationController;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent.getAction();
-        Log.d(TAG, Thread.currentThread().getName() + " Starting offlineContentService for action: " + action);
+        Log.d(TAG, "Starting offlineContentService for action: " + action);
 
         if (ACTION_DOWNLOAD_TRACKS.equalsIgnoreCase(action)) {
 
@@ -102,6 +103,7 @@ public class OfflineContentService extends Service {
     @Override
     public void onDestroy() {
         subscription.unsubscribe();
+        super.onDestroy();
     }
 
     private final class DownloadResultSubscriber extends DefaultSubscriber<DownloadResult> {
@@ -113,14 +115,14 @@ public class OfflineContentService extends Service {
 
         @Override
         public void onNext(DownloadResult result) {
-            Log.d(OfflineContentService.TAG, "Downloaded track: " + result);
+            Log.d(TAG, "Downloaded track: " + result);
             notificationController.onProgressUpdate();
         }
 
         @Override
         public void onError(Throwable throwable) {
-            //TODO: error handling and notifications for it: other story
-            Log.e(OfflineContentService.TAG, "something bad happened", throwable);
+            //TODO: error handling and notifications
+            Log.e(TAG, "something bad happened", throwable);
         }
     }
 }
