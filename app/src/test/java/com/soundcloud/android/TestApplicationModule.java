@@ -173,7 +173,13 @@ public class TestApplicationModule {
 
     @Provides
     @Named("DeviceKeys")
-    public SharedPreferences provideKyePrefs(){
+    public SharedPreferences provideKeyPrefs(){
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named("OfflineSettings")
+    public SharedPreferences provideOfflinePrefs(){
         return provideSharedPreferences();
     }
 

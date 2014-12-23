@@ -10,10 +10,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class OfflineContentOperations {
+
     private final SoundAssociationOperations associationOperations;
     private final TrackDownloadsStorage trackDownloadStorage;
+    private final OfflineSettingsStorage settingsStorage;
 
-    private final Func1<List<Urn>, Observable<TxnResult>> storeDownloadRequests =  new Func1<List<Urn>, Observable<TxnResult>>() {
+    private final Func1<List<Urn>, Observable<TxnResult>> storeDownloadRequests = new Func1<List<Urn>, Observable<TxnResult>>() {
         @Override
         public Observable<TxnResult> call(List<Urn> tracks) {
             return trackDownloadStorage.filterAndStoreNewDownloadRequests(tracks);
@@ -22,14 +24,27 @@ public class OfflineContentOperations {
 
     @Inject
     public OfflineContentOperations(TrackDownloadsStorage trackDownloadStorage,
-                                    SoundAssociationOperations operations) {
+                                    SoundAssociationOperations operations, OfflineSettingsStorage settingsStorage) {
         this.trackDownloadStorage = trackDownloadStorage;
-        associationOperations = operations;
+        this.associationOperations = operations;
+        this.settingsStorage = settingsStorage;
     }
 
     public Observable<TxnResult> updateOfflineLikes() {
         return associationOperations
                 .getLikedTracks()
                 .flatMap(storeDownloadRequests);
+    }
+
+    public void setLikesOfflineSync(boolean isEnabled) {
+        settingsStorage.setLikesOfflineSync(isEnabled);
+    }
+
+    public boolean isLikesOfflineSyncEnabled() {
+        return settingsStorage.isLikesOfflineSyncEnabled();
+    }
+
+    public Observable<Boolean> getSettingsStatus() {
+        return settingsStorage.getLikesOfflineSyncChanged();
     }
 }

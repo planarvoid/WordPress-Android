@@ -25,8 +25,8 @@
     <string name="pref_dev_clear_recordings">Clear recordings</string>
     <string name="pref_dev_clear_recordings_summary">Deletes all local recordings</string>
 
-    <string name="pref_dev_offline_sync">Offline sync</string>
-    <string name="pref_dev_offline_sync_summary">Offline sync a sample track</string>
+    <string name="pref_dev_offline_sync">Keep likes offline synced</string>
+    <string name="pref_dev_offline_sync_summary">All current and future likes will be offline synced to your device</string>
 
     <string name="dev_clear_recordings">Clear all recordings?</string>
 

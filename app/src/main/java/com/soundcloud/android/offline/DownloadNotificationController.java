@@ -40,7 +40,7 @@ class DownloadNotificationController {
 
         setDefaultConfiguration(progressNotification);
         progressNotification.setOngoing(true);
-        progressNotification.setContentTitle(resources.getString(R.string.downloads_started));
+        progressNotification.setContentTitle(resources.getString(R.string.offline_sync_started));
         return progressNotification.build();
     }
 
@@ -63,8 +63,8 @@ class DownloadNotificationController {
         setDefaultConfiguration(completedNotification);
         completedNotification.setOngoing(false);
         completedNotification.setAutoCancel(true);
-        completedNotification.setContentTitle(resources.getString(R.string.downloads_completed));
-        completedNotification.setContentText(resources.getString(R.string.downloads_completed_desc));
+        completedNotification.setContentTitle(resources.getString(R.string.offline_sync_completed_title));
+        completedNotification.setContentText(resources.getString(R.string.offline_sync_completed_message));
         notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, completedNotification.build());
     }
 
@@ -73,7 +73,7 @@ class DownloadNotificationController {
 
         setDefaultConfiguration(progressNotification);
         progressNotification.setOngoing(true);
-        progressNotification.setContentTitle(resources.getString(R.string.downloads_in_progress));
+        progressNotification.setContentTitle(resources.getString(R.string.offline_sync_in_progress));
         progressNotification.setProgress(totalDownloads, completedDownloads, false);
         progressNotification.setContentText(downloadDescription);
         notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, progressNotification.build());

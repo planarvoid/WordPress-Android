@@ -21,6 +21,7 @@ public class StorageModule {
     public static final String PLAYLIST_TAGS = "playlist_tags";
     public static final String PAYMENTS = "payments";
     public static final String DEVICE_KEYS = "device_keys";
+    public static final String OFFLINE_SETTINGS = "offline_settings";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -43,6 +44,12 @@ public class StorageModule {
     @Named("DeviceKeys")
     public SharedPreferences provideKeysPrefs(Context context) {
         return context.getSharedPreferences(DEVICE_KEYS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named("OfflineSettings")
+    public SharedPreferences provideOfflinePrefs(Context context) {
+        return context.getSharedPreferences(OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
