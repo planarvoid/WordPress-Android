@@ -17,7 +17,6 @@
 
     <!-- Feature flags (enabled) -->
     <bool name="feature_device_key_generation">true</bool>
-    <bool name="feature_android_l_media_notification">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>

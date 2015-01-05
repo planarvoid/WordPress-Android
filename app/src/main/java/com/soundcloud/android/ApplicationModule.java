@@ -153,10 +153,8 @@ public class ApplicationModule {
     @Provides
     public NotificationBuilder providesNotificationBuilderWrapper(Context context,
                                                                   ApplicationProperties applicationProperties,
-                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory,
-                                                                  FeatureFlags featureFlags) {
-        if (featureFlags.isEnabled(Feature.ANDROID_L_MEDIA_NOTIFICATION)
-                && applicationProperties.shouldUseMediaStyleNotifications()) {
+                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
+        if (applicationProperties.shouldUseMediaStyleNotifications()) {
             return new MediaStyleNotificationBuilder(context);
         } else if (applicationProperties.shouldUseBigNotifications()) {
             return new BigNotificationBuilder(context, remoteViewsFactory);
