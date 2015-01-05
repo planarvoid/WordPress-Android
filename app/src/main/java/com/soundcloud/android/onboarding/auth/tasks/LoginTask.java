@@ -49,6 +49,7 @@ public class LoginTask extends AuthTask {
         try {
             Token token = tokenUtils.getToken(data);
             Log.d("LoginTask[Token](" + token + ")");
+            app.getAccountOperations().updateToken(token);
 
             final PublicApiUser user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
             if (user == null) {

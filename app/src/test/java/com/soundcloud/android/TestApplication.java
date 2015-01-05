@@ -36,7 +36,6 @@ public class TestApplication extends SoundCloudApplication {
     public void onCreate() {
         super.onCreate();
         oldCloudApi = PublicApiWrapper.getInstance(this);
-        oldCloudApi.setToken(token);
     }
 
     public PublicCloudAPI getCloudAPI() {

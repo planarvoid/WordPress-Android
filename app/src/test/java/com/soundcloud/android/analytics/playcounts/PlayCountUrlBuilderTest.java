@@ -31,6 +31,7 @@ public class PlayCountUrlBuilderTest {
     @Before
     public void setup() {
         when(httpProperties.getClientId()).thenReturn("ABCDEF");
+        when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
         urlBuilder = new PlayCountUrlBuilder(httpProperties, accountOperations);
     }
 

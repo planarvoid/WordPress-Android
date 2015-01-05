@@ -19,7 +19,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
@@ -61,17 +60,20 @@ public final class AccountAssistant {
         return login(username, password, instrumentation);
     }
 
-    protected static Token getToken(ApiWrapper apiWrapper, String username, String password) throws IOException {
-        return apiWrapper.login(username, password);
+    protected static Token getToken(Context context, ApiWrapper apiWrapper, String username, String password) throws IOException {
+        final Token token = apiWrapper.login(username, password);
+        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+        application.getAccountOperations().updateToken(token);
+        return token;
     }
 
     private static Account login(String username, String password, Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
-        ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
+        ApiWrapper apiWrapper = createApiWrapper(context);
         try {
-            Token token = getToken(apiWrapper, username, password);
+            Token token = getToken(context, apiWrapper, username, password);
             PublicApiUser user = getLoggedInUser(apiWrapper);
-            if (waitForInjectionAddAccountAndEnableSync(context, token, user)) {
+            if (addAccountAndEnableSync(context, token, user)) {
                 return getAccount(context);
             }
         } catch (IOException e) {
@@ -82,8 +84,7 @@ public final class AccountAssistant {
         return null;
     }
 
-    static boolean waitForInjectionAddAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
-        waitForAccountOperationsToBeInjected(context);
+    static boolean addAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
         return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
     }
 
@@ -165,32 +166,15 @@ public final class AccountAssistant {
         }
     }
 
-    /**
-     * Need to initialize AsyncTask on UI thread, to have internal handler
-     * initialized correctly. Calls this at the beginning of your test.
-     * Android testing is fscked up.
-     */
-    public static void initAsyncTask(Instrumentation instrumentation) {
-        instrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                new AsyncTask<Void, Void, Void>()  {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        return null;
-                    }
-                };
-            }
-        });
-    }
-
     static PublicApiUser getLoggedInUser(ApiWrapper apiWrapper) throws IOException {
         final InputStream content = apiWrapper.get(Request.to(Endpoints.MY_DETAILS)).getEntity().getContent();
         return PublicApiWrapper.buildObjectMapper().readValue(content, PublicApiUser.class);
     }
 
     static ApiWrapper createApiWrapper(Context context) {
+        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+        waitForAccountOperationsToBeInjected(context);
         final HttpProperties properties = new HttpProperties(context.getResources());
-        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), null);
+        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), application.getAccountOperations());
     }
 }

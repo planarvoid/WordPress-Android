@@ -7,7 +7,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.IOException;
-import java.net.URI;
 
 /**
  * Interface with SoundCloud, using OAuth2.
@@ -166,28 +165,6 @@ public interface CloudAPI {
      * @return the current token
      */
     Token getToken();
-
-    /**
-     * @param token the token to be used
-     */
-    void setToken(Token token);
-
-    /**
-     * Request login via authorization code
-     * After login, control will go to the redirect URI (wrapper specific), with
-     * one of the following query parameters appended:
-     * <ul>
-     * <li><code>code</code> in case of success, this will contain the code used for the
-     * <code>authorizationCode</code> call to obtain the access token.
-     * <li><code>error</code> in case of failure, this contains an error code (most likely
-     * <code>access_denied</code>).
-     * </ul>
-     *
-     * @param options auth endpoint to use (leave out for default), requested scope (leave out for default), display ('popup' for mobile optimized screen) and state.
-     * @return the URI to open in a browser/WebView etc.
-     * @see CloudAPI#authorizationCode(String, String...)
-     */
-    URI authorizationCodeUrl(String connectEndpoint);
 
     /**
      * Interested in changes to the current token.

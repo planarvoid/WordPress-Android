@@ -1,6 +1,8 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -56,7 +58,7 @@ public class SoundCloudTokenOperationsTest {
         when(accountManager.peekAuthToken(account, "access_token")).thenReturn(ACCESSTOKEN);
         when(accountManager.peekAuthToken(account, "refresh_token")).thenReturn(REFRESHTOKEN);
 
-        Token token = tokenOperations.getSoundCloudToken(account);
+        Token token = tokenOperations.getTokenFromAccount(account);
         expect(token.getAccessToken()).toEqual(ACCESSTOKEN);
         expect(token.getRefreshToken()).toEqual(REFRESHTOKEN);
         expect(token.getScope()).toEqual(SCOPE);
@@ -64,12 +66,38 @@ public class SoundCloudTokenOperationsTest {
 
     @Test
     public void shouldInvalidateTokensAndData(){
-
         tokenOperations.invalidateToken(token, account);
         verify(accountManager).invalidateAuthToken(ACCOUNTTYPE, ACCESSTOKEN);
         verify(accountManager).invalidateAuthToken(ACCOUNTTYPE, REFRESHTOKEN);
 
         verify(accountManager).setUserData(account, "scope", null);
         verify(accountManager).setUserData(account, "expires_in", null);
+    }
+
+    @Test
+    public void shouldNotReloadTokenFromAccountIfAlreadyLoaded() {
+        Token token1 = tokenOperations.getTokenFromAccount(account);
+        Token token2 = tokenOperations.getTokenFromAccount(account);
+        expect(token1).toBe(token2);
+    }
+
+    @Test
+    public void shouldReloadTokenFromAccountAfterInvalidating() {
+        Token token1 = tokenOperations.getTokenFromAccount(account);
+        tokenOperations.invalidateToken(token, account);
+        Token token2 = tokenOperations.getTokenFromAccount(account);
+        expect(token1).not.toBe(token2);
+        verify(accountManager, times(2)).peekAuthToken(account, "access_token");
+        verify(accountManager, times(2)).peekAuthToken(account, "refresh_token");
+    }
+
+    @Test
+    public void shouldReloadTokenFromAccountAfterResetting() {
+        Token token1 = tokenOperations.getTokenFromAccount(account);
+        tokenOperations.resetToken();
+        Token token2 = tokenOperations.getTokenFromAccount(account);
+        expect(token1).not.toBe(token2);
+        verify(accountManager, times(2)).peekAuthToken(account, "access_token");
+        verify(accountManager, times(2)).peekAuthToken(account, "refresh_token");
     }
 }

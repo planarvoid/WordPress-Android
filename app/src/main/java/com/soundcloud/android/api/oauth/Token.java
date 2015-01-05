@@ -18,20 +18,14 @@ import java.util.concurrent.TimeUnit;
  * Represents an OAuth2 access/refresh token pair.
  */
 public class Token implements Serializable {
-    private static final long serialVersionUID = 766168501082045382L;
 
+    public static final Token EMPTY = new Token(null, null);
     public static final String SCOPE_DEFAULT = "*";
-
-    /**
-     * Special scope for signup / password recovery
-     */
     public static final String SCOPE_SIGNUP = "signup";
-
-    public static final String SCOPE_PLAYCOUNT = "playcount";
-    /**
-     * Don't expire access token - returned tokens won't include a refresh token
-     */
     public static final String SCOPE_NON_EXPIRING = "non-expiring";
+    public static final String SCOPE_PLAYCOUNT = "playcount";
+
+    private static final long serialVersionUID = 766168501082045382L;
 
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
@@ -39,8 +33,8 @@ public class Token implements Serializable {
     private static final String EXPIRES_IN = "expires_in";
 
     private String access, refresh;
-    @Nullable private String scope;
     private long expiresAt;
+    @Nullable private String scope;
 
     private final Map<String, String> customParameters = new ArrayMap<>();
 

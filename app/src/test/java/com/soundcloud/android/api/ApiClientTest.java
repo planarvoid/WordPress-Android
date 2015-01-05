@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
@@ -43,8 +44,6 @@ public class ApiClientTest {
     private static final String PATH = "/path/to/resource";
     private static final String JSON_DATA = "{}";
     private static final String CLIENT_ID = "testClientId";
-    private static final String CLIENT_SECRET = "testClientSecret";
-    private static final Token TOKEN = new Token("access", "refresh");
 
     private ApiClient apiClient;
     private OkHttpClient httpClient = new OkHttpClient();
@@ -57,6 +56,7 @@ public class ApiClientTest {
     @Mock private HttpProperties httpProperties;
     @Mock private DeviceHelper deviceHelper;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    @Mock private OAuth oAuth;
     @Captor private ArgumentCaptor<Request> requestCaptor;
 
     @Before
@@ -64,8 +64,10 @@ public class ApiClientTest {
         initMocks(this);
         when(wrapperFactory.createWrapper(any(ApiRequest.class))).thenReturn(publicApiWrapper);
         when(deviceHelper.getUserAgent()).thenReturn("");
+        when(oAuth.getClientId()).thenReturn(CLIENT_ID);
+        when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
-                wrapperFactory, deviceHelper, new OAuth(CLIENT_ID, CLIENT_SECRET, TOKEN), unauthorisedRequestRegistry);
+                wrapperFactory, deviceHelper, oAuth, unauthorisedRequestRegistry);
     }
 
     @After
@@ -249,7 +251,7 @@ public class ApiClientTest {
         apiClient.fetchResponse(request);
 
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        expect(recordedRequest.getHeaders("Authorization")).toContainExactly("OAuth " + TOKEN.getAccessToken());
+        expect(recordedRequest.getHeaders("Authorization")).toContainExactly("OAuth 12345");
     }
 
     @Test

@@ -154,7 +154,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private String buildStreamUrl() {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
-        Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
+        Token token = accountOperations.getSoundCloudToken();
         return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
                 .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
                 .build();
