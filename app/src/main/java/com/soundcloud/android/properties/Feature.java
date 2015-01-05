@@ -10,7 +10,6 @@ public enum Feature {
     OKHTTP(R.bool.feature_okhttp),
     GOOGLE_CAST(R.bool.feature_google_cast),
     API_MOBILE_STREAM(R.bool.feature_api_mobile_stream),
-    DEVICE_KEY_GENERATION(R.bool.feature_device_key_generation),
     OFFLINE_SYNC_FROM_LIKES(R.bool.feature_offline_sync_from_likes),
     TRACK_LIKES_SCREEN(R.bool.feature_track_likes_screen);
 
