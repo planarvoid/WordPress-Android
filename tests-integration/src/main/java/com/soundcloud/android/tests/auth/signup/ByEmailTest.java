@@ -1,7 +1,9 @@
 package com.soundcloud.android.tests.auth.signup;
 
-import com.soundcloud.android.tests.auth.SignUpTest;
+import static com.soundcloud.android.framework.TestUser.generateEmail;
+
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailTest extends SignUpTest {
     private ProfileScreen userProfile;
