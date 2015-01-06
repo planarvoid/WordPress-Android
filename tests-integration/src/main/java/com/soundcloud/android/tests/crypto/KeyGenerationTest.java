@@ -13,7 +13,6 @@ public class KeyGenerationTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Feature.DEVICE_KEY_GENERATION);
         TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
     }
