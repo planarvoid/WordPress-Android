@@ -21,6 +21,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.Feature;
@@ -66,6 +67,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject AdPlayerController adPlayerController;
     @Inject InAppCampaignController inAppCampaignController;
     @Inject FeatureFlags featureFlags;
+    @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
 
     public MainActivity() {
@@ -98,6 +100,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
 
         castConnectionHelper.reconnectSessionIfPossible();
+
+        if (playQueueManager.shouldReloadQueue()){
+            playQueueManager.loadPlayQueueAsync(true);
+        }
     }
 
     private void setupEmailOptIn() {
