@@ -7,7 +7,6 @@
         <!--<item name="android:windowAnimationStyle">@style/Animation.Activity</item>-->
 
         <item name="android:popupAnimationStyle">@style/Animation.Popup</item>
-        <item name="android:editTextStyle">@style/EditText</item>
         <item name="android:listViewStyle">@style/ListView</item>
 
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
