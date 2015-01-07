@@ -27,14 +27,10 @@ public class WaveformOperationsTest {
 
     private WaveformOperations waveformOperations;
 
-    @Mock
-    private WaveformFetcher waveformFetcher;
-    @Mock
-    private WaveformData waveformData;
-    @Mock
-    private Observer<WaveformData> observer;
-    @Mock
-    private WaveformView waveformView;
+    @Mock private WaveformFetcher waveformFetcher;
+    @Mock private WaveformData waveformData;
+    @Mock private Observer<WaveformData> observer;
+    @Mock private WaveformView waveformView;
 
     @Before
     public void setUp() throws Exception {
