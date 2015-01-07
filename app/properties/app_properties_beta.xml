@@ -16,11 +16,11 @@
     <string name="cast_receiver_app_id">DCAC4134</string>
 
     <!-- Feature flags (enabled) -->
+    <bool name="feature_okhttp">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
-    <bool name="feature_okhttp">false</bool>
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_offline_sync_from_likes">false</bool>
     <bool name="feature_track_likes_screen">false</bool>

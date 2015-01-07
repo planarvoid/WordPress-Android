@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -20,8 +20,6 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.fakehttp.FakeHttpResponse;
-import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.api.oauth.Token;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -68,6 +66,7 @@ public class ApiClientTest {
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
                 wrapperFactory, deviceHelper, oAuth, unauthorisedRequestRegistry);
+        mockWebServer.play();
     }
 
     @After
@@ -476,14 +475,12 @@ public class ApiClientTest {
         for (MockResponse response : mockResponses) {
             mockWebServer.enqueue(response);
         }
-        mockWebServer.play();
         when(httpProperties.getMobileApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }
 
     private void fakePublicApiResponse(MockResponse mockResponse) throws IOException {
         when(featureFlags.isEnabled(Feature.OKHTTP)).thenReturn(true);
         mockWebServer.enqueue(mockResponse);
-        mockWebServer.play();
         when(httpProperties.getPublicApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }
 

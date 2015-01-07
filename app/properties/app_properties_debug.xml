@@ -18,9 +18,9 @@
     <!-- Feature flags (enabled) -->
     <bool name="feature_google_cast">true</bool>
     <bool name="feature_offline_sync_from_likes">true</bool>
+    <bool name="feature_okhttp">true</bool>
 
     <!-- Feature flags (disabled) -->
-    <bool name="feature_okhttp">false</bool>
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_track_likes_screen">false</bool>
