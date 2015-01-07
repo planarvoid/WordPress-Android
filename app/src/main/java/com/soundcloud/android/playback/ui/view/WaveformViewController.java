@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.waveform.WaveformResult;
+import com.soundcloud.android.waveform.WaveformData;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
@@ -57,7 +57,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private TranslateXHelper leftProgressHelper;
     private TranslateXHelper rightProgressHelper;
 
-    private Observable<WaveformResult> waveformResultObservable;
+    private Observable<WaveformData> waveformObservable;
     private Subscription waveformSubscription = Subscriptions.empty();
 
     private int adjustedWidth;
@@ -145,9 +145,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         createWaveforms(HAS_WIDTH);
     }
 
-    public void setWaveform(Observable<WaveformResult> waveformResultObservable, boolean isForeground) {
+    public void setWaveform(Observable<WaveformData> waveformObservable, boolean isForeground) {
         waveformView.showLoading();
-        this.waveformResultObservable = waveformResultObservable;
+        this.waveformObservable = waveformObservable;
         createState.set(IS_CREATION_PENDING);
         createWaveforms(HAS_WAVEFORM_DATA);
         if (isForeground){
@@ -159,7 +159,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void reset() {
         waveformSubscription.unsubscribe(); // Matthias, help test this
-        waveformResultObservable = null;
+        waveformObservable = null;
         waveformView.showLoading();
         leftProgressController.reset();
         rightProgressController.reset();
@@ -245,7 +245,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         createState.set(flag);
         if (createState.equals(SHOULD_CREATE_WAVEFORM)) {
             waveformSubscription.unsubscribe();
-            waveformSubscription = waveformResultObservable
+            waveformSubscription = waveformObservable
                     .subscribeOn(graphicsScheduler)
                     .map(createWaveformsFunc())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -254,11 +254,11 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         }
     }
 
-    private Func1<WaveformResult, Pair<Bitmap, Bitmap>> createWaveformsFunc() {
-        return new Func1<WaveformResult, Pair<Bitmap, Bitmap>>() {
+    private Func1<WaveformData, Pair<Bitmap, Bitmap>> createWaveformsFunc() {
+        return new Func1<WaveformData, Pair<Bitmap, Bitmap>>() {
             @Override
-            public Pair<Bitmap, Bitmap> call(WaveformResult waveformResult) {
-                return waveformView.createWaveforms(waveformResult.getWaveformData(), adjustedWidth);
+            public Pair<Bitmap, Bitmap> call(WaveformData waveformData) {
+                return waveformView.createWaveforms(waveformData, adjustedWidth);
             }
         };
     }

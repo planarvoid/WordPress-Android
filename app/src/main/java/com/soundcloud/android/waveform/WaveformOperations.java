@@ -2,6 +2,7 @@ package com.soundcloud.android.waveform;
 
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -22,28 +23,28 @@ public class WaveformOperations {
         this.waveformFetcher = waveformFetcher;
     }
 
-    public Observable<WaveformResult> waveformDataFor(final Urn trackUrn, final String waveformUrl) {
-        final WaveformData cachedWaveform = waveformCache.get(trackUrn);
-        if (cachedWaveform == null) {
-            return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
-                @Override
-                public void call(WaveformData waveformData) {
-                    waveformCache.put(trackUrn, waveformData);
+    public Observable<WaveformData> waveformDataFor(final Urn trackUrn, final String waveformUrl) {
+        return Observable.create(new Observable.OnSubscribe<WaveformData>() {
+            @Override
+            public void call(Subscriber<? super WaveformData> subscriber) {
+                subscriber.onNext(waveformCache.get(trackUrn));
+                subscriber.onCompleted();
+            }
+        }).flatMap(new Func1<WaveformData, Observable<WaveformData>>() {
+            @Override
+            public Observable<WaveformData> call(WaveformData waveformData) {
+                if (waveformData == null) {
+                    return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
+                        @Override
+                        public void call(WaveformData waveformData) {
+                            waveformCache.put(trackUrn, waveformData);
+                        }
+                    });
+                } else {
+                    return Observable.just(waveformData);
                 }
-            }).map(new Func1<WaveformData, WaveformResult>() {
-                @Override
-                public WaveformResult call(WaveformData waveformData) {
-                    return WaveformResult.fromNetwork(waveformData);
-                }
-            }).onErrorResumeNext(waveformFetcher.fetchDefault().map(new Func1<WaveformData, WaveformResult>() {
-                @Override
-                public WaveformResult call(WaveformData waveformData) {
-                    return WaveformResult.fromError(waveformData);
-                }
-            }));
-        } else {
-            return Observable.just(WaveformResult.fromCache(cachedWaveform));
-        }
+            }
+        }).onErrorResumeNext(waveformFetcher.fetchDefault());
     }
 
 }
