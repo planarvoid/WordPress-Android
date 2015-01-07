@@ -200,4 +200,11 @@
         <item quantity="other">%d seconds available</item>
     </plurals>
 
+    <!-- __OFFLINE_SYNC -->
+
+    <plurals name="downloading_track_of_tracks">
+        <item quantity="one">1 track</item>
+        <item quantity="other">%1$d of %2$d tracks</item>
+    </plurals>
+
 </resources>

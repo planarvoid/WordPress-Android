@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.PlaylistTagStorage;
@@ -30,39 +31,27 @@ public class AccountCleanupActionTest {
 
     private AccountCleanupAction action;
 
-    @Mock
-    private Context context;
-    @Mock
-    private SyncStateManager syncStateManager;
-    @Mock
-    private CollectionStorage collectionStorage;
-    @Mock
-    private ActivitiesStorage activitiesStorage;
-    @Mock
-    private PlaylistTagStorage tagStorage;
-    @Mock
-    private SoundRecorder soundRecorder;
-    @Mock
-    private PlayQueueView playQueue;
-    @Mock
-    private SharedPreferences sharedPreferences;
-    @Mock
-    private SharedPreferences.Editor editor;
-    @Mock
-    private SoundCloudApplication soundCloudApplication;
-    @Mock
-    private UserAssociationStorage userAssociationStorage;
-    @Mock
-    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private SoundStreamWriteStorage soundStreamWriteStorage;
+    @Mock private Context context;
+    @Mock private SyncStateManager syncStateManager;
+    @Mock private CollectionStorage collectionStorage;
+    @Mock private ActivitiesStorage activitiesStorage;
+    @Mock private PlaylistTagStorage tagStorage;
+    @Mock private SoundRecorder soundRecorder;
+    @Mock private PlayQueueView playQueue;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences.Editor editor;
+    @Mock private SoundCloudApplication soundCloudApplication;
+    @Mock private UserAssociationStorage userAssociationStorage;
+    @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    @Mock private AccountOperations accountOperations;
+    @Mock private SoundStreamWriteStorage soundStreamWriteStorage;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(context, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, unauthorisedRequestRegistry, soundStreamWriteStorage);
+                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
+                unauthorisedRequestRegistry, soundStreamWriteStorage, offlineSettingsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -119,9 +108,15 @@ public class AccountCleanupActionTest {
     }
 
     @Test
+    public void shouldClearOfflineSettingsStorage() {
+        action.call();
+        verify(offlineSettingsStorage).clear();
+    }
+
+    @Test
     public void shouldClearSoundStreamStorage() {
         action.call();
         verify(soundStreamWriteStorage).clear();
     }
-}
 
+}

@@ -12,8 +12,11 @@ import rx.functions.Func1;
 import android.content.Context;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class OfflineContentController {
+
     private final EventBus eventBus;
     private final Context context;
     private final OfflineContentOperations operations;
@@ -27,30 +30,47 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<PlayableUpdatedEvent, Observable<TxnResult>> updateOfflineLikes = new Func1<PlayableUpdatedEvent, Observable<TxnResult>>() {
+    private final Func1<Object, Observable<TxnResult>> updateOfflineLikes = new Func1<Object, Observable<TxnResult>>() {
         @Override
-        public Observable<TxnResult> call(PlayableUpdatedEvent playableUpdatedEvent) {
+        public Observable<TxnResult> call(Object ignored) {
             return operations.updateOfflineLikes();
         }
     };
+
+    private final Func1<PlayableUpdatedEvent, Boolean> isOfflineLikesEnabled = new Func1<PlayableUpdatedEvent, Boolean>() {
+        @Override
+        public Boolean call(PlayableUpdatedEvent playableUpdatedEvent) {
+            return operations.isLikesOfflineSyncEnabled();
+        }
+    };
+
+    private final Observable<Boolean> settingsStatusObservable;
 
     @Inject
     public OfflineContentController(EventBus eventBus, OfflineContentOperations operations, Context context) {
         this.eventBus = eventBus;
         this.operations = operations;
         this.context = context;
+        this.settingsStatusObservable = operations.getSettingsStatus();
     }
 
     public void subscribe() {
-        eventBus.queue(EventQueue.PLAYABLE_CHANGED)
-                .filter(IS_TRACK_LIKED_FILTER)
+        settingsStatusObservable
+                .startWith(operations.isLikesOfflineSyncEnabled())
                 .flatMap(updateOfflineLikes)
                 .subscribe(new StartOfflineContentServiceSubscriber());
+
+        eventBus.queue(EventQueue.PLAYABLE_CHANGED)
+                .filter(isOfflineLikesEnabled)
+                .filter(IS_TRACK_LIKED_FILTER)
+                .flatMap(updateOfflineLikes)
+                .subscribe(new StartOfflineContentServiceSubscriber()) ;
     }
 
-    private final class StartOfflineContentServiceSubscriber extends DefaultSubscriber<TxnResult> {
+    private final class StartOfflineContentServiceSubscriber extends DefaultSubscriber<Object> {
+
         @Override
-        public void onNext(TxnResult tracks) {
+        public void onNext(Object ignored) {
             OfflineContentService.syncOfflineContent(context);
         }
     }

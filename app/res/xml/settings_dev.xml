@@ -36,10 +36,11 @@
             android:summary="@string/pref_dev_clear_recordings_summary"
             android:title="@string/pref_dev_clear_recordings" />
 
-        <Preference
+        <CheckBoxPreference
             android:key="@string/key_dev_offline_sync"
             android:summary="@string/pref_dev_offline_sync_summary"
-            android:title="@string/pref_dev_offline_sync" />
+            android:title="@string/pref_dev_offline_sync"
+            android:defaultValue="false"/>
 
         <EditTextPreference
             android:key="@string/key_dev_http_proxy"
