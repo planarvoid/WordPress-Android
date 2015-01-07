@@ -24,7 +24,7 @@ public class OfflineSettingsStorage {
         }
     };
 
-    private Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
+    private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
         @Override
         public Boolean call(String key) {
             return sharedPreferences.getBoolean(key, false);
