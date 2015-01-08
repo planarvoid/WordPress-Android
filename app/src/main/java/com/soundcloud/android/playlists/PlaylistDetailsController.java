@@ -36,6 +36,11 @@ abstract class PlaylistDetailsController implements EmptyViewAware {
         return adapter;
     }
 
+    boolean hasTracks() {
+        // do not use isEmpty, as it will return false if loading
+        return adapter.getItems().size() > 0;
+    }
+
     abstract boolean hasContent();
 
     abstract void setListShown(boolean show);

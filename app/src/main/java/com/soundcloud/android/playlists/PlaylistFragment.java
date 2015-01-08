@@ -89,6 +89,7 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     private PublicApiPlaylist playlist;
 
     private boolean listShown;
+    private boolean playOnLoad;
 
     private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
         @Override
@@ -100,10 +101,14 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
             if (playQueueManager.isCurrentPlaylist(playlist.getUrn())) {
                 playbackOperations.togglePlayback();
             } else  {
-                playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
+                playFromBeginning();
             }
         }
     };
+
+    private void playFromBeginning() {
+        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
+    }
 
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
@@ -161,7 +166,11 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         loadPlaylist = bindFragment(this, legacyPlaylistOperations.loadPlaylist(getPlaylistUrn()).cache());
+        if (savedInstanceState == null){
+            playOnLoad = getActivity().getIntent().getBooleanExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
+        }
     }
 
     @Override
@@ -352,6 +361,11 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
             refreshMetaData(playlist);
             updateTracksAdapter(playlist);
             showContent(true);
+
+            if (playOnLoad && controller.hasTracks()) {
+                playFromBeginning();
+                playOnLoad = false;
+            }
         }
 
         @Override

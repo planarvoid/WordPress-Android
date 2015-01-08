@@ -87,6 +87,7 @@ public enum Screen {
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
 
     WIDGET("widget"),
+    VOICE_COMMAND("voice:command"), // context when we play from voice search
     DEEPLINK("deeplink"); // context provided when we intercept a track
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";

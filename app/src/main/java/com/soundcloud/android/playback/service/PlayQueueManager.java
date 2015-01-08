@@ -52,7 +52,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-    @Nullable private Subscription playQueueSubscription = Subscriptions.empty();
+    private Subscription playQueueSubscription = Subscriptions.empty();
     private Subscription fetchRecommendedSubscription = Subscriptions.empty();
     private Observable<RecommendedTracksCollection> recommendedTracksObservable;
 
