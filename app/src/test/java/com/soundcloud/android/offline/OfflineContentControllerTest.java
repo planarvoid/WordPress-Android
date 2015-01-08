@@ -2,8 +2,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,27 +45,11 @@ public class OfflineContentControllerTest {
     }
 
     @Test
-    public void enqueueTracksWhenOfflineLikesEnabled() {
-        controller.subscribe();
-
-        verify(operations).updateOfflineLikes();
-    }
-
-    @Test
-    public void doesNotEnqueueTracksWhenOfflineLikesEnabled() {
-        when(operations.isLikesOfflineSyncEnabled()).thenReturn(false);
-
-        controller.subscribe();
-
-        verify(operations).updateOfflineLikes();
-    }
-
-    @Test
     public void enqueueTracksAfterPlayableChangedFromLikeEvent() {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, createLikeEvent());
 
-        verifyUpdateAfterSubscription();
+        verify(operations).updateOfflineLikes();
     }
 
     @Test
@@ -77,7 +59,8 @@ public class OfflineContentControllerTest {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, createLikeEvent());
 
-        verifyNeverUpdateAfterSubscription();
+        verify(operations, never()).updateOfflineLikes();
+
     }
 
     @Test
@@ -85,14 +68,29 @@ public class OfflineContentControllerTest {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, createIgnoredEvent());
 
-        verifyNeverUpdateAfterSubscription();
+        verify(operations, never()).updateOfflineLikes();
+    }
+
+    @Test
+    public void updatesOfflineLikesWhenOfflineLikesEnabled() {
+        controller.subscribe();
+        offlineLikesSyncObservable.onNext(true);
+
+        verify(operations).updateOfflineLikes();
+    }
+
+    @Test
+    public void updatesOfflineLikesWhenOfflineLikesDisabled() {
+        controller.subscribe();
+        offlineLikesSyncObservable.onNext(false);
+
+        verify(operations).updateOfflineLikes();
     }
 
     @Test
     public void stopsListeningToLikedTracksChangesWhenOfflineLikesNotEnabled() {
+        when(operations.isLikesOfflineSyncEnabled()).thenReturn(false);
         controller.subscribe();
-        offlineLikesSyncObservable.onNext(false);
-        reset(operations);
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, createLikeEvent());
 
@@ -109,14 +107,6 @@ public class OfflineContentControllerTest {
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
         expect(startService.getAction()).toEqual("action_download_tracks");
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
-    }
-
-    private Observable<TxnResult> verifyUpdateAfterSubscription() {
-        return verify(operations, times(2)).updateOfflineLikes();
-    }
-
-    private Observable<TxnResult> verifyNeverUpdateAfterSubscription() {
-        return verify(operations, times(1)).updateOfflineLikes();
     }
 
     private PlayableUpdatedEvent createIgnoredEvent() {

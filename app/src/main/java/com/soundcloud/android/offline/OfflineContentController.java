@@ -56,7 +56,6 @@ public class OfflineContentController {
 
     public void subscribe() {
         settingsStatusObservable
-                .startWith(operations.isLikesOfflineSyncEnabled())
                 .flatMap(updateOfflineLikes)
                 .subscribe(new StartOfflineContentServiceSubscriber());
 
