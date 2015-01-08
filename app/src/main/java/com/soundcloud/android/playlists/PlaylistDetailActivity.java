@@ -25,7 +25,7 @@ public class PlaylistDetailActivity extends ScActivity {
     static final String LOG_TAG = "PlaylistDetails";
 
     public static final String EXTRA_URN = "urn";
-    public static String EXTRA_AUTO_PLAY = "autoplay";
+    public static final String EXTRA_AUTO_PLAY = "autoplay";
 
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
