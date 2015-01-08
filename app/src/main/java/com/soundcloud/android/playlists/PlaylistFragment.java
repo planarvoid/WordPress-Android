@@ -106,10 +106,6 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         }
     };
 
-    private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
-    }
-
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -156,6 +152,10 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         addLifeCycleComponents();
+    }
+
+    private void playFromBeginning() {
+        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
     }
 
     private void addLifeCycleComponents() {

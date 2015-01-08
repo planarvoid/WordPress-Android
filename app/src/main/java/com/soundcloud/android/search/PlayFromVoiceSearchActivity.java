@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Random;
 
+@SuppressWarnings({"PMD.AccessorClassGeneration"})
 public class PlayFromVoiceSearchActivity extends Activity {
 
     private static final String ANDROID_INTENT_EXTRA_GENRE = "android.intent.extra.genre";
