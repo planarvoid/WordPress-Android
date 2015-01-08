@@ -16,7 +16,9 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.Intent;
 import android.media.AudioManager;
@@ -82,8 +84,10 @@ public class PlaybackReceiverTest {
     public void shouldCallResetAllOnServiceAndClearPlayqueueOnResetAllAction() {
         Intent intent = new Intent(PlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playbackService).resetAll();
-        verify(playQueueManager).clearAll();
+
+        InOrder inOrder = Mockito.inOrder(playQueueManager, playbackService);
+        inOrder.verify(playQueueManager).clearAll();
+        inOrder.verify(playbackService).resetAll();
     }
 
     @Test

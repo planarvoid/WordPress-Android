@@ -42,8 +42,8 @@ class PlaybackReceiver extends BroadcastReceiver {
         }
 
         if (Actions.RESET_ALL.equals(action)) {
-            playbackService.resetAll();
             playQueueManager.clearAll();
+            playbackService.resetAll();
 
         } else if (accountOperations.isUserLoggedIn()) {
             if (Actions.PLAY_CURRENT.equals(action)) {
