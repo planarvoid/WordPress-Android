@@ -43,7 +43,7 @@ public final class ErrorUtils {
      * reported as a crash into Crashlytics.
      * <p/>
      * This methods ensures that only checked exceptions make their way into an observer's
-     * onError method, and also logs them silenty into Crashlytics (unless they're blacklisted.)
+     * onError method, and also logs them silently into Crashlytics (unless they're blacklisted.)
      * <p/>
      * see https://github.com/Netflix/RxJava/issues/969
      *
