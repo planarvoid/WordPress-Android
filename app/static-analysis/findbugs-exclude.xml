@@ -18,4 +18,17 @@
     <Match>
         <Bug pattern="BC_IMPOSSIBLE_CAST" />
     </Match>
+    <Match>
+        <!-- this gets reported for supposedly serizliable inner classes which aren't marked as such -->
+        <!-- and has been a false positive on every occasion so far, so disabling this -->
+        <Bug pattern="SE_BAD_FIELD_INNER_CLASS" />
+    </Match>
+    <Match>
+        <!-- we want to be able to return references from classes, not have to copy every single object -->
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <!-- we want to be able to return references from classes, not have to copy every single object -->
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
 </FindBugsFilter>

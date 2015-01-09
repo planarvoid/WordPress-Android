@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressFBWarnings(
-        value = {"SE_BAD_FIELD_INNER_CLASS", "SE_BAD_FIELD"},
+        value = {"SE_BAD_FIELD"},
         justification = "we never serialize search operations")
 class SearchOperations {
 
