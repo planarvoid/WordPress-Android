@@ -19,6 +19,7 @@ import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -151,7 +152,7 @@ public class TrackLikesFragment extends DefaultFragment
 
     private Observable<List<PropertySet>> getLikedTracks() {
         Observable<PropertySet> propertySetObservable = likeOperations.likedTracks();
-        return propertySetObservable.flatMap(LIKES_TO_TRACKS_LIKED).toList();
+        return propertySetObservable.flatMap(LIKES_TO_TRACKS_LIKED).observeOn(AndroidSchedulers.mainThread()).toList();
     }
 
     @Override
