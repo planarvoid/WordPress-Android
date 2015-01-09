@@ -25,7 +25,6 @@ public class OAuth {
     public static final String PARAM_USERNAME = "username";
     public static final String PARAM_PASSWORD = "password";
     public static final String PARAM_REDIRECT_URI = "redirect_uri";
-    public static final String PARAM_CODE = "code";
     public static final String PARAM_SCOPE = "scope";
     public static final String PARAM_REFRESH_TOKEN = "refresh_token";
 
@@ -78,17 +77,6 @@ public class OAuth {
         params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
         params.put(OAuth.PARAM_USERNAME, username);
         params.put(OAuth.PARAM_PASSWORD, password);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
-        return params;
-    }
-
-    public Map<String, String> getTokenRequestParamsFromCode(String code) {
-        final ArrayMap<String, String> params = new ArrayMap<>(6);
-        params.put(OAuth.PARAM_GRANT_TYPE, OAuth.GRANT_TYPE_AUTHORIZATION_CODE);
-        params.put(OAuth.PARAM_CLIENT_ID, clientId);
-        params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        params.put(OAuth.PARAM_REDIRECT_URI, REDIRECT_URI.toString());
-        params.put(OAuth.PARAM_CODE, code);
         params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
         return params;
     }

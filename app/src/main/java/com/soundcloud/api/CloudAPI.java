@@ -37,18 +37,6 @@ public interface CloudAPI {
 
 
     /**
-     * Request a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.1">
-     * Authorization Code</a>, requesting a default scope.
-     *
-     * @param code   the authorization code
-     * @return a valid token
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
-     * @throws IOException                                       In case of network/server errors
-     */
-    Token authorizationCode(String code) throws IOException;
-
-
-    /**
      * Request a "signup" token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
      * Client Credentials</a>.
      * <p/>

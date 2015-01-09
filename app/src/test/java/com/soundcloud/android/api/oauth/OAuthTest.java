@@ -44,19 +44,6 @@ public class OAuthTest {
     }
 
     @Test
-    public void shouldBuildQueryParamsForTokenRequestFromAuthCode() {
-        final Map<String, String> params = oAuth.getTokenRequestParamsFromCode("123");
-        expect(params.entrySet()).toContainExactly(
-            new SimpleEntry<>("grant_type", "authorization_code"),
-            new SimpleEntry<>("client_id", "testClientId"),
-            new SimpleEntry<>("client_secret", "testClientSecret"),
-            new SimpleEntry<>("redirect_uri", "soundcloud://auth"),
-            new SimpleEntry<>("code", "123"),
-            new SimpleEntry<>("scope", "non-expiring")
-        );
-    }
-
-    @Test
     public void shouldBuildQueryParamsForTokenRequestFromClientCredentialsWithoutScope() {
         final Map<String, String> params = oAuth.getTokenRequestParamsFromClientCredentials();
         expect(params.entrySet()).toContainExactly(

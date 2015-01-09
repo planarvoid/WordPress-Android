@@ -111,10 +111,6 @@ public class PublicApi implements PublicCloudAPI {
         return apiWrapper.readListFromIds(request, ids);
     }
 
-    public Token authorizationCode(String code) throws IOException {
-        return apiWrapper.authorizationCode(code);
-    }
-
     public HttpClient getHttpClient() {
         return apiWrapper.getHttpClient();
     }

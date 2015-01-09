@@ -183,16 +183,6 @@ public class ApiWrapper implements CloudAPI {
 
 
     @Override
-    public Token authorizationCode(String code) throws IOException {
-        if (code == null) {
-            throw new IllegalArgumentException("code is null");
-        }
-        final Request request = Request.to(Endpoints.TOKEN);
-        addRequestParams(request, oAuth.getTokenRequestParamsFromCode(code));
-        return requestToken(request);
-    }
-
-    @Override
     public Token clientCredentials(String... scopes) throws IOException {
         final Request req = Request.to(Endpoints.TOKEN);
         addRequestParams(req, oAuth.getTokenRequestParamsFromClientCredentials(scopes));

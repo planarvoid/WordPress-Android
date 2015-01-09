@@ -43,14 +43,6 @@ public class TokenInformationGeneratorTest {
     }
 
     @Test
-    public void shouldObtainAuthorisationCodeIfBundleContainsCodeExtra() throws IOException {
-        when(bundle.containsKey("code")).thenReturn(true);
-        when(bundle.getString("code")).thenReturn("codeExtra");
-        tokenInformationGenerator.getToken(bundle);
-        verify(cloudApi).authorizationCode("codeExtra");
-    }
-
-    @Test
     public void shouldObtainAuthorizationCodeIfBundleContainsUsernameAndPassword() throws IOException {
         when(bundle.containsKey("username")).thenReturn(true);
         when(bundle.containsKey("password")).thenReturn(true);

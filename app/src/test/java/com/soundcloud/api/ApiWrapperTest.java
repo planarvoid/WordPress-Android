@@ -160,40 +160,6 @@ public class ApiWrapperTest {
         assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
     }
 
-    @Test
-    public void shouldGetTokensWhenLoggingInViaAuthorizationCode() throws Exception {
-        layer.addPendingHttpResponse(200, "{\n" +
-                "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
-                "  \"expires_in\":    3600,\n" +
-                "  \"scope\":         \"*\",\n" +
-                "  \"refresh_token\": \"04u7h-r3fr35h-70k3n\"\n" +
-                "}");
-
-        Token t = api.authorizationCode("code");
-
-        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.getRefreshToken(), equalTo("04u7h-r3fr35h-70k3n"));
-        assertThat(t.getScope(), equalTo("*"));
-        assertThat(t.getExpiresAt(), is(greaterThan(0L)));
-    }
-
-    @Test
-    public void shouldGetTokensWhenLoggingInViaAuthorizationCodeAndScope() throws Exception {
-        layer.addPendingHttpResponse(200, "{\n" +
-                "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
-                "  \"scope\":         \"* non-expiring\"\n" +
-                "}");
-
-        Token t = api.authorizationCode("code");
-
-        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.getRefreshToken(), is(nullValue()));
-
-        assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
-        assertThat(t.hasScope(Token.SCOPE_NON_EXPIRING), is(true));
-        assertEquals(0L, t.getExpiresAt());
-    }
-
     @Test(expected = CloudAPI.InvalidTokenException.class)
     public void shouldThrowInvalidTokenExceptionWhenLoginFailed() throws Exception {
         layer.addPendingHttpResponse(401, "{\n" +
