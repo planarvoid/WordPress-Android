@@ -61,8 +61,9 @@ public final class ErrorUtils {
         } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
             handleSilentException(t);
+        } else {
+            t.printStackTrace();
         }
-        t.printStackTrace();
     }
 
     /*
