@@ -122,6 +122,7 @@ public final class ErrorUtils {
 
     private static synchronized void handleSilentException(
             Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+        e.printStackTrace();
         if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {

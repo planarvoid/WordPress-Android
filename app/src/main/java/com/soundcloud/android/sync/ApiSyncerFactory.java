@@ -5,6 +5,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.content.LikesSyncer;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.PlaylistSyncer;
 import com.soundcloud.android.sync.content.SoundStreamSyncer;
@@ -23,14 +24,17 @@ public class ApiSyncerFactory {
     private final Provider<AccountOperations> accountOpsProvider;
     private final FeatureFlags featureFlags;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
+    private final Lazy<LikesSyncer> lazyLikesSyncer;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
-                            FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer) {
+                            FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
+                            Lazy<LikesSyncer> lazyLikesSyncer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
+        this.lazyLikesSyncer = lazyLikesSyncer;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -40,6 +44,12 @@ public class ApiSyncerFactory {
             case ME_SOUND_STREAM:
                 if (featureFlags.isEnabled(Feature.API_MOBILE_STREAM)){
                     return lazySoundStreamSyncer.get();
+                } else {
+                    return new ApiSyncer(context, context.getContentResolver());
+                }
+            case ME_LIKES:
+                if (featureFlags.isEnabled(Feature.NEW_LIKES_SYNCER)) {
+                    return lazyLikesSyncer.get();
                 } else {
                     return new ApiSyncer(context, context.getContentResolver());
                 }

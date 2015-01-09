@@ -1,17 +1,22 @@
 package com.soundcloud.android.likes;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-class LikesWriteStorage {
+public class LikesWriteStorage {
 
     private final PropellerDatabase propeller;
 
@@ -20,21 +25,30 @@ class LikesWriteStorage {
         this.propeller = propeller;
     }
 
-    TxnResult storeLikes(List<ApiLike> likes) {
+    public TxnResult storeLikes(Collection<PropertySet> likes) {
         List<ContentValues> values = new ArrayList<>(likes.size());
-        for (ApiLike like : likes) {
+        for (PropertySet like : likes) {
             values.add(buildContentValuesForLike(like));
         }
         return propeller.bulkInsert(Table.Likes, values);
     }
 
-    private ContentValues buildContentValuesForLike(ApiLike like) {
+    public ChangeResult removeLikes(Collection<PropertySet> likes) {
+        List<Long> ids = new ArrayList<>(likes.size());
+        for (PropertySet like : likes) {
+            ids.add(like.get(LikeProperty.TARGET_URN).getNumericId());
+        }
+        return propeller.delete(Table.Likes, new WhereBuilder().whereIn(TableColumns.Likes._ID, ids));
+    }
+
+    private ContentValues buildContentValuesForLike(PropertySet like) {
         final ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Likes._ID, like.getUrn().getNumericId());
-        cv.put(TableColumns.Likes._TYPE, like.getUrn().isTrack()
+        final Urn targetUrn = like.get(LikeProperty.TARGET_URN);
+        cv.put(TableColumns.Likes._ID, targetUrn.getNumericId());
+        cv.put(TableColumns.Likes._TYPE, targetUrn.isTrack()
                 ? TableColumns.Sounds.TYPE_TRACK
                 : TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Likes.CREATED_AT, like.getCreatedAt().getTime());
+        cv.put(TableColumns.Likes.CREATED_AT, like.get(LikeProperty.CREATED_AT).getTime());
         return cv;
     }
 }

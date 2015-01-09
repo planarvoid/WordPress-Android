@@ -37,7 +37,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
         ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
         List<PropertySet> input = Arrays.asList(apiPlaylist1.toPropertySet(), apiPlaylist2.toPropertySet());
-        testFixtures().insertPlaylistLike(apiPlaylist1.getId(), 123L);
+        testFixtures().insertLegacyPlaylistLike(apiPlaylist1.getId(), 123L);
 
         final List<PropertySet> changeSet = storage.playlistLikes(input);
 
@@ -53,7 +53,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         final ApiPlaylist likedPlaylist = testFixtures().insertPlaylist();
         final ApiPlaylist unlikedPlaylist = testFixtures().insertPlaylist();
         final ApiTrack track = testFixtures().insertTrack();
-        testFixtures().insertPlaylistLike(likedPlaylist.getId(), 123L);
+        testFixtures().insertLegacyPlaylistLike(likedPlaylist.getId(), 123L);
 
         List<PropertySet> input = Arrays.asList(
                 likedPlaylist.toPropertySet(), unlikedPlaylist.toPropertySet(), track.toPropertySet());

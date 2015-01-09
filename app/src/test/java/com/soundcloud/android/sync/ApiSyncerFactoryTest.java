@@ -6,10 +6,10 @@ import static org.mockito.Mockito.mock;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.PlaylistSyncer;
+import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Lazy;
@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 
 import javax.inject.Provider;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class ApiSyncerFactoryTest {
 
     @Test
@@ -53,6 +53,6 @@ public class ApiSyncerFactoryTest {
             public AccountOperations get() {
                 return mock(AccountOperations.class);
             }
-        }, Mockito.mock(FeatureFlags.class), Mockito.mock(Lazy.class)).forContentUri(Robolectric.application, content.uri);
+        }, Mockito.mock(FeatureFlags.class), Mockito.mock(Lazy.class), Mockito.mock(Lazy.class)).forContentUri(Robolectric.application, content.uri);
     }
 }

@@ -11,16 +11,21 @@ import java.util.Map;
 
 public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
 
-    private final String expectedMethod, expectedPath;
     private final boolean isMobileApi;
-    private Map<String, String> expectedQueryParams = new HashMap<String, String>();
     private boolean queryMatchError;
+    private String expectedMethod, expectedPath;
+    private Map<String, String> expectedQueryParams = new HashMap<>();
     private ApiRequest request;
     private Object content;
 
     public ApiRequestTo(String expectedMethod, String expectedPath, boolean isMobileApi) {
         this.expectedMethod = expectedMethod;
         this.expectedPath = expectedPath;
+        this.isMobileApi = isMobileApi;
+    }
+
+    public ApiRequestTo(String expectedMethod, boolean isMobileApi) {
+        this.expectedMethod = expectedMethod;
         this.isMobileApi = isMobileApi;
     }
 
@@ -39,11 +44,19 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             }
 
             return contentMatches() &&
-                    request.getEncodedPath().equals(expectedPath) &&
-                    request.getMethod().equalsIgnoreCase(expectedMethod) &&
+                    pathMatches() &&
+                    methodMatches() &&
                     request.isPrivate() == isMobileApi;
         }
         return false;
+    }
+
+    private boolean pathMatches() {
+        return expectedPath == null || request.getEncodedPath().equals(expectedPath);
+    }
+
+    private boolean methodMatches() {
+        return expectedMethod == null || request.getMethod().equalsIgnoreCase(expectedMethod);
     }
 
     private boolean contentMatches() {

@@ -3,15 +3,16 @@ package com.soundcloud.android.testsupport.fixtures;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.experiments.AssignmentBlueprint;
+import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiAudioAdBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiPlaylistLikeBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistPostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistRepostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiTrackLikeBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackPostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiTrackRepostBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiUserBlueprint;
@@ -34,6 +35,7 @@ import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ModelFixtures {
@@ -66,8 +68,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(ApiTrackRepostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistRepostBlueprint.class);
-            modelFactory.registerBlueprint(ApiTrackLikeBlueprint.class);
-            modelFactory.registerBlueprint(ApiPlaylistLikeBlueprint.class);
 
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
@@ -99,6 +99,14 @@ public class ModelFixtures {
         }
         return userAssociations;
 
+    }
+
+    public static ApiLike apiTrackLike() {
+        return new ApiLike(ModelFixtures.create(ApiTrack.class).getUrn(), new Date());
+    }
+
+    public static ApiLike apiPlaylistLike() {
+        return new ApiLike(ModelFixtures.create(ApiPlaylist.class).getUrn(), new Date());
     }
 
 }

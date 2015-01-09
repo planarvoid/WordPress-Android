@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
+import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
@@ -113,15 +114,64 @@ public class DatabaseFixtures {
         return id;
     }
 
-    public long insertTrackLike(long id, Date createdAt) {
+    private long insertLike(long id, int type, Date createdAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Likes._ID, id);
-        cv.put(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.Likes._TYPE, type);
         cv.put(TableColumns.Likes.CREATED_AT, createdAt.getTime());
         return insertInto(Table.Likes, cv);
     }
 
-    public long insertPlaylistLike(long playlistId, long userId) {
+    public long insertLike(ApiLike like) {
+        return insertLike(
+                like.getTargetUrn().getNumericId(),
+                like.getTargetUrn().isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST,
+                like.getCreatedAt());
+    }
+
+    public ApiLike insertTrackLike() {
+        final ApiLike like = ModelFixtures.apiTrackLike();
+        insertLike(like);
+        return like;
+    }
+
+    public ApiTrack insertLikedTrack(Date likedDate) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertLike(insertTrack(track), TableColumns.Sounds.TYPE_TRACK, likedDate);
+        return track;
+    }
+
+    public ApiTrack insertLikedTrackPendingRemoval(Date unlikedDate) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertLike(insertTrack(track), TableColumns.Sounds.TYPE_TRACK, new Date(0));
+        database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
+                + " WHERE _id=" + track.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
+        return track;
+    }
+
+    public ApiPlaylist insertLikedPlaylist(Date likedDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertLike(insertPlaylist(playlist), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
+        return playlist;
+    }
+
+    public ApiPlaylist insertLikedPlaylistPendingRemoval(Date unlikedDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertLike(insertPlaylist(playlist), TableColumns.Sounds.TYPE_PLAYLIST, new Date(0));
+        database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
+                + " WHERE _id=" + playlist.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+        return playlist;
+    }
+
+    public ApiLike insertPlaylistLike() {
+        final ApiLike like = ModelFixtures.apiPlaylistLike();
+        insertLike(like);
+        return like;
+    }
+
+    public long insertLegacyPlaylistLike(long playlistId, long userId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
         cv.put(TableColumns.CollectionItems.USER_ID, userId);

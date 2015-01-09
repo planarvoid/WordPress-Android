@@ -12,5 +12,5 @@ import java.io.IOException;
 
 public interface SyncStrategy {
     @NotNull
-    ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiMapperException, ApiRequestException;
+    ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException, ApiMapperException, ApiRequestException;
 }
