@@ -28,6 +28,7 @@ public class LikeStorage {
     public Observable<PropertySet> trackLikes() {
         return scheduler.scheduleQuery(Query.from(Table.Likes.name())
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .order(TableColumns.Likes.CREATED_AT, Query.ORDER_DESC)
                 .whereNull(TableColumns.Likes.REMOVED_AT))
                 .map(new LikeMapper());
     }
@@ -35,6 +36,7 @@ public class LikeStorage {
     public List<PropertySet> loadTrackLikes() {
         return database.query(Query.from(Table.Likes.name())
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .order(TableColumns.Likes.CREATED_AT, Query.ORDER_DESC)
                 .whereNull(TableColumns.Likes.REMOVED_AT))
                 .toList(new LikeMapper());
     }

@@ -142,4 +142,7 @@
     <!-- new list item -->
     <dimen name="list_item_image_dimension">60dp</dimen>
 
+    <!-- Like -->
+    <dimen name="likes_shuffle_divider">1dp</dimen>
+
 </resources>
