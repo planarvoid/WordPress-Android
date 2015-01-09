@@ -269,6 +269,7 @@ public class UploadService extends Service {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setAutoCancel(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setTicker(getString(R.string.cloud_uploader_notification_transcoding_error_ticker));
         builder.setContentTitle(getString(R.string.cloud_uploader_notification_transcoding_error_title));
@@ -442,6 +443,7 @@ public class UploadService extends Service {
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setTicker(tickerText);
         builder.setAutoCancel(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setContentTitle(title);
         builder.setContentText(message);
         builder.setContentIntent(contentIntent);

@@ -85,7 +85,16 @@ public class RichStreamNotificationBuilderTest {
         richStreamNotificationBuilder.notification(Arrays.asList(getTrack(trackUrn, "creator"))).subscribe(subscriber);
 
         verify(notificationBuilder).setLargeIcon(bitmap);
+    }
 
+    @Test
+    public void notificationSetsVisibilityToPublic() throws Exception {
+        final Urn trackUrn = Urn.forTrack(123L);
+        final Bitmap bitmap = Bitmap.createBitmap(0, 0, Bitmap.Config.RGB_565);
+        when(imageOperations.artwork(trackUrn, ApiImageSize.LARGE, 128, 128)).thenReturn(Observable.just(bitmap));
+        richStreamNotificationBuilder.notification(Arrays.asList(getTrack(trackUrn, "creator"))).subscribe(subscriber);
+
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
     }
 
     private PropertySet getTrack(Urn trackUrn, String creatorName) {
