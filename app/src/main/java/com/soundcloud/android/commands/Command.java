@@ -7,13 +7,13 @@ import rx.util.async.operators.OperatorFromFunctionals;
 
 import java.util.concurrent.Callable;
 
-public abstract class Command<I, O> implements Callable<O>, Func1<I, Observable<O>> {
+public abstract class Command<I, O, This extends Command<I, O, This>> implements Callable<O>, Func1<I, Observable<O>> {
 
     protected I input;
 
-    public final Command<I, O> with(I input) {
+    public final This with(I input) {
         this.input = input;
-        return this;
+        return (This) this;
     }
 
     public final I getInput() {
@@ -42,11 +42,11 @@ public abstract class Command<I, O> implements Callable<O>, Func1<I, Observable<
         return toObservable(i);
     }
 
-    public final <R> Observable<R> flatMap(Command<O, R> command) {
+    public final <R> Observable<R> flatMap(Command<O, R, ?> command) {
         return toObservable(input).flatMap(command);
     }
 
-    public final <R, CmdT extends Command<? super O, R>> CmdT andThen(CmdT command) throws Exception {
+    public final <R, CmdT extends Command<? super O, R, ?>> CmdT andThen(CmdT command) throws Exception {
         final O thisResult = call();
         return (CmdT) command.with(thisResult);
     }

@@ -7,12 +7,13 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.propeller.PropellerWriteException;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class CacheUniversalSearchCommand extends Command<Iterable<ApiUniversalSearchItem>, Void> {
+class CacheUniversalSearchCommand extends Command<Iterable<ApiUniversalSearchItem>, Void, CacheUniversalSearchCommand> {
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
@@ -27,7 +28,7 @@ class CacheUniversalSearchCommand extends Command<Iterable<ApiUniversalSearchIte
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void call() throws PropellerWriteException {
         List<ApiUser> users = new ArrayList<>();
         List<ApiPlaylist> playlists = new ArrayList<>();
         List<ApiTrack> tracks = new ArrayList<>();

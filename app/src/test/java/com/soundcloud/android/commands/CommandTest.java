@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class CommandTest {
 
-    private static final class ToString extends Command<Integer, String> {
+    private static final class ToString extends Command<Integer, String, ToString> {
 
         boolean called = false;
 
@@ -21,7 +21,7 @@ public class CommandTest {
         }
     }
 
-    private static final class ToInteger extends Command<String, Integer> {
+    private static final class ToInteger extends Command<String, Integer, ToInteger> {
 
         boolean called = false;
 
@@ -32,7 +32,7 @@ public class CommandTest {
         }
     }
 
-    private static final class Failed extends Command<Integer, Void> {
+    private static final class Failed extends Command<Integer, Void, Failed> {
 
         @Override
         public Void call() throws Exception {

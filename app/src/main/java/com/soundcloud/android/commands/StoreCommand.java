@@ -6,7 +6,7 @@ import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 
-public abstract class StoreCommand<I> extends Command<I, WriteResult> {
+public abstract class StoreCommand<I> extends Command<I, WriteResult, StoreCommand<I>> {
 
     protected final PropellerDatabase database;
 

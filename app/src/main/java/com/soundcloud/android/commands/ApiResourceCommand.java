@@ -9,7 +9,7 @@ import rx.Observable;
 
 import java.io.IOException;
 
-public abstract class ApiResourceCommand<I, O> extends Command<I, O> {
+public abstract class ApiResourceCommand<I, O> extends Command<I, O, ApiResourceCommand<I, O>> {
 
     private final ApiClient apiClient;
 
