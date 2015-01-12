@@ -9,17 +9,19 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LikeStorage;
-import com.soundcloud.android.likes.LikesWriteStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.sync.commands.RemoveLikesCommand;
+import com.soundcloud.android.sync.commands.StoreLikesCommand;
 import com.soundcloud.android.utils.PropertySetComparator;
+import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,24 +45,27 @@ public class LikesSyncer implements SyncStrategy {
 
     private final ApiClient apiClient;
     private final LikeStorage likesStorage;
-    private final LikesWriteStorage likesWriteStorage;
     private final FetchTracksCommand fetchTracksCommand;
     private final FetchPlaylistsCommand fetchPlaylistsCommand;
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
+    private final StoreLikesCommand storeLikesCommand;
+    private final RemoveLikesCommand removeLikesCommand;
     private final AccountOperations accountOperations;
 
     @Inject
-    LikesSyncer(ApiClient apiClient, LikeStorage likesStorage, LikesWriteStorage likesWriteStorage,
-                FetchTracksCommand fetchTracksCommand, FetchPlaylistsCommand fetchPlaylistsCommand, StoreTracksCommand storeTracksCommand,
-                StorePlaylistsCommand storePlaylistsCommand, AccountOperations accountOperations) {
+    LikesSyncer(ApiClient apiClient, LikeStorage likesStorage, FetchTracksCommand fetchTracksCommand,
+                FetchPlaylistsCommand fetchPlaylistsCommand, StoreTracksCommand storeTracksCommand,
+                StorePlaylistsCommand storePlaylistsCommand, StoreLikesCommand storeLikesCommand,
+                RemoveLikesCommand removeLikesCommand, AccountOperations accountOperations) {
         this.apiClient = apiClient;
         this.likesStorage = likesStorage;
-        this.likesWriteStorage = likesWriteStorage;
+        this.removeLikesCommand = removeLikesCommand;
         this.fetchTracksCommand = fetchTracksCommand;
         this.storeTracksCommand = storeTracksCommand;
         this.fetchPlaylistsCommand = fetchPlaylistsCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
+        this.storeLikesCommand = storeLikesCommand;
         this.accountOperations = accountOperations;
     }
 
@@ -107,7 +112,7 @@ public class LikesSyncer implements SyncStrategy {
 
     private <T extends ApiLike> LikesSyncResult performSync(ApiEndpoints fetchLikesEndpoint, ApiEndpoints writeEndpoint,
                                                             List<PropertySet> localLikesList, List<PropertySet> localRemovalsList)
-            throws ApiMapperException, IOException, ApiRequestException {
+            throws ApiMapperException, IOException, ApiRequestException, PropellerWriteException {
         final NavigableSet<PropertySet> remoteLikes = this.<T>fetchLikes(fetchLikesEndpoint);
 
         final Set<PropertySet> localLikes = new TreeSet<>(LIKES_COMPARATOR);
@@ -180,14 +185,15 @@ public class LikesSyncer implements SyncStrategy {
         }
     }
 
-    private void writePendingUpdatesToLocalStorage(Set<PropertySet> pendingLocalAdditions, Set<PropertySet> pendingLocalRemovals) {
+    private void writePendingUpdatesToLocalStorage(Set<PropertySet> pendingLocalAdditions,
+                                                   Set<PropertySet> pendingLocalRemovals) throws PropellerWriteException {
         // TODO: we should check whether these are succesful
         if (!pendingLocalRemovals.isEmpty()) {
-            likesWriteStorage.removeLikes(pendingLocalRemovals);
+            removeLikesCommand.with(pendingLocalRemovals).call();
         }
 
         if (!pendingLocalAdditions.isEmpty()) {
-            likesWriteStorage.storeLikes(pendingLocalAdditions);
+            storeLikesCommand.with(pendingLocalAdditions).call();
         }
     }
 

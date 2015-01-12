@@ -6,11 +6,11 @@ import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequ
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static com.soundcloud.android.utils.CollectionUtils.toPropertySets;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -20,18 +20,19 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LikeStorage;
-import com.soundcloud.android.likes.LikesWriteStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.sync.commands.RemoveLikesCommand;
+import com.soundcloud.android.sync.commands.StoreLikesCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.android.tracks.ApiTrackCollection;
@@ -59,17 +60,19 @@ public class LikesSyncerTest {
 
     @Mock private ApiClient apiClient;
     @Mock private LikeStorage likesStorage;
-    @Mock private LikesWriteStorage likesWriteStorage;
     @Mock private FetchTracksCommand fetchTracksCommand;
     @Mock private FetchPlaylistsCommand fetchPlaylistsCommand;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
+    @Mock private StoreLikesCommand storeLikesCommand;
+    @Mock private RemoveLikesCommand removeLikesCommand;
     @Mock private AccountOperations accountOperations;
 
     @Before
     public void setup() throws Exception {
-        syncer = new LikesSyncer(apiClient, likesStorage, likesWriteStorage, fetchTracksCommand,
-                fetchPlaylistsCommand, storeTracksCommand, storePlaylistsCommand, accountOperations);
+        syncer = new LikesSyncer(apiClient, likesStorage, fetchTracksCommand,
+                fetchPlaylistsCommand, storeTracksCommand, storePlaylistsCommand, storeLikesCommand,
+                removeLikesCommand, accountOperations);
         trackLike = ModelFixtures.apiTrackLike();
         playlistLike = ModelFixtures.apiPlaylistLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
@@ -87,8 +90,8 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.UNCHANGED);
 
-        verify(likesWriteStorage, never()).removeLikes(anyCollection());
-        verify(likesWriteStorage, never()).storeLikes(anyCollection());
+        verifyZeroInteractions(removeLikesCommand);
+        verifyZeroInteractions(storeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
         verifyRemotePlaylistLikeAddition(never(), playlistLike);
@@ -111,8 +114,8 @@ public class LikesSyncerTest {
         verifyRemoteTrackLikeRemoval(never(), trackLike);
         verifyRemotePlaylistLikeAddition(times(1), playlistLike);
         verifyRemotePlaylistLikeRemoval(never(), playlistLike);
-        verify(likesWriteStorage, never()).removeLikes(anyCollection());
-        verify(likesWriteStorage, never()).storeLikes(anyCollection());
+        verifyZeroInteractions(removeLikesCommand);
+        verifyZeroInteractions(storeLikesCommand);
     }
 
     @Test
@@ -128,9 +131,8 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(likesWriteStorage).storeLikes(new HashSet(Arrays.asList(trackLike.toPropertySet())));
-        verify(likesWriteStorage).storeLikes(new HashSet(Arrays.asList(playlistLike.toPropertySet())));
-        verify(likesWriteStorage, never()).removeLikes(anyCollection());
+        verify(storeLikesCommand, times(2)).call(); // we can improve this test once we separare playlists from tracks
+        verifyZeroInteractions(removeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
         verifyRemotePlaylistLikeAddition(never(), playlistLike);
@@ -183,9 +185,8 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(likesWriteStorage).removeLikes(new HashSet(Arrays.asList(trackLikePendingRemoval)));
-        verify(likesWriteStorage).removeLikes(new HashSet(Arrays.asList(playlistLikePendingRemoval)));
-        verify(likesWriteStorage, never()).storeLikes(anyCollection());
+        verify(removeLikesCommand, times(2)).call(); // we can improve this test once we separare playlists from tracks
+        verifyZeroInteractions(storeLikesCommand);
     }
 
     @Test
@@ -209,9 +210,9 @@ public class LikesSyncerTest {
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
         // only remove the playlist like
-        verify(likesWriteStorage).removeLikes(new HashSet(Arrays.asList(playlistLikePendingRemoval)));
-        verify(likesWriteStorage, never()).removeLikes(new HashSet(Arrays.asList(trackLikePendingRemoval)));
-        verify(likesWriteStorage, never()).storeLikes(anyCollection());
+        expect(removeLikesCommand.getInput()).toEqual(new HashSet(Arrays.asList(playlistLikePendingRemoval)));
+        verify(removeLikesCommand).call();
+        verifyZeroInteractions(storeLikesCommand);
     }
 
     @Test
@@ -233,9 +234,8 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(likesWriteStorage).removeLikes(new HashSet(Arrays.asList(trackLikePendingRemoval)));
-        verify(likesWriteStorage).removeLikes(new HashSet(Arrays.asList(playlistLikePendingRemoval)));
-        verify(likesWriteStorage, never()).storeLikes(anyCollection());
+        verify(removeLikesCommand, times(2)).call();
+        verifyZeroInteractions(storeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
         verifyRemotePlaylistLikeAddition(never(), playlistLike);
@@ -262,9 +262,8 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(likesWriteStorage).storeLikes(new HashSet(toPropertySets(Arrays.asList(trackLike))));
-        verify(likesWriteStorage).storeLikes(new HashSet(toPropertySets(Arrays.asList(playlistLike))));
-        verify(likesWriteStorage, never()).removeLikes(anyCollection());
+        verify(storeLikesCommand, times(2)).call();
+        verifyZeroInteractions(removeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
         verifyRemotePlaylistLikeAddition(never(), playlistLike);
@@ -302,8 +301,10 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(likesWriteStorage).storeLikes(new HashSet(toPropertySets(Arrays.asList(existsRemotelyNotLocally))));
-        verify(likesWriteStorage).removeLikes(new HashSet(Arrays.asList(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval)));
+        verify(storeLikesCommand).call();
+        expect(storeLikesCommand.getInput()).toEqual(new HashSet(toPropertySets(Arrays.asList(existsRemotelyNotLocally))));
+        verify(removeLikesCommand).call();
+        expect(removeLikesCommand.getInput()).toEqual(new HashSet(Arrays.asList(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval)));
         verifyRemoteTrackLikeAddition(times(1), existsLocallyNotRemotely);
         verifyRemoteTrackLikeRemoval(times(1), existsRemotelyPendingRemoval);
     }
@@ -355,7 +356,7 @@ public class LikesSyncerTest {
     }
 
     private void withLocalTrackLikes(ApiLike... likes) {
-        when(likesStorage.loadTrackLikes()).thenReturn(CollectionUtils.toPropertySets(Arrays.asList(likes)));
+        when(likesStorage.loadTrackLikes()).thenReturn(toPropertySets(Arrays.asList(likes)));
     }
 
     private void withLocalTrackLikes(PropertySet... likes) {
@@ -371,7 +372,7 @@ public class LikesSyncerTest {
     }
 
     private void withLocalPlaylistLikes(ApiLike... likes) {
-        when(likesStorage.loadPlaylistLikes()).thenReturn(CollectionUtils.toPropertySets(Arrays.asList(likes)));
+        when(likesStorage.loadPlaylistLikes()).thenReturn(toPropertySets(Arrays.asList(likes)));
     }
 
     private void withLocalPlaylistLikesPendingRemoval(PropertySet... likes) {

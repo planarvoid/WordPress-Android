@@ -1,14 +1,16 @@
-package com.soundcloud.android.likes;
+package com.soundcloud.android.sync.commands;
 
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,35 +19,25 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LikesWriteStorageTest extends StorageIntegrationTest {
+public class StoreLikesCommandTest extends StorageIntegrationTest {
 
-    private LikesWriteStorage storage;
+    private StoreLikesCommand command;
 
     @Before
     public void setup() {
-        storage = new LikesWriteStorage(propeller());
+        command = new StoreLikesCommand(propeller());
     }
 
     @Test
-    public void shouldInsertTrackAndPlaylistLikes() {
+    public void shouldInsertTrackAndPlaylistLikes() throws PropellerWriteException {
         final ApiLike trackLike = ModelFixtures.apiTrackLike();
         final ApiLike playlistLike = ModelFixtures.apiPlaylistLike();
 
-        storage.storeLikes(CollectionUtils.toPropertySets(Arrays.asList(trackLike, playlistLike)));
+        command.with(CollectionUtils.toPropertySets(Arrays.asList(trackLike, playlistLike))).call();
 
         assertThat(select(Query.from(Table.Likes.name())), counts(2));
         assertLikeInserted(trackLike, TableColumns.Sounds.TYPE_TRACK);
         assertLikeInserted(playlistLike, TableColumns.Sounds.TYPE_PLAYLIST);
-    }
-
-    @Test
-    public void shouldRemoveLikes() {
-        final ApiLike trackLike = testFixtures().insertTrackLike();
-        final ApiLike playlistLike = testFixtures().insertPlaylistLike();
-
-        storage.removeLikes(CollectionUtils.toPropertySets(Arrays.asList(trackLike, playlistLike)));
-
-        assertThat(select(Query.from(Table.Likes.name())), counts(0));
     }
 
     private void assertLikeInserted(ApiLike like, int likeType) {

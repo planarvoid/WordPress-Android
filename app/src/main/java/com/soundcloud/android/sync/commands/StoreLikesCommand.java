@@ -1,13 +1,13 @@
-package com.soundcloud.android.likes;
+package com.soundcloud.android.sync.commands;
 
+import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.query.WhereBuilder;
+import com.soundcloud.propeller.WriteResult;
 
 import android.content.ContentValues;
 
@@ -16,29 +16,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class LikesWriteStorage {
-
-    private final PropellerDatabase propeller;
+public class StoreLikesCommand extends StoreCommand<Collection<PropertySet>> {
 
     @Inject
-    LikesWriteStorage(PropellerDatabase propeller) {
-        this.propeller = propeller;
+    protected StoreLikesCommand(PropellerDatabase database) {
+        super(database);
     }
 
-    public TxnResult storeLikes(Collection<PropertySet> likes) {
-        List<ContentValues> values = new ArrayList<>(likes.size());
-        for (PropertySet like : likes) {
+    @Override
+    protected WriteResult store() {
+        List<ContentValues> values = new ArrayList<>(input.size());
+        for (PropertySet like : input) {
             values.add(buildContentValuesForLike(like));
         }
-        return propeller.bulkInsert(Table.Likes, values);
-    }
-
-    public ChangeResult removeLikes(Collection<PropertySet> likes) {
-        List<Long> ids = new ArrayList<>(likes.size());
-        for (PropertySet like : likes) {
-            ids.add(like.get(LikeProperty.TARGET_URN).getNumericId());
-        }
-        return propeller.delete(Table.Likes, new WhereBuilder().whereIn(TableColumns.Likes._ID, ids));
+        return database.bulkInsert(Table.Likes, values);
     }
 
     private ContentValues buildContentValuesForLike(PropertySet like) {
@@ -51,4 +42,5 @@ public class LikesWriteStorage {
         cv.put(TableColumns.Likes.CREATED_AT, like.get(LikeProperty.CREATED_AT).getTime());
         return cv;
     }
+
 }
