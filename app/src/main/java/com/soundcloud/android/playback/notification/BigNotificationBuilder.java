@@ -23,6 +23,7 @@ public class BigNotificationBuilder implements NotificationBuilder {
     public BigNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
         builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         smallRemoteViews = remoteViewsFactory.create(context.getPackageName());
         smallRemoteViews.linkButtonsNotification(context);
         bigRemoteViews = remoteViewsFactory.create(context.getPackageName(), R.layout.playback_status_large_v16);

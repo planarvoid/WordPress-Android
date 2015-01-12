@@ -11,6 +11,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
 import javax.inject.Provider;
@@ -53,6 +54,7 @@ public class StreamNotificationBuilder {
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setTicker(ticker);
         builder.setContentTitle(title);
         builder.setContentText(message);

@@ -60,6 +60,7 @@ public class DownloadNotificationControllerTest {
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 
@@ -72,6 +73,7 @@ public class DownloadNotificationControllerTest {
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setProgress(20, 0, false);
         verify(notificationBuilder).setContentText(getQuantifiedDownloadString(0, 20));
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
@@ -87,6 +89,7 @@ public class DownloadNotificationControllerTest {
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setProgress(20, 1, false);
         verify(notificationBuilder).setContentText(getQuantifiedDownloadString(1, 20));
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
