@@ -1,14 +1,19 @@
 package com.soundcloud.android.playback.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.external.PlaybackAction;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class RemoteControlReceiver extends BroadcastReceiver {
+    private static final int DOUBLE_CLICK_DELAY = 400;
+    public static long lastClicked = -DOUBLE_CLICK_DELAY;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -18,7 +23,16 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     case KeyEvent.KEYCODE_HEADSETHOOK:
-                        sendPlaybackAction(context, PlaybackAction.TOGGLE_PLAYBACK);
+                        long time = SystemClock.uptimeMillis();
+
+                        if(time - lastClicked < DOUBLE_CLICK_DELAY) {
+                            sendPlaybackAction(context, PlaybackAction.NEXT);
+                            sendPlaybackAction(context, PlaybackAction.PLAY);
+                        } else {
+                            sendPlaybackAction(context, PlaybackAction.TOGGLE_PLAYBACK);
+                        }
+
+                        lastClicked = time;
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PAUSE:
                         sendPlaybackAction(context, PlaybackAction.PAUSE);
@@ -45,5 +59,9 @@ public class RemoteControlReceiver extends BroadcastReceiver {
 
     private Intent createIntentForAction(String action) {
         return new Intent(action).putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_REMOTE);
+    }
+    @VisibleForTesting
+    public void resetLastClicked() {
+        lastClicked = -DOUBLE_CLICK_DELAY;
     }
 }
