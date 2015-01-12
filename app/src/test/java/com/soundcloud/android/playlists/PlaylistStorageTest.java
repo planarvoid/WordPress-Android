@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
 import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlaylistStorage(propeller(), Schedulers.immediate());
+        storage = new PlaylistStorage(testScheduler());
     }
 
     @Test

@@ -31,6 +31,7 @@ import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
@@ -184,8 +185,15 @@ public class TestApplicationModule {
     }
 
     @Provides
-    public Scheduler provideDatabaseScheduler() {
-        return mock(Scheduler.class);
+    @Named("Database")
+    public Scheduler provideDatabaseRxScheduler() {
+        return Schedulers.immediate();
+    }
+
+    @Provides
+    @Named("API")
+    public Scheduler provideApiRxScheduler() {
+        return Schedulers.immediate();
     }
 
     @Provides

@@ -12,7 +12,6 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
-import rx.Scheduler;
 
 import android.content.ContentValues;
 
@@ -27,9 +26,9 @@ public class TrackWriteStorage {
     private final PropellerDatabase database;
 
     @Inject
-    public TrackWriteStorage(PropellerDatabase database, Scheduler scheduler) {
-        this.database = database;
-        this.scheduler = new DatabaseScheduler(database, scheduler);
+    public TrackWriteStorage(DatabaseScheduler databaseScheduler) {
+        this.database = databaseScheduler.database();
+        this.scheduler = databaseScheduler;
     }
 
     public Observable<TxnResult> storeTrackAsync(final ApiTrack track) {

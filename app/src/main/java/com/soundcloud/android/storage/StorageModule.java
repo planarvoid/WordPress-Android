@@ -63,6 +63,7 @@ public class StorageModule {
     }
 
     @Provides
+    @Named("Database")
     public Scheduler provideDatabaseScheduler() {
         return ScSchedulers.STORAGE_SCHEDULER;
     }

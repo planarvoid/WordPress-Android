@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class TrackWriteStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new TrackWriteStorage(propeller(), Schedulers.immediate());
+        storage = new TrackWriteStorage(testScheduler());
         observer = new TestObserver<>();
         track = ModelFixtures.create(ApiTrack.class);
     }

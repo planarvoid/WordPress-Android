@@ -5,6 +5,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 
 public class ApiScheduler {
@@ -13,7 +14,7 @@ public class ApiScheduler {
     private final Scheduler scheduler;
 
     @Inject
-    public ApiScheduler(ApiClient apiClient, Scheduler scheduler) {
+    public ApiScheduler(ApiClient apiClient, @Named("API") Scheduler scheduler) {
         this.apiClient = apiClient;
         this.scheduler = scheduler;
     }
