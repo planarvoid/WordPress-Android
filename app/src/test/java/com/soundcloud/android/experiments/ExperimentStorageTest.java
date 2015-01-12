@@ -3,20 +3,20 @@ package com.soundcloud.android.experiments;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Subscriber;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import android.content.Context;
@@ -31,16 +31,12 @@ import java.io.OutputStream;
 public class ExperimentStorageTest {
 
     private static final String JSON = "{ \"key\": \"value\" }";
+    private static final Assignment ASSIGNMENT = ModelFixtures.create(Assignment.class);
+
+    @Mock private JsonTransformer jsonTransformer;
 
     private ExperimentStorage storage;
-
     private Context context = Robolectric.application.getApplicationContext();
-
-    @Mock
-    private JsonTransformer jsonTransformer;
-
-    @Mock
-    private Subscriber subscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -48,40 +44,55 @@ public class ExperimentStorageTest {
     }
 
     @Test
-    public void shouldEmitAssigmentIfAssignmentFileExistsOnLoadAsync() throws Exception {
-        Assignment assignment = new Assignment();
-        writeAssignment(getAssignmentHandle(), JSON);
-        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenReturn(assignment);
+    public void loadAssignmentIfFileExists() throws IOException, ApiMapperException {
+        writeAssignment(getAssignmentFile(), JSON);
+        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenReturn(ASSIGNMENT);
 
-        expect(storage.loadAssignmentAsync().toBlocking().first()).not.toBeNull();
+        TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
+        storage.readAssignment().subscribe(subscriber);
+        expect(subscriber.getOnNextEvents()).toContainExactly(ASSIGNMENT);
     }
 
     @Test
-    public void shouldLoadAssignmentFromFile() throws Exception {
-        Assignment assignment = new Assignment();
-        writeAssignment(getAssignmentHandle(), JSON);
-        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenReturn(assignment);
+    public void loadEmptyAssignmentIfNoFileExists() {
+        IOUtils.deleteFile(getAssignmentFile());
 
-        storage.loadAssignment();
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(jsonTransformer).fromJson(captor.capture(), any(TypeToken.class));
-        expect(captor.getValue()).toEqual(JSON);
+        TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
+        storage.readAssignment().subscribe(subscriber);
+        expect(subscriber.getOnNextEvents()).toContainExactly(Assignment.empty());
     }
 
     @Test
-    public void shouldSaveAssignmentToFile() throws Exception {
-        Assignment assignment = new Assignment();
-        when(jsonTransformer.toJson(assignment)).thenReturn(JSON);
+    public void returnEmptyAssignmentWhenDeserializationFailed() throws IOException, ApiMapperException {
+        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
 
-        storage.storeAssignment(assignment);
+        TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
+        storage.readAssignment().subscribe(subscriber);
+        expect(subscriber.getOnNextEvents()).toContainExactly(Assignment.empty());
+    }
 
-        String writtenAssignmentJson = readAssignment(getAssignmentHandle());
-        expect(getAssignmentHandle().exists()).toBeTrue();
+    @Test
+    public void deleteFileWhenDeserializationFailed() throws IOException, ApiMapperException {
+        writeAssignment(getAssignmentFile(), JSON);
+        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
+
+        storage.readAssignment().subscribe(new TestSubscriber<Assignment>());
+
+        expect(getAssignmentFile().exists()).toBeFalse();
+    }
+
+    @Test
+    public void saveAssignmentToFile() throws IOException, ApiMapperException {
+        when(jsonTransformer.toJson(ASSIGNMENT)).thenReturn(JSON);
+
+        storage.storeAssignment(ASSIGNMENT);
+
+        String writtenAssignmentJson = readAssignment(getAssignmentFile());
+        expect(getAssignmentFile().exists()).toBeTrue();
         expect(writtenAssignmentJson).toEqual(JSON);
     }
 
-    private File getAssignmentHandle() {
+    private File getAssignmentFile() {
         return new File(context.getFilesDir(), ".assignment");
     }
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.experiments;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-class Layer {
+public class Layer {
 
     private String layerName;
     private int experimentId;

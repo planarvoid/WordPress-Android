@@ -11,8 +11,7 @@ public class AssignmentBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            Assignment assignment = new Assignment();
-            assignment.setLayers(createLayers());
+            Assignment assignment = new Assignment(createLayers());
             return assignment;
         }
     };

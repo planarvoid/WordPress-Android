@@ -43,7 +43,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private static final int NO_USER = -1;
     private static final long SESSION_EXPIRY = TimeUnit.MINUTES.toMillis(1);
-    private static final int ONE_MB = 1024 * 1024;
 
     private final LocalyticsAmpSession session;
     private final LocalyticsUIEventHandler uiEventHandler;
@@ -292,30 +291,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleDeviceMetricsEvent(DeviceMetricsEvent event) {
-        Map<String, String> eventAttributes = new HashMap<String, String>();
-        eventAttributes.put("database_size", getDatabaseSizeBucket(event.getDatabaseSizeInBytes()));
-        tagEvent(LocalyticsEvents.DEVICE_METRICS, eventAttributes);
-    }
-
-    private String getDatabaseSizeBucket(long sizeInBytes) {
-        if (sizeInBytes < ONE_MB) {
-            return "<1mb";
-        } else if (sizeInBytes <= 5 * ONE_MB) {
-            return "1mb to 5mb";
-        } else if (sizeInBytes <= 10 * ONE_MB) {
-            return "5mb to 10mb";
-        } else if (sizeInBytes <= 20 * ONE_MB) {
-            return "10mb to 20mb";
-        } else if (sizeInBytes <= 50 * ONE_MB) {
-            return "20mb to 50mb";
-        } else if (sizeInBytes <= 100 * ONE_MB) {
-            return "50mb to 100mb";
-        } else if (sizeInBytes <= 200 * ONE_MB) {
-            return "100mb to 200mb";
-        } else if (sizeInBytes <= 500 * ONE_MB) {
-            return "200mb to 500mb";
-        } else {
-            return ">500mb";
-        }
+        tagEvent(LocalyticsEvents.DEVICE_METRICS, event.getAttributes());
     }
 }

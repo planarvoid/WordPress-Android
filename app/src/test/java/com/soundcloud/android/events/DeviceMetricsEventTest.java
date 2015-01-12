@@ -1,33 +1,13 @@
-package com.soundcloud.android.analytics.localytics;
+package com.soundcloud.android.events;
 
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
+import static com.pivotallabs.greatexpectations.Expect.expect;
 
-import com.localytics.android.LocalyticsAmpSession;
-import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.tobedevoured.modelcitizen.CreateModelException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-
-import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LocalyticsAnalyticsProviderDeviceMetricsTest {
-
-    private LocalyticsAnalyticsProvider localyticsProvider;
-
-    @Mock private LocalyticsAmpSession localyticsSession;
-
-    @Before
-    public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null, 123L);
-    }
-
+public class DeviceMetricsEventTest {
     @Test
     public void shouldTrackDeviceMetricsEventForDatabaseSizeLessThanOneMb() {
         verifyDatabaseSizeEvent(1, "<1mb");
@@ -75,11 +55,7 @@ public class LocalyticsAnalyticsProviderDeviceMetricsTest {
 
     @SuppressWarnings("unchecked")
     private void verifyDatabaseSizeEvent(long dbSize, String eventSizeReport){
-        DeviceMetricsEvent event = new DeviceMetricsEvent(dbSize);
-        localyticsProvider.handleTrackingEvent(event);
-
-        verify(localyticsSession).tagEvent(eq("Device Metrics"),
-                (Map<String, String>) argThat(hasEntry("database_size", eventSizeReport)));
+        final TrackingEvent event = DeviceMetricsEvent.forDatabaseSize(dbSize);
+        expect(event.get(DeviceMetricsEvent.KEY_DATABASE)).toEqual(eventSizeReport);
     }
-
 }

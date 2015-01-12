@@ -1,35 +1,40 @@
 package com.soundcloud.android.experiments;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
 import java.util.List;
 
-class Assignment {
+public class Assignment {
 
-    private List<Layer> layers = Collections.emptyList();
+    private static final Assignment EMPTY = new Assignment(Collections.<Layer>emptyList());
+    private final List<Layer> layers;
+
+    @JsonCreator
+    public Assignment(@JsonProperty("layers") List<Layer> layers) {
+        this.layers = layers;
+    }
 
     public List<Layer> getLayers() {
         return layers;
     }
 
-    public void setLayers(List<Layer> layers) {
-        this.layers = layers;
-    }
-
+    @JsonIgnore
     public boolean isEmpty() {
         return layers.isEmpty();
     }
 
     public static Assignment empty() {
-        return new Assignment();
+        return EMPTY;
     }
 
     @JsonIgnore
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder(500);
-        builder.append("Experiment assignment: ").append(layers.size()).append(" layer(s)\n");
+        builder.append("Assignment: ").append(layers.size()).append(" layer(s)\n");
         for (Layer layer : layers) {
             builder.append(layer);
         }

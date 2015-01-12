@@ -1,18 +1,13 @@
 package com.soundcloud.android.experiments;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,15 +22,11 @@ public class ExperimentOperationsTest {
     private ExperimentOperations operations;
 
     @Mock private ExperimentStorage experimentStorage;
-    @Mock private ApiScheduler apiScheduler;
     @Mock private ActiveExperiments activeExperiments;
-    @Mock private DeviceHelper deviceHelper;
 
     @Before
     public void setUp() throws Exception {
-        operations = new ExperimentOperations(experimentStorage, apiScheduler, activeExperiments,
-                deviceHelper);
-        when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("device1");
+        operations = new ExperimentOperations(experimentStorage, activeExperiments);
     }
 
     @Test
@@ -46,49 +37,43 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void shouldGetEmptyAssignmentIfNoAssignmentIsStored() throws Exception {
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+    public void shouldGetEmptyAssignmentIfNoAssignmentIsStored() {
+        when(experimentStorage.readAssignment()).thenReturn(Observable.<Assignment>empty());
 
-        operations.loadAssignment();
+        operations.loadAssignment().subscribe();
         Assignment assignment = operations.getAssignment();
 
         expect(assignment.isEmpty()).toBeTrue();
     }
 
     @Test
-    public void shouldGetAssignmentIfAssigmentIsStored() throws Exception {
+    public void shouldGetAssignmentIfAssigmentIsStored() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.just(assignment));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
 
-        operations.loadAssignment();
+        operations.loadAssignment().subscribe();
         Assignment loadedAssignment = operations.getAssignment();
 
         expect(loadedAssignment.getLayers()).toEqual(assignment.getLayers());
     }
 
     @Test
-    public void shouldFetchNewAssigmentAndSaveToFileOnInit() throws Exception {
+    public void updateShouldSaveAssignment() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        Observable<Assignment> observable = Observable.just(assignment);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.<Assignment>empty());
-        when(activeExperiments.getRequestLayers()).thenReturn(new String[]{ "android-ui" });
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
+        when(experimentStorage.readAssignment()).thenReturn(Observable.<Assignment>empty());
 
-        operations.loadAssignment();
+        operations.update(assignment);
 
         verify(experimentStorage).storeAssignment(eq(assignment));
     }
 
     @Test
-    public void shouldGenerateTrackingParametersMapForActiveExperiments() throws Exception {
+    public void shouldGenerateTrackingParametersMapForActiveExperiments() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.just(assignment));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
         when(activeExperiments.isActive(anyInt())).thenReturn(true);
 
-        operations.loadAssignment();
+        operations.loadAssignment().subscribe();
 
         Map<String, Integer> params = operations.getTrackingParams();
 
@@ -100,26 +85,16 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() throws Exception {
+    public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.loadAssignmentAsync()).thenReturn(Observable.just(assignment));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
         when(activeExperiments.isActive(5)).thenReturn(true);
 
-
-        operations.loadAssignment();
+        operations.loadAssignment().subscribe();
 
         Map<String, Integer> params = operations.getTrackingParams();
 
         expect(params.containsKey("exp_android-ui")).toBeTrue();
         expect(params.containsKey("exp_android-listen")).toBeFalse();
     }
-
-    @Test
-    public void shouldNotLoadAssignmentsIfDeviceIdIsNull() {
-        when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("");
-        operations.loadAssignment();
-        verifyZeroInteractions(apiScheduler, experimentStorage);
-    }
-
 }

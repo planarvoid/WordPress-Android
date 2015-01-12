@@ -10,7 +10,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 
 import android.content.Context;
 
@@ -23,8 +22,8 @@ class ExperimentStorage extends ScheduledOperations {
 
     private static final String ASSIGNMENT_FILE_NAME = ".assignment";
 
-    private final Context context;
     private final JsonTransformer jsonTransformer;
+    private final File file;
 
     @Inject
     ExperimentStorage(Context context, JsonTransformer jsonTransformer) {
@@ -34,52 +33,39 @@ class ExperimentStorage extends ScheduledOperations {
     @VisibleForTesting
     ExperimentStorage(Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
         super(scheduler);
-        this.context = context;
         this.jsonTransformer = jsonTransformer;
+        this.file = new File(context.getFilesDir(), ASSIGNMENT_FILE_NAME);
     }
 
     public void storeAssignment(Assignment assignment) {
         try {
             String json = jsonTransformer.toJson(assignment);
-            IOUtils.writeFileFromString(getAssignmentHandle(), json);
+            IOUtils.writeFileFromString(file, json);
         } catch (ApiMapperException e) {
             ErrorUtils.handleThrowable(e, getClass());
         }
     }
 
-    public Observable<Assignment> loadAssignmentAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribe<Assignment>() {
-            @Override
-            public void call(Subscriber<? super Assignment> subscriber) {
-                if (hasAssignment()) {
-                    try {
-                        subscriber.onNext(loadAssignment());
-                    } catch (Exception e) {
-                        subscriber.onError(e);
-                    }
-                }
-                subscriber.onCompleted();
-            }
-        }));
+    public Observable<Assignment> readAssignment() {
+        return schedule(Observable.just(loadAssignment()));
     }
 
-    public Assignment loadAssignment() throws IOException, ApiMapperException {
-        String json = IOUtils.readInputStream(new FileInputStream(getAssignmentHandle()));
+    private Assignment loadAssignment() {
+        return file.exists() ? readAssignmentFile(file) : Assignment.empty();
+    }
+
+    private Assignment readAssignmentFile(File file) {
         try {
+            final String json = IOUtils.readInputStream(new FileInputStream(file));
             return jsonTransformer.fromJson(json, TypeToken.of(Assignment.class));
+        } catch (IOException e) {
+            ErrorUtils.handleSilentException(e);
+            return Assignment.empty();
         } catch (ApiMapperException e) {
             // see https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/5452b652e3de5099ba2b4fea
-            ErrorUtils.handleSilentException(new IllegalStateException("Failed parsing assigment; json = " + json));
-            throw e;
+            ErrorUtils.handleSilentException(e);
+            IOUtils.deleteFile(file);
+            return Assignment.empty();
         }
     }
-
-    private boolean hasAssignment() {
-        return getAssignmentHandle().exists();
-    }
-
-    private File getAssignmentHandle() {
-        return new File(context.getFilesDir(), ASSIGNMENT_FILE_NAME);
-    }
-
 }
