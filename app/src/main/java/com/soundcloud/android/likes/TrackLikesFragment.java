@@ -152,7 +152,7 @@ public class TrackLikesFragment extends DefaultFragment
 
     private Observable<List<PropertySet>> getLikedTracks() {
         Observable<PropertySet> propertySetObservable = likeOperations.likedTracks();
-        return propertySetObservable.flatMap(LIKES_TO_TRACKS_LIKED).observeOn(AndroidSchedulers.mainThread()).toList();
+        return propertySetObservable.concatMap(LIKES_TO_TRACKS_LIKED).observeOn(AndroidSchedulers.mainThread()).toList();
     }
 
     @Override
