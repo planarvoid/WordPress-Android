@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.exception;
+package com.soundcloud.android.sync.playlists;
 
 import android.net.Uri;
 

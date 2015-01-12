@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.commands;
+package com.soundcloud.android.sync.stream;
 
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.playlists;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,6 +10,7 @@ import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

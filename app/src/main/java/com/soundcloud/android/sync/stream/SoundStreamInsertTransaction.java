@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.commands;
+package com.soundcloud.android.sync.stream;
 
 import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
 import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;

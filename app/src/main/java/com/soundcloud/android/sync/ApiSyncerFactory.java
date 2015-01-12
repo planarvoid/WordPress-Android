@@ -5,10 +5,10 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.LikesSyncer;
+import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.content.SyncStrategy;
-import com.soundcloud.android.sync.content.PlaylistSyncer;
-import com.soundcloud.android.sync.content.SoundStreamSyncer;
+import com.soundcloud.android.sync.playlists.PlaylistSyncer;
+import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import dagger.Lazy;
 

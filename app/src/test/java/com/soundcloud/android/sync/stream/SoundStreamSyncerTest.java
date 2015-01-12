@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.stream;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
@@ -15,8 +15,6 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.commands.ReplaceSoundStreamCommand;
-import com.soundcloud.android.sync.commands.StoreSoundStreamCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;

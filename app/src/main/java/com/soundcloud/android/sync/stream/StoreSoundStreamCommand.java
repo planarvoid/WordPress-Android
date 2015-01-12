@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.commands;
+package com.soundcloud.android.sync.stream;
 
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.commands.StoreCommand;
@@ -7,10 +7,10 @@ import com.soundcloud.propeller.WriteResult;
 
 import javax.inject.Inject;
 
-public class StoreSoundStreamCommand extends StoreCommand<Iterable<ApiStreamItem>> {
+class StoreSoundStreamCommand extends StoreCommand<Iterable<ApiStreamItem>> {
 
     @Inject
-    public StoreSoundStreamCommand(PropellerDatabase database) {
+    StoreSoundStreamCommand(PropellerDatabase database) {
         super(database);
     }
 

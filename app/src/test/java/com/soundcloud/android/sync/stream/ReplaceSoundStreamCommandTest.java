@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.commands;
+package com.soundcloud.android.sync.stream;
 
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.commands.StoreCommand;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.stream;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -13,10 +13,9 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.commands.ReplaceSoundStreamCommand;
-import com.soundcloud.android.sync.commands.StoreSoundStreamCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;

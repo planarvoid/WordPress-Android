@@ -8,7 +8,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.content.PlaylistSyncer;
+import com.soundcloud.android.sync.playlists.PlaylistSyncer;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.xtremelabs.robolectric.Robolectric;

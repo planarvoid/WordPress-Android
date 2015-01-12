@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.commands;
+package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;

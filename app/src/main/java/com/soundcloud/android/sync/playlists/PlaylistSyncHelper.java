@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.playlists;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
@@ -19,8 +19,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.sync.exception.PlaylistUpdateException;
-import com.soundcloud.android.sync.exception.UnknownResourceException;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;

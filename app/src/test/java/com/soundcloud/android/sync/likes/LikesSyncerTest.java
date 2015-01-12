@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
@@ -31,12 +31,9 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
-import com.soundcloud.android.sync.commands.RemoveLikesCommand;
-import com.soundcloud.android.sync.commands.StoreLikesCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.android.tracks.ApiTrackCollection;
-import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;

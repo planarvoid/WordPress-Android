@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isLegacyRequestToUrl;
@@ -28,7 +28,6 @@ import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.sync.exception.UnknownResourceException;
 import com.soundcloud.api.Request;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.likes;
 
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -18,8 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
-import com.soundcloud.android.sync.commands.RemoveLikesCommand;
-import com.soundcloud.android.sync.commands.StoreLikesCommand;
+import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;

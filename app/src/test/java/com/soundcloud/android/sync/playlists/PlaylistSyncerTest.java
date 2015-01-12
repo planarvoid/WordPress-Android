@@ -1,8 +1,6 @@
-package com.soundcloud.android.sync.content;
+package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 

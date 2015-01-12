@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.commands;
+package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.likes.LikeProperty;
@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class RemoveLikesCommand extends StoreCommand<Collection<PropertySet>> {
+class RemoveLikesCommand extends StoreCommand<Collection<PropertySet>> {
 
     @Inject
-    public RemoveLikesCommand(PropellerDatabase database) {
+    RemoveLikesCommand(PropellerDatabase database) {
         super(database);
     }
 
