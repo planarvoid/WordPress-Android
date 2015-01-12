@@ -12,6 +12,8 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.CallsiteToken;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.HeaderViewController;
 import rx.Observer;
 import rx.Subscription;
@@ -34,7 +36,7 @@ public class ShuffleViewController extends HeaderViewController implements Obser
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final PlaybackOperations playbackOperations;
     private final EventBus eventBus;
-    private List<Urn> likedTrack;
+    private List<Urn> likedTracks;
 
     private View shuffleView;
 
@@ -42,6 +44,8 @@ public class ShuffleViewController extends HeaderViewController implements Obser
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
 
     private Subscription subscription = Subscriptions.empty();
+
+    private final CallsiteToken callsiteToken = CallsiteToken.build();
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
@@ -56,7 +60,7 @@ public class ShuffleViewController extends HeaderViewController implements Obser
         this.subscriberProvider = subscriberProvider;
         this.playbackOperations = playbackOperations;
         this.eventBus = eventBus;
-        this.likedTrack = new ArrayList<>();
+        this.likedTracks = new ArrayList<>();
     }
 
     @Override
@@ -104,13 +108,15 @@ public class ShuffleViewController extends HeaderViewController implements Obser
     @OnClick(R.id.shuffle_btn)
     public void onShuffleButtonClick() {
         playbackOperations
-                .playTracksShuffled(this.likedTrack, new PlaySessionSource(Screen.SIDE_MENU_LIKES))
+                .playTracksShuffled(this.likedTracks, new PlaySessionSource(Screen.SIDE_MENU_LIKES))
                 .doOnCompleted(sendShuffleLikesAnalytics)
                 .subscribe(subscriberProvider.get());
     }
 
     @Override
     public void onNext(List<Urn> likedTracks) {
+        this.likedTracks.clear();
+        this.likedTracks.addAll(likedTracks);
         updateShuffleView(likedTracks);
     }
 
@@ -121,6 +127,6 @@ public class ShuffleViewController extends HeaderViewController implements Obser
 
     @Override
     public void onError(Throwable throwable) {
-        // No-op
+        ErrorUtils.handleThrowable(throwable, callsiteToken);
     }
 }
