@@ -19,6 +19,10 @@ public class ApiScheduler {
         this.scheduler = scheduler;
     }
 
+    public ApiClient getApiClient() {
+        return apiClient;
+    }
+
     public Observable<ApiResponse> response(final ApiRequest<?> request) {
         return Observable.create(new Observable.OnSubscribe<ApiResponse>() {
             @Override

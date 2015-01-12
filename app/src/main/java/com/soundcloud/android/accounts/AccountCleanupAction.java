@@ -11,9 +11,9 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.stream.SoundStreamWriteStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
 
 import android.content.Context;
@@ -21,6 +21,8 @@ import android.content.Context;
 import javax.inject.Inject;
 
 class AccountCleanupAction implements Action0 {
+
+    private static final String TAG = "AccountCleanup";
 
     private final Context context;
     private final CollectionStorage collectionStorage;
@@ -30,7 +32,7 @@ class AccountCleanupAction implements Action0 {
     private final SoundRecorder soundRecorder;
     private final SyncStateManager syncStateManager;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
-    private final SoundStreamWriteStorage soundStreamWriteStorage;
+    private final ClearSoundStreamCommand clearSoundStreamCommand;
     private final OfflineSettingsStorage offlineSettingsStorage;
 
     @Inject
@@ -39,7 +41,7 @@ class AccountCleanupAction implements Action0 {
                          UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
                          SoundRecorder soundRecorder,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                         SoundStreamWriteStorage soundStreamWriteStorage, OfflineSettingsStorage offlineSettingsStorage) {
+                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage) {
         this.context = context;
         this.syncStateManager = syncStateManager;
         this.collectionStorage = collectionStorage;
@@ -48,19 +50,19 @@ class AccountCleanupAction implements Action0 {
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
-        this.soundStreamWriteStorage = soundStreamWriteStorage;
+        this.clearSoundStreamCommand = clearSoundStreamCommand;
         this.offlineSettingsStorage = offlineSettingsStorage;
     }
 
     @Override
     public void call() {
-        Log.d("AccountCleanup", "Purging user data...");
+        Log.d(TAG, "Purging user data...");
 
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         syncStateManager.clear();
         collectionStorage.clear();
         activitiesStorage.clear(null);
-        soundStreamWriteStorage.clear();
+        clearSoundStream();
         userAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
@@ -70,4 +72,12 @@ class AccountCleanupAction implements Action0 {
         ConnectionsCache.reset();
     }
 
+    private void clearSoundStream()  {
+        try {
+            clearSoundStreamCommand.call();
+        } catch (PropellerWriteException e) {
+            Log.e(TAG, "Could not clear SoundStream ", e);
+        }
+
+    }
 }

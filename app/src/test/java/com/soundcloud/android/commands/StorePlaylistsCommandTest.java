@@ -1,4 +1,4 @@
-package com.soundcloud.android.playlists;
+package com.soundcloud.android.commands;
 
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
@@ -17,39 +17,33 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistWriteStorageTest extends StorageIntegrationTest {
+public class StorePlaylistsCommandTest extends StorageIntegrationTest {
 
-    private PlaylistWriteStorage storage;
-    private List<ApiPlaylist> playlists;
+    private StorePlaylistsCommand command;
 
     @Before
     public void setup() {
-        storage = new PlaylistWriteStorage(propeller());
-        playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+        command = new StorePlaylistsCommand(propeller());
     }
 
     @Test
-    public void shouldStoreApiMobilePlaylistCollection() {
-        storage.storePlaylists(playlists);
-        databaseAssertions().assertPlaylistsInserted(playlists);
+    public void shouldPersistPlaylistsWithCreatorsInDatabase() throws Exception {
+        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+
+        command.with(playlists).call();
+
+        databaseAssertions().assertPlaylistWithUserInserted(playlists.get(0));
+        databaseAssertions().assertPlaylistWithUserInserted(playlists.get(1));
     }
 
     @Test
-    public void shouldStorePlaylistsUsingUpsert() {
+    public void shouldStorePlaylistsUsingUpsert() throws Exception {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         playlist.setTitle("new title");
 
-        storage.storePlaylists(Arrays.asList(playlist));
+        command.with(Arrays.asList(playlist)).call();
 
         assertThat(select(from(Table.Sounds.name())), counts(1));
         databaseAssertions().assertPlaylistInserted(playlist);
-    }
-
-    @Test
-    public void shouldStoreUsersFromApiMobilePlaylistCollection() {
-        storage.storePlaylists(playlists);
-
-        databaseAssertions().assertPlayableUserInserted(playlists.get(0).getUser());
-        databaseAssertions().assertPlayableUserInserted(playlists.get(1).getUser());
     }
 }

@@ -8,14 +8,13 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.stream.SoundStreamWriteStorage;
+import com.soundcloud.android.sync.commands.ReplaceSoundStreamCommand;
+import com.soundcloud.android.sync.commands.StoreSoundStreamCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
@@ -28,7 +27,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.Map;
 
 public class SoundStreamSyncer implements SyncStrategy {
@@ -44,7 +42,8 @@ public class SoundStreamSyncer implements SyncStrategy {
 
     private final SharedPreferences syncPreferences;
     private final ApiClient apiClient;
-    private final SoundStreamWriteStorage writeStorage;
+    private final StoreSoundStreamCommand storeSoundStreamCommand;
+    private final ReplaceSoundStreamCommand replaceSoundStreamCommand;
     private final TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() { };
     private final Predicate<ApiStreamItem> removePromotedItemsPredicate = new Predicate<ApiStreamItem>() {
         @Override
@@ -54,19 +53,20 @@ public class SoundStreamSyncer implements SyncStrategy {
     };
 
     @Inject
-    public SoundStreamSyncer(Context appContext, ApiClient apiClient, SoundStreamWriteStorage writeStorage) {
-        this(appContext.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE), apiClient, writeStorage);
+    public SoundStreamSyncer(Context appContext, ApiClient apiClient, StoreSoundStreamCommand storeSoundStreamCommand, ReplaceSoundStreamCommand replaceSoundStreamCommand) {
+        this(appContext.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE), apiClient, storeSoundStreamCommand, replaceSoundStreamCommand);
     }
 
-    public SoundStreamSyncer(SharedPreferences syncPreferences, ApiClient apiClient, SoundStreamWriteStorage writeStorage) {
+    public SoundStreamSyncer(SharedPreferences syncPreferences, ApiClient apiClient, StoreSoundStreamCommand storeSoundStreamCommand, ReplaceSoundStreamCommand replaceSoundStreamCommand) {
         this.syncPreferences = syncPreferences;
         this.apiClient = apiClient;
-        this.writeStorage = writeStorage;
+        this.storeSoundStreamCommand = storeSoundStreamCommand;
+        this.replaceSoundStreamCommand = replaceSoundStreamCommand;
     }
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException, ApiRequestException, ApiMapperException  {
+    public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws Exception  {
         Log.d(this, "syncActivities(" + uri + "); action=" + action);
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
@@ -81,7 +81,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult refreshSoundStream() throws IOException, ApiRequestException, ApiMapperException {
+    private ApiSyncResult refreshSoundStream() throws Exception {
 
         final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
                 ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(ApiEndpoints.STREAM.path())
@@ -90,7 +90,7 @@ public class SoundStreamSyncer implements SyncStrategy {
                         .forPrivateApi(1);
 
         ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build());
-        writeStorage.replaceStreamItems(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
+        replaceSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
         setNextPageUrl(streamItems.getNextLink());
 
         final Map<String, Link> links = streamItems.getLinks();
@@ -102,7 +102,7 @@ public class SoundStreamSyncer implements SyncStrategy {
     }
 
 
-    private ApiSyncResult appendStreamItems() throws IOException, ApiRequestException, ApiMapperException {
+    private ApiSyncResult appendStreamItems() throws Exception {
         if (hasNextPageUrl()){
 
             final String nextPageUrl = getNextPageUrl();
@@ -120,7 +120,7 @@ public class SoundStreamSyncer implements SyncStrategy {
                 return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
 
             } else {
-                writeStorage.insertStreamItems(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
+                storeSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
                 return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
             }
 
@@ -131,7 +131,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult prependActivities() throws IOException, ApiRequestException, ApiMapperException {
+    private ApiSyncResult prependActivities() throws Exception {
         final String previousPageUrl = getFuturePageUrl();
         Log.d(this, "Building soundstream request from stored future link " + previousPageUrl);
 
@@ -150,7 +150,7 @@ public class SoundStreamSyncer implements SyncStrategy {
             return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
 
         } else {
-            writeStorage.insertStreamItems(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
+            storeSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
             return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
         }
     }

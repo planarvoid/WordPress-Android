@@ -10,7 +10,8 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playlists.PlaylistWriteStorage;
+import com.soundcloud.android.playlists.ApiPlaylistCollection;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
 import rx.Observable;
 import rx.android.Pager;
 import rx.functions.Action0;
@@ -26,7 +27,7 @@ class PlaylistDiscoveryOperations {
 
     private final ApiScheduler apiScheduler;
     private final PlaylistTagStorage tagStorage;
-    private final PlaylistWriteStorage playlistWriteStorage;
+    private final StorePlaylistsCommand storePlaylistsCommand;
 
     private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
         @Override
@@ -42,19 +43,12 @@ class PlaylistDiscoveryOperations {
         }
     };
 
-    private final Action1<ModelCollection<ApiPlaylist>> preCachePlaylistResults = new Action1<ModelCollection<ApiPlaylist>>() {
-        @Override
-        public void call(ModelCollection<ApiPlaylist> collection) {
-            playlistWriteStorage.storePlaylists(collection.getCollection());
-        }
-    };
-
-
     @Inject
-    PlaylistDiscoveryOperations(ApiScheduler apiScheduler, PlaylistTagStorage tagStorage, PlaylistWriteStorage playlistWriteStorage) {
+    PlaylistDiscoveryOperations(ApiScheduler apiScheduler, PlaylistTagStorage tagStorage,
+                                StorePlaylistsCommand storePlaylistsCommand) {
         this.apiScheduler = apiScheduler;
         this.tagStorage = tagStorage;
-        this.playlistWriteStorage = playlistWriteStorage;
+        this.storePlaylistsCommand = storePlaylistsCommand;
     }
 
     Observable<List<String>> recentPlaylistTags() {
@@ -86,8 +80,8 @@ class PlaylistDiscoveryOperations {
         return apiScheduler.mappedResponse(request).doOnNext(cachePopularTags).map(collectionToList);
     }
 
-    Observable<ModelCollection<ApiPlaylist>> playlistsForTag(final String tag) {
-        final ApiRequest<ModelCollection<ApiPlaylist>> request =
+    Observable<ApiPlaylistCollection> playlistsForTag(final String tag) {
+        final ApiRequest<ApiPlaylistCollection> request =
                 createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParam("tag", tag)
                         .build();
@@ -103,29 +97,31 @@ class PlaylistDiscoveryOperations {
         return new PlaylistPager(tag);
     }
 
-    private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsNextPage(String query, String nextHref) {
-        final ApiRequest.Builder<ModelCollection<ApiPlaylist>> builder = createPlaylistResultsRequest(nextHref);
+    private Observable<ApiPlaylistCollection> getPlaylistResultsNextPage(String query, String nextHref) {
+        final ApiRequest.Builder<ApiPlaylistCollection> builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPage(query, builder.build());
     }
 
-    private ApiRequest.Builder<ModelCollection<ApiPlaylist>> createPlaylistResultsRequest(String url) {
-        return ApiRequest.Builder.<ModelCollection<ApiPlaylist>>get(url)
+    private ApiRequest.Builder<ApiPlaylistCollection> createPlaylistResultsRequest(String url) {
+        return ApiRequest.Builder.<ApiPlaylistCollection>get(url)
                 .forPrivateApi(1)
-                .forResource(new TypeToken<ModelCollection<ApiPlaylist>>() {
-                });
+                .forResource(ApiPlaylistCollection.class);
     }
 
-    private Observable<ModelCollection<ApiPlaylist>> getPlaylistResultsPage(
-            String query, ApiRequest<ModelCollection<ApiPlaylist>> request) {
-        return apiScheduler.mappedResponse(request).doOnNext(preCachePlaylistResults).map(withSearchTag(query));
+    private Observable<ApiPlaylistCollection> getPlaylistResultsPage(
+            String query, ApiRequest<ApiPlaylistCollection> request) {
+        return apiScheduler.mappedResponse(request)
+                .doOnNext(storePlaylistsCommand.toAction())
+                .map(withSearchTag(query));
     }
 
-    private Func1<ModelCollection<ApiPlaylist>, ModelCollection<ApiPlaylist>> withSearchTag(final String searchTag) {
-        return new Func1<ModelCollection<ApiPlaylist>, ModelCollection<ApiPlaylist>>() {
+    private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {
+        return new Func1<ApiPlaylistCollection, ApiPlaylistCollection>() {
             @Override
-            public ModelCollection<ApiPlaylist> call(ModelCollection<ApiPlaylist> collection) {
+            public ApiPlaylistCollection call(ApiPlaylistCollection collection) {
                 for (ApiPlaylist playlist : collection) {
-                    LinkedList<String> tagsWithSearchTag = new LinkedList<String>(removeItemIgnoreCase(playlist.getTags(), searchTag));
+                    LinkedList<String> tagsWithSearchTag = new LinkedList<>(
+                            removeItemIgnoreCase(playlist.getTags(), searchTag));
                     tagsWithSearchTag.addFirst(searchTag);
                     playlist.setTags(tagsWithSearchTag);
                 }
@@ -138,7 +134,7 @@ class PlaylistDiscoveryOperations {
         return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
-    class PlaylistPager extends Pager<ModelCollection<ApiPlaylist>> {
+    class PlaylistPager extends Pager<ApiPlaylistCollection> {
 
         private final String query;
 
@@ -147,7 +143,7 @@ class PlaylistDiscoveryOperations {
         }
 
         @Override
-        public Observable<ModelCollection<ApiPlaylist>> call(ModelCollection<ApiPlaylist> collection) {
+        public Observable<ApiPlaylistCollection> call(ApiPlaylistCollection collection) {
             final Optional<Link> nextLink = collection.getNextLink();
             if (nextLink.isPresent()) {
                 return getPlaylistResultsNextPage(query, nextLink.get().getHref());

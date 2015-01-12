@@ -8,11 +8,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
@@ -35,7 +35,7 @@ import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class PlaylistResultsFragment extends DefaultFragment
-        implements ReactiveListComponent<ConnectableObservable<ModelCollection<ApiPlaylist>>> {
+        implements ReactiveListComponent<ConnectableObservable<ApiPlaylistCollection>> {
 
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
@@ -45,7 +45,7 @@ public class PlaylistResultsFragment extends DefaultFragment
     @Inject EndlessAdapter<ApiPlaylist> adapter;
     @Inject EventBus eventBus;
 
-    private ConnectableObservable<ModelCollection<ApiPlaylist>> observable;
+    private ConnectableObservable<ApiPlaylistCollection> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
     private PlaylistDiscoveryOperations.PlaylistPager pager;
 
@@ -89,13 +89,13 @@ public class PlaylistResultsFragment extends DefaultFragment
     }
 
     @Override
-    public ConnectableObservable<ModelCollection<ApiPlaylist>> buildObservable() {
+    public ConnectableObservable<ApiPlaylistCollection> buildObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
         return pager.page(operations.playlistsForTag(playlistTag)).observeOn(mainThread()).replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<ModelCollection<ApiPlaylist>> observable) {
+    public Subscription connectObservable(ConnectableObservable<ApiPlaylistCollection> observable) {
         this.observable = observable;
         this.observable.subscribe(adapter);
         connectionSubscription = observable.connect();

@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Has either a user XOR a playlist XOR a track set, as it represents a result item from a universal search.
@@ -18,9 +19,9 @@ class ApiUniversalSearchItem implements PropertySetSource {
     private final ApiTrack track;
 
     @JsonCreator
-    ApiUniversalSearchItem(@JsonProperty("user") ApiUser user,
-                           @JsonProperty("playlist") ApiPlaylist playlist,
-                           @JsonProperty("track") ApiTrack track) {
+    ApiUniversalSearchItem(@JsonProperty("user") @Nullable ApiUser user,
+                           @JsonProperty("playlist") @Nullable ApiPlaylist playlist,
+                           @JsonProperty("track") @Nullable ApiTrack track) {
         this.user = user;
         this.playlist = playlist;
         this.track = track;
@@ -52,14 +53,17 @@ class ApiUniversalSearchItem implements PropertySetSource {
         throw new IllegalStateException("missing wrapped search result entity");
     }
 
+    @Nullable
     public ApiUser getUser() {
         return user;
     }
 
+    @Nullable
     public ApiPlaylist getPlaylist() {
         return playlist;
     }
 
+    @Nullable
     public ApiTrack getTrack() {
         return track;
     }

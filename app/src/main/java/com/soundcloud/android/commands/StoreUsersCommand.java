@@ -1,11 +1,13 @@
-package com.soundcloud.android.users;
+package com.soundcloud.android.commands;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 
 import android.content.ContentValues;
 
@@ -13,22 +15,21 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserWriteStorage {
-
-    private final PropellerDatabase propeller;
+public class StoreUsersCommand extends StoreCommand<Iterable<ApiUser>> {
 
     @Inject
-    public UserWriteStorage(PropellerDatabase propeller) {
-        this.propeller = propeller;
+    public StoreUsersCommand(PropellerDatabase database) {
+        super(database);
     }
 
-    public TxnResult storeUsers(final List<ApiUser> apiUsers) {
-        final List<ContentValues> newItems = new ArrayList<ContentValues>(apiUsers.size());
-        for (ApiUser user : apiUsers) {
+    @Override
+    protected WriteResult store() {
+        final List<ContentValues> newItems = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+        for (ApiUser user : input) {
             newItems.add(buildUserContentValues(user));
         }
 
-        return propeller.bulkInsert(Table.Users, newItems);
+        return database.bulkInsert(Table.Users, newItems);
     }
 
     public static ContentValues buildUserContentValues(ApiUser user) {

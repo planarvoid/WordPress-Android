@@ -8,6 +8,7 @@ import org.mockito.ArgumentMatcher;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
 
@@ -69,6 +70,8 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
         } else if (content instanceof Iterable) {
             return request.getContent() instanceof Iterable
                     && Iterables.elementsEqual((Iterable) content, (Iterable) request.getContent());
+        } else if (content instanceof Map && request.getContent() instanceof Map) {
+            return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) request.getContent()).entrySet());
         } else {
             return Objects.equal(request.getContent(), content);
         }

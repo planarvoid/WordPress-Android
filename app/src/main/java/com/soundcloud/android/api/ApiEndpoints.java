@@ -51,8 +51,8 @@ public enum ApiEndpoints {
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
     STREAM("/stream"),
-    TRACKS("/tracks"),
-    PLAYLISTS("/playlists"),
+    TRACKS_FETCH("/tracks/fetch"),
+    PLAYLISTS_FETCH("/playlists/fetch"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

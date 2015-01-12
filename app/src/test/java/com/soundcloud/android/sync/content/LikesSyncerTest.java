@@ -26,13 +26,15 @@ import com.soundcloud.android.likes.LikeStorage;
 import com.soundcloud.android.likes.LikesWriteStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
-import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
+import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.android.tracks.ApiTrackCollection;
-import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -58,14 +60,16 @@ public class LikesSyncerTest {
     @Mock private ApiClient apiClient;
     @Mock private LikeStorage likesStorage;
     @Mock private LikesWriteStorage likesWriteStorage;
-    @Mock private TrackWriteStorage trackWriteStorage;
-    @Mock private PlaylistWriteStorage playlistWriteStorage;
+    @Mock private FetchTracksCommand fetchTracksCommand;
+    @Mock private FetchPlaylistsCommand fetchPlaylistsCommand;
+    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private StorePlaylistsCommand storePlaylistsCommand;
     @Mock private AccountOperations accountOperations;
 
     @Before
     public void setup() throws Exception {
-        syncer = new LikesSyncer(apiClient, likesStorage, likesWriteStorage, trackWriteStorage,
-                playlistWriteStorage, accountOperations);
+        syncer = new LikesSyncer(apiClient, likesStorage, likesWriteStorage, fetchTracksCommand,
+                fetchPlaylistsCommand, storeTracksCommand, storePlaylistsCommand, accountOperations);
         trackLike = ModelFixtures.apiTrackLike();
         playlistLike = ModelFixtures.apiPlaylistLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
@@ -310,16 +314,14 @@ public class LikesSyncerTest {
         withLocalPlaylistLikes();
         withRemoteTrackLikes(trackLike);
         withRemotePlaylistLikes();
-        ApiTrackCollection trackResponse = new ApiTrackCollection();
-        trackResponse.setCollection(Arrays.asList(ModelFixtures.create(ApiTrack.class)));
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.TRACKS.path())
-                        .withQueryParam("urns", trackLike.getTargetUrn().toEncodedString()))))
-                .thenReturn(trackResponse);
+        final ApiTrackCollection tracks = new ApiTrackCollection();
+        tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
+        when(fetchTracksCommand.call()).thenReturn(tracks);
 
         syncer.syncContent(null, null);
 
-        verify(trackWriteStorage).storeTracks(trackResponse.getCollection());
+        verify(storeTracksCommand).call();
+        expect(storeTracksCommand.getInput()).toEqual(tracks);
     }
 
     @Test
@@ -328,16 +330,14 @@ public class LikesSyncerTest {
         withLocalPlaylistLikes();
         withRemoteTrackLikes();
         withRemotePlaylistLikes(playlistLike);
-        ApiPlaylistCollection trackResponse = new ApiPlaylistCollection();
-        trackResponse.setCollection(Arrays.asList(ModelFixtures.create(ApiPlaylist.class)));
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.PLAYLISTS.path())
-                        .withQueryParam("urns", playlistLike.getTargetUrn().toEncodedString()))))
-                .thenReturn(trackResponse);
+        final ApiPlaylistCollection playlists = new ApiPlaylistCollection();
+        playlists.setCollection(ModelFixtures.create(ApiPlaylist.class, 2));
+        when(fetchPlaylistsCommand.call()).thenReturn(playlists);
 
         syncer.syncContent(null, null);
 
-        verify(playlistWriteStorage).storePlaylists(trackResponse.getCollection());
+        verify(storePlaylistsCommand).call();
+        expect(storePlaylistsCommand.getInput()).toEqual(playlists);
     }
 
     private void withRemoteTrackLikes(ApiLike... likes) throws Exception {

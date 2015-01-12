@@ -1,6 +1,7 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -10,10 +11,10 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,13 +31,13 @@ public class ExploreTracksOperationsTest {
     private ExploreTracksOperations exploreTracksOperations;
 
     @Mock private ApiScheduler apiScheduler;
-    @Mock private TrackWriteStorage trackWriteStorage;
+    @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private Observer observer;
     @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() {
-        exploreTracksOperations = new ExploreTracksOperations(trackWriteStorage, apiScheduler);
+        exploreTracksOperations = new ExploreTracksOperations(storeTracksCommand, apiScheduler);
     }
 
     @Test
@@ -44,7 +45,7 @@ public class ExploreTracksOperationsTest {
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getCategories().subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())));
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())));
     }
 
     @Test
@@ -52,7 +53,7 @@ public class ExploreTracksOperationsTest {
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path())));
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path())));
     }
 
     @Test
@@ -60,7 +61,7 @@ public class ExploreTracksOperationsTest {
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_AUDIO_CATEGORY).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path())));
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path())));
     }
 
     @Test
@@ -71,7 +72,7 @@ public class ExploreTracksOperationsTest {
 
         exploreTracksOperations.getSuggestedTracks(genre).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", tracksUrl)));
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", tracksUrl)));
     }
 
     @Test
@@ -80,7 +81,8 @@ public class ExploreTracksOperationsTest {
 
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
 
-        verify(trackWriteStorage).storeTracksAsync(collection.getCollection());
+        expect(storeTracksCommand.getInput()).toBe(collection);
+        verify(storeTracksCommand).call();
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {

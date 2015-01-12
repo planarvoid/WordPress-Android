@@ -17,18 +17,16 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.playlists.PlaylistWriteStorage;
-import com.soundcloud.android.tracks.TrackWriteStorage;
-import com.soundcloud.android.users.UserWriteStorage;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
 import rx.android.Pager;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressFBWarnings(
@@ -50,10 +48,11 @@ class SearchOperations {
     };
 
     private final ApiScheduler apiScheduler;
-    private final UserWriteStorage userStorage;
-    private final PlaylistWriteStorage playlistWriteStorage;
+    private final StorePlaylistsCommand storePlaylistsCommand;
+    private final StoreTracksCommand storeTracksCommand;
+    private final StoreUsersCommand storeUsersCommand;
+    private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final PlaylistStorage playlistStorage;
-    private final TrackWriteStorage trackStorage;
 
     private final Func1<SearchResult, SearchResult> mergeLikeStatusForPlaylists = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -82,12 +81,13 @@ class SearchOperations {
     };
 
     @Inject
-    public SearchOperations(ApiScheduler apiScheduler, UserWriteStorage userStorage, PlaylistWriteStorage playlistWriteStorage,
-                            PlaylistStorage playlistStorage, TrackWriteStorage trackStorage) {
+    public SearchOperations(ApiScheduler apiScheduler, StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
+                            CacheUniversalSearchCommand cacheUniversalSearchCommand, PlaylistStorage playlistStorage) {
         this.apiScheduler = apiScheduler;
-        this.userStorage = userStorage;
-        this.playlistWriteStorage = playlistWriteStorage;
-        this.trackStorage = trackStorage;
+        this.storeTracksCommand = storeTracksCommand;
+        this.storePlaylistsCommand = storePlaylistsCommand;
+        this.storeUsersCommand = storeUsersCommand;
+        this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.playlistStorage = playlistStorage;
     }
 
@@ -166,13 +166,6 @@ class SearchOperations {
 
     private final class TrackSearchStrategy extends SearchStrategy<ModelCollection<ApiTrack>> {
 
-        private final Action1<ModelCollection<ApiTrack>> cacheTracks = new Action1<ModelCollection<ApiTrack>>() {
-            @Override
-            public void call(ModelCollection<ApiTrack> trackList) {
-                trackStorage.storeTracks(trackList.getCollection());
-            }
-        };
-
         protected TrackSearchStrategy() {
             super(new TypeToken<ModelCollection<ApiTrack>>() {
             }, ApiEndpoints.SEARCH_TRACKS.path());
@@ -181,19 +174,12 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiTrack>> builder) {
             return apiScheduler.mappedResponse(builder.build())
-                    .doOnNext(cacheTracks)
+                    .doOnNext(storeTracksCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
     }
 
     private final class PlaylistSearchStrategy extends SearchStrategy<ModelCollection<ApiPlaylist>> {
-
-        private final Action1<ModelCollection<ApiPlaylist>> cachePlaylists = new Action1<ModelCollection<ApiPlaylist>>() {
-            @Override
-            public void call(ModelCollection<ApiPlaylist> playlistsResult) {
-                playlistWriteStorage.storePlaylists(playlistsResult.getCollection());
-            }
-        };
 
         protected PlaylistSearchStrategy() {
             super(new TypeToken<ModelCollection<ApiPlaylist>>() {
@@ -203,20 +189,13 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiPlaylist>> builder) {
             return apiScheduler.mappedResponse(builder.build())
-                    .doOnNext(cachePlaylists)
+                    .doOnNext(storePlaylistsCommand.toAction())
                     .map(TO_SEARCH_RESULT)
                     .map(mergeLikeStatusForPlaylists);
         }
     }
 
     private final class UserSearchStrategy extends SearchStrategy<ModelCollection<ApiUser>> {
-
-        private final Action1<ModelCollection<ApiUser>> cacheUsers = new Action1<ModelCollection<ApiUser>>() {
-            @Override
-            public void call(ModelCollection<ApiUser> userResult) {
-                userStorage.storeUsers(userResult.getCollection());
-            }
-        };
 
         protected UserSearchStrategy() {
             super(new TypeToken<ModelCollection<ApiUser>>() {
@@ -226,41 +205,12 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiUser>> builder) {
             return apiScheduler.mappedResponse(builder.build())
-                    .doOnNext(cacheUsers)
+                    .doOnNext(storeUsersCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
     }
 
     private final class UniversalSearchStrategy extends SearchStrategy<ModelCollection<ApiUniversalSearchItem>> {
-
-        private final Action1<ModelCollection<ApiUniversalSearchItem>> cacheUniversal = new Action1<ModelCollection<ApiUniversalSearchItem>>() {
-            @Override
-            public void call(ModelCollection<ApiUniversalSearchItem> universalSearchResults) {
-                List<ApiUser> users = new ArrayList<>();
-                List<ApiPlaylist> playlists = new ArrayList<>();
-                List<ApiTrack> tracks = new ArrayList<>();
-
-                for (ApiUniversalSearchItem result : universalSearchResults) {
-                    if (result.isUser()) {
-                        users.add(result.getUser());
-                    } else if (result.isPlaylist()) {
-                        playlists.add(result.getPlaylist());
-                    } else if (result.isTrack()) {
-                        tracks.add(result.getTrack());
-                    }
-                }
-
-                if (!users.isEmpty()) {
-                    userStorage.storeUsers(users);
-                }
-                if (!playlists.isEmpty()) {
-                    playlistWriteStorage.storePlaylists(playlists);
-                }
-                if (!tracks.isEmpty()) {
-                    trackStorage.storeTracks(tracks);
-                }
-            }
-        };
 
         protected UniversalSearchStrategy() {
             super(new TypeToken<ModelCollection<ApiUniversalSearchItem>>() {
@@ -270,7 +220,7 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiUniversalSearchItem>> builder) {
             return apiScheduler.mappedResponse(builder.build())
-                    .doOnNext(cacheUniversal)
+                    .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)
                     .map(mergeLikeStatusForPlaylists);
         }

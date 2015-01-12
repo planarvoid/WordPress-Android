@@ -8,26 +8,23 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LikeStorage;
 import com.soundcloud.android.likes.LikesWriteStorage;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.ApiPlaylistCollection;
-import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.tracks.ApiTrackCollection;
-import com.soundcloud.android.tracks.TrackWriteStorage;
+import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
+import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
-import android.text.TextUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -47,25 +44,29 @@ public class LikesSyncer implements SyncStrategy {
     private final ApiClient apiClient;
     private final LikeStorage likesStorage;
     private final LikesWriteStorage likesWriteStorage;
-    private final TrackWriteStorage trackWriteStorage;
-    private final PlaylistWriteStorage playlistWriteStorage;
+    private final FetchTracksCommand fetchTracksCommand;
+    private final FetchPlaylistsCommand fetchPlaylistsCommand;
+    private final StoreTracksCommand storeTracksCommand;
+    private final StorePlaylistsCommand storePlaylistsCommand;
     private final AccountOperations accountOperations;
 
     @Inject
     LikesSyncer(ApiClient apiClient, LikeStorage likesStorage, LikesWriteStorage likesWriteStorage,
-                TrackWriteStorage trackWriteStorage, PlaylistWriteStorage playlistWriteStorage,
-                AccountOperations accountOperations) {
+                FetchTracksCommand fetchTracksCommand, FetchPlaylistsCommand fetchPlaylistsCommand, StoreTracksCommand storeTracksCommand,
+                StorePlaylistsCommand storePlaylistsCommand, AccountOperations accountOperations) {
         this.apiClient = apiClient;
         this.likesStorage = likesStorage;
         this.likesWriteStorage = likesWriteStorage;
-        this.trackWriteStorage = trackWriteStorage;
-        this.playlistWriteStorage = playlistWriteStorage;
+        this.fetchTracksCommand = fetchTracksCommand;
+        this.storeTracksCommand = storeTracksCommand;
+        this.fetchPlaylistsCommand = fetchPlaylistsCommand;
+        this.storePlaylistsCommand = storePlaylistsCommand;
         this.accountOperations = accountOperations;
     }
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException, ApiMapperException, ApiRequestException {
+    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         final LikesSyncResult tracksResult = syncTrackLikes();
         final LikesSyncResult playlistsResult = syncPlaylistLikes();
 
@@ -74,42 +75,34 @@ public class LikesSyncer implements SyncStrategy {
                 : ApiSyncResult.fromSuccessWithoutChange(uri);
     }
 
-    private LikesSyncResult syncPlaylistLikes() throws ApiMapperException, IOException, ApiRequestException {
-        final LikesSyncResult playlistsResult = performSync(
+    private LikesSyncResult syncPlaylistLikes() throws Exception {
+        final LikesSyncResult result = performSync(
                 ApiEndpoints.LIKED_PLAYLISTS, ApiEndpoints.MY_PLAYLIST_LIKES,
                 likesStorage.loadPlaylistLikes(), likesStorage.loadPlaylistLikesPendingRemoval());
 
-        if (playlistsResult.hasLocalAdditions()) {
-            final ModelCollection<ApiPlaylist> playlists = resolveUrnsToFullResources(playlistsResult.localAdditions, ApiEndpoints.PLAYLISTS, ApiPlaylistCollection.class);
-            playlistWriteStorage.storePlaylists(playlists.getCollection());
+        if (result.hasLocalAdditions()) {
+            final ArrayList<Urn> urns = new ArrayList<>(result.localAdditions.size());
+            for (PropertySet like : result.localAdditions) {
+                urns.add(like.get(LikeProperty.TARGET_URN));
+            }
+            fetchPlaylistsCommand.with(urns).andThen(storePlaylistsCommand).call();
         }
-        return playlistsResult;
+        return result;
     }
 
-    private LikesSyncResult syncTrackLikes() throws ApiMapperException, IOException, ApiRequestException {
+    private LikesSyncResult syncTrackLikes() throws Exception {
         final LikesSyncResult result = performSync(
                 ApiEndpoints.LIKED_TRACKS, ApiEndpoints.MY_TRACK_LIKES,
                 likesStorage.loadTrackLikes(), likesStorage.loadTrackLikesPendingRemoval());
 
         if (result.hasLocalAdditions()) {
-            final ModelCollection<ApiTrack> tracks = resolveUrnsToFullResources(result.localAdditions, ApiEndpoints.TRACKS, ApiTrackCollection.class);
-            trackWriteStorage.storeTracks(tracks.getCollection());
+            final ArrayList<Urn> urns = new ArrayList<>(result.localAdditions.size());
+            for (PropertySet like : result.localAdditions) {
+                urns.add(like.get(LikeProperty.TARGET_URN));
+            }
+            fetchTracksCommand.with(urns).andThen(storeTracksCommand).call();
         }
         return result;
-    }
-
-    // takes a list of URNs and resolves them to full tracks/playlists
-    private <T> T resolveUrnsToFullResources(Collection<PropertySet> localAdditions, ApiEndpoints endpoint, Class<T> mappedClass) throws IOException, ApiRequestException, ApiMapperException {
-        final ArrayList<String> urns = new ArrayList<>(localAdditions.size());
-        for (PropertySet like : localAdditions) {
-            urns.add(like.get(LikeProperty.TARGET_URN).toEncodedString());
-        }
-        final ApiRequest<T> request = ApiRequest.Builder.<T>get(endpoint.path())
-                .forPrivateApi(1)
-                .forResource(mappedClass)
-                .addQueryParam("urns", TextUtils.join(",", urns))
-                .build();
-        return apiClient.fetchMappedResponse(request);
     }
 
     private <T extends ApiLike> LikesSyncResult performSync(ApiEndpoints fetchLikesEndpoint, ApiEndpoints writeEndpoint,

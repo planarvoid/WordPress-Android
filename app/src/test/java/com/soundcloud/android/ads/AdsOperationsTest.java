@@ -1,7 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -21,10 +22,8 @@ import com.soundcloud.android.testsupport.fixtures.AdFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +45,7 @@ public class AdsOperationsTest {
     private ApiAdsForTrack fullAdsForTrack;
 
     @Mock private ApiScheduler apiScheduler;
-    @Mock private TrackWriteStorage trackWriteStorage;
+    @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private DeviceHelper deviceHelper;
     @Mock private PlayQueueManager playQueueManager;
     private PlaySessionSource playSessionSource;
@@ -54,7 +53,7 @@ public class AdsOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(trackWriteStorage, deviceHelper, playQueueManager, apiScheduler);
+        adsOperations = new AdsOperations(storeTracksCommand, deviceHelper, playQueueManager, apiScheduler);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         playSessionSource = new PlaySessionSource("origin");
         playSessionSource.setExploreVersion("1.0");
@@ -63,8 +62,7 @@ public class AdsOperationsTest {
     @Test
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), TRACK_URN.toEncodedString());
-        when(apiScheduler.mappedResponse(argThat(isMobileApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(fullAdsForTrack));
-        when(trackWriteStorage.storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
+        when(apiScheduler.mappedResponse(argThat(isApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(fullAdsForTrack));
 
         expect(adsOperations.ads(TRACK_URN).toBlocking().first()).toBe(fullAdsForTrack);
     }
@@ -72,18 +70,17 @@ public class AdsOperationsTest {
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(fullAdsForTrack));
-        when(trackWriteStorage.storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
 
         adsOperations.ads(TRACK_URN).subscribe();
 
-        verify(trackWriteStorage).storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack());
+        expect(storeTracksCommand.getInput()).toEqual(Arrays.asList(fullAdsForTrack.audioAd().getApiTrack()));
+        verify(storeTracksCommand).call();
     }
 
     @Test
     public void audioAdRequestIncludesUniqueDeviceId() {
         final ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         when(apiScheduler.mappedResponse(captor.capture())).thenReturn(Observable.just(fullAdsForTrack));
-        when(trackWriteStorage.storeTrackAsync(fullAdsForTrack.audioAd().getApiTrack())).thenReturn(Observable.<TxnResult>empty());
         when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("is google watching?");
 
         adsOperations.ads(TRACK_URN).subscribe();

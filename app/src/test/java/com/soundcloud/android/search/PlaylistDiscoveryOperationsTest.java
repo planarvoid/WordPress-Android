@@ -19,9 +19,11 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playlists.PlaylistWriteStorage;
+import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.propeller.PropellerWriteException;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +46,7 @@ public class PlaylistDiscoveryOperationsTest {
     @Mock PlaylistTagStorage tagStorage;
     @Mock ApiScheduler apiScheduler;
     @Mock Observer observer;
-    @Mock PlaylistWriteStorage playlistWriteStorage;
+    @Mock StorePlaylistsCommand storePlaylistsCommand;
 
     @Before
     public void setup() {
@@ -121,17 +123,18 @@ public class PlaylistDiscoveryOperationsTest {
     }
 
     @Test
-    public void shouldWritePlaylistDiscoveryResultToLocalStorage() throws CreateModelException {
-        ModelCollection<ApiPlaylist> collection = buildPlaylistSummariesResponse();
+    public void shouldWritePlaylistDiscoveryResultToLocalStorage() throws CreateModelException, PropellerWriteException {
+        ApiPlaylistCollection collection = buildPlaylistSummariesResponse();
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        verify(playlistWriteStorage).storePlaylists(collection.getCollection());
+        expect(storePlaylistsCommand.getInput()).toBe(collection);
+        verify(storePlaylistsCommand).call();
     }
 
-    private ModelCollection<ApiPlaylist> buildPlaylistSummariesResponse() throws CreateModelException {
+    private ApiPlaylistCollection buildPlaylistSummariesResponse() throws CreateModelException {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
+        ApiPlaylistCollection collection = new ApiPlaylistCollection();
         collection.setCollection(Arrays.asList(playlist));
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
         return collection;

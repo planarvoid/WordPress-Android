@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -12,18 +11,16 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PolicyInfo;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackWriteStorage;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -34,32 +31,18 @@ public class PlayQueueOperations {
 
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
-    private final TrackWriteStorage trackWriteStorage;
+    private final StoreTracksCommand storeTracksCommand;
+    private final StorePoliciesCommand storePoliciesCommand;
     private final ApiScheduler apiScheduler;
-    private final Action1<RecommendedTracksCollection> cacheRelatedTracks = new Action1<RecommendedTracksCollection>() {
-        @Override
-        public void call(RecommendedTracksCollection collection) {
-            fireAndForget(trackWriteStorage.storeTracksAsync(collection.getCollection()));
-        }
-    };
-    private final Action1<ModelCollection<PolicyInfo>> storePolicies = new Action1<ModelCollection<PolicyInfo>>() {
-        @Override
-        public void call(ModelCollection<PolicyInfo> policies) {
-            if (Log.isLoggable(ADS_TAG, Log.INFO)) {
-                for (PolicyInfo policy : policies.getCollection()) {
-                    com.soundcloud.android.utils.Log.i(ADS_TAG, "Retrieved policy info: " + policy);
-                }
-            }
-            fireAndForget(trackWriteStorage.storePoliciesAsync(policies.getCollection()));
-        }
-    };
 
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                               TrackWriteStorage trackWriteStorage, ApiScheduler apiScheduler) {
-        sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                               StoreTracksCommand storeTracksCommand, StorePoliciesCommand storePoliciesCommand,
+                               ApiScheduler apiScheduler) {
+        this.storeTracksCommand = storeTracksCommand;
+        this.storePoliciesCommand = storePoliciesCommand;
+        this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.playQueueStorage = playQueueStorage;
-        this.trackWriteStorage = trackWriteStorage;
         this.apiScheduler = apiScheduler;
     }
 
@@ -126,7 +109,7 @@ public class PlayQueueOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
-        return apiScheduler.mappedResponse(request).doOnNext(cacheRelatedTracks);
+        return apiScheduler.mappedResponse(request).doOnNext(storeTracksCommand.toAction());
     }
 
     public Observable<PolicyCollection> fetchAndStorePolicies(List<Urn> trackUrns) {
@@ -135,7 +118,7 @@ public class PlayQueueOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(PolicyCollection.class)).build();
 
-        return apiScheduler.mappedResponse(request).doOnNext(storePolicies);
+        return apiScheduler.mappedResponse(request).doOnNext(storePoliciesCommand.toAction());
     }
 
     private List<String> transformUrnsToStrings(List<Urn> trackUrns) {

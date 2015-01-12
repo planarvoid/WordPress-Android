@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Predicate;
@@ -9,11 +8,12 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackWriteStorage;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -22,11 +22,12 @@ import rx.functions.Action1;
 import android.util.Log;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 public class AdsOperations {
 
     private static final String UNIQUE_ID_HEADER = "SC-UDID";
-    private final TrackWriteStorage trackWriteStorage;
+    private final StoreTracksCommand storeTracksCommand;
     private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
     private final ApiScheduler apiScheduler;
@@ -40,15 +41,16 @@ public class AdsOperations {
         @Override
         public void call(ApiAdsForTrack apiAdsForTrack) {
             if (apiAdsForTrack.hasAudioAd()) {
-                fireAndForget(trackWriteStorage.storeTrackAsync(apiAdsForTrack.audioAd().getApiTrack()));
+                final ApiTrack track = apiAdsForTrack.audioAd().getApiTrack();
+                storeTracksCommand.toAction().call(Arrays.asList(track));
             }
         }
     };
 
     @Inject
-    AdsOperations(TrackWriteStorage trackWriteStorage, DeviceHelper deviceHelper,
+    AdsOperations(StoreTracksCommand storeTracksCommand, DeviceHelper deviceHelper,
                   PlayQueueManager playQueueManager, ApiScheduler apiScheduler) {
-        this.trackWriteStorage = trackWriteStorage;
+        this.storeTracksCommand = storeTracksCommand;
         this.deviceHelper = deviceHelper;
         this.playQueueManager = playQueueManager;
         this.apiScheduler = apiScheduler;

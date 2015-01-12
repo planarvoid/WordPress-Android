@@ -16,8 +16,8 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.stream.SoundStreamWriteStorage;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,14 +44,14 @@ public class AccountCleanupActionTest {
     @Mock private UserAssociationStorage userAssociationStorage;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private AccountOperations accountOperations;
-    @Mock private SoundStreamWriteStorage soundStreamWriteStorage;
+    @Mock private ClearSoundStreamCommand clearSoundStreamCommand;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(context, syncStateManager,
                 collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
-                unauthorisedRequestRegistry, soundStreamWriteStorage, offlineSettingsStorage);
+                unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -114,9 +114,9 @@ public class AccountCleanupActionTest {
     }
 
     @Test
-    public void shouldClearSoundStreamStorage() {
+    public void shouldClearSoundStreamStorage() throws PropellerWriteException {
         action.call();
-        verify(soundStreamWriteStorage).clear();
+        verify(clearSoundStreamCommand).call();
     }
 
 }

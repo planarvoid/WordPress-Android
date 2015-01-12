@@ -1,43 +1,22 @@
-package com.soundcloud.android.playlists;
-
-import static com.soundcloud.android.users.UserWriteStorage.buildUserContentValues;
+package com.soundcloud.android.commands;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 
 import android.content.ContentValues;
 import android.text.TextUtils;
 
 import javax.inject.Inject;
-import java.util.Collection;
 
-public class PlaylistWriteStorage {
-
-    private final PropellerDatabase propeller;
+public class StorePlaylistsCommand extends StoreCommand<Iterable<ApiPlaylist>> {
 
     @Inject
-    public PlaylistWriteStorage(PropellerDatabase database) {
-        this.propeller = database;
-    }
-
-    public TxnResult storePlaylists(Collection<ApiPlaylist> playlists) {
-        return propeller.runTransaction(storePlaylistsTransaction(playlists));
-    }
-
-    private PropellerDatabase.Transaction storePlaylistsTransaction(final Collection<ApiPlaylist> playlists) {
-        return new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                for (ApiPlaylist playlist : playlists) {
-                    step(propeller.upsert(Table.Users, buildUserContentValues(playlist.getUser())));
-                    step(propeller.upsert(Table.Sounds, buildPlaylistContentValues(playlist)));
-                }
-            }
-        };
+    public StorePlaylistsCommand(PropellerDatabase database) {
+        super(database);
     }
 
     public static ContentValues buildPlaylistContentValues(ApiPlaylist playlist) {
@@ -54,5 +33,18 @@ public class PlaylistWriteStorage {
                 .put(TableColumns.Sounds.USER_ID, playlist.getUser().getId())
                 .put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
                 .get();
+    }
+
+    @Override
+    protected WriteResult store() {
+        return database.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                for (ApiPlaylist playlist : input) {
+                    step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(playlist.getUser())));
+                    step(propeller.upsert(Table.Sounds, buildPlaylistContentValues(playlist)));
+                }
+            }
+        });
     }
 }
