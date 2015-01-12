@@ -119,8 +119,4 @@ public class ShuffleViewControllerTest {
         return (TextView)controller.getHeaderView().findViewById(R.id.shuffle_txt);
     }
 
-    @Test
-    public void shouldName() {
-
-    }
 }
