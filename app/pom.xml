@@ -13,7 +13,7 @@
     <name>SoundCloud for Android</name>
 
     <properties>
-        <dagger.version>1.2.1</dagger.version>
+        <dagger.version>1.2.2</dagger.version>
         <rxandroid.version>0.23.0</rxandroid.version>
         <rxjava.version>1.0.2</rxjava.version>
         <propeller.version>0.31</propeller.version>
