@@ -18,6 +18,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -141,6 +142,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             tagEvent(LocalyticsEvents.SKIPPY_PLAY, event.getAttributes());
         } else if (event instanceof DeviceMetricsEvent) {
             handleDeviceMetricsEvent((DeviceMetricsEvent) event);
+        } else if (event instanceof SkippyInitilizationFailedEvent) {
+            tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_ERROR, event.getAttributes());
         }
     }
 

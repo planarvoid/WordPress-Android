@@ -11,6 +11,7 @@ import static com.soundcloud.android.skippy.Skippy.State;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -27,6 +28,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -53,7 +55,10 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import android.content.SharedPreferences;
 import android.os.Message;
+
+import java.io.IOException;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SkippyAdapterTest {
@@ -78,6 +83,8 @@ public class SkippyAdapterTest {
     @Mock private LockUtil lockUtil;
     @Mock private DeviceHelper deviceHelper;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private Urn userUrn;
@@ -90,7 +97,7 @@ public class SkippyAdapterTest {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, new ApiUrlBuilder(httpProperties),
-                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener);
+                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener, sharedPreferences);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
@@ -102,6 +109,9 @@ public class SkippyAdapterTest {
         when(listener.requestAudioFocus()).thenReturn(true);
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
+
+        when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
+        when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
     }
 
     @Test
@@ -518,6 +528,23 @@ public class SkippyAdapterTest {
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
         expect(event.getCategory()).toEqual("CODEC_DECODER");
         expect(event.getCdnHost()).toEqual(CDN_HOST);
+    }
+
+    @Test
+    public void initilizationErrorPublishesSkippyInitErrorEvent() throws Exception {
+        skippyAdapter.onInitializationError(new IOException("because"), "some error message");
+
+        final SkippyInitilizationFailedEvent event = (SkippyInitilizationFailedEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getAttributes().get("throwable")).toEqual("java.io.IOException: because");
+        expect(event.getAttributes().get("message")).toEqual("some error message");
+        expect(event.getAttributes().get("failure_count")).toEqual("1");
+    }
+
+    @Test
+    public void initilizationErrorIncrementsFailureCount() throws Exception {
+        skippyAdapter.onInitializationError(new IOException(), "some error message");
+        verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_ERROR_COUNT_KEY, 1);
+        verify(sharedPreferencesEditor).apply();
     }
 
     @Test
