@@ -42,7 +42,7 @@ public class BufferUnderrunListener implements Playa.PlayaListener {
     private void checkForEmptyPlayerType(Playa.StateTransition stateTransition) {
         if (TextUtils.isEmpty(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE))) {
             ErrorUtils.handleSilentException(TAG,
-                    new Exception("Buffer Underrun event with empty player type: " + stateTransition.toString()));
+                    new IllegalStateException("Buffer Underrun event with empty player type: " + stateTransition.toString()));
         }
     }
 
