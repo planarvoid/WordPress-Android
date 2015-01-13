@@ -8,7 +8,6 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 
 import android.widget.AbsListView;
-import android.widget.ListView;
 
 public class PlaylistsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -46,11 +45,11 @@ public class PlaylistsScreen extends Screen {
     }
 
     private ListElement playlistsList() {
-        return new ListElement(getViewPager().getCurrentPage(ListView.class), testDriver.getSolo());
+        return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
     private AbsListView getCurrentListView() {
-        return (AbsListView) getViewPager().getCurrentPage(ListView.class);
+        return testDriver.getCurrentListView();
     }
 
     private void touchTab(String tabText) {
