@@ -21,11 +21,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.SystemClock;
 import android.view.KeyEvent;
-
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RemoteControlReceiverTest {
@@ -43,7 +39,6 @@ public class RemoteControlReceiverTest {
     public void tearDown() throws Exception {
         ShadowSystemClock.reset();
     }
-
 
     @Test
     public void shouldSendPlaybackToggleActionBroadcastOnReceivingMediaPlayPauseEvent() throws Exception {
@@ -68,10 +63,9 @@ public class RemoteControlReceiverTest {
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
         ShadowSystemClock.setUptimeMillis(300L);
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
-        verifyBroadcastedActions(Arrays.asList(
-                PlaybackAction.TOGGLE_PLAYBACK,
+        verifyBroadcastedActions(PlaybackAction.TOGGLE_PLAYBACK,
                 PlaybackAction.NEXT,
-                PlaybackAction.PLAY));
+                PlaybackAction.PLAY);
     }
 
     @Test
@@ -79,9 +73,8 @@ public class RemoteControlReceiverTest {
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
         ShadowSystemClock.setUptimeMillis(1000L);
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
-        verifyBroadcastedActions(Arrays.asList(
-                PlaybackAction.TOGGLE_PLAYBACK,
-                PlaybackAction.TOGGLE_PLAYBACK));
+        verifyBroadcastedActions(PlaybackAction.TOGGLE_PLAYBACK,
+                PlaybackAction.TOGGLE_PLAYBACK);
     }
 
 
@@ -165,10 +158,10 @@ public class RemoteControlReceiverTest {
         expect(captor.getValue().getAction()).toEqual(playbackAction);
     }
 
-    private void verifyBroadcastedActions(final List<String> playbackActions) {
+    private void verifyBroadcastedActions(String... playbackActions) {
         int index = 0;
 
-        verify(context, atLeast(playbackActions.size())).sendBroadcast(captor.capture());
+        verify(context, atLeast(playbackActions.length)).sendBroadcast(captor.capture());
 
         for (String action : playbackActions) {
             expect(captor.getAllValues().get(index++).getAction()).toEqual(action);

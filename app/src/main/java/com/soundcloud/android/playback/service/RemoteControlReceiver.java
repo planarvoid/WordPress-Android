@@ -8,12 +8,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.KeyEvent;
 
 public class RemoteControlReceiver extends BroadcastReceiver {
     private static final int DOUBLE_CLICK_DELAY = 400;
-    public static long lastClicked = -DOUBLE_CLICK_DELAY;
+    private static long lastClicked = -DOUBLE_CLICK_DELAY;
 
     @Override
     public void onReceive(Context context, Intent intent) {
