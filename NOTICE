@@ -19,11 +19,26 @@ Copyright 2013, The Apache Software Foundation
 Google Guava
 Copyright 2009-2013, Google Inc.
 
-json
-Copyright 2002 JSON.org
-
 Facebook Android SDK
 Copyright 2014 Facebook
+
+Dagger
+Copyright 2013 Square, Inc.
+
+OkHttp
+Copyright 2014 Square, Inc.
+
+ButterKnife
+Copyright 2013 Jake Wharton
+
+Rebound
+Copyright (c) 2013, Facebook, Inc.
+
+UndoBar
+Copyright 2011, 2014 Liao Kai
+
+NineOldAndroids
+Copyright 2012 Jake Wharton
 
 This software contains code derived from code developed by
 The Android Open Source Project (http://www.android.com/).
