@@ -34,8 +34,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
         playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistsScreen.clickPlaylistAt(0);
-        playlistDetailsScreen = new PlaylistDetailsScreen(solo);
+        playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
 
     public void testPlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {

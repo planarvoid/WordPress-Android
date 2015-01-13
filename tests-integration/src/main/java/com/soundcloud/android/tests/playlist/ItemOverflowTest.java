@@ -31,8 +31,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
         PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistsScreen.clickPlaylistAt(0);
-        playlistDetailsScreen = new PlaylistDetailsScreen(solo);
+        playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
 
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
