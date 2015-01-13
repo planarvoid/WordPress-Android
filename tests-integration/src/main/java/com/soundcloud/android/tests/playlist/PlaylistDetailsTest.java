@@ -9,14 +9,14 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
-    private PlaylistScreen playlistScreen;
+    private PlaylistsScreen playlistsScreen;
 
     public PlaylistDetailsTest() {
         super(LauncherActivity.class);
@@ -32,9 +32,9 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        playlistScreen = menuScreen.open().clickPlaylist();
+        playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistScreen.clickPlaylistAt(0);
+        playlistsScreen.clickPlaylistAt(0);
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
     }
 

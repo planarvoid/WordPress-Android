@@ -5,10 +5,10 @@ import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 
-public class PlaylistScreen extends Screen {
+public class PlaylistsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
 
-    public PlaylistScreen(Han solo) {
+    public PlaylistsScreen(Han solo) {
         super(solo);
     }
 

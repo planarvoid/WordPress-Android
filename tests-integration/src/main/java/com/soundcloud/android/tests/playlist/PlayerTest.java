@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistsScreen;
-import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -54,9 +54,9 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void openPlaylist() {
-        PlaylistScreen playlistScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistScreen.clickPlaylistAt(0);
+        playlistsScreen.clickPlaylistAt(0);
     }
 
 }
