@@ -12,7 +12,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 

@@ -1,4 +1,4 @@
-package com.soundcloud.android.experiments;
+package com.soundcloud.android.configuration.experiments;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyInt;

@@ -42,6 +42,11 @@
             android:title="@string/pref_dev_offline_sync"
             android:defaultValue="false"/>
 
+        <Preference
+            android:key="@string/key_dev_features"
+            android:summary="@string/pref_dev_features_summary"
+            android:title="@string/pref_dev_features" />
+
         <EditTextPreference
             android:key="@string/key_dev_http_proxy"
             android:summary="@string/pref_dev_http_proxy_summary"

@@ -40,6 +40,7 @@ public class DeveloperSettings {
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
     public static final String DEV_OFFLINE_SYNC = "dev.offlineSync";
+    public static final String DEV_CONFIG_FEATURES = "dev.configFeatures";
 
     private final SoundCloudApplication application;
     private final OfflineContentOperations offlineOperations;
@@ -127,6 +128,14 @@ public class DeveloperSettings {
                     }
                 }
         );
+
+        activity.findPreference(DEV_CONFIG_FEATURES).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                activity.startActivity(new Intent(activity, ConfigurationFeaturesActivity.class));
+                return true;
+            }
+        });
 
         activity.findPreference(DEV_CLEAR_RECORDINGS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
+import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.service.PlayQueueView;
@@ -46,12 +47,13 @@ public class AccountCleanupActionTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ClearSoundStreamCommand clearSoundStreamCommand;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
+    @Mock private FeatureStorage featureStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(context, syncStateManager,
                 collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
-                unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage);
+                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -111,6 +113,12 @@ public class AccountCleanupActionTest {
     public void shouldClearOfflineSettingsStorage() {
         action.call();
         verify(offlineSettingsStorage).clear();
+    }
+
+    @Test
+    public void shouldClearFeatureStorage() {
+        action.call();
+        verify(featureStorage).clear();
     }
 
     @Test

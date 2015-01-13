@@ -182,7 +182,13 @@ public class TestApplicationModule {
 
     @Provides
     @Named("OfflineSettings")
-    public SharedPreferences provideOfflinePrefs(){
+    public SharedPreferences provideOfflinePrefs() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named("Features")
+    public SharedPreferences provideFeatures() {
         return provideSharedPreferences();
     }
 

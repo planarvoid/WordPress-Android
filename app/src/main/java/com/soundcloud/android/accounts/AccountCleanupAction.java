@@ -5,6 +5,7 @@ import static com.soundcloud.android.onboarding.auth.FacebookSSOActivity.FBToken
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.cache.ConnectionsCache;
+import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
@@ -31,6 +32,7 @@ class AccountCleanupAction implements Action0 {
     private final PlaylistTagStorage tagStorage;
     private final SoundRecorder soundRecorder;
     private final SyncStateManager syncStateManager;
+    private final FeatureStorage featureStorage;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final ClearSoundStreamCommand clearSoundStreamCommand;
     private final OfflineSettingsStorage offlineSettingsStorage;
@@ -39,7 +41,7 @@ class AccountCleanupAction implements Action0 {
     AccountCleanupAction(Context context, SyncStateManager syncStateManager,
                          CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage,
                          UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
-                         SoundRecorder soundRecorder,
+                         SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage) {
         this.context = context;
@@ -49,6 +51,7 @@ class AccountCleanupAction implements Action0 {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
+        this.featureStorage = featureStorage;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.clearSoundStreamCommand = clearSoundStreamCommand;
         this.offlineSettingsStorage = offlineSettingsStorage;
@@ -66,6 +69,7 @@ class AccountCleanupAction implements Action0 {
         userAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
+        featureStorage.clear();
         soundRecorder.reset();
         FBToken.clear(context);
         FollowingOperations.clearState();

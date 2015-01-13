@@ -1,4 +1,4 @@
-package com.soundcloud.android.experiments;
+package com.soundcloud.android.configuration.experiments;
 
 import rx.Observable;
 import rx.functions.Action1;

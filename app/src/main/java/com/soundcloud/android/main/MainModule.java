@@ -14,6 +14,7 @@ import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.settings.AccountSettingsActivity;
+import com.soundcloud.android.settings.ConfigurationFeaturesActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.ScSettingsActivity;
@@ -35,6 +36,7 @@ import dagger.Module;
                 ScSettingsActivity.class,
                 SettingsActivity.class,
                 AccountSettingsActivity.class,
+                ConfigurationFeaturesActivity.class,
                 NotificationSettingsActivity.class,
                 LegalActivity.class,
                 WhoToFollowActivity.class,

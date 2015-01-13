@@ -1,20 +1,26 @@
-package com.soundcloud.android.experiments;
+package com.soundcloud.android.configuration;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.configuration.experiments.Layer;
+import com.soundcloud.android.configuration.features.Feature;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
+import java.util.Arrays;
 import java.util.List;
 
-@Blueprint(Assignment.class)
-public class AssignmentBlueprint {
+@Blueprint(Configuration.class)
+public class ConfigurationBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            Assignment assignment = new Assignment(createLayers());
-            return assignment;
+            return new Configuration(createLayers(), createFeatures());
         }
     };
+
+    private List<Feature> createFeatures() {
+        return Arrays.asList(new Feature("feature_disabled", false), new Feature("feature_enabled", true));
+    }
 
     private List<Layer> createLayers() {
         Layer androidUi = new Layer();

@@ -310,6 +310,7 @@
             </intent-filter>
         </activity>
         <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity" />
+        <activity android:label="@string/dev_configuration_features" android:name=".settings.ConfigurationFeaturesActivity" android:enabled="@bool/debug_feature_screen" />
         <activity android:label="@string/title_about" android:name=".settings.AboutActivity" />
         <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" />
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>

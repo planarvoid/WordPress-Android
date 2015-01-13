@@ -1,4 +1,4 @@
-package com.soundcloud.android.experiments;
+package com.soundcloud.android.configuration.experiments;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

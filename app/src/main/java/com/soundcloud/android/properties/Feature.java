@@ -13,8 +13,8 @@ public enum Feature {
     OFFLINE_SYNC_FROM_LIKES(R.bool.feature_offline_sync_from_likes),
     TRACK_LIKES_SCREEN(R.bool.feature_track_likes_screen),
     NEW_LIKES_SYNCER(R.bool.feature_new_likes_syncer),
-    PLAYLIST_LIKES_SCREEN(R.bool.feature_playlist_likes_screen);
-
+    PLAYLIST_LIKES_SCREEN(R.bool.feature_playlist_likes_screen),
+    CONFIGURATION_FEATURES(R.bool.feature_configuration_features);
     private final int resourceId;
 
     private Feature(int resourceId) {

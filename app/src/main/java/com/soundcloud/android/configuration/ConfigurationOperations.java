@@ -3,9 +3,12 @@ package com.soundcloud.android.configuration;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.experiments.ExperimentOperations;
+import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -33,16 +36,22 @@ public class ConfigurationOperations {
 
     private final ApiScheduler apiScheduler;
     private final ExperimentOperations experimentOperations;
+    private final FeatureOperations featureOperations;
     private final DeviceHelper deviceHelper;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
     private  Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public ConfigurationOperations(ApiScheduler apiScheduler, ExperimentOperations experimentOperations, DeviceHelper deviceHelper, EventBus eventBus) {
+    public ConfigurationOperations(ApiScheduler apiScheduler, ExperimentOperations experimentOperations,
+                                   FeatureOperations featureOperations,DeviceHelper deviceHelper,
+                                   EventBus eventBus, FeatureFlags featureFlags) {
         this.apiScheduler = apiScheduler;
         this.experimentOperations = experimentOperations;
+        this.featureOperations = featureOperations;
         this.deviceHelper = deviceHelper;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
     }
 
     public void update() {
@@ -78,6 +87,9 @@ public class ConfigurationOperations {
         public void onNext(Configuration configuration) {
             Log.d(TAG, "Received new configuration");
             experimentOperations.update(configuration.assignment);
+            if (featureFlags.isEnabled(Feature.CONFIGURATION_FEATURES)) {
+                featureOperations.update(configuration.features);
+            }
         }
     }
 }

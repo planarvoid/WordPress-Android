@@ -1,4 +1,4 @@
-package com.soundcloud.android.experiments;
+package com.soundcloud.android.configuration.experiments;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;

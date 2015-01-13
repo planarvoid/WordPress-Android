@@ -15,6 +15,9 @@
     <string name="pref_dev_crash">Crash</string>
     <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
 
+    <string name="pref_dev_features">Features</string>
+    <string name="pref_dev_features_summary">Configuration endpoint features</string>
+
     <string name="pref_dev_sync_now">Sync now</string>
     <string name="pref_dev_sync_now_summary">Request a sync</string>
 
@@ -29,5 +32,6 @@
     <string name="pref_dev_offline_sync_summary">All current and future likes will be offline synced to your device</string>
 
     <string name="dev_clear_recordings">Clear all recordings?</string>
+    <string name="dev_configuration_features">Configuration Features</string>
 
 </resources>
