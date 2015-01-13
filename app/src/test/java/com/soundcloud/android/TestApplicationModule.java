@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -7,6 +9,8 @@ import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -29,6 +33,7 @@ import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
+import rx.Observable;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
@@ -148,7 +153,10 @@ public class TestApplicationModule {
 
     @Provides
     public ApiScheduler provideApiScheduler() {
-        return mock(ApiScheduler.class);
+        final ApiScheduler apiScheduler = mock(ApiScheduler.class);
+        final ApiRequest configurationEndPoint = argThat(isMobileApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path()));
+        when(apiScheduler.mappedResponse(configurationEndPoint)).thenReturn(Observable.never());
+        return apiScheduler;
     }
 
     @Provides

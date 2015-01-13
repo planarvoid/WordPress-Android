@@ -53,6 +53,7 @@ public enum ApiEndpoints {
     STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
     PLAYLISTS_FETCH("/playlists/fetch"),
+    CONFIGURATION("/configuration/android"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),

@@ -81,7 +81,7 @@ public class AdsOperationsTest {
     public void audioAdRequestIncludesUniqueDeviceId() {
         final ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         when(apiScheduler.mappedResponse(captor.capture())).thenReturn(Observable.just(fullAdsForTrack));
-        when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("is google watching?");
+        when(deviceHelper.getUDID()).thenReturn("is google watching?");
 
         adsOperations.ads(TRACK_URN).subscribe();
 

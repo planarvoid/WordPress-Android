@@ -26,7 +26,6 @@ import java.util.Arrays;
 
 public class AdsOperations {
 
-    private static final String UNIQUE_ID_HEADER = "SC-UDID";
     private final StoreTracksCommand storeTracksCommand;
     private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
@@ -61,7 +60,7 @@ public class AdsOperations {
         final ApiRequest<ApiAdsForTrack> request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiAdsForTrack.class))
-                .withHeader(UNIQUE_ID_HEADER, deviceHelper.getHashedUniqueDeviceID())
+                .withHeader(ApiRequest.HEADER_UDID, deviceHelper.getUDID())
                 .build();
 
         return apiScheduler.mappedResponse(request)
