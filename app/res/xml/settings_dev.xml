@@ -44,8 +44,9 @@
 
         <Preference
             android:key="@string/key_dev_features"
+            android:title="@string/pref_dev_features"
             android:summary="@string/pref_dev_features_summary"
-            android:title="@string/pref_dev_features" />
+            android:enabled="@bool/debug_feature_screen" />
 
         <EditTextPreference
             android:key="@string/key_dev_http_proxy"
