@@ -329,6 +329,8 @@
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>
+    <string name="liked_playlists_tab">LIKED PLAYLISTS</string>
+    <string name="your_playlists_tab">YOUR PLAYLISTS</string>
     <string name="playlist_info_header_text">This playlist contains %1$s, total time: %2$s</string>
     <string name="playlist_removed">This playlist was not found on SoundCloud</string>
     <string name="playlist_load_error">Could not load this playlist</string>
