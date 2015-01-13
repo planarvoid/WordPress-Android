@@ -4,10 +4,7 @@ import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-
-import android.text.TextUtils;
 
 import javax.inject.Inject;
 
@@ -28,21 +25,12 @@ public class BufferUnderrunListener implements Playa.PlayaListener {
     public void onPlaystateChanged(Playa.StateTransition stateTransition) {
         Log.d(TAG, "StateTransition: " + stateTransition);
         if (detector.onStateTransitionEvent(stateTransition)) {
-            checkForEmptyPlayerType(stateTransition);
             final BufferUnderrunEvent event = new BufferUnderrunEvent(
                     stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_CONNECTION_TYPE),
                     stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE),
                     stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE));
             Log.i(TAG, "Playa buffer underrun. " + event);
             eventBus.publish(EventQueue.TRACKING, event);
-        }
-    }
-
-    // This should be removed when we discover why we are getting empty player types
-    private void checkForEmptyPlayerType(Playa.StateTransition stateTransition) {
-        if (TextUtils.isEmpty(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE))) {
-            ErrorUtils.handleSilentException(TAG,
-                    new Exception("Buffer Underrun event with empty player type: " + stateTransition.toString()));
         }
     }
 

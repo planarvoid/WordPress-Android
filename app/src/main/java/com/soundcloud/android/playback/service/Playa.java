@@ -176,7 +176,6 @@ public interface Playa {
                     ", currentProgress=" + progress.getPosition() +
                     ", duration=" + progress.getDuration() +
                     ", trackUrn=" + trackUrn +
-                    ", extraAttributes=" + extraAttributes +
                     '}';
         }
     }
