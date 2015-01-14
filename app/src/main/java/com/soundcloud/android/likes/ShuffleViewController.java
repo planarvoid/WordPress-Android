@@ -16,9 +16,7 @@ import com.soundcloud.android.utils.CallsiteToken;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.HeaderViewController;
 import rx.Observer;
-import rx.Subscription;
 import rx.functions.Action0;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.view.View;
@@ -36,14 +34,12 @@ public class ShuffleViewController extends HeaderViewController implements Obser
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final PlaybackOperations playbackOperations;
     private final EventBus eventBus;
-    private List<Urn> likedTracks;
+    private final List<Urn> likedTracks;
 
     private View shuffleView;
 
     @InjectView(R.id.shuffle_txt) TextView shuffleTextView;
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
-
-    private Subscription subscription = Subscriptions.empty();
 
     private final CallsiteToken callsiteToken = CallsiteToken.build();
 
@@ -72,7 +68,6 @@ public class ShuffleViewController extends HeaderViewController implements Obser
 
     @Override
     public void onDestroyView() {
-        subscription.unsubscribe();
         shuffleView = null;
     }
 
