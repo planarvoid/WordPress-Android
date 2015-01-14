@@ -5,36 +5,40 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.Feature;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.content.UserAssociationSyncer;
+import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.playlists.PlaylistSyncer;
 import com.soundcloud.android.sync.stream.SoundStreamSyncer;
-import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import dagger.Lazy;
 
 import android.content.Context;
 import android.net.Uri;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 
+@SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
     private final Provider<FollowingOperations> followingOpsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final FeatureFlags featureFlags;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
-    private final Lazy<LikesSyncer> lazyLikesSyncer;
+    private final Lazy<LikesSyncer> trackLikesSyncer, playlistLikesSyncer;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
                             FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
-                            Lazy<LikesSyncer> lazyLikesSyncer) {
+                            @Named("TrackLikesSyncer") Lazy<LikesSyncer> trackLikesSyncer,
+                            @Named("PlaylistLikesSyncer") Lazy<LikesSyncer> playlistLikesSyncer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
-        this.lazyLikesSyncer = lazyLikesSyncer;
+        this.trackLikesSyncer = trackLikesSyncer;
+        this.playlistLikesSyncer = playlistLikesSyncer;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -49,7 +53,7 @@ public class ApiSyncerFactory {
                 }
             case ME_LIKES:
                 if (featureFlags.isEnabled(Feature.NEW_LIKES_SYNCER)) {
-                    return lazyLikesSyncer.get();
+                    return trackLikesSyncer.get();
                 } else {
                     return new ApiSyncer(context, context.getContentResolver());
                 }

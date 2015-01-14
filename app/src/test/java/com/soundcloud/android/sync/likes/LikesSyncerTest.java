@@ -17,20 +17,15 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.ApiResourceCommand;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.likes.LikeStorage;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
-import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.android.tracks.ApiTrackCollection;
@@ -53,34 +48,29 @@ public class LikesSyncerTest {
 
     private final Urn userUrn = new Urn("soundcloud:users:123");
     private ApiLike trackLike;
-    private ApiLike playlistLike;
 
     @Mock private ApiClient apiClient;
-    @Mock private LikeStorage likesStorage;
-    @Mock private FetchTracksCommand fetchTracksCommand;
-    @Mock private FetchPlaylistsCommand fetchPlaylistsCommand;
-    @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private StorePlaylistsCommand storePlaylistsCommand;
+    @Mock private LoadLikesCommand loadLikesCommand;
+    @Mock private LoadLikesPendingRemovalCommand loadLikesPendingRemovalCommand;
+    @Mock private ApiResourceCommand fetchLikedResourcesCommand;
+    @Mock private StoreCommand storeLikedResourcesCommand;
     @Mock private StoreLikesCommand storeLikesCommand;
     @Mock private RemoveLikesCommand removeLikesCommand;
     @Mock private AccountOperations accountOperations;
 
     @Before
     public void setup() throws Exception {
-        syncer = new LikesSyncer(apiClient, likesStorage, fetchTracksCommand,
-                fetchPlaylistsCommand, storeTracksCommand, storePlaylistsCommand, storeLikesCommand,
-                removeLikesCommand, accountOperations);
+        syncer = new LikesSyncer(apiClient, fetchLikedResourcesCommand, loadLikesCommand,
+                loadLikesPendingRemovalCommand, storeLikedResourcesCommand, storeLikesCommand,
+                removeLikesCommand, accountOperations, ApiEndpoints.LIKED_TRACKS, ApiEndpoints.MY_TRACK_LIKES);
         trackLike = ModelFixtures.apiTrackLike();
-        playlistLike = ModelFixtures.apiPlaylistLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
 
     @Test
     public void shouldDoNothingIfLocalAndRemoteStateAreIdentical() throws Exception {
         withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes(playlistLike);
         withLocalTrackLikes(trackLike);
-        withLocalPlaylistLikes(playlistLike);
 
         ApiSyncResult result = syncer.syncContent(null, null);
 
@@ -91,16 +81,12 @@ public class LikesSyncerTest {
         verifyZeroInteractions(storeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
-        verifyRemotePlaylistLikeAddition(never(), playlistLike);
-        verifyRemotePlaylistLikeRemoval(never(), playlistLike);
     }
 
     @Test
     public void shouldCreateLikeRemotelyIfExistsLocallyButNotRemotely() throws Exception {
         withRemoteTrackLikes();
-        withRemotePlaylistLikes();
         withLocalTrackLikes(trackLike);
-        withLocalPlaylistLikes(playlistLike);
 
         ApiSyncResult result = syncer.syncContent(null, null);
 
@@ -109,8 +95,6 @@ public class LikesSyncerTest {
 
         verifyRemoteTrackLikeAddition(times(1), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
-        verifyRemotePlaylistLikeAddition(times(1), playlistLike);
-        verifyRemotePlaylistLikeRemoval(never(), playlistLike);
         verifyZeroInteractions(removeLikesCommand);
         verifyZeroInteractions(storeLikesCommand);
     }
@@ -119,36 +103,28 @@ public class LikesSyncerTest {
     public void shouldCreateLikeLocallyIfExistsRemotelyButNotLocally() throws Exception {
         when(apiClient.fetchMappedResponse(any(ApiRequest.class))).thenReturn(new ApiTrackCollection());
         withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes(playlistLike);
         withLocalTrackLikes();
-        withLocalPlaylistLikes();
 
         ApiSyncResult result = syncer.syncContent(null, null);
 
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(storeLikesCommand, times(2)).call(); // we can improve this test once we separare playlists from tracks
+        expect(storeLikesCommand.getInput()).toContainExactly(trackLike.toPropertySet());
+        verify(storeLikesCommand).call();
         verifyZeroInteractions(removeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
-        verifyRemotePlaylistLikeAddition(never(), playlistLike);
-        verifyRemotePlaylistLikeRemoval(never(), playlistLike);
     }
 
     @Test
     public void shouldRemoveLikeRemotelyIfLocalLikeIsPendingRemovalAndExistsRemotelyWithOlderTimestamp() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
                 .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
-        PropertySet playlistLikePendingRemoval = playlistLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(playlistLike.getCreatedAt().getTime() + 1));
 
         withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes(playlistLike);
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        withLocalPlaylistLikes();
-        withLocalPlaylistLikesPendingRemoval(playlistLikePendingRemoval);
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(TestApiResponses.ok());
 
         ApiSyncResult result = syncer.syncContent(null, null);
@@ -157,24 +133,17 @@ public class LikesSyncerTest {
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
         verifyRemoteTrackLikeRemoval(times(1), trackLike);
-        verifyRemotePlaylistLikeRemoval(times(1), playlistLike);
         verifyRemoteTrackLikeAddition(never(), trackLike);
-        verifyRemotePlaylistLikeAddition(never(), playlistLike);
     }
 
     @Test
     public void shouldRemoveLikeLocallyIfPendingRemovalRequestSucceeded() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
                 .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
-        PropertySet playlistLikePendingRemoval = playlistLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(playlistLike.getCreatedAt().getTime() + 1));
 
         withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes(playlistLike);
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        withLocalPlaylistLikes();
-        withLocalPlaylistLikesPendingRemoval(playlistLikePendingRemoval);
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(TestApiResponses.ok());
 
         ApiSyncResult result = syncer.syncContent(null, null);
@@ -182,7 +151,10 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(removeLikesCommand, times(2)).call(); // we can improve this test once we separare playlists from tracks
+        expect(removeLikesCommand.getInput()).toNumber(1);
+        Urn removedUrn = removeLikesCommand.getInput().iterator().next().get(LikeProperty.TARGET_URN);
+        expect(removedUrn).toEqual(trackLikePendingRemoval.get(LikeProperty.TARGET_URN));
+        verify(removeLikesCommand).call();
         verifyZeroInteractions(storeLikesCommand);
     }
 
@@ -190,15 +162,13 @@ public class LikesSyncerTest {
     public void shouldNotRemoveLikeLocallyIfPendingRemovalRequestFailed() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
                 .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
-        PropertySet playlistLikePendingRemoval = playlistLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(playlistLike.getCreatedAt().getTime() + 1));
+        final ApiLike otherLike = ModelFixtures.apiTrackLike();
+        PropertySet otherLikePendingRemoval = otherLike.toPropertySet()
+                .put(LikeProperty.REMOVED_AT, new Date(otherLike.getCreatedAt().getTime() + 1));
 
-        withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes(playlistLike);
+        withRemoteTrackLikes(trackLike, otherLike);
         withLocalTrackLikes();
-        withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        withLocalPlaylistLikes();
-        withLocalPlaylistLikesPendingRemoval(playlistLikePendingRemoval);
+        withLocalTrackLikesPendingRemoval(trackLikePendingRemoval, otherLikePendingRemoval);
         when(apiClient.fetchResponse(argThat(isPublicApiRequestMethod("DELETE")))).thenReturn(TestApiResponses.status(500), TestApiResponses.ok());
 
         ApiSyncResult result = syncer.syncContent(null, null);
@@ -206,8 +176,10 @@ public class LikesSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        // only remove the playlist like
-        expect(removeLikesCommand.getInput()).toEqual(new HashSet(Arrays.asList(playlistLikePendingRemoval)));
+        // only remove the second like (first one failed)
+        expect(removeLikesCommand.getInput()).toNumber(1);
+        Urn removedUrn = removeLikesCommand.getInput().iterator().next().get(LikeProperty.TARGET_URN);
+        expect(removedUrn).toEqual(otherLikePendingRemoval.get(LikeProperty.TARGET_URN));
         verify(removeLikesCommand).call();
         verifyZeroInteractions(storeLikesCommand);
     }
@@ -216,27 +188,24 @@ public class LikesSyncerTest {
     public void shouldRemoveLikeOnlyLocallyIfPendingRemovalAndDoesNotExistRemotely() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
                 .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
-        PropertySet playlistLikePendingRemoval = playlistLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(playlistLike.getCreatedAt().getTime() + 1));
 
         withRemoteTrackLikes();
-        withRemotePlaylistLikes();
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        withLocalPlaylistLikes();
-        withLocalPlaylistLikesPendingRemoval(playlistLikePendingRemoval);
 
         ApiSyncResult result = syncer.syncContent(null, null);
 
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(removeLikesCommand, times(2)).call();
+        expect(removeLikesCommand.getInput()).toNumber(1);
+        Urn removedUrn = removeLikesCommand.getInput().iterator().next().get(LikeProperty.TARGET_URN);
+        expect(removedUrn).toEqual(trackLikePendingRemoval.get(LikeProperty.TARGET_URN));
+
+        verify(removeLikesCommand).call();
         verifyZeroInteractions(storeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
-        verifyRemotePlaylistLikeAddition(never(), playlistLike);
-        verifyRemotePlaylistLikeRemoval(never(), playlistLike);
     }
 
     @Test
@@ -244,27 +213,21 @@ public class LikesSyncerTest {
         when(apiClient.fetchMappedResponse(any(ApiRequest.class))).thenReturn(new ApiTrackCollection());
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
                 .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() - 1));
-        PropertySet playlistLikePendingRemoval = playlistLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(playlistLike.getCreatedAt().getTime() - 1));
 
         withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes(playlistLike);
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-        withLocalPlaylistLikes();
-        withLocalPlaylistLikesPendingRemoval(playlistLikePendingRemoval);
 
         ApiSyncResult result = syncer.syncContent(null, null);
 
         expect(result.success).toBeTrue();
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
-        verify(storeLikesCommand, times(2)).call();
+        expect(storeLikesCommand.getInput()).toContainExactly(trackLike.toPropertySet());
+        verify(storeLikesCommand).call();
         verifyZeroInteractions(removeLikesCommand);
         verifyRemoteTrackLikeAddition(never(), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
-        verifyRemotePlaylistLikeAddition(never(), playlistLike);
-        verifyRemotePlaylistLikeRemoval(never(), playlistLike);
     }
 
     @Test
@@ -290,8 +253,6 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(existsRemotelyNotLocally, existsRemotelyPendingRemoval);
         withLocalTrackLikes(existsLocallyNotRemotely.toPropertySet());
         withLocalTrackLikesPendingRemoval(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval);
-        withLocalPlaylistLikes();
-        withRemotePlaylistLikes();
 
         ApiSyncResult result = syncer.syncContent(null, null);
 
@@ -299,43 +260,25 @@ public class LikesSyncerTest {
         expect(result.change).toBe(ApiSyncResult.CHANGED);
 
         verify(storeLikesCommand).call();
-        expect(storeLikesCommand.getInput()).toEqual(new HashSet(toPropertySets(Arrays.asList(existsRemotelyNotLocally))));
+        expect(storeLikesCommand.getInput()).toContainExactly(existsRemotelyNotLocally.toPropertySet());
         verify(removeLikesCommand).call();
-        expect(removeLikesCommand.getInput()).toEqual(new HashSet(Arrays.asList(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval)));
+        expect(removeLikesCommand.getInput()).toContainExactly(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval);
         verifyRemoteTrackLikeAddition(times(1), existsLocallyNotRemotely);
         verifyRemoteTrackLikeRemoval(times(1), existsRemotelyPendingRemoval);
     }
 
     @Test
-    public void shouldResolveNewlyLikedTrackUrnsToFullTracksAndStoreThemLocally() throws Exception {
+    public void shouldResolveNewlyLikedResourceUrnsToFullResourcesAndStoreThemLocally() throws Exception {
         withLocalTrackLikes();
-        withLocalPlaylistLikes();
         withRemoteTrackLikes(trackLike);
-        withRemotePlaylistLikes();
         final ApiTrackCollection tracks = new ApiTrackCollection();
         tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
-        when(fetchTracksCommand.call()).thenReturn(tracks);
+        when(fetchLikedResourcesCommand.call()).thenReturn(tracks);
 
         syncer.syncContent(null, null);
 
-        verify(storeTracksCommand).call();
-        expect(storeTracksCommand.getInput()).toEqual(tracks);
-    }
-
-    @Test
-    public void shouldResolveNewlyLikedPlaylistUrnsToFullPlaylistsAndStoreThemLocally() throws Exception {
-        withLocalTrackLikes();
-        withLocalPlaylistLikes();
-        withRemoteTrackLikes();
-        withRemotePlaylistLikes(playlistLike);
-        final ApiPlaylistCollection playlists = new ApiPlaylistCollection();
-        playlists.setCollection(ModelFixtures.create(ApiPlaylist.class, 2));
-        when(fetchPlaylistsCommand.call()).thenReturn(playlists);
-
-        syncer.syncContent(null, null);
-
-        verify(storePlaylistsCommand).call();
-        expect(storePlaylistsCommand.getInput()).toEqual(playlists);
+        verify(storeLikedResourcesCommand).call();
+        expect(storeLikedResourcesCommand.getInput()).toEqual(tracks);
     }
 
     private void withRemoteTrackLikes(ApiLike... likes) throws Exception {
@@ -343,37 +286,20 @@ public class LikesSyncerTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.LIKED_TRACKS.path(userUrn))))).thenReturn(response);
     }
 
-    private void withRemotePlaylistLikes(ApiLike... likes) throws Exception {
-        final ModelCollection<ApiLike> response = new ModelCollection<>(Arrays.asList(likes));
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.LIKED_PLAYLISTS.path(userUrn))))).thenReturn(response);
+    private void withLocalTrackLikes() throws Exception {
+        when(loadLikesCommand.call()).thenReturn(Collections.<PropertySet>emptyList());
     }
 
-    private void withLocalTrackLikes() {
-        when(likesStorage.loadTrackLikes()).thenReturn(Collections.<PropertySet>emptyList());
+    private void withLocalTrackLikes(ApiLike... likes) throws Exception {
+        when(loadLikesCommand.call()).thenReturn(toPropertySets(Arrays.asList(likes)));
     }
 
-    private void withLocalTrackLikes(ApiLike... likes) {
-        when(likesStorage.loadTrackLikes()).thenReturn(toPropertySets(Arrays.asList(likes)));
+    private void withLocalTrackLikes(PropertySet... likes) throws Exception {
+        when(loadLikesCommand.call()).thenReturn(Arrays.asList(likes));
     }
 
-    private void withLocalTrackLikes(PropertySet... likes) {
-        when(likesStorage.loadTrackLikes()).thenReturn(Arrays.asList(likes));
-    }
-
-    private void withLocalTrackLikesPendingRemoval(PropertySet... likes) {
-        when(likesStorage.loadTrackLikesPendingRemoval()).thenReturn(Arrays.asList(likes));
-    }
-
-    private void withLocalPlaylistLikes() {
-        when(likesStorage.loadPlaylistLikes()).thenReturn(Collections.<PropertySet>emptyList());
-    }
-
-    private void withLocalPlaylistLikes(ApiLike... likes) {
-        when(likesStorage.loadPlaylistLikes()).thenReturn(toPropertySets(Arrays.asList(likes)));
-    }
-
-    private void withLocalPlaylistLikesPendingRemoval(PropertySet... likes) {
-        when(likesStorage.loadPlaylistLikesPendingRemoval()).thenReturn(Arrays.asList(likes));
+    private void withLocalTrackLikesPendingRemoval(PropertySet... likes) throws Exception {
+        when(loadLikesPendingRemovalCommand.call()).thenReturn(Arrays.asList(likes));
     }
 
     private void verifyRemoteTrackLikeAddition(VerificationMode verificationMode, ApiLike like) {
@@ -384,15 +310,5 @@ public class LikesSyncerTest {
     private void verifyRemoteTrackLikeRemoval(VerificationMode verificationMode, ApiLike like) {
         verify(apiClient, verificationMode).fetchResponse(
                 argThat(isPublicApiRequestTo("DELETE", ApiEndpoints.MY_TRACK_LIKES.path(like.getTargetUrn().getNumericId()))));
-    }
-
-    private void verifyRemotePlaylistLikeAddition(VerificationMode verificationMode, ApiLike like) {
-        verify(apiClient, verificationMode).fetchResponse(
-                argThat(isPublicApiRequestTo("PUT", ApiEndpoints.MY_PLAYLIST_LIKES.path(like.getTargetUrn().getNumericId()))));
-    }
-
-    private void verifyRemotePlaylistLikeRemoval(VerificationMode verificationMode, ApiLike like) {
-        verify(apiClient, verificationMode).fetchResponse(
-                argThat(isPublicApiRequestTo("DELETE", ApiEndpoints.MY_PLAYLIST_LIKES.path(like.getTargetUrn().getNumericId()))));
     }
 }

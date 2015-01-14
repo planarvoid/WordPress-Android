@@ -9,15 +9,12 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.ApiResourceCommand;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.likes.LikeStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
-import com.soundcloud.android.sync.commands.FetchTracksCommand;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -33,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -43,81 +39,59 @@ public class LikesSyncer implements SyncStrategy {
     private static final Comparator<PropertySet> LIKES_COMPARATOR = new PropertySetComparator<>(LikeProperty.TARGET_URN);
 
     private final ApiClient apiClient;
-    private final LikeStorage likesStorage;
-    private final FetchTracksCommand fetchTracksCommand;
-    private final FetchPlaylistsCommand fetchPlaylistsCommand;
-    private final StoreTracksCommand storeTracksCommand;
-    private final StorePlaylistsCommand storePlaylistsCommand;
-    private final StoreLikesCommand storeLikesCommand;
-    private final RemoveLikesCommand removeLikesCommand;
+    private final ApiResourceCommand fetchLikedResources;
+    private final LoadLikesCommand loadLikes;
+    private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
+    private final StoreCommand storeLikedResources;
+    private final StoreLikesCommand storeLikes;
+    private final RemoveLikesCommand removeLikes;
     private final AccountOperations accountOperations;
+    private final ApiEndpoints fetchLikesEndpoint;
+    private final ApiEndpoints writeLikesEndpoint;
 
     @Inject
-    LikesSyncer(ApiClient apiClient, LikeStorage likesStorage, FetchTracksCommand fetchTracksCommand,
-                FetchPlaylistsCommand fetchPlaylistsCommand, StoreTracksCommand storeTracksCommand,
-                StorePlaylistsCommand storePlaylistsCommand, StoreLikesCommand storeLikesCommand,
-                RemoveLikesCommand removeLikesCommand, AccountOperations accountOperations) {
+    @SuppressWarnings("PMD.ExcessiveParameterList") // We will run into this a lot with commands...
+    LikesSyncer(ApiClient apiClient, ApiResourceCommand fetchLikedResources, LoadLikesCommand loadLikes,
+                LoadLikesPendingRemovalCommand loadLikesPendingRemoval, StoreCommand storeLikedResources,
+                StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes, AccountOperations accountOperations,
+                ApiEndpoints fetchLikesEndpoint, ApiEndpoints writeLikesEndpoint) {
         this.apiClient = apiClient;
-        this.likesStorage = likesStorage;
-        this.removeLikesCommand = removeLikesCommand;
-        this.fetchTracksCommand = fetchTracksCommand;
-        this.storeTracksCommand = storeTracksCommand;
-        this.fetchPlaylistsCommand = fetchPlaylistsCommand;
-        this.storePlaylistsCommand = storePlaylistsCommand;
-        this.storeLikesCommand = storeLikesCommand;
+        this.loadLikes = loadLikes;
+        this.loadLikesPendingRemoval = loadLikesPendingRemoval;
+        this.removeLikes = removeLikes;
+        this.fetchLikedResources = fetchLikedResources;
+        this.storeLikedResources = storeLikedResources;
+        this.storeLikes = storeLikes;
         this.accountOperations = accountOperations;
+        this.fetchLikesEndpoint = fetchLikesEndpoint;
+        this.writeLikesEndpoint = writeLikesEndpoint;
     }
 
     @NotNull
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        final LikesSyncResult tracksResult = syncTrackLikes();
-        final LikesSyncResult playlistsResult = syncPlaylistLikes();
+        final LikesSyncResult result = performSync();
 
-        return (tracksResult.hasChanged() || playlistsResult.hasChanged())
+        if (result.hasLocalAdditions()) {
+            final ArrayList<Urn> urns = new ArrayList<>(result.localAdditions.size());
+            for (PropertySet like : result.localAdditions) {
+                urns.add(like.get(LikeProperty.TARGET_URN));
+            }
+            fetchLikedResources.with(urns).andThen(storeLikedResources).call();
+        }
+
+        return (result.hasChanged())
                 ? ApiSyncResult.fromSuccessfulChange(uri)
                 : ApiSyncResult.fromSuccessWithoutChange(uri);
     }
 
-    private LikesSyncResult syncPlaylistLikes() throws Exception {
-        final LikesSyncResult result = performSync(
-                ApiEndpoints.LIKED_PLAYLISTS, ApiEndpoints.MY_PLAYLIST_LIKES,
-                likesStorage.loadPlaylistLikes(), likesStorage.loadPlaylistLikesPendingRemoval());
-
-        if (result.hasLocalAdditions()) {
-            final ArrayList<Urn> urns = new ArrayList<>(result.localAdditions.size());
-            for (PropertySet like : result.localAdditions) {
-                urns.add(like.get(LikeProperty.TARGET_URN));
-            }
-            fetchPlaylistsCommand.with(urns).andThen(storePlaylistsCommand).call();
-        }
-        return result;
-    }
-
-    private LikesSyncResult syncTrackLikes() throws Exception {
-        final LikesSyncResult result = performSync(
-                ApiEndpoints.LIKED_TRACKS, ApiEndpoints.MY_TRACK_LIKES,
-                likesStorage.loadTrackLikes(), likesStorage.loadTrackLikesPendingRemoval());
-
-        if (result.hasLocalAdditions()) {
-            final ArrayList<Urn> urns = new ArrayList<>(result.localAdditions.size());
-            for (PropertySet like : result.localAdditions) {
-                urns.add(like.get(LikeProperty.TARGET_URN));
-            }
-            fetchTracksCommand.with(urns).andThen(storeTracksCommand).call();
-        }
-        return result;
-    }
-
-    private <T extends ApiLike> LikesSyncResult performSync(ApiEndpoints fetchLikesEndpoint, ApiEndpoints writeEndpoint,
-                                                            List<PropertySet> localLikesList, List<PropertySet> localRemovalsList)
-            throws ApiMapperException, IOException, ApiRequestException, PropellerWriteException {
-        final NavigableSet<PropertySet> remoteLikes = this.<T>fetchLikes(fetchLikesEndpoint);
+    private LikesSyncResult performSync() throws Exception {
+        final NavigableSet<PropertySet> remoteLikes = fetchLikes(fetchLikesEndpoint);
 
         final Set<PropertySet> localLikes = new TreeSet<>(LIKES_COMPARATOR);
-        localLikes.addAll(localLikesList);
+        localLikes.addAll(loadLikes.call());
         final Set<PropertySet> localRemovals = new TreeSet<>(LIKES_COMPARATOR);
-        localRemovals.addAll(localRemovalsList);
+        localRemovals.addAll(loadLikesPendingRemoval.call());
 
         final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localLikes, remoteLikes);
         final Set<PropertySet> pendingLocalAdditions = getSetDifference(remoteLikes, localLikes, localRemovals);
@@ -136,8 +110,8 @@ public class LikesSyncer implements SyncStrategy {
             }
         }
 
-        pushPendingAdditionsToApi(writeEndpoint, pendingRemoteAdditions);
-        pushPendingRemovalsToApi(writeEndpoint, pendingLocalRemovals, pendingRemoteRemovals);
+        pushPendingAdditionsToApi(pendingRemoteAdditions);
+        pushPendingRemovalsToApi(pendingLocalRemovals, pendingRemoteRemovals);
         writePendingUpdatesToLocalStorage(pendingLocalAdditions, pendingLocalRemovals);
 
         return new LikesSyncResult(pendingLocalAdditions, pendingLocalRemovals);
@@ -160,9 +134,9 @@ public class LikesSyncer implements SyncStrategy {
         return intersection;
     }
 
-    private void pushPendingAdditionsToApi(ApiEndpoints writeEndpoint, Set<PropertySet> pendingRemoteAdditions) {
+    private void pushPendingAdditionsToApi(Set<PropertySet> pendingRemoteAdditions) {
         for (PropertySet like : pendingRemoteAdditions) {
-            final String path = writeEndpoint.path(like.get(LikeProperty.TARGET_URN).getNumericId());
+            final String path = writeLikesEndpoint.path(like.get(LikeProperty.TARGET_URN).getNumericId());
             final ApiRequest request = ApiRequest.Builder.put(path).forPublicApi().build();
             // We're not checking the result here, relying on eventual consistency. Anything that fails pushing,
             // will simply be re-attempted during the next sync.
@@ -171,10 +145,10 @@ public class LikesSyncer implements SyncStrategy {
         }
     }
 
-    private void pushPendingRemovalsToApi(ApiEndpoints writeEndpoint, Set<PropertySet> pendingLocalRemovals,
+    private void pushPendingRemovalsToApi(Set<PropertySet> pendingLocalRemovals,
                                           Set<PropertySet> pendingRemoteRemovals) {
         for (PropertySet like : pendingRemoteRemovals) {
-            final String path = writeEndpoint.path(like.get(LikeProperty.TARGET_URN).getNumericId());
+            final String path = writeLikesEndpoint.path(like.get(LikeProperty.TARGET_URN).getNumericId());
             final ApiRequest request = ApiRequest.Builder.delete(path).forPublicApi().build();
             final ApiResponse response = apiClient.fetchResponse(request);
             // make sure we'll drop successful removals from the local database
@@ -188,11 +162,11 @@ public class LikesSyncer implements SyncStrategy {
                                                    Set<PropertySet> pendingLocalRemovals) throws PropellerWriteException {
         // TODO: we should check whether these are succesful
         if (!pendingLocalRemovals.isEmpty()) {
-            removeLikesCommand.with(pendingLocalRemovals).call();
+            removeLikes.with(pendingLocalRemovals).call();
         }
 
         if (!pendingLocalAdditions.isEmpty()) {
-            storeLikesCommand.with(pendingLocalAdditions).call();
+            storeLikes.with(pendingLocalAdditions).call();
         }
     }
 

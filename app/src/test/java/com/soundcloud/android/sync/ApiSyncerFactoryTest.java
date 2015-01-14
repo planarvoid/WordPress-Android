@@ -53,6 +53,6 @@ public class ApiSyncerFactoryTest {
             public AccountOperations get() {
                 return mock(AccountOperations.class);
             }
-        }, Mockito.mock(FeatureFlags.class), Mockito.mock(Lazy.class), Mockito.mock(Lazy.class)).forContentUri(Robolectric.application, content.uri);
+        }, Mockito.mock(FeatureFlags.class), Mockito.mock(Lazy.class), Mockito.mock(Lazy.class), Mockito.mock(Lazy.class)).forContentUri(Robolectric.application, content.uri);
     }
 }

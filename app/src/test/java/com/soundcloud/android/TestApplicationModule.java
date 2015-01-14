@@ -29,6 +29,7 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
+import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
@@ -217,6 +218,18 @@ public class TestApplicationModule {
     @Provides
     public PlaybackStrategy providePlaybackStrategy() {
         return mock(PlaybackStrategy.class);
+    }
+
+    @Provides
+    @Named("TrackLikesSyncer")
+    LikesSyncer provideTrackLikesSyncer() {
+        return mock(LikesSyncer.class);
+    }
+
+    @Provides
+    @Named("PlaylistLikesSyncer")
+    LikesSyncer providePlaylistLikesSyncer() {
+        return mock(LikesSyncer.class);
     }
 }
 
