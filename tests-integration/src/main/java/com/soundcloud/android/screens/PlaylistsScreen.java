@@ -6,13 +6,12 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
+import com.soundcloud.android.R;
 
 import android.widget.AbsListView;
 
 public class PlaylistsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
-
-    private static String LIKED_PLAYLIST_TAB = "LIKED PLAYLISTS";
 
     public PlaylistsScreen(Han solo) {
         super(solo);
@@ -31,7 +30,7 @@ public class PlaylistsScreen extends Screen {
     }
 
     public void touchLikedPlaylistsTab() {
-        touchTab(LIKED_PLAYLIST_TAB);
+        touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
     }
 
     private ViewPagerElement getViewPager() {
