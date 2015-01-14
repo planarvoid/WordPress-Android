@@ -8,6 +8,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.Scheduler;
 
@@ -55,15 +56,16 @@ class ExperimentStorage extends ScheduledOperations {
     }
 
     private Assignment readAssignmentFile(File file) {
+        String json = ScTextUtils.EMPTY_STRING;
         try {
-            final String json = IOUtils.readInputStream(new FileInputStream(file));
+            json = IOUtils.readInputStream(new FileInputStream(file));
             return jsonTransformer.fromJson(json, TypeToken.of(Assignment.class));
         } catch (IOException e) {
             ErrorUtils.handleSilentException(e);
             return Assignment.empty();
         } catch (ApiMapperException e) {
             // see https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/5452b652e3de5099ba2b4fea
-            ErrorUtils.handleSilentException(e);
+            ErrorUtils.handleSilentException(new IllegalStateException("Failed parsing assignment; json = " + json, e));
             IOUtils.deleteFile(file);
             return Assignment.empty();
         }
