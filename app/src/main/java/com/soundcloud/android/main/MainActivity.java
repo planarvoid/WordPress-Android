@@ -23,6 +23,7 @@ import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -309,7 +310,11 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayPlaylists() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(PLAYLISTS_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS);
+            if (featureFlags.isEnabled(Flag.PLAYLIST_LIKES_SCREEN)) {
+                fragment = new PlaylistsFragment();
+            } else {
+                fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS);
+            }
             attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
         }
     }
