@@ -72,7 +72,7 @@ public class PlaylistDetailActivity extends ScActivity {
         Screen screen = Screen.fromIntent(getIntent());
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = PlaylistFragment.create(urn, screen);
+        Fragment fragment = PlaylistDetailFragment.create(urn, screen);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 

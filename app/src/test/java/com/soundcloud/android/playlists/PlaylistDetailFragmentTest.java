@@ -54,9 +54,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistFragmentTest {
+public class PlaylistDetailFragmentTest {
 
-    private PlaylistFragment fragment;
+    private PlaylistDetailFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
     private PublicApiPlaylist playlist;
     private TestEventBus eventBus = new TestEventBus();
@@ -75,7 +75,7 @@ public class PlaylistFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new PlaylistFragment(
+        fragment = new PlaylistDetailFragment(
                 controllerProvider,
                 playbackOperations,
                 legacyPlaylistOperations,
@@ -457,7 +457,7 @@ public class PlaylistFragmentTest {
 
     private View createFragmentView() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(PlaylistFragment.EXTRA_URN, playlist.getUrn());
+        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlist.getUrn());
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         return createFragmentView(new Bundle());
@@ -465,7 +465,7 @@ public class PlaylistFragmentTest {
 
     private View createFragmentView(Bundle savedInstanceState) {
         Bundle fragmentArguments = new Bundle();
-        fragmentArguments.putParcelable(PlaylistFragment.EXTRA_URN, playlist.getUrn());
+        fragmentArguments.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlist.getUrn());
         Screen.SIDE_MENU_STREAM.addToBundle(fragmentArguments);
         fragment.setArguments(fragmentArguments);
         fragment.onCreate(null);

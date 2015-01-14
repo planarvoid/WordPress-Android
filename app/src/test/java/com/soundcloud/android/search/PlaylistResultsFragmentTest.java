@@ -16,7 +16,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
-import com.soundcloud.android.playlists.PlaylistFragment;
+import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -111,7 +111,7 @@ public class PlaylistResultsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistFragment.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
+        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 

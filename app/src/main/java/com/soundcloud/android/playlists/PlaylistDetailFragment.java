@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SuppressLint("ValidFragment")
-public class PlaylistFragment extends DefaultFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class PlaylistDetailFragment extends DefaultFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String EXTRA_URN = "urn";
 
@@ -113,33 +113,33 @@ public class PlaylistFragment extends DefaultFragment implements AdapterView.OnI
         }
     };
 
-    public static PlaylistFragment create(Urn playlistUrn, Screen screen) {
+    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
         screen.addToBundle(bundle);
-        PlaylistFragment fragment = new PlaylistFragment();
+        PlaylistDetailFragment fragment = new PlaylistDetailFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
 
-    public PlaylistFragment() {
+    public PlaylistDetailFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
         addLifeCycleComponents();
     }
 
     @VisibleForTesting
-    PlaylistFragment(PlaylistDetailsController.Provider controllerProvider,
-                     PlaybackOperations playbackOperations,
-                     LegacyPlaylistOperations legacyPlaylistOperations,
-                     PlaylistOperations playlistOperations,
-                     EventBus eventBus,
-                     ImageOperations imageOperations,
-                     PlaylistEngagementsController playlistEngagementsController,
-                     PullToRefreshController pullToRefreshController,
-                     PlayQueueManager playQueueManager,
-                     PlaylistPresenter playlistPresenter,
-                     Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+    PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
+                           PlaybackOperations playbackOperations,
+                           LegacyPlaylistOperations legacyPlaylistOperations,
+                           PlaylistOperations playlistOperations,
+                           EventBus eventBus,
+                           ImageOperations imageOperations,
+                           PlaylistEngagementsController playlistEngagementsController,
+                           PullToRefreshController pullToRefreshController,
+                           PlayQueueManager playQueueManager,
+                           PlaylistPresenter playlistPresenter,
+                           Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
