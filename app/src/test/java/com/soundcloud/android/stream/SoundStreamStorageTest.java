@@ -84,7 +84,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         testFixtures().insertPlaylistPost(playlist.getId(), TIMESTAMP);
         final int currentUserId = 123;
-        testFixtures().insertPlaylistLike(playlist.getId(), currentUserId);
+        testFixtures().insertLegacyPlaylistLike(playlist.getId(), currentUserId);
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(currentUserId), 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)

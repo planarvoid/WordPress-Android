@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 
 import android.annotation.TargetApi;
@@ -39,7 +39,7 @@ public class SettingsActivity extends ScSettingsActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        if (featureFlags.isEnabled(Feature.PAYMENTS)) {
+        if (featureFlags.isEnabled(Flag.PAYMENTS)) {
             addPreferencesFromResource(R.xml.settings_subscriptions);
         }
 

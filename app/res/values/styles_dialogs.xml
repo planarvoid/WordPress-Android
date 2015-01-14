@@ -85,7 +85,6 @@
         <item name="android:textSize">16sp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/edit_text_holo_light</item>
         <item name="android:inputType">text|textMultiLine</item>
         <item name="android:maxLines">5</item>
     </style>

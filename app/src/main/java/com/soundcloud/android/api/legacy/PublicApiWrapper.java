@@ -109,7 +109,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                              AccountOperations accountOperations, ApplicationProperties applicationProperties,
                              UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                              DeviceHelper deviceHelper) {
-        super(clientId, clientSecret, accountOperations.getSoundCloudToken());
+        super(clientId, clientSecret, accountOperations);
         // context can be null in tests
         if (context == null) {
             return;
@@ -204,8 +204,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
         if (!applicationProperties.isReleaseBuild()) {
             String report = generateRequestResponseLog(request, response);
-            // we log using INFO level, since request logs can be useful in beta builds
-            Log.i(TAG, report);
+            Log.d(TAG, report);
         }
     }
 

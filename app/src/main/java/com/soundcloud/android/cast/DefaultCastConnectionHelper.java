@@ -61,7 +61,6 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
 
     @Override
     public void onActivityResume(Activity activity) {
-        videoCastManager.setContext(activity);
         videoCastManager.startCastDiscovery();
         videoCastManager.incrementUiCounter();
     }
@@ -74,7 +73,7 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
 
     @Override
     public void reconnectSessionIfPossible(){
-        videoCastManager.reconnectSessionIfPossible(context, false);
+        videoCastManager.reconnectSessionIfPossible();
     }
 
     @Override

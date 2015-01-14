@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 /**
  * Models a URN. For specs around SoundCloud URNs, see http://eng-doc.int.s-cloud.net/guidelines/urns/
  */
-public final class Urn implements Parcelable {
+public final class Urn implements Parcelable, Comparable<Urn> {
 
     private static final String COLON = ":";
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
@@ -107,6 +107,11 @@ public final class Urn implements Parcelable {
             return Long.parseLong(matcher.group(1));
         }
         return Consts.NOT_SET;
+    }
+
+    @Override
+    public int compareTo(@NotNull Urn another) {
+        return this.content.compareTo(another.content);
     }
 
     @Override

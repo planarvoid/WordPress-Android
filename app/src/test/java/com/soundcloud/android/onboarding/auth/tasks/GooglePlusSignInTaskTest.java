@@ -53,6 +53,7 @@ public class GooglePlusSignInTaskTest {
 
     @Before
     public void setUp() {
+        when(app.getAccountOperations()).thenReturn(accountOperations);
         when(app.getEventBus()).thenReturn(mock(EventBus.class));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage, accountOperations);
 

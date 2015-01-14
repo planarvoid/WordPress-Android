@@ -244,6 +244,7 @@ public class AccountOperations extends ScheduledOperations {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
                 accountCleanupAction.get().call();
+                tokenOperations.resetToken();
                 clearLoggedInUser();
                 eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
                 resetPlaybackService();
@@ -301,17 +302,12 @@ public class AccountOperations extends ScheduledOperations {
         return false;
     }
 
-    @Nullable
     public Token getSoundCloudToken() {
-        if (accountManagerHasSoundCloudAccount()) {
-            return tokenOperations.getSoundCloudToken(getSoundCloudAccount());
-        }
-
-        return null;
+        return tokenOperations.getTokenFromAccount(getSoundCloudAccount());
     }
 
-    public boolean accountManagerHasSoundCloudAccount() {
-        return getSoundCloudAccount() != null;
+    public void updateToken(Token token) {
+        tokenOperations.setToken(token);
     }
 
     public void invalidateSoundCloudToken(Token token) {
@@ -319,7 +315,6 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     public void storeSoundCloudTokenData(Token token) {
-        checkState(accountManagerHasSoundCloudAccount(), "SoundCloud Account needs to exist before storing token info");
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 
@@ -333,7 +328,6 @@ public class AccountOperations extends ScheduledOperations {
     }
 
     private boolean isTokenValid() {
-        final Token token = getSoundCloudToken();
-        return token != null && token.valid();
+        return getSoundCloudToken().valid();
     }
 }

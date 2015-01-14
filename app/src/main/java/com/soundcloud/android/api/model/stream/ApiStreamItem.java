@@ -7,8 +7,14 @@ import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ApiStreamItem {
+
+    private static final long PROMOTED_CREATION_DATE = Long.MAX_VALUE;
 
     private ApiPromotedTrack apiPromotedTrack;
     private ApiTrackPost apiTrackPost;
@@ -70,6 +76,9 @@ public class ApiStreamItem {
         } else if (apiTrackRepost != null) {
             return Optional.of(apiTrackRepost.getApiTrack());
 
+        } else if (apiPromotedTrack != null) {
+            return Optional.of(apiPromotedTrack.getApiTrack());
+
         } else {
             return Optional.absent();
         }
@@ -99,6 +108,14 @@ public class ApiStreamItem {
         }
     }
 
+    public Optional<ApiUser> getPromoter(){
+        if (apiPromotedTrack != null && apiPromotedTrack.getPromoter() != null){
+            return Optional.of(apiPromotedTrack.getPromoter());
+        } else {
+            return Optional.absent();
+        }
+    }
+
     public long getCreatedAtTime() {
 
         if (apiTrackPost != null){
@@ -113,8 +130,39 @@ public class ApiStreamItem {
         } else if (apiPlaylistRepost != null) {
             return apiPlaylistRepost.getCreatedAtTime();
 
+        } else if (apiPromotedTrack != null) {
+            return PROMOTED_CREATION_DATE;
+
         } else {
             throw new IllegalArgumentException("Unknown stream item type when fecthing creation date");
         }
+    }
+
+    public Optional<Urn> getPromotedUrn() {
+        if (apiPromotedTrack != null){
+            return Optional.of(apiPromotedTrack.getUrn());
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    public List<String> getTrackingProfileClickedUrls() {
+        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingProfileClickedUrls();
+    }
+
+    public List<String> getTrackingPromoterClickedUrls() {
+        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingPromoterClickedUrls();
+    }
+
+    public List<String> getTrackingTrackClickedUrls() {
+        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingTrackClickedUrls();
+    }
+
+    public List<String> getTrackingTrackImpressionUrls() {
+        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingTrackImpressionUrls();
+    }
+
+    public List<String> getTrackingTrackPlayedUrls() {
+        return apiPromotedTrack == null ? Collections.<String>emptyList() : apiPromotedTrack.getTrackingTrackPlayedUrls();
     }
 }

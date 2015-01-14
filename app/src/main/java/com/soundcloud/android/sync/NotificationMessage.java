@@ -165,6 +165,7 @@ class NotificationMessage {
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setTicker(ticker);
         builder.setContentTitle(title);
         builder.setContentText(message);

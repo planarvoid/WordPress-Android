@@ -24,7 +24,6 @@ import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.android.waveform.WaveformResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +60,6 @@ public class WaveformViewControllerTest {
     @Mock private ProgressController leftAnimationController;
     @Mock private ProgressController rightAnimationController;
     @Mock private ProgressController dragAnimationController;
-    @Mock private WaveformResult waveformResult;
     @Mock private WaveformData waveformData;
     @Mock private Bitmap bitmap;
     @Mock private WaveformOperations waveformOperations;
@@ -83,7 +81,6 @@ public class WaveformViewControllerTest {
         when(progressAnimationControllerFactory.create(same(dragViewHolder))).thenReturn(dragAnimationController);
         when(scrubControllerFactory.create(dragViewHolder)).thenReturn(scrubController);
 
-        when(waveformResult.getWaveformData()).thenReturn(waveformData);
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
         waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
@@ -265,16 +262,16 @@ public class WaveformViewControllerTest {
 
     @Test
     public void displayWaveformShowsLoading() {
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
         verify(waveformView, times(2)).showLoading(); // once from constructor
     }
 
     @Test
     public void displayWaveformWhenNotExpandedAfterSettingWidthDoesNotSetWaveformsOnWaveformView() {
         waveformViewController.onWaveformViewWidthChanged(500);
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(bitmapPair);
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
         verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
     }
 
@@ -282,10 +279,10 @@ public class WaveformViewControllerTest {
     public void displayWaveformWhenExpandedAndBackgroundAfterSettingWidthDoesNotSetWaveformsOnWaveformView() {
         waveformViewController.setExpanded();
         waveformViewController.onWaveformViewWidthChanged(500);
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
 
-        waveformViewController.setWaveform(Observable.just(waveformResult), false);
+        waveformViewController.setWaveform(Observable.just(waveformData), false);
 
         verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
     }
@@ -294,10 +291,10 @@ public class WaveformViewControllerTest {
     public void displayWaveformWhenExpandedAndForegroundAfterSettingWidthSetsWaveformsOnWaveformView() {
         waveformViewController.setExpanded();
         waveformViewController.onWaveformViewWidthChanged(500);
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
 
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
 
         verify(waveformView).setWaveformBitmaps(bitmapPair);
     }
@@ -307,24 +304,24 @@ public class WaveformViewControllerTest {
         waveformViewController.setExpanded();
         waveformViewController.showPlayingState(playbackProgress);
         waveformViewController.onWaveformViewWidthChanged(500);
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
 
         waveformViewController.onForeground();
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
 
         verify(waveformView, times(2)).showExpandedWaveform(); // once for playing, once after loading
     }
 
     @Test
     public void resetRemovesReferenceToPreviousObservable() {
-        TestObservables.MockObservable<WaveformResult> waveformResultObservable = TestObservables.emptyObservable();
-        waveformViewController.setWaveform(waveformResultObservable, true);
+        TestObservables.MockObservable<WaveformData> waveformDataObservable = TestObservables.emptyObservable();
+        waveformViewController.setWaveform(waveformDataObservable, true);
 
         waveformViewController.reset();
         waveformViewController.onWaveformViewWidthChanged(500);
 
-        expect(waveformResultObservable.subscribedTo()).toBeFalse();
+        expect(waveformDataObservable.subscribedTo()).toBeFalse();
     }
 
     @Test
@@ -338,9 +335,9 @@ public class WaveformViewControllerTest {
     public void onWaveformWidthWhenExpandedWithWaveformResultSetsWaveformOnWaveformView() {
         waveformViewController.setExpanded();
         waveformViewController.onForeground();
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
 
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
         waveformViewController.onWaveformViewWidthChanged(500);
 
@@ -350,9 +347,9 @@ public class WaveformViewControllerTest {
     @Test
     public void onWaveformWidthWhenNotExpandedWithWaveformResultDoesNotSetWaveform() {
         waveformViewController.onPlayerSlide(.99f);
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
 
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(bitmapPair);
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
@@ -362,7 +359,7 @@ public class WaveformViewControllerTest {
     public void setExpandedWhenAdOverlayActiveWithWaveformResultDoesNotSetWaveform() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.onForeground();
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
         when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(new Pair<>(bitmap, bitmap));
         when(adOverlayController.isNotVisible()).thenReturn(false);
 
@@ -404,13 +401,13 @@ public class WaveformViewControllerTest {
 
     @Test
     public void onForegroundCausesWaveformCreation() {
-        waveformViewController.setWaveform(Observable.just(waveformResult), true);
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
         waveformViewController.onBackground(); // setWaveform() is assumed to be called in foreground
         waveformViewController.setExpanded();
 
         waveformViewController.onForeground();
 
-        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<Bitmap, Bitmap>(bitmap, bitmap);
+        final Pair<Bitmap, Bitmap> bitmapPair = new Pair<>(bitmap, bitmap);
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(waveformView).setWaveformBitmaps(bitmapPair);

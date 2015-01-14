@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
@@ -158,7 +159,9 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private void handleIntent() {
         addPlaylistTagsFragment();
         final Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction()) || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())
+                || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())
+                || Actions.PERFORM_SEARCH.equals(intent.getAction())) {
             showResultsFromIntent(intent.getStringExtra(SearchManager.QUERY));
         } else if (isInterceptedSearchUrl(intent)) {
             showResultsFromIntent(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));

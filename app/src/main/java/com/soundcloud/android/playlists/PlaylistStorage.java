@@ -17,7 +17,6 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
-import rx.Scheduler;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -31,9 +30,9 @@ public class PlaylistStorage {
 
 
     @Inject
-    public PlaylistStorage(PropellerDatabase database, Scheduler scheduler) {
-        this.database = database;
-        this.scheduler = new DatabaseScheduler(database, scheduler);
+    public PlaylistStorage(DatabaseScheduler databaseScheduler) {
+        this.database = databaseScheduler.database();
+        this.scheduler = databaseScheduler;
     }
 
     public Observable<Urn> trackUrns(final Urn playlistUrn) {

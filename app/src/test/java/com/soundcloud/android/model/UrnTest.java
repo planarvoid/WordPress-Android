@@ -127,4 +127,14 @@ public class UrnTest {
         Urn unparceled = Urn.CREATOR.createFromParcel(parcel);
         expect(unparceled).toEqual(urn);
     }
+
+    @Test
+    public void shouldBeComparableBasedOnAlphaNumericOrdering() {
+        Urn a = new Urn("soundcloud:tracks:1");
+        Urn b = new Urn("soundcloud:tracks:2");
+
+        expect(a.compareTo(a)).toBe(0);
+        expect(a.compareTo(b)).toBeLessThan(0);
+        expect(b.compareTo(a)).toBeGreaterThan(0);
+    }
 }

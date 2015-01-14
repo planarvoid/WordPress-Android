@@ -1,7 +1,5 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
@@ -9,24 +7,16 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.tracks.TrackWriteStorage;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import rx.Observable;
 import rx.android.Pager;
-import rx.functions.Action1;
 
 import javax.inject.Inject;
 
 class ExploreTracksOperations {
 
-    private final TrackWriteStorage trackWriteStorage;
+    private final StoreTracksCommand storeTracksCommand;
     private final ApiScheduler apiScheduler;
-
-    private final Action1<SuggestedTracksCollection> cacheSuggestedTracks = new Action1<SuggestedTracksCollection>() {
-        @Override
-        public void call(SuggestedTracksCollection collection) {
-            fireAndForget(trackWriteStorage.storeTracksAsync(collection.getCollection()));
-        }
-    };
 
     private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {
         @Override
@@ -41,8 +31,8 @@ class ExploreTracksOperations {
     };
 
     @Inject
-    ExploreTracksOperations(TrackWriteStorage trackWriteStorage, ApiScheduler apiScheduler) {
-        this.trackWriteStorage = trackWriteStorage;
+    ExploreTracksOperations(StoreTracksCommand storeTracksCommand, ApiScheduler apiScheduler) {
+        this.storeTracksCommand = storeTracksCommand;
         this.apiScheduler = apiScheduler;
     }
 
@@ -73,6 +63,6 @@ class ExploreTracksOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
-        return apiScheduler.mappedResponse(request).doOnNext(cacheSuggestedTracks);
+        return apiScheduler.mappedResponse(request).doOnNext(storeTracksCommand.toAction());
     }
 }

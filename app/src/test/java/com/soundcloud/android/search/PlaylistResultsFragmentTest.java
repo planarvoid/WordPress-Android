@@ -11,12 +11,12 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.playlists.PlaylistFragment;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.playlists.ApiPlaylistCollection;
+import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -62,7 +62,7 @@ public class PlaylistResultsFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment.eventBus = eventBus;
-        Observable<ModelCollection<ApiPlaylist>> observable = TestObservables.emptyObservable(subscription);
+        Observable<ApiPlaylistCollection> observable = TestObservables.emptyObservable(subscription);
         when(operations.pager(anyString())).thenReturn(pager);
         when(pager.page(observable)).thenReturn(observable);
         when(operations.playlistsForTag(anyString())).thenReturn(observable);
@@ -72,10 +72,10 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() throws Exception {
-        ModelCollection<ApiPlaylist> collection = new ModelCollection<>();
+        ApiPlaylistCollection collection = new ApiPlaylistCollection();
         ApiPlaylist playlist = new ApiPlaylist();
         collection.setCollection(Lists.newArrayList(playlist));
-        final Observable<ModelCollection<ApiPlaylist>> observable = Observable.just(collection);
+        final Observable<ApiPlaylistCollection> observable = Observable.just(collection);
         when(pager.page(observable)).thenReturn(observable);
         when(operations.playlistsForTag("selected tag")).thenReturn(observable);
 
@@ -111,7 +111,7 @@ public class PlaylistResultsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistFragment.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
+        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 

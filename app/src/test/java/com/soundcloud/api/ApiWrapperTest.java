@@ -20,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.fakehttp.FakeHttpLayer;
 import com.soundcloud.api.fakehttp.RequestMatcher;
@@ -50,6 +51,7 @@ import org.apache.http.protocol.HttpRequestExecutor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.net.URI;
@@ -62,9 +64,12 @@ public class ApiWrapperTest {
     private final static String TEST_CLIENT_SECRET = "testClientSecret";
     final FakeHttpLayer layer = new FakeHttpLayer();
 
+    @Mock private AccountOperations accountOperations;
+
     @Before
     public void setup() {
-        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, null) {
+        when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
+        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, accountOperations) {
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
                                                          ClientConnectionManager conman,
@@ -155,40 +160,6 @@ public class ApiWrapperTest {
         assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
     }
 
-    @Test
-    public void shouldGetTokensWhenLoggingInViaAuthorizationCode() throws Exception {
-        layer.addPendingHttpResponse(200, "{\n" +
-                "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
-                "  \"expires_in\":    3600,\n" +
-                "  \"scope\":         \"*\",\n" +
-                "  \"refresh_token\": \"04u7h-r3fr35h-70k3n\"\n" +
-                "}");
-
-        Token t = api.authorizationCode("code");
-
-        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.getRefreshToken(), equalTo("04u7h-r3fr35h-70k3n"));
-        assertThat(t.getScope(), equalTo("*"));
-        assertThat(t.getExpiresAt(), is(greaterThan(0L)));
-    }
-
-    @Test
-    public void shouldGetTokensWhenLoggingInViaAuthorizationCodeAndScope() throws Exception {
-        layer.addPendingHttpResponse(200, "{\n" +
-                "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
-                "  \"scope\":         \"* non-expiring\"\n" +
-                "}");
-
-        Token t = api.authorizationCode("code");
-
-        assertThat(t.getAccessToken(), equalTo("04u7h-4cc355-70k3n"));
-        assertThat(t.getRefreshToken(), is(nullValue()));
-
-        assertThat(t.hasScope(Token.SCOPE_DEFAULT), is(true));
-        assertThat(t.hasScope(Token.SCOPE_NON_EXPIRING), is(true));
-        assertEquals(0L, t.getExpiresAt());
-    }
-
     @Test(expected = CloudAPI.InvalidTokenException.class)
     public void shouldThrowInvalidTokenExceptionWhenLoginFailed() throws Exception {
         layer.addPendingHttpResponse(401, "{\n" +
@@ -225,12 +196,12 @@ public class ApiWrapperTest {
                 "}");
 
 
-        api.setToken(new Token("access", "refresh"));
         assertThat(api.refreshToken().getAccessToken(), equalTo("fr3sh"));
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowIllegalStateExceptionWhenNoRefreshToken() throws Exception {
+        when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", null));
         api.refreshToken();
     }
 
@@ -303,15 +274,6 @@ public class ApiWrapperTest {
     }
 
     @Test
-    public void shouldGenerateURIForLoginAuthCodeForFacebook() throws Exception {
-        assertThat(
-                api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString(),
-                equalTo("https://soundcloud.com/connect/via/facebook" +
-                        "?redirect_uri=soundcloud%3A%2F%2Fauth&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=non-expiring")
-        );
-    }
-
-    @Test
     public void shouldCallTokenStateListenerWhenTokenIsInvalidated() throws Exception {
         CloudAPI.TokenListener listener = mock(CloudAPI.TokenListener.class);
         api.setTokenListener(listener);
@@ -345,10 +307,9 @@ public class ApiWrapperTest {
 
         CloudAPI.TokenListener listener = mock(CloudAPI.TokenListener.class);
 
-        api.setToken(new Token("access", "refresh"));
         api.setTokenListener(listener);
         api.refreshToken();
-        verify(listener).onTokenRefreshed(api.getToken());
+        verify(listener).onTokenRefreshed(new Token("fr3sh", "refresh", "default", 3600L));
     }
 
     @Test
@@ -385,7 +346,7 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientNPE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", null) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", accountOperations) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -405,7 +366,7 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientIAE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", null) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", accountOperations) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -425,7 +386,7 @@ public class ApiWrapperTest {
     public void shouldSafeExecute() throws Exception {
 
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", null) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", accountOperations) {
             @Override
             public HttpClient getHttpClient() {
                 return client;

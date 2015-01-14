@@ -15,11 +15,6 @@ public class ApiUrlBuilder {
         this.httpProperties = httpProperties;
     }
 
-    public ApiUrlBuilder from(ApiEndpoints endpoint) {
-        uriBuilder = Uri.parse(httpProperties.getMobileApiBaseUrl() + endpoint.path()).buildUpon();
-        return this;
-    }
-
     public ApiUrlBuilder from(ApiEndpoints endpoint, Object... pathParams) {
         uriBuilder = Uri.parse(httpProperties.getMobileApiBaseUrl() + endpoint.unencodedPath(pathParams)).buildUpon();
         return this;

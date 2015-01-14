@@ -20,7 +20,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -69,7 +69,7 @@ public class EventLoggerUrlBuilderTest {
         when(trackSourceInfo.getOriginScreen()).thenReturn("origin");
         when(trackSourceInfo.getIsUserTriggered()).thenReturn(true);
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
-        when(deviceHelper.getHashedUniqueDeviceID()).thenReturn("9876");
+        when(deviceHelper.getUDID()).thenReturn("9876");
 
         eventLoggerUrlBuilder = new EventLoggerUrlBuilder(resources, experimentOperations, deviceHelper);
     }

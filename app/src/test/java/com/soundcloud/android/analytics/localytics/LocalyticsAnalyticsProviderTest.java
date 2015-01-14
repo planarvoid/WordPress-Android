@@ -13,6 +13,7 @@ import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -23,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,6 +114,14 @@ public class LocalyticsAnalyticsProviderTest {
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Buffer Underrun"), eq(event.getAttributes()));
+    }
+
+    @Test
+    public void shouldTrackSkippyInitilizationError() {
+        SkippyInitilizationFailedEvent event = new SkippyInitilizationFailedEvent(new IOException(), "error message", 3);
+        localyticsProvider.handleTrackingEvent(event);
+
+        verify(localyticsSession).tagEvent(eq("Skippy Init Error"), eq(event.getAttributes()));
     }
 
     @Test

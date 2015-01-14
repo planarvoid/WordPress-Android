@@ -4,11 +4,11 @@ Copyright 2014, Netflix Inc.
 Universal Image Loader
 Copyright 2013, Sergey Tarasevich 
 
-Jackson Json-processor
-Copyright 2007, Tatu Saloranta, tatu.saloranta@iki.fi
+Jackson JSON
+Copyright 2009, FasterXML LLC
 
 libvorbis, libogg
-Copyright 1997-2007, Xiph.org Foundation, http://www.xiph.org/
+Copyright 1997-2007, Xiph.org Foundation
 
 liboggz
 Copyright 2003, CSIRO Australia
@@ -19,11 +19,32 @@ Copyright 2013, The Apache Software Foundation
 Google Guava
 Copyright 2009-2013, Google Inc.
 
-json
-Copyright 2002 JSON.org
-
 Facebook Android SDK
-Copyright 2014 Facebook
+Copyright 2014, Facebook Inc.
+
+Dagger
+Copyright 2013, Square Inc.
+
+OkHttp
+Copyright 2014, Square Inc.
+
+ButterKnife
+Copyright 2013, Jake Wharton
+
+Rebound
+Copyright 2013, Facebook Inc.
+
+UndoBar
+Copyright 2011-2014, Liao Kai
+
+NineOldAndroids
+Copyright 2012, Jake Wharton
+
+SlidingUpPanelView
+Copyright 2013, Umano
+
+android-crop
+Copyright 2014, SoundCloud Ltd.
 
 This software contains code derived from code developed by
 The Android Open Source Project (http://www.android.com/).

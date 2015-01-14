@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.auth.login;
 
 
 import static com.soundcloud.android.framework.TestUser.GPlusAccount;
+import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static com.soundcloud.android.framework.TestUser.noGPlusAccount;
 import static com.soundcloud.android.framework.TestUser.scAccount;
 import static com.soundcloud.android.framework.TestUser.scTestAccount;
@@ -9,15 +10,15 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.tests.auth.LoginTest;
+import com.soundcloud.android.framework.AccountAssistant;
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
-import com.soundcloud.android.framework.AccountAssistant;
-import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.tests.auth.LoginTest;
 
 /*
  * As a User
@@ -165,7 +166,7 @@ public class LoginFlowTest extends LoginTest {
     public void testRecoverPassword() throws Throwable {
         loginScreen = homeScreen.clickLogInButton();
         recoveryScreen = loginScreen.clickForgotPassword();
-        recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
+        recoveryScreen.typeEmail(generateEmail());
         recoveryScreen.clickOkButton();
 
         String message = solo.getString(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");

@@ -21,9 +21,10 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
@@ -66,6 +67,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject AdPlayerController adPlayerController;
     @Inject InAppCampaignController inAppCampaignController;
     @Inject FeatureFlags featureFlags;
+    @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
 
     public MainActivity() {
@@ -98,6 +100,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber()));
 
         castConnectionHelper.reconnectSessionIfPossible();
+
+        if (playQueueManager.shouldReloadQueue()){
+            playQueueManager.loadPlayQueueAsync(true);
+        }
     }
 
     private void setupEmailOptIn() {
@@ -311,7 +317,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            if (featureFlags.isEnabled(Feature.TRACK_LIKES_SCREEN)) {
+            if (featureFlags.isEnabled(Flag.TRACK_LIKES_SCREEN)) {
                 fragment = new TrackLikesFragment();
             } else {
                 fragment = new LikesListFragment();

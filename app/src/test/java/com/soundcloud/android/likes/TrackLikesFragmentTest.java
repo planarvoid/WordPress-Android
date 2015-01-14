@@ -17,9 +17,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 
-import java.util.Collections;
-import java.util.List;
-
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesFragmentTest {
 
@@ -30,6 +27,7 @@ public class TrackLikesFragmentTest {
     @Mock private TrackLikesAdapter adapter;
     @Mock private ListViewController listViewController;
     @Mock private PullToRefreshController pullToRefreshController;
+    @Mock private ShuffleViewController shuffleViewController;
     @Mock private Subscription subscription;
 
     @Before
@@ -37,7 +35,7 @@ public class TrackLikesFragmentTest {
         Observable<PropertySet> likedTracks = withSubscription(subscription, just(PropertySet.create()));
         when(likeOperations.likedTracks()).thenReturn(likedTracks);
         fragment = new TrackLikesFragment(adapter, likeOperations, trackOperations, listViewController,
-                pullToRefreshController);
+                pullToRefreshController, shuffleViewController);
     }
 
     @Test

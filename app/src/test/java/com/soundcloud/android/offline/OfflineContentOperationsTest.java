@@ -20,15 +20,14 @@ public class OfflineContentOperationsTest {
 
     @Mock private TrackDownloadsStorage downloadsStorage;
     @Mock private SoundAssociationOperations soundAssociationOps;
+    @Mock private OfflineSettingsStorage settingsStorage;
 
     private final List<Urn> LIKED_TRACKS = Arrays.asList(Urn.forTrack(123L));
     private OfflineContentOperations offlineOperations;
 
     @Before
     public void setUp() throws Exception {
-        offlineOperations = new OfflineContentOperations(
-                downloadsStorage,
-                soundAssociationOps);
+        offlineOperations = new OfflineContentOperations(downloadsStorage, soundAssociationOps, settingsStorage);
         when(soundAssociationOps.getLikedTracks()).thenReturn(Observable.just(LIKED_TRACKS));
     }
 

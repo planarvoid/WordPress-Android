@@ -31,22 +31,17 @@ public class WaveformFetcherTest {
 
     private static final String WAVEFORM_URL = "https://w1.sndcdn.com/H9uGzKOYK5Ph_m.png";
     private static final String TRANSFORMED_WAVEFORM_URL = "http://wis.sndcdn.com/H9uGzKOYK5Ph_m.png";
-    private static final String VALID_WAVEFORM_DATA = "{\"width\": 6,\"height\": 140,\"samples\": [3,6,8,24,63,140]}";
+    private static final String VALID_WAVEFORM_DATA = "{\"width\": 6,\"height\": 140,\"samples\": [0,6,8,24,63,140]}";
     private static final String EMPTY_WAVEFORM_DATA = "{\"width\": 0,\"height\": 0,\"samples\": []}";
     private static final String INVALID_WIDTH_WAVEFORM_DATA = "{\"width\": 5,\"height\": 140,\"samples\": [3,6,8,24,63,140]}";
 
     private WaveformFetcher fetcher;
 
-    @Mock
-    private Context context;
-    @Mock
-    private AssetManager assets;
-    @Mock
-    private WaveformConnectionFactory waveformConnectionFactory;
-    @Mock
-    private HttpURLConnection urlConnection;
-    @Mock
-    private Observer<WaveformData> observer;
+    @Mock private Context context;
+    @Mock private AssetManager assets;
+    @Mock private WaveformConnectionFactory waveformConnectionFactory;
+    @Mock private HttpURLConnection urlConnection;
+    @Mock private Observer<WaveformData> observer;
 
     @Before
     public void setUp() throws Exception {
@@ -94,7 +89,7 @@ public class WaveformFetcherTest {
         setupValidWaveformResponse();
 
         WaveformData waveformData = fetcher.fetch(WAVEFORM_URL).toBlocking().lastOrDefault(null);
-        assertArrayEquals(waveformData.samples, new int[]{3, 6, 8, 24, 63, 140});
+        assertArrayEquals(waveformData.samples, new int[]{0, 1, 1, 9, 42, 140});
     }
 
     @Test

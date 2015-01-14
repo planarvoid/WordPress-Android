@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.service.skippy;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
@@ -8,6 +7,7 @@ import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -18,6 +18,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -37,6 +38,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -48,6 +50,9 @@ import javax.inject.Named;
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";
+    @VisibleForTesting
+    static final String SKIPPY_INIT_ERROR_COUNT_KEY = "SkippyAdapter.initErrorCount";
+
     private static final long POSITION_START = 0L;
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
@@ -60,6 +65,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final NetworkConnectionHelper connectionHelper;
     private final DeviceHelper deviceHelper;
     private final BufferUnderrunListener bufferUnderrunListener;
+    private final SharedPreferences sharedPreferences;
 
     private volatile String currentStreamUrl;
     private Urn currentTrackUrn;
@@ -69,10 +75,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
-                  LockUtil lockUtil, DeviceHelper deviceHelper, BufferUnderrunListener bufferUnderrunListener) {
+                  LockUtil lockUtil, DeviceHelper deviceHelper, BufferUnderrunListener bufferUnderrunListener, SharedPreferences sharedPreferences) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
         this.bufferUnderrunListener = bufferUnderrunListener;
+        this.sharedPreferences = sharedPreferences;
         this.skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.urlBuilder = urlBuilder;
@@ -154,7 +161,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private String buildStreamUrl() {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
-        Token token = checkNotNull(accountOperations.getSoundCloudToken(), "The SoundCloud token should not be null");
+        Token token = accountOperations.getSoundCloudToken();
         return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
                 .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
                 .build();
@@ -377,6 +384,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void onInitializationError(Throwable throwable, String message) {
         ErrorUtils.handleSilentException(message, throwable);
+        eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message, getAndIncrementInitilizationErrors()));
+    }
+
+    private int getAndIncrementInitilizationErrors() {
+        int plays = sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0) + 1;
+        sharedPreferences.edit().putInt(SKIPPY_INIT_ERROR_COUNT_KEY, plays).apply();
+        return plays;
     }
 
 

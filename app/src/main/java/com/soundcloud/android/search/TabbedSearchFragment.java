@@ -6,7 +6,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.SlidingTabLayout;
 
@@ -30,7 +29,6 @@ public class TabbedSearchFragment extends Fragment {
 
     @Inject EventBus eventBus;
     @Inject Resources resources;
-    @Inject FeatureFlags featureFlags;
 
     private ViewPager pager;
 
@@ -71,7 +69,7 @@ public class TabbedSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String query = getArguments().getString(KEY_QUERY);
-        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(featureFlags, resources, this.getChildFragmentManager(), query);
+        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(resources, this.getChildFragmentManager(), query);
 
         pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(searchPagerAdapter);

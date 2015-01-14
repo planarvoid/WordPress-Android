@@ -28,7 +28,7 @@ import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -153,10 +153,8 @@ public class ApplicationModule {
     @Provides
     public NotificationBuilder providesNotificationBuilderWrapper(Context context,
                                                                   ApplicationProperties applicationProperties,
-                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory,
-                                                                  FeatureFlags featureFlags) {
-        if (featureFlags.isEnabled(Feature.ANDROID_L_MEDIA_NOTIFICATION)
-                && applicationProperties.shouldUseMediaStyleNotifications()) {
+                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
+        if (applicationProperties.shouldUseMediaStyleNotifications()) {
             return new MediaStyleNotificationBuilder(context);
         } else if (applicationProperties.shouldUseBigNotifications()) {
             return new BigNotificationBuilder(context, remoteViewsFactory);
@@ -189,7 +187,7 @@ public class ApplicationModule {
 
     @Provides
     public ImageProcessor provideImageProcessor(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             return new ImageProcessorJB(context);
         } else {
             return new ImageProcessorCompat();
@@ -211,7 +209,7 @@ public class ApplicationModule {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
-        if (featureFlags.isEnabled(Feature.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
+        if (featureFlags.isEnabled(Flag.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
             return new DefaultCastConnectionHelper(context, provideVideoCastManager(context, applicationProperties));
         } else {
             return new UselessCastConnectionHelper();

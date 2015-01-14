@@ -56,13 +56,13 @@ public class DeviceHelperTest {
     public void getUniqueDeviceIdReturnsDeviceIdFromTelephonyManager() throws Exception {
         when(context.getSystemService(Context.TELEPHONY_SERVICE)).thenReturn(telephonyManager);
         when(telephonyManager.getDeviceId()).thenReturn("MYID");
-        expect(deviceHelper.getHashedUniqueDeviceID()).toEqual("04ddf8a23b64c654b938b95a50a486f0");
+        expect(deviceHelper.getUDID()).toEqual("04ddf8a23b64c654b938b95a50a486f0");
     }
 
     @Test
     public void shouldGetUniqueDeviceIdWithoutTelephonyManager() throws Exception {
         Settings.Secure.putString(contentResolver, Settings.Secure.ANDROID_ID, "foobar");
-        expect(deviceHelper.getHashedUniqueDeviceID()).toEqual("3858f62230ac3c915f300c664312c63f");
+        expect(deviceHelper.getUDID()).toEqual("3858f62230ac3c915f300c664312c63f");
     }
 
     @Test

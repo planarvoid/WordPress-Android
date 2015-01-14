@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -7,6 +9,8 @@ import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -25,12 +29,14 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
-import com.soundcloud.android.tracks.TrackWriteStorage;
+import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
+import rx.Observable;
 import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
@@ -130,11 +136,6 @@ public class TestApplicationModule {
     }
 
     @Provides
-    public TrackWriteStorage provideTrackWriteStorage() {
-        return mock(TrackWriteStorage.class);
-    }
-
-    @Provides
     public DatabaseScheduler databaseScheduler() {
         return mock(DatabaseScheduler.class);
     }
@@ -153,7 +154,10 @@ public class TestApplicationModule {
 
     @Provides
     public ApiScheduler provideApiScheduler() {
-        return mock(ApiScheduler.class);
+        final ApiScheduler apiScheduler = mock(ApiScheduler.class);
+        final ApiRequest configurationEndPoint = argThat(isMobileApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path()));
+        when(apiScheduler.mappedResponse(configurationEndPoint)).thenReturn(Observable.never());
+        return apiScheduler;
     }
 
     @Provides
@@ -173,13 +177,32 @@ public class TestApplicationModule {
 
     @Provides
     @Named("DeviceKeys")
-    public SharedPreferences provideKyePrefs(){
+    public SharedPreferences provideKeyPrefs(){
         return provideSharedPreferences();
     }
 
     @Provides
-    public Scheduler provideDatabaseScheduler() {
-        return mock(Scheduler.class);
+    @Named("OfflineSettings")
+    public SharedPreferences provideOfflinePrefs() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named("Features")
+    public SharedPreferences provideFeatures() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named("Storage")
+    public Scheduler provideStorageRxScheduler() {
+        return Schedulers.immediate();
+    }
+
+    @Provides
+    @Named("API")
+    public Scheduler provideApiRxScheduler() {
+        return Schedulers.immediate();
     }
 
     @Provides
@@ -195,6 +218,18 @@ public class TestApplicationModule {
     @Provides
     public PlaybackStrategy providePlaybackStrategy() {
         return mock(PlaybackStrategy.class);
+    }
+
+    @Provides
+    @Named("TrackLikesSyncer")
+    LikesSyncer provideTrackLikesSyncer() {
+        return mock(LikesSyncer.class);
+    }
+
+    @Provides
+    @Named("PlaylistLikesSyncer")
+    LikesSyncer providePlaylistLikesSyncer() {
+        return mock(LikesSyncer.class);
     }
 }
 

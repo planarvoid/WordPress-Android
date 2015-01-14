@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -38,11 +39,20 @@ public class LoginTaskTest {
     @Mock private Token token;
     @Mock private PublicApiUser user;
     @Mock private UserStorage userStorage;
+    @Mock private AccountOperations accountOperations;
 
     @Before
     public void setUp() throws IOException {
+        when(application.getAccountOperations()).thenReturn(accountOperations);
         when(application.getEventBus()).thenReturn(mock(EventBus.class));
         loginTask = new LoginTask(application, tokenInformationGenerator, fetchUserTask, userStorage);
+    }
+
+    @Test
+    public void shouldUpdateTokenOnAccountOperations() throws IOException {
+        setupMocksToReturnToken();
+        loginTask.doInBackground(bundle);
+        verify(accountOperations).updateToken(token);
     }
 
     @Test

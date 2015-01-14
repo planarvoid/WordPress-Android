@@ -12,7 +12,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 
@@ -290,7 +290,7 @@ public class EventLoggerUrlBuilder {
     private Uri.Builder buildUriForPath(String path, long timestamp) {
         return Uri.parse(endpoint).buildUpon().appendPath(path)
                 .appendQueryParameter(CLIENT_ID, appId)
-                .appendQueryParameter(ANONYMOUS_ID, deviceHelper.getHashedUniqueDeviceID())
+                .appendQueryParameter(ANONYMOUS_ID, deviceHelper.getUDID())
                 .appendQueryParameter(TIMESTAMP, String.valueOf(timestamp));
     }
 

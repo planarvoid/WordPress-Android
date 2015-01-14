@@ -13,7 +13,6 @@ public class TokenInformationGenerator {
     private final PublicCloudAPI oldCloudAPI;
 
     public interface TokenKeys {
-        String CODE_EXTRA = "code";
         String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
         String USERNAME_EXTRA = "username";
         String PASSWORD_EXTRA = "password";
@@ -30,15 +29,13 @@ public class TokenInformationGenerator {
     }
 
     public Token getToken(Bundle param) throws IOException {
-        if (param.containsKey(TokenKeys.CODE_EXTRA)) {
-            return oldCloudAPI.authorizationCode(param.getString(TokenKeys.CODE_EXTRA));
-
-        } else if (param.containsKey(TokenKeys.USERNAME_EXTRA)
-                && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
+        if (param.containsKey(TokenKeys.USERNAME_EXTRA) && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
+            // User entered username and password
             return oldCloudAPI.login(param.getString(TokenKeys.USERNAME_EXTRA),
                     param.getString(TokenKeys.PASSWORD_EXTRA));
 
         } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
+            // User logged in with Google Plus or Facebook
             return oldCloudAPI.extensionGrantType(extractGrantType(param));
 
         } else {

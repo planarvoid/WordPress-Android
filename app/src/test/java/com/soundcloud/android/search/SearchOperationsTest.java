@@ -19,11 +19,12 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.playlists.PlaylistWriteStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackWriteStorage;
-import com.soundcloud.android.users.UserWriteStorage;
+import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,6 @@ import rx.observers.TestObserver;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchOperationsTest {
@@ -42,10 +42,11 @@ public class SearchOperationsTest {
     private SearchOperations operations;
 
     @Mock private ApiScheduler apiScheduler;
-    @Mock private UserWriteStorage userStorage;
-    @Mock private PlaylistWriteStorage playlistWriteStorage;
+    @Mock private StorePlaylistsCommand storePlaylistsCommand;
+    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private StoreUsersCommand storeUsersCommand;
+    @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private PlaylistStorage playlistStorage;
-    @Mock private TrackWriteStorage trackStorage;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -61,7 +62,7 @@ public class SearchOperationsTest {
 
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
 
-        operations = new SearchOperations(apiScheduler, userStorage, playlistWriteStorage, playlistStorage, trackStorage);
+        operations = new SearchOperations(apiScheduler, storeTracksCommand, storePlaylistsCommand, storeUsersCommand, cacheUniversalSearchCommand, playlistStorage);
     }
 
     @Test
@@ -101,40 +102,43 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldCacheUserSearchResult() {
-        List<ApiUser> users = ModelFixtures.create(ApiUser.class, 2);
-        Observable observable = Observable.just(new ModelCollection<>(users));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
+    public void shouldCacheUserSearchResult() throws PropellerWriteException {
+        ModelCollection<ApiUser> users = new ModelCollection<>();
+        users.setCollection(ModelFixtures.create(ApiUser.class, 2));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(users));
 
         operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
 
-        verify(userStorage).storeUsers(users);
+        expect(storeUsersCommand.getInput()).toBe(users);
+        verify(storeUsersCommand).call();
     }
 
     @Test
-    public void shouldCachePlaylistSearchResult() {
-        List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
-        Observable observable = Observable.just(new ModelCollection<>(playlists));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
+    public void shouldCachePlaylistSearchResult() throws Exception {
+        ModelCollection<ApiPlaylist> playlists = new ModelCollection<>();
+        playlists.setCollection(ModelFixtures.create(ApiPlaylist.class, 2));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(playlists));
 
         operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
-        verify(playlistWriteStorage).storePlaylists(playlists);
+        expect(storePlaylistsCommand.getInput()).toBe(playlists);
+        verify(storePlaylistsCommand).call();
     }
 
     @Test
-    public void shouldCacheTrackSearchResult() {
-        List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
-        Observable observable = Observable.just(new ModelCollection<>(tracks));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
+    public void shouldCacheTrackSearchResult() throws Exception {
+        ModelCollection<ApiTrack> tracks = new ModelCollection<>();
+        tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(tracks));
 
         operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
 
-        verify(trackStorage).storeTracks(tracks);
+        expect(storeTracksCommand.getInput()).toBe(tracks);
+        verify(storeTracksCommand).call();
     }
 
     @Test
-    public void shouldCacheUniversalSearchResult() {
+    public void shouldCacheUniversalSearchResult() throws Exception {
         Observable observable = Observable.just(new ModelCollection<>(Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
@@ -143,9 +147,7 @@ public class SearchOperationsTest {
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
-        verify(trackStorage).storeTracks(Lists.newArrayList(track));
-        verify(playlistWriteStorage).storePlaylists(Lists.newArrayList(playlist));
-        verify(userStorage).storeUsers(Lists.newArrayList(user));
+        verify(cacheUniversalSearchCommand).call();
     }
 
     @Test

@@ -15,6 +15,7 @@ public class BasicNotificationBuilder implements NotificationBuilder {
     public BasicNotificationBuilder(Context context) {
         builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
     }
 
     @Override

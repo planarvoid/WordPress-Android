@@ -10,38 +10,57 @@ import java.util.List;
 import java.util.Locale;
 
 public enum ApiEndpoints {
-    // mobile API
+    // onboarding
     SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
     SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
+
+    // explore
     EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
     EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
+    RELATED_TRACKS("/tracks/%s/related"),
+
+    // search
     SEARCH_TRACKS("/search/tracks"),
     SEARCH_USERS("/search/users"),
     SEARCH_PLAYLISTS("/search/playlists"),
     SEARCH_ALL("/search/universal"),
+
+    // playlist dicovery
     PLAYLIST_DISCOVERY("/suggestions/playlists"),
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
-    RELATED_TRACKS("/tracks/%s/related"),
+
+    // ads + monetization
+    ADS("/tracks/%s/ads"),
+    AUDIO_AD("/tracks/%s/ads/audio"),
+    POLICIES("/policies/tracks"),
+
+    // consumer subs
+    PRODUCTS("/products/google-play"),
+    CHECKOUT("/checkout"),
+    CHECKOUT_URN("/checkout/%s"),
+
+    // likes
+    LIKED_TRACKS("/users/%s/tracks/liked/urns"),
+    LIKED_PLAYLISTS("/users/%s/playlists/liked/urns"),
+
+    // other
     EXPERIMENTS("/experiments/%s"),
     HLS_STREAM("/tracks/%s/streams/hls"),
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
-    ADS("/tracks/%s/ads"),
-    AUDIO_AD("/tracks/%s/ads/audio"),
-    POLICIES("/policies/tracks"),
-    PRODUCTS("/products/google-play"),
-    CHECKOUT("/checkout"),
-    CHECKOUT_URN("/checkout/%s"),
     IMAGES("/images/%s/%s"),
     STREAM("/stream"),
+    TRACKS_FETCH("/tracks/fetch"),
+    PLAYLISTS_FETCH("/playlists/fetch"),
+    CONFIGURATION("/configuration/android"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
-    MY_TRACK_LIKES("/e1/me/track_likes"),
-    MY_TRACK_REPOSTS("/e1/me/track_reposts"),
-    MY_PLAYLIST_LIKES("/e1/me/playlist_likes"),
-    MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts"),
+    MY_TRACK_LIKES("/e1/me/track_likes/%s"),
+    MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
+    MY_PLAYLIST_LIKES("/e1/me/playlist_likes/%s"),
+    MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
     LEGACY_SEARCH_ALL("/search"),
     LEGACY_SEARCH_TRACKS("/search/sounds"),

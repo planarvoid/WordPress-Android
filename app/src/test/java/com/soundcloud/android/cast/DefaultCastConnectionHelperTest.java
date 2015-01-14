@@ -45,7 +45,7 @@ public class DefaultCastConnectionHelperTest {
     public void reconnectSessionIfPossibleReconnectsThroughVideoCastManager() {
         defaultCastConnectionHelper.reconnectSessionIfPossible();
 
-        verify(videoCastmanager).reconnectSessionIfPossible(context, false);
+        verify(videoCastmanager).reconnectSessionIfPossible();
     }
 
     @Test

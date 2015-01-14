@@ -8,6 +8,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
+import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.NavigationHelper;
+import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -16,9 +19,6 @@ import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
-import com.soundcloud.android.framework.helpers.PlayerHelper;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
 
@@ -110,7 +110,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testSwipingNextAndPreviousChangesTrack() {
-        playTrackFromLikes();
+        playTrackFromStream();
         String originalTrack = playerElement.getTrackTitle();
 
         playerElement.swipeNext();
@@ -150,7 +150,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerTrackInfoLinksToComments() throws Exception {
-        playTrackFromLikes();
+        playTrackFromStream();
 
         String originalTitle = playerElement.getTrackTitle();
         TrackCommentsScreen trackCommentsScreen = playerElement
@@ -162,7 +162,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerTrackMakeComment() throws Exception {
-        playTrackFromLikes();
+        playTrackFromStream();
 
         String originalTitle = playerElement.getTrackTitle();
         final AddCommentScreen addCommentScreen = playerElement
@@ -185,8 +185,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         playerElement = new VisualPlayerElement(solo);
     }
 
-    private void playTrackFromLikes() {
-        playerElement = menuScreen.open().clickLikes().clickItem(1);
+    private void playTrackFromStream() {
+        playerElement = streamScreen.clickFirstTrack();
         playerElement.waitForExpandedPlayer();
     }
 }

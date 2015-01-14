@@ -8,15 +8,17 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
+import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
-import com.soundcloud.android.stream.SoundStreamWriteStorage;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,39 +32,28 @@ public class AccountCleanupActionTest {
 
     private AccountCleanupAction action;
 
-    @Mock
-    private Context context;
-    @Mock
-    private SyncStateManager syncStateManager;
-    @Mock
-    private CollectionStorage collectionStorage;
-    @Mock
-    private ActivitiesStorage activitiesStorage;
-    @Mock
-    private PlaylistTagStorage tagStorage;
-    @Mock
-    private SoundRecorder soundRecorder;
-    @Mock
-    private PlayQueueView playQueue;
-    @Mock
-    private SharedPreferences sharedPreferences;
-    @Mock
-    private SharedPreferences.Editor editor;
-    @Mock
-    private SoundCloudApplication soundCloudApplication;
-    @Mock
-    private UserAssociationStorage userAssociationStorage;
-    @Mock
-    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private SoundStreamWriteStorage soundStreamWriteStorage;
+    @Mock private Context context;
+    @Mock private SyncStateManager syncStateManager;
+    @Mock private CollectionStorage collectionStorage;
+    @Mock private ActivitiesStorage activitiesStorage;
+    @Mock private PlaylistTagStorage tagStorage;
+    @Mock private SoundRecorder soundRecorder;
+    @Mock private PlayQueueView playQueue;
+    @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences.Editor editor;
+    @Mock private SoundCloudApplication soundCloudApplication;
+    @Mock private UserAssociationStorage userAssociationStorage;
+    @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    @Mock private AccountOperations accountOperations;
+    @Mock private ClearSoundStreamCommand clearSoundStreamCommand;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
+    @Mock private FeatureStorage featureStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(context, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder, unauthorisedRequestRegistry, soundStreamWriteStorage);
+                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
+                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -119,9 +110,21 @@ public class AccountCleanupActionTest {
     }
 
     @Test
-    public void shouldClearSoundStreamStorage() {
+    public void shouldClearOfflineSettingsStorage() {
         action.call();
-        verify(soundStreamWriteStorage).clear();
+        verify(offlineSettingsStorage).clear();
     }
-}
 
+    @Test
+    public void shouldClearFeatureStorage() {
+        action.call();
+        verify(featureStorage).clear();
+    }
+
+    @Test
+    public void shouldClearSoundStreamStorage() throws PropellerWriteException {
+        action.call();
+        verify(clearSoundStreamCommand).call();
+    }
+
+}

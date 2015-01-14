@@ -9,7 +9,7 @@ import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
@@ -63,7 +63,7 @@ public class ApiClient {
     }
 
     public ApiResponse fetchResponse(ApiRequest request) {
-        RequestResponseStrategy httpStrategy = featureFlags.isEnabled(Feature.OKHTTP)
+        RequestResponseStrategy httpStrategy = featureFlags.isEnabled(Flag.OKHTTP)
                 ? new OkHttpStrategy() : new ApacheHttpStrategy();
         try {
             return httpStrategy.fetchResponse(request);

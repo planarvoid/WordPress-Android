@@ -2,7 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
@@ -19,7 +19,7 @@ public class SoundStreamModule {
 
     @Provides
     public ISoundStreamStorage provideSoundStreamStorage(FeatureFlags featureFlags, DatabaseScheduler databaseScheduler, PropellerDatabase database){
-        if (featureFlags.isEnabled(Feature.API_MOBILE_STREAM)){
+        if (featureFlags.isEnabled(Flag.API_MOBILE_STREAM)){
             return new SoundStreamStorage(databaseScheduler, database);
         } else {
             return new LegacySoundStreamStorage(databaseScheduler, database);

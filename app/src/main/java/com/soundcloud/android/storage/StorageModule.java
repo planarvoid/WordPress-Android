@@ -18,9 +18,11 @@ import javax.inject.Named;
 @Module(complete = false, library = true)
 public class StorageModule {
 
-    public static final String PLAYLIST_TAGS = "playlist_tags";
-    public static final String PAYMENTS = "payments";
-    public static final String DEVICE_KEYS = "device_keys";
+    private static final String PLAYLIST_TAGS = "playlist_tags";
+    private static final String PAYMENTS = "payments";
+    private static final String DEVICE_KEYS = "device_keys";
+    private static final String OFFLINE_SETTINGS = "offline_settings";
+    private static final String FEATURE_SETTINGS = "features_settings";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -46,6 +48,18 @@ public class StorageModule {
     }
 
     @Provides
+    @Named("OfflineSettings")
+    public SharedPreferences provideOfflinePrefs(Context context) {
+        return context.getSharedPreferences(OFFLINE_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named("Features")
+    public SharedPreferences provideFeaturePrefs(Context context) {
+        return context.getSharedPreferences(FEATURE_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
     public SQLiteDatabase provideDatabase(Context context) {
         return DatabaseManager.getInstance(context).getWritableDatabase();
     }
@@ -56,7 +70,8 @@ public class StorageModule {
     }
 
     @Provides
-    public Scheduler provideDatabaseScheduler() {
+    @Named("Storage")
+    public Scheduler provideStorageScheduler() {
         return ScSchedulers.STORAGE_SCHEDULER;
     }
 }

@@ -50,6 +50,15 @@ public class TestObservables {
         };
     }
 
+    public static <T> Observable<T> endlessObservable() {
+        return Observable.create(new Observable.OnSubscribe<T>() {
+            @Override
+            public void call(Subscriber<? super T> subscriber) {
+                // no-op
+            }
+        });
+    }
+
     public static <T> Observable<T> endlessObservablefromSubscription(final Subscription subscription) {
         return Observable.create(new Observable.OnSubscribe<T>() {
             @Override

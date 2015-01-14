@@ -14,6 +14,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -51,8 +52,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-    private Subscription fetchRecommendedSubscription = Subscriptions.empty();
     private Subscription playQueueSubscription = Subscriptions.empty();
+    private Subscription fetchRecommendedSubscription = Subscriptions.empty();
     private Observable<RecommendedTracksCollection> recommendedTracksObservable;
 
     private PlaybackProgressInfo playbackProgressInfo;
@@ -238,6 +239,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public void loadPlayQueueAsync() {
+        loadPlayQueueAsync(false);
+    }
+
+    public void loadPlayQueueAsync(final boolean showPlayerAfterLoad) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
@@ -247,6 +252,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
                 public void onNext(PlayQueue savedQueue) {
                     currentPosition = playQueueOperations.getLastStoredPlayPosition();
                     setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                    if (showPlayerAfterLoad){
+                        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+                    }
                 }
             });
             // return so player can have the resume information while load is in progress
@@ -298,7 +306,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     public boolean shouldReloadQueue() {
-        return playQueue.isEmpty();
+        return playQueue.isEmpty() && playQueueSubscription == Subscriptions.empty();
     }
 
     public void fetchTracksRelatedToCurrentTrack() {
@@ -426,7 +434,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         fetchRecommendedSubscription.unsubscribe();
         fetchRecommendedSubscription = Subscriptions.empty();
 
-        playQueueSubscription.unsubscribe();
+        if (playQueueSubscription != null){
+            playQueueSubscription.unsubscribe();
+        }
+
     }
 
     public interface QueueUpdateOperation {

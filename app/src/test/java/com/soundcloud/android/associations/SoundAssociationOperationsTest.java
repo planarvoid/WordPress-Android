@@ -1,7 +1,7 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -115,7 +115,7 @@ public class SoundAssociationOperationsTest {
     @Test
     public void likingTrackAddsLikeAndSendsPUTRequestToApi() {
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/123"))))
+        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
 
@@ -165,7 +165,7 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).removeLikeAsync(track);
-        verify(apiScheduler).response(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/123")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_likes/123")));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).addLikeAsync(playlist);
-        verify(apiScheduler).response(argThat(isApiRequestTo("PUT", "/e1/me/playlist_likes/124")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_likes/124")));
     }
 
     @Test
@@ -223,14 +223,14 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).removeLikeAsync(playlist);
-        verify(apiScheduler).response(argThat(isApiRequestTo("DELETE", "/e1/me/playlist_likes/124")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_likes/124")));
     }
 
     @Test
     public void doesNotRevertUnlikeWhenApiRequestFailsBecauseSoundIsNotLiked() {
         final SoundAssociation revertUnlike = new SoundAssociation(track);
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
+        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.<ApiResponse>error(ApiRequestException.notFound(mock(ApiRequest.class))));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(revertUnlike));
@@ -249,7 +249,7 @@ public class SoundAssociationOperationsTest {
         track.likes_count = 12;
         SoundAssociation trackLike = new SoundAssociation(track);
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isApiRequestTo("PUT", "/e1/me/track_likes/123"))))
+        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_likes/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.<SoundAssociation>never());
@@ -274,7 +274,7 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).addRepostAsync(track);
-        verify(apiScheduler).response(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/123")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123")));
     }
 
     @Test
@@ -317,7 +317,7 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).removeRepostAsync(track);
-        verify(apiScheduler).response(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/123")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123")));
     }
 
     @Test
@@ -362,7 +362,7 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).addRepostAsync(playlist);
-        verify(apiScheduler).response(argThat(isApiRequestTo("PUT", "/e1/me/playlist_reposts/124")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_reposts/124")));
     }
 
     @Test
@@ -375,14 +375,14 @@ public class SoundAssociationOperationsTest {
 
         verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
         verify(storage).removeRepostAsync(playlist);
-        verify(apiScheduler).response(argThat(isApiRequestTo("DELETE", "/e1/me/playlist_reposts/124")));
+        verify(apiScheduler).response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/124")));
     }
 
     @Test
     public void doesNotRevertUnpostWhenApiRequestFailsBecauseSoundIsNotReposted() {
         final SoundAssociation revertUnpost = new SoundAssociation(track);
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(ApiRequestException.notFound(mock(ApiRequest.class))));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(trackUnpost));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(revertUnpost));
@@ -401,7 +401,7 @@ public class SoundAssociationOperationsTest {
         track.reposts_count = 12;
         SoundAssociation trackRepost = new SoundAssociation(track);
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(response));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(trackRepost));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.<SoundAssociation>never());

@@ -166,6 +166,7 @@ public class SoundRecorderService extends Service {
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(pendingIntent);
         builder.setOngoing(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         return builder.build();
     }
 

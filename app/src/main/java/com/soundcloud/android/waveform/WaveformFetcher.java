@@ -95,7 +95,8 @@ class WaveformFetcher extends ScheduledOperations {
         }
 
         for (int i = 0; i < width; i++) {
-            samples[i] = sampleArray.getInt(i);
+            double value =  Math.pow(sampleArray.getDouble(i) / height, 1.5);
+            samples[i] = (int) (height * value);
         }
 
         return new WaveformData(height, samples);

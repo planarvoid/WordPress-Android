@@ -43,7 +43,7 @@ class TrackDownloadsStorage {
         // It looks like the SQL insert strategy with CONFLICT_IGNORE does not work as expected
         // returns -1 when the row with given ID already exists. So we do filtering out ourselves :(
         final List<Urn> existingDownloads = getPendingDownloadUrns();
-        return storeRequestedDownloads(filterDuplicates(tracks, existingDownloads));
+        return storeDownloadRequests(filterDuplicates(tracks, existingDownloads));
     }
 
     Observable<List<DownloadRequest>> getPendingDownloads() {
@@ -52,6 +52,10 @@ class TrackDownloadsStorage {
                 .select(TrackDownloads + "." + _ID, TableColumns.SoundView.STREAM_URL)
                 .whereEq(DOWNLOADED_AT, 0);
         return scheduler.scheduleQuery(q).map(new DownloadRequestMapper()).toList();
+    }
+
+    ChangeResult updateDownload(DownloadResult downloads) {
+        return database.upsert(TrackDownloads, buildContentValues(downloads));
     }
 
     private Iterable<Urn> filterDuplicates(List<Urn> tracks, final List<Urn> existingDownloads) {
@@ -68,7 +72,7 @@ class TrackDownloadsStorage {
         return database.query(query).toList(new UrnMapper());
     }
 
-    private Observable<TxnResult> storeRequestedDownloads(Iterable<Urn> tracks) {
+    private Observable<TxnResult> storeDownloadRequests(Iterable<Urn> tracks) {
         final List<ContentValues> contentValuesList = buildContentValuesFromUrns(tracks);
         return scheduler.scheduleTransaction(new PropellerDatabase.Transaction() {
             @Override
@@ -78,10 +82,6 @@ class TrackDownloadsStorage {
                 }
             }
         });
-    }
-
-    ChangeResult updateDownload(DownloadResult downloads) {
-        return database.upsert(TrackDownloads, buildContentValues(downloads));
     }
 
     private List<ContentValues> buildContentValuesFromUrns(final Iterable<Urn> downloadRequests) {

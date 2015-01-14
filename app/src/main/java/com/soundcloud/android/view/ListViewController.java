@@ -31,6 +31,8 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     private final EmptyViewController emptyViewController;
     private final ImageOperations imageOperations;
 
+    private HeaderViewController headerViewController;
+
     private AbsListView absListView;
     private ListAdapter adapter;
 
@@ -84,6 +86,22 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
         absListView.setOnItemClickListener(listComponent);
     }
 
+    /**
+     * Use this method to set a {@link com.soundcloud.android.view.HeaderViewController}
+     * to a {@link android.widget.ListView}.
+     */
+    public void setHeaderViewController(HeaderViewController headerViewController) {
+        Preconditions.checkNotNull(headerViewController, "Header view controller cannot be null");
+        this.headerViewController = headerViewController;
+        if (absListView instanceof ListView) {
+            final View view = this.headerViewController.getHeaderView();
+            if (adapter != null && view != null) {
+                final ListView listView = (ListView) absListView;
+                listView.addHeaderView(view, null, false);
+            }
+        }
+    }
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Preconditions.checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
@@ -133,6 +151,11 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     @VisibleForTesting
     AbsListView getListView() {
         return absListView;
+    }
+
+    @VisibleForTesting
+    View getHeaderView() {
+        return headerViewController.getHeaderView();
     }
 
     private static class PagingScrollListener implements AbsListView.OnScrollListener {

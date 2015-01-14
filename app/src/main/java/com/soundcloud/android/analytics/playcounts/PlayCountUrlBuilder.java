@@ -31,7 +31,7 @@ class PlayCountUrlBuilder {
                 .appendQueryParameter("client_id", httpProperties.getClientId());
 
         final Token token = accountOperations.getSoundCloudToken();
-        if (token != null) {
+        if (token.valid()) {
             builder.appendQueryParameter("oauth_token", token.getAccessToken());
         }
 

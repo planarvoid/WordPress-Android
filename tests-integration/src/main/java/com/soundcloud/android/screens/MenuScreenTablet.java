@@ -30,9 +30,9 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     @Override
-    public PlaylistScreen clickPlaylist() {
+    public PlaylistsScreen clickPlaylist() {
         playlistsMenuItem().click();
-        return new PlaylistScreen(testDriver);
+        return new PlaylistsScreen(testDriver);
     }
 
     public boolean isOpened() {

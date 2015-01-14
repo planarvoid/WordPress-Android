@@ -8,7 +8,15 @@ import org.mockito.ArgumentMatcher;
 public class SoundCloudMatchers {
 
     public static ApiRequestTo isApiRequestTo(String method, String path) {
-        return new ApiRequestTo(method, path, false);
+        return new ApiRequestTo(method, path, true);
+    }
+
+    public static ApiRequestTo isApiRequestMethod(String method) {
+        return new ApiRequestTo(method, true);
+    }
+
+    public static ApiRequestTo isPublicApiRequestMethod(String method) {
+        return new ApiRequestTo(method, false);
     }
 
     public static ApiRequestToUrl isApiRequestTo(String url) {
@@ -19,6 +27,7 @@ public class SoundCloudMatchers {
         return new ApiRequestTo(method, path, false);
     }
 
+    @Deprecated // use isApiRequestTo
     public static ApiRequestTo isMobileApiRequestTo(String method, String path) {
         return new ApiRequestTo(method, path, true);
     }

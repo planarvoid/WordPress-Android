@@ -14,18 +14,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SecureFileStorage {
+class SecureFileStorage {
 
     private static final String DIRECTORY_NAME = "offline";
+    private static final String ENC_FILE_EXTENSION = ".enc";
+    protected final File OFFLINE_DIR;
 
     private final CryptoOperations cryptoOperations;
-    protected final File OFFLINE_DIR;
 
     @Inject
     public SecureFileStorage(CryptoOperations operations) {
         this.cryptoOperations = operations;
         this.OFFLINE_DIR = new File(Consts.FILES_PATH, DIRECTORY_NAME);
-        createDirectoryIfNeeded();
     }
 
     public void storeTrack(Urn urn, InputStream input) throws IOException, EncryptionException {
@@ -43,7 +43,7 @@ public class SecureFileStorage {
     }
 
     private String generateFileName(Urn urn) throws EncryptionException {
-        return cryptoOperations.generateHashForUrn(urn);
+        return cryptoOperations.generateHashForUrn(urn) + ENC_FILE_EXTENSION;
     }
 
     @VisibleForTesting

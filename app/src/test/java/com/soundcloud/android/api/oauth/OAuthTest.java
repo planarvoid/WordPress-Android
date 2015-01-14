@@ -2,11 +2,14 @@ package com.soundcloud.android.api.oauth;
 
 import static com.soundcloud.android.Expect.expect;
 import static java.util.AbstractMap.SimpleEntry;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.util.Map;
 
@@ -17,11 +20,14 @@ public class OAuthTest {
     private final static String TEST_CLIENT_ID = "testClientId";
     private final static String TEST_CLIENT_SECRET = "testClientSecret";
 
-    private final Token token = new Token("access", "refresh");
+    private final Token validToken = new Token("access", "refresh");
+
+    @Mock private AccountOperations accountOperations;
 
     @Before
     public void setup() {
-        oAuth = new OAuth(TEST_CLIENT_ID, TEST_CLIENT_SECRET, token);
+        when(accountOperations.getSoundCloudToken()).thenReturn(validToken);
+        oAuth = new OAuth(TEST_CLIENT_ID, TEST_CLIENT_SECRET, accountOperations);
     }
 
     @Test
@@ -33,19 +39,6 @@ public class OAuthTest {
             new SimpleEntry<>("client_secret", "testClientSecret"),
             new SimpleEntry<>("username", "user"),
             new SimpleEntry<>("password", "pw"),
-            new SimpleEntry<>("scope", "non-expiring")
-        );
-    }
-
-    @Test
-    public void shouldBuildQueryParamsForTokenRequestFromAuthCode() {
-        final Map<String, String> params = oAuth.getTokenRequestParamsFromCode("123");
-        expect(params.entrySet()).toContainExactly(
-            new SimpleEntry<>("grant_type", "authorization_code"),
-            new SimpleEntry<>("client_id", "testClientId"),
-            new SimpleEntry<>("client_secret", "testClientSecret"),
-            new SimpleEntry<>("redirect_uri", "soundcloud://auth"),
-            new SimpleEntry<>("code", "123"),
             new SimpleEntry<>("scope", "non-expiring")
         );
     }
@@ -84,30 +77,13 @@ public class OAuthTest {
 
     @Test
     public void shouldBuildQueryParamsForTokenRequestForRefreshToken() {
-        final Map<String, String> params = oAuth.getTokenRequestParamsForRefreshToken();
+        final Map<String, String> params = oAuth.getTokenRequestParamsForRefreshToken("refresh");
         expect(params.entrySet()).toContainExactly(
             new SimpleEntry<>("grant_type", "refresh_token"),
             new SimpleEntry<>("client_id", "testClientId"),
             new SimpleEntry<>("client_secret", "testClientSecret"),
-            new SimpleEntry<>("refresh_token", token.getRefreshToken())
+            new SimpleEntry<>("refresh_token", "refresh")
         );
-    }
-
-    @Test
-    public void hasValidTokenIsTrueForValidToken() {
-        expect(oAuth.hasToken()).toBeTrue();
-    }
-
-    @Test
-    public void hasValidTokenIsFalseWhenNotProvidingAToken() {
-        final OAuth oauth = new OAuth(TEST_CLIENT_ID, TEST_CLIENT_SECRET, null);
-        expect(oauth.hasToken()).toBeFalse();
-    }
-
-    @Test
-    public void hasValidTokenIsFalseForWhenSettingNullToken() {
-        oAuth.setToken(null);
-        expect(oAuth.hasToken()).toBeFalse();
     }
 
     @Test
@@ -117,7 +93,7 @@ public class OAuthTest {
 
     @Test
     public void shouldBuildAuthorizationHeaderFromInvalidToken() {
-        final OAuth oauth = new OAuth(TEST_CLIENT_ID, TEST_CLIENT_SECRET, null);
-        expect(oauth.getAuthorizationHeaderValue()).toEqual("OAuth invalidated");
+        when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
+        expect(oAuth.getAuthorizationHeaderValue()).toEqual("OAuth invalidated");
     }
 }

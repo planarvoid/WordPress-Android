@@ -8,6 +8,7 @@
     <string name="adjust_log_level">error</string>
     <bool name="analytics_enabled">true</bool>
     <bool name="verbose_logging">false</bool>
+    <bool name="debug_feature_screen">false</bool>
 
     <string name="api_mobile_base_uri_path">/app/mobileapps-beta</string>
     <string name="public_api_base_url">https://api.soundcloud.com</string>
@@ -16,16 +17,16 @@
     <string name="cast_receiver_app_id">DCAC4134</string>
 
     <!-- Feature flags (enabled) -->
-    <bool name="feature_secure_stream_cache">true</bool>
-    <bool name="feature_device_key_generation">true</bool>
-    <bool name="feature_android_l_media_notification">true</bool>
-    <bool name="feature_google_cast">true</bool>
+    <bool name="feature_okhttp">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
-    <bool name="feature_okhttp">false</bool>
+    <bool name="feature_google_cast">false</bool>
     <bool name="feature_offline_sync_from_likes">false</bool>
     <bool name="feature_track_likes_screen">false</bool>
     <bool name="feature_api_mobile_stream">false</bool>
+    <bool name="feature_new_likes_syncer">false</bool>
+    <bool name="feature_playlist_likes_screen">false</bool>
+    <bool name="feature_configuration_features">false</bool>
 </resources>

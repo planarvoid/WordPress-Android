@@ -30,7 +30,7 @@ public class DeviceHelper {
      * @return a unique id for this device (MD5 of IMEI / {@link android.provider.Settings.Secure#ANDROID_ID}) or null
      */
     @Nullable
-    public String getHashedUniqueDeviceID() {
+    public String getUDID() {
         String id = getUniqueDeviceId();
         // note, we still use IOUtils here instead of guava because its a different algorithm, and tracking needs the legacy values
         return ScTextUtils.isBlank(id) ? null : IOUtils.md5(id);

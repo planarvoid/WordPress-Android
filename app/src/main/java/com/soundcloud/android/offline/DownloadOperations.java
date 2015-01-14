@@ -12,6 +12,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -45,7 +46,7 @@ class DownloadOperations {
 
     @VisibleForTesting
     protected DownloadOperations(StrictSSLHttpClient httpClient, SecureFileStorage fileStorage,
-                                 TrackDownloadsStorage downloadsStorage, Scheduler scheduler) {
+                                 TrackDownloadsStorage downloadsStorage, @Named("API") Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.downloadsStorage = downloadsStorage;

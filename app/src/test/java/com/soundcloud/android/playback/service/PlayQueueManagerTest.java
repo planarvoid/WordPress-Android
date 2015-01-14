@@ -636,7 +636,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReloadPlayQueueFromLocalStorage() {
+    public void loadPlayQueueAsyncLoadsQueueFromLocalStorage() {
         PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
 
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
@@ -648,6 +648,18 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void loadPlayQueueAsyncFiresShowPlayerEventIfFlagSet() {
+        PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
+
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
+        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+        playQueueManager.loadPlayQueueAsync(true);
+
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).toBeTrue();
+    }
+
+    @Test
     public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty() {
         expect(playQueueManager.shouldReloadQueue()).toBeTrue();
     }
@@ -656,6 +668,15 @@ public class PlayQueueManagerTest {
     public void shouldReloadShouldBeFalseWithNonEmptyQueue() {
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        expect(playQueueManager.shouldReloadQueue()).toBeFalse();
+    }
+
+    @Test
+    public void shouldReloadShouldBeFalseIfAlreadyReloadingWithEmptyQueue() {
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>never());
+        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+        playQueueManager.loadPlayQueueAsync();
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
     }
 

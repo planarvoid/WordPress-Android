@@ -260,15 +260,8 @@ public class AccountOperationsTest {
     @Test
     public void shouldReturnNullTokenIfSoundCloudAccountDoesExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
-        when(tokenOperations.getSoundCloudToken(scAccount)).thenReturn(token);
+        when(tokenOperations.getTokenFromAccount(scAccount)).thenReturn(token);
         expect(accountOperations.getSoundCloudToken()).toBe(token);
-
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenStoringAccountData() {
-        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{});
-        accountOperations.storeSoundCloudTokenData(token);
 
     }
 
@@ -426,6 +419,15 @@ public class AccountOperationsTest {
         expect(accountOperations.getLoggedInUser()).not.toBe(user);
     }
 
+    @Test
+    public void purgingUserDataShouldResetOAuthToken() {
+        mockSoundCloudAccount();
+        mockValidToken();
+
+        accountOperations.purgeUserData().subscribe(observer);
+
+        verify(tokenOperations).resetToken();
+    }
 
     @Test
     public void shouldPublishUserRemovalIfPurgingUserDataSucceeds() {
@@ -463,11 +465,11 @@ public class AccountOperationsTest {
     }
 
     private void mockValidToken() {
-        when(tokenOperations.getSoundCloudToken(scAccount)).thenReturn(new Token("123", "456"));
+        when(tokenOperations.getTokenFromAccount(scAccount)).thenReturn(new Token("123", "456"));
     }
 
     private void mockInvalidToken() {
-        when(tokenOperations.getSoundCloudToken(scAccount)).thenReturn(null);
+        when(tokenOperations.getTokenFromAccount(scAccount)).thenReturn(Token.EMPTY);
     }
 
 }

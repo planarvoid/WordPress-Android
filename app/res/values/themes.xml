@@ -7,12 +7,7 @@
         <!--<item name="android:windowAnimationStyle">@style/Animation.Activity</item>-->
 
         <item name="android:popupAnimationStyle">@style/Animation.Popup</item>
-        <item name="android:editTextStyle">@style/EditText</item>
         <item name="android:listViewStyle">@style/ListView</item>
-        <item name="android:checkboxStyle">@style/CheckBox</item>
-        <item name="android:spinnerStyle">@style/Spinner</item>
-        <item name="android:dropDownSpinnerStyle">@style/Spinner.DropDown</item>
-        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItem</item>
 
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
         <item name="actionBarStyle">@style/ActionBar.SoundCloud</item>

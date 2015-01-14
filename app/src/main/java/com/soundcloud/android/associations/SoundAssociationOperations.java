@@ -149,7 +149,7 @@ public class SoundAssociationOperations {
 
     private ApiRequest buildRequestForLike(final Playable playable, final boolean likeAdded) {
         ApiEndpoints endpoint = playable instanceof PublicApiTrack ? ApiEndpoints.MY_TRACK_LIKES : ApiEndpoints.MY_PLAYLIST_LIKES;
-        final String path = endpoint.path() + "/" + playable.getId();
+        final String path = endpoint.path(playable.getId());
         ApiRequest.Builder builder = likeAdded ? ApiRequest.Builder.put(path) : ApiRequest.Builder.delete(path);
         return builder.forPublicApi().build();
     }
@@ -236,7 +236,7 @@ public class SoundAssociationOperations {
 
     private ApiRequest buildRequestForRepost(final Playable playable, final boolean repostAdded) {
         ApiEndpoints endpoint = playable instanceof PublicApiTrack ? ApiEndpoints.MY_TRACK_REPOSTS : ApiEndpoints.MY_PLAYLIST_REPOSTS;
-        final String path = endpoint.path() + "/" + playable.getId();
+        final String path = endpoint.path(playable.getId());
         ApiRequest.Builder builder = repostAdded ? ApiRequest.Builder.put(path) : ApiRequest.Builder.delete(path);
         return builder.forPublicApi().build();
     }

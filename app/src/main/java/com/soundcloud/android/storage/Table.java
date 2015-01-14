@@ -16,6 +16,7 @@ import java.util.Locale;
 
 public enum Table implements com.soundcloud.propeller.Table {
     SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),
+    PromotedTracks(false, DatabaseSchema.DATABASE_CREATE_PROMOTED_TRACKS),
     Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
     TrackMetadata(false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
     Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),

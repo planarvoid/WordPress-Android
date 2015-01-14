@@ -323,6 +323,7 @@
     <string name="payments_error_already_subscribed">There is already a subscription associated with your account. Continued problems? Contact support.</string>
     <string name="payments_error_unconfirmed_email">Please follow the link in your confirmation email and try again.</string>
     <string name="payments_error_stale_checkout">It was not possible to restore your subscription.</string>
+    <string name="payments_error_wrong_user">You have an active subscription, but it is linked to a different user.</string>
     <string name="payments_error_contact_support">Contact support</string>
 
     <!-- __PLAYLISTS -->
@@ -563,13 +564,12 @@
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>
 
     <!-- __OFFLINE_SYNC -->
-    <string name="downloads_started">Preparing offline sync of tracks</string>
-    <string name="downloads_completed">All tracks synced!</string>
-    <string name="downloads_completed_desc">And ready for offline listening!</string>
-    <string name="downloads_in_progress">Syncing your tracks</string>
+    <string name="offline_sync_started">Preparing to offline sync tracks</string>
+    <string name="offline_sync_completed_title">All tracks synced!</string>
+    <string name="offline_sync_completed_message">Ready for offline listening!</string>
+    <string name="offline_sync_in_progress">Syncing your tracks</string>
+    <string name="sync_likes_dialog_title">Sync your likes</string>
+    <string name="sync_likes_dialog_message">This will keep all your likes synced as well as sync all your future likes automagically</string>
+    <string name="sync_likes_dialog_accept">Keep likes synced</string>
 
-    <plurals name="downloading_track_of_tracks">
-        <item quantity="one">1 track</item>
-        <item quantity="other">%1$d of %2$d tracks</item>
-    </plurals>
 </resources>

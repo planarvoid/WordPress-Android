@@ -12,15 +12,14 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.fakehttp.FakeHttpResponse;
-import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.api.oauth.Token;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -43,8 +42,6 @@ public class ApiClientTest {
     private static final String PATH = "/path/to/resource";
     private static final String JSON_DATA = "{}";
     private static final String CLIENT_ID = "testClientId";
-    private static final String CLIENT_SECRET = "testClientSecret";
-    private static final Token TOKEN = new Token("access", "refresh");
 
     private ApiClient apiClient;
     private OkHttpClient httpClient = new OkHttpClient();
@@ -57,6 +54,7 @@ public class ApiClientTest {
     @Mock private HttpProperties httpProperties;
     @Mock private DeviceHelper deviceHelper;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    @Mock private OAuth oAuth;
     @Captor private ArgumentCaptor<Request> requestCaptor;
 
     @Before
@@ -64,8 +62,11 @@ public class ApiClientTest {
         initMocks(this);
         when(wrapperFactory.createWrapper(any(ApiRequest.class))).thenReturn(publicApiWrapper);
         when(deviceHelper.getUserAgent()).thenReturn("");
+        when(oAuth.getClientId()).thenReturn(CLIENT_ID);
+        when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
-                wrapperFactory, deviceHelper, new OAuth(CLIENT_ID, CLIENT_SECRET, TOKEN), unauthorisedRequestRegistry);
+                wrapperFactory, deviceHelper, oAuth, unauthorisedRequestRegistry);
+        mockWebServer.play();
     }
 
     @After
@@ -249,7 +250,7 @@ public class ApiClientTest {
         apiClient.fetchResponse(request);
 
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        expect(recordedRequest.getHeaders("Authorization")).toContainExactly("OAuth " + TOKEN.getAccessToken());
+        expect(recordedRequest.getHeaders("Authorization")).toContainExactly("OAuth 12345");
     }
 
     @Test
@@ -470,18 +471,16 @@ public class ApiClientTest {
     }
 
     private void fakeApiMobileResponse(MockResponse... mockResponses) throws IOException {
-        when(featureFlags.isEnabled(Feature.OKHTTP)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.OKHTTP)).thenReturn(true);
         for (MockResponse response : mockResponses) {
             mockWebServer.enqueue(response);
         }
-        mockWebServer.play();
         when(httpProperties.getMobileApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }
 
     private void fakePublicApiResponse(MockResponse mockResponse) throws IOException {
-        when(featureFlags.isEnabled(Feature.OKHTTP)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.OKHTTP)).thenReturn(true);
         mockWebServer.enqueue(mockResponse);
-        mockWebServer.play();
         when(httpProperties.getPublicApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }
 

@@ -1,13 +1,15 @@
 package com.soundcloud.android.tests.whoToFollow;
 
 
+import static com.soundcloud.android.framework.TestUser.generateEmail;
+
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.Waiter;
 
 public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
@@ -62,10 +64,6 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-    }
-
-    protected String generateEmail() {
-        return "slawomir-"+System.currentTimeMillis()+"@tests.soundcloud";
     }
 
     private void createNewUser() {

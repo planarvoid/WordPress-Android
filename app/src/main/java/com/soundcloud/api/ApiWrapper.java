@@ -1,5 +1,6 @@
 package com.soundcloud.api;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
@@ -112,6 +113,7 @@ public class ApiWrapper implements CloudAPI {
      */
     public final Env env = Env.LIVE;
     private final OAuth oAuth;
+    private final AccountOperations accountOperations;
     /**
      * debug request details to stderr
      */
@@ -121,18 +123,11 @@ public class ApiWrapper implements CloudAPI {
     private String defaultContentType;
     private String defaultAcceptEncoding;
 
-    /**
-     * Constructs a new ApiWrapper instance.
-     *
-     * @param clientId     the application client id
-     * @param clientSecret the application client secret
-     * @param token        an valid token, or null if not known
-     * @see <a href="http://developers.soundcloud.com/docs#authentication">API authentication documentation</a>
-     */
     public ApiWrapper(String clientId,
                       String clientSecret,
-                      Token token) {
-        this.oAuth = new OAuth(clientId, clientSecret, token);
+                      AccountOperations accountOperations) {
+        this.accountOperations = accountOperations;
+        this.oAuth = new OAuth(clientId, clientSecret, accountOperations);
     }
 
     @Override
@@ -142,9 +137,7 @@ public class ApiWrapper implements CloudAPI {
         }
         final Request request = Request.to(Endpoints.TOKEN);
         addRequestParams(request, oAuth.getTokenRequestParamsFromUserCredentials(username, password));
-        Token token = requestToken(request);
-        oAuth.setToken(token);
-        return token;
+        return requestToken(request);
     }
 
     private void addRequestParams(Request request, Map<String, String> params) {
@@ -190,18 +183,6 @@ public class ApiWrapper implements CloudAPI {
 
 
     @Override
-    public Token authorizationCode(String code) throws IOException {
-        if (code == null) {
-            throw new IllegalArgumentException("code is null");
-        }
-        final Request request = Request.to(Endpoints.TOKEN);
-        addRequestParams(request, oAuth.getTokenRequestParamsFromCode(code));
-        Token token = requestToken(request);
-        oAuth.setToken(token);
-        return token;
-    }
-
-    @Override
     public Token clientCredentials(String... scopes) throws IOException {
         final Request req = Request.to(Endpoints.TOKEN);
         addRequestParams(req, oAuth.getTokenRequestParamsFromClientCredentials(scopes));
@@ -223,27 +204,24 @@ public class ApiWrapper implements CloudAPI {
         final Request req = Request.to(Endpoints.TOKEN);
         addRequestParams(req, oAuth.getTokenRequestParamsFromExtensionGrant(grantType));
 
-        Token token = requestToken(req);
-        oAuth.setToken(token);
-        return token;
+        return requestToken(req);
     }
 
     @Override
     public Token refreshToken() throws IOException {
-        if (!oAuth.getToken().hasRefreshToken()) {
+        final Token token = accountOperations.getSoundCloudToken();
+        if (!token.hasRefreshToken()) {
             throw new IllegalStateException("no refresh token available");
         }
         final Request request = Request.to(Endpoints.TOKEN);
-        addRequestParams(request, oAuth.getTokenRequestParamsForRefreshToken());
-        Token token = requestToken(request);
-        oAuth.setToken(token);
-        return token;
+        addRequestParams(request, oAuth.getTokenRequestParamsForRefreshToken(token.getRefreshToken()));
+        return requestToken(request);
     }
 
     @Nullable
     @Override
     public Token invalidateToken() {
-        Token token = oAuth.getToken();
+        Token token = accountOperations.getSoundCloudToken();
         Token alternative = listener == null ? null : listener.onTokenInvalid(token);
         token.invalidate();
         if (alternative != null) {
@@ -252,16 +230,6 @@ public class ApiWrapper implements CloudAPI {
         } else {
             return null;
         }
-    }
-
-    @Override
-    public URI authorizationCodeUrl(String endpoint) {
-        final Request req = Request.to(endpoint).with(
-                OAuth.PARAM_REDIRECT_URI, OAuth.REDIRECT_URI,
-                OAuth.PARAM_CLIENT_ID, oAuth.getClientId(),
-                OAuth.PARAM_RESPONSE_TYPE, OAuth.RESPONSE_TYPE_CODE);
-        req.add(OAuth.PARAM_SCOPE, OAuth.DEFAULT_SCOPES);
-        return env.getSecureAuthResourceURI().resolve(req.toUrl());
     }
 
     /**
@@ -475,13 +443,7 @@ public class ApiWrapper implements CloudAPI {
 
     @Override
     public Token getToken() {
-        return oAuth.getToken();
-    }
-
-    @Override
-    @VisibleForTesting
-    public void setToken(Token newToken) {
-        oAuth.setToken(newToken);
+        return accountOperations.getSoundCloudToken();
     }
 
     public synchronized void setTokenListener(TokenListener listener) {
@@ -701,9 +663,7 @@ public class ApiWrapper implements CloudAPI {
     protected HttpUriRequest addHeaders(HttpUriRequest req) {
         HttpUriRequest request = addEncodingHeader(req);
         if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
-            if (oAuth.hasToken()) {
-                request.addHeader(OAuth.createOAuthHeader(oAuth.getToken()));
-            }
+            request.addHeader(AUTH.WWW_AUTH_RESP, oAuth.getAuthorizationHeaderValue());
         }
         return addAcceptHeader(request);
     }

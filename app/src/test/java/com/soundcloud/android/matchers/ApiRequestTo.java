@@ -6,15 +6,20 @@ import com.soundcloud.android.api.ApiRequest;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
 
-    private final String expectedMethod, expectedPath;
     private final boolean isMobileApi;
-    private Map<String, String> expectedQueryParams = new HashMap<String, String>();
+    private Map<String, String> expectedQueryParams = new HashMap<>();
+    private Map<String, String> expectedHeaders = new HashMap<>();
+    private List<String> unExpectedHeaders = new ArrayList<>();
     private boolean queryMatchError;
+    private String expectedMethod, expectedPath;
+    private boolean headerMatchError;
     private ApiRequest request;
     private Object content;
 
@@ -24,26 +29,62 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
         this.isMobileApi = isMobileApi;
     }
 
+    public ApiRequestTo(String expectedMethod, boolean isMobileApi) {
+        this.expectedMethod = expectedMethod;
+        this.isMobileApi = isMobileApi;
+    }
+
     @Override
     public boolean matches(Object argument) {
         if (argument instanceof ApiRequest) {
             this.request = (ApiRequest) argument;
 
-            boolean queryMatches;
-            for (Map.Entry<String, String> param : expectedQueryParams.entrySet()) {
-                queryMatches = request.getQueryParameters().containsEntry(param.getKey(), param.getValue());
-                if (!queryMatches) {
-                    queryMatchError = true;
-                    return false;
-                }
-            }
-
-            return contentMatches() &&
-                    request.getEncodedPath().equals(expectedPath) &&
-                    request.getMethod().equalsIgnoreCase(expectedMethod) &&
-                    request.isPrivate() == isMobileApi;
+            return containsExpectedQueryParams()
+                    && containsExpectedHeaders()
+                    && contentMatches()
+                    && pathMatches()
+                    && methodMatches()
+                    && request.isPrivate() == isMobileApi;
         }
         return false;
+    }
+
+    private boolean containsExpectedHeaders() {
+        for (Map.Entry<String, String> param : expectedHeaders.entrySet()) {
+            boolean headersMatch = request.getHeaders().get(param.getKey()).equals(param.getValue());
+            if (!headersMatch) {
+                headerMatchError = true;
+                return false;
+            }
+        }
+
+        for (String header : unExpectedHeaders) {
+            boolean headersMatch = !request.getHeaders().containsKey(header);
+            if (!headersMatch) {
+                headerMatchError = true;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean pathMatches() {
+        return expectedPath == null || request.getEncodedPath().equals(expectedPath);
+    }
+
+    private boolean methodMatches() {
+        return expectedMethod == null || request.getMethod().equalsIgnoreCase(expectedMethod);
+    }
+
+    private boolean containsExpectedQueryParams() {
+        for (Map.Entry<String, String> param : expectedQueryParams.entrySet()) {
+            boolean queryMatches = request.getQueryParameters().get(param.getKey()).contains(param.getValue());
+            if (!queryMatches) {
+                queryMatchError = true;
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean contentMatches() {
@@ -56,13 +97,28 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
         } else if (content instanceof Iterable) {
             return request.getContent() instanceof Iterable
                     && Iterables.elementsEqual((Iterable) content, (Iterable) request.getContent());
+        } else if (content instanceof Map && request.getContent() instanceof Map) {
+            return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) request.getContent()).entrySet());
         } else {
             return Objects.equal(request.getContent(), content);
         }
     }
 
-    public ApiRequestTo withQueryParam(String key, String value) {
-        expectedQueryParams.put(key, value);
+    public ApiRequestTo withQueryParam(String key, String... values) {
+        for (String value : values) {
+            expectedQueryParams.put(key, value);
+        }
+        return this;
+    }
+
+    public ApiRequestTo withHeader(String key, String value) {
+        expectedHeaders.put(key, value);
+        return this;
+    }
+
+
+    public ApiRequestTo withoutHeader(String header) {
+        unExpectedHeaders.add(header);
         return this;
     }
 
@@ -78,6 +134,11 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             description.appendValue(expectedQueryParams);
             description.appendText("\nBut found ");
             description.appendValue(request.getQueryParameters());
+        } else if (headerMatchError) {
+            description.appendText("Expected headers to contain ");
+            description.appendValue(expectedHeaders);
+            description.appendText("\nBut found ");
+            description.appendValue(request.getHeaders());
         } else {
             super.describeTo(description);
         }

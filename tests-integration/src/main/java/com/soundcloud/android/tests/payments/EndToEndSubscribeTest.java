@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.payments;
 
 import com.soundcloud.android.framework.annotation.End2End;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.SubscribeScreen;
 import com.soundcloud.android.screens.SettingsScreen;
@@ -20,7 +20,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Feature.PAYMENTS_TEST);
+        setDependsOn(Flag.PAYMENTS_TEST);
         TestUser.subscribeUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();

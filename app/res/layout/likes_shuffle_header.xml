@@ -2,6 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
+                android:id="@+id/shuffle_header_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -26,7 +27,7 @@
                 android:layout_marginLeft="10dp"
                 android:enabled="false"
                 android:text="@string/shuffle"
-                android:drawableLeft="@drawable/ic_action_shuffle"
+                android:drawableLeft="@drawable/ic_shuffle"
                 android:drawablePadding="8dp"
                 android:paddingLeft="@dimen/default_list_item_padding"
                 android:paddingRight="@dimen/default_list_item_padding"
@@ -35,7 +36,7 @@
     </LinearLayout>
 
     <View android:layout_width="match_parent"
-          android:layout_height="wrap_content"
+          android:layout_height="@dimen/likes_shuffle_divider"
           android:layout_below="@id/shuffle_header"
           android:background="@drawable/divider_list_grey" />
 </RelativeLayout>

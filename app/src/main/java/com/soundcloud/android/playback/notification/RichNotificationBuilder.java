@@ -18,6 +18,7 @@ public class RichNotificationBuilder implements NotificationBuilder {
     public RichNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
         builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         remoteViews = remoteViewsFactory.create(context.getPackageName());
         remoteViews.linkButtonsNotification(context);
     }

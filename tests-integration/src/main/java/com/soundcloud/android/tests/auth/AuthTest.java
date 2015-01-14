@@ -18,9 +18,4 @@ public class AuthTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         signupScreen = new SignUpScreen(solo);
     }
-
-    protected String generateEmail() {
-        return "someemail-"+System.currentTimeMillis()+"@test.com";
-    }
-
 }

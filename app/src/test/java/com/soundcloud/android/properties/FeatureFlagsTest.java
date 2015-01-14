@@ -28,16 +28,16 @@ public class FeatureFlagsTest {
     public void shouldBeEnabledWhenResourceValueIsTrue() {
         when(resources.getBoolean(anyInt())).thenReturn(true);
 
-        expect(featureFlags.isEnabled(Feature.TEST_FEATURE)).toBeTrue();
-        expect(featureFlags.isDisabled(Feature.TEST_FEATURE)).toBeFalse();
+        expect(featureFlags.isEnabled(Flag.TEST_FEATURE)).toBeTrue();
+        expect(featureFlags.isDisabled(Flag.TEST_FEATURE)).toBeFalse();
     }
 
     @Test
     public void shouldBeDisabledWhenResourceValueIsFalse() {
         when(resources.getBoolean(anyInt())).thenReturn(false);
 
-        expect(featureFlags.isEnabled(Feature.TEST_FEATURE)).toBeFalse();
-        expect(featureFlags.isDisabled(Feature.TEST_FEATURE)).toBeTrue();
+        expect(featureFlags.isEnabled(Flag.TEST_FEATURE)).toBeFalse();
+        expect(featureFlags.isDisabled(Flag.TEST_FEATURE)).toBeTrue();
     }
 
 }

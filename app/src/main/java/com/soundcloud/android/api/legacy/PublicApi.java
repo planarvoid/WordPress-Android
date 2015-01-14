@@ -49,10 +49,6 @@ public class PublicApi implements PublicCloudAPI {
         return apiWrapper.login(username, password);
     }
 
-    public URI authorizationCodeUrl(String connectPath) {
-        return apiWrapper.authorizationCodeUrl(connectPath);
-    }
-
     public HttpResponse put(Request request) throws IOException {
         return apiWrapper.put(request);
     }
@@ -75,10 +71,6 @@ public class PublicApi implements PublicCloudAPI {
 
     public long resolve(String uri) throws IOException {
         return apiWrapper.resolve(uri);
-    }
-
-    public void setToken(Token token) {
-        apiWrapper.setToken(token);
     }
 
     public Token invalidateToken() {
@@ -117,10 +109,6 @@ public class PublicApi implements PublicCloudAPI {
 
     public <T extends PublicApiResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
         return apiWrapper.readListFromIds(request, ids);
-    }
-
-    public Token authorizationCode(String code) throws IOException {
-        return apiWrapper.authorizationCode(code);
     }
 
     public HttpClient getHttpClient() {

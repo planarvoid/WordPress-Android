@@ -43,7 +43,7 @@ public final class ErrorUtils {
      * reported as a crash into Crashlytics.
      * <p/>
      * This methods ensures that only checked exceptions make their way into an observer's
-     * onError method, and also logs them silenty into Crashlytics (unless they're blacklisted.)
+     * onError method, and also logs them silently into Crashlytics (unless they're blacklisted.)
      * <p/>
      * see https://github.com/Netflix/RxJava/issues/969
      *
@@ -61,8 +61,9 @@ public final class ErrorUtils {
         } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
             handleSilentException(t);
+        } else {
+            t.printStackTrace();
         }
-        t.printStackTrace();
     }
 
     /*
@@ -122,6 +123,7 @@ public final class ErrorUtils {
 
     private static synchronized void handleSilentException(
             Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+        e.printStackTrace();
         if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {

@@ -9,18 +9,26 @@ import com.soundcloud.android.view.adapters.PlaylistGridPresenter;
 import dagger.Module;
 import dagger.Provides;
 
+import java.util.Random;
+
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 TabbedSearchFragment.class,
                 SearchActivity.class,
                 SearchResultsFragment.class,
                 PlaylistTagsFragment.class,
-                PlaylistResultsFragment.class
+                PlaylistResultsFragment.class,
+                PlayFromVoiceSearchActivity.class
         }, includes = AssociationsModule.class)
 public class SearchModule {
 
     @Provides
     public EndlessAdapter<ApiPlaylist> playlistsResultAdapter(PlaylistGridPresenter presenter) {
         return new EndlessAdapter<>(R.layout.grid_loading_item, presenter);
+    }
+
+    @Provides
+    public Random provideRandom() {
+        return new Random();
     }
 }

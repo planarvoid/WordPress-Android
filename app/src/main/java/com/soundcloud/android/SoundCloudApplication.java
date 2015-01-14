@@ -12,10 +12,10 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.cast.CastSessionReconnector;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.offline.OfflineContentController;
@@ -30,7 +30,7 @@ import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
@@ -87,7 +87,7 @@ public class SoundCloudApplication extends Application {
     @Inject ScModelManager modelManager;
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
-    @Inject ExperimentOperations experimentOperations;
+    @Inject ConfigurationOperations configOperations;
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
@@ -150,8 +150,8 @@ public class SoundCloudApplication extends Application {
         imageOperations.initialise(this, applicationProperties);
 
         accountOperations.loadLoggedInUser();
+        configOperations.update();
         setupCurrentUserAccount();
-        setupExperiments();
         generateDeviceKey();
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
@@ -165,22 +165,20 @@ public class SoundCloudApplication extends Application {
         playbackNotificationController.subscribe();
         adsController.subscribe();
 
-        if (featureFlags.isEnabled(Feature.GOOGLE_CAST)) {
+        if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
             castSessionReconnector.startListening();
         }
 
-        if (featureFlags.isEnabled(Feature.OFFLINE_SYNC_FROM_LIKES)) {
+        if (featureFlags.isEnabled(Flag.OFFLINE_SYNC_FROM_LIKES)) {
             offlineContentController.subscribe();
         }
 
         final long dbSize = DatabaseManager.getDatabaseFileSize(this);
-        eventBus.publish(EventQueue.TRACKING, new DeviceMetricsEvent(dbSize));
+        eventBus.publish(EventQueue.TRACKING, DeviceMetricsEvent.forDatabaseSize(dbSize));
     }
 
     private void generateDeviceKey() {
-        if (featureFlags.isEnabled(Feature.DEVICE_KEY_GENERATION)) {
-            cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
-        }
+        cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
     }
 
     private void initializePreInjectionObjects() {
@@ -232,10 +230,6 @@ public class SoundCloudApplication extends Application {
                 }
             });
         }
-    }
-
-    private void setupExperiments() {
-        experimentOperations.loadAssignment();
     }
 
     @Deprecated // use @Inject instead!

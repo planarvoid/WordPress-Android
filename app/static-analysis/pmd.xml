@@ -28,9 +28,13 @@
 -->
     <rule ref="rulesets/java/strictexception.xml">
         <exclude name="AvoidThrowingNullPointerException" />
+        <exclude name="AvoidCatchingGenericException" /> <!-- due to RxJava/Callable, we need to do that. -->
+        <exclude name="SignatureDeclareThrowsException"/> <!-- as above -->
     </rule>
     <rule ref="rulesets/java/strings.xml"/>
-    <rule ref="rulesets/java/typeresolution.xml"/>
+    <rule ref="rulesets/java/typeresolution.xml">
+        <exclude name="SignatureDeclareThrowsException" /><!-- due to RxJava/Callable, we need to do that. -->
+    </rule>
     <rule ref="rulesets/java/unnecessary.xml">
         <exclude name="UselessParentheses"/>
     </rule>

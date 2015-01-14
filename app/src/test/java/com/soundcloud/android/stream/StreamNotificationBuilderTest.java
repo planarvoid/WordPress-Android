@@ -148,6 +148,12 @@ public class StreamNotificationBuilderTest {
         verify(notificationBuilder).setContentText(MESSAGE);
     }
 
+    @Test
+    public void notificationSetsVisibilityToPublic() throws Exception {
+        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+    }
+
     private PropertySet getTrack(String creatorName) {
         return PropertySet.from(PlayableProperty.CREATOR_NAME.bind(creatorName));
     }

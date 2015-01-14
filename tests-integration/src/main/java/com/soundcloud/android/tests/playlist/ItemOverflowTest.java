@@ -9,7 +9,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistsScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
@@ -29,10 +29,9 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        PlaylistScreen playlistScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistScreen.clickPlaylistAt(0);
-        playlistDetailsScreen = new PlaylistDetailsScreen(solo);
+        playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
 
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
