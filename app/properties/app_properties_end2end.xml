@@ -23,7 +23,6 @@
     <!-- Feature flags (disabled) -->
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_okhttp">false</bool>
-    <bool name="feature_offline_sync_from_likes">false</bool>
     <bool name="feature_track_likes_screen">false</bool>
     <bool name="feature_api_mobile_stream">false</bool>
     <bool name="feature_new_likes_syncer">false</bool>

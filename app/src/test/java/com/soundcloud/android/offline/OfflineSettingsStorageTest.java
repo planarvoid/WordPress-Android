@@ -9,8 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
 
-import android.content.SharedPreferences;
-
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineSettingsStorageTest {
 
@@ -20,8 +18,7 @@ public class OfflineSettingsStorageTest {
 
     @Before
     public void setUp() throws Exception {
-        SharedPreferences prefs = new ScTestSharedPreferences();
-        storage = new OfflineSettingsStorage(prefs);
+        storage = new OfflineSettingsStorage(new ScTestSharedPreferences());
     }
 
     @Test

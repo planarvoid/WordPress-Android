@@ -8,6 +8,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.TxnResult;
 import rx.Observable;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 
@@ -45,6 +46,7 @@ public class OfflineContentController {
     };
 
     private final Observable<Boolean> settingsStatusObservable;
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
     public OfflineContentController(EventBus eventBus, OfflineContentOperations operations, Context context) {
@@ -55,15 +57,20 @@ public class OfflineContentController {
     }
 
     public void subscribe() {
-        settingsStatusObservable
-                .flatMap(updateOfflineLikes)
-                .subscribe(new StartOfflineContentServiceSubscriber());
+        subscription = new CompositeSubscription(
+                settingsStatusObservable
+                        .flatMap(updateOfflineLikes)
+                        .subscribe(new StartOfflineContentServiceSubscriber()),
+                eventBus.queue(EventQueue.PLAYABLE_CHANGED)
+                        .filter(isOfflineLikesEnabled)
+                        .filter(IS_TRACK_LIKED_FILTER)
+                        .flatMap(updateOfflineLikes)
+                        .subscribe(new StartOfflineContentServiceSubscriber())
+        );
+    }
 
-        eventBus.queue(EventQueue.PLAYABLE_CHANGED)
-                .filter(isOfflineLikesEnabled)
-                .filter(IS_TRACK_LIKED_FILTER)
-                .flatMap(updateOfflineLikes)
-                .subscribe(new StartOfflineContentServiceSubscriber()) ;
+    public void unsubscribe() {
+        subscription.unsubscribe();
     }
 
     private final class StartOfflineContentServiceSubscriber extends DefaultSubscriber<Object> {

@@ -8,6 +8,7 @@ import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.observers.TestObserver;
 
 import java.util.Map;
 
@@ -17,6 +18,8 @@ public class FeatureStorageTest {
     private FeatureStorage storage;
     private Map<String, Boolean> features;
 
+    private TestObserver<Boolean> testObserver = new TestObserver<>();
+
     @Before
     public void setUp() throws Exception {
         features = TestFeatures.asMap();
@@ -25,7 +28,7 @@ public class FeatureStorageTest {
 
     @Test
     public void updateFeaturesEnabledValues() {
-        storage.updateFeature(features);
+        storage.update(features);
 
         expect(storage.isEnabled("feature_disabled", true)).toBeFalse();
         expect(storage.isEnabled("feature_enabled", false)).toBeTrue();
@@ -33,20 +36,20 @@ public class FeatureStorageTest {
 
     @Test
     public void listFeaturesShouldReturnEmptyListWhenNoFeature() {
-        expect(storage.listFeatures().isEmpty()).toBeTrue();
+        expect(storage.list().isEmpty()).toBeTrue();
     }
 
     @Test
     public void listFeaturesShouldReturnAllFeatures() {
-        storage.updateFeature(features);
+        storage.update(features);
 
-        expect(storage.listFeatures()).toEqual(features);
+        expect(storage.list()).toEqual(features);
     }
 
     @Test
     public void updateFeatureEnabledValues() {
         final Feature feature = new Feature("feature_disabled", false);
-        storage.updateFeature(feature.name, feature.enabled);
+        storage.update(feature.name, feature.enabled);
 
         expect(storage.isEnabled("feature_disabled", true)).toBeFalse();
     }
@@ -57,8 +60,15 @@ public class FeatureStorageTest {
     }
 
     @Test
+    public void receivesUpdatesToFeatureStatusChanges() {
+        storage.getUpdates("my_feature").subscribe(testObserver);
+        storage.update("my_feature", true);
+        expect(testObserver.getOnNextEvents().get(0)).toBeTrue();
+    }
+
+    @Test
     public void clearsSettingsStorage() {
-        storage.updateFeature(features);
+        storage.update(features);
         storage.clear();
         expect(storage.isEnabled("feature_disabled", true)).toBeTrue();
     }

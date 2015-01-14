@@ -1,5 +1,7 @@
 package com.soundcloud.android.configuration.features;
 
+import rx.Observable;
+
 import javax.inject.Inject;
 import java.util.Map;
 
@@ -13,18 +15,23 @@ public class FeatureOperations {
     }
 
     public void update(Map<String, Boolean> features) {
-        featureStorage.updateFeature(features);
+        featureStorage.update(features);
     }
 
     public void update(String name, boolean value) {
-        featureStorage.updateFeature(name, value);
+        featureStorage.update(name, value);
     }
 
-    public Map<String, Boolean> listFeatures() {
-        return featureStorage.listFeatures();
+    public Map<String, Boolean> list() {
+        return featureStorage.list();
     }
 
     public boolean isEnabled(String featureName, boolean defaultValue) {
         return featureStorage.isEnabled(featureName, defaultValue);
     }
+
+    public Observable<Boolean> getUpdates(String name) {
+        return featureStorage.getUpdates(name);
+    }
+
 }

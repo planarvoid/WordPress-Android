@@ -18,7 +18,7 @@ public class ConfigurationFeaturesActivity extends ScSettingsActivity {
         super.onCreate(savedInstanceState);
         PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
 
-        for (Map.Entry<String, Boolean> feature : featureOperations.listFeatures().entrySet()) {
+        for (Map.Entry<String, Boolean> feature : featureOperations.list().entrySet()) {
             addPreference(screen, feature.getKey(), feature.getValue());
         }
         setPreferenceScreen(screen);

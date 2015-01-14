@@ -109,6 +109,28 @@ public class OfflineContentControllerTest {
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 
+    @Test
+    public void ignoreLikesUpdateWhenUnsubscribed() {
+        controller.subscribe();
+
+        controller.unsubscribe();
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, createLikeEvent());
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
+    }
+
+    @Test
+    public void ignoreSettingsUpdateWhenUnsubscribed() {
+        controller.subscribe();
+
+        controller.unsubscribe();
+        offlineLikesSyncObservable.onNext(true);
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
+    }
+
     private PlayableUpdatedEvent createIgnoredEvent() {
         return PlayableUpdatedEvent.forRepost(TRACK_URN, true, 10);
     }
