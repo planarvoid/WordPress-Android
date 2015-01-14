@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.FeatureFlags;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
@@ -15,13 +14,11 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     protected static final int TAB_PLAYLISTS = 2;
     protected static final int TAB_PEOPLE = 3;
 
-    private final FeatureFlags featureFlags;
     private final Resources resources;
     private final String query;
 
-    public SearchPagerAdapter(FeatureFlags featureFlags, Resources resources, FragmentManager fm, String query) {
+    public SearchPagerAdapter(Resources resources, FragmentManager fm, String query) {
         super(fm);
-        this.featureFlags = featureFlags;
         this.resources = resources;
         this.query = query;
     }
