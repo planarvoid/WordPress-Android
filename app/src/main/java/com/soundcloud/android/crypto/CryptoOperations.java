@@ -30,7 +30,7 @@ public class CryptoOperations {
     private final Scheduler storageScheduler;
 
     @Inject
-    public CryptoOperations(KeyStorage storage, Encryptor encryptor, @Named("Database") Scheduler scheduler) {
+    public CryptoOperations(KeyStorage storage, Encryptor encryptor, @Named("Storage") Scheduler scheduler) {
         this.secureRandom = new SecureRandom();
         this.encryptor = encryptor;
         this.storage = storage;

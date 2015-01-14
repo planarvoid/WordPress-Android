@@ -70,8 +70,8 @@ public class StorageModule {
     }
 
     @Provides
-    @Named("Database")
-    public Scheduler provideDatabaseScheduler() {
+    @Named("Storage")
+    public Scheduler provideStorageScheduler() {
         return ScSchedulers.STORAGE_SCHEDULER;
     }
 }

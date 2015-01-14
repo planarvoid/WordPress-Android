@@ -194,8 +194,8 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named("Database")
-    public Scheduler provideDatabaseRxScheduler() {
+    @Named("Storage")
+    public Scheduler provideStorageRxScheduler() {
         return Schedulers.immediate();
     }
 

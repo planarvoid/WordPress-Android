@@ -1,39 +1,34 @@
 package com.soundcloud.android.configuration.experiments;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 
 import android.content.Context;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-class ExperimentStorage extends ScheduledOperations {
+class ExperimentStorage {
 
     private static final String ASSIGNMENT_FILE_NAME = ".assignment";
 
+    private final Scheduler scheduler;
     private final JsonTransformer jsonTransformer;
     private final File file;
 
     @Inject
-    ExperimentStorage(Context context, JsonTransformer jsonTransformer) {
-        this(ScSchedulers.STORAGE_SCHEDULER, context, jsonTransformer);
-    }
-
-    @VisibleForTesting
-    ExperimentStorage(Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
-        super(scheduler);
+    ExperimentStorage(@Named("Storage") Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
+        this.scheduler = scheduler;
         this.jsonTransformer = jsonTransformer;
         this.file = new File(context.getFilesDir(), ASSIGNMENT_FILE_NAME);
     }
@@ -48,11 +43,18 @@ class ExperimentStorage extends ScheduledOperations {
     }
 
     public Observable<Assignment> readAssignment() {
-        return schedule(Observable.just(loadAssignment()));
+        return loadAssignment().subscribeOn(scheduler);
     }
 
-    private Assignment loadAssignment() {
-        return file.exists() ? readAssignmentFile(file) : Assignment.empty();
+    private Observable<Assignment> loadAssignment() {
+        return Observable.create(new Observable.OnSubscribe<Assignment>() {
+            @Override
+            public void call(Subscriber<? super Assignment> subscriber) {
+                Assignment assignment = file.exists() ? readAssignmentFile(file) : Assignment.empty();
+                subscriber.onNext(assignment);
+                subscriber.onCompleted();
+            }
+        });
     }
 
     private Assignment readAssignmentFile(File file) {
