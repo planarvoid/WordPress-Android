@@ -204,8 +204,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
         if (!applicationProperties.isReleaseBuild()) {
             String report = generateRequestResponseLog(request, response);
-            // we log using INFO level, since request logs can be useful in beta builds
-            Log.i(TAG, report);
+            Log.d(TAG, report);
         }
     }
 
