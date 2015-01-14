@@ -2,7 +2,7 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
@@ -46,13 +46,13 @@ public class ApiSyncerFactory {
     public SyncStrategy forContentUri(Context context, Uri contentUri) {
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                if (featureFlags.isEnabled(Feature.API_MOBILE_STREAM)){
+                if (featureFlags.isEnabled(Flag.API_MOBILE_STREAM)){
                     return lazySoundStreamSyncer.get();
                 } else {
                     return new ApiSyncer(context, context.getContentResolver());
                 }
             case ME_LIKES:
-                if (featureFlags.isEnabled(Feature.NEW_LIKES_SYNCER)) {
+                if (featureFlags.isEnabled(Flag.NEW_LIKES_SYNCER)) {
                     return trackLikesSyncer.get();
                 } else {
                     return new ApiSyncer(context, context.getContentResolver());

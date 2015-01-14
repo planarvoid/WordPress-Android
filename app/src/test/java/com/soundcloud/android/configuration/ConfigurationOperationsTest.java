@@ -12,7 +12,7 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -45,7 +45,7 @@ public class ConfigurationOperationsTest {
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configuration));
-        when(featureFlags.isEnabled(Feature.CONFIGURATION_FEATURES)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.CONFIGURATION_FEATURES)).thenReturn(true);
     }
 
     @Test

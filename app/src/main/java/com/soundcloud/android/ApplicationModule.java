@@ -28,7 +28,7 @@ import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -209,7 +209,7 @@ public class ApplicationModule {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
-        if (featureFlags.isEnabled(Feature.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
+        if (featureFlags.isEnabled(Flag.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
             return new DefaultCastConnectionHelper(context, provideVideoCastManager(context, applicationProperties));
         } else {
             return new UselessCastConnectionHelper();

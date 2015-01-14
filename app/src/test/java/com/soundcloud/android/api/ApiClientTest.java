@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -471,7 +471,7 @@ public class ApiClientTest {
     }
 
     private void fakeApiMobileResponse(MockResponse... mockResponses) throws IOException {
-        when(featureFlags.isEnabled(Feature.OKHTTP)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.OKHTTP)).thenReturn(true);
         for (MockResponse response : mockResponses) {
             mockWebServer.enqueue(response);
         }
@@ -479,7 +479,7 @@ public class ApiClientTest {
     }
 
     private void fakePublicApiResponse(MockResponse mockResponse) throws IOException {
-        when(featureFlags.isEnabled(Feature.OKHTTP)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.OKHTTP)).thenReturn(true);
         mockWebServer.enqueue(mockResponse);
         when(httpProperties.getPublicApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }

@@ -5,7 +5,7 @@ import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.screens.MenuScreen;
 
@@ -29,7 +29,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected Waiter waiter;
     protected ToastObserver toastObserver;
 
-    private Feature dependency;
+    private Flag dependency;
     private boolean runBasedOnResource = true;
 
     protected Han solo;
@@ -109,7 +109,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
     }
 
-    protected void setDependsOn(Feature dependency) {
+    protected void setDependsOn(Flag dependency) {
         this.dependency = dependency;
     }
 

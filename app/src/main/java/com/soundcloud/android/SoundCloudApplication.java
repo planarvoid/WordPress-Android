@@ -30,7 +30,7 @@ import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
@@ -165,11 +165,11 @@ public class SoundCloudApplication extends Application {
         playbackNotificationController.subscribe();
         adsController.subscribe();
 
-        if (featureFlags.isEnabled(Feature.GOOGLE_CAST)) {
+        if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
             castSessionReconnector.startListening();
         }
 
-        if (featureFlags.isEnabled(Feature.OFFLINE_SYNC_FROM_LIKES)) {
+        if (featureFlags.isEnabled(Flag.OFFLINE_SYNC_FROM_LIKES)) {
             offlineContentController.subscribe();
         }
 

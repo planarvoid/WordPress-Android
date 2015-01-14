@@ -3,7 +3,7 @@ package com.soundcloud.android.tests.playlist;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -20,7 +20,7 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
                 TestUser.playlistUser.getEmail(),
                 TestUser.playlistUser.getPassword());
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-        setDependsOn(Feature.PLAYLIST_LIKES_SCREEN);
+        setDependsOn(Flag.PLAYLIST_LIKES_SCREEN);
         super.setUp();
     }
 

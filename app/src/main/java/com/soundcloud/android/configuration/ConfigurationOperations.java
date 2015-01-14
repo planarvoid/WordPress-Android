@@ -7,7 +7,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -87,7 +87,7 @@ public class ConfigurationOperations {
         public void onNext(Configuration configuration) {
             Log.d(TAG, "Received new configuration");
             experimentOperations.update(configuration.assignment);
-            if (featureFlags.isEnabled(Feature.CONFIGURATION_FEATURES)) {
+            if (featureFlags.isEnabled(Flag.CONFIGURATION_FEATURES)) {
                 featureOperations.update(configuration.features);
             }
         }

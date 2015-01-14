@@ -15,12 +15,12 @@ public class FeatureFlags {
         this.resources = resources;
     }
 
-    public boolean isEnabled(Feature feature) {
-        return resources.getBoolean(feature.getId());
+    public boolean isEnabled(Flag flag) {
+        return resources.getBoolean(flag.getId());
     }
 
-    public boolean isDisabled(Feature feature) {
-        return !isEnabled(feature);
+    public boolean isDisabled(Flag flag) {
+        return !isEnabled(flag);
     }
 
 }

@@ -6,7 +6,7 @@ import com.android.vending.billing.IInAppBillingService;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -150,7 +150,7 @@ public class BillingService {
             int responseCode = getResponseCodeFromBundle(response);
             logBillingResponse("getBuyIntent", responseCode);
 
-            if (responseCode == RESULT_OK && flags.isDisabled(Feature.PAYMENTS_TEST)) {
+            if (responseCode == RESULT_OK && flags.isDisabled(Flag.PAYMENTS_TEST)) {
                 PendingIntent buyIntent = response.getParcelable(RESPONSE_BUY_INTENT);
                 bindingActivity.startIntentSenderForResult(buyIntent.getIntentSender(),
                         BillingResult.REQUEST_CODE, new Intent(), NO_FLAGS, NO_FLAGS, NO_FLAGS);

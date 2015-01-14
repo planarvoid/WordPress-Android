@@ -24,7 +24,7 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.properties.Feature;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
@@ -317,7 +317,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            if (featureFlags.isEnabled(Feature.TRACK_LIKES_SCREEN)) {
+            if (featureFlags.isEnabled(Flag.TRACK_LIKES_SCREEN)) {
                 fragment = new TrackLikesFragment();
             } else {
                 fragment = new LikesListFragment();
