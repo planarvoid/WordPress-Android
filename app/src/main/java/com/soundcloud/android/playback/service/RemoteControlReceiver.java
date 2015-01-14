@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 
+// Modifying an static variable causes a high priority warning on PMD
+// As agreed on this specific case, we are ok with this.
+@SuppressWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
 public class RemoteControlReceiver extends BroadcastReceiver {
     private static final int DOUBLE_CLICK_DELAY = 400;
     private static long lastClicked = -DOUBLE_CLICK_DELAY;
