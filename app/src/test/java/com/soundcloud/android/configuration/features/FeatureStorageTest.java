@@ -4,22 +4,22 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.shadows.ScTestSharedPreferences;
+import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class FeatureStorageTest {
 
     private FeatureStorage storage;
-    private List<Feature> features;
+    private Map<String, Boolean> features;
 
     @Before
     public void setUp() throws Exception {
-        features = Arrays.asList(new Feature("feature_disabled", false), new Feature("feature_enabled", true));
+        features = TestFeatures.asMap();
         storage = new FeatureStorage(new ScTestSharedPreferences());
     }
 
@@ -33,22 +33,20 @@ public class FeatureStorageTest {
 
     @Test
     public void listFeaturesShouldReturnEmptyListWhenNoFeature() {
-        expect(storage.listFeatures()).toBeEmpty();
+        expect(storage.listFeatures().isEmpty()).toBeTrue();
     }
 
     @Test
     public void listFeaturesShouldReturnAllFeatures() {
         storage.updateFeature(features);
 
-        final List<Feature> features = storage.listFeatures();
-
-        expect(features).toContain(features.get(0), features.get(1));
+        expect(storage.listFeatures()).toEqual(features);
     }
 
     @Test
     public void updateFeatureEnabledValues() {
         final Feature feature = new Feature("feature_disabled", false);
-        storage.updateFeature(feature);
+        storage.updateFeature(feature.name, feature.enabled);
 
         expect(storage.isEnabled("feature_disabled", true)).toBeFalse();
     }

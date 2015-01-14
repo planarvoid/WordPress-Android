@@ -4,11 +4,12 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -21,6 +22,8 @@ import rx.subscriptions.Subscriptions;
 import android.util.Log;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConfigurationOperations {
 
@@ -40,11 +43,11 @@ public class ConfigurationOperations {
     private final DeviceHelper deviceHelper;
     private final EventBus eventBus;
     private final FeatureFlags featureFlags;
-    private  Subscription subscription = Subscriptions.empty();
+    private Subscription subscription = Subscriptions.empty();
 
     @Inject
     public ConfigurationOperations(ApiScheduler apiScheduler, ExperimentOperations experimentOperations,
-                                   FeatureOperations featureOperations,DeviceHelper deviceHelper,
+                                   FeatureOperations featureOperations, DeviceHelper deviceHelper,
                                    EventBus eventBus, FeatureFlags featureFlags) {
         this.apiScheduler = apiScheduler;
         this.experimentOperations = experimentOperations;
@@ -87,9 +90,18 @@ public class ConfigurationOperations {
         public void onNext(Configuration configuration) {
             Log.d(TAG, "Received new configuration");
             experimentOperations.update(configuration.assignment);
+
             if (featureFlags.isEnabled(Flag.CONFIGURATION_FEATURES)) {
-                featureOperations.update(configuration.features);
+                featureOperations.update(toMap(configuration));
             }
+        }
+
+        private Map<String, Boolean> toMap(Configuration configuration) {
+            final HashMap<String, Boolean> map = new HashMap<>(configuration.features.size());
+            for (Feature feature : configuration.features) {
+                map.put(feature.name, feature.enabled);
+            }
+            return map;
         }
     }
 }

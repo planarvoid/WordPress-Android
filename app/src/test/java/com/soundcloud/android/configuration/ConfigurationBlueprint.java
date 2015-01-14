@@ -3,10 +3,10 @@ package com.soundcloud.android.configuration;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
+import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Blueprint(Configuration.class)
@@ -19,7 +19,7 @@ public class ConfigurationBlueprint {
     };
 
     private List<Feature> createFeatures() {
-        return Arrays.asList(new Feature("feature_disabled", false), new Feature("feature_enabled", true));
+        return TestFeatures.asList();
     }
 
     private List<Layer> createLayers() {

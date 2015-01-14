@@ -4,8 +4,6 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class FeatureStorage {
@@ -20,25 +18,21 @@ public class FeatureStorage {
         return sharedPreferences.getBoolean(featureName, defaultValue);
     }
 
-    public List<Feature> listFeatures() {
-        final Map<String, ?> featurePrefs = sharedPreferences.getAll();
-        final List<Feature> features = new ArrayList<>(featurePrefs.size());
-        for (Map.Entry<String, ?> entry : featurePrefs.entrySet()) {
-            features.add(new Feature(entry.getKey(), (Boolean) entry.getValue()));
-        }
-        return features;
+    @SuppressWarnings("unchecked")
+    public Map<String, Boolean> listFeatures() {
+        return (Map<String, Boolean>) sharedPreferences.getAll();
     }
 
-    public void updateFeature(List<Feature> features) {
+    public void updateFeature(Map<String, Boolean> features) {
         final SharedPreferences.Editor edit = sharedPreferences.edit();
-        for (Feature feature : features) {
-            edit.putBoolean(feature.name, feature.enabled);
+        for (Map.Entry<String, Boolean> feature : features.entrySet()) {
+            edit.putBoolean(feature.getKey(), feature.getValue());
         }
         edit.apply();
     }
 
-    public void updateFeature(Feature feature) {
-        sharedPreferences.edit().putBoolean(feature.name, feature.enabled).apply();
+    public void updateFeature(String name, boolean enabled) {
+        sharedPreferences.edit().putBoolean(name, enabled).apply();
     }
 
     public void clear() {
