@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-public abstract class DefaultFragmentLightCycle implements FragmentLightCycle {
+public class DefaultFragmentLightCycle implements FragmentLightCycle {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) { /* no-op */ }
 

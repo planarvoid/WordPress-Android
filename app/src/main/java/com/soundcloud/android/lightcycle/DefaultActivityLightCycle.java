@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-public abstract class DefaultActivityLightCycle implements ActivityLightCycle {
+public class DefaultActivityLightCycle implements ActivityLightCycle {
     @Override
     public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) { /* no-op */ }
 
