@@ -33,7 +33,7 @@ public class ApiSyncerFactory {
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
-        this.featureFlags = featureFlags;\
+        this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
     }
