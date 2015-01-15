@@ -16,7 +16,7 @@ import javax.inject.Inject;
  */
 public class InAppCampaignController extends DefaultActivityLightCycle {
 
-    private LocalyticsAmpSession localyticsAmpSession;
+    private final LocalyticsAmpSession localyticsAmpSession;
 
     @Inject
     public InAppCampaignController(LocalyticsAmpSession session) {

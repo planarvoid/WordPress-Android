@@ -37,7 +37,7 @@ public class UserRemovedLightCycle extends DefaultActivityLightCycle {
     private static class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
         private final Activity activity;
 
-        private CurrentUserChangedSubscriber(Activity activity) {
+        public CurrentUserChangedSubscriber(Activity activity) {
             this.activity = activity;
         }
 

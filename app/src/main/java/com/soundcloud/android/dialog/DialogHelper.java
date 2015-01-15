@@ -3,9 +3,13 @@ package com.soundcloud.android.dialog;
 import android.app.Activity;
 import android.view.WindowManager;
 
-public class DialogHelper {
+public final class DialogHelper {
+    private DialogHelper() {
+        // No instantiation
+    }
 
     @Deprecated // Use DialogFragment instead.
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     public static void safeShowDialog(Activity activity, int dialogId) {
         if (!activity.isFinishing()) {
             try {

@@ -11,9 +11,9 @@ import javax.inject.Inject;
 class ScreenStateLightCycle extends DefaultActivityLightCycle {
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
-    private boolean onCreateCalled = false;
-    private boolean isConfigurationChange = false;
-    private boolean isForeground = false;
+    private boolean onCreateCalled;
+    private boolean isConfigurationChange;
+    private boolean isForeground;
 
     @Inject
     public ScreenStateLightCycle() {
