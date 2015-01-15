@@ -234,9 +234,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         final LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         ((ViewGroup) pullToRefreshLayout.findViewById(R.id.list_contents)).addView(emptyView, layoutParams);
 
-        pullToRefreshController.onBind(this);
         pullToRefreshController.setRefreshListener(this);
-        pullToRefreshController.onViewCreated(pullToRefreshLayout, savedInstanceState);
+        pullToRefreshController.onViewCreated(this, pullToRefreshLayout, savedInstanceState);
         configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()) {
@@ -324,7 +323,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        pullToRefreshController.onDestroyView();
+        pullToRefreshController.onDestroyView(this);
 
         if (content == Content.ME_SOUNDS && adapter != null) {
             ((MyTracksAdapter) adapter).onDestroy();

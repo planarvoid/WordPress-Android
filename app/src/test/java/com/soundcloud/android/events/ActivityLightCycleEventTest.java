@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import android.app.Activity;
 
-public class ActivityLifeCycleEventTest {
+public class ActivityLightCycleEventTest {
 
     @Test
     public void forOnCreateFactoryMethodShouldReturnAnEventInstanceForOnCreateEvent() throws Exception {

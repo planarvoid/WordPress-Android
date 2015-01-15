@@ -62,7 +62,6 @@ public class PullToRefreshControllerTest {
     @Before
     public void setUp() throws Exception {
         controller = new PullToRefreshController(wrapper);
-        controller.onBind(fragment);
 
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.str_layout)).thenReturn(layout);
@@ -72,14 +71,14 @@ public class PullToRefreshControllerTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowIfRefreshListenerNotSetWhenOnViewCreatedIsCalled() {
-        controller.onViewCreated(layout, bundle);
+        controller.onViewCreated(fragment, layout, bundle);
     }
 
     @Test
     public void shouldAttachPullToRefreshWrapperWithCustomListenerIfSet() {
         when(wrapper.isAttached()).thenReturn(false);
         controller.setRefreshListener(listener);
-        controller.onViewCreated(layout, bundle);
+        controller.onViewCreated(fragment, layout, bundle);
 
         verify(wrapper).attach(same(layout), same(listener));
     }
@@ -88,7 +87,7 @@ public class PullToRefreshControllerTest {
     public void shouldAttachPullToRefreshWrapperWithInternalRefreshListenerIfOwnerIsRefreshable() {
         when(wrapper.isAttached()).thenReturn(false);
         controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
-        controller.onViewCreated(layout, bundle);
+        controller.onViewCreated(fragment, layout, bundle);
 
         verify(wrapper).attach(same(layout), isA(OnRefreshListener.class));
     }
@@ -128,8 +127,8 @@ public class PullToRefreshControllerTest {
     @Test
     public void shouldDetachFromPTRWrapperWhenViewsGetDestroyed() {
         controller.setRefreshListener(listener);
-        controller.onViewCreated(layout, bundle);
-        controller.onDestroyView();
+        controller.onViewCreated(fragment, layout, bundle);
+        controller.onDestroyView(fragment);
 
         verify(wrapper).detach();
     }
@@ -139,10 +138,10 @@ public class PullToRefreshControllerTest {
         when(wrapper.isRefreshing()).thenReturn(true);
         controller.setRefreshListener(listener);
 
-        controller.onViewCreated(layout, bundle);
+        controller.onViewCreated(fragment, layout, bundle);
         controller.startRefreshing();
-        controller.onDestroyView();
-        controller.onViewCreated(layout, bundle);
+        controller.onDestroyView(fragment);
+        controller.onViewCreated(fragment, layout, bundle);
 
         InOrder inOrder = inOrder(wrapper);
         inOrder.verify(wrapper).setRefreshing(false); // onViewCreated 1
@@ -156,8 +155,8 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(fragment, adapter);
         observable.connect();
 
-        controller.onDestroyView();
-        controller.onViewCreated(layout, bundle);
+        controller.onDestroyView(fragment);
+        controller.onViewCreated(fragment, layout, bundle);
         controller.connect(observable, adapter);
 
         verify(adapter).onNext(Arrays.asList("item"));
@@ -168,8 +167,8 @@ public class PullToRefreshControllerTest {
         when(wrapper.isRefreshing()).thenReturn(false);
         controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
 
-        controller.onDestroyView();
-        controller.onViewCreated(layout, bundle);
+        controller.onDestroyView(fragment);
+        controller.onViewCreated(fragment, layout, bundle);
         controller.connect(observable, adapter);
 
         verifyZeroInteractions(adapter);
@@ -213,7 +212,7 @@ public class PullToRefreshControllerTest {
     }
 
     private void triggerRefresh() {
-        controller.onViewCreated(layout, bundle);
+        controller.onViewCreated(fragment, layout, bundle);
         verify(wrapper).attach(refEq(layout), refreshListenerCaptor.capture());
         refreshListenerCaptor.getValue().onRefresh();
     }

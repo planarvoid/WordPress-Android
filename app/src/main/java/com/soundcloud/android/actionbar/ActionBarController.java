@@ -81,10 +81,6 @@ public class ActionBarController {
         }
     }
 
-    public boolean isVisible() {
-        return owner.getActivity().getSupportActionBar().isShowing();
-    }
-
     public void setVisible(boolean isVisible) {
         ActionBar actionBar = owner.getActivity().getSupportActionBar();
         if (isVisible) {

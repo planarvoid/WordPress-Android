@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,6 +65,7 @@ public class NetworkConnectivityListener {
     /**
      * Create a new NetworkConnectivityListener.
      */
+    @Inject
     public NetworkConnectivityListener() {
         state = State.UNKNOWN;
         receiver = new ConnectivityBroadcastReceiver();

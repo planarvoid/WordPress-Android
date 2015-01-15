@@ -73,9 +73,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     public MainActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
-        addLifeCycleComponent(inAppCampaignController);
+        lightCycleDispatcher.add(playerController);
+        lightCycleDispatcher.add(adPlayerController);
+        lightCycleDispatcher.add(inAppCampaignController);
 
         presenter.attach(this);
     }

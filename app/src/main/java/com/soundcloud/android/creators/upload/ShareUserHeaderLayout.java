@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.dialog.DialogHelper;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
@@ -25,7 +26,7 @@ public class ShareUserHeaderLayout extends RelativeLayout {
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
-                        activity.safeShowDialog(Consts.Dialogs.DIALOG_LOGOUT);
+                        DialogHelper.safeShowDialog(activity, Consts.Dialogs.DIALOG_LOGOUT);
                     }
                 }, true, false);
 

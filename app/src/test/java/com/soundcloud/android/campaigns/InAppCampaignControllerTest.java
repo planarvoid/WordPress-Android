@@ -29,12 +29,11 @@ public class InAppCampaignControllerTest {
         when(activity.getString(R.string.google_api_key)).thenReturn("123");
 
         inAppCampaignController = new InAppCampaignController(session);
-        inAppCampaignController.onBind(activity);
     }
 
     @Test
     public void onCreateRegistersPushApiKey() throws Exception {
-        inAppCampaignController.onCreate(null);
+        inAppCampaignController.onCreate(activity, null);
         verify(session).registerPush("123");
     }
 
@@ -43,7 +42,7 @@ public class InAppCampaignControllerTest {
         Intent intent = new Intent();
         when(activity.getIntent()).thenReturn(intent);
 
-        inAppCampaignController.onResume();
+        inAppCampaignController.onResume(activity);
 
         InOrder inOrder = Mockito.inOrder(session);
         inOrder.verify(session).open();
@@ -53,7 +52,7 @@ public class InAppCampaignControllerTest {
 
     @Test
     public void onPauseClosesPushSession() throws Exception {
-        inAppCampaignController.onPause();
+        inAppCampaignController.onPause(activity);
 
         InOrder inOrder = Mockito.inOrder(session);
         inOrder.verify(session).detach();

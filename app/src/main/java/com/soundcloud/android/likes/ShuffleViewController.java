@@ -19,6 +19,7 @@ import rx.Observer;
 import rx.functions.Action0;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -60,14 +61,14 @@ public class ShuffleViewController extends HeaderViewController implements Obser
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
         shuffleView = view.inflate(view.getContext(), R.layout.likes_shuffle_header, null);
         ButterKnife.inject(this, shuffleView);
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView(Fragment fragment) {
         shuffleView = null;
     }
 

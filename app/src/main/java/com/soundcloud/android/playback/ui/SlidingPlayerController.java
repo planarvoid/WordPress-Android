@@ -9,11 +9,12 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.DefaultActivityLifeCycle;
+import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -26,8 +27,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
-public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity> implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultActivityLightCycle implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final float EXPAND_THRESHOLD = 0.5f;
@@ -37,7 +37,6 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
 
     private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
-    private Activity activity;
     private PlayerFragment playerFragment;
 
     private Subscription subscription = Subscriptions.empty();
@@ -53,16 +52,16 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     }
 
     @Override
-    public void onBind(ScActivity activity) {
-        this.activity = activity;
-        this.actionBarController = activity.getActionBarController();
+    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+        final ScActivity scActivity = (ScActivity) activity;
+        this.actionBarController = scActivity.getActionBarController();
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
         slidingPanel.setOnTouchListener(new TrackingDragListener());
-        expandOnResume = false;
+        expandOnResume = shouldExpand(getCurrentBundle(activity, bundle));
 
-        playerFragment = getPlayerFragmentFromActivity(activity);
+        playerFragment = getPlayerFragmentFromActivity(scActivity);
         if (playerFragment == null) {
             throw new IllegalArgumentException("Player fragment not found. Make sure it is present with the expected id.");
         }
@@ -101,12 +100,7 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
         return false;
     }
 
-    @Override
-    public void onCreate(Bundle bundle) {
-        expandOnResume = shouldExpand(getCurrentBundle(bundle));
-    }
-
-    private Bundle getCurrentBundle(Bundle bundle) {
+    private Bundle getCurrentBundle(Activity activity, Bundle bundle) {
         if (bundle != null) {
             return bundle;
         }
@@ -119,7 +113,7 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     }
 
     @Override
-    public void onNewIntent(Intent intent) {
+    public void onNewIntent(FragmentActivity activity, Intent intent) {
         expandOnResume = shouldExpand(intent.getExtras());
     }
 
@@ -128,7 +122,7 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     }
 
     @Override
-    public void onResume() {
+    public void onResume(FragmentActivity activity) {
         if (playQueueManager.isQueueEmpty()) {
             hide();
         } else {
@@ -173,18 +167,13 @@ public class SlidingPlayerController extends DefaultActivityLifeCycle<ScActivity
     }
 
     @Override
-    public void onPause() {
+    public void onPause(FragmentActivity activity) {
         subscription.unsubscribe();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle) {
+    public void onSaveInstanceState(FragmentActivity activity, Bundle bundle) {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, slidingPanel.isPanelExpanded());
-    }
-
-    @Override
-    public void onDestroy() {
-        this.activity = null;
     }
 
     @Override

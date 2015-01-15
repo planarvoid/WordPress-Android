@@ -51,43 +51,43 @@ public class EmptyViewControllerTest {
 
     @Test
     public void shouldSetupEmptyViewInWaitingStateInFirstCallToOnViewCreated() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void shouldResetEmptyViewStateToIdleWhenControllerReceivesCompleteEvent() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, Observable.empty());
         verify(emptyView).setStatus(EmptyView.Status.OK);
     }
 
     @Test
     public void shouldSetEmptyViewStateToServerErrorWhenControllerReceivesErrorForApiRequestExceptionNotRelatedToNetwork() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, Observable.error(ApiRequestException.notFound(null)));
         verify(emptyView).setStatus(EmptyView.Status.SERVER_ERROR);
     }
 
     @Test
     public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForApiRequestExceptionRelatedToNetwork() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, Observable.error(ApiRequestException.networkError(null, null)));
         verify(emptyView).setStatus(EmptyView.Status.CONNECTION_ERROR);
     }
 
     @Test
     public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForSyncFailedException() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, Observable.error(mock(SyncFailedException.class)));
         verify(emptyView).setStatus(EmptyView.Status.CONNECTION_ERROR);
     }
 
     @Test
     public void shouldRestoreEmptyViewInWaitingStateWhenGoingThroughViewCreationCycle() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
         InOrder inOrder = inOrder(emptyView);
         inOrder.verify(emptyView).setStatus(EmptyView.Status.WAITING);
@@ -96,7 +96,7 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldSetEmptyViewStateToWaitingWhenFired() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
 
         ArgumentCaptor<EmptyView.RetryListener> listenerCaptor = ArgumentCaptor.forClass(EmptyView.RetryListener.class);
@@ -108,7 +108,7 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldRebuildObservable() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
 
@@ -120,7 +120,7 @@ public class EmptyViewControllerTest {
     @Test
     public void retryListenerShouldTriggerConnectOnNewObservable() {
         when(reactiveComponent.buildObservable()).thenReturn(observable);
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
 
@@ -131,7 +131,7 @@ public class EmptyViewControllerTest {
 
     @Test
     public void retryListenerShouldSubscribeToNewObservableAndUpdateEmptyViewWithNewState() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
         verify(emptyView).setOnRetryListener(retryListenerCaptor.capture());
 
@@ -142,17 +142,17 @@ public class EmptyViewControllerTest {
 
     @Test
     public void shouldUnsubscribeFromObservableInOnDestroyView() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
-        controller.onDestroyView();
+        controller.onDestroyView(fragment);
         verify(subscription).unsubscribe();
     }
 
     @Test
     public void shouldReleaseEmptyViewInOnDestroyView() {
-        controller.onViewCreated(layout, null);
+        controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, observable);
-        controller.onDestroyView();
+        controller.onDestroyView(fragment);
         expect(controller.getEmptyView()).toBeNull();
     }
 }

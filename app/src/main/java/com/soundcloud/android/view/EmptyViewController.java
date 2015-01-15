@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.main.DefaultFragmentLifeCycle;
+import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +15,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
+public class EmptyViewController extends DefaultFragmentLightCycle {
 
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;
@@ -27,7 +27,7 @@ public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         emptyView = (EmptyView) view.findViewById(android.R.id.empty);
         emptyView.setStatus(emptyViewStatus);
     }
@@ -47,7 +47,7 @@ public class EmptyViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView(Fragment fragment) {
         subscription.unsubscribe();
         emptyView = null;
     }

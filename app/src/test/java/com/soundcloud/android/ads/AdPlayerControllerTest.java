@@ -17,10 +17,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.support.v4.app.FragmentActivity;
+
 @RunWith(SoundCloudTestRunner.class)
 public class AdPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
+    @Mock private FragmentActivity activity;
 
     private TestEventBus eventBus = new TestEventBus();
     private AdPlayerController controller;
@@ -87,13 +90,13 @@ public class AdPlayerControllerTest {
     @Test
     public void expandsOnlyOncePerAd() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        controller.onResume();
+        controller.onResume(activity);
         setAudioAdIsPlaying(true);
         PlayerUIEvent playerCollapsed = PlayerUIEvent.fromPlayerCollapsed();
         eventBus.publish(EventQueue.PLAYER_UI, playerCollapsed);
 
-        controller.onPause();
-        controller.onResume();
+        controller.onPause(activity);
+        controller.onResume(activity);
 
         expect(eventBus.lastEventOn(EventQueue.PLAYER_UI)).toBe(playerCollapsed);
     }
@@ -104,8 +107,8 @@ public class AdPlayerControllerTest {
     }
 
     private void resumeFromBackground() {
-        controller.onResume();
-        controller.onPause();
-        controller.onResume();
+        controller.onResume(activity);
+        controller.onPause(activity);
+        controller.onResume(activity);
     }
 }

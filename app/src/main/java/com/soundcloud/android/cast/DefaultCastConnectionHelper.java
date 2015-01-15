@@ -7,9 +7,12 @@ import com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionExcept
 import com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
+import org.jetbrains.annotations.Nullable;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -60,13 +63,13 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onActivityResume(Activity activity) {
+    public void onResume(FragmentActivity activity) {
         videoCastManager.startCastDiscovery();
         videoCastManager.incrementUiCounter();
     }
 
     @Override
-    public void onActivityPause() {
+    public void onPause(FragmentActivity activity) {
         videoCastManager.stopCastDiscovery();
         videoCastManager.decrementUiCounter();
     }
@@ -129,6 +132,41 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
 
     private void updateMediaRouteButtonVisibility(MediaRouteButton mediaRouteButton) {
         mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+        /* no-op */
+    }
+
+    @Override
+    public void onNewIntent(FragmentActivity activity, Intent intent) {
+        /* no-op */
+    }
+
+    @Override
+    public void onStart(FragmentActivity activity) {
+        /* no-op */
+    }
+
+    @Override
+    public void onStop(FragmentActivity activity) {
+        /* no-op */
+    }
+
+    @Override
+    public void onSaveInstanceState(FragmentActivity activity, Bundle bundle) {
+        /* no-op */
+    }
+
+    @Override
+    public void onRestoreInstanceState(FragmentActivity activity, Bundle bundle) {
+        /* no-op */
+    }
+
+    @Override
+    public void onDestroy(FragmentActivity activity) {
+        /* no-op */
     }
 }
 

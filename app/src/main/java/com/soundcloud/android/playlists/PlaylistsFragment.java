@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.os.Bundle;
@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PlaylistsFragment extends DefaultFragment {
+public class PlaylistsFragment extends LightCycleFragment {
 
     public PlaylistsFragment() {
     }

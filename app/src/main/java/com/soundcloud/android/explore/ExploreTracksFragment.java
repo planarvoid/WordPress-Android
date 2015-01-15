@@ -9,7 +9,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -33,7 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 @SuppressLint("ValidFragment")
-public class ExploreTracksFragment extends DefaultFragment
+public class ExploreTracksFragment extends LightCycleFragment
         implements RefreshableListComponent<ConnectableObservable<SuggestedTracksCollection>> {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";

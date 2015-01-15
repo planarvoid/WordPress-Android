@@ -1,7 +1,6 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.lightcycle;
 
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -17,16 +16,16 @@ import android.os.Bundle;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
-public class DefaultFragmentTest {
+public class LightCycleFragmentTest {
 
-    private DefaultFragment fragment;
-    @Mock FragmentLifeCycle component;
+    private LightCycleFragment fragment;
+    @Mock FragmentLightCycle component;
     @Mock Activity activity;
 
     @Before
     public void setup() {
         // registers all life cycle components, so need to do it before every test
-        fragment = new DefaultFragment();
+        fragment = new LightCycleFragment();
         fragment.addLifeCycleComponent(component);
         fragment.onCreate(null);
     }
@@ -37,38 +36,37 @@ public class DefaultFragmentTest {
         fragment.onCreate(savedInstanceState);
 
         InOrder inOrder = inOrder(component);
-        inOrder.verify(component).onBind(fragment);
-        inOrder.verify(component).onCreate(savedInstanceState);
+        inOrder.verify(component).onCreate(fragment, savedInstanceState);
     }
 
     @Test
     public void shouldForwardOnDestroy() {
         fragment.onDestroy();
-        verify(component).onDestroy();
+        verify(component).onDestroy(fragment);
     }
 
     @Test
     public void shouldForwardOnStart() {
         fragment.onStart();
-        verify(component).onStart();
+        verify(component).onStart(fragment);
     }
 
     @Test
     public void shouldForwardOnStop() {
         fragment.onStop();
-        verify(component).onStop();
+        verify(component).onStop(fragment);
     }
 
     @Test
     public void shouldForwardOnResume() {
         fragment.onResume();
-        verify(component).onResume();
+        verify(component).onResume(fragment);
     }
 
     @Test
     public void shouldForwardOnPause() {
         fragment.onPause();
-        verify(component).onPause();
+        verify(component).onPause(fragment);
     }
 
     @Test
@@ -76,12 +74,12 @@ public class DefaultFragmentTest {
         final Bundle savedInstanceState = new Bundle();
         View view = new View(Robolectric.application);
         fragment.onViewCreated(view, savedInstanceState);
-        verify(component).onViewCreated(view, savedInstanceState);
+        verify(component).onViewCreated(fragment, view, savedInstanceState);
     }
 
     @Test
     public void shouldForwardOnDestroyView() {
         fragment.onDestroyView();
-        verify(component).onDestroyView();
+        verify(component).onDestroyView(fragment);
     }
 }

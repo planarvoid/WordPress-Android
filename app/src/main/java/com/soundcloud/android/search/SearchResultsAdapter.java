@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.main.FragmentLifeCycle;
+import com.soundcloud.android.lightcycle.FragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -24,7 +24,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
+class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements FragmentLightCycle {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;
@@ -76,7 +76,7 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements Fragme
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
@@ -84,52 +84,47 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements Fragme
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView(Fragment fragment) {
         eventSubscriptions.unsubscribe();
     }
 
     @Override
-    public void onBind(Fragment owner) {
+    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onCreate(@Nullable Bundle bundle) {
+    public void onStart(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onStart() {
+    public void onResume(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onResume() {
+    public void onPause(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onPause() {
+    public void onStop(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onStop() {
+    public void onSaveInstanceState(Fragment fragment, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle) {
+    public void onRestoreInstanceState(Fragment fragment, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle bundle) {
-        /* no-op */
-    }
-
-    @Override
-    public void onDestroy() {
+    public void onDestroy(Fragment fragment) {
         /* no-op */
     }
 }
