@@ -14,7 +14,8 @@ public enum Flag {
     NEW_LIKES_SYNCER(R.bool.feature_new_likes_syncer),
     PLAYLIST_LIKES_SCREEN(R.bool.feature_playlist_likes_screen),
     CONFIGURATION_FEATURES(R.bool.feature_configuration_features),
-    OFFLINE_SYNC_FROM_LIKES(R.bool.feature_offline_sync_from_likes);
+    OFFLINE_SYNC_FROM_LIKES(R.bool.feature_offline_sync_from_likes),
+    RELOAD_LAST_PLAYQUEUE(R.bool.feature_reload_last_playqueue);
     private final int resourceId;
 
     private Flag(int resourceId) {
