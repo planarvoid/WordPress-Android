@@ -25,7 +25,6 @@ import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.android.tracks.ApiTrackCollection;
@@ -39,7 +38,6 @@ import org.mockito.verification.VerificationMode;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LikesSyncerTest {
@@ -72,10 +70,7 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike);
         withLocalTrackLikes(trackLike);
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.UNCHANGED);
+        expect(syncer.syncContent()).toBe(false);
 
         verifyZeroInteractions(removeLikesCommand);
         verifyZeroInteractions(storeLikesCommand);
@@ -88,10 +83,7 @@ public class LikesSyncerTest {
         withRemoteTrackLikes();
         withLocalTrackLikes(trackLike);
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.UNCHANGED);
+        expect(syncer.syncContent()).toBe(false);
 
         verifyRemoteTrackLikeAddition(times(1), trackLike);
         verifyRemoteTrackLikeRemoval(never(), trackLike);
@@ -105,10 +97,7 @@ public class LikesSyncerTest {
         withRemoteTrackLikes(trackLike);
         withLocalTrackLikes();
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         expect(storeLikesCommand.getInput()).toContainExactly(trackLike.toPropertySet());
         verify(storeLikesCommand).call();
@@ -127,10 +116,7 @@ public class LikesSyncerTest {
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(TestApiResponses.ok());
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         verifyRemoteTrackLikeRemoval(times(1), trackLike);
         verifyRemoteTrackLikeAddition(never(), trackLike);
@@ -146,10 +132,7 @@ public class LikesSyncerTest {
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(TestApiResponses.ok());
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         expect(removeLikesCommand.getInput()).toNumber(1);
         Urn removedUrn = removeLikesCommand.getInput().iterator().next().get(LikeProperty.TARGET_URN);
@@ -171,10 +154,7 @@ public class LikesSyncerTest {
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval, otherLikePendingRemoval);
         when(apiClient.fetchResponse(argThat(isPublicApiRequestMethod("DELETE")))).thenReturn(TestApiResponses.status(500), TestApiResponses.ok());
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         // only remove the second like (first one failed)
         expect(removeLikesCommand.getInput()).toNumber(1);
@@ -193,10 +173,7 @@ public class LikesSyncerTest {
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         expect(removeLikesCommand.getInput()).toNumber(1);
         Urn removedUrn = removeLikesCommand.getInput().iterator().next().get(LikeProperty.TARGET_URN);
@@ -218,10 +195,7 @@ public class LikesSyncerTest {
         withLocalTrackLikes();
         withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         expect(storeLikesCommand.getInput()).toContainExactly(trackLike.toPropertySet());
         verify(storeLikesCommand).call();
@@ -254,10 +228,7 @@ public class LikesSyncerTest {
         withLocalTrackLikes(existsLocallyNotRemotely.toPropertySet());
         withLocalTrackLikesPendingRemoval(existsLocallyPendingRemoval, existsLocallyNotRemotelyPendingRemoval);
 
-        ApiSyncResult result = syncer.syncContent(null, null);
-
-        expect(result.success).toBeTrue();
-        expect(result.change).toBe(ApiSyncResult.CHANGED);
+        expect(syncer.syncContent()).toBe(true);
 
         verify(storeLikesCommand).call();
         expect(storeLikesCommand.getInput()).toContainExactly(existsRemotelyNotLocally.toPropertySet());
@@ -275,7 +246,7 @@ public class LikesSyncerTest {
         tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
         when(fetchLikedResourcesCommand.call()).thenReturn(tracks);
 
-        syncer.syncContent(null, null);
+        expect(syncer.syncContent()).toBe(true);
 
         verify(storeLikedResourcesCommand).call();
         expect(storeLikedResourcesCommand.getInput()).toEqual(tracks);

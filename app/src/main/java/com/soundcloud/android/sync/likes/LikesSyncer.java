@@ -14,15 +14,9 @@ import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import android.net.Uri;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -34,7 +28,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class LikesSyncer implements SyncStrategy {
+public class LikesSyncer {
 
     private static final Comparator<PropertySet> LIKES_COMPARATOR = new PropertySetComparator<>(LikeProperty.TARGET_URN);
 
@@ -67,9 +61,7 @@ public class LikesSyncer implements SyncStrategy {
         this.writeLikesEndpoint = writeLikesEndpoint;
     }
 
-    @NotNull
-    @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public boolean syncContent() throws Exception {
         final LikesSyncResult result = performSync();
 
         if (result.hasLocalAdditions()) {
@@ -80,9 +72,7 @@ public class LikesSyncer implements SyncStrategy {
             fetchLikedResources.with(urns).andThen(storeLikedResources).call();
         }
 
-        return (result.hasChanged())
-                ? ApiSyncResult.fromSuccessfulChange(uri)
-                : ApiSyncResult.fromSuccessWithoutChange(uri);
+        return result.hasChanged();
     }
 
     private LikesSyncResult performSync() throws Exception {
