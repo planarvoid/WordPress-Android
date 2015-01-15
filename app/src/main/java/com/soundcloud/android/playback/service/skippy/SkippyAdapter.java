@@ -52,6 +52,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private static final String TAG = "SkippyAdapter";
     @VisibleForTesting
     static final String SKIPPY_INIT_ERROR_COUNT_KEY = "SkippyAdapter.initErrorCount";
+    static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
 
     private static final long POSITION_START = 0L;
     private final SkippyFactory skippyFactory;
@@ -91,7 +92,16 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     public boolean init(Context context) {
-        return skippy.init(context,skippyFactory.createConfiguration());
+        boolean initSuccess = skippy.init(context, skippyFactory.createConfiguration());
+        if (initSuccess){
+            incrementInitSuccesses();
+        }
+        return initSuccess;
+    }
+
+    private void incrementInitSuccesses() {
+        int successes = sharedPreferences.getInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, 0) + 1;
+        sharedPreferences.edit().putInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, successes).apply();
     }
 
     @Override
@@ -384,13 +394,18 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void onInitializationError(Throwable throwable, String message) {
         ErrorUtils.handleSilentException(message, throwable);
-        eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message, getAndIncrementInitilizationErrors()));
+        eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message,
+                getAndIncrementInitilizationErrors(), getInitializationSuccessCount()));
     }
 
     private int getAndIncrementInitilizationErrors() {
-        int plays = sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0) + 1;
-        sharedPreferences.edit().putInt(SKIPPY_INIT_ERROR_COUNT_KEY, plays).apply();
-        return plays;
+        int errors = sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0) + 1;
+        sharedPreferences.edit().putInt(SKIPPY_INIT_ERROR_COUNT_KEY, errors).apply();
+        return errors;
+    }
+
+    private int getInitializationSuccessCount() {
+        return sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0);
     }
 
 

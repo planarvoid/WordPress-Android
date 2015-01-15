@@ -115,10 +115,19 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void initInitializesWithContextAndFactoryConfiguration() {
+     public void initInitializesWithContextAndFactoryConfiguration() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         skippyAdapter.init(Robolectric.application);
         verify(skippy).init(Robolectric.application, configuration);
+    }
+
+    @Test
+    public void initIncrementsSkippyInitSuccesses() {
+        when(skippyFactory.createConfiguration()).thenReturn(configuration);
+        when(skippy.init(Robolectric.application, configuration)).thenReturn(true);
+        skippyAdapter.init(Robolectric.application);
+        verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
+        verify(sharedPreferencesEditor).apply();
     }
 
     @Test
@@ -538,6 +547,8 @@ public class SkippyAdapterTest {
         expect(event.getAttributes().get("throwable")).toEqual("java.io.IOException: because");
         expect(event.getAttributes().get("message")).toEqual("some error message");
         expect(event.getAttributes().get("failure_count")).toEqual("1");
+        expect(event.getAttributes().get("success_count")).toEqual("0");
+        expect(event.getAttributes().get("has_succeeded")).toEqual("false");
     }
 
     @Test
