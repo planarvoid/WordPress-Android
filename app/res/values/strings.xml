@@ -566,7 +566,6 @@
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>
 
     <!-- __OFFLINE_SYNC -->
-    <string name="offline_sync_started">Preparing to offline sync tracks</string>
     <string name="offline_sync_completed_title">All tracks synced!</string>
     <string name="offline_sync_completed_message">Ready for offline listening!</string>
     <string name="offline_sync_in_progress">Syncing your tracks</string>

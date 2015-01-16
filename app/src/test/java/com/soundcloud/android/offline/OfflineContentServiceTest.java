@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,6 +57,14 @@ public class OfflineContentServiceTest {
     }
 
     @Test
+    public void startServiceDoesNotCreateNotificationWhenNoPendingDownloadsExists() {
+        when(downloadOperations.pendingDownloads()).thenReturn(Observable.<List<DownloadRequest>>empty());
+
+        service.onStartCommand(createDownloadTracksIntent(), 0, 0);
+        verify(notificationController, never()).onNewPendingRequests(anyInt());
+    }
+
+    @Test
     public void startServiceProcessesRequestWhenPending() {
         final List<DownloadRequest> requests = Arrays.asList(downloadRequest1);
         when(downloadOperations.pendingDownloads()).thenReturn(Observable.just(requests));
@@ -63,7 +73,6 @@ public class OfflineContentServiceTest {
         service.onStartCommand(createDownloadTracksIntent(), 0, 0);
         verify(downloadOperations).processDownloadRequests(requests);
     }
-
 
     private List<DownloadRequest> listOfPendingDownloads() {
         return Arrays.asList(downloadRequest1, downloadRequest2);

@@ -19,10 +19,8 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 
-@Singleton
 public class OfflineContentService extends Service {
 
     protected static final String TAG = "OfflineContent";
@@ -36,7 +34,7 @@ public class OfflineContentService extends Service {
     private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
         @Override
         public void call(List<DownloadRequest> downloadRequests) {
-            notificationController.onNewPendingRequests(downloadRequests.size());
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onNewPendingRequests(downloadRequests.size()));
         }
     };
 
@@ -75,9 +73,7 @@ public class OfflineContentService extends Service {
 
         if (ACTION_DOWNLOAD_TRACKS.equalsIgnoreCase(action)) {
 
-            startForeground(OFFLINE_NOTIFY_ID, notificationController.create());
             subscription.unsubscribe();
-
             subscription = downloadOperations
                     .pendingDownloads()
                     .doOnNext(updateNotification)

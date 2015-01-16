@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
@@ -23,7 +24,6 @@ import javax.inject.Provider;
 @RunWith(SoundCloudTestRunner.class)
 public class DownloadNotificationControllerTest {
 
-    private static final String DOWNLOAD_START = getString(R.string.offline_sync_started);
     private static final String DOWNLOAD_IN_PROGRESS = getString(R.string.offline_sync_in_progress);
     private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_sync_completed_title);
 
@@ -48,14 +48,10 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
-    public void getNotificationReturnsInitializingDownloadsFirstCalled() {
-        notificationController.create();
+    public void onCompletedShowsDownloadCompletedNotification() {
+        notificationController.onNewPendingRequests(20);
 
-        verify(notificationBuilder).setContentTitle(DOWNLOAD_START);
-    }
-
-    @Test
-    public void notifyDownloadCompletedUpdatesNotification() {
+        reset(notificationBuilder);
         notificationController.onCompleted();
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
@@ -65,10 +61,14 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
-    public void updateTotalDownloadsUpdatesCurrentNotification() {
-        notificationController.create();
-        reset(notificationBuilder, notificationManager);
+    public void onCompletedDoesNotShowNotificationWhenNoPendingRequests() {
+        notificationController.onCompleted();
 
+        verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void onNewPendingRequestsCreatesNewProgressNotification() {
         notificationController.onNewPendingRequests(20);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
@@ -76,14 +76,27 @@ public class DownloadNotificationControllerTest {
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setProgress(20, 0, false);
         verify(notificationBuilder).setContentText(getQuantifiedDownloadString(0, 20));
-        verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 
     @Test
-    public void updateDownloadProgressUpdatesCurrentNotification() {
-        notificationController.create();
+    public void onNewPendingRequestsOverridesNumberOfTotalDownloads() {
+        notificationController.onNewPendingRequests(5);
+        notificationController.onProgressUpdate();
+
+        reset(notificationBuilder);
+        notificationController.onNewPendingRequests(10);
+
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
+        verify(notificationBuilder).setOngoing(true);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        verify(notificationBuilder).setProgress(11, 1, false);
+        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(1, 11));
+    }
+
+    @Test
+    public void onProgressUpdateModifiesNumberOfCompletedDownloads() {
         notificationController.onNewPendingRequests(20);
-        reset(notificationBuilder, notificationManager);
+        reset(notificationBuilder);
 
         notificationController.onProgressUpdate();
 
