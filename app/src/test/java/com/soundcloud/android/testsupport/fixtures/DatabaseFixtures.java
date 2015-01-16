@@ -151,7 +151,7 @@ public class DatabaseFixtures {
     }
 
     public ApiPlaylist insertLikedPlaylist(Date likedDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = insertPlaylist();
         insertLike(insertPlaylist(playlist), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;
     }
