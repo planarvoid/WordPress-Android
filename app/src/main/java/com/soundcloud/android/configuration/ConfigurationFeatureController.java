@@ -21,7 +21,7 @@ public class ConfigurationFeatureController {
                                           FeatureOperations featureOperations) {
         this.offlineContentController = offlineContentController;
         this.featureOperations = featureOperations;
-        offlineSyncFeatureUpdatesObservable = featureOperations.getUpdates(OFFLINE_SYNC);
+        this.offlineSyncFeatureUpdatesObservable = featureOperations.getUpdates(OFFLINE_SYNC);
     }
 
     public void subscribe() {

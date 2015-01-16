@@ -22,7 +22,7 @@ public class OfflineContentController {
     private final Context context;
     private final OfflineContentOperations operations;
 
-    public static final Func1<PlayableUpdatedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<PlayableUpdatedEvent, Boolean>() {
+    private static final Func1<PlayableUpdatedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<PlayableUpdatedEvent, Boolean>() {
         @Override
         public Boolean call(PlayableUpdatedEvent event) {
             return event.getUrn().isTrack()

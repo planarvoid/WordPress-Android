@@ -98,7 +98,7 @@ public class OfflineContentControllerTest {
     }
 
     @Test
-    public void likeUpdateStarsOfflineContentService() {
+    public void likeUpdateStartsOfflineContentService() {
         when(operations.updateOfflineLikes()).thenReturn(Observable.just(new TxnResult()));
 
         controller.subscribe();
