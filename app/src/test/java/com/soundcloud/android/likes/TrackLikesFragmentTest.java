@@ -66,7 +66,7 @@ public class TrackLikesFragmentTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
-        PropertySet clickedTrack = TestPropertySets.expectedLikedPlaylistForPlaylistsScreen();
+        PropertySet clickedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
         AdapterView adapterView = setupAdapterView(clickedTrack);
         TestObservables.MockObservable<List<Urn>> playbackObservable = setupPlaybackOperations(clickedTrack);
         when(likeOperations.likedTracks()).thenReturn(Observable.<List<PropertySet>>empty());

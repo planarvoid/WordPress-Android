@@ -106,7 +106,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_REPOSTED.bind(true));
     }
 
-    public static PropertySet expectedLikedPlaylistForPlaylistsScreen() {
+    public static PropertySet expectedLikedTrackForLikesScreen() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.TITLE.bind("squirlex galore"),
