@@ -106,6 +106,17 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_REPOSTED.bind(true));
     }
 
+    public static PropertySet expectedLikedPlaylistForPlaylistsScreen() {
+        return PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                TrackProperty.TITLE.bind("squirlex galore"),
+                TrackProperty.CREATOR_NAME.bind("avieciie"),
+                TrackProperty.DURATION.bind(10),
+                TrackProperty.PLAY_COUNT.bind(4),
+                TrackProperty.LIKES_COUNT.bind(2),
+                PlayableProperty.IS_PRIVATE.bind(true));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -73,12 +73,16 @@ public class TrackLikesFragment extends LightCycleFragment
                        LikeOperations likeOperations,
                        ListViewController listViewController,
                        PullToRefreshController pullToRefreshController,
-                       ShuffleViewController shuffleViewController) {
+                       ShuffleViewController shuffleViewController,
+                       PlaybackOperations playbackOperations,
+                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.adapter = adapter;
         this.likeOperations = likeOperations;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
         this.shuffleViewController = shuffleViewController;
+        this.playbackOperations = playbackOperations;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         addLifeCycleComponents();
     }
 
