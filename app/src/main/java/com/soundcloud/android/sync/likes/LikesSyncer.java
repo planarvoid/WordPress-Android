@@ -27,8 +27,9 @@ import java.util.Date;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 
-public class LikesSyncer {
+public class LikesSyncer implements Callable<Boolean> {
 
     private static final Comparator<PropertySet> LIKES_COMPARATOR = new PropertySetComparator<>(LikeProperty.TARGET_URN);
 
@@ -61,7 +62,8 @@ public class LikesSyncer {
         this.writeLikesEndpoint = writeLikesEndpoint;
     }
 
-    public boolean syncContent() throws Exception {
+    @Override
+    public Boolean call() throws Exception {
         final LikesSyncResult result = performSync();
 
         if (result.hasLocalAdditions()) {

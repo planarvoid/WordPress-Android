@@ -22,16 +22,16 @@ import android.os.ResultReceiver;
 import java.util.ArrayList;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SyncIntentTest {
-    @Mock CollectionSyncRequest.Factory collectionSyncRequestFactory;
+public class LegacySyncRequestTest {
+    @Mock LegacySyncJob.Factory collectionSyncRequestFactory;
     @Mock ApiSyncerFactory apiSyncerFactory;
     @Mock SyncStateManager syncStateManager;
 
     @Test
     public void shouldCreateCollectionSyncRequests() throws Exception {
-        SyncIntent req = new SyncIntent(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), collectionSyncRequestFactory);
+        LegacySyncRequest req = new LegacySyncRequest(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), collectionSyncRequestFactory);
 
-        expect(req.collectionSyncRequests.size()).toEqual(1);
+        expect(req.getPendingJobs().size()).toEqual(1);
     }
 
     @Test
@@ -43,9 +43,19 @@ public class SyncIntentTest {
         uris.add(Content.ME_LIKES.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, uris);
-        SyncIntent req = new SyncIntent(intent, collectionSyncRequestFactory);
+        LegacySyncRequest req = new LegacySyncRequest(intent, collectionSyncRequestFactory);
 
-        expect(req.collectionSyncRequests.size()).toEqual(2);
+        expect(req.getPendingJobs().size()).toEqual(2);
+    }
+
+    @Test
+    public void isHighPriorityIsTrueForUIRequest() throws Exception {
+        final Intent intent = new Intent(Intent.ACTION_SYNC);
+        intent.putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true);
+
+        LegacySyncRequest req = new LegacySyncRequest(intent, collectionSyncRequestFactory);
+
+        expect(req.isHighPriority()).toBeTrue();
     }
 
     @Test
@@ -58,13 +68,19 @@ public class SyncIntentTest {
             }
         });
 
-        final CollectionSyncRequest collectionSyncRequest = new CollectionSyncRequest(
+        final LegacySyncJob legacySyncItem = new LegacySyncJob(
                 Robolectric.application, Content.ME_FOLLOWERS.uri, null, false, apiSyncerFactory, syncStateManager);
-        when(collectionSyncRequestFactory.create(any(Uri.class), anyString(), anyBoolean())).thenReturn(collectionSyncRequest);
+        when(collectionSyncRequestFactory.create(any(Uri.class), anyString(), anyBoolean())).thenReturn(legacySyncItem);
 
-        SyncIntent req = new SyncIntent(intent, collectionSyncRequestFactory);
+        LegacySyncRequest req = new LegacySyncRequest(intent, collectionSyncRequestFactory);
 
-        expect(req.onUriResult(collectionSyncRequest)).toBeTrue();
+        expect(req.isSatisfied()).toBeFalse();
+        expect(req.isWaitingForJob(legacySyncItem)).toBeTrue();
+
+        req.processJobResult(legacySyncItem);
+        expect(req.isSatisfied()).toBeTrue();
+        req.finish();
+
         expect(executed[0]).toBeTrue();
     }
 }

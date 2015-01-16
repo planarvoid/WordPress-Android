@@ -40,7 +40,7 @@ public class MyLikesSyncerTest {
 
     @Test
     public void returnsChangeResultIfTrackSyncChangedButPlaylistSyncDidNot() throws Exception {
-        when(trackLikesSyncer.syncContent()).thenReturn(true);
+        when(trackLikesSyncer.call()).thenReturn(true);
 
         ApiSyncResult result = myLikesSyncer.syncContent(URI, null);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
@@ -49,7 +49,7 @@ public class MyLikesSyncerTest {
 
     @Test
     public void returnsChangeResultIfPlaylistSyncChangedButTrackSyncDidNot() throws Exception {
-        when(playlistLikesSyncer.syncContent()).thenReturn(true);
+        when(playlistLikesSyncer.call()).thenReturn(true);
 
         ApiSyncResult result = myLikesSyncer.syncContent(URI, null);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);

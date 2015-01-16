@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.net.URLEncoder;
 
 @RunWith(SoundCloudTestRunner.class)
-public class CollectionSyncRequestTest {
+public class LegacySyncJobTest {
 
     public static final String SOME_ACTION = "someAction";
 
-    CollectionSyncRequest collectionSyncRequest;
+    LegacySyncJob legacySyncItem;
 
     @Mock
     private ApiSyncerFactory apiSyncerFactory;
@@ -50,19 +50,19 @@ public class CollectionSyncRequestTest {
 
     @Before
     public void setup() {
-        collectionSyncRequest = new CollectionSyncRequest(Robolectric.application,
+        legacySyncItem = new LegacySyncJob(Robolectric.application,
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
     }
 
     @Test
     public void shouldHaveEquals() throws Exception {
-        CollectionSyncRequest r1 = new CollectionSyncRequest(Robolectric.application,
+        LegacySyncJob r1 = new LegacySyncJob(Robolectric.application,
                 Content.ME_FOLLOWER.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
-        CollectionSyncRequest r2 = new CollectionSyncRequest(Robolectric.application,
+        LegacySyncJob r2 = new LegacySyncJob(Robolectric.application,
                 Content.ME_FOLLOWER.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
-        CollectionSyncRequest r3 = new CollectionSyncRequest(Robolectric.application,
+        LegacySyncJob r3 = new LegacySyncJob(Robolectric.application,
                 Content.ME_FOLLOWER.uri, "someOtherAction", false, apiSyncerFactory, syncStateManager);
 
         expect(r1).toEqual(r2);
@@ -71,9 +71,9 @@ public class CollectionSyncRequestTest {
 
     @Test
     public void shouldSetTheBackgroundParameterIfNonUiRequest() throws Exception {
-        CollectionSyncRequest nonUi = new CollectionSyncRequest(Robolectric.application,
+        LegacySyncJob nonUi = new LegacySyncJob(Robolectric.application,
                 Content.ME_FOLLOWER.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
-        CollectionSyncRequest ui = new CollectionSyncRequest(Robolectric.application,
+        LegacySyncJob ui = new LegacySyncJob(Robolectric.application,
                 Content.ME_FOLLOWER.uri, SOME_ACTION, true, apiSyncerFactory, syncStateManager);
 
         ui.onQueued();
@@ -82,15 +82,15 @@ public class CollectionSyncRequestTest {
         Robolectric.addHttpResponseRule("/me/followers/ids?linked_partitioning=1"
                 + NON_INTERACTIVE, "whatevs");
 
-        nonUi.execute();
+        nonUi.run();
         Robolectric.clearHttpResponseRules();
         Robolectric.addHttpResponseRule("/me/followers/ids?linked_partitioning=1", "whatevs");
-        ui.execute();
+        ui.run();
     }
 
     @Test
     public void shouldNotSyncWithNoLocalCollection() throws Exception {
-        collectionSyncRequest.execute();
+        legacySyncItem.run();
         verifyZeroInteractions(apiSyncerFactory);
     }
 
@@ -101,8 +101,8 @@ public class CollectionSyncRequestTest {
         when(apiSyncerFactory.forContentUri(Robolectric.application, Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(false);
 
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
         verifyZeroInteractions(SyncStrategy);
     }
 
@@ -111,11 +111,11 @@ public class CollectionSyncRequestTest {
         final IOException ioException = new IOException();
         setupExceptionThrowingSync(ioException);
 
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(collectionSyncRequest.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
     }
 
     @Test
@@ -123,30 +123,30 @@ public class CollectionSyncRequestTest {
         final PublicCloudAPI.UnexpectedResponseException unexpectedResponseException = new PublicCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
         setupExceptionThrowingSync(unexpectedResponseException);
 
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(collectionSyncRequest.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
     }
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForNullPointerException() throws Exception {
         setupExceptionThrowingSync(new NullPointerException());
 
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        expect(collectionSyncRequest.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
     }
 
     @Test
     public void shouldCallOnSyncComplete() throws Exception {
         setupSuccessfulSync();
         when(SyncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
         verify(syncStateManager).onSyncComplete(apiSyncResult, localCollection);
     }
 

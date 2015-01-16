@@ -4,7 +4,6 @@ import static com.soundcloud.android.sync.ApiSyncer.TAG;
 
 import com.soundcloud.android.utils.Log;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
@@ -13,6 +12,7 @@ import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,19 +27,20 @@ import java.util.Set;
  * The action of the passed intent is either {@link Intent#ACTION_SYNC} or {@link ApiSyncService#ACTION_APPEND}
  * (for Activities).
  */
-/* package */  class SyncIntent {
+@Deprecated
+/* package */  class LegacySyncRequest implements SyncRequest<LegacySyncJob> {
     private final String action;
-    public final List<CollectionSyncRequest> collectionSyncRequests = new ArrayList<CollectionSyncRequest>();
-    private final Set<CollectionSyncRequest> requestsRemaining;
+    private final List<LegacySyncJob> legacySyncItems = new ArrayList<LegacySyncJob>();
+    private final Set<LegacySyncJob> requestsRemaining;
 
-    public final boolean isUIRequest; // used for queueing priorities
+    private final boolean isUIRequest; // used for queueing priorities
 
     // results
     private final ResultReceiver resultReceiver;
     private final Bundle resultData = new Bundle();
     private final SyncResult syncAdapterResult = new SyncResult();
 
-    SyncIntent(Intent intent, CollectionSyncRequest.Factory collectionSyncRequestFactory) {
+    LegacySyncRequest(Intent intent, LegacySyncJob.Factory collectionSyncRequestFactory) {
         resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         isUIRequest = intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false);
         action = intent.getAction();
@@ -53,43 +54,13 @@ import java.util.Set;
             syncUris.add(intent.getData());
         }
         for (Uri uri : syncUris) {
-            collectionSyncRequests.add(collectionSyncRequestFactory.create(uri, action, isUIRequest));
+            legacySyncItems.add(collectionSyncRequestFactory.create(uri, action, isUIRequest));
         }
-        requestsRemaining = new HashSet<CollectionSyncRequest>(collectionSyncRequests);
+        requestsRemaining = new HashSet<LegacySyncJob>(legacySyncItems);
     }
 
 
-    /**
-     * @return true if all requests have been processed, otherwise false.
-     */
-    public boolean onUriResult(CollectionSyncRequest request) {
-        if (requestsRemaining.contains(request)) {
-            // if this is a different instance of the same sync request, share the result
-            for (CollectionSyncRequest instance : requestsRemaining) {
-                if (instance.equals(request) && instance != request) {
-                    instance.setResult(request.getResult());
-                }
-            }
-            requestsRemaining.remove(request);
-
-            resultData.putBoolean(request.getContentUri().toString(), isUIRequest ?
-                    request.getResult().change != ApiSyncResult.UNCHANGED : request.getResult().change == ApiSyncResult.CHANGED);
-
-            if (!request.getResult().success) {
-                ApiSyncService.appendSyncStats(request.getResult().syncResult, syncAdapterResult);
-            }
-        }
-
-        if (requestsRemaining.isEmpty()) {
-            finish();
-            return true;
-        } else {
-            Log.d(TAG, "requests remaining: " + request);
-            return false;
-        }
-    }
-
-    void finish() {
+    public void finish() {
         if (resultReceiver != null) {
             if (isSuccess()) {
                 resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_FINISHED : ApiSyncService.STATUS_SYNC_FINISHED, resultData);
@@ -102,7 +73,7 @@ import java.util.Set;
     }
 
     private boolean isSuccess() {
-        for (CollectionSyncRequest r : collectionSyncRequests) {
+        for (LegacySyncJob r : legacySyncItems) {
             if (!r.getResult().success) {
                 Log.w(TAG, "collection sync request " + r + " not successful");
                 return false;
@@ -112,15 +83,56 @@ import java.util.Set;
     }
 
     static class Factory {
-        private final CollectionSyncRequest.Factory collectionSyncRequestFactory;
+        private final LegacySyncJob.Factory collectionSyncRequestFactory;
 
         @Inject
-        Factory(CollectionSyncRequest.Factory collectionSyncRequestFactory) {
+        Factory(LegacySyncJob.Factory collectionSyncRequestFactory) {
             this.collectionSyncRequestFactory = collectionSyncRequestFactory;
         }
 
-        SyncIntent create(Intent intent){
-            return new SyncIntent(intent, collectionSyncRequestFactory);
+        LegacySyncRequest create(Intent intent){
+            return new LegacySyncRequest(intent, collectionSyncRequestFactory);
         }
+    }
+
+    @Override
+    public boolean isHighPriority() {
+        return isUIRequest;
+    }
+
+    @Override
+    public Collection<LegacySyncJob> getPendingJobs() {
+        return legacySyncItems;
+    }
+
+    @Override
+    public boolean isWaitingForJob(LegacySyncJob syncJob) {
+        return requestsRemaining.contains(syncJob);
+    }
+
+    @Override
+    public void processJobResult(LegacySyncJob syncJob) {
+        // if this is a different instance of the same sync request, share the result
+        for (LegacySyncJob instance : requestsRemaining) {
+            if (instance.equals(syncJob) && instance != syncJob) {
+                instance.setResult(syncJob.getResult());
+            }
+        }
+        requestsRemaining.remove(syncJob);
+
+        resultData.putBoolean(syncJob.getContentUri().toString(), isUIRequest ?
+                syncJob.getResult().change != ApiSyncResult.UNCHANGED : syncJob.getResult().change == ApiSyncResult.CHANGED);
+
+        if (!syncJob.getResult().success) {
+            syncAdapterResult.stats.numAuthExceptions += syncJob.getResult().syncResult.stats.numAuthExceptions;
+            syncAdapterResult.stats.numIoExceptions += syncJob.getResult().syncResult.stats.numIoExceptions;
+            syncAdapterResult.stats.numParseExceptions += syncJob.getResult().syncResult.stats.numParseExceptions;
+            // TODO more stats?
+        }
+    }
+
+    @Override
+    public boolean isSatisfied() {
+        return requestsRemaining.isEmpty();
     }
 }

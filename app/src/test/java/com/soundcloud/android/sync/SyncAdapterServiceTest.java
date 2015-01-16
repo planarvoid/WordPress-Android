@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.sync.CollectionSyncRequestTest.NON_INTERACTIVE;
+import static com.soundcloud.android.sync.LegacySyncJobTest.NON_INTERACTIVE;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static org.mockito.Mockito.mock;
 

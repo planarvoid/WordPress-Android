@@ -20,7 +20,8 @@ import java.io.IOException;
  * {@link com.soundcloud.android.sync.ApiSyncService#flushSyncRequests()}.
  */
 @SuppressWarnings({"PMD.AvoidCatchingGenericException"})
-/* package */  class CollectionSyncRequest {
+@Deprecated // use SyncItem instead
+public class LegacySyncJob implements SyncJob {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();
     private final Context context;
@@ -33,8 +34,8 @@ import java.io.IOException;
     private LocalCollection localCollection;
     private ApiSyncResult result;
 
-    public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
-                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
+    public LegacySyncJob(Context context, Uri contentUri, String action, boolean isUI,
+                         ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
         this.context = context;
         this.contentUri = contentUri;
         this.action = action;
@@ -45,7 +46,7 @@ import java.io.IOException;
     }
 
     @VisibleForTesting
-    public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI) {
+    public LegacySyncJob(Context context, Uri contentUri, String action, boolean isUI) {
         this.context = context;
         this.contentUri = contentUri;
         this.action = action;
@@ -55,6 +56,7 @@ import java.io.IOException;
         result = new ApiSyncResult(this.contentUri);
     }
 
+    @Override
     public void onQueued() {
         localCollection = syncStateManager.fromContent(contentUri);
         if (localCollection != null) {
@@ -68,10 +70,11 @@ import java.io.IOException;
     /**
      * Execute the sync request. This should happen on a separate worker thread.
      */
-    public CollectionSyncRequest execute() {
+    @Override
+    public void run() {
         if (localCollection == null || !syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.SYNCING)) {
             Log.e(TAG, "LocalCollection error :" + contentUri);
-            return this;
+            return;
         }
 
         // make sure all requests going out on this thread have the background parameter set
@@ -100,7 +103,6 @@ import java.io.IOException;
         }
 
         Log.d(TAG, "executed sync on " + this);
-        return this;
     }
 
     public Uri getContentUri() {
@@ -125,7 +127,7 @@ import java.io.IOException;
             return false;
         }
 
-        CollectionSyncRequest that = (CollectionSyncRequest) o;
+        LegacySyncJob that = (LegacySyncJob) o;
 
         if (action != null ? !action.equals(that.action) : that.action != null) {
             return false;
@@ -166,8 +168,8 @@ import java.io.IOException;
             this.syncStateManager = syncStateManager;
         }
 
-        CollectionSyncRequest create(Uri contentUri, String action, boolean isUI) {
-            return new CollectionSyncRequest(context, contentUri, action, isUI, apiSyncerFactory, syncStateManager);
+        LegacySyncJob create(Uri contentUri, String action, boolean isUI) {
+            return new LegacySyncJob(context, contentUri, action, isUI, apiSyncerFactory, syncStateManager);
         }
     }
 
