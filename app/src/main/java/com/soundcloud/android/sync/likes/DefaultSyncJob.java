@@ -36,5 +36,20 @@ public class DefaultSyncJob implements SyncJob {
         return syncException;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DefaultSyncJob)) return false;
 
+        DefaultSyncJob that = (DefaultSyncJob) o;
+
+        if (!syncer.equals(that.syncer)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return syncer.hashCode();
+    }
 }
