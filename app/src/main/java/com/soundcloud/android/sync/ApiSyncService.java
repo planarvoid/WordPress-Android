@@ -42,8 +42,9 @@ public class ApiSyncService extends Service {
 
     private int activeTaskCount;
 
-    /* package */ final List<SyncRequest> syncRequests = new ArrayList<>();
+    @SuppressWarnings({"PMD.LooseCoupling"}) // for some reason PMD thinks I should use an interface here, which doesnt seem to work
     /* package */ final LinkedList<SyncJob> pendingJobs = new LinkedList<>();
+    /* package */ final List<SyncRequest> syncRequests = new ArrayList<>();
     /* package */ final List<SyncJob> runningJobs = new ArrayList<>();
 
     public ApiSyncService() {

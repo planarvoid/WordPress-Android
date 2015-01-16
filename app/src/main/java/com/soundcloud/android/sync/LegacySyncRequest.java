@@ -111,6 +111,7 @@ import java.util.Set;
     }
 
     @Override
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals"}) // this instance is on purpose
     public void processJobResult(LegacySyncJob syncJob) {
         // if this is a different instance of the same sync request, share the result
         for (LegacySyncJob instance : requestsRemaining) {
