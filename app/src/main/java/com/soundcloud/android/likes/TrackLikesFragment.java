@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -39,14 +38,6 @@ import java.util.List;
 public class TrackLikesFragment extends LightCycleFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
-    private final Func1<PropertySet, Observable<PropertySet>> LIKES_TO_TRACKS_LIKED =
-            new Func1<PropertySet, Observable<PropertySet>>() {
-                @Override
-                public Observable<PropertySet> call(PropertySet propertySet) {
-                    return trackOperations.track(propertySet.get(LikeProperty.TARGET_URN));
-                }
-            };
-
     private final Func1<List<PropertySet>, List<Urn>> LIKES_TO_TRACK_URNS =
             new Func1<List<PropertySet>, List<Urn>>() {
                 @Override
@@ -54,23 +45,14 @@ public class TrackLikesFragment extends LightCycleFragment
                     return Lists.transform(likedTracks, new Function<PropertySet, Urn>() {
                         @Override
                         public Urn apply(PropertySet propertySet) {
-                            return propertySet.get(LikeProperty.TARGET_URN);
+                            return propertySet.get(TrackProperty.URN);
                         }
                     });
                 }
     };
 
-    private final Func1<PropertySet, Urn> LIKES_TO_TRACK_URN =
-            new Func1<PropertySet, Urn>() {
-                @Override
-                public Urn call(PropertySet propertySet) {
-                    return propertySet.get(LikeProperty.TARGET_URN);
-                }
-            };
-
     @Inject TrackLikesAdapter adapter;
     @Inject LikeOperations likeOperations;
-    @Inject TrackOperations trackOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ShuffleViewController shuffleViewController;
     @Inject ListViewController listViewController;
@@ -89,13 +71,11 @@ public class TrackLikesFragment extends LightCycleFragment
     @VisibleForTesting
     TrackLikesFragment(TrackLikesAdapter adapter,
                        LikeOperations likeOperations,
-                       TrackOperations trackOperations,
                        ListViewController listViewController,
                        PullToRefreshController pullToRefreshController,
                        ShuffleViewController shuffleViewController) {
         this.adapter = adapter;
         this.likeOperations = likeOperations;
-        this.trackOperations = trackOperations;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
         this.shuffleViewController = shuffleViewController;
@@ -151,8 +131,7 @@ public class TrackLikesFragment extends LightCycleFragment
     }
 
     private Observable<List<PropertySet>> getLikedTracks() {
-        Observable<PropertySet> propertySetObservable = likeOperations.likedTracks();
-        return propertySetObservable.concatMap(LIKES_TO_TRACKS_LIKED).observeOn(AndroidSchedulers.mainThread()).toList();
+        return likeOperations.likedTracks().observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -170,7 +149,7 @@ public class TrackLikesFragment extends LightCycleFragment
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Observable<Urn> likedTracks = likeOperations.likedTracks().map(LIKES_TO_TRACK_URN);
+        Observable<List<Urn>> likedTracks = getLikedTracks().map(LIKES_TO_TRACK_URNS);
         Urn initialTrack = ((PropertySet) adapterView.getItemAtPosition(position)).get(TrackProperty.URN);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
         playbackOperations

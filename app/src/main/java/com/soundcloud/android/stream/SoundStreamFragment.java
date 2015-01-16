@@ -165,7 +165,10 @@ public class SoundStreamFragment extends LightCycleFragment
         final Urn playableUrn = item.get(PlayableProperty.URN);
         if (playableUrn.isTrack()) {
             playbackOperations
-                    .playTracks(operations.trackUrnsForPlayback(), playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .playTracks(operations.trackUrnsForPlayback(),
+                            playableUrn,
+                            position,
+                            new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(getActivity(), playableUrn, Screen.SIDE_MENU_STREAM);

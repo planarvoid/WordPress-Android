@@ -80,8 +80,8 @@ class SoundStreamOperations {
         return pagedStreamItems(INITIAL_TIMESTAMP, false);
     }
 
-    public Observable<Urn> trackUrnsForPlayback() {
-        return soundStreamStorage.trackUrns();
+    public Observable<List<Urn>> trackUrnsForPlayback() {
+        return soundStreamStorage.trackUrns().toList();
     }
 
     public void updateLastSeen() {

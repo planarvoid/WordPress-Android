@@ -44,7 +44,7 @@ public class ApiTrackBlueprint {
     @Default
     String permalinkUrl = "https://soundcloud.com/bismakarisma/kuatkitabersinar";
 
-    @Default
+    @Default(force = true)
     Sharing sharing = Sharing.PUBLIC;
 
     @Default

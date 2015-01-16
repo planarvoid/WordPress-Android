@@ -133,7 +133,7 @@ public class PlaylistDetailFragmentTest {
 
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
-        Observable<Urn> trackLoadDescriptor = Observable.empty();
+        Observable<List<Urn>> trackLoadDescriptor = Observable.empty();
         when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
@@ -163,7 +163,7 @@ public class PlaylistDetailFragmentTest {
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
-        Observable<Urn> trackLoadDescriptor = Observable.empty();
+        Observable<List<Urn>> trackLoadDescriptor = Observable.empty();
         when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
         View layout = createFragmentView();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
@@ -188,7 +188,7 @@ public class PlaylistDetailFragmentTest {
     public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<Urn>empty());
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<List<Urn>>empty());
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);

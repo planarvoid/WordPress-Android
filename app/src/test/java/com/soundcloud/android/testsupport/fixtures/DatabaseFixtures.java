@@ -137,6 +137,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrack(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertUser(track.getUser());
         insertLike(insertTrack(track), TableColumns.Sounds.TYPE_TRACK, likedDate);
         return track;
     }

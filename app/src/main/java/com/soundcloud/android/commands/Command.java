@@ -20,6 +20,10 @@ public abstract class Command<I, O, This extends Command<I, O, This>> implements
         return input;
     }
 
+    public Observable<O> toObservable() {
+        return toObservable(input);
+    }
+
     public Observable<O> toObservable(final I input) {
         return Observable.create(OperatorFromFunctionals.fromCallable(with(input)));
     }

@@ -99,7 +99,7 @@ public class PlaybackOperationsTest {
     @Test
      public void playTrackSetsPlayQueueOnPlayQueueManagerFromInitialTrack() {
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1).toList(), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
     }
@@ -107,7 +107,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playTrackOpensCurrentTrackThroughService() {
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1).toList(), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
 
         verify(playbackStrategy).playCurrent();
     }
@@ -116,7 +116,7 @@ public class PlaybackOperationsTest {
     public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
         when(playQueueManager.isCurrentTrack(track.getUrn())).thenReturn(true);
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN));
+        playbackOperations.playTracks(Observable.just(track1).toList(), track1, 0, new PlaySessionSource(ORIGIN_SCREEN));
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         expect(application.getNextStartedService()).toBeNull();
@@ -128,7 +128,9 @@ public class PlaybackOperationsTest {
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
 
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO)).subscribe();
+        playbackOperations.playTracks(
+                Observable.just(track1).toList(), track1, 0, new PlaySessionSource(Screen.EXPLORE_TRENDING_AUDIO))
+                .subscribe();
 
         verify(playbackStrategy).playCurrent();
     }
@@ -178,7 +180,7 @@ public class PlaybackOperationsTest {
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         playbackOperations
-                .playTracks(Observable.from(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
+                .playTracks(Observable.just(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe();
 
         checkSetNewPlayQueueArgs(1, playSessionSource, tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
@@ -195,7 +197,7 @@ public class PlaybackOperationsTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
         playbackOperations
-                .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
+                .playTracks(Observable.just(tracks.get(1).getUrn()).toList(), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe();
 
         verify(playbackStrategy).playCurrent();
@@ -217,7 +219,7 @@ public class PlaybackOperationsTest {
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         playbackOperations
-                .playTracks(Observable.just(tracks.get(1).getUrn()), tracks.get(1).getUrn(), 1, playSessionSource)
+                .playTracks(Observable.just(tracks.get(1).getUrn()).toList(), tracks.get(1).getUrn(), 1, playSessionSource)
                 .subscribe(observer);
         expect(observer.getOnNextEvents()).not.toBeEmpty();
 
@@ -232,7 +234,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.isCurrentTrack(TRACK_URN)).thenReturn(true);
         when(playQueueManager.isPlaylist()).thenReturn(false);
         playbackOperations
-                .playTracks(Observable.just(TRACK_URN), TRACK_URN, 1, playSessionSource)
+                .playTracks(Observable.just(TRACK_URN).toList(), TRACK_URN, 1, playSessionSource)
                 .subscribe(observer);
 
         expect(observer.getOnNextEvents()).toBeEmpty();
@@ -252,7 +254,7 @@ public class PlaybackOperationsTest {
         when(playQueueManager.isCurrentPlaylist(playlistUrn)).thenReturn(true);
 
         playbackOperations
-                .playTracks(Observable.just(TRACK_URN), TRACK_URN, 1, playSessionSource)
+                .playTracks(Observable.just(TRACK_URN).toList(), TRACK_URN, 1, playSessionSource)
                 .subscribe(observer);
         expect(observer.getOnNextEvents()).toBeEmpty();
     }
@@ -562,7 +564,7 @@ public class PlaybackOperationsTest {
     public void playTracksWithTrackListContainsTracksOpensCurrentTrack() {
         final Observable<Urn> tracks = Observable.just(Urn.forTrack(123L));
         playbackOperations
-                .playTracks(tracks, TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
+                .playTracks(tracks.toList(), TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
 
         verify(playbackStrategy).playCurrent();
@@ -572,7 +574,7 @@ public class PlaybackOperationsTest {
     public void playTracksWithEmptyTrackListDoesNotOpenCurrentTrack() {
         Observable<Urn> tracks = Observable.empty();
         playbackOperations
-                .playTracks(tracks, TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
+                .playTracks(tracks.toList(), TRACK_URN, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe();
 
         verify(playbackStrategy, never()).playCurrent();
@@ -682,7 +684,8 @@ public class PlaybackOperationsTest {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
+        playbackOperations.playTracks(Observable.just(track1).toList(), track1, 0, new PlaySessionSource(ORIGIN_SCREEN))
+                .subscribe(observer);
 
         expectUnskippableException();
     }
@@ -693,7 +696,8 @@ public class PlaybackOperationsTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
         Urn track1 = track.getUrn();
-        playbackOperations.playTracks(Observable.just(track1), track1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe();
+        playbackOperations.playTracks(Observable.just(track1).toList(), track1, 0, new PlaySessionSource(ORIGIN_SCREEN))
+                .subscribe();
 
         checkSetNewPlayQueueArgs(0, playSessionSource, track.getId());
     }
@@ -732,7 +736,7 @@ public class PlaybackOperationsTest {
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         playbackOperations
-                .playTracks(Observable.just(TRACK_URN), TRACK_URN, 0, playSessionSource)
+                .playTracks(Observable.just(TRACK_URN).toList(), TRACK_URN, 0, playSessionSource)
                 .subscribe(observer);
 
         expectUnskippableException();

@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import rx.Observable;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class PlaylistOperations {
 
@@ -15,7 +16,7 @@ public class PlaylistOperations {
         this.playlistStorage = playlistStorage;
     }
 
-    public Observable<Urn> trackUrnsForPlayback(Urn playlistUrn) {
-        return playlistStorage.trackUrns(playlistUrn);
+    public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
+        return playlistStorage.trackUrns(playlistUrn).toList();
     }
 }

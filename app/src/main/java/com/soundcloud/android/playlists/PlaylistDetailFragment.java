@@ -311,7 +311,7 @@ public class PlaylistDetailFragment extends LightCycleFragment implements Adapte
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
-        final Observable<Urn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
+        final Observable<List<Urn>> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);

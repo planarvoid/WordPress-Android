@@ -132,7 +132,7 @@ public class SoundStreamFragmentTest {
     @Test
     public void shouldPlayTrackWhenClickingOnTrackItem() {
         Robolectric.shadowOf(fragment).setActivity(activity);
-        final Observable<Urn> streamTracks = just((Urn.forTrack(123)));
+        final Observable<List<Urn>> streamTracks = just((Urn.forTrack(123))).toList();
         when(soundStreamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
         when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
         fragment.onItemClick(null, null, 0, -1);
