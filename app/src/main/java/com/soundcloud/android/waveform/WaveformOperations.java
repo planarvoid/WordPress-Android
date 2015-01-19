@@ -33,18 +33,21 @@ public class WaveformOperations {
         }).flatMap(new Func1<WaveformData, Observable<WaveformData>>() {
             @Override
             public Observable<WaveformData> call(WaveformData waveformData) {
-                if (waveformData == null) {
-                    return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
-                        @Override
-                        public void call(WaveformData waveformData) {
-                            waveformCache.put(trackUrn, waveformData);
-                        }
-                    });
-                } else {
+                if (waveformData != null) {
                     return Observable.just(waveformData);
                 }
+
+                if (waveformUrl == null) {
+                    return waveformFetcher.fetchDefault();
+                }
+
+                return waveformFetcher.fetch(waveformUrl).doOnNext(new Action1<WaveformData>() {
+                    @Override
+                    public void call(WaveformData waveformData) {
+                        waveformCache.put(trackUrn, waveformData);
+                    }
+                });
             }
         }).onErrorResumeNext(waveformFetcher.fetchDefault());
     }
-
 }

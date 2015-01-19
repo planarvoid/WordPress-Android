@@ -7,6 +7,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
+import org.jetbrains.annotations.Nullable;
+
 class PlayerTrack implements PropertySetSource {
 
     static final PlayerTrack EMPTY = new PlayerTrack(PropertySet.from(
@@ -53,8 +55,9 @@ class PlayerTrack implements PropertySetSource {
         return source.get(PlayableProperty.DURATION);
     }
 
+    @Nullable
     String getWaveformUrl() {
-        return source.get(TrackProperty.WAVEFORM_URL);
+        return source.getOrElseNull(TrackProperty.WAVEFORM_URL);
     }
 
     boolean isUserLike() {
