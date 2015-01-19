@@ -294,15 +294,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleDeviceMetricsEvent(DeviceMetricsEvent event) {
-        switch (event.getKind()) {
-            case DeviceMetricsEvent.KEY_DATABASE:
-                tagEvent(LocalyticsEvents.DeviceMetrics.DB_SIZE, event.getAttributes());
-                break;
-            case DeviceMetricsEvent.KEY_HAS_DEVICE_ID:
-                tagEvent(LocalyticsEvents.DeviceMetrics.DEVICE_ID, event.getAttributes());
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown device metrics event kind: " + event.getKind());
+        if (event.getKind().equals(DeviceMetricsEvent.KEY_DATABASE)) {
+            tagEvent(LocalyticsEvents.DeviceMetrics.DB_SIZE, event.getAttributes());
+        } else {
+            throw new IllegalArgumentException("Unknown device metrics event kind: " + event.getKind());
         }
     }
 }
