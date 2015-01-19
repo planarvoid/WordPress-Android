@@ -1,31 +1,25 @@
 package com.soundcloud.android.api;
 
+import static com.soundcloud.android.api.ApiRequestException.Reason.AUTH_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.BAD_REQUEST;
-import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
-import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
 import static com.soundcloud.android.api.ApiRequestException.Reason.MALFORMED_INPUT;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NETWORK_ERROR;
-import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED;
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
-import static com.soundcloud.android.api.ApiRequestException.Reason.AUTH_ERROR;
+import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED;
+import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
 
-import com.google.common.base.Objects;
 import com.soundcloud.api.CloudAPI;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 public final class ApiRequestException extends Exception {
 
     public static final String ERROR_KEY_NONE = "unknown";
 
-    private final ApiRequest request;
     private final Reason errorReason;
     private final String errorKey;
 
-    public static final List<Reason> LOGGABLE_REASONS =
-            Arrays.asList(UNEXPECTED_RESPONSE, MALFORMED_INPUT, RATE_LIMITED);
     public enum Reason {
         AUTH_ERROR,
         NETWORK_ERROR,
@@ -70,21 +64,20 @@ public final class ApiRequestException extends Exception {
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request) {
+        super("Request failed with reason " + errorReason + "; request = " + request);
         this.errorReason = errorReason;
-        this.request = request;
         this.errorKey = ERROR_KEY_NONE;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, Exception e) {
-        super(e);
+        super("Request failed with reason " + errorReason + "; request = " + request, e);
         this.errorReason = errorReason;
-        this.request = request;
         this.errorKey = ERROR_KEY_NONE;
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, String errorKey) {
+        super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; request = " + request);
         this.errorReason = errorReason;
-        this.request = request;
         this.errorKey = errorKey;
     }
 
@@ -97,14 +90,8 @@ public final class ApiRequestException extends Exception {
     }
 
     public boolean loggable() {
-        return LOGGABLE_REASONS.contains(reason());
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).omitNullValues()
-                .add("errorReason", errorReason)
-                .add("exceptionMessage", getMessage())
-                .add("request", request).toString();
+        return errorReason == UNEXPECTED_RESPONSE
+                || errorReason == MALFORMED_INPUT
+                || errorReason == RATE_LIMITED;
     }
 }

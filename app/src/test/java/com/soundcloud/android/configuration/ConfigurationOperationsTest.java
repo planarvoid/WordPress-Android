@@ -16,7 +16,6 @@ import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
@@ -42,7 +41,7 @@ public class ConfigurationOperationsTest {
     @Before
     public void setUp() throws Exception {
         configuration = ModelFixtures.create(Configuration.class);
-        operations = new ConfigurationOperations(apiScheduler, experimentOperations, featureOperations, deviceHelper, new TestEventBus(), featureFlags);
+        operations = new ConfigurationOperations(apiScheduler, experimentOperations, featureOperations, deviceHelper, featureFlags);
 
         when(deviceHelper.getUDID()).thenReturn("device-id");
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));

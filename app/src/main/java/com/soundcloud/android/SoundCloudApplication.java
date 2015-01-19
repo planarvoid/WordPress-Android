@@ -43,10 +43,12 @@ import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
+import com.soundcloud.android.utils.ScTextUtils;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
@@ -100,6 +102,7 @@ public class SoundCloudApplication extends Application {
     @Inject CryptoOperations cryptoOperations;
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject CastSessionReconnector castSessionReconnector;
+    @Inject DeviceHelper deviceHelper;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -171,8 +174,19 @@ public class SoundCloudApplication extends Application {
 
         configurationFeatureController.subscribe();
 
+        publishDeviceMetrics();
+    }
+
+    private void publishDeviceMetrics() {
         final long dbSize = DatabaseManager.getDatabaseFileSize(this);
         eventBus.publish(EventQueue.TRACKING, DeviceMetricsEvent.forDatabaseSize(dbSize));
+        final boolean hasDeviceId = ScTextUtils.isNotBlank(deviceHelper.getUDID());
+        eventBus.publish(EventQueue.TRACKING, DeviceMetricsEvent.forDeviceId(hasDeviceId));
+
+        // TODO: Remove for next release! We just want to figure out how often this happens.
+        if (!hasDeviceId) {
+            Crashlytics.logException(new MissingDeviceIdException());
+        }
     }
 
     private void generateDeviceKey() {

@@ -8,8 +8,12 @@ final class LocalyticsEvents {
     static final String AD_FAILED_TO_BUFFER = "Ad failed to buffer";
     static final String BUFFER_UNDERRUN = "Buffer Underrun";
     static final String SKIPPY_PLAY = "Skippy Play";
-    static final String DEVICE_METRICS = "Device Metrics";
     static final String SKIPPY_INITILIAZATION_ERROR = "Skippy Init Error";
+
+    static final class DeviceMetrics {
+        static final String DEVICE_ID = "Device id";
+        static final String DB_SIZE = "Database size";
+    }
 
     static final class UI {
         static final String FOLLOW = "Follow";

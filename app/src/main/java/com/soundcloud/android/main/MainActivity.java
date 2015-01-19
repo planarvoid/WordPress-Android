@@ -102,7 +102,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
         castConnectionHelper.reconnectSessionIfPossible();
 
-        if (playQueueManager.shouldReloadQueue()){
+        if (featureFlags.isEnabled(Flag.RELOAD_LAST_PLAYQUEUE) && playQueueManager.shouldReloadQueue()){
             playQueueManager.loadPlayQueueAsync(true);
         }
     }

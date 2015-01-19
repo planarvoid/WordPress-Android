@@ -6,12 +6,10 @@ import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -30,6 +28,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -231,7 +230,7 @@ public class SoundAssociationOperationsTest {
         final SoundAssociation revertUnlike = new SoundAssociation(track);
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
-                .thenReturn(Observable.<ApiResponse>error(ApiRequestException.notFound(mock(ApiRequest.class))));
+                .thenReturn(Observable.<ApiResponse>error(TestApiResponses.status(404).getFailure()));
         when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
         when(storage.addLikeAsync(track)).thenReturn(Observable.just(revertUnlike));
 
@@ -383,7 +382,7 @@ public class SoundAssociationOperationsTest {
         final SoundAssociation revertUnpost = new SoundAssociation(track);
         when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
         when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(ApiRequestException.notFound(mock(ApiRequest.class))));
+                .thenReturn(Observable.<ApiResponse>error(TestApiResponses.status(404).getFailure()));
         when(storage.removeRepostAsync(track)).thenReturn(Observable.just(trackUnpost));
         when(storage.addRepostAsync(track)).thenReturn(Observable.just(revertUnpost));
 

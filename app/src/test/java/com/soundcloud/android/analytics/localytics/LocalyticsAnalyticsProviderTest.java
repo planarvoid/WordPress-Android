@@ -118,7 +118,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldTrackSkippyInitilizationError() {
-        SkippyInitilizationFailedEvent event = new SkippyInitilizationFailedEvent(new IOException(), "error message", 3);
+        SkippyInitilizationFailedEvent event = new SkippyInitilizationFailedEvent(new IOException(), "error message", 3, 4);
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Skippy Init Error"), eq(event.getAttributes()));

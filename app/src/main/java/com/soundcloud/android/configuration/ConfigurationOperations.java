@@ -6,11 +6,8 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureOperations;
-import com.soundcloud.android.events.DeviceMetricsEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -41,19 +38,17 @@ public class ConfigurationOperations {
     private final ExperimentOperations experimentOperations;
     private final FeatureOperations featureOperations;
     private final DeviceHelper deviceHelper;
-    private final EventBus eventBus;
     private final FeatureFlags featureFlags;
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
     public ConfigurationOperations(ApiScheduler apiScheduler, ExperimentOperations experimentOperations,
                                    FeatureOperations featureOperations, DeviceHelper deviceHelper,
-                                   EventBus eventBus, FeatureFlags featureFlags) {
+                                   FeatureFlags featureFlags) {
         this.apiScheduler = apiScheduler;
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
         this.deviceHelper = deviceHelper;
-        this.eventBus = eventBus;
         this.featureFlags = featureFlags;
     }
 
@@ -77,9 +72,7 @@ public class ConfigurationOperations {
     }
 
     private ApiRequest.Builder<Configuration> addDeviceIdIfAny(ApiRequest.Builder<Configuration> builder) {
-        final boolean hasDeviceId = ScTextUtils.isNotBlank(deviceHelper.getUDID());
-        eventBus.publish(EventQueue.TRACKING, DeviceMetricsEvent.forDeviceId(hasDeviceId));
-        if (hasDeviceId) {
+        if (ScTextUtils.isNotBlank(deviceHelper.getUDID())) {
             builder.withHeader(ApiRequest.HEADER_UDID, deviceHelper.getUDID());
         }
         return builder;
