@@ -15,9 +15,9 @@ class Configuration {
 
     @JsonCreator
     public Configuration(
-            @JsonProperty("experiments") List<Layer> experimentLayers,
-            @JsonProperty("features") List<Feature> features) {
+            @JsonProperty("features") List<Feature> features,
+            @JsonProperty("experiments") List<Layer> experimentLayers) {
         this.features = Collections.unmodifiableList(features);
-        this.assignment = new Assignment(experimentLayers);
+        this.assignment = experimentLayers == null ? Assignment.empty() : new Assignment(experimentLayers);
     }
 }
