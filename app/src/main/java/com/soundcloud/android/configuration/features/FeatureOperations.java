@@ -7,6 +7,8 @@ import java.util.Map;
 
 public class FeatureOperations {
 
+    public static final String OFFLINE_SYNC = "offline_sync";
+
     private final FeatureStorage featureStorage;
 
     @Inject

@@ -16,7 +16,7 @@ import rx.subjects.PublishSubject;
 @RunWith(SoundCloudTestRunner.class)
 public class ConfigurationFeatureControllerTest {
 
-    private static final String FEATURE_NAME = ConfigurationFeatureController.OFFLINE_SYNC;
+    private static final String FEATURE_NAME = FeatureOperations.OFFLINE_SYNC;
 
     @Mock private OfflineContentController offlineController;
     @Mock private FeatureOperations featureOperations;
