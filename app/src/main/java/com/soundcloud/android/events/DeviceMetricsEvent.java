@@ -1,12 +1,10 @@
 package com.soundcloud.android.events;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public final class DeviceMetricsEvent extends TrackingEvent {
     private static final int ONE_MB = 1024 * 1024;
 
-    @VisibleForTesting static final String KEY_DATABASE = "database_size";
-    @VisibleForTesting static final String KEY_NO_DEVICE_ID = "no_device_id";
+    public static final String KEY_DATABASE = "database_size";
+    public static final String KEY_HAS_DEVICE_ID = "has_device_id";
 
     private DeviceMetricsEvent(String kind) {
         super(kind, System.currentTimeMillis());
@@ -17,9 +15,9 @@ public final class DeviceMetricsEvent extends TrackingEvent {
                 .put(KEY_DATABASE, toDatabaseSizeBucket(databaseSizeInBytes));
     }
 
-    public static TrackingEvent forDeviceId(boolean isDeviceId) {
-        return new DeviceMetricsEvent(KEY_DATABASE)
-                .put(KEY_NO_DEVICE_ID, String.valueOf(isDeviceId));
+    public static TrackingEvent forDeviceId(boolean hasDeviceId) {
+        return new DeviceMetricsEvent(KEY_HAS_DEVICE_ID)
+                .put(KEY_HAS_DEVICE_ID, String.valueOf(hasDeviceId));
     }
 
     private static String toDatabaseSizeBucket(long sizeInBytes) {
