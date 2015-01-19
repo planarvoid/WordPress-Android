@@ -87,7 +87,6 @@ public class TrackStorage {
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
             propertySet.put(TrackProperty.COMMENTS_COUNT, cursorReader.getInt(SoundView.COMMENT_COUNT));
-            propertySet.put(TrackProperty.WAVEFORM_URL, cursorReader.getString(SoundView.WAVEFORM_URL));
             propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
@@ -104,8 +103,14 @@ public class TrackStorage {
 
         private void putOptionalFields(CursorReader cursorReader, PropertySet propertySet) {
             final String policy = cursorReader.getString(SoundView.POLICY);
+            final String waveformUrl = cursorReader.getString(SoundView.WAVEFORM_URL);
+
             if (policy != null) {
                 propertySet.put(TrackProperty.POLICY, policy);
+            }
+
+            if (waveformUrl != null) {
+                propertySet.put(TrackProperty.WAVEFORM_URL, waveformUrl);
             }
 
             // synced tracks that might not have a user if they haven't been lazily updated yet
