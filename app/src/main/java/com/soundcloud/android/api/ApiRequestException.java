@@ -12,8 +12,6 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_R
 import com.soundcloud.api.CloudAPI;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 public final class ApiRequestException extends Exception {
 
@@ -22,8 +20,6 @@ public final class ApiRequestException extends Exception {
     private final Reason errorReason;
     private final String errorKey;
 
-    public static final List<Reason> LOGGABLE_REASONS =
-            Arrays.asList(UNEXPECTED_RESPONSE, MALFORMED_INPUT, RATE_LIMITED);
     public enum Reason {
         AUTH_ERROR,
         NETWORK_ERROR,
@@ -94,6 +90,8 @@ public final class ApiRequestException extends Exception {
     }
 
     public boolean loggable() {
-        return LOGGABLE_REASONS.contains(reason());
+        return errorReason == UNEXPECTED_RESPONSE
+                || errorReason == MALFORMED_INPUT
+                || errorReason == RATE_LIMITED;
     }
 }
