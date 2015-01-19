@@ -89,6 +89,8 @@ public class SyncActionMenuController implements ActionMenuController {
             case STATE_REMOVE_SYNC:
                 showRemoveSync();
                 break;
+            default:
+                //ignore it
         }
     }
 

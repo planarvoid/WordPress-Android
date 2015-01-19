@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -51,4 +52,6 @@ public interface AnalyticsProvider {
 
 
     void handleTrackingEvent(TrackingEvent event);
+
+    void handleUserSessionEvent(UserSessionEvent event);
 }

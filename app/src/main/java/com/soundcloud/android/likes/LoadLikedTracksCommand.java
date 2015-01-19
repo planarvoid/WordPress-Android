@@ -16,7 +16,7 @@ import java.util.List;
 
 public class LoadLikedTracksCommand extends Command<Object, List<PropertySet>, LoadLikedTracksCommand> {
 
-    private PropellerDatabase database;
+    private final PropellerDatabase database;
 
     @Inject
     LoadLikedTracksCommand(PropellerDatabase database) {

@@ -45,7 +45,6 @@ public class InAppCampaignControllerTest {
         inAppCampaignController.onResume(activity);
 
         InOrder inOrder = Mockito.inOrder(session);
-        inOrder.verify(session).open();
         inOrder.verify(session).attach(activity);
         inOrder.verify(session).handleIntent(intent);
     }
@@ -56,6 +55,5 @@ public class InAppCampaignControllerTest {
 
         InOrder inOrder = Mockito.inOrder(session);
         inOrder.verify(session).detach();
-        inOrder.verify(session).close();
     }
 }

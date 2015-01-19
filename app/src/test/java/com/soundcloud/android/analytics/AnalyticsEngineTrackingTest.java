@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 
+import static com.pivotallabs.greatexpectations.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.isA;
@@ -14,6 +15,8 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -23,6 +26,8 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Scheduler;
 import rx.functions.Action0;
@@ -47,6 +52,7 @@ public class AnalyticsEngineTrackingTest {
     @Mock private Scheduler scheduler;
     @Mock private Scheduler.Worker worker;
     @Mock private AnalyticsProviderFactory providersFactory;
+    @Captor private ArgumentCaptor<UserSessionEvent> sessionEventCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -132,6 +138,65 @@ public class AnalyticsEngineTrackingTest {
         verify(analyticsProviderTwo).handleTrackingEvent(any(TrackingEvent.class));
         verify(analyticsProviderTwo).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         verify(analyticsProviderTwo).handleOnboardingEvent(any(OnboardingEvent.class));
+    }
+
+    @Test
+    public void userOpenSessionWhenApplicationStarts() {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+
+        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getValue()).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
+    public void userOpenSessionWhenApplicationInForeground() {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(Activity.class));
+
+        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getValue()).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
+    public void userOpenSessionWhenApplicationInForegroundAndPlaySessionStopped() throws CreateModelException {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(Activity.class));
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEvent());
+
+        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getValue()).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
+    public void userOpenSessionWhenApplicationInBackgroundAndPlaySessionOpened() throws CreateModelException {
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionPlayEvent());
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(Activity.class));
+
+        verify(analyticsProviderOne).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getValue()).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
+    public void userOpenSessionWhenApplicationInBackgroundAndPlaySessionsStoppedForBuffering() throws CreateModelException {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(Activity.class));
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
+
+        verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getValue()).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
+    public void userCloseSessionWhenApplicationInBackgroundAndPlaySessionsStopped() throws CreateModelException {
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionPlayEvent());
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(Activity.class));
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_PAUSE));
+
+        verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getValue()).toBe(UserSessionEvent.CLOSED);
     }
 
     private void initialiseAnalyticsEngine() {

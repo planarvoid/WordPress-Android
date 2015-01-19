@@ -18,10 +18,6 @@ public class SyncLikesDialog extends DialogFragment {
 
     @Inject OfflineContentOperations offlineOperations;
 
-    public SyncLikesDialog() {
-        SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
     private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
@@ -29,6 +25,10 @@ public class SyncLikesDialog extends DialogFragment {
             dismiss();
         }
     };
+
+    public SyncLikesDialog() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     public void show(FragmentManager fragmentManager) {
         show(fragmentManager, TAG);

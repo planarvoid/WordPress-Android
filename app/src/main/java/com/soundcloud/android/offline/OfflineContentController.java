@@ -46,6 +46,14 @@ public class OfflineContentController {
         }
     };
 
+    public static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return syncResult.wasChanged()
+                    && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
+        }
+    };
+
     @Inject
     public OfflineContentController(EventBus eventBus, OfflineContentOperations operations, Context context) {
         this.eventBus = eventBus;
@@ -85,12 +93,4 @@ public class OfflineContentController {
             OfflineContentService.syncOfflineContent(context);
         }
     }
-
-    public static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
-        @Override
-        public Boolean call(SyncResult syncResult) {
-            return syncResult.wasChanged()
-                    && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
-        }
-    };
 }
