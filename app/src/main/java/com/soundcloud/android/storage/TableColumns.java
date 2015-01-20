@@ -35,7 +35,8 @@ public final class TableColumns {
     public static final class Likes implements BaseColumns {
         public static final String _TYPE = "_type";
         public static final String CREATED_AT = "created_at";
-        public static final String REMOVED_AT = "removed_at";
+        public static final String ADDED_AT = "added_at"; // local additions
+        public static final String REMOVED_AT = "removed_at"; // local removals
     }
 
     public static class PromotedTracks implements BaseColumns {

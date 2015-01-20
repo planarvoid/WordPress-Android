@@ -242,6 +242,7 @@ final class DatabaseSchema {
             "_id INTEGER NOT NULL," +
             "_type INTEGER NOT NULL," +
             "created_at INTEGER NOT NULL," +
+            "added_at INTEGER DEFAULT NULL," +
             "removed_at INTEGER DEFAULT NULL," +
             "PRIMARY KEY (_id, _type)," +
             "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +

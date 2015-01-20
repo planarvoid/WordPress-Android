@@ -36,6 +36,7 @@ public class LikesSyncer implements Callable<Boolean> {
     private final ApiClient apiClient;
     private final ApiResourceCommand fetchLikedResources;
     private final LoadLikesCommand loadLikes;
+    private final LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
     private final StoreCommand storeLikedResources;
     private final StoreLikesCommand storeLikes;
@@ -47,11 +48,12 @@ public class LikesSyncer implements Callable<Boolean> {
     @Inject
     @SuppressWarnings("PMD.ExcessiveParameterList") // We will run into this a lot with commands...
     LikesSyncer(ApiClient apiClient, ApiResourceCommand fetchLikedResources, LoadLikesCommand loadLikes,
-                LoadLikesPendingRemovalCommand loadLikesPendingRemoval, StoreCommand storeLikedResources,
+                LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval, StoreCommand storeLikedResources,
                 StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes, AccountOperations accountOperations,
                 ApiEndpoints fetchLikesEndpoint, ApiEndpoints writeLikesEndpoint) {
         this.apiClient = apiClient;
         this.loadLikes = loadLikes;
+        this.loadLikesPendingAddition = loadLikesPendingAddition;
         this.loadLikesPendingRemoval = loadLikesPendingRemoval;
         this.removeLikes = removeLikes;
         this.fetchLikedResources = fetchLikedResources;
@@ -82,12 +84,20 @@ public class LikesSyncer implements Callable<Boolean> {
 
         final Set<PropertySet> localLikes = new TreeSet<>(LIKES_COMPARATOR);
         localLikes.addAll(loadLikes.call());
+        final Set<PropertySet> localAdditions = new TreeSet<>(LIKES_COMPARATOR);
+        localAdditions.addAll(loadLikesPendingAddition.call());
+
         final Set<PropertySet> localRemovals = new TreeSet<>(LIKES_COMPARATOR);
         localRemovals.addAll(loadLikesPendingRemoval.call());
 
-        final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localLikes, remoteLikes);
+        final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localAdditions, remoteLikes);
         final Set<PropertySet> pendingLocalAdditions = getSetDifference(remoteLikes, localLikes, localRemovals);
-        final Set<PropertySet> pendingLocalRemovals = getSetDifference(localRemovals, remoteLikes);
+
+        final Set<PropertySet> localLikesWithoutAdditions = getSetDifference(localLikes, localAdditions);
+        // clean items that no longer exist remotely
+        final Set<PropertySet> pendingLocalRemovals = getSetDifference(localLikesWithoutAdditions, remoteLikes);
+        // dirty local removals that do not need removing remotely
+        pendingLocalRemovals.addAll(getSetDifference(localRemovals, remoteLikes));
 
         // For likes that are flagged for removal locally, but that have actually been re-added remotely, we have
         // we have to switch them from the remote removals set over to the local additions set.
