@@ -66,6 +66,11 @@
     <string name="accessibility_repost_action">Repost</string>
     <string name="accessibility_comment_action">Comment</string>
 
+    <!-- __ACCESSIBILITY OFFLINE SYNC -->
+    <string name="accessibility_start_sync">Start Sync</string>
+    <string name="accessibility_syncing">Syncing</string>
+    <string name="accessibility_remove_sync">Remove from Offline Sync</string>
+
     <!-- __ACTIVITIES -->
     <string name="liked">liked %s</string>
     <string name="reposted">reposted %s</string>

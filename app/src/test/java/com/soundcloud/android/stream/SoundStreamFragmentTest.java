@@ -68,8 +68,12 @@ public class SoundStreamFragmentTest {
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
-        fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController,
-                playbackOperations, TestSubscribers.expandPlayerSubscriber());
+        fragment = new SoundStreamFragment(soundStreamOperations,
+                adapter,
+                listViewController,
+                pullToRefreshController,
+                playbackOperations,
+                TestSubscribers.expandPlayerSubscriber());
         fragment.onAttach(activity);
     }
 

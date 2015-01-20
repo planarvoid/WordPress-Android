@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
 import com.soundcloud.android.actionbar.PullToRefreshController;
+import com.soundcloud.android.actionbar.menu.ActionMenuController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -46,6 +47,7 @@ public class TrackLikesFragmentTest {
     @Mock private PullToRefreshController pullToRefreshController;
     @Mock private ShuffleViewController shuffleViewController;
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private ActionMenuController actionMenuController;
     @Mock private Subscription subscription;
 
     @Before
@@ -54,7 +56,9 @@ public class TrackLikesFragmentTest {
         when(likeOperations.likedTracks()).thenReturn(likedTracks);
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(Robolectric.application));
         fragment = new TrackLikesFragment(adapter, likeOperations, listViewController,
-                pullToRefreshController, shuffleViewController, playbackOperations, TestSubscribers.expandPlayerSubscriber());
+                pullToRefreshController, shuffleViewController, playbackOperations,
+                actionMenuController,
+                TestSubscribers.expandPlayerSubscriber());
     }
 
     @Test

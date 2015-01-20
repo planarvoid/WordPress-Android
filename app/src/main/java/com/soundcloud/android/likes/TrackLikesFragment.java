@@ -5,9 +5,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.actionbar.PullToRefreshController;
+import com.soundcloud.android.actionbar.menu.ActionMenuController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -26,11 +27,15 @@ import rx.subscriptions.Subscriptions;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import java.util.List;
 
@@ -57,6 +62,7 @@ public class TrackLikesFragment extends LightCycleFragment
     @Inject ShuffleViewController shuffleViewController;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
+    @Inject @Named("LikedTracks") ActionMenuController actionMenuController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private ConnectableObservable<List<PropertySet>> observable;
@@ -75,6 +81,7 @@ public class TrackLikesFragment extends LightCycleFragment
                        PullToRefreshController pullToRefreshController,
                        ShuffleViewController shuffleViewController,
                        PlaybackOperations playbackOperations,
+                       ActionMenuController syncActionMenuController,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.adapter = adapter;
         this.likeOperations = likeOperations;
@@ -82,6 +89,7 @@ public class TrackLikesFragment extends LightCycleFragment
         this.pullToRefreshController = pullToRefreshController;
         this.shuffleViewController = shuffleViewController;
         this.playbackOperations = playbackOperations;
+        this.actionMenuController = syncActionMenuController;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         addLifeCycleComponents();
     }
@@ -101,6 +109,7 @@ public class TrackLikesFragment extends LightCycleFragment
         setRetainInstance(true);
         super.onCreate(savedInstanceState);
         connectionSubscription = connectObservable(buildObservable());
+        actionMenuController.onCreate(this);
     }
 
     @Override
@@ -119,6 +128,16 @@ public class TrackLikesFragment extends LightCycleFragment
         listViewController.connect(this, observable);
         pullToRefreshController.connect(observable, adapter);
         subscribeShuffleViewController(observable);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        actionMenuController.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return actionMenuController.onOptionsItemSelected(this, item);
     }
 
     @Override

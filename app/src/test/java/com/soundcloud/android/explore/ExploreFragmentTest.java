@@ -29,16 +29,11 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreFragmentTest {
 
-    @Mock
-    private View mockLayout;
-    @Mock
-    private SlidingTabLayout mockTabLayout;
-    @Mock
-    private ViewPager mockViewPager;
-    @Mock
-    private ExplorePagerAdapterFactory adapterFactory;
-    @Mock
-    private ExplorePagerAdapter pagerAdapter;
+    @Mock private View mockLayout;
+    @Mock private SlidingTabLayout mockTabLayout;
+    @Mock private ViewPager mockViewPager;
+    @Mock private ExplorePagerAdapterFactory adapterFactory;
+    @Mock private ExplorePagerAdapter pagerAdapter;
 
     private ExploreFragment fragment;
     private TestEventBus eventBus = new TestEventBus();
