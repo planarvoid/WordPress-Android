@@ -11,6 +11,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -25,9 +26,11 @@ import com.soundcloud.api.Request;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -155,7 +158,19 @@ class PlaylistSyncHelper {
     public PublicApiPlaylist syncPlaylist(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
         final PublicApiPlaylist playlist = resolvePlaylistWithAdditions(playlistUri, apiWrapper);
         modelManager.cache(playlist, PublicApiResource.CacheUpdateMode.FULL);
+
+        logInvalidPlaylistTracks(playlist);
+
         return playlistStorage.store(playlist);
+    }
+
+    private void logInvalidPlaylistTracks(PublicApiPlaylist playlist) {
+        Collection<Urn> tracksWithoutTitles = playlist.getTracksWithoutTitles();
+        if (!tracksWithoutTitles.isEmpty()){
+            final String message = String.format("Invalid playlist tracks fround. playlist : %s , tracks : %s",
+                    playlist.getUrn(), TextUtils.join(", ", tracksWithoutTitles));
+            ErrorUtils.handleSilentException(new IllegalStateException(message));
+        }
     }
 
     private PublicApiPlaylist resolvePlaylistWithAdditions(Uri playlistUri, /** inject this **/PublicCloudAPI apiWrapper) throws IOException {
