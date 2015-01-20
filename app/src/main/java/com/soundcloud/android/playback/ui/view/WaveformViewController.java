@@ -246,7 +246,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         if (createState.equals(SHOULD_CREATE_WAVEFORM)) {
             waveformSubscription.unsubscribe();
             waveformSubscription = waveformObservable
-                    .subscribeOn(graphicsScheduler)
+                    .observeOn(graphicsScheduler)
                     .map(createWaveformsFunc())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new WaveformSubscriber());
