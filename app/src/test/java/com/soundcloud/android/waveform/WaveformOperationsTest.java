@@ -1,6 +1,7 @@
 package com.soundcloud.android.waveform;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,6 +54,15 @@ public class WaveformOperationsTest {
 
         final WaveformData actual = waveformOperations.waveformDataFor(trackUrn, waveformUrl).toBlocking().lastOrDefault(null);
         expect(actual).toBe(waveformData);
+    }
+
+    @Test
+    public void emitsDefaultWaveformOnNullWaveformUrl() throws Exception {
+        when(waveformFetcher.fetchDefault()).thenReturn(Observable.just(waveformData));
+
+        final WaveformData actual = waveformOperations.waveformDataFor(trackUrn, null).toBlocking().lastOrDefault(null);
+        expect(actual).toBe(waveformData);
+        verify(waveformFetcher, never()).fetch(null);
     }
 
     @Test

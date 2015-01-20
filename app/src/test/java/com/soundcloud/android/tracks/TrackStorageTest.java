@@ -49,7 +49,6 @@ public class TrackStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrack(track);
 
         storage.track(track.getUrn(), Urn.forUser(123)).subscribe(observer);
-
         verify(observer, never()).onNext(any(PropertySet.class));
         verify(observer).onCompleted();
     }
@@ -60,6 +59,16 @@ public class TrackStorageTest extends StorageIntegrationTest {
         testFixtures().insertDescription(trackUrn, "description123");
         storage.trackDetails(trackUrn).subscribe(observer);
         verify(observer).onNext(eq(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123"))));
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void nullWaveformUrlEmitsInsertedTrack() throws CreateModelException {
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setWaveformUrl(null);
+        testFixtures().insertTrack(track);
+        storage.track(track.getUrn(), Urn.forUser(123)).subscribe(observer);
+        verify(observer).onNext(any(PropertySet.class));
         verify(observer).onCompleted();
     }
 
