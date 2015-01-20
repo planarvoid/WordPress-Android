@@ -28,7 +28,7 @@ import java.util.Set;
  * (for Activities).
  */
 @Deprecated
-/* package */  class LegacySyncRequest implements SyncRequest<LegacySyncJob> {
+/* package */  class LegacySyncRequest implements SyncRequest {
     private final String action;
     private final List<LegacySyncJob> legacySyncItems = new ArrayList<LegacySyncJob>();
     private final Set<LegacySyncJob> requestsRemaining;
@@ -106,28 +106,32 @@ import java.util.Set;
     }
 
     @Override
-    public boolean isWaitingForJob(LegacySyncJob syncJob) {
+    public boolean isWaitingForJob(SyncJob syncJob) {
         return requestsRemaining.contains(syncJob);
     }
 
     @Override
     @SuppressWarnings({"PMD.CompareObjectsWithEquals"}) // this instance is on purpose
-    public void processJobResult(LegacySyncJob syncJob) {
+    public void processJobResult(SyncJob syncJob) {
+
+        // this is not ideal, but this is the only way we can avoid rewriting this guy
+        LegacySyncJob legacySyncJob = (LegacySyncJob) syncJob;
+
         // if this is a different instance of the same sync request, share the result
         for (LegacySyncJob instance : requestsRemaining) {
-            if (instance.equals(syncJob) && instance != syncJob) {
-                instance.setResult(syncJob.getResult());
+            if (instance.equals(legacySyncJob) && instance != legacySyncJob) {
+                instance.setResult(legacySyncJob.getResult());
             }
         }
-        requestsRemaining.remove(syncJob);
+        requestsRemaining.remove(legacySyncJob);
 
-        resultData.putBoolean(syncJob.getContentUri().toString(), isUIRequest ?
-                syncJob.getResult().change != ApiSyncResult.UNCHANGED : syncJob.getResult().change == ApiSyncResult.CHANGED);
+        resultData.putBoolean(legacySyncJob.getContentUri().toString(), isUIRequest ?
+                legacySyncJob.getResult().change != ApiSyncResult.UNCHANGED : legacySyncJob.getResult().change == ApiSyncResult.CHANGED);
 
-        if (!syncJob.getResult().success) {
-            syncAdapterResult.stats.numAuthExceptions += syncJob.getResult().syncResult.stats.numAuthExceptions;
-            syncAdapterResult.stats.numIoExceptions += syncJob.getResult().syncResult.stats.numIoExceptions;
-            syncAdapterResult.stats.numParseExceptions += syncJob.getResult().syncResult.stats.numParseExceptions;
+        if (!legacySyncJob.getResult().success) {
+            syncAdapterResult.stats.numAuthExceptions += legacySyncJob.getResult().syncResult.stats.numAuthExceptions;
+            syncAdapterResult.stats.numIoExceptions += legacySyncJob.getResult().syncResult.stats.numIoExceptions;
+            syncAdapterResult.stats.numParseExceptions += legacySyncJob.getResult().syncResult.stats.numParseExceptions;
             // TODO more stats?
         }
     }

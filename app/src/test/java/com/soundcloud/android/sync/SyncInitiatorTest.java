@@ -26,7 +26,8 @@ import android.os.ResultReceiver;
 public class SyncInitiatorTest {
 
     private SyncInitiator initiator;
-    private Subscriber<Boolean> syncSubscriber = new TestSubscriber<Boolean>();
+    private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<Boolean>();
+    private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<SyncResult>();
 
     @Mock
     private AccountOperations accountOperations;
@@ -57,7 +58,7 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldCreateIntentForRefreshingTheSoundStream() {
-        initiator.refreshSoundStream().subscribe(syncSubscriber);
+        initiator.refreshSoundStream().subscribe(legacySyncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
@@ -69,7 +70,7 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldCreateIntentForSyncingOlderSoundStreamItems() {
-        initiator.backfillSoundStream().subscribe(syncSubscriber);
+        initiator.backfillSoundStream().subscribe(legacySyncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
@@ -92,7 +93,7 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldCreateIntentForSyncingSinglePlaylist() throws Exception {
-        initiator.syncPlaylist(Urn.forPlaylist(1L)).subscribe(syncSubscriber);
+        initiator.syncPlaylist(Urn.forPlaylist(1L)).subscribe(legacySyncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
@@ -103,12 +104,22 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldCreateIntentForSyncingSingleTrack() throws Exception {
-        initiator.syncTrack(Urn.forTrack(1L)).subscribe(syncSubscriber);
+        initiator.syncTrack(Urn.forTrack(1L)).subscribe(legacySyncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getData()).toEqual(Content.TRACKS.forQuery(String.valueOf(1L)));
         expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+    }
+
+    @Test
+    public void syncTrackLikesShouldRequestTrackLikesSync() throws Exception {
+        initiator.syncTrackLikes().subscribe(syncSubscriber);
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(SyncActions.SYNC_TRACK_LIKES);
+        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
     }
 }

@@ -6,6 +6,7 @@ import com.soundcloud.android.sync.likes.SingleJobRequest;
 import dagger.Lazy;
 
 import android.content.Intent;
+import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 
@@ -27,12 +28,18 @@ public class SyncRequestFactory {
     public SyncRequest create(Intent intent) {
 
         if (SyncActions.SYNC_TRACK_LIKES.equals(intent.getAction())) {
-            return new SingleJobRequest(lazySyncTrackLikesJob.get(), true);
+            return new SingleJobRequest(lazySyncTrackLikesJob.get(), intent.getAction(),
+                    true, getReceiverFromIntent(intent));
 
         } else if (SyncActions.SYNC_PLAYLIST_LIKES.equals(intent.getAction())) {
-            return new SingleJobRequest(lazySyncPlaylistLikesJob.get(), true);
+            return new SingleJobRequest(lazySyncPlaylistLikesJob.get(), intent.getAction(), true,
+                    getReceiverFromIntent(intent));
         }
 
         return syncIntentFactory.create(intent);
+    }
+
+    private ResultReceiver getReceiverFromIntent(Intent intent) {
+        return (ResultReceiver) intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
     }
 }

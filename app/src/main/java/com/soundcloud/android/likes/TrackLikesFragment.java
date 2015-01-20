@@ -159,9 +159,13 @@ public class TrackLikesFragment extends LightCycleFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        ConnectableObservable<List<PropertySet>> observable = buildObservable();
+        ConnectableObservable<List<PropertySet>> observable = getUpdatedLikedTracks().replay();
         subscribeShuffleViewController(observable);
         return observable;
+    }
+
+    private Observable<List<PropertySet>> getUpdatedLikedTracks() {
+        return likeOperations.updatedLikedTracks().observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

@@ -2,15 +2,15 @@ package com.soundcloud.android.sync;
 
 import java.util.Collection;
 
-public interface SyncRequest<T extends SyncJob> {
+public interface SyncRequest {
 
     boolean isHighPriority();
 
     Collection<? extends SyncJob> getPendingJobs();
 
-    boolean isWaitingForJob(T syncJob);
+    boolean isWaitingForJob(SyncJob syncJob);
 
-    void processJobResult(T syncJob);
+    void processJobResult(SyncJob syncJob);
 
     boolean isSatisfied();
 

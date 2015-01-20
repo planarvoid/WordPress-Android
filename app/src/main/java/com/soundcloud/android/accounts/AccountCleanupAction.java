@@ -13,6 +13,7 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
@@ -36,6 +37,7 @@ class AccountCleanupAction implements Action0 {
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final ClearSoundStreamCommand clearSoundStreamCommand;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final RemoveAllLikesCommand removeAllLikesCommand;
 
     @Inject
     AccountCleanupAction(Context context, SyncStateManager syncStateManager,
@@ -43,7 +45,7 @@ class AccountCleanupAction implements Action0 {
                          UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
                          SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage) {
+                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage, RemoveAllLikesCommand removeAllLikesCommand) {
         this.context = context;
         this.syncStateManager = syncStateManager;
         this.collectionStorage = collectionStorage;
@@ -55,17 +57,18 @@ class AccountCleanupAction implements Action0 {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.clearSoundStreamCommand = clearSoundStreamCommand;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.removeAllLikesCommand = removeAllLikesCommand;
     }
 
     @Override
     public void call() {
         Log.d(TAG, "Purging user data...");
 
+        clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         syncStateManager.clear();
         collectionStorage.clear();
         activitiesStorage.clear(null);
-        clearSoundStream();
         userAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
@@ -76,11 +79,12 @@ class AccountCleanupAction implements Action0 {
         ConnectionsCache.reset();
     }
 
-    private void clearSoundStream()  {
+    private void clearCollections()  {
         try {
+            removeAllLikesCommand.call();
             clearSoundStreamCommand.call();
         } catch (PropellerWriteException e) {
-            Log.e(TAG, "Could not clear SoundStream ", e);
+            Log.e(TAG, "Could not clear collections ", e);
         }
 
     }

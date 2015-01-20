@@ -81,7 +81,7 @@ public class ApiSyncService extends Service {
         return null;
     }
 
-    void enqueueRequest(SyncRequest<SyncJob> syncRequest) {
+    void enqueueRequest(SyncRequest syncRequest) {
 
         syncRequests.add(syncRequest);
 
@@ -103,7 +103,7 @@ public class ApiSyncService extends Service {
         }
     }
 
-    private void addItemToPendingRequests(SyncRequest<SyncJob> syncRequest, SyncJob syncJob) {
+    private void addItemToPendingRequests(SyncRequest syncRequest, SyncJob syncJob) {
         Log.d(LOG_TAG, "Adding sync job to queue : " + syncJob);
         if (syncRequest.isHighPriority()) {
             pendingJobs.add(0, syncJob);
