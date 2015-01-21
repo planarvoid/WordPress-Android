@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.SoundCloud" parent="BaseTheme" />
+    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat" />
+
+</resources>
