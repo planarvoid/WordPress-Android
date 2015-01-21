@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -32,8 +31,7 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private final PlayQueueManager playQueueManager;
     private final SoundAssociationOperations associationOperations;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final TrackStorage trackStorage;
-    private final AccountOperations accountOperations;
+    private final LoadTrackCommand loadTrackCommand;
     private final Context context;
 
     private FragmentActivity activity;
@@ -45,14 +43,12 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     TrackItemMenuController(PlayQueueManager playQueueManager,
                             SoundAssociationOperations associationOperations,
                             PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                            TrackStorage trackStorage,
-                            AccountOperations accountOperations,
+                            LoadTrackCommand loadTrackCommand,
                             EventBus eventBus, Context context) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.trackStorage = trackStorage;
-        this.accountOperations = accountOperations;
+        this.loadTrackCommand = loadTrackCommand;
         this.eventBus = eventBus;
         this.context = context;
     }
@@ -76,8 +72,9 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
 
     private void loadTrack(PopupMenuWrapper menu) {
         trackSubscription.unsubscribe();
-        trackSubscription = trackStorage
-                .track(track.get(TrackProperty.URN), accountOperations.getLoggedInUserUrn())
+        trackSubscription = loadTrackCommand
+                .with(track.get(TrackProperty.URN))
+                .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(track, menu));
     }

@@ -5,6 +5,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -144,4 +145,30 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
+    public static PropertySet fromApiTrack(ApiTrack apiTrack){
+        return fromApiTrack(apiTrack, false, false, false);
+    }
+
+
+    public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted){
+            return PropertySet.from(
+                    TrackProperty.URN.bind(Urn.forTrack(apiTrack.getId())),
+                    PlayableProperty.TITLE.bind(apiTrack.getTitle()),
+                    PlayableProperty.DURATION.bind(apiTrack.getDuration()),
+                    PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
+                    PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
+                    TrackProperty.WAVEFORM_URL.bind(apiTrack.getWaveformUrl()),
+                    TrackProperty.STREAM_URL.bind(apiTrack.getStreamUrl()),
+                    TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
+                    TrackProperty.COMMENTS_COUNT.bind(apiTrack.getStats().getCommentsCount()),
+                    PlayableProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
+                    PlayableProperty.REPOSTS_COUNT.bind(apiTrack.getStats().getRepostsCount()),
+                    TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
+                    TrackProperty.POLICY.bind(apiTrack.getPolicy()),
+                    PlayableProperty.IS_LIKED.bind(isLiked),
+                    PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
+                    PlayableProperty.IS_PRIVATE.bind(isPrivate),
+                    PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
+                    PlayableProperty.IS_REPOSTED.bind(isReposted));
+    }
 }

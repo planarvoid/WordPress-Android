@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
@@ -17,11 +16,8 @@ import java.util.List;
 
 public class TrackOperations {
 
-    @SuppressWarnings("UnusedDeclaration")
-    private static final String LOG_TAG = "TrackOperations";
-
-    private final TrackStorage trackStorage;
-    private final AccountOperations accountOperations;
+    private final LoadTrackCommand loadTrack;
+    private final LoadTrackDescriptionCommand loadTrackDescription;
     private final EventBus eventBus;
     private final SyncInitiator syncInitiator;
 
@@ -34,9 +30,9 @@ public class TrackOperations {
     };
 
     @Inject
-    public TrackOperations(TrackStorage trackStorage, AccountOperations accountOperations, EventBus eventBus, SyncInitiator syncInitiator) {
-        this.trackStorage = trackStorage;
-        this.accountOperations = accountOperations;
+    public TrackOperations(LoadTrackCommand loadTrack, LoadTrackDescriptionCommand loadTrackDescription, EventBus eventBus, SyncInitiator syncInitiator) {
+        this.loadTrack = loadTrack;
+        this.loadTrackDescription = loadTrackDescription;
         this.eventBus = eventBus;
         this.syncInitiator = syncInitiator;
     }
@@ -64,11 +60,11 @@ public class TrackOperations {
     }
 
     private Observable<PropertySet> trackFromStorage(Urn trackUrn) {
-        return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
+        return loadTrack.with(trackUrn).toObservable();
     }
 
     private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
-        return trackFromStorage(trackUrn).zipWith(trackStorage.trackDetails(trackUrn), PropertySetFunctions.mergeLeft());
+        return trackFromStorage(trackUrn).zipWith(loadTrackDescription.with(trackUrn).toObservable(), PropertySetFunctions.mergeLeft());
     }
 
     private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {

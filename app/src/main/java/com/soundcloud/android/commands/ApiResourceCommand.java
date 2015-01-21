@@ -23,8 +23,8 @@ public abstract class ApiResourceCommand<I, O> extends Command<I, O, ApiResource
     }
 
     @Override
-    public Observable<O> toObservable(I input) {
-        return super.toObservable(input).subscribeOn(ScSchedulers.API_SCHEDULER);
+    public Observable<O> toObservable() {
+        return super.toObservable().subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
     protected abstract ApiRequest<O> buildRequest();
