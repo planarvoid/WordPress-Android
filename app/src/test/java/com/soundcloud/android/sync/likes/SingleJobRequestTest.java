@@ -33,7 +33,7 @@ public class SingleJobRequestTest extends TestCase {
     public void getPendingSyncItemShouldReturnSyncJobWhenNotExecuted() throws Exception {
         Collection<? extends SyncJob> jobs = singleJobRequest.getPendingJobs();
         expect(jobs.contains(syncJob)).toBeTrue();
-        expect(jobs.size()).toEqual(1);
+        expect(jobs).toNumber(1);
     }
 
     @Test
