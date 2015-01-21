@@ -33,6 +33,7 @@ public class LegacySyncJob implements SyncJob {
 
     private LocalCollection localCollection;
     private ApiSyncResult result;
+    private Exception exception;
 
     public LegacySyncJob(Context context, Uri contentUri, String action, boolean isUI,
                          ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
@@ -67,6 +68,16 @@ public class LegacySyncJob implements SyncJob {
         }
     }
 
+    @Override
+    public boolean resultedInAChange() {
+        return result.change == ApiSyncResult.CHANGED;
+    }
+
+    @Override
+    public Exception getException() {
+        return exception;
+    }
+
     /**
      * Execute the sync request. This should happen on a separate worker thread.
      */
@@ -85,24 +96,26 @@ public class LegacySyncJob implements SyncJob {
             result = apiSyncerFactory.forContentUri(context, contentUri).syncContent(contentUri, action);
             syncStateManager.onSyncComplete(result, localCollection);
         } catch (CloudAPI.InvalidTokenException e) {
-            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncResult.fromAuthException(contentUri);
+            handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
         } catch (PublicCloudAPI.UnexpectedResponseException e) {
-            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncResult.fromGeneralFailure(contentUri);
+            handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
         } catch (IOException e) {
-            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncResult.fromIOException(contentUri);
-        } catch (Exception ex) {
-            ErrorUtils.handleSilentException(ex);
-            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncResult.fromGeneralFailure(contentUri);
+            handleSyncException(ApiSyncResult.fromIOException(contentUri), e);
+        } catch (Exception e) {
+            ErrorUtils.handleSilentException(e);
+            handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
         } finally {
             // should be taken care of when thread dies, but needed for tests
             PublicApiWrapper.setBackgroundMode(false);
         }
 
         Log.d(TAG, "executed sync on " + this);
+    }
+
+    private void handleSyncException(ApiSyncResult apiSyncResult, Exception exception) {
+        syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
+        result = apiSyncResult;
+        this.exception = exception;
     }
 
     public Uri getContentUri() {
@@ -172,5 +185,4 @@ public class LegacySyncJob implements SyncJob {
             return new LegacySyncJob(context, contentUri, action, isUI, apiSyncerFactory, syncStateManager);
         }
     }
-
 }

@@ -1,8 +1,10 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.screens.elements.ActionBarElement;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.elements.ActionBarElement;
 
 import android.R;
 
@@ -26,6 +28,10 @@ public abstract class Screen {
     public void swipeLeft() {
         testDriver.swipeLeft();
         testDriver.sleep(1000);
+    }
+
+    public ViewElement emptyView(){
+        return testDriver.findElement(With.id(com.soundcloud.android.R.id.empty_view_holder));
     }
 
     public void swipeRight() {

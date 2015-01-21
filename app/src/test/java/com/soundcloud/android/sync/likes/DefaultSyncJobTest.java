@@ -39,6 +39,16 @@ public class DefaultSyncJobTest {
 
         defaultSyncJob.run();
 
-        expect(defaultSyncJob.getSyncException()).toBe(ioException);
+        expect(defaultSyncJob.getException()).toBe(ioException);
+    }
+
+    @Test
+    public void wasSuccessIsFalseAfterException() throws Exception {
+        IOException ioException = new IOException();
+        when(syncer.call()).thenThrow(ioException);
+
+        defaultSyncJob.run();
+
+        expect(defaultSyncJob.wasSuccess()).toBeFalse();
     }
 }

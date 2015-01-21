@@ -10,18 +10,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.os.ResultReceiver;
+
 import java.util.Collection;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SingleJobRequestTest extends TestCase {
 
+    private final String ACTION = "action";
+
     private SingleJobRequest singleJobRequest;
 
-    @Mock private SyncJob syncJob;
+    @Mock private DefaultSyncJob syncJob;
+    @Mock private ResultReceiver resultReceiver;
 
     @Before
     public void setUp() throws Exception {
-        singleJobRequest = new SingleJobRequest(syncJob, true);
+        singleJobRequest = new SingleJobRequest(syncJob, ACTION, true, resultReceiver);
     }
 
     @Test
@@ -56,5 +61,10 @@ public class SingleJobRequestTest extends TestCase {
     public void isSatisfiedIsTrueAfterProcessingSyncJob() throws Exception {
         singleJobRequest.processJobResult(syncJob);
         expect(singleJobRequest.isSatisfied()).toBeTrue();
+    }
+
+    public void sendsSuccessResultThroughResultReceiver() throws Exception {
+        singleJobRequest.processJobResult(syncJob);
+
     }
 }

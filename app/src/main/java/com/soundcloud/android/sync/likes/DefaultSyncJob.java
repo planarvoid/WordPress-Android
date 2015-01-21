@@ -32,7 +32,8 @@ public class DefaultSyncJob implements SyncJob {
         return syncResultChanged;
     }
 
-    public Exception getSyncException() {
+    @Override
+    public Exception getException() {
         return syncException;
     }
 
@@ -55,5 +56,9 @@ public class DefaultSyncJob implements SyncJob {
     @Override
     public int hashCode() {
         return syncer.hashCode();
+    }
+
+    public boolean wasSuccess() {
+        return syncException == null;
     }
 }

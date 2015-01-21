@@ -46,7 +46,6 @@ public class SyncInitiator {
         } else {
             return false;
         }
-
     }
 
     public boolean requestSystemSync() {
@@ -65,17 +64,32 @@ public class SyncInitiator {
             public void call(Subscriber<? super Boolean> subscriber) {
                 requestSoundStreamSync(
                         ApiSyncService.ACTION_HARD_REFRESH,
-                        new ResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
+                        new LegacyResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
             }
         });
     }
 
-    private void requestSoundStreamSync(String action, ResultReceiverAdapter resultReceiver) {
+    private void requestSoundStreamSync(String action, LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(action)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_SOUND_STREAM.uri));
+    }
+
+    public Observable<SyncResult> syncTrackLikes() {
+        return Observable.create(new Observable.OnSubscribe<SyncResult>() {
+            @Override
+            public void call(Subscriber<? super SyncResult> subscriber) {
+                requestSync(SyncActions.SYNC_TRACK_LIKES, new ResultReceiverAdapter(subscriber));
+            }
+        });
+    }
+
+    private void requestSync(String action, ResultReceiverAdapter resultReceiver) {
+        context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver));
     }
 
     /**
@@ -88,12 +102,12 @@ public class SyncInitiator {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-                requestSoundStreamBackfill(new ResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
+                requestSoundStreamBackfill(new LegacyResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
             }
         });
     }
 
-    private void requestSoundStreamBackfill(ResultReceiverAdapter resultReceiver) {
+    private void requestSoundStreamBackfill(LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
@@ -112,12 +126,12 @@ public class SyncInitiator {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 final Uri contentUri = Content.PLAYLIST.forId(playlistUrn.getNumericId());
-                requestPlaylistSync(new ResultReceiverAdapter(subscriber, contentUri));
+                requestPlaylistSync(new LegacyResultReceiverAdapter(subscriber, contentUri));
             }
         });
     }
 
-    private void requestPlaylistSync(ResultReceiverAdapter resultReceiver) {
+    private void requestPlaylistSync(LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
@@ -129,12 +143,12 @@ public class SyncInitiator {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 final Uri contentUri = Content.TRACKS.forId(trackUrn.getNumericId());
-                requestTrackSync(new ResultReceiverAdapter(subscriber, contentUri));
+                requestTrackSync(new LegacyResultReceiverAdapter(subscriber, contentUri));
             }
         });
     }
 
-    private void requestTrackSync(ResultReceiverAdapter resultReceiver) {
+    private void requestTrackSync(LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
