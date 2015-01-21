@@ -24,7 +24,7 @@ public class LikesSyncModule {
                                         StoreTracksCommand storeTracks, StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes,
                                         AccountOperations accountOperations) {
         return new LikesSyncer(apiClient, fetchTracks, loadLikes.with(Sounds.TYPE_TRACK),
-                loadLikesPendingAddition, loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
+                loadLikesPendingAddition.with(Sounds.TYPE_TRACK), loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
                 removeLikes, accountOperations, ApiEndpoints.LIKED_TRACKS, ApiEndpoints.MY_TRACK_LIKES);
     }
 
@@ -35,7 +35,7 @@ public class LikesSyncModule {
                                            StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes,
                                            AccountOperations accountOperations) {
         return new LikesSyncer(apiClient, fetchPlaylists, loadLikes.with(Sounds.TYPE_PLAYLIST),
-                loadLikesPendingAddition, loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
+                loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST), loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
                 removeLikes, accountOperations, ApiEndpoints.LIKED_PLAYLISTS, ApiEndpoints.MY_PLAYLIST_LIKES);
     }
 }
