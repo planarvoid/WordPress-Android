@@ -19,7 +19,6 @@ import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -153,8 +152,6 @@ public class SoundCloudApplication extends Application {
         configOperations.update();
         setupCurrentUserAccount();
         generateDeviceKey();
-
-        FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
         playlistTagStorage.resetPopularTags();
 

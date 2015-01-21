@@ -12,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -96,12 +95,6 @@ public class LoginFlowTest extends LoginTest {
     * So that I don't need to create another account
     */
     public void testLoginWithFacebookWebFlow() {
-
-        // TODO: Control FB SSO on the device.
-        if (FacebookSSOActivity.isSupported(getInstrumentation().getTargetContext())) {
-            log("Facebook SSO is available, not testing WebFlow");
-
-        }
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickOnFBSignInButton();
 
