@@ -20,7 +20,7 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
                 TestUser.playlistUser.getEmail(),
                 TestUser.playlistUser.getPassword());
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-        setDependsOn(Flag.PLAYLIST_LIKES_SCREEN);
+        setDependsOn(Flag.NEW_LIKES_END_TO_END);
         super.setUp();
     }
 

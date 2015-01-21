@@ -23,10 +23,8 @@
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
-    <bool name="feature_track_likes_screen">false</bool>
+    <bool name="feature_new_likes_end_to_end">false</bool>
     <bool name="feature_api_mobile_stream">false</bool>
-    <bool name="feature_new_likes_syncer">false</bool>
-    <bool name="feature_playlist_likes_screen">false</bool>
     <bool name="feature_reload_last_playqueue">false</bool>
     <bool name="feature_configuration_features">true</bool>
 </resources>

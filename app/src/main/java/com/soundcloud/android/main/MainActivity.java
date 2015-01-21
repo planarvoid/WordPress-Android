@@ -310,7 +310,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayPlaylists() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(PLAYLISTS_FRAGMENT_TAG);
         if (fragment == null) {
-            if (featureFlags.isEnabled(Flag.PLAYLIST_LIKES_SCREEN)) {
+            if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
                 fragment = new PlaylistsFragment();
             } else {
                 fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS);
@@ -322,7 +322,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            if (featureFlags.isEnabled(Flag.TRACK_LIKES_SCREEN)) {
+            if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
                 fragment = new TrackLikesFragment();
             } else {
                 fragment = new LikesListFragment();

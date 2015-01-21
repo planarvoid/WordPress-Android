@@ -49,7 +49,7 @@ public class ApiSyncerFactory {
                     return new ApiSyncer(context, context.getContentResolver());
                 }
             case ME_LIKES:
-                if (featureFlags.isEnabled(Flag.NEW_LIKES_SYNCER)) {
+                if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
                     return lazyMyLikesSyncer.get();
                 } else {
                     return new ApiSyncer(context, context.getContentResolver());
