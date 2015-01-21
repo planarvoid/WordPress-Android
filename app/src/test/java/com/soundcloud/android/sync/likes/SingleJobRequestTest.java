@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.util.Collection;
+
 @RunWith(SoundCloudTestRunner.class)
 public class SingleJobRequestTest extends TestCase {
 
@@ -29,7 +31,9 @@ public class SingleJobRequestTest extends TestCase {
 
     @Test
     public void getPendingSyncItemShouldReturnSyncJobWhenNotExecuted() throws Exception {
-        expect(singleJobRequest.getPendingJobs()).toContainExactly(syncJob);
+        Collection<? extends SyncJob> jobs = singleJobRequest.getPendingJobs();
+        expect(jobs.contains(syncJob)).toBeTrue();
+        expect(jobs.size()).toEqual(1);
     }
 
     @Test
