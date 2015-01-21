@@ -4,6 +4,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.playlists.LoadLikedPlaylistsCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -29,13 +30,14 @@ public class LikeOperationsTest {
 
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
+    @Mock private LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
     @Mock private SyncInitiator syncInitiator;
 
     private Scheduler scheduler = Schedulers.immediate();
 
     @Before
     public void setUp() throws Exception {
-        operations = new LikeOperations(loadLikedTracksCommand, scheduler, syncInitiator);
+        operations = new LikeOperations(loadLikedTracksCommand, loadLikedPlaylistsCommand, syncInitiator, scheduler);
     }
 
     @Test

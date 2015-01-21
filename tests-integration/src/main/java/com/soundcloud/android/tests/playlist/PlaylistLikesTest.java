@@ -28,7 +28,7 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
         menuScreen.open();
         PlaylistsScreen playlistsScreen = menuScreen.clickPlaylist();
         playlistsScreen.touchLikedPlaylistsTab();
-        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
+        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistOnCurrentPageAt(0);
         assertEquals("Should go to Playlist screen", true, playlistDetailsScreen.isVisible());
     }
 

@@ -131,7 +131,7 @@ public class SoundStreamFragment extends LightCycleFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.sound_stream_fragment, container, false);
+        return inflater.inflate(R.layout.default_list_with_refresh, container, false);
     }
 
     @Override

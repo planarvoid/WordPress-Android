@@ -1,14 +1,14 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
-import com.soundcloud.android.R;
 
-import android.widget.AbsListView;
+import android.widget.ListView;
 
 public class PlaylistsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -22,10 +22,8 @@ public class PlaylistsScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public PlaylistDetailsScreen clickPlaylist(With matcher) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.scrollToBottom(getCurrentListView());
-        testDriver.findElement(matcher).click();
+    public PlaylistDetailsScreen clickPlaylistOnCurrentPageAt(int index) {
+        playlistsListOnCurrentPage().getItemAt(index).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
@@ -47,8 +45,8 @@ public class PlaylistsScreen extends Screen {
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
-    private AbsListView getCurrentListView() {
-        return testDriver.getCurrentListView();
+    private ListElement playlistsListOnCurrentPage() {
+        return new ListElement(getViewPager().getCurrentPage(ListView.class), testDriver.getSolo());
     }
 
     private void touchTab(String tabText) {
