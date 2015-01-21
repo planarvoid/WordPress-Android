@@ -34,7 +34,7 @@ import javax.inject.Inject;
 
 public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<PublicApiResource> {
 
-    private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
+    private static final String FACEBOOK_PKG_NAME = "com.facebook.application.";
 
     @Inject PublicCloudAPI oldCloudAPI;
     @Nullable private ResolveFetchTask resolveTask;
@@ -72,7 +72,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
             Uri data = intent.getData();
 
             final boolean shouldResolve = data != null &&
-                    (Intent.ACTION_VIEW.equals(intent.getAction()) || handleFacebookView(this, intent));
+                    (Intent.ACTION_VIEW.equals(intent.getAction()) || isFacebookAction(intent));
 
             if (shouldResolve) {
                 fetchData(data);
@@ -146,17 +146,20 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         startActivity(intent);
     }
 
-    public String getFacebookAppId(Context context) {
-        return context.getString(R.string.production_facebook_app_id);
-    }
-
-    public boolean handleFacebookView(Context context, Intent intent) {
-        if (intent == null || intent.getAction() == null) {
+    public boolean isFacebookAction(Intent intent) {
+        if(intent == null || intent.getAction() == null) {
             return false;
         } else {
-            String actionForSoundCloud = COM_FACEBOOK_APPLICATION + getFacebookAppId(context);
-            return intent.getAction().equals(actionForSoundCloud);
+            return intent.getAction().equals(getActionForSoundCloud(this));
         }
+    }
+
+    private static String getActionForSoundCloud(Context context) {
+        return FACEBOOK_PKG_NAME + getFacebookAppId(context);
+    }
+
+    private static String getFacebookAppId(Context context) {
+        return context.getString(R.string.production_facebook_app_id);
     }
 }
 

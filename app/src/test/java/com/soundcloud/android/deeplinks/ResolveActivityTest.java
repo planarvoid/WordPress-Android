@@ -91,10 +91,22 @@ public class ResolveActivityTest {
     }
 
     @Test
+    public void shouldNotDetectFacebookIntentForNullIntent() throws Exception {
+        expect(activity.isFacebookAction(null)).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotDetectFacebookIntentForIntentWithoutAction() throws Exception {
+        expect(activity.isFacebookAction(new Intent())).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotDetectFacebookIntentForIntentWithIncorrectAppId() throws Exception {
+        expect(activity.isFacebookAction(new Intent("com.facebook.application.123"))).toBeFalse();
+    }
+
+    @Test
     public void shouldDetectFacebookIntent() throws Exception {
-        expect(activity.handleFacebookView(Robolectric.application, null)).toBeFalse();
-        expect(activity.handleFacebookView(Robolectric.application, new Intent())).toBeFalse();
-        expect(activity.handleFacebookView(Robolectric.application, new Intent("com.facebook.application.123"))).toBeFalse();
-        expect(activity.handleFacebookView(Robolectric.application, new Intent("com.facebook.application.19507961798"))).toBeTrue();
+        expect(activity.isFacebookAction(new Intent("com.facebook.application.19507961798"))).toBeTrue();
     }
 }
