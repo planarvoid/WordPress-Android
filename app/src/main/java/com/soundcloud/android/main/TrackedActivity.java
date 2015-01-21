@@ -5,7 +5,6 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 

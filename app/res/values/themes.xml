@@ -42,6 +42,7 @@
 
     <style name="Theme.SoundCloud.NoActionBar">
         <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
     </style>
 
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">
@@ -54,10 +55,6 @@
 
     <style name="Theme.ScCreate" parent="Theme.SoundCloud">
         <item name="android:windowBackground">@color/dark_gray_background</item>
-    </style>
-
-    <style name="Theme.Recover" parent="Theme.SoundCloud.NoActionBar">
-        <item name="android:colorBackground">@color/dark_gray_background</item>
     </style>
 
     <style name="Theme.Onboard" parent="Theme.SoundCloud">
