@@ -1,39 +1,37 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.associations.SoundAssociationOperations;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.offline.commands.StoreTrackDownloadsCommand;
+import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
-import rx.functions.Func1;
+import rx.Scheduler;
 
 import javax.inject.Inject;
-import java.util.List;
+import javax.inject.Named;
 
 public class OfflineContentOperations {
 
-    private final SoundAssociationOperations associationOperations;
-    private final TrackDownloadsStorage trackDownloadStorage;
+    private final LikeOperations likeOperations;
+    private final StoreTrackDownloadsCommand storeTrackDownloads;
     private final OfflineSettingsStorage settingsStorage;
-
-    private final Func1<List<Urn>, Observable<TxnResult>> storeDownloadRequests = new Func1<List<Urn>, Observable<TxnResult>>() {
-        @Override
-        public Observable<TxnResult> call(List<Urn> tracks) {
-            return trackDownloadStorage.filterAndStoreNewDownloadRequests(tracks);
-        }
-    };
+    private final Scheduler scheduler;
 
     @Inject
-    public OfflineContentOperations(TrackDownloadsStorage trackDownloadStorage,
-                                    SoundAssociationOperations operations, OfflineSettingsStorage settingsStorage) {
-        this.trackDownloadStorage = trackDownloadStorage;
-        this.associationOperations = operations;
+    public OfflineContentOperations(StoreTrackDownloadsCommand storeTrackDownloads,
+                                    LikeOperations operations,
+                                    OfflineSettingsStorage settingsStorage,
+                                    @Named("Storage") Scheduler scheduler) {
+        this.storeTrackDownloads = storeTrackDownloads;
+        this.likeOperations = operations;
         this.settingsStorage = settingsStorage;
+        this.scheduler = scheduler;
     }
 
-    public Observable<TxnResult> updateOfflineLikes() {
-        return associationOperations
-                .getLikedTracks()
-                .flatMap(storeDownloadRequests);
+    public Observable<WriteResult> updateOfflineLikes() {
+        return likeOperations
+                .likedTrackUrns()
+                .flatMap(storeTrackDownloads)
+                .subscribeOn(scheduler);
     }
 
     public void setLikesOfflineSync(boolean isEnabled) {

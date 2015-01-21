@@ -5,7 +5,7 @@ import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
@@ -31,9 +31,9 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<Object, Observable<TxnResult>> updateOfflineLikes = new Func1<Object, Observable<TxnResult>>() {
+    private final Func1<Object, Observable<WriteResult>> updateOfflineLikes = new Func1<Object, Observable<WriteResult>>() {
         @Override
-        public Observable<TxnResult> call(Object ignored) {
+        public Observable<WriteResult> call(Object ignored) {
             return operations.updateOfflineLikes();
         }
     };

@@ -2,13 +2,14 @@ package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -19,13 +20,6 @@ import java.util.List;
 
 class DownloadOperations {
 
-    private final Action1<DownloadResult> updateDownloadCompleted = new Action1<DownloadResult>() {
-        @Override
-        public void call(DownloadResult result) {
-            downloadsStorage.updateDownload(result);
-        }
-    };
-
     private final Func1<DownloadRequest, Observable<DownloadResult>> toDownloadResult = new Func1<DownloadRequest, Observable<DownloadResult>>() {
         @Override
         public Observable<DownloadResult> call(DownloadRequest request) {
@@ -35,26 +29,30 @@ class DownloadOperations {
 
     private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
-    private final TrackDownloadsStorage downloadsStorage;
+    private final LoadPendingDownloadsCommand loadPendingDownloads;
+    private final StoreCompletedDownloadCommand updateCompletedDownload;
     private final Scheduler scheduler;
 
     @Inject
     public DownloadOperations(StrictSSLHttpClient httpClient, SecureFileStorage fileStorage,
-                              TrackDownloadsStorage downloadsStorage) {
-        this(httpClient, fileStorage, downloadsStorage, ScSchedulers.SEQUENTIAL_SYNCING_SCHEDULER);
+                              LoadPendingDownloadsCommand loadPending, StoreCompletedDownloadCommand updateDownload) {
+        this(httpClient, fileStorage, loadPending, updateDownload, ScSchedulers.SEQUENTIAL_SYNCING_SCHEDULER);
     }
 
     @VisibleForTesting
     protected DownloadOperations(StrictSSLHttpClient httpClient, SecureFileStorage fileStorage,
-                                 TrackDownloadsStorage downloadsStorage, @Named("API") Scheduler scheduler) {
+                                 LoadPendingDownloadsCommand loadPending,
+                                 StoreCompletedDownloadCommand updateCompleted,
+                                 @Named("API") Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
-        this.downloadsStorage = downloadsStorage;
+        this.updateCompletedDownload = updateCompleted;
+        this.loadPendingDownloads = loadPending;
         this.scheduler = scheduler;
     }
 
     public Observable<List<DownloadRequest>> pendingDownloads() {
-        return downloadsStorage.getPendingDownloads();
+        return loadPendingDownloads.toObservable();
     }
 
     public Observable<DownloadResult> processDownloadRequests(List<DownloadRequest> requests) {
@@ -63,7 +61,7 @@ class DownloadOperations {
 
     private Observable<DownloadResult> processSequentialDownloadRequest(final DownloadRequest track) {
         return fetchSingleTrack(track)
-                .doOnNext(updateDownloadCompleted)
+                .doOnNext(updateCompletedDownload.toAction())
                 .subscribeOn(scheduler);
     }
 

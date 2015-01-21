@@ -25,11 +25,12 @@ import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LikeOperationsTest {
-    
+
     private LikeOperations operations;
 
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
+    @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     @Mock private LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
     @Mock private SyncInitiator syncInitiator;
 
@@ -37,7 +38,8 @@ public class LikeOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new LikeOperations(loadLikedTracksCommand, loadLikedPlaylistsCommand, syncInitiator, scheduler);
+        operations = new LikeOperations(loadLikedTracksCommand, loadLikedTrackUrnsCommand, loadLikedPlaylistsCommand,
+                syncInitiator, scheduler);
     }
 
     @Test

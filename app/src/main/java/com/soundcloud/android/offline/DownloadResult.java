@@ -9,7 +9,7 @@ public final class DownloadResult {
     private final boolean isSuccessful;
     private final long downloadedAt;
 
-    DownloadResult(boolean success, Urn urn) {
+    public DownloadResult(boolean success, Urn urn) {
         this.urn = urn;
         this.isSuccessful = success;
         this.downloadedAt = System.currentTimeMillis();

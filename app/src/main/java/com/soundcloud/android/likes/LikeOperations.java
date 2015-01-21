@@ -1,5 +1,7 @@
 package com.soundcloud.android.likes;
 
+
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadLikedPlaylistsCommand;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -19,16 +21,19 @@ public class LikeOperations {
 
     private final LoadLikedTracksCommand loadLikedTracksCommand;
     private final LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
+    private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
 
     @Inject
     public LikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
+                          LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                           LoadLikedPlaylistsCommand loadLikedPlaylistsCommand,
                           SyncInitiator syncInitiator,
                           @Named("Storage") Scheduler scheduler) {
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.loadLikedPlaylistsCommand = loadLikedPlaylistsCommand;
+        this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
     }
@@ -65,4 +70,7 @@ public class LikeOperations {
         return loadLikedPlaylistsCommand.toObservable().subscribeOn(scheduler);
     }
 
+    public Observable<List<Urn>> likedTrackUrns() {
+        return loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler);
+    }
 }
