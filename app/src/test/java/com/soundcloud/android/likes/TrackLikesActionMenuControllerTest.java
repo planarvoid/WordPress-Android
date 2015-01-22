@@ -5,8 +5,7 @@ import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_S
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
-import com.soundcloud.android.actionbar.menu.SyncActionMenuController;
+import com.soundcloud.android.actionbar.menu.ActionMenuController;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -16,65 +15,85 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+
+import javax.inject.Provider;
+
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesActionMenuControllerTest {
 
-    @Mock private SyncActionMenuController syncActionMenuController;
-    @Mock private DefaultActionMenuController defaultActionMenuControllerProvider;
+    @Mock private ActionMenuController actionMenuController;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
+    @Mock private Fragment fragment;
+    @Mock private FragmentActivity activity;
 
     private TrackLikesActionMenuController controller;
 
     @Before
     public void setUp() throws Exception {
-        controller = new TrackLikesActionMenuController(syncActionMenuController,
-                defaultActionMenuControllerProvider,
-                featureOperations,
+        controller = new TrackLikesActionMenuController(
+                new Provider<ActionMenuController>() {
+                    @Override
+                    public ActionMenuController get() {
+                        return actionMenuController;
+                    }
+                },
                 offlineOperations);
+        when(fragment.getActivity()).thenReturn(activity);
     }
 
     @Test
-    public void onCreateMenuWhenLikesOfflineSyncIsEnabledSetsSyncActionMenuToRemoveSyncState() {
+    public void onCreateMenuWhenLikesOfflineSyncIsEnabledSetsActionMenuToRemoveSyncState() {
         when(offlineOperations.getSettingsStatus()).thenReturn(Observable.<Boolean>empty());
         when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(true);
         when(offlineOperations.isLikesOfflineSyncEnabled()).thenReturn(true);
 
-        controller.onResume();
+        controller.onResume(fragment);
         controller.onCreateOptionsMenu(null, null);
 
-        verify(syncActionMenuController).setState(STATE_REMOVE_SYNC);
+        verify(actionMenuController).setState(STATE_REMOVE_SYNC);
     }
 
     @Test
-    public void onCreateMenuWhenLikesOfflineSyncIsDisabledSetsSyncActionMenuToStartSyncState() {
+    public void onCreateMenuWhenLikesOfflineSyncIsDisabledSetsActionMenuToStartSyncState() {
         when(offlineOperations.getSettingsStatus()).thenReturn(Observable.<Boolean>empty());
         when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(true);
         when(offlineOperations.isLikesOfflineSyncEnabled()).thenReturn(false);
 
-        controller.onResume();
+        controller.onResume(fragment);
         controller.onCreateOptionsMenu(null, null);
 
-        verify(syncActionMenuController).setState(STATE_START_SYNC);
+        verify(actionMenuController).setState(STATE_START_SYNC);
     }
 
     @Test
-    public void likeSettingsEnableEventSetsSyncActionMenuToRemoveSyncState() {
+    public void likeSettingsEnableEventSetsActionMenuToRemoveSyncState() {
         when(offlineOperations.getSettingsStatus()).thenReturn(Observable.just(true));
         when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(true);
 
-        controller.onResume();
+        controller.onResume(fragment);
 
-        verify(syncActionMenuController).setState(STATE_REMOVE_SYNC);
+        verify(actionMenuController).setState(STATE_REMOVE_SYNC);
     }
 
     @Test
-    public void likeSettingsDisableEventSetsSyncActionMenuToStartSyncState() {
+    public void likeSettingsDisableEventSetsActionMenuToStartSyncState() {
         when(offlineOperations.getSettingsStatus()).thenReturn(Observable.just(false));
         when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(true);
 
-        controller.onResume();
+        controller.onResume(fragment);
 
-        verify(syncActionMenuController).setState(STATE_START_SYNC);
+        verify(actionMenuController).setState(STATE_START_SYNC);
+    }
+
+    @Test
+    public void onResumeInvalidatesOptionsMenu() {
+        when(offlineOperations.getSettingsStatus()).thenReturn(Observable.<Boolean>empty());
+
+        controller.onResume(fragment);
+
+        verify(activity).supportInvalidateOptionsMenu();
     }
 }

@@ -146,7 +146,7 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public void onResume() {
         super.onResume();
-        actionMenuController.onResume();
+        actionMenuController.onResume(this);
     }
 
     @Override
