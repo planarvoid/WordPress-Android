@@ -169,7 +169,6 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        boolean splashVisible = true;
 
         httpProperties = new HttpProperties();
         applicationProperties = new ApplicationProperties(getResources());
@@ -183,16 +182,11 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
             accountAuthenticatorResponse.onRequestContinued();
         }
 
-        if (bundle != null) {
-            // don't show splash screen on config changes
-            splashVisible = false;
-        }
-
-        setTourLayout(splashVisible);
+        showTour(bundle == null);
         setButtonListeners();
     }
 
-    private void setTourLayout(boolean splashVisible) {
+    private void showTour(boolean splashVisible) {
         setContentView(R.layout.start);
         overridePendingTransition(0, 0);
 
