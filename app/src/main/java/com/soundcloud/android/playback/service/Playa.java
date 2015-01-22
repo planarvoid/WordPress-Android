@@ -15,6 +15,7 @@ import java.util.EnumSet;
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
 public interface Playa {
 
+    @Deprecated // remove this when we get rid of or simplify mediaplayer
     void play(PropertySet track);
     void play(PropertySet track, long fromPos);
     void playUninterrupted(PropertySet track);
