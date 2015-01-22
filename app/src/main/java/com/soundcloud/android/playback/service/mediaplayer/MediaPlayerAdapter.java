@@ -131,6 +131,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         play(track);
     }
 
+    @Override
+    public void playOffline(PropertySet track, long fromPos) {
+        throw new IllegalStateException("MediaPlayer cannot play offline content!!");
+    }
+
     private class MediaPlayerDataSourceObserver extends DefaultSubscriber<Uri> {
         @Override
         public void onError(Throwable e) {

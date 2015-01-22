@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.net.Uri;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,4 +77,18 @@ public class SecureFileStorageTest {
         expect(file.exists()).toBeTrue();
     }
 
+    @Test
+    public void returnsFileUriForTrack() throws Exception {
+        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.fromFile(getEncryptedFile()));
+    }
+
+    @Test
+    public void returnsEmptyUriWhenUnableToGenerateFileUri() throws Exception {
+        when(operations.generateHashForUrn(TRACK_URN)).thenThrow(new EncryptionException("problems", new IOException()));
+        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.fromFile(getEncryptedFile()));
+    }
+
+    private File getEncryptedFile() {
+        return new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+    }
 }

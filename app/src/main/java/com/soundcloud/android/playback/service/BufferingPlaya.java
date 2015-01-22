@@ -13,7 +13,6 @@ public class BufferingPlaya implements Playa {
         // no-op
     }
 
-
     @Override
     public void play(PropertySet track) {
         // no-op
@@ -26,7 +25,12 @@ public class BufferingPlaya implements Playa {
 
     @Override
     public void playUninterrupted(PropertySet track) {
+        // no-op
+    }
 
+    @Override
+    public void playOffline(PropertySet track, long fromPos) {
+        // no-op
     }
 
     @Override

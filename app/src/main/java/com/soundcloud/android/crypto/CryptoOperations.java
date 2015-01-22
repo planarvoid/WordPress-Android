@@ -65,7 +65,7 @@ public class CryptoOperations {
         encryptor.encrypt(stream, outputStream, secret);
     }
 
-    private synchronized DeviceSecret checkAndGetDeviceKey() {
+    public synchronized DeviceSecret checkAndGetDeviceKey() {
         if (!storage.contains(DEVICE_KEY)) {
             generateAndStoreDeviceKey();
         }
