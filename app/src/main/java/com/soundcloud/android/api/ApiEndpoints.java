@@ -41,8 +41,8 @@ public enum ApiEndpoints {
     CHECKOUT_URN("/checkout/%s"),
 
     // likes
-    LIKED_TRACKS("/users/%s/tracks/liked/urns"),
-    LIKED_PLAYLISTS("/users/%s/playlists/liked/urns"),
+    LIKED_TRACKS("/likes/tracks"),
+    LIKED_PLAYLISTS("/likes/playlists"),
 
     // other
     EXPERIMENTS("/experiments/%s"),
