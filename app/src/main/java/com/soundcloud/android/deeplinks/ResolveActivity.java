@@ -147,19 +147,15 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     }
 
     public boolean isFacebookAction(Intent intent) {
-        if(intent == null || intent.getAction() == null) {
-            return false;
-        } else {
-            return intent.getAction().equals(getActionForSoundCloud(this));
-        }
+        return intent != null && intent.getAction() != null && intent.getAction().equals(getActionForSoundCloud());
     }
 
-    private static String getActionForSoundCloud(Context context) {
-        return FACEBOOK_PKG_NAME + getFacebookAppId(context);
+    private String getActionForSoundCloud() {
+        return FACEBOOK_PKG_NAME + getFacebookAppId();
     }
 
-    private static String getFacebookAppId(Context context) {
-        return context.getString(R.string.production_facebook_app_id);
+    private String getFacebookAppId() {
+        return getString(R.string.production_facebook_app_id);
     }
 }
 
