@@ -186,7 +186,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
         setButtonListeners();
     }
 
-    private void showTour(boolean splashVisible) {
+    private void showTour(boolean isNotConfigChange) {
         setContentView(R.layout.start);
         overridePendingTransition(0, 0);
 
@@ -210,14 +210,14 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
 
         setState(StartState.TOUR);
 
-        if (splashVisible) {
+        if (isNotConfigChange) {
             trackTourScreen();
         }
 
         TourLayout.load(this, tourPages.toArray(new TourLayout[tourPages.size()]));
 
         final View splash = findViewById(R.id.splash);
-        splash.setVisibility(splashVisible ? View.VISIBLE : View.GONE);
+        splash.setVisibility(isNotConfigChange ? View.VISIBLE : View.GONE);
 
         tourPages.get(0).setLoadHandler(new TourHandler(this, splash));
     }
