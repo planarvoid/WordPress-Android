@@ -25,7 +25,7 @@ public class OfflineContentOperationsTest {
     @Mock private LikeOperations likeOperations;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private StoreTrackDownloadsCommand storeTrackDownloads;
-    
+
     private final Urn TRACK_URN = Urn.forTrack(123L);
     private final List<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
 
@@ -33,8 +33,8 @@ public class OfflineContentOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        offlineOperations =
-                new OfflineContentOperations(storeTrackDownloads, likeOperations, settingsStorage, Schedulers.immediate());
+        offlineOperations = new OfflineContentOperations(storeTrackDownloads, likeOperations,
+                settingsStorage, Schedulers.immediate());
 
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(LIKED_TRACKS));
     }

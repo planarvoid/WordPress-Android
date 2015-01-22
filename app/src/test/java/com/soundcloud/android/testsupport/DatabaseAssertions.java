@@ -141,6 +141,12 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.TrackDownloads.REQUESTED_AT, timestamp)), counts(1));
     }
 
+    public void assertDownloadPendingRemoval(Urn trackUrn) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
+                .whereNotNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
+    }
+
     protected QueryBinding select(Query query) {
         return new QueryBinding(this.database, query);
     }

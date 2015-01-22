@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -26,14 +27,14 @@ public class StoreTrackDownloadsCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void filterAndStoreNewDownloadRequestsSavesRequestedDownloads() throws PropellerWriteException {
+    public void storeNewDownloadRequestsSavesRequestedDownloads() throws PropellerWriteException {
         command.with(TRACK_URNS).call();
 
         databaseAssertions().assertDownloadRequestsInserted(TRACK_URNS);
     }
 
     @Test
-    public void filterAndStoreNewDownloadRequestsDoesNotOverrideExistingRecords() throws PropellerWriteException {
+    public void storeNewDownloadRequestsDoesNotOverrideExistingRecords() throws PropellerWriteException {
         final long timestamp = 100;
         testFixtures().insertRequestedTrackDownload(TRACK_URN1, timestamp);
 
@@ -43,4 +44,12 @@ public class StoreTrackDownloadsCommandTest extends StorageIntegrationTest {
         databaseAssertions().assertDownloadRequestsInserted(Arrays.asList(TRACK_URN2));
     }
 
+    @Test
+    public void updatesToPendingRemovalWhenNotInLikesAnymore() throws PropellerWriteException {
+        testFixtures().insertRequestedTrackDownload(TRACK_URN1, 100);
+
+        command.with(Collections.<Urn>emptyList()).call();
+
+        databaseAssertions().assertDownloadPendingRemoval(TRACK_URN1);
+    }
 }

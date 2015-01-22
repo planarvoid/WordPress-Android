@@ -195,7 +195,7 @@ final class DatabaseSchema {
 
     static final String DATABASE_CREATE_TRACK_DOWNLOADS = "(" +
             "_id INTEGER PRIMARY KEY," +
-            "requested_at INTEGER NOT NULL," +
+            "requested_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
             "downloaded_at INTEGER DEFAULT NULL," +
             "removed_at INTEGER DEFAULT NULL" + // track marked for deletion
             ");";

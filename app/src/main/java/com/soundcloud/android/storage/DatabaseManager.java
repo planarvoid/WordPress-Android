@@ -16,7 +16,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 36;
+    public static final int DATABASE_VERSION = 35;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -97,9 +97,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 35:
                             success = upgradeTo35(db, oldVersion);
-                            break;
-                        case 36:
-                            success = upgradeTo36(db, oldVersion);
                             break;
                         default:
                             break;
@@ -277,22 +274,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     /**
      * Added removed_at column to TrackDownloads table
+     * Recreate SoundView and descendents after adding downloaded_at and removed_at
      */
     private static boolean upgradeTo35(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.TrackDownloads.alterColumns(db);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 35);
-        }
-        return false;
-    }
-
-    /**
-     * Recreate SoundView and descendents after adding downloaded_at and removed_at
-     */
-    private static boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
-        try {
+            Table.TrackDownloads.recreate(db);
             Table.SoundView.recreate(db);
             Table.SoundAssociationView.recreate(db);
             Table.PlaylistTracksView.recreate(db);
@@ -300,13 +286,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Table.ActivityView.recreate(db);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 36);
+            handleUpgradeException(exception, oldVersion, 35);
         }
         return false;
     }
-
-
-
 
     private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
         final String message =
