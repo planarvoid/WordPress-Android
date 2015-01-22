@@ -12,6 +12,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,6 @@ import android.content.Intent;
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentControllerTest {
 
-    @Mock private TrackDownloadsStorage storage;
     @Mock private OfflineContentOperations operations;
 
     private OfflineContentController controller;
@@ -40,7 +40,7 @@ public class OfflineContentControllerTest {
         offlineLikesSyncObservable = PublishSubject.create();
         when(operations.isLikesOfflineSyncEnabled()).thenReturn(true);
         when(operations.getSettingsStatus()).thenReturn(offlineLikesSyncObservable.asObservable());
-        when(operations.updateOfflineLikes()).thenReturn(Observable.just(new TxnResult()));
+        when(operations.updateOfflineLikes()).thenReturn(Observable.<WriteResult>empty());
         controller = new OfflineContentController(eventBus, operations, Robolectric.application);
     }
 
@@ -99,7 +99,7 @@ public class OfflineContentControllerTest {
 
     @Test
     public void likeUpdateStartsOfflineContentService() {
-        when(operations.updateOfflineLikes()).thenReturn(Observable.just(new TxnResult()));
+        when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
 
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, createLikeEvent());

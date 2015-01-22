@@ -1,20 +1,20 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
@@ -31,8 +31,9 @@ public class DownloadOperationsTest {
 
     @Mock private StrictSSLHttpClient httpClient;
     @Mock private SecureFileStorage fileStorage;
-    @Mock private TrackDownloadsStorage downloadsStorage;
     @Mock private InputStream inputStream;
+    @Mock private LoadPendingDownloadsCommand loadDownloadsCommand;
+    @Mock private StoreCompletedDownloadCommand updateDownloadCommand;
 
     private DownloadOperations operations;
     private TestObserver<DownloadResult> observer;
@@ -43,10 +44,10 @@ public class DownloadOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new DownloadOperations(httpClient, fileStorage, downloadsStorage, Schedulers.immediate());
+        operations = new DownloadOperations(httpClient, fileStorage, loadDownloadsCommand, updateDownloadCommand, Schedulers.immediate());
         observer = new TestObserver<>();
 
-        when(downloadsStorage.getPendingDownloads()).thenReturn(listOf1PendingDownload());
+        when(loadDownloadsCommand.toObservable()).thenReturn(listOf1PendingDownload());
     }
 
     @Test
@@ -54,7 +55,7 @@ public class DownloadOperationsTest {
         final TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
         operations.pendingDownloads().subscribe(observer);
 
-        verify(downloadsStorage).getPendingDownloads();
+        verify(loadDownloadsCommand).toObservable();
     }
 
     @Test
@@ -80,10 +81,7 @@ public class DownloadOperationsTest {
         when(httpClient.downloadFile(TRACK1_STREAM_URL)).thenReturn(inputStream);
 
         operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
-
-        ArgumentCaptor<DownloadResult> captor = ArgumentCaptor.forClass(DownloadResult.class);
-        verify(downloadsStorage).updateDownload(captor.capture());
-        expect(captor.getValue().getUrn()).toEqual(TRACK1_URN);
+        expect(updateDownloadCommand.getInput().getUrn()).toEqual(TRACK1_URN);
     }
 
     @Test
@@ -91,7 +89,7 @@ public class DownloadOperationsTest {
         when(httpClient.downloadFile(TRACK1_STREAM_URL)).thenThrow(new IOException("Test IOException"));
 
         operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
-        verify(downloadsStorage, never()).updateDownload(any(DownloadResult.class));
+        verifyZeroInteractions(updateDownloadCommand);
     }
 
     @Test
@@ -102,7 +100,7 @@ public class DownloadOperationsTest {
                 .when(fileStorage).storeTrack(TRACK1_URN, inputStream);
 
         operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
-        verify(downloadsStorage, never()).updateDownload(any(DownloadResult.class));
+        verifyZeroInteractions(updateDownloadCommand);
         verify(inputStream).close();
     }
 

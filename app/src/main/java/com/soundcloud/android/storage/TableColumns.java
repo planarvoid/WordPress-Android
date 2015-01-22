@@ -283,6 +283,7 @@ public final class TableColumns {
     public final static class TrackDownloads implements BaseColumns {
         public static final String REQUESTED_AT = "requested_at";
         public static final String DOWNLOADED_AT = "downloaded_at";
+        public static final String REMOVED_AT = "removed_at";
     }
 
     public static class SoundView extends ResourceTable implements BaseColumns {

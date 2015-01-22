@@ -334,10 +334,26 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertRequestedTrackDownload(long timestamp, Urn trackUrn) {
+    public long insertRequestedTrackDownload(Urn trackUrn, long addedTimestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, timestamp);
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, addedTimestamp);
+        return insertInto(Table.TrackDownloads, cv);
+    }
+
+    public long insertCompletedTrackDownload(Urn trackUrn, long completedTimestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, completedTimestamp);
+        cv.put(TableColumns.TrackDownloads.DOWNLOADED_AT, completedTimestamp);
+        return insertInto(Table.TrackDownloads, cv);
+    }
+
+    public long insertTrackDownloadPendingRemoval(Urn trackUrn, long removedAtTimestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, removedAtTimestamp);
+        cv.put(TableColumns.TrackDownloads.REMOVED_AT, removedAtTimestamp);
         return insertInto(Table.TrackDownloads, cv);
     }
 
