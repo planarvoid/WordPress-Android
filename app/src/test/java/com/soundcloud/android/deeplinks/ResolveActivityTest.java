@@ -89,12 +89,7 @@ public class ResolveActivityTest {
         expected.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
         expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
-
-    @Test
-    public void shouldNotDetectFacebookIntentForNullIntent() throws Exception {
-        expect(activity.isFacebookAction(null)).toBeFalse();
-    }
-
+    
     @Test
     public void shouldNotDetectFacebookIntentForIntentWithoutAction() throws Exception {
         expect(activity.isFacebookAction(new Intent())).toBeFalse();
