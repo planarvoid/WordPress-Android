@@ -18,6 +18,7 @@ public interface Playa {
     void play(PropertySet track);
     void play(PropertySet track, long fromPos);
     void playUninterrupted(PropertySet track);
+    void playOffline(PropertySet track, long fromPos);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);
