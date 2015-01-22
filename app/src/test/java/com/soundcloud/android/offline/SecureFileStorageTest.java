@@ -85,7 +85,7 @@ public class SecureFileStorageTest {
     @Test
     public void returnsEmptyUriWhenUnableToGenerateFileUri() throws Exception {
         when(operations.generateHashForUrn(TRACK_URN)).thenThrow(new EncryptionException("problems", new IOException()));
-        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.fromFile(getEncryptedFile()));
+        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.EMPTY);
     }
 
     private File getEncryptedFile() {
