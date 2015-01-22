@@ -59,7 +59,7 @@ public class SyncActionMenuControllerTest {
     public void clickStartSyncNameOnOfflineSyncAvailableShowsSyncLikesDialog() {
         MenuItem item = mock(MenuItem.class);
         when(item.getItemId()).thenReturn(R.id.action_start_sync);
-        when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(true);
+        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
 
         controller.onOptionsItemSelected(fragment, item);
 
@@ -70,7 +70,7 @@ public class SyncActionMenuControllerTest {
     public void clickStartSyncNameOnOfflineSyncUnavailableShowsUpsell() {
         MenuItem item = mock(MenuItem.class);
         when(item.getItemId()).thenReturn(R.id.action_start_sync);
-        when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(false);
+        when(featureOperations.isOfflineSyncUpsellEnabled()).thenReturn(false);
 
         controller.onOptionsItemSelected(fragment, item);
 

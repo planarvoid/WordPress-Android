@@ -45,7 +45,7 @@ public class LikesModuleTest {
 
     @Test
     public void providesSyncActionMenuControllerWhenOfflineSyncEnabled() {
-        when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)).thenReturn(true);
+        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
 
         ActionMenuController actionMenuController = module.provideTrackLikesActionMenuController(syncActionMenuControllerProvider,
                 defaultActionMenuControllerProvider, featureOperations);
@@ -55,7 +55,7 @@ public class LikesModuleTest {
 
     @Test
     public void providesSyncActionMenuControllerWhenOfflineSyncUpsell() {
-        when(featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC_UPSELL, false)).thenReturn(true);
+        when(featureOperations.isOfflineSyncUpsellEnabled()).thenReturn(true);
 
         ActionMenuController actionMenuController = module.provideTrackLikesActionMenuController(syncActionMenuControllerProvider,
                 defaultActionMenuControllerProvider, featureOperations);

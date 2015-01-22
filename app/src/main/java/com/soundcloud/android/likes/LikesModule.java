@@ -28,8 +28,7 @@ public class LikesModule {
     }
 
     private boolean shouldShowSyncOptions(FeatureOperations featureOperations) {
-        return featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)
-                || featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC_UPSELL, false);
+        return featureOperations.isOfflineSyncEnabled() || featureOperations.isOfflineSyncUpsellEnabled();
     }
 
 }

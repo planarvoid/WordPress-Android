@@ -55,9 +55,8 @@ public class SyncActionMenuController implements ActionMenuController {
     public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_start_sync:
-                if (featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)) {
-                    syncLikesDialogProvider.get()
-                            .show(fragment.getFragmentManager());
+                if (featureOperations.isOfflineSyncEnabled()) {
+                    syncLikesDialogProvider.get().show(fragment.getFragmentManager());
                 } else {
                     upsell(fragment);
                 }
