@@ -15,6 +15,7 @@ import android.content.Context;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.net.ProxySelector;
 
 @Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class, LocalyticsPushReceiver.class})
 public class AnalyticsModule {
@@ -42,4 +43,10 @@ public class AnalyticsModule {
     LocalyticsAmpSession provideLocalyticsSession(Context context, AnalyticsProperties analyticsProperties) {
         return new LocalyticsAmpSession(context, analyticsProperties.getLocalyticsAppKey());
     }
+
+    @Provides
+    ProxySelector provideProxySelector() {
+        return ProxySelector.getDefault();
+    }
+
 }
