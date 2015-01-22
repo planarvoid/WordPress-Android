@@ -169,7 +169,11 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        boolean splashVisible = true;
+
         httpProperties = new HttpProperties();
+        applicationProperties = new ApplicationProperties(getResources());
+        oldCloudAPI = new PublicApi(this);
 
         eventBus = SoundCloudApplication.fromContext(this).getEventBus();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
@@ -179,9 +183,17 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
             accountAuthenticatorResponse.onRequestContinued();
         }
 
-        setContentView(R.layout.start);
+        if (bundle != null) {
+            // don't show splash screen on config changes
+            splashVisible = false;
+        }
 
-        oldCloudAPI = new PublicApi(this);
+        setTourLayout(splashVisible);
+        setButtonListeners();
+    }
+
+    private void setTourLayout(boolean splashVisible) {
+        setContentView(R.layout.start);
         overridePendingTransition(0, 0);
 
         tourBottomBar = findViewById(R.id.tour_bottom_bar);
@@ -198,9 +210,26 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
         // randomize for variety
         Collections.shuffle(tourPages);
 
-        applicationProperties = new ApplicationProperties(getResources());
+        viewPager.setAdapter(buildTourAdapter());
+        viewPager.setCurrentItem(0);
+        viewPager.setOnPageChangeListener(buildOnPageChangeListener());
 
-        viewPager.setAdapter(new PagerAdapter() {
+        setState(StartState.TOUR);
+
+        if (splashVisible) {
+            trackTourScreen();
+        }
+
+        TourLayout.load(this, tourPages.toArray(new TourLayout[tourPages.size()]));
+
+        final View splash = findViewById(R.id.splash);
+        splash.setVisibility(splashVisible ? View.VISIBLE : View.GONE);
+
+        tourPages.get(0).setLoadHandler(new TourHandler(this, splash));
+    }
+
+    private PagerAdapter buildTourAdapter() {
+        return new PagerAdapter() {
             @Override
             public int getCount() {
                 return tourPages.size();
@@ -225,10 +254,11 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
             public boolean isViewFromObject(View view, Object object) {
                 return object == view;
             }
-        });
+        };
+    }
 
-        viewPager.setCurrentItem(0);
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+    private ViewPager.OnPageChangeListener buildOnPageChangeListener() {
+        return new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
             }
@@ -246,8 +276,10 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
             @Override
             public void onPageScrollStateChanged(int i) {
             }
-        });
+        };
+    }
 
+    private void setButtonListeners() {
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -271,19 +303,6 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
                 }
             }
         });
-
-        setState(StartState.TOUR);
-        if (bundle == null) {
-            trackTourScreen();
-        }
-
-        TourLayout.load(this, tourPages.toArray(new TourLayout[tourPages.size()]));
-
-        final View splash = findViewById(R.id.splash);
-        // don't show splash screen on config changes
-        splash.setVisibility(bundle == null ? View.VISIBLE : View.GONE);
-
-        tourPages.get(0).setLoadHandler(new TourHandler(this, splash));
     }
 
     @Override
@@ -388,65 +407,49 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     public void setState(StartState state, boolean animated) {
         this.state = state;
 
-        // check for nulls when hiding to avoid unnecessary instantiation
         switch (this.state) {
             case TOUR:
                 onHideOverlay(animated);
                 break;
-
             case LOGIN:
                 lastAuthState = StartState.LOGIN;
-                if (signUp != null) {
-                    hideView(this, getSignUp(), animated);
-                }
-                if (userDetails != null) {
-                    hideView(this, getUserDetails(), animated);
-                }
-                if (acceptTerms != null) {
-                    hideView(this, getAcceptTerms(), animated);
-                }
+                hideViews(state, animated);
                 showOverlay(getLogin(), animated);
                 break;
 
             case SIGN_UP:
                 lastAuthState = StartState.SIGN_UP;
-                if (login != null) {
-                    hideView(this, getLogin(), animated);
-                }
-                if (userDetails != null) {
-                    hideView(this, getUserDetails(), animated);
-                }
-                if (acceptTerms != null) {
-                    hideView(this, getAcceptTerms(), animated);
-                }
+                hideViews(state, animated);
                 showOverlay(getSignUp(), animated);
                 break;
 
             case SIGN_UP_DETAILS:
-                if (login != null) {
-                    hideView(this, getLogin(), animated);
-                }
-                if (signUp != null) {
-                    hideView(this, getSignUp(), animated);
-                }
-                if (acceptTerms != null) {
-                    hideView(this, getAcceptTerms(), animated);
-                }
+                hideViews(state, animated);
                 showOverlay(getUserDetails(), animated);
                 break;
 
             case ACCEPT_TERMS:
-                if (login != null) {
-                    hideView(this, getLogin(), false);
-                }
-                if (signUp != null) {
-                    hideView(this, getSignUp(), false);
-                }
-                if (userDetails != null) {
-                    hideView(this, getUserDetails(), false);
-                }
+                hideViews(state, animated);
                 showOverlay(getAcceptTerms(), animated);
                 break;
+        }
+    }
+
+    private void hideViews(StartState state, boolean animated) {
+        if (state != StartState.LOGIN && login != null) {
+            hideView(this, getLogin(), animated);
+        }
+
+        if (state != StartState.SIGN_UP && signUp != null) {
+            hideView(this, getSignUp(), animated);
+        }
+
+        if (state != StartState.SIGN_UP_DETAILS && userDetails != null) {
+            hideView(this, getUserDetails(), animated);
+        }
+
+        if (state != StartState.ACCEPT_TERMS && acceptTerms != null) {
+            hideView(this, getAcceptTerms(), animated);
         }
     }
 
