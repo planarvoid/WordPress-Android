@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.commands.LoadDownloadsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.StoreTrackDownloadsCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -18,11 +19,13 @@ import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentOperationsTest {
 
     @Mock private LikeOperations likeOperations;
+    @Mock private LoadDownloadsPendingRemovalCommand downloadsPendingRemoval;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private StoreTrackDownloadsCommand storeTrackDownloads;
 
@@ -33,10 +36,22 @@ public class OfflineContentOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        offlineOperations = new OfflineContentOperations(storeTrackDownloads, likeOperations,
-                settingsStorage, Schedulers.immediate());
+        offlineOperations = new OfflineContentOperations(
+                storeTrackDownloads,
+                downloadsPendingRemoval,
+                likeOperations,
+                settingsStorage,
+                Schedulers.immediate());
 
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(LIKED_TRACKS));
+        when(downloadsPendingRemoval.toObservable()).thenReturn(Observable.<List<Urn>>empty());
+    }
+
+    @Test
+    public void pendingRemovalUsesATimeOffset() {
+        offlineOperations.pendingRemovals().subscribe();
+
+        expect(downloadsPendingRemoval.getInput()).toEqual(TimeUnit.MINUTES.toMillis(3));
     }
 
     @Test
