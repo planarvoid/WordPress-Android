@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import org.junit.Before;
@@ -24,7 +25,7 @@ public class SyncRequestFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        syncRequestFactory = new SyncRequestFactory(syncIntentFactory, lazyOf(syncTrackLikesJob), lazyOf(syncPlaylistLikesJob));
+        syncRequestFactory = new SyncRequestFactory(syncIntentFactory, lazyOf(syncTrackLikesJob), lazyOf(syncPlaylistLikesJob), new TestEventBus());
     }
 
     @Test

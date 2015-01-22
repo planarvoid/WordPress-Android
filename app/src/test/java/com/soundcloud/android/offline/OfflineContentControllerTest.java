@@ -11,6 +11,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
@@ -115,6 +117,52 @@ public class OfflineContentControllerTest {
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
         expect(startService.getAction()).toEqual("action_download_tracks");
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+    }
+
+    @Test
+    public void startsOfflineContentServiceWhenLikeSyncedLikesWithChange() {
+        when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService.getAction()).toEqual("action_download_tracks");
+        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+    }
+
+    @Test
+    public void doeNotStartOfflineContentServiceWhenLikeSyncedLikesWithoutChqnge() {
+        when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, false));
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
+    }
+
+
+    @Test
+    public void doeNotStartOfflineContentServiceWhenLikeSyncedFailed() {
+        when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.failure(SyncActions.SYNC_TRACK_LIKES, new RuntimeException("for testing")));
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
+    }
+
+    @Test
+    public void doeNotStartOfflineContentServiceWhenPlaylistSynced() {
+        when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.failure(SyncActions.SYNC_PLAYLIST_LIKES, new RuntimeException("for testing")));
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
     }
 
     @Test

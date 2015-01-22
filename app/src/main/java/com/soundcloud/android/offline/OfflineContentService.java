@@ -72,7 +72,6 @@ public class OfflineContentService extends Service {
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
         if (ACTION_DOWNLOAD_TRACKS.equalsIgnoreCase(action)) {
-
             subscription.unsubscribe();
             subscription = downloadOperations
                     .pendingDownloads()

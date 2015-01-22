@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.likes.SingleJobRequest;
@@ -15,25 +16,27 @@ public class SyncRequestFactory {
     private final LegacySyncRequest.Factory syncIntentFactory;
     private final Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob;
     private final Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob;
+    private final EventBus eventBus;
 
     @Inject
     public SyncRequestFactory(LegacySyncRequest.Factory syncIntentFactory,
                               Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
-                              Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob) {
+                              Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob, EventBus eventBus) {
         this.syncIntentFactory = syncIntentFactory;
         this.lazySyncTrackLikesJob =  lazySyncTrackLikesJob;
         this.lazySyncPlaylistLikesJob = lazySyncPlaylistLikesJob;
+        this.eventBus = eventBus;
     }
 
     public SyncRequest create(Intent intent) {
 
         if (SyncActions.SYNC_TRACK_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncTrackLikesJob.get(), intent.getAction(),
-                    true, getReceiverFromIntent(intent));
+                    true, getReceiverFromIntent(intent), eventBus);
 
         } else if (SyncActions.SYNC_PLAYLIST_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncPlaylistLikesJob.get(), intent.getAction(), true,
-                    getReceiverFromIntent(intent));
+                    getReceiverFromIntent(intent), eventBus);
         }
 
         return syncIntentFactory.create(intent);

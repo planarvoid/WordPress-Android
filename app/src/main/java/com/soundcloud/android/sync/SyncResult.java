@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync;
 
+import com.google.common.base.Objects;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -67,5 +69,24 @@ public final class SyncResult implements Parcelable {
         dest.writeString(this.action);
         dest.writeByte(wasChanged ? (byte) 1 : (byte) 0);
         dest.writeSerializable(this.exception);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SyncResult)) {
+            return false;
+        }
+        SyncResult that = (SyncResult) o;
+        return Objects.equal(wasChanged, that.wasChanged)
+                && Objects.equal(action, that.action)
+                && Objects.equal(exception, that.exception);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(wasChanged, action, exception);
     }
 }

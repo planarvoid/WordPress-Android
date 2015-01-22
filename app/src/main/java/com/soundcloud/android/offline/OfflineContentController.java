@@ -4,6 +4,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.functions.Func1;
@@ -35,9 +37,9 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<PlayableUpdatedEvent, Boolean> isOfflineLikesEnabled = new Func1<PlayableUpdatedEvent, Boolean>() {
+    private final Func1<Object, Boolean> isOfflineLikesEnabled = new Func1<Object, Boolean>() {
         @Override
-        public Boolean call(PlayableUpdatedEvent playableUpdatedEvent) {
+        public Boolean call(Object ignored) {
             return operations.isLikesOfflineSyncEnabled();
         }
     };
@@ -58,6 +60,13 @@ public class OfflineContentController {
                 settingsStatusObservable
                         .flatMap(updateOfflineLikes)
                         .subscribe(new StartOfflineContentServiceSubscriber()),
+
+                eventBus.queue(EventQueue.SYNC_RESULT)
+                        .filter(isOfflineLikesEnabled)
+                        .filter(IS_LIKES_SYNC_FILTER)
+                        .flatMap(updateOfflineLikes)
+                        .subscribe(new StartOfflineContentServiceSubscriber()),
+
                 eventBus.queue(EventQueue.PLAYABLE_CHANGED)
                         .filter(isOfflineLikesEnabled)
                         .filter(IS_TRACK_LIKED_FILTER)
@@ -77,4 +86,12 @@ public class OfflineContentController {
             OfflineContentService.syncOfflineContent(context);
         }
     }
+
+    public static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return syncResult.wasChanged()
+                    && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
+        }
+    };
 }
