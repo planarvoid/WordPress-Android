@@ -1,4 +1,4 @@
-package com.soundcloud.android.onboarding.auth;
+package com.soundcloud.android.onboarding;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Matchers.anyInt;
@@ -18,9 +18,9 @@ import android.os.Bundle;
 
 
 @RunWith(SoundCloudTestRunner.class)
-public class AbstractLoginActivityTest {
+public class OnboardActivityTest {
 
-    private AbstractLoginActivity activity;
+    private OnboardActivity activity;
 
     @Mock private AccountAuthenticatorResponse accountAuthenticatorResponse;
     @Mock private Intent intent;
@@ -28,7 +28,7 @@ public class AbstractLoginActivityTest {
 
     @Before
     public void setup() throws Exception {
-        activity = new AbstractLoginActivity() {
+        activity = new OnboardActivity() {
             @Override
             protected boolean wasAuthorizedViaSignupScreen() {
                 return false;

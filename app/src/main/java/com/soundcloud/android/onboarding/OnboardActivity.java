@@ -12,21 +12,25 @@ import com.facebook.Session;
 import com.facebook.SessionLoginBehavior;
 import com.facebook.SessionState;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
+import com.soundcloud.android.onboarding.auth.AuthTaskFragment;
 import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.onboarding.auth.LoginLayout;
 import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
@@ -39,6 +43,8 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
@@ -49,6 +55,8 @@ import com.soundcloud.android.utils.images.ImageUtils;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import org.jetbrains.annotations.Nullable;
 
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -59,6 +67,8 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -68,6 +78,7 @@ import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -75,8 +86,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
-public class OnboardActivity extends AbstractLoginActivity implements ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
+public class OnboardActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener, ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 
     public static final int DIALOG_PICK_IMAGE = 1;
     private static final String FOREGROUND_TAG = "foreground";
@@ -91,6 +103,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
     private static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends");
     private static final String DEFAULT_FACEBOOK_PUBLISH_PERMISSION = "publish_actions";
+    private static final String LOGIN_DIALOG_TAG = "login_dialog";
+    private static final String SIGNUP_WITH_CAPTCHA_URI = "https://soundcloud.com/connect?c=true&highlight=signup&client_id=%s&redirect_uri=soundcloud://auth&response_type=code&scope=non-expiring";
+
     private StartState lastAuthState;
     private StartState state = StartState.TOUR;
     private String lastGoogleAccountSelected;
@@ -102,6 +117,20 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Nullable private SignUpLayout signUp;
     @Nullable private UserDetailsLayout userDetails;
     @Nullable private AcceptTermsLayout acceptTerms;
+
+    /**
+     * Extracted account authenticator functions. Extracted because of Fragment usage, we have to extend FragmentActivity.
+     * See {@link android.accounts.AccountAuthenticatorActivity} for documentation
+     */
+    private AccountAuthenticatorResponse accountAuthenticatorResponse;
+    private Bundle resultBundle;
+
+    private HttpProperties httpProperties;
+
+    // a bullshit fix for https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f4054fabb27481b26624a
+    // We need to redo onboarding, so this is just a quick fix to prevent the crashes during the sign in flow
+    private boolean isBeingDestroyed = false;
+
     private final Animation.AnimationListener hideScrollViewListener = new Animation.AnimationListener() {
         @Override
         public void onAnimationStart(Animation animation) {
@@ -137,12 +166,21 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private Session currentFacebookSession;
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        httpProperties = new HttpProperties();
+
+        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
+
+        accountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+        if (accountAuthenticatorResponse != null) {
+            accountAuthenticatorResponse.onRequestContinued();
+        }
 
         setContentView(R.layout.start);
 
-        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
         oldCloudAPI = new PublicApi(this);
         overridePendingTransition(0, 0);
 
@@ -156,10 +194,11 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         tourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
         tourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
         tourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
-        applicationProperties = new ApplicationProperties(getResources());
+
         // randomize for variety
         Collections.shuffle(tourPages);
 
+        applicationProperties = new ApplicationProperties(getResources());
 
         viewPager.setAdapter(new PagerAdapter() {
             @Override
@@ -245,6 +284,19 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         splash.setVisibility(bundle == null ? View.VISIBLE : View.GONE);
 
         tourPages.get(0).setLoadHandler(new TourHandler(this, splash));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isBeingDestroyed = false;
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this.getClass()));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(this.getClass()));
     }
 
     @Override
@@ -497,7 +549,25 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_USER_DETAILS));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
-            super.onAuthTaskComplete(user, via, false, showFacebookSuggestions);
+            final Bundle result = new Bundle();
+            result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+            result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+            boolean wasSignup = via != SignupVia.NONE;
+            resultBundle = result;
+
+            sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
+                    .putExtra(PublicApiUser.EXTRA_ID, user.getId())
+                    .putExtra(SignupVia.EXTRA, via.name));
+
+            if (wasSignup || wasAuthorizedViaSignupScreen()) {
+                startActivity(new Intent(this, SuggestedUsersActivity.class)
+                        .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, showFacebookSuggestions)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            } else {
+                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            }
+
+            finish();
         }
     }
 
@@ -530,6 +600,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        isBeingDestroyed = true;
         super.onSaveInstanceState(outState);
 
         outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
@@ -566,7 +637,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         setState(state, false);
     }
 
-    @Override
     protected boolean wasAuthorizedViaSignupScreen() {
         return lastAuthState == StartState.SIGN_UP;
     }
@@ -822,4 +892,122 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
     }
 
+    public void finish() {
+        if (accountAuthenticatorResponse != null) {
+            // send the result bundle back if set, otherwise send an error.
+            if (resultBundle != null) {
+                accountAuthenticatorResponse.onResult(resultBundle);
+            } else {
+                accountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
+            }
+            accountAuthenticatorResponse = null;
+        }
+        super.finish();
+    }
+
+
+    /**
+     * Used for creating SoundCloud account from Facebook SDK
+     *
+     * @param data contains grant data and FB token
+     */
+    protected void login(Bundle data) {
+        if (!isBeingDestroyed) {
+            LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        }
+    }
+
+
+    @Override
+    public void onError(String message) {
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(TextUtils.isEmpty(message) ? getString(R.string.authentication_signup_error_message) : message)
+                .setPositiveButton(android.R.string.ok, null);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupGeneralError());
+    }
+
+    @Override
+    public void onEmailTaken() {
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(R.string.authentication_email_taken_message)
+                .setPositiveButton(android.R.string.ok, null);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupExistingEmail());
+    }
+
+    @Override
+    public void onSpam() {
+        final SpamDialogOnClickListener spamDialogOnClickListener = new SpamDialogOnClickListener();
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(R.string.authentication_captcha_message)
+                .setPositiveButton(getString(R.string.try_again), spamDialogOnClickListener)
+                .setNeutralButton(getString(R.string.cancel), spamDialogOnClickListener);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupServeCaptcha());
+    }
+
+    @Override
+    public void onBlocked() {
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_blocked_title)
+                .setMessage(R.string.authentication_blocked_message)
+                .setPositiveButton(R.string.close, null);
+        showDialogWithHiperLinksAndTrackEvent(dialogBuilder, OnboardingEvent.signupDenied());
+    }
+
+    @Override
+    public void onEmailInvalid() {
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(R.string.authentication_email_invalid_message)
+                .setPositiveButton(android.R.string.ok, null);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupInvalidEmail());
+    }
+
+    private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
+        if (!isFinishing()) {
+            dialogBuilder
+                    .create()
+                    .show();
+            eventBus.publish(EventQueue.ONBOARDING, event);
+        }
+    }
+
+    private void showDialogWithHiperLinksAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
+        if (!isFinishing()) {
+            final AlertDialog alertDialog = dialogBuilder.create();
+            alertDialog.show();
+
+            final TextView messageView = (TextView) alertDialog.findViewById(android.R.id.message);
+            messageView.setMovementMethod(LinkMovementMethod.getInstance());
+
+            eventBus.publish(EventQueue.ONBOARDING, event);
+        }
+    }
+
+    private AlertDialog.Builder createDefaultAuthErrorDialogBuilder(int title) {
+        return new AlertDialog.Builder(OnboardActivity.this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(getString(title));
+    }
+
+    private class SpamDialogOnClickListener implements DialogInterface.OnClickListener {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    onCaptchaRequested();
+                    dialog.dismiss();
+                    break;
+                default:
+                    dialog.dismiss();
+            }
+        }
+    }
+
+    private void onCaptchaRequested() {
+        String uriString = String.format(Locale.US, SIGNUP_WITH_CAPTCHA_URI, httpProperties.getClientId());
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
+        startActivity(intent);
+    }
+
+    protected void setBundle(Bundle bundle) {
+        this.resultBundle = bundle;
+    }
 }
