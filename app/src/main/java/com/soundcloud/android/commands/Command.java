@@ -21,11 +21,7 @@ public abstract class Command<I, O, This extends Command<I, O, This>> implements
     }
 
     public Observable<O> toObservable() {
-        return toObservable(input);
-    }
-
-    public Observable<O> toObservable(final I input) {
-        return Observable.create(OperatorFromFunctionals.fromCallable(with(input)));
+        return Observable.create(OperatorFromFunctionals.fromCallable(this));
     }
 
     public final Action1<I> toAction() {
@@ -43,11 +39,11 @@ public abstract class Command<I, O, This extends Command<I, O, This>> implements
 
     @Override
     public final Observable<O> call(I i) {
-        return toObservable(i);
+        return with(i).toObservable();
     }
 
     public final <R> Observable<R> flatMap(Command<O, R, ?> command) {
-        return toObservable(input).flatMap(command);
+        return toObservable().flatMap(command);
     }
 
     public final <R, CmdT extends Command<? super O, R, ?>> CmdT andThen(CmdT command) throws Exception {

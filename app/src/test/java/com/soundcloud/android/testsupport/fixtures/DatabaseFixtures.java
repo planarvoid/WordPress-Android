@@ -62,6 +62,7 @@ public class DatabaseFixtures {
     public long insertDescription(Urn trackUrn, String description) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.DESCRIPTION, description);
         return insertInto(Table.Sounds, cv);
     }

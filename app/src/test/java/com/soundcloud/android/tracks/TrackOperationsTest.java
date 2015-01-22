@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +13,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.BulkStorage;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.observers.TestObserver;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackOperationsTest {
@@ -28,6 +29,7 @@ public class TrackOperationsTest {
     public static final String TITLE = "title";
     public static final String CREATOR = "creator";
     public static final String DESCRIPTION = "Description...";
+
     private TrackOperations trackOperations;
 
     private Urn trackUrn = Urn.forTrack(123L);
@@ -36,15 +38,18 @@ public class TrackOperationsTest {
     private PropertySet trackDescription;
     private TestEventBus eventBus;
 
-    @Mock private TrackStorage trackStorage;
+    @Mock private LoadTrackCommand loadTrack;
+    @Mock private LoadTrackDescriptionCommand loadTrackDescription;
     @Mock private AccountOperations accountOperations;
     @Mock private BulkStorage bulkStorage;
     @Mock private SyncInitiator syncInitiator;
 
+    private TestObserver<PropertySet> observer = new TestObserver<>();
+
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        trackOperations = new TrackOperations(trackStorage, accountOperations, eventBus, syncInitiator);
+        trackOperations = new TrackOperations(loadTrack, loadTrackDescription, eventBus, syncInitiator);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = PropertySet.from(TrackProperty.URN.bind(trackUrn),
@@ -55,29 +60,38 @@ public class TrackOperationsTest {
     }
 
     @Test
-    public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() {
-        when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(track));
-        expect(trackOperations.track(trackUrn).toBlocking().last()).toBe(track);
+    public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() throws Exception {
+        when(loadTrack.toObservable()).thenReturn(Observable.just(track));
+
+        trackOperations.track(trackUrn).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(track);
+        expect(loadTrack.getInput()).toEqual(trackUrn);
     }
 
     @Test
     public void trackUsesSyncerToBackfillMissingTrack() {
-        final Observable<PropertySet> emptyObservable = Observable.empty();
+        final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(trackUrn, userUrn)).thenReturn(emptyObservable);
+        when(loadTrack.toObservable()).thenReturn(Observable.<PropertySet>empty(), Observable.just(syncedTrack));
 
-        expect(trackOperations.track(trackUrn).toBlocking().toIterable()).toBeEmpty();
+        trackOperations.track(trackUrn).subscribe(observer);
 
-        verify(trackStorage, times(2)).track(trackUrn, userUrn);
+        expect(loadTrack.getInput()).toEqual(trackUrn);
+        expect(observer.getOnNextEvents()).toContainExactly(syncedTrack);
+        verify(syncInitiator).syncTrack(trackUrn);
     }
 
     @Test
     public void fullTrackWithUpdateReturnsTrackDetailsFromStorage() {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.<Boolean>empty());
-        when(trackStorage.track(trackUrn, userUrn)).thenReturn(Observable.just(track));
-        when(trackStorage.trackDetails(trackUrn)).thenReturn(Observable.just(trackDescription));
+        when(loadTrack.toObservable()).thenReturn(Observable.just(track));
+        when(loadTrackDescription.toObservable()).thenReturn(Observable.just(trackDescription));
 
-        final PropertySet first = trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().first();
+        trackOperations.fullTrackWithUpdate(trackUrn).subscribe(observer);
+
+        final PropertySet first = observer.getOnNextEvents().get(0);
+        expect(loadTrack.getInput()).toEqual(trackUrn);
         expect(first.get(PlayableProperty.TITLE)).toEqual(TITLE);
         expect(first.get(PlayableProperty.CREATOR_NAME)).toEqual(CREATOR);
         expect(first.get(TrackProperty.DESCRIPTION)).toEqual(DESCRIPTION);
@@ -86,24 +100,26 @@ public class TrackOperationsTest {
     @Test
     public void fullTrackWithUpdateEmitsTrackFromStorageTwice() throws CreateModelException {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(track));
-        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(trackDescription));
+        when(loadTrack.toObservable()).thenReturn(Observable.just(track));
+        when(loadTrackDescription.toObservable()).thenReturn(Observable.just(trackDescription));
 
-        expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toEqual(
-                track.merge(trackDescription));
+        trackOperations.fullTrackWithUpdate(trackUrn).subscribe(observer);
 
-        verify(trackStorage, times(2)).track(trackUrn, userUrn);
+        final PropertySet propertySet = track.merge(trackDescription);
+        expect(observer.getOnNextEvents()).toContainExactly(propertySet, propertySet);
+        expect(loadTrack.getInput()).toEqual(trackUrn);
+        verify(loadTrack, times(2)).toObservable();
     }
 
     @Test
     public void fullTrackWithUpdatePublishesPlayableChangedEvent() throws CreateModelException {
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.track(any(Urn.class), any(Urn.class))).thenReturn(Observable.just(track));
-        when(trackStorage.trackDetails(any(Urn.class))).thenReturn(Observable.just(trackDescription));
+        when(loadTrack.toObservable()).thenReturn(Observable.just(track));
+        when(loadTrackDescription.toObservable()).thenReturn(Observable.just(trackDescription));
 
-        expect(trackOperations.fullTrackWithUpdate(trackUrn).toBlocking().last()).toEqual(
-                track.merge(trackDescription));
+        trackOperations.fullTrackWithUpdate(trackUrn).subscribe();
 
+        expect(loadTrack.getInput()).toEqual(trackUrn);
         expect(eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet()).toEqual(
                 track.merge(trackDescription));
     }

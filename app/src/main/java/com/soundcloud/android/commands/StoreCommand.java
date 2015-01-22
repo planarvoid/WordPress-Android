@@ -26,7 +26,7 @@ public abstract class StoreCommand<I> extends Command<I, WriteResult, StoreComma
     protected abstract WriteResult store();
 
     @Override
-    public Observable<WriteResult> toObservable(I input) {
-        return super.toObservable(input).subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
+    public Observable<WriteResult> toObservable() {
+        return super.toObservable().subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 }
