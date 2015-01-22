@@ -2,7 +2,6 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.WriteResult;
@@ -25,9 +24,7 @@ public class OfflineContentController {
     private static final Func1<PlayableUpdatedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<PlayableUpdatedEvent, Boolean>() {
         @Override
         public Boolean call(PlayableUpdatedEvent event) {
-            return event.getUrn().isTrack()
-                    && event.isFromLike()
-                    && event.getChangeSet().get(PlayableProperty.IS_LIKED);
+            return event.getUrn().isTrack() && event.isFromLike();
         }
     };
 

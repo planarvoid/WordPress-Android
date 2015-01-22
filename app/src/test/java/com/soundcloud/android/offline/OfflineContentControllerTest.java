@@ -53,6 +53,14 @@ public class OfflineContentControllerTest {
     }
 
     @Test
+    public void enqueueTracksAfterPlayableChangedFromUnlikeEvent() {
+        controller.subscribe();
+        eventBus.publish(EventQueue.PLAYABLE_CHANGED, createUnlikeEvent());
+
+        verify(operations).updateOfflineLikes();
+    }
+
+    @Test
     public void doesNotEnqueueTracksWhenOfflineSyncOfLikesIsDisabled() {
         when(operations.isLikesOfflineSyncEnabled()).thenReturn(false);
 
@@ -137,5 +145,9 @@ public class OfflineContentControllerTest {
 
     private PlayableUpdatedEvent createLikeEvent() {
         return PlayableUpdatedEvent.forLike(TRACK_URN, true, 10);
+    }
+
+    private PlayableUpdatedEvent createUnlikeEvent() {
+        return PlayableUpdatedEvent.forLike(TRACK_URN, false, 10);
     }
 }
