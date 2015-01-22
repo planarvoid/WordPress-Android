@@ -6,10 +6,10 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
-import com.soundcloud.android.actionbar.menu.ActionMenuController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -35,7 +35,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Provider;
 import java.util.List;
 
@@ -62,7 +61,8 @@ public class TrackLikesFragment extends LightCycleFragment
     @Inject ShuffleViewController shuffleViewController;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
-    @Inject @Named("LikedTracks") ActionMenuController actionMenuController;
+    @Inject OfflineContentOperations offlineOperations;
+    @Inject TrackLikesActionMenuController actionMenuController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private ConnectableObservable<List<PropertySet>> observable;
@@ -70,6 +70,7 @@ public class TrackLikesFragment extends LightCycleFragment
 
     public TrackLikesFragment() {
         setRetainInstance(true);
+        setHasOptionsMenu(true);
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponents();
     }
@@ -81,7 +82,8 @@ public class TrackLikesFragment extends LightCycleFragment
                        PullToRefreshController pullToRefreshController,
                        ShuffleViewController shuffleViewController,
                        PlaybackOperations playbackOperations,
-                       ActionMenuController syncActionMenuController,
+                       OfflineContentOperations offlineOperations,
+                       TrackLikesActionMenuController actionMenuController,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.adapter = adapter;
         this.likeOperations = likeOperations;
@@ -89,7 +91,8 @@ public class TrackLikesFragment extends LightCycleFragment
         this.pullToRefreshController = pullToRefreshController;
         this.shuffleViewController = shuffleViewController;
         this.playbackOperations = playbackOperations;
-        this.actionMenuController = syncActionMenuController;
+        this.offlineOperations = offlineOperations;
+        this.actionMenuController = actionMenuController;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         addLifeCycleComponents();
     }
@@ -107,9 +110,9 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setRetainInstance(true);
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
         connectionSubscription = connectObservable(buildObservable());
-        actionMenuController.onCreate(this);
     }
 
     @Override
@@ -138,6 +141,18 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return actionMenuController.onOptionsItemSelected(this, item);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        actionMenuController.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        actionMenuController.onPause();
     }
 
     @Override

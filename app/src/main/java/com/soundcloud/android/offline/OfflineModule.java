@@ -11,7 +11,8 @@ import javax.inject.Named;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 OfflineContentService.class,
-                OfflineSettingsStorage.class
+                OfflineSettingsStorage.class,
+                SyncLikesDialog.class
         })
 public class OfflineModule {
 

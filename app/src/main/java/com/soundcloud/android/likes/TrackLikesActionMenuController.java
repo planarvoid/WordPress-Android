@@ -1,0 +1,87 @@
+package com.soundcloud.android.likes;
+
+import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_REMOVE_SYNC;
+import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_START_SYNC;
+
+import com.soundcloud.android.actionbar.menu.ActionMenuController;
+import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
+import com.soundcloud.android.actionbar.menu.SyncActionMenuController;
+import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+
+import android.support.v4.app.Fragment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
+import javax.inject.Inject;
+
+public class TrackLikesActionMenuController {
+
+    private final SyncActionMenuController syncActionMenuController;
+    private final DefaultActionMenuController defaultActionMenuControllerProvider;
+    private final FeatureOperations featureOperations;
+    private final OfflineContentOperations offlineOperations;
+
+    private ActionMenuController actionMenuController;
+    private Subscription subscription = Subscriptions.empty();
+
+    @Inject
+    public TrackLikesActionMenuController(SyncActionMenuController syncActionMenuController,
+                                          DefaultActionMenuController defaultActionMenuControllerProvider,
+                                          FeatureOperations featureOperations, OfflineContentOperations offlineOperations) {
+        this.syncActionMenuController = syncActionMenuController;
+        this.defaultActionMenuControllerProvider = defaultActionMenuControllerProvider;
+        this.featureOperations = featureOperations;
+        this.offlineOperations = offlineOperations;
+    }
+
+    public void onResume() {
+        if (shouldShowSyncOptions()) {
+            actionMenuController = syncActionMenuController;
+        } else {
+            actionMenuController = defaultActionMenuControllerProvider;
+        }
+
+        subscription = offlineOperations.getSettingsStatus().subscribe(new OfflineLikesSettingSubscriber());
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        actionMenuController.onCreateOptionsMenu(menu, inflater);
+        updateOfflineLikesState();
+    }
+
+    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
+        return actionMenuController.onOptionsItemSelected(fragment, item);
+    }
+
+    public void onPause() {
+        subscription.unsubscribe();
+    }
+
+    private boolean shouldShowSyncOptions() {
+        return featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)
+                || featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC_UPSELL, false);
+    }
+
+    private void updateOfflineLikesState() {
+        setOfflineLikesSelected(offlineOperations.isLikesOfflineSyncEnabled());
+    }
+
+    private void setOfflineLikesSelected(boolean offlineLikes) {
+        actionMenuController.setState(offlineLikes
+                ? STATE_REMOVE_SYNC
+                : STATE_START_SYNC);
+    }
+
+    private class OfflineLikesSettingSubscriber extends DefaultSubscriber<Boolean> {
+        @Override
+        public void onNext(Boolean offlineLikes) {
+            setOfflineLikesSelected(offlineLikes);
+        }
+    }
+
+}

@@ -8,6 +8,7 @@ import java.util.Map;
 public class FeatureOperations {
 
     public static final String OFFLINE_SYNC = "offline_sync";
+    public static final String OFFLINE_SYNC_UPSELL = "offline_sync_upsell";
 
     private final FeatureStorage featureStorage;
 

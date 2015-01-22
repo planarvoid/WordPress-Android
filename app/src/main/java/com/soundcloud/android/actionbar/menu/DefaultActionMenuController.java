@@ -32,11 +32,6 @@ public class DefaultActionMenuController implements ActionMenuController {
     }
 
     @Override
-    public void onCreate(Fragment fragment) {
-        fragment.setHasOptionsMenu(true);
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         inflater.inflate(R.menu.main, menu);
@@ -65,5 +60,10 @@ public class DefaultActionMenuController implements ActionMenuController {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public void setState(int state) {
+        // No-op
     }
 }

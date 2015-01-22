@@ -2,29 +2,40 @@ package com.soundcloud.android.actionbar.menu;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.SyncLikesDialog;
+import com.soundcloud.android.payments.SubscribeActivity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class SyncActionMenuController implements ActionMenuController {
 
     private final CastConnectionHelper castConnectionHelper;
+    private final FeatureOperations featureOperations;
+    private final OfflineContentOperations offlineOperations;
+    private final Provider<SyncLikesDialog> syncLikesDialogProvider;
+
     private MenuItem startSync;
     private MenuItem syncing;
     private MenuItem removeSync;
 
     @Inject
-    public SyncActionMenuController(CastConnectionHelper castConnectionHelper) {
+    public SyncActionMenuController(CastConnectionHelper castConnectionHelper, FeatureOperations featureOperations,
+                                    OfflineContentOperations offlineOperations,
+                                    Provider<SyncLikesDialog> syncLikesDialogProvider) {
         this.castConnectionHelper = castConnectionHelper;
-    }
-
-    @Override
-    public void onCreate(Fragment fragment) {
-        fragment.setHasOptionsMenu(true);
+        this.featureOperations = featureOperations;
+        this.offlineOperations = offlineOperations;
+        this.syncLikesDialogProvider = syncLikesDialogProvider;
     }
 
     @Override
@@ -44,32 +55,57 @@ public class SyncActionMenuController implements ActionMenuController {
     public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_start_sync:
-                // To be implemented
+                if (featureOperations.isEnabled(FeatureOperations.OFFLINE_SYNC, false)) {
+                    syncLikesDialogProvider.get()
+                            .show(fragment.getFragmentManager());
+                } else {
+                    upsell(fragment);
+                }
                 return true;
             case R.id.action_syncing:
-                // To be implemented
+                // TODO
                 return true;
             case R.id.action_remove_sync:
-                // To be implemented
+                offlineOperations.setLikesOfflineSync(false);
                 return true;
             default:
                 return false;
         }
     }
 
-    public void showStartSync() {
+    private void upsell(Fragment fragment) {
+        final Activity activity = fragment.getActivity();
+        activity.startActivity(new Intent(activity, SubscribeActivity.class));
+    }
+
+    @Override
+    public void setState(int state) {
+        switch (state) {
+            case STATE_START_SYNC:
+                showStartSync();
+                break;
+            case STATE_SYNCING:
+                showSyncing();
+                break;
+            case STATE_REMOVE_SYNC:
+                showRemoveSync();
+                break;
+        }
+    }
+
+    private void showStartSync() {
         startSync.setVisible(true);
         syncing.setVisible(false);
         removeSync.setVisible(false);
     }
 
-    public void showSyncing() {
+    private void showSyncing() {
         startSync.setVisible(false);
         syncing.setVisible(true);
         removeSync.setVisible(false);
     }
 
-    public void showRemoveSync() {
+    private void showRemoveSync() {
         startSync.setVisible(false);
         syncing.setVisible(false);
         removeSync.setVisible(true);

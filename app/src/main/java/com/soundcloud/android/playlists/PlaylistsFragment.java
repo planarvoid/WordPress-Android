@@ -32,7 +32,7 @@ public class PlaylistsFragment extends LightCycleFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        defaultActionMenuController.onCreate(this);
+        setHasOptionsMenu(true);
     }
 
     @Override
