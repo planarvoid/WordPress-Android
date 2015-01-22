@@ -304,12 +304,18 @@ final class DatabaseSchema {
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +
             ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundView.USER_AVATAR_URL +
+            ",TrackDownloads." + TableColumns.TrackDownloads.DOWNLOADED_AT + " as " + TableColumns.SoundView.OFFLINE_DOWNLOADED_AT +
+            ",TrackDownloads." + TableColumns.TrackDownloads.REMOVED_AT + " as " + TableColumns.SoundView.OFFLINE_REMOVED_AT +
             ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.PLAY_COUNT + ", 0) as " + TableColumns.SoundView.USER_PLAY_COUNT +
             ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.CACHED + ", 0) as " + TableColumns.SoundView.CACHED +
             ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.TYPE + ", 0) as " + TableColumns.SoundView._TYPE +
             " FROM Sounds" +
             " LEFT JOIN Users ON(" +
             "   Sounds." + TableColumns.Sounds.USER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+            " LEFT OUTER JOIN TrackDownloads " +
+            "   ON (Sounds." + TableColumns.Sounds._ID + " = " + "TrackDownloads." + TableColumns.TrackDownloads._ID + " AND " +
+            "   Sounds." + TableColumns.Sounds._TYPE + " = " + TableColumns.Sounds.TYPE_TRACK + ")" +
+
             " LEFT OUTER JOIN TrackMetadata ON(" +
             "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")";
 

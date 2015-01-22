@@ -329,10 +329,15 @@ public final class TableColumns {
         public static final String USER_REPOST = "sound_user_repost";
         public static final String USER_PLAY_COUNT = "sound_user_play_count";
 
+        public static final String OFFLINE_DOWNLOADED_AT = "sound_offline_downloaded_at";
+        public static final String OFFLINE_REMOVED_AT = "sound_offline_removed_at";
+
+        @Deprecated
         public static final String CACHED = "sound_cached";
 
         public static final String[] ALL_VIEW_FIELDS = {
-                USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT, CACHED
+                USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT,
+                OFFLINE_DOWNLOADED_AT, OFFLINE_REMOVED_AT, CACHED
         };
         public static final String[] ALL_FIELDS;
 

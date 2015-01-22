@@ -98,6 +98,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 35:
                             success = upgradeTo35(db, oldVersion);
                             break;
+                        case 36:
+                            success = upgradeTo36(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -284,6 +287,25 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    /**
+     * Recreate SoundView and descendents after adding downloaded_at and removed_at
+     */
+    private static boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.SoundView.recreate(db);
+            Table.SoundAssociationView.recreate(db);
+            Table.PlaylistTracksView.recreate(db);
+            Table.SoundStreamView.recreate(db);
+            Table.ActivityView.recreate(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 36);
+        }
+        return false;
+    }
+
+
 
 
     private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {

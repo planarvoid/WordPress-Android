@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Date;
+
 @RunWith(SoundCloudTestRunner.class)
 public class LoadTrackCommandTest extends StorageIntegrationTest {
 
@@ -29,6 +31,30 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         PropertySet track = command.with(apiTrack.getUrn()).call();
 
         expect(track).toEqual(TestPropertySets.fromApiTrack(apiTrack));
+    }
+
+    @Test
+    public void loadsDownloadedTrack() throws Exception {
+        ApiTrack apiTrack = testFixtures().insertTrack();
+        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 1000L);
+
+        PropertySet track = command.with(apiTrack.getUrn()).call();
+
+        final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
+        expected.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
+        expect(track).toEqual(expected);
+    }
+
+    @Test
+    public void loadsPendingRemovalTrack() throws Exception {
+        ApiTrack apiTrack = testFixtures().insertTrack();
+        testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 2000L);
+
+        PropertySet track = command.with(apiTrack.getUrn()).call();
+
+        final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
+        expected.put(TrackProperty.OFFLINE_REMOVED_AT, new Date(2000L));
+        expect(track).toEqual(expected);
     }
 
     @Test

@@ -40,6 +40,8 @@ public class LoadTrackCommand extends SingleResourceQueryCommand<Urn> {
                         TableColumns.SoundView.PERMALINK_URL,
                         TableColumns.SoundView.SHARING,
                         TableColumns.SoundView.CREATED_AT,
+                        TableColumns.SoundView.OFFLINE_DOWNLOADED_AT,
+                        TableColumns.SoundView.OFFLINE_REMOVED_AT,
                         exists(soundAssociationQuery(LIKE)).as(TableColumns.SoundView.USER_LIKE),
                         exists(soundAssociationQuery(REPOST)).as(TableColumns.SoundView.USER_REPOST)
                 )
