@@ -423,7 +423,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
                 break;
 
             case ACCEPT_TERMS:
-                hideViews(state, animated);
+                hideViews(state, false);
                 showOverlay(getAcceptTerms(), animated);
                 break;
         }
