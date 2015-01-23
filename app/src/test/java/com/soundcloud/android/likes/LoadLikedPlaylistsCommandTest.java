@@ -1,8 +1,9 @@
-package com.soundcloud.android.playlists;
+package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropertySet;

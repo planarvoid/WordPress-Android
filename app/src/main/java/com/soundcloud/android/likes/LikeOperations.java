@@ -1,11 +1,7 @@
 package com.soundcloud.android.likes;
 
-
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.LoadLikedPlaylistsCommand;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -16,8 +12,6 @@ import javax.inject.Named;
 import java.util.List;
 
 public class LikeOperations {
-
-    private static final String TAG = "LikeOperations";
 
     private final LoadLikedTracksCommand loadLikedTracksCommand;
     private final LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
@@ -40,34 +34,33 @@ public class LikeOperations {
 
     public Observable<List<PropertySet>> likedTracks() {
         return loadLikedTracksCommand.toObservable().subscribeOn(scheduler)
-                .flatMap(new Func1<List<PropertySet>, Observable<List<PropertySet>>>() {
-                    @Override
-                    public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                        if (result.isEmpty()) {
-                            return updatedLikedTracks();
-                        } else {
-                            return Observable.just(result);
-                        }
-                    }
-                });
+                .flatMap(returnIfNonEmptyOr(updatedLikedTracks()));
     }
 
     public Observable<List<PropertySet>> updatedLikedTracks() {
-        return syncInitiator.syncTrackLikes().flatMap(handleSyncResult());
-    }
-
-    private Func1<SyncResult, Observable<List<PropertySet>>> handleSyncResult() {
-        return new Func1<SyncResult, Observable<List<PropertySet>>>() {
-            @Override
-            public Observable<List<PropertySet>> call(SyncResult syncResultEvent) {
-                Log.d(TAG, "Sync finished; result = " + syncResultEvent);
-                return loadLikedTracksCommand.toObservable();
-            }
-        };
+        return syncInitiator.syncTrackLikes().flatMap(loadLikedTracksCommand);
     }
 
     public Observable<List<PropertySet>> likedPlaylists() {
-        return loadLikedPlaylistsCommand.toObservable().subscribeOn(scheduler);
+        return loadLikedPlaylistsCommand.toObservable().subscribeOn(scheduler)
+                .flatMap(returnIfNonEmptyOr(updatedLikedPlaylists()));
+    }
+
+    public Observable<List<PropertySet>> updatedLikedPlaylists() {
+        return syncInitiator.syncPlaylistLikes().flatMap(loadLikedPlaylistsCommand);
+    }
+
+    private <CollT extends List> Func1<CollT, Observable<CollT>> returnIfNonEmptyOr(final Observable<CollT> syncAndLoadObservable) {
+        return new Func1<CollT, Observable<CollT>>() {
+            @Override
+            public Observable<CollT> call(CollT result) {
+                if (result.isEmpty()) {
+                    return syncAndLoadObservable;
+                } else {
+                    return Observable.just(result);
+                }
+            }
+        };
     }
 
     public Observable<List<Urn>> likedTrackUrns() {

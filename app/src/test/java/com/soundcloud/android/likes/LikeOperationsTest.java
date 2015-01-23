@@ -4,7 +4,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playlists.LoadLikedPlaylistsCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -36,36 +35,75 @@ public class LikeOperationsTest {
 
     private Scheduler scheduler = Schedulers.immediate();
 
+    private List<PropertySet> likedTracks;
+    private List<PropertySet> likedPlaylists;
+
     @Before
     public void setUp() throws Exception {
+        likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+
+        LoadLikedTracksCommand loadLikedTracksCommand = new LoadLikedTracksCommand(null) {
+            @Override
+            public List<PropertySet> call() throws Exception {
+                return likedTracks;
+            }
+        };
+        LoadLikedPlaylistsCommand loadLikedPlaylistsCommand = new LoadLikedPlaylistsCommand(null) {
+            @Override
+            public List<PropertySet> call() throws Exception {
+                return likedPlaylists;
+            }
+        };
+
         operations = new LikeOperations(loadLikedTracksCommand, loadLikedTrackUrnsCommand, loadLikedPlaylistsCommand,
                 syncInitiator, scheduler);
     }
 
     @Test
-    public void likedTracksReturnsLikedTracksFromStorage() throws Exception {
-        List<PropertySet> trackList = Arrays.asList(TestPropertySets.expectedTrackForPlayer());
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(trackList));
+    public void likedTracksReturnsLikedTracksFromStorage() {
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedTracks().subscribe(observer);
 
-        verify(observer).onNext(trackList);
+        verify(observer).onNext(likedTracks);
         verify(observer).onCompleted();
     }
 
     @Test
-    public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() throws Exception {
-        List<PropertySet> trackList = Arrays.asList(TestPropertySets.expectedTrackForPlayer());
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("asdf", true)));
-        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(trackList));
+    public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
 
         operations.updatedLikedTracks().subscribe(observer);
 
-        InOrder inOrder = inOrder(observer, loadLikedTracksCommand, syncInitiator);
+        InOrder inOrder = inOrder(observer, syncInitiator);
         inOrder.verify(syncInitiator).syncTrackLikes();
-        inOrder.verify(loadLikedTracksCommand).toObservable();
-        inOrder.verify(observer).onNext(trackList);
+        inOrder.verify(observer).onNext(likedTracks);
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    public void likedPlaylistsReturnsLikedTracksFromStorage() {
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedPlaylists().subscribe(observer);
+
+        verify(observer).onNext(likedPlaylists);
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void updatedLikedPlaylistsReloadsLikedPlaylistsAfterSyncWithChange() {
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
+
+        operations.updatedLikedPlaylists().subscribe(observer);
+
+        InOrder inOrder = inOrder(observer, syncInitiator);
+        inOrder.verify(syncInitiator).syncPlaylistLikes();
+        inOrder.verify(observer).onNext(likedPlaylists);
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
 }

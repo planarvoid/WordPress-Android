@@ -122,4 +122,15 @@ public class SyncInitiatorTest {
         expect(intent.getAction()).toEqual(SyncActions.SYNC_TRACK_LIKES);
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
     }
+
+    @Test
+    public void syncPlaylistLikesShouldRequestPlaylistLikesSync() throws Exception {
+        initiator.syncPlaylistLikes().subscribe(syncSubscriber);
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST_LIKES);
+        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
+    }
+
 }

@@ -78,10 +78,18 @@ public class SyncInitiator {
     }
 
     public Observable<SyncResult> syncTrackLikes() {
+        return requestSyncObservable(SyncActions.SYNC_TRACK_LIKES);
+    }
+
+    public Observable<SyncResult> syncPlaylistLikes() {
+        return requestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES);
+    }
+
+    private Observable<SyncResult> requestSyncObservable(final String syncAction) {
         return Observable.create(new Observable.OnSubscribe<SyncResult>() {
             @Override
             public void call(Subscriber<? super SyncResult> subscriber) {
-                requestSync(SyncActions.SYNC_TRACK_LIKES, new ResultReceiverAdapter(subscriber));
+                requestSync(syncAction, new ResultReceiverAdapter(subscriber));
             }
         });
     }

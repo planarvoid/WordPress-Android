@@ -14,7 +14,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadLikedTracksCommand extends Command<Integer ,List<PropertySet>, LoadLikedTracksCommand> {
+public class LoadLikedTracksCommand extends Command<Object, List<PropertySet>, LoadLikedTracksCommand> {
 
     private PropellerDatabase database;
 

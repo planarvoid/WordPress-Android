@@ -105,7 +105,7 @@ public class PlaylistLikesFragment extends LightCycleFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        return buildObservable();
+        return likeOperations.updatedLikedPlaylists().observeOn(AndroidSchedulers.mainThread()).replay();
     }
 
     @Override

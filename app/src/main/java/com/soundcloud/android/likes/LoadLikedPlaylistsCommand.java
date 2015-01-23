@@ -1,8 +1,9 @@
-package com.soundcloud.android.playlists;
+package com.soundcloud.android.likes;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.playlists.LikedPlaylistMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -14,7 +15,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadLikedPlaylistsCommand extends Command<Integer, List<PropertySet>, LoadLikedPlaylistsCommand> {
+public class LoadLikedPlaylistsCommand extends Command<Object, List<PropertySet>, LoadLikedPlaylistsCommand> {
 
     private final PropellerDatabase database;
 
