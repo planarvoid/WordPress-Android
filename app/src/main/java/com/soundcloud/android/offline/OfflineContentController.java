@@ -22,6 +22,8 @@ public class OfflineContentController {
     private final EventBus eventBus;
     private final Context context;
     private final OfflineContentOperations operations;
+    private final Observable<Boolean> settingsStatusObservable;
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     private static final Func1<PlayableUpdatedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<PlayableUpdatedEvent, Boolean>() {
         @Override
@@ -43,9 +45,6 @@ public class OfflineContentController {
             return operations.isLikesOfflineSyncEnabled();
         }
     };
-
-    private final Observable<Boolean> settingsStatusObservable;
-    private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
     public OfflineContentController(EventBus eventBus, OfflineContentOperations operations, Context context) {

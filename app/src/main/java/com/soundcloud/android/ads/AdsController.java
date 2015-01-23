@@ -195,7 +195,7 @@ public class AdsController {
         }
     }
 
-    private void createAdsFetchObservable(Urn trackUrn, DefaultSubscriber<ApiAdsForTrack> audioAdSubscriber){
+    private void createAdsFetchObservable(Urn trackUrn, DefaultSubscriber<ApiAdsForTrack> audioAdSubscriber) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = trackOperations.track(trackUrn)
                 .filter(IS_MONETIZABLE)
                 .flatMap(fetchAudioAd)
@@ -213,7 +213,7 @@ public class AdsController {
                 final Map.Entry<Urn, AdsFetchOperation> operation = iter.next();
                 final Urn monetizableUrn = operation.getKey();
 
-                if (isNotCurrentOrNextTrack(monetizableUrn) || operation.getValue().hasExpired()){
+                if (isNotCurrentOrNextTrack(monetizableUrn) || operation.getValue().hasExpired()) {
                     operation.getValue().subscription.unsubscribe();
                     iter.remove();
                 }
@@ -296,10 +296,8 @@ public class AdsController {
     private class LeaveBehindSubscriber extends DefaultSubscriber<Playa.StateTransition> {
         @Override
         public void onNext(Playa.StateTransition state) {
-            if (adsOperations.isCurrentTrackAudioAd()) {
-                if (state.trackEnded()) {
-                    adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, true);
-                }
+            if (adsOperations.isCurrentTrackAudioAd() && state.trackEnded()) {
+                adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, true);
             }
         }
     }
