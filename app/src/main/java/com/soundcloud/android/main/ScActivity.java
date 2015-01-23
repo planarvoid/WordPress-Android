@@ -31,6 +31,7 @@ import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -215,6 +216,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         super.onCreate(savedInstanceState);
 
         setContentView();
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
