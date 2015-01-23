@@ -25,10 +25,7 @@ page at http://checkstyle.sourceforge.net/config.html -->
     </module>
 
     <module name="ImportOrder">
-      <property name="groups" value="com.soundcloud,rx,android,javax,java"/>
-      <property name="severity" value="warning"/>
-      <property name="option" value="top"/>
-      <property name="tokens" value="STATIC_IMPORT, IMPORT"/>
+      <property name="severity" value="ignore"/>
     </module>
 
     <!-- JAVADOC CHECKS -->
