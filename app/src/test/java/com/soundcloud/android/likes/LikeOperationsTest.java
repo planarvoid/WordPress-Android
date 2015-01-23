@@ -35,33 +35,16 @@ public class LikeOperationsTest {
 
     private Scheduler scheduler = Schedulers.immediate();
 
-    private List<PropertySet> likedTracks;
-    private List<PropertySet> likedPlaylists;
-
     @Before
     public void setUp() throws Exception {
-        likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-
-        LoadLikedTracksCommand loadLikedTracksCommand = new LoadLikedTracksCommand(null) {
-            @Override
-            public List<PropertySet> call() throws Exception {
-                return likedTracks;
-            }
-        };
-        LoadLikedPlaylistsCommand loadLikedPlaylistsCommand = new LoadLikedPlaylistsCommand(null) {
-            @Override
-            public List<PropertySet> call() throws Exception {
-                return likedPlaylists;
-            }
-        };
-
         operations = new LikeOperations(loadLikedTracksCommand, loadLikedTrackUrnsCommand, loadLikedPlaylistsCommand,
                 syncInitiator, scheduler);
     }
 
     @Test
     public void likedTracksReturnsLikedTracksFromStorage() {
+        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedTracks().subscribe(observer);
@@ -72,6 +55,8 @@ public class LikeOperationsTest {
 
     @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
+        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
 
         operations.updatedLikedTracks().subscribe(observer);
@@ -85,6 +70,8 @@ public class LikeOperationsTest {
 
     @Test
     public void likedPlaylistsReturnsLikedTracksFromStorage() {
+        List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedPlaylists().subscribe(observer);
@@ -95,6 +82,8 @@ public class LikeOperationsTest {
 
     @Test
     public void updatedLikedPlaylistsReloadsLikedPlaylistsAfterSyncWithChange() {
+        List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
 
         operations.updatedLikedPlaylists().subscribe(observer);
