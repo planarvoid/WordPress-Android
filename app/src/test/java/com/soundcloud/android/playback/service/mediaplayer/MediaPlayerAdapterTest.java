@@ -587,6 +587,17 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
+    public void onBufferingListenerWhilePreparingDoesNotChangeState() {
+        mediaPlayerAdapter.play(track);
+        reset(listener);
+
+        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+
+        verify(listener, never()).onPlaystateChanged(any(Playa.StateTransition.class));
+    }
+
+
+    @Test
     public void onBufferingListenerSetsBufferingStateWhenBuffering() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
