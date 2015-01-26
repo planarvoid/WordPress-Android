@@ -51,7 +51,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackServiceStateWrapper);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession);
         trackSourceInfo = new TrackSourceInfo(Screen.YOUR_LIKES.get(), true);
 
 

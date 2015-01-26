@@ -9,6 +9,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 
 import javax.inject.Inject;
@@ -63,6 +64,9 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
             handlePlaybackSessionEvent((PlaybackSessionEvent) event);
         }
     }
+
+    @Override
+    public void handleUserSessionEvent(UserSessionEvent event) {}
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent eventData) {
         // only track the first play

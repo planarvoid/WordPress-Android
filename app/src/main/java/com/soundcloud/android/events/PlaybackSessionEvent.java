@@ -105,6 +105,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return EVENT_KIND_PLAY.equals(kind);
     }
 
+    public boolean isBufferingEvent() {
+        return stopReason == STOP_REASON_BUFFERING;
+    }
+
     public boolean isStopEvent() {
         return !isPlayEvent();
     }
