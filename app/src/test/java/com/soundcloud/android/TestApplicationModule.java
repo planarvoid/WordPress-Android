@@ -231,5 +231,6 @@ public class TestApplicationModule {
     LikesSyncer providePlaylistLikesSyncer() {
         return mock(LikesSyncer.class);
     }
+
 }
 

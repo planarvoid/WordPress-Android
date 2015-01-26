@@ -16,6 +16,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.Pager;
 
 import android.view.View;
 import android.widget.AdapterView;
@@ -50,12 +52,19 @@ public class TrackLikesFragmentTest {
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private Subscription subscription;
+    @Mock private Subscription shuffleSubscription;
+    @Mock private Pager<List<PropertySet>> pager;
 
     @Before
     public void setUp() {
         Observable<List<PropertySet>> likedTracks = withSubscription(subscription, just(PropertySet.create())).toList();
         when(likeOperations.likedTracks()).thenReturn(likedTracks);
+        when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(Robolectric.application));
+
+        Observable<List<Urn>> likedTrackUrns = withSubscription(shuffleSubscription, just(Urn.forTrack(123L))).toList();
+        when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
+
         fragment = new TrackLikesFragment(adapter, likeOperations, listViewController,
                 pullToRefreshController, shuffleViewController, playbackOperations,
                 offlineOperations, actionMenuController,
@@ -67,6 +76,14 @@ public class TrackLikesFragmentTest {
         fragment.onCreate(null);
         fragment.onDestroy();
         verify(subscription).unsubscribe();
+    }
+
+    @Test
+    public void shouldUnsubscribeShuffleSubscriptionInOnDestroy() {
+        fragment.onCreate(null);
+        fragment.onViewCreated(mock(View.class), null);
+        fragment.onDestroy();
+        verify(shuffleSubscription).unsubscribe();
     }
 
     @Test

@@ -1,6 +1,8 @@
 package com.soundcloud.android.framework.helpers;
 
 import com.soundcloud.android.screens.ActivitiesScreen;
+import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.WhoToFollowScreen;
@@ -23,5 +25,12 @@ public class NavigationHelper {
 
     public static WhoToFollowScreen openWhoToFollow(Screen screen) {
         return screen.actionBar().clickWhoToFollowOverflowButton();
+    }
+
+    public static PlaylistsScreen openLikedPlaylists(MenuScreen menuScreen) {
+        menuScreen.open();
+        final PlaylistsScreen playlistsScreen = menuScreen.clickPlaylist();
+        playlistsScreen.touchLikedPlaylistsTab();
+        return playlistsScreen;
     }
 }

@@ -17,31 +17,50 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class LoadLikedPlaylistsCommandTest extends StorageIntegrationTest {
 
+    private static final Date LIKED_DATE_1 = new Date(100);
+    private static final Date LIKED_DATE_2 = new Date(200);
+
     private LoadLikedPlaylistsCommand command;
+    private PropertySet playlist1;
+    private PropertySet playlist2;
 
     @Before
     public void setUp() throws Exception {
         command = new LoadLikedPlaylistsCommand(propeller());
+
+        playlist1 = testFixtures().insertLikedPlaylist(LIKED_DATE_1).toPropertySet();
+        playlist2 = testFixtures().insertLikedPlaylist(LIKED_DATE_2).toPropertySet();
     }
 
     @Test
-    public void shouldLoadTrackLikesFromObservable() throws Exception {
-        PropertySet playlist1 = testFixtures().insertLikedPlaylist(new Date(100)).toPropertySet();
-        PropertySet playlist2 = testFixtures().insertLikedPlaylist(new Date(200)).toPropertySet();
+    public void shouldLoadAllPlaylistLikes() throws Exception {
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
 
-        List<PropertySet> result = command.call();
-
-        expect(result).toEqual(Lists.newArrayList(expectedLikedTrackFor(playlist2), expectedLikedTrackFor(playlist1)));
+        expect(result).toEqual(Lists.newArrayList(expectedLikedPlaylistFor(playlist2, LIKED_DATE_2), expectedLikedPlaylistFor(playlist1, LIKED_DATE_1)));
     }
 
-    private PropertySet expectedLikedTrackFor(PropertySet playlist) {
+    @Test
+    public void shouldAdhereToLimit() throws Exception {
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(1, Long.MAX_VALUE)).call();
+
+        expect(result).toEqual(Lists.<PropertySet>newArrayList(expectedLikedPlaylistFor(playlist2, LIKED_DATE_2)));
+    }
+
+    @Test
+    public void shouldAdhereToTimestamp() throws Exception {
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(2, LIKED_DATE_2.getTime())).call();
+
+        expect(result).toEqual(Lists.<PropertySet>newArrayList(expectedLikedPlaylistFor(playlist1, LIKED_DATE_1)));
+    }
+
+    private PropertySet expectedLikedPlaylistFor(PropertySet playlist, Date likedAt) {
         return PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.get(PlaylistProperty.URN)),
                 PlaylistProperty.TITLE.bind(playlist.get(PlaylistProperty.TITLE)),
                 PlaylistProperty.CREATOR_NAME.bind(playlist.get(PlaylistProperty.CREATOR_NAME)),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.get(PlaylistProperty.TRACK_COUNT)),
                 PlaylistProperty.LIKES_COUNT.bind(playlist.get(PlaylistProperty.LIKES_COUNT)),
+                LikeProperty.CREATED_AT.bind((likedAt)),
                 PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)));
     }
-
 }

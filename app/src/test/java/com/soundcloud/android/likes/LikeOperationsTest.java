@@ -1,5 +1,7 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.likes.LikeOperations.PAGE_SIZE;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +21,7 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,6 +57,34 @@ public class LikeOperationsTest {
     }
 
     @Test
+    public void trackPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
+        final List<PropertySet> firstPage = createPageOfTrackLikes(PAGE_SIZE);
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedTracksPager().page(operations.likedTracks()).subscribe(observer);
+        operations.likedTracksPager().next();
+
+        final ChronologicalQueryParams params = loadLikedTracksCommand.getInput();
+        expect(params.getTimestamp()).toEqual(firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime());
+    }
+
+    @Test
+    public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
+
+        final List<PropertySet> firstPage = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedTracksPager().page(operations.likedTracks()).subscribe(observer);
+        operations.likedTracksPager().next();
+
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onNext(firstPage);
+        inOrder.verify(observer).onCompleted();
+    }
+
+    @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
@@ -81,6 +112,34 @@ public class LikeOperationsTest {
     }
 
     @Test
+    public void playlistPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
+        final List<PropertySet> firstPage = createPageOfPlaylistLikes(PAGE_SIZE);
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedPlaylistsPager().page(operations.likedPlaylists()).subscribe(observer);
+        operations.likedPlaylistsPager().next();
+
+        final ChronologicalQueryParams params = loadLikedPlaylistsCommand.getInput();
+        expect(params.getTimestamp()).toEqual(firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime());
+    }
+
+    @Test
+    public void playlistPagerFinishesIfLastPageIncomplete() throws Exception {
+
+        final List<PropertySet> firstPage = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(firstPage));
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedPlaylistsPager().page(operations.likedPlaylists()).subscribe(observer);
+        operations.likedPlaylistsPager().next();
+
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onNext(firstPage);
+        inOrder.verify(observer).onCompleted();
+    }
+
+    @Test
     public void updatedLikedPlaylistsReloadsLikedPlaylistsAfterSyncWithChange() {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
         when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
@@ -95,4 +154,19 @@ public class LikeOperationsTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    private List<PropertySet> createPageOfTrackLikes(int size){
+        List<PropertySet> page = new ArrayList<>(size);
+        for (int i = 0; i < size; i++){
+            page.add(TestPropertySets.expectedLikedTrackForLikesScreen());
+        }
+        return page;
+    }
+
+    private List<PropertySet> createPageOfPlaylistLikes(int size){
+        List<PropertySet> page = new ArrayList<>(size);
+        for (int i = 0; i < size; i++){
+            page.add(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        }
+        return page;
+    }
 }

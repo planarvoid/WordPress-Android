@@ -6,6 +6,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ListAdapter;
 
 public class ListElement {
     private final Solo testDriver;
@@ -22,6 +23,10 @@ public class ListElement {
 
     public int getItemCount() {
         return absListView.getChildCount();
+    }
+
+    public ListAdapter getAdapter(){
+        return absListView.getAdapter();
     }
 
     public void scrollToBottom() {

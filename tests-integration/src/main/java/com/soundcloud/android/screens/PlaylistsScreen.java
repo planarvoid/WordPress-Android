@@ -31,6 +31,16 @@ public class PlaylistsScreen extends Screen {
         touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
     }
 
+    public int getLoadedTrackCount(){
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return playlistsList().getAdapter().getCount();
+    }
+
+    public void scrollToBottomOfTracksListAndLoadMoreItems() {
+        playlistsList().scrollToBottom();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
     private ViewPagerElement getViewPager() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return new ViewPagerElement(testDriver);

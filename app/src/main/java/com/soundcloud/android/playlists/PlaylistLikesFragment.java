@@ -1,5 +1,7 @@
 package com.soundcloud.android.playlists;
 
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -11,8 +13,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
+import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -41,7 +43,7 @@ public class PlaylistLikesFragment extends LightCycleFragment
     public PlaylistLikesFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
 
-        listViewController.setAdapter(adapter);
+        listViewController.setAdapter(adapter, likeOperations.likedPlaylistsPager());
         pullToRefreshController.setRefreshListener(this, adapter);
 
         addLifeCycleComponent(listViewController);
@@ -89,12 +91,7 @@ public class PlaylistLikesFragment extends LightCycleFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
-        ConnectableObservable<List<PropertySet>> observable = likeOperations
-                .likedPlaylists()
-                .observeOn(AndroidSchedulers.mainThread())
-                .replay();
-        observable.subscribe(adapter);
-        return observable;
+        return pagedObservable(likeOperations.likedPlaylists());
     }
 
     @Override
@@ -105,7 +102,14 @@ public class PlaylistLikesFragment extends LightCycleFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        return likeOperations.updatedLikedPlaylists().observeOn(AndroidSchedulers.mainThread()).replay();
+        return pagedObservable(likeOperations.updatedLikedPlaylists());
+    }
+
+    private ConnectableObservable<List<PropertySet>> pagedObservable(Observable<List<PropertySet>> source) {
+        final ConnectableObservable<List<PropertySet>> observable =
+                likeOperations.likedPlaylistsPager().page(source).observeOn(mainThread()).replay();
+        observable.subscribe(adapter);
+        return observable;
     }
 
     @Override

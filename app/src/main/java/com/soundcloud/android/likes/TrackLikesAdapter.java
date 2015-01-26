@@ -5,9 +5,7 @@ import com.soundcloud.android.lightcycle.FragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.utils.CallsiteToken;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.soundcloud.propeller.PropertySet;
@@ -22,10 +20,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class TrackLikesAdapter extends ItemAdapter<PropertySet>
+public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
         implements ReactiveAdapter<Iterable<PropertySet>>, FragmentLightCycle {
-
-    private final CallsiteToken callsiteToken = CallsiteToken.build();
 
     private final TrackItemPresenter trackPresenter;
     private final EventBus eventBus;
@@ -37,24 +33,6 @@ public class TrackLikesAdapter extends ItemAdapter<PropertySet>
         super(trackPresenter);
         this.trackPresenter = trackPresenter;
         this.eventBus = eventBus;
-    }
-
-    @Override
-    public void onNext(Iterable<PropertySet> propertySets) {
-        for (PropertySet propertySet : propertySets) {
-            addItem(propertySet);
-        }
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onCompleted() {
-        // no-op
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        ErrorUtils.handleThrowable(e, callsiteToken);
     }
 
     public TrackItemPresenter getTrackPresenter() {

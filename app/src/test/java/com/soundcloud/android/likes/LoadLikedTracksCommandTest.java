@@ -16,24 +16,43 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
 
+    private static final Date LIKED_DATE_1 = new Date(100);
+    private static final Date LIKED_DATE_2 = new Date(200);
+
     private LoadLikedTracksCommand command;
+    private PropertySet track1;
+    private PropertySet track2;
 
     @Before
     public void setUp() throws Exception {
         command = new LoadLikedTracksCommand(propeller());
+
+        track1 = testFixtures().insertLikedTrack(LIKED_DATE_1).toPropertySet();
+        track2 = testFixtures().insertLikedTrack(LIKED_DATE_2).toPropertySet();
     }
 
     @Test
-    public void shouldLoadTrackLikesFromObservable() throws Exception {
-        PropertySet track1 = testFixtures().insertLikedTrack(new Date(100)).toPropertySet();
-        PropertySet track2 = testFixtures().insertLikedTrack(new Date(200)).toPropertySet();
+    public void shouldLoadAllTrackLikes() throws Exception {
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(2, Long.MAX_VALUE)).call();
 
-        List<PropertySet> result = command.call();
-
-        expect(result).toContainExactly(expectedLikedTrackFor(track2), expectedLikedTrackFor(track1));
+        expect(result).toContainExactly(expectedLikedTrackFor(track2, LIKED_DATE_2), expectedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
-    private PropertySet expectedLikedTrackFor(PropertySet track) {
+    @Test
+    public void shouldAdhereToLimit() throws Exception {
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(1, Long.MAX_VALUE)).call();
+
+        expect(result).toContainExactly(expectedLikedTrackFor(track2, LIKED_DATE_2));
+    }
+
+    @Test
+    public void shouldAdhereToTimestamp() throws Exception {
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(2, LIKED_DATE_2.getTime())).call();
+
+        expect(result).toContainExactly(expectedLikedTrackFor(track1, LIKED_DATE_1));
+    }
+
+    private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {
         return PropertySet.from(
                 TrackProperty.URN.bind(track.get(TrackProperty.URN)),
                 TrackProperty.CREATOR_NAME.bind(track.get(TrackProperty.CREATOR_NAME)),
@@ -41,6 +60,7 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
                 TrackProperty.DURATION.bind(track.get(TrackProperty.DURATION)),
                 TrackProperty.PLAY_COUNT.bind(track.get(TrackProperty.PLAY_COUNT)),
                 TrackProperty.LIKES_COUNT.bind(track.get(TrackProperty.LIKES_COUNT)),
+                LikeProperty.CREATED_AT.bind((likedAt)),
                 TrackProperty.IS_PRIVATE.bind(track.get(TrackProperty.IS_PRIVATE)));
     }
 }

@@ -12,6 +12,7 @@ import com.soundcloud.android.framework.with.With;
 import java.util.List;
 
 public class LikesScreen extends Screen {
+
     protected static final Class ACTIVITY = MainActivity.class;
 
     public LikesScreen(Han solo) {
@@ -38,6 +39,16 @@ public class LikesScreen extends Screen {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public int getLoadedTrackCount(){
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return likesList().getAdapter().getCount();
+    }
+
+    public void scrollToBottomOfTracksListAndLoadMoreItems() {
+        likesList().scrollToBottom();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     private ListElement likesList() {

@@ -1,18 +1,19 @@
-package com.soundcloud.android.tests.likes;
+package com.soundcloud.android.tests.playlist;
 
 import static com.soundcloud.android.framework.TestUser.emptyUser;
 
+import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.LikesScreen;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class EmptyTrackLikesTest extends ActivityTest<MainActivity> {
+public class EmptyPlaylistLikesTest extends ActivityTest<MainActivity> {
 
-    protected LikesScreen likesScreen;
+    protected PlaylistsScreen playlistsScreen;
 
-    public EmptyTrackLikesTest() {
+    public EmptyPlaylistLikesTest() {
         super(MainActivity.class);
     }
 
@@ -20,14 +21,13 @@ public class EmptyTrackLikesTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         emptyUser.logIn(getInstrumentation().getTargetContext());
         setDependsOn(Flag.NEW_LIKES_END_TO_END);
+
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
-        likesScreen = menuScreen.open().clickLikes();
-        waiter.waitForContentAndRetryIfLoadingFailed();
+        playlistsScreen = NavigationHelper.openLikedPlaylists(new MenuScreen(solo));
     }
 
     public void testShowsEmptyLikesScreen() {
-        assertTrue(likesScreen.emptyView().isVisible());
+        assertTrue(playlistsScreen.emptyView().isVisible());
     }
 }

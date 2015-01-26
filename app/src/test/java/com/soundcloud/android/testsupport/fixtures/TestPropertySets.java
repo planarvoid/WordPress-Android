@@ -6,6 +6,7 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -116,7 +117,8 @@ public abstract class TestPropertySets {
                 TrackProperty.DURATION.bind(10),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
-                PlayableProperty.IS_PRIVATE.bind(false));
+                LikeProperty.CREATED_AT.bind(new Date()),
+                TrackProperty.IS_PRIVATE.bind(false));
     }
 
     public static PropertySet expectedLikedPlaylistForPlaylistsScreen() {
@@ -126,7 +128,8 @@ public abstract class TestPropertySets {
                 PlaylistProperty.CREATOR_NAME.bind("avieciie"),
                 PlaylistProperty.TRACK_COUNT.bind(4),
                 PlaylistProperty.LIKES_COUNT.bind(2),
-                PlayableProperty.IS_PRIVATE.bind(false));
+                LikeProperty.CREATED_AT.bind(new Date()),
+                PlaylistProperty.IS_PRIVATE.bind(false));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

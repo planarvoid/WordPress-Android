@@ -1,8 +1,8 @@
 package com.soundcloud.android.likes;
 
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -13,6 +13,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -20,7 +21,6 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -42,19 +42,6 @@ import java.util.List;
 public class TrackLikesFragment extends LightCycleFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
-    private final Func1<List<PropertySet>, List<Urn>> LIKES_TO_TRACK_URNS =
-            new Func1<List<PropertySet>, List<Urn>>() {
-                @Override
-                public List<Urn> call(List<PropertySet> likedTracks) {
-                    return Lists.transform(likedTracks, new Function<PropertySet, Urn>() {
-                        @Override
-                        public Urn apply(PropertySet propertySet) {
-                            return propertySet.get(TrackProperty.URN);
-                        }
-                    });
-                }
-    };
-
     @Inject TrackLikesAdapter adapter;
     @Inject LikeOperations likeOperations;
     @Inject PlaybackOperations playbackOperations;
@@ -66,7 +53,17 @@ public class TrackLikesFragment extends LightCycleFragment
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private ConnectableObservable<List<PropertySet>> observable;
+    private Observable<List<Urn>> trackUrnsObservable;
     private Subscription connectionSubscription = Subscriptions.empty();
+    private Subscription shuffleSubscription = Subscriptions.empty();
+
+    private DefaultSubscriber<List<PropertySet>> refreshShuffleHeader = new DefaultSubscriber<List<PropertySet>>() {
+        @Override
+        public void onNext(List<PropertySet> args) {
+            createShuffleObservable();
+            subscribeShuffleViewController();
+        }
+    };
 
     public TrackLikesFragment() {
         setRetainInstance(true);
@@ -98,7 +95,7 @@ public class TrackLikesFragment extends LightCycleFragment
     }
 
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter);
+        listViewController.setAdapter(adapter, likeOperations.likedTracksPager());
         pullToRefreshController.setRefreshListener(this, adapter);
 
         addLifeCycleComponent(shuffleViewController);
@@ -112,7 +109,8 @@ public class TrackLikesFragment extends LightCycleFragment
         setRetainInstance(true);
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-        connectionSubscription = connectObservable(buildObservable());
+        connectObservable(buildObservable());
+        createShuffleObservable();
     }
 
     @Override
@@ -130,7 +128,8 @@ public class TrackLikesFragment extends LightCycleFragment
 
         listViewController.connect(this, observable);
         pullToRefreshController.connect(observable, adapter);
-        subscribeShuffleViewController(observable);
+
+        subscribeShuffleViewController();
     }
 
     @Override
@@ -151,32 +150,38 @@ public class TrackLikesFragment extends LightCycleFragment
 
     @Override
     public void onPause() {
-        super.onPause();
         actionMenuController.onPause();
+        super.onPause();
     }
 
     @Override
     public void onDestroy() {
         connectionSubscription.unsubscribe();
+        shuffleSubscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
-        ConnectableObservable<List<PropertySet>> observable = getLikedTracks().replay();
-        observable.subscribe(adapter);
-        return observable;
+        return pagedObservable(getLikedTracks());
     }
 
     private Observable<List<PropertySet>> getLikedTracks() {
         return likeOperations.likedTracks().observeOn(AndroidSchedulers.mainThread());
     }
 
+    private ConnectableObservable<List<PropertySet>> pagedObservable(Observable<List<PropertySet>> source) {
+        final ConnectableObservable<List<PropertySet>> observable =
+                likeOperations.likedTracksPager().page(source).observeOn(mainThread()).replay();
+        observable.subscribe(adapter);
+        return observable;
+    }
+
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        ConnectableObservable<List<PropertySet>> observable = getUpdatedLikedTracks().replay();
-        subscribeShuffleViewController(observable);
-        return observable;
+        final ConnectableObservable<List<PropertySet>> refreshObservable = pagedObservable(getUpdatedLikedTracks());
+        refreshObservable.first().subscribe(refreshShuffleHeader);
+        return refreshObservable;
     }
 
     private Observable<List<PropertySet>> getUpdatedLikedTracks() {
@@ -186,20 +191,26 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
         this.observable = observable;
-        return observable.connect();
+        this.connectionSubscription = observable.connect();
+        return connectionSubscription;
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Observable<List<Urn>> likedTracks = getLikedTracks().map(LIKES_TO_TRACK_URNS);
+        // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
+        // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
         Urn initialTrack = ((PropertySet) adapterView.getItemAtPosition(position)).get(TrackProperty.URN);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
         playbackOperations
-                .playTracks(likedTracks, initialTrack, position, playSessionSource)
+                .playTracks(trackUrnsObservable, initialTrack, position, playSessionSource)
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 
-    private void subscribeShuffleViewController(ConnectableObservable<List<PropertySet>> observable) {
-        observable.map(LIKES_TO_TRACK_URNS).subscribe(shuffleViewController);
+    private void createShuffleObservable() {
+        trackUrnsObservable = likeOperations.likedTrackUrns();
+    }
+
+    private void subscribeShuffleViewController() {
+        shuffleSubscription = trackUrnsObservable.subscribe(shuffleViewController);
     }
 }
