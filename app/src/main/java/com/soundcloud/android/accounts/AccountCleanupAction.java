@@ -1,7 +1,5 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.onboarding.auth.FacebookSSOActivity.FBToken;
-
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.cache.ConnectionsCache;
@@ -74,7 +72,6 @@ class AccountCleanupAction implements Action0 {
         offlineSettingsStorage.clear();
         featureStorage.clear();
         soundRecorder.reset();
-        FBToken.clear(context);
         FollowingOperations.clearState();
         ConnectionsCache.reset();
     }

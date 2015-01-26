@@ -16,13 +16,13 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -33,6 +33,8 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class ResolveActivity extends TrackedActivity implements FetchModelTask.Listener<PublicApiResource> {
+
+    private static final String FACEBOOK_PKG_NAME = "com.facebook.application.";
 
     @Inject PublicCloudAPI oldCloudAPI;
     @Nullable private ResolveFetchTask resolveTask;
@@ -70,7 +72,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
             Uri data = intent.getData();
 
             final boolean shouldResolve = data != null &&
-                    (Intent.ACTION_VIEW.equals(intent.getAction()) || FacebookSSOActivity.handleFacebookView(this, intent));
+                    (Intent.ACTION_VIEW.equals(intent.getAction()) || isFacebookAction(intent));
 
             if (shouldResolve) {
                 fetchData(data);
@@ -142,6 +144,18 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
         intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+    public boolean isFacebookAction(Intent intent) {
+        return getActionForSoundCloud().equals(intent.getAction());
+    }
+
+    private String getActionForSoundCloud() {
+        return FACEBOOK_PKG_NAME + getFacebookAppId();
+    }
+
+    private String getFacebookAppId() {
+        return getString(R.string.production_facebook_app_id);
     }
 }
 
