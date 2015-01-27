@@ -23,11 +23,8 @@ public class TrackCompletionListenerTest {
 
     private TrackCompletionListener trackCompletionListener;
 
-    @Mock
-    MediaPlayerAdapter mediaPlayerAdapter;
-    @Mock
-    MediaPlayer mediaPlayer;
-
+    @Mock private MediaPlayerAdapter mediaPlayerAdapter;
+    @Mock private MediaPlayer mediaPlayer;
 
     @Before
     public void setUp() throws Exception {
@@ -78,14 +75,6 @@ public class TrackCompletionListenerTest {
     }
 
     @Test
-    public void shouldInvokeOnCompleteIfBuildAfterJellyBeanAndNotSeekingOrResuming() {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN + 1);
-        when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
-        trackCompletionListener.onCompletion(mediaPlayer);
-        verify(mediaPlayerAdapter).onTrackEnded();
-    }
-
-    @Test
     public void shouldInvokeStopInErrorState() {
         when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(false);
         when(mediaPlayerAdapter.isInErrorState()).thenReturn(true);
@@ -94,5 +83,4 @@ public class TrackCompletionListenerTest {
         trackCompletionListener.onCompletion(mediaPlayer);
         verify(mediaPlayerAdapter).stop(mediaPlayer);
     }
-
 }

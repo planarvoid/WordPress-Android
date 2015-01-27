@@ -438,7 +438,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     private int getInitializationSuccessCount() {
-        return sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0);
+        return sharedPreferences.getInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, 0);
     }
 
 

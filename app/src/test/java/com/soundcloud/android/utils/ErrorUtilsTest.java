@@ -53,11 +53,21 @@ public class ErrorUtilsTest {
     }
 
     @Test
-    public void shouldBeCausedByOOMWhenThrowableHasOOMInChain() {
+    public void shouldBeCausedByOOMWhenOOMIsRootCause() {
         Exception e = new Exception();
         Exception e1 = new Exception();
         e.initCause(e1);
         e1.initCause(new OutOfMemoryError());
+
+        expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeTrue();
+    }
+
+    @Test
+    public void shouldBeCausedByOOMWhenThrowableHasOOMInChain() {
+        Exception e = new Exception();
+        OutOfMemoryError oom = new OutOfMemoryError();
+        oom.initCause(new RuntimeException("wrapping an OOM"));
+        e.initCause(oom);
 
         expect(ErrorUtils.isCausedByOutOfMemory(e)).toBeTrue();
     }

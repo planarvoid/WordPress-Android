@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.playback.service.PlaybackService;
 
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.util.Log;
 
 @VisibleForTesting
@@ -55,8 +54,7 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
             Log.d(PlaybackService.TAG, "Calculating end pos from resume position " + resumeTime);
             return resumeTime;
 
-        } else if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) || mediaPlayerHasReset(mediaPlayer)) {
-            // We are > JellyBean in which getCurrentPosition is totally unreliable or
+        } else if (mediaPlayerHasReset(mediaPlayer)) {
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so pretend it's finished
             final long duration = mediaPlayer.getDuration();
             Log.d(PlaybackService.TAG, "Calculating end pos from completion position " + duration);

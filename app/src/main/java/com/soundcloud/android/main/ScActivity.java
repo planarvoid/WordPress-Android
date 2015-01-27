@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
@@ -157,6 +158,9 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
     @Override
     protected void setActivityContentView() {
         setContentView();
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
         if (getSupportActionBar() != null) {
             actionBarController = createActionBarController();
         }

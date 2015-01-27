@@ -24,6 +24,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -31,6 +32,7 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -124,9 +126,22 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
         ArrayList<PropertySet> propSets = new ArrayList<PropertySet>(items.size());
+
+        List<Urn> tracksMissingTitles = new ArrayList<>();
         for (PublicApiResource resource : items) {
-            propSets.add(((PlayableHolder) resource).getPlayable().toPropertySet());
+            Playable playable = ((PlayableHolder) resource).getPlayable();
+            if (playable.getTitle() == null){
+                tracksMissingTitles.add(playable.getUrn());
+            }
+            propSets.add(playable.toPropertySet());
         }
+
+        if (!tracksMissingTitles.isEmpty()){
+            final String message = String.format("Invalid collection tracks found from uri : %s , tracks : %s",
+                    contentUri, TextUtils.join(", ", tracksMissingTitles));
+            ErrorUtils.handleSilentException(new IllegalStateException(message));
+        }
+
         return propSets;
     }
 

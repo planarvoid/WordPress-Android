@@ -275,6 +275,10 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + internalState + ")");
         }
 
+        if (internalState == PlaybackState.PREPARING){
+            return true; // swallow info callbacks if preparing. HTC Bug
+        }
+
         if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what){
             setInternalState(PlaybackState.PAUSED_FOR_BUFFERING);
             playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);

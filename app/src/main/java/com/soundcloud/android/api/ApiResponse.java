@@ -36,7 +36,7 @@ public class ApiResponse {
         } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
             failure = ApiRequestException.badRequest(request, getErrorKey());
         } else if (!isSuccessCode(statusCode)) {
-            failure = ApiRequestException.unexpectedResponse(request);
+            failure = ApiRequestException.unexpectedResponse(request, statusCode);
         }
     }
 

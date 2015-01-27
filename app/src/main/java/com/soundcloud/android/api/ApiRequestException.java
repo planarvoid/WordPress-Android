@@ -31,8 +31,8 @@ public final class ApiRequestException extends Exception {
         MALFORMED_INPUT
     }
 
-    public static ApiRequestException unexpectedResponse(ApiRequest request) {
-        return new ApiRequestException(UNEXPECTED_RESPONSE, request);
+    public static ApiRequestException unexpectedResponse(ApiRequest request, int statusCode) {
+        return new ApiRequestException(UNEXPECTED_RESPONSE, request, "HTTP " + statusCode);
     }
 
     public static ApiRequestException badRequest(ApiRequest request, String errorKey) {

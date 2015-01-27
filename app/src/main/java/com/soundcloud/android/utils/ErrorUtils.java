@@ -135,9 +135,12 @@ public final class ErrorUtils {
 
     @VisibleForTesting
     static boolean isCausedByOutOfMemory(Throwable uncaught) {
-        final Throwable rootCause = findRootCause(uncaught);
-        if (rootCause != null) {
-            return rootCause instanceof OutOfMemoryError;
+        Throwable throwable = uncaught;
+        while (throwable != null) {
+            if (throwable instanceof OutOfMemoryError) {
+                return true;
+            }
+            throwable = throwable.getCause();
         }
         return false;
     }

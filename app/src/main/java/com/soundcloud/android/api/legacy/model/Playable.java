@@ -443,7 +443,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         }
         return PropertySet.from(
                 PlayableProperty.DURATION.bind(duration),
-                PlayableProperty.TITLE.bind(title),
+                // titles are sometimes null from public api (unfortunately) playlist endpoint.
+                PlayableProperty.TITLE.bind(title == null ? ScTextUtils.EMPTY_STRING : title),
                 PlayableProperty.URN.bind(getUrn()),
                 PlayableProperty.CREATOR_URN.bind(getUserUrn()),
                 PlayableProperty.IS_PRIVATE.bind(sharing.isPrivate()),
