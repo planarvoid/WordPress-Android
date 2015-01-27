@@ -6,10 +6,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
-public class WrongUserDialog extends DialogFragment {
+public class WrongUserDialog extends UnrecoverableErrorDialog {
 
     private static final String TAG = "WrongUser";
 
