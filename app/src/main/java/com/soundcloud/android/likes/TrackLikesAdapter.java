@@ -7,6 +7,7 @@ import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
+import com.soundcloud.android.view.adapters.ListContentSyncedSubscriber;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +44,8 @@ public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
+                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this)),
+                eventBus.subscribe(EventQueue.RESOURCES_SYNCED, new ListContentSyncedSubscriber(this))
         );
     }
 

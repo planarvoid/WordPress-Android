@@ -4,8 +4,7 @@ import com.soundcloud.propeller.Property;
 
 import java.util.Date;
 
-public class PlayableProperty {
-    public static final Property<Urn> URN = Property.of(PlayableProperty.class, Urn.class);
+public class PlayableProperty extends EntityProperty {
     public static final Property<String> TITLE = Property.of(PlayableProperty.class, String.class);
     public static final Property<Integer> DURATION = Property.of(PlayableProperty.class, Integer.class);
     public static final Property<Urn> CREATOR_URN = Property.of(PlayableProperty.class, Urn.class);

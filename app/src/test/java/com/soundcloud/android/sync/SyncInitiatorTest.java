@@ -4,11 +4,18 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.shadows.ShadowContentResolver.Status;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import org.junit.Before;
@@ -133,4 +140,25 @@ public class SyncInitiatorTest {
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
     }
 
+    @Test
+    public void requestTracksSyncShouldRequestTracksSync() throws Exception {
+        final PropertySet propertySet = TestPropertySets.fromApiTrack();
+        initiator.requestTracksSync(Lists.<PropertySet>newArrayList(propertySet));
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(SyncActions.SYNC_TRACKS);
+        expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(TrackProperty.URN));
+    }
+
+    @Test
+    public void requestPlaylistsSyncShouldRequestPlaylistsSync() throws Exception {
+        final PropertySet propertySet = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
+        initiator.requestPlaylistSync(Lists.<PropertySet>newArrayList(propertySet));
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLISTS);
+        expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(PlaylistProperty.URN));
+    }
 }

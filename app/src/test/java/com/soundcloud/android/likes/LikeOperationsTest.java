@@ -2,7 +2,9 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.LikeOperations.PAGE_SIZE;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +30,7 @@ import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -68,6 +71,27 @@ public class LikeOperationsTest {
 
         verify(observer).onNext(likedTracks);
         verify(observer).onCompleted();
+    }
+
+    @Test
+    public void likedTracksRequestsUpdatesFromSyncer() {
+        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedTracks().subscribe(observer);
+
+        verify(syncInitiator).requestTracksSync(likedTracks);
+    }
+
+    @Test
+    public void likedTracksRequestsDoesNotUpdateEmptyListFromSyncer() {
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedTracks().subscribe(observer);
+
+        verify(syncInitiator, never()).requestTracksSync(anyList());
     }
 
     @Test
@@ -123,6 +147,27 @@ public class LikeOperationsTest {
 
         verify(observer).onNext(likedPlaylists);
         verify(observer).onCompleted();
+    }
+
+    @Test
+    public void likedPlaylistsRequestsUpdatesFromSyncer() {
+        List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedPlaylists().subscribe(observer);
+
+        verify(syncInitiator).requestPlaylistSync(likedPlaylists);
+    }
+
+    @Test
+    public void likedPlaylistsDoesNotUpdateEmptyPageWithSyncer() {
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedPlaylists().subscribe(observer);
+
+        verify(syncInitiator, never()).requestPlaylistSync(anyList());
     }
 
     @Test
