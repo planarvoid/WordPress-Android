@@ -19,15 +19,13 @@ public class EmptyPlaylistLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        emptyUser.logIn(getInstrumentation().getTargetContext());
         setDependsOn(Flag.NEW_LIKES_END_TO_END);
-
+        emptyUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
-
-        playlistsScreen = NavigationHelper.openLikedPlaylists(new MenuScreen(solo));
     }
 
     public void testShowsEmptyLikesScreen() {
+        playlistsScreen = NavigationHelper.openLikedPlaylists(new MenuScreen(solo));
         assertTrue(playlistsScreen.emptyView().isVisible());
     }
 }

@@ -18,16 +18,15 @@ public class EmptyTrackLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        emptyUser.logIn(getInstrumentation().getTargetContext());
         setDependsOn(Flag.NEW_LIKES_END_TO_END);
+        emptyUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
-
-        menuScreen = new MenuScreen(solo);
-        likesScreen = menuScreen.open().clickLikes();
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void testShowsEmptyLikesScreen() {
+        menuScreen = new MenuScreen(solo);
+        likesScreen = menuScreen.open().clickLikes();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         assertTrue(likesScreen.emptyView().isVisible());
     }
 }

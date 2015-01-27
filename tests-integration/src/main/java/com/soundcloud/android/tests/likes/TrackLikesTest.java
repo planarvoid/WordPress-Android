@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.LikesScreen;
@@ -14,7 +15,6 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class TrackLikesTest extends ActivityTest<MainActivity> {
-    protected LikesScreen likesScreen;
 
     public TrackLikesTest() {
         super(MainActivity.class);
@@ -22,28 +22,27 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
         setDependsOn(Flag.NEW_LIKES_END_TO_END);
+        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
-
-        menuScreen = new MenuScreen(solo);
-        likesScreen = menuScreen.open().clickLikes();
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void testClickingShuffleButtonOpensPlayer() {
+        LikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
 
         assertThat(playerElement, is(visible()));
     }
 
     public void testClickingTrackOpensPlayer() {
+        LikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         VisualPlayerElement playerElement = likesScreen.clickItem(1);
 
         assertThat(playerElement, is(visible()));
     }
 
     public void testLoadsNextPage() {
+        LikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         int numberOfTracks = likesScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));
 
