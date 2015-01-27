@@ -9,10 +9,14 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -33,7 +37,7 @@ import javax.inject.Singleton;
 public class PlayerWidgetController {
 
     public static final String ACTION_LIKE_CHANGED = "com.soundcloud.android.widgetLike";
-    public static final String EXTRA_IS_LIKE = "isLike";
+    public static final String EXTRA_ADD_LIKE = "isLike";
 
     private final Context context;
     private final PlayerWidgetPresenter presenter;
@@ -42,6 +46,8 @@ public class PlayerWidgetController {
     private final TrackOperations trackOperations;
     private final SoundAssociationOperations soundAssociationOps;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
+    private final LikeOperations likeOperations;
 
     private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
         @Override
@@ -53,7 +59,8 @@ public class PlayerWidgetController {
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider, PlayQueueManager playQueueManager,
-                                  TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
+                                  TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus,
+                                  FeatureFlags featureFlags, LikeOperations likeOperations) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
@@ -61,6 +68,8 @@ public class PlayerWidgetController {
         this.trackOperations = trackOperations;
         this.soundAssociationOps = soundAssocicationOps;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
+        this.likeOperations = likeOperations;
     }
 
     public void subscribe() {
@@ -98,20 +107,34 @@ public class PlayerWidgetController {
     }
 
     // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
-    public void handleToggleLikeAction(boolean isLike) {
+    public void handleToggleLikeAction(boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        fireAndForget(trackOperations.track(currentTrackUrn)
-                .flatMap(toggleLike(isLike))
-                .observeOn(AndroidSchedulers.mainThread()));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(),
-                currentTrackUrn));
+        if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
+            toggleLike(addLike, currentTrackUrn);
+        } else {
+            toggleLikeDeprecated(addLike, currentTrackUrn);
+        }
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(), currentTrackUrn));
     }
 
-    private Func1<PropertySet, Observable<PropertySet>> toggleLike(final boolean isLike) {
+    private void toggleLike(boolean addLike, Urn trackUrn) {
+        final PropertySet propertySet = PropertySet.from(PlayableProperty.URN.bind(trackUrn));
+        fireAndForget(addLike
+                ? likeOperations.addLike(propertySet)
+                : likeOperations.removeLike(propertySet));
+    }
+
+    private void toggleLikeDeprecated(boolean addLike, Urn currentTrackUrn) {
+        fireAndForget(trackOperations.track(currentTrackUrn)
+                .flatMap(toggleLikeSoundAssociation(addLike))
+                .observeOn(AndroidSchedulers.mainThread()));
+    }
+
+    private Func1<PropertySet, Observable<PropertySet>> toggleLikeSoundAssociation(final boolean addLike) {
         return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
             public Observable<PropertySet> call(PropertySet track) {
-                return soundAssociationOps.toggleLike(track.get(TrackProperty.URN), isLike);
+                return soundAssociationOps.toggleLike(track.get(TrackProperty.URN), addLike);
             }
         };
     }

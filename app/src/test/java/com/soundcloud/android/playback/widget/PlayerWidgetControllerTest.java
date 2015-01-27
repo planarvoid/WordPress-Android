@@ -22,10 +22,13 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
@@ -61,6 +64,8 @@ public class PlayerWidgetControllerTest {
     @Mock private TrackOperations trackOperations;
     @Mock private SoundAssociationOperations soundAssociationOps;
     @Mock private AdsOperations adsOperations;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private LikeOperations likeOperations;
 
     @Before
     public void setUp() {
@@ -70,7 +75,10 @@ public class PlayerWidgetControllerTest {
                 playSessionStateProvider,
                 playQueueManager,
                 trackOperations,
-                soundAssociationOps, eventBus);
+                soundAssociationOps,
+                eventBus,
+                featureFlags,
+                likeOperations);
         when(context.getResources()).thenReturn(Robolectric.application.getResources());
         widgetTrack = expectedTrackForWidget();
         widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
@@ -253,6 +261,18 @@ public class PlayerWidgetControllerTest {
         controller.handleToggleLikeAction(true);
 
         verify(soundAssociationOps).toggleLike(WIDGET_TRACK_URN, true);
+    }
+
+    @Test
+    public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
+        when(featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)).thenReturn(true);
+        when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
+        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>never());
+
+        controller.handleToggleLikeAction(true);
+
+        verify(likeOperations).addLike(eq(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123)))));
     }
 
     @Test

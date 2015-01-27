@@ -13,12 +13,16 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.propeller.PropertySet;
@@ -40,6 +44,8 @@ public class TrackPageListenerTest {
     @Mock private SoundAssociationOperations soundAssociationOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private LikeOperations likeOperations;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -49,7 +55,7 @@ public class TrackPageListenerTest {
     public void setUp() throws Exception {
         listener = new TrackPageListener(playbackOperations,
                 soundAssociationOperations, playQueueManager,
-                playSessionStateProvider, eventBus);
+                playSessionStateProvider, eventBus, featureFlags, likeOperations);
     }
 
     @Test
@@ -59,6 +65,26 @@ public class TrackPageListenerTest {
         listener.onToggleLike(true, TRACK_URN);
 
         verify(soundAssociationOperations).toggleLike(TRACK_URN, true);
+    }
+
+    @Test
+         public void onToggleUnlikedTrackLikesViaLikesOperations() {
+        when(featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)).thenReturn(true);
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleLike(true, TRACK_URN);
+
+        verify(likeOperations).addLike(PropertySet.from(PlayableProperty.URN.bind(TRACK_URN)));
+    }
+
+    @Test
+    public void onToggleLikedTrackLikesViaUnlikesOperations() {
+        when(featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)).thenReturn(true);
+        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleLike(false, TRACK_URN);
+
+        verify(likeOperations).removeLike(PropertySet.from(PlayableProperty.URN.bind(TRACK_URN)));
     }
 
     @Test

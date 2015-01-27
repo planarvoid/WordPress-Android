@@ -11,7 +11,10 @@ import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -48,15 +51,19 @@ public class PlaylistEngagementsController {
     private final SoundAssociationOperations soundAssociationOps;
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
+    private final LikeOperations likeOperations;
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
     public PlaylistEngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps,
-                                         AccountOperations accountOperations) {
+                                         AccountOperations accountOperations, FeatureFlags featureFlags, LikeOperations likeOperations) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
         this.accountOperations = accountOperations;
+        this.featureFlags = featureFlags;
+        this.likeOperations = likeOperations;
     }
 
     void bindView(View rootView) {
@@ -78,12 +85,20 @@ public class PlaylistEngagementsController {
             toggleLike.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    final boolean addLike = toggleLike.isChecked();
                     if (playable != null) {
-                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(toggleLike.isChecked(),
+                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
                                 Screen.PLAYLIST_DETAILS.get(),
                                 PlaylistEngagementsController.this.originProvider.getScreenTag(),
                                 playable.getUrn()));
-                        fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), toggleLike.isChecked()));
+                        if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
+                            final PropertySet propertySet = playable.toPropertySet();
+                            fireAndForget(addLike
+                                    ? likeOperations.addLike(propertySet)
+                                    : likeOperations.removeLike(propertySet));
+                        } else {
+                            fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), addLike));
+                        }
                     }
                 }
             });
@@ -153,6 +168,8 @@ public class PlaylistEngagementsController {
             public void onNext(PlayableUpdatedEvent event) {
                 if (playable != null && playable.getUrn().equals(event.getUrn())) {
                     final PropertySet changeSet = event.getChangeSet();
+                    playable.updateAssociations(changeSet);
+
                     if (changeSet.contains(PlayableProperty.IS_LIKED)) {
                         updateLikeButton(
                                 changeSet.get(PlayableProperty.LIKES_COUNT),

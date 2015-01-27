@@ -102,7 +102,8 @@ public class SoundAssociationStorage extends ScheduledOperations {
      * Persists user-reposted-this information to the database. This methods ensure that both a {@link SoundAssociation}
      * record will be created, as well as the reposts counter cache on the playable to be updated and persisted.
      */
-    public SoundAssociation addRepost(Playable playable) {
+    @VisibleForTesting
+    SoundAssociation addRepost(Playable playable) {
         playable.user_repost = true;
         playable.reposts_count = getUpdatedCountForAddition(playable.reposts_count);
         SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;

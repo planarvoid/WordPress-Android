@@ -174,4 +174,19 @@ public abstract class TestPropertySets {
                     PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
                     PlayableProperty.IS_REPOSTED.bind(isReposted));
     }
+
+    public static PropertySet unlikedTrack(Urn trackUrn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(trackUrn),
+                PlayableProperty.IS_LIKED.bind(false)
+        );
+    }
+
+    public static PropertySet likedTrack(Urn trackUrn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(trackUrn),
+                PlayableProperty.LIKES_COUNT.bind(12),
+                PlayableProperty.IS_LIKED.bind(true)
+        );
+    }
 }

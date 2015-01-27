@@ -5,15 +5,18 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -33,10 +36,12 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final LoadTrackCommand loadTrackCommand;
     private final Context context;
+    private final FeatureFlags featureFlags;
+    private final EventBus eventBus;
+    private final LikeOperations likeOperations;
 
     private FragmentActivity activity;
     private PropertySet track;
-    private EventBus eventBus;
     private Subscription trackSubscription = Subscriptions.empty();
 
     @Inject
@@ -44,13 +49,16 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
                             SoundAssociationOperations associationOperations,
                             PopupMenuWrapper.Factory popupMenuWrapperFactory,
                             LoadTrackCommand loadTrackCommand,
-                            EventBus eventBus, Context context) {
+                            EventBus eventBus, Context context, FeatureFlags featureFlags,
+                            LikeOperations likeOperations) {
         this.playQueueManager = playQueueManager;
         this.associationOperations = associationOperations;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.loadTrackCommand = loadTrackCommand;
         this.eventBus = eventBus;
         this.context = context;
+        this.featureFlags = featureFlags;
+        this.likeOperations = likeOperations;
     }
 
     public void show(FragmentActivity activity, View button, PropertySet track) {
@@ -108,20 +116,30 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
 
     private void handleLike() {
         final Urn trackUrn = track.get(TrackProperty.URN);
-        final Boolean newLikeStatus = !track.get(TrackProperty.IS_LIKED);
-        associationOperations
-                .toggleLike(trackUrn, newLikeStatus)
-                .doOnNext(new Action1<PropertySet>() {
-                    @Override
-                    public void call(PropertySet bindings) {
-                        if (newLikeStatus != bindings.get(TrackProperty.IS_LIKED)) {
-                            throw new IllegalStateException("Track did not change liked status on server side");
+        final Boolean addLike = !track.get(TrackProperty.IS_LIKED);
+        if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
+            getToggleLikeObservable(addLike)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new LikeToggleSubscriber(context, addLike));
+        } else {
+            associationOperations
+                    .toggleLike(trackUrn, addLike)
+                    .doOnNext(new Action1<PropertySet>() {
+                        @Override
+                        public void call(PropertySet bindings) {
+                            if (addLike != bindings.get(TrackProperty.IS_LIKED)) {
+                                throw new IllegalStateException("Track did not change liked status on server side");
+                            }
                         }
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new LikeToggleSubscriber(context));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(newLikeStatus, ScreenElement.LIST.get(), playQueueManager.getScreenTag(), trackUrn));
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new LikeToggleSubscriber(context, addLike));
+        }
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(), playQueueManager.getScreenTag(), trackUrn));
+    }
+
+    private Observable<PropertySet> getToggleLikeObservable(boolean addLike) {
+        return addLike ? likeOperations.addLike(track) : likeOperations.removeLike(track);
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {
@@ -152,14 +170,16 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
 
     private static class LikeToggleSubscriber extends DefaultSubscriber<PropertySet> {
         private final Context context;
+        private final boolean likeStatus;
 
-        private LikeToggleSubscriber(Context context) {
+        private LikeToggleSubscriber(Context context, boolean likeStatus) {
             this.context = context;
+            this.likeStatus = likeStatus;
         }
 
         @Override
-        public void onNext(PropertySet likeStatus) {
-            if (likeStatus.get(PlayableProperty.IS_LIKED)) {
+        public void onNext(PropertySet ignored) {
+            if (likeStatus) {
                 Toast.makeText(context, R.string.like_toast_overflow_action, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(context, R.string.unlike_toast_overflow_action, Toast.LENGTH_SHORT).show();

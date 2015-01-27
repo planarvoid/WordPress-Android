@@ -13,6 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Sharing;
@@ -21,10 +22,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -52,12 +57,15 @@ public class PlaylistEngagementsControllerTest {
     @Mock private SoundAssociationOperations soundAssocOps;
     @Mock private Context context;
     @Mock private AccountOperations accountOperations;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private LikeOperations likeOperations;
+    @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
 
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.playlist_action_bar, null);
-        controller = new PlaylistEngagementsController(eventBus, soundAssocOps, accountOperations);
+        controller = new PlaylistEngagementsController(eventBus, soundAssocOps, accountOperations, featureFlags, likeOperations);
         controller.bindView(rootView);
         controller.startListeningForChanges();
         track = createTrack();
@@ -195,6 +203,24 @@ public class PlaylistEngagementsControllerTest {
         likeButton.performClick();
 
         verify(soundAssocOps).toggleLike(eq(track.getUrn()), eq(true));
+        expect(likeButton.isChecked()).toBeTrue();
+    }
+
+    @Test
+    public void shouldLikeTrackByLikeOperationsWhenCheckingLikeButton() {
+        final PublicApiPlaylist apiPlaylist = ModelFixtures.create(PublicApiPlaylist.class);
+        when(featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)).thenReturn(true);
+        when(legacyPlaylistOperations.loadPlaylist(any(Urn.class))).thenReturn(Observable.just(apiPlaylist));
+        controller.setPlayable(apiPlaylist);
+
+        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
+        expect(likeButton.isChecked()).toBeFalse();
+
+        when(likeOperations.addLike(apiPlaylist.toPropertySet())).thenReturn(Observable.<PropertySet>empty());
+
+        likeButton.performClick();
+
+        verify(likeOperations).addLike(apiPlaylist.toPropertySet());
         expect(likeButton.isChecked()).toBeTrue();
     }
 

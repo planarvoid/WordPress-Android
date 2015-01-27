@@ -6,7 +6,12 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -34,14 +39,23 @@ public class LikeOperationsTest {
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     @Mock private LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
+    @Mock private UpdateLikeCommand storeLikeCommand;
     @Mock private SyncInitiator syncInitiator;
 
+    private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
 
     @Before
     public void setUp() throws Exception {
-        operations = new LikeOperations(loadLikedTracksCommand, loadLikedTrackUrnsCommand, loadLikedPlaylistsCommand,
-                syncInitiator, scheduler);
+        operations = new LikeOperations(loadLikedTracksCommand,
+                loadLikedTrackUrnsCommand,
+                loadLikedPlaylistsCommand,
+                storeLikeCommand,
+                syncInitiator,
+                eventBus,
+                scheduler);
+        when(storeLikeCommand.toObservable()).thenReturn(
+                Observable.just(TestPropertySets.likedTrack(Urn.forTrack(123))));
     }
 
     @Test
@@ -153,6 +167,44 @@ public class LikeOperationsTest {
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    public void toggleToggleLikeAddsNewLike() {
+        final PropertySet track = TestPropertySets.unlikedTrack(Urn.forTrack(123L));
+        operations.addLike(track).subscribe();
+
+        verify(storeLikeCommand).toObservable();
+        final PropertySet input = storeLikeCommand.getInput();
+        expect(input.contains(LikeProperty.ADDED_AT)).toBeTrue();
+        expect(input.contains(LikeProperty.CREATED_AT)).toBeTrue();
+        expect(input.get(PlayableProperty.IS_LIKED)).toBeTrue();
+    }
+
+    @Test
+    public void toggleToggleLikeRemovesLike() {
+        final PropertySet track = TestPropertySets.likedTrack(Urn.forTrack(123L));
+
+        operations.removeLike(track).subscribe();
+
+        verify(storeLikeCommand).toObservable();
+        final PropertySet input = storeLikeCommand.getInput();
+        expect(input.contains(LikeProperty.REMOVED_AT)).toBeTrue();
+        expect(input.contains(LikeProperty.CREATED_AT)).toBeTrue();
+        expect(input.get(PlayableProperty.IS_LIKED)).toBeFalse();
+    }
+
+    @Test
+    public void togglingLikePublishesPlayableChangedEvent() {
+        final PropertySet track = TestPropertySets.likedTrack(Urn.forTrack(123L));
+
+        operations.addLike(track).subscribe();
+
+        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
+        expect(event.getUrn()).toEqual(track.get(PlayableProperty.URN));
+        expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
+    }
+
 
     private List<PropertySet> createPageOfTrackLikes(int size){
         List<PropertySet> page = new ArrayList<>(size);

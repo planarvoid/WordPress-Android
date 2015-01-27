@@ -3,18 +3,24 @@ package com.soundcloud.android.likes;
 import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action1;
 import rx.android.Pager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Date;
 import java.util.List;
 
 public class LikeOperations {
@@ -25,8 +31,20 @@ public class LikeOperations {
     private final LoadLikedTracksCommand loadLikedTracksCommand;
     private final LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
+    private final UpdateLikeCommand storeLikeCommand;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
+    private final EventBus eventBus;
+
+    private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
+        @Override
+        public void call(PropertySet changeSet) {
+            final Urn urn = changeSet.get(PlayableProperty.URN);
+            final int likeCount = changeSet.get(PlayableProperty.LIKES_COUNT);
+            final boolean isLiked = changeSet.get(PlayableProperty.IS_LIKED);
+            eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(urn, isLiked, likeCount));
+        }
+    };
 
     private final Func1<SyncResult, ChronologicalQueryParams> toInitalPageParams = new Func1<SyncResult, ChronologicalQueryParams>() {
         @Override
@@ -61,11 +79,15 @@ public class LikeOperations {
     public LikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
                           LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                           LoadLikedPlaylistsCommand loadLikedPlaylistsCommand,
+                          UpdateLikeCommand storeLikeCommand,
                           SyncInitiator syncInitiator,
+                          EventBus eventBus,
                           @Named("Storage") Scheduler scheduler) {
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.loadLikedPlaylistsCommand = loadLikedPlaylistsCommand;
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
+        this.storeLikeCommand = storeLikeCommand;
+        this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
     }
@@ -98,6 +120,30 @@ public class LikeOperations {
 
     public Observable<List<PropertySet>> updatedLikedPlaylists() {
         return syncInitiator.syncPlaylistLikes().map(toInitalPageParams).flatMap(loadLikedPlaylistsCommand);
+    }
+
+    public Observable<PropertySet> addLike(final PropertySet sound) {
+        sound.put(PlayableProperty.IS_LIKED, true);
+        Date likeTime = new Date();
+        sound.put(LikeProperty.CREATED_AT, likeTime);
+        sound.put(LikeProperty.ADDED_AT, likeTime);
+        return toggleLike(sound);
+    }
+
+    public Observable<PropertySet> removeLike(final PropertySet sound) {
+        sound.put(PlayableProperty.IS_LIKED, false);
+        Date unlikeTime = new Date();
+        sound.put(LikeProperty.CREATED_AT, unlikeTime);
+        sound.put(LikeProperty.REMOVED_AT, unlikeTime);
+        return toggleLike(sound);
+    }
+
+    private Observable<PropertySet> toggleLike(PropertySet likeProperties) {
+        return storeLikeCommand
+                .with(likeProperties)
+                .toObservable()
+                .doOnNext(publishPlayableChanged)
+                .subscribeOn(scheduler);
     }
 
     private <CollT extends List> Func1<CollT, Observable<CollT>> returnIfNonEmptyOr(final Observable<CollT> syncAndLoadObservable) {

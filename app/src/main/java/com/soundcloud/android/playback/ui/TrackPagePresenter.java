@@ -254,8 +254,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void updateLikeStatus(View view, Urn trackUrn) {
-        boolean isLike = ((Checkable) view).isChecked();
-        listener.onToggleLike(isLike, trackUrn);
+        boolean addLike = ((Checkable) view).isChecked();
+        listener.onToggleLike(addLike, trackUrn);
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
