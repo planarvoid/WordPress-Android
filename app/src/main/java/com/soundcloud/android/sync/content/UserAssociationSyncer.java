@@ -1,12 +1,20 @@
 package com.soundcloud.android.sync.content;
 
-import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
-
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.NotificationConstants;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
@@ -15,6 +23,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -26,12 +35,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.Scheduler;
 import rx.schedulers.Schedulers;
-
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,32 +44,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
+
 public class UserAssociationSyncer extends LegacySyncStrategy {
 
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";
 
-    private UserAssociationStorage userAssociationStorage;
-    private FollowingOperations followingOperations;
+    private final UserAssociationStorage userAssociationStorage;
+    private final FollowingOperations followingOperations;
+    private final NotificationManager notificationManager;
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context, AccountOperations accountOperations,
-                                    FollowingOperations followingOperations) {
-        super(context, context.getContentResolver(), accountOperations);
-        Scheduler scheduler = Schedulers.immediate();
-        init(new UserAssociationStorage(scheduler, context.getContentResolver()), followingOperations);
+                                 FollowingOperations followingOperations, NotificationManager notificationManager) {
+        this(context, context.getContentResolver(),
+                new UserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
+                followingOperations, accountOperations, notificationManager);
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
-                                    FollowingOperations followingOperations, AccountOperations accountOperations) {
+                                    FollowingOperations followingOperations, AccountOperations accountOperations,
+                                    NotificationManager notificationManager) {
         super(context, resolver, accountOperations);
-        init(userAssociationStorage, followingOperations);
-    }
-
-    private void init(UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
-        this.followingOperations = followingOperations;
         this.userAssociationStorage = userAssociationStorage;
+        this.followingOperations = followingOperations;
+        this.notificationManager = notificationManager;
     }
 
     public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
@@ -146,30 +151,60 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     /* package */ boolean pushUserAssociation(UserAssociation userAssociation) {
         final Request request = Request.to(Endpoints.MY_FOLLOWING, userAssociation.getUser().getId());
         try {
-            final boolean success;
 
             switch (userAssociation.getLocalSyncState()) {
                 case PENDING_ADDITION:
-                    int status = api.put(request).getStatusLine().getStatusCode();
-                    success = status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED;
-                    break;
+                    return pushUserAssociationAddition(userAssociation, request);
 
                 case PENDING_REMOVAL:
-                    status = api.delete(request).getStatusLine().getStatusCode();
-                    success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
-                    break;
+                    return pushUserAssociationRemoval(userAssociation, request);
 
                 default:
                     // no flags, no op.
                     return true;
             }
-            if (success) {
-                userAssociationStorage.setFollowingAsSynced(userAssociation);
-            }
-            return success;
-
         } catch (IOException e) {
             Log.e(TAG, "error", e);
+            return false;
+        }
+    }
+
+    private boolean pushUserAssociationAddition(UserAssociation userAssociation, Request request) throws IOException {
+        int status = api.put(request).getStatusLine().getStatusCode();
+        if (status == HttpStatus.SC_FORBIDDEN) {
+            String title = context.getString(R.string.follow_blocked_title);
+            String content = context.getString(R.string.follow_blocked_content, userAssociation.getUser().getDisplayName());
+            Intent launchProfileActivity = ProfileActivity.getIntent(context, userAssociation.getUser().getUrn());
+            launchProfileActivity.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchProfileActivity, 0);
+            final Notification notification = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.ic_notification_cloud)
+                    .setContentTitle(title)
+                    .setContentText(content)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(content).setBigContentTitle(title))
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .build();
+            notificationManager.notify(userAssociation.getUser().getUrn().toString(), NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID, notification);
+
+            followingOperations.removeFollowing(userAssociation.getUser());
+            return true;
+        } else if (status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED) {
+            userAssociationStorage.setFollowingAsSynced(userAssociation);
+            return true;
+        } else {
+            Log.w(TAG, "failure " + status + " in user association addition of " + userAssociation.getUser().getId());
+            return false;
+        }
+    }
+
+    private boolean pushUserAssociationRemoval(UserAssociation userAssociation, Request request) throws IOException {
+        int status = api.delete(request).getStatusLine().getStatusCode();
+        if (status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND || status == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
+            userAssociationStorage.setFollowingAsSynced(userAssociation);
+            return true;
+        } else {
+            Log.w(TAG, "failure " + status + " in user association removal of " + userAssociation.getUser().getId());
             return false;
         }
     }

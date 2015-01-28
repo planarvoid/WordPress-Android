@@ -43,6 +43,7 @@ import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -252,6 +253,9 @@ public class TestApplicationModule {
     public NetworkConnectionHelper provideNetworkConnectionHelper() {
         return mock(NetworkConnectionHelper.class);
     }
+
+    @Provides
+    NotificationManager provideNotificationManager() { return mock(NotificationManager.class); }
 
 }
 

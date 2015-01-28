@@ -2,8 +2,8 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
@@ -12,6 +12,7 @@ import com.soundcloud.android.sync.playlists.PlaylistSyncer;
 import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import dagger.Lazy;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
 
@@ -23,16 +24,19 @@ public class ApiSyncerFactory {
 
     private final Provider<FollowingOperations> followingOpsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
+    private final Provider<NotificationManager> notificationManagerProvider;
     private final FeatureFlags featureFlags;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
+                            Provider<NotificationManager> notificationManagerProvider,
                             FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
+        this.notificationManagerProvider = notificationManagerProvider;
         this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
@@ -52,7 +56,8 @@ public class ApiSyncerFactory {
                 return lazyMyLikesSyncer.get();
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-                return new UserAssociationSyncer(context, accountOpsProvider.get(), followingOpsProvider.get());
+                return new UserAssociationSyncer(
+                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get());
 
             case ME_PLAYLISTS:
             case PLAYLIST:

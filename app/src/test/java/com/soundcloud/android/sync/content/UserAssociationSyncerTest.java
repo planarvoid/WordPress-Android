@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -73,13 +74,15 @@ public class UserAssociationSyncerTest {
     private FollowingOperations followingOperations;
     @Mock
     private ApiResponse apiResponse;
+    @Mock
+    private NotificationManager notificationManager;
 
 
     @Before
     public void before() {
         TestHelper.setUserId(133201L);
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
-                resolver, userAssociationStorage, followingOperations, accountOperations);
+                resolver, userAssociationStorage, followingOperations, accountOperations, notificationManager);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -333,7 +336,8 @@ public class UserAssociationSyncerTest {
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, accountOperations, followingOperations);
+        UserAssociationSyncer syncer = new UserAssociationSyncer(
+                Robolectric.application, accountOperations, followingOperations, notificationManager);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 

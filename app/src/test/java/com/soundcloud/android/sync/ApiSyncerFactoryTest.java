@@ -17,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import android.app.NotificationManager;
+
 import javax.inject.Provider;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -52,6 +54,11 @@ public class ApiSyncerFactoryTest {
             @Override
             public AccountOperations get() {
                 return mock(AccountOperations.class);
+            }
+        }, new Provider<NotificationManager>() {
+            @Override
+            public NotificationManager get() {
+                return mock(NotificationManager.class);
             }
         }, Mockito.mock(FeatureFlags.class), Mockito.mock(Lazy.class), Mockito.mock(Lazy.class)).forContentUri(Robolectric.application, content.uri);
     }

@@ -15,6 +15,7 @@ import com.soundcloud.android.sync.SyncStateManager;
 import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Handler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,9 +124,14 @@ import java.util.WeakHashMap;
             }
         }
 
-        for (FollowStatusChangedListener l : listeners.keySet()) {
-            l.onFollowChanged();
-        }
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                for (FollowStatusChangedListener l : listeners.keySet()) {
+                    l.onFollowChanged();
+                }
+            }
+        });
     }
 
     private class FollowingQueryHandler extends AsyncQueryHandler {

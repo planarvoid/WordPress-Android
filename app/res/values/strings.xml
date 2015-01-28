@@ -186,6 +186,8 @@
     <string name="connect_failure">Failed connecting with %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
+    <string name="follow_blocked_title">Follow Blocked</string>
+    <string name="follow_blocked_content">%s has asked us to block your account from following them.</string>
 
     <!-- __EXPLORE -->
     <string name="explore_genres">Genres</string>

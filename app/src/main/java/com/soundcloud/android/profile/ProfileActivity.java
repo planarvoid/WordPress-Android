@@ -166,6 +166,7 @@ public class ProfileActivity extends ScActivity implements
                 toggleFollow.setVisibility(View.GONE);
             } else {
                 toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
+                setFollowersMessage();
                 toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
