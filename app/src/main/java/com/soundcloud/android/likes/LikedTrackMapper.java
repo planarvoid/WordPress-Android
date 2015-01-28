@@ -19,13 +19,13 @@ public class LikedTrackMapper extends RxResultMapper<PropertySet> {
         final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
 
         propertySet.put(TrackProperty.URN, readSoundUrn(cursorReader));
-        propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
-        propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
-        propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.SoundView.DURATION));
-        propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
-        propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
+        propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.Sounds.TITLE));
+        propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(TableColumns.Users.USERNAME));
+        propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.Sounds.DURATION));
+        propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.Sounds.PLAYBACK_COUNT));
+        propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.Sounds.LIKES_COUNT));
         propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
-        propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+        propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.Sounds.SHARING)));
 
         return propertySet;
     }

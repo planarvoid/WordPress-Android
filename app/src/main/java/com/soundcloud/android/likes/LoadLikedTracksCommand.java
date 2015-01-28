@@ -21,19 +21,20 @@ public class LoadLikedTracksCommand extends PagedQueryCommand<ChronologicalQuery
 
     @Override
     protected Query buildQuery(ChronologicalQueryParams input) {
-        return Query.from(Table.Likes.name(), Table.SoundView.name())
+        return Query.from(Table.Likes.name(), Table.Sounds.name(), Table.Users.name())
                 .select(
-                        field(Table.SoundView + "." + TableColumns.SoundView._ID).as(BaseColumns._ID),
-                        TableColumns.SoundView.TITLE,
-                        TableColumns.SoundView.USERNAME,
-                        TableColumns.SoundView.DURATION,
-                        TableColumns.SoundView.PLAYBACK_COUNT,
-                        TableColumns.SoundView.LIKES_COUNT,
-                        TableColumns.SoundView.SHARING,
+                        field(Table.Sounds + "." + TableColumns.Sounds._ID).as(BaseColumns._ID),
+                        TableColumns.Sounds.TITLE,
+                        TableColumns.Users.USERNAME,
+                        TableColumns.Sounds.DURATION,
+                        TableColumns.Sounds.PLAYBACK_COUNT,
+                        TableColumns.Sounds.LIKES_COUNT,
+                        TableColumns.Sounds.SHARING,
                         field(Table.Likes + "." + TableColumns.Likes.CREATED_AT).as(TableColumns.Likes.CREATED_AT))
                 .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereLt(Table.Likes + "." + TableColumns.Likes.CREATED_AT, input.getTimestamp())
-                .joinOn(Table.Likes + "." + TableColumns.Likes._ID, Table.SoundView + "." + TableColumns.SoundView._ID)
+                .joinOn(Table.Likes + "." + TableColumns.Likes._ID, Table.Sounds + "." + TableColumns.Sounds._ID)
+                .joinOn(Table.Sounds + "." + TableColumns.Sounds.USER_ID, Table.Users + "." + TableColumns.Users._ID)
                 .order(Table.Likes + "." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC)
                 .whereNull(TableColumns.Likes.REMOVED_AT);
     }
