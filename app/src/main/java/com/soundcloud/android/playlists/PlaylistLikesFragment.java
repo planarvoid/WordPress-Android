@@ -48,7 +48,7 @@ public class PlaylistLikesFragment extends LightCycleFragment
 
         addLifeCycleComponent(listViewController);
         addLifeCycleComponent(pullToRefreshController);
-        addLifeCycleComponent(adapter);
+        addLifeCycleComponent(adapter.getLifeCycleHandler());
     }
 
     @VisibleForTesting

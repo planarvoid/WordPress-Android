@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.FragmentLightCycle;
+import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
@@ -22,76 +22,43 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
-        implements ReactiveAdapter<Iterable<PropertySet>>, FragmentLightCycle {
+        implements ReactiveAdapter<Iterable<PropertySet>> {
 
     private final TrackItemPresenter trackPresenter;
-    private final EventBus eventBus;
+    private final DefaultFragmentLightCycle lifeCycleHandler;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
-    public TrackLikesAdapter(TrackItemPresenter trackPresenter, EventBus eventBus) {
+    public TrackLikesAdapter(final TrackItemPresenter trackPresenter, final EventBus eventBus) {
         super(trackPresenter);
         this.trackPresenter = trackPresenter;
-        this.eventBus = eventBus;
+        lifeCycleHandler = createLifeCycleHandler(trackPresenter, eventBus);
     }
 
     public TrackItemPresenter getTrackPresenter() {
         return trackPresenter;
     }
 
-    @Override
-    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this)),
-                eventBus.subscribe(EventQueue.RESOURCES_SYNCED, new ListContentSyncedSubscriber(this))
-        );
+    public DefaultFragmentLightCycle getLifeCycleHandler() {
+        return lifeCycleHandler;
     }
 
-    @Override
-    public void onDestroyView(Fragment fragment) {
-        eventSubscriptions.unsubscribe();
-    }
+    private DefaultFragmentLightCycle createLifeCycleHandler(final TrackItemPresenter trackPresenter, final EventBus eventBus) {
+        return new DefaultFragmentLightCycle(){
+            @Override
+            public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
+                eventSubscriptions = new CompositeSubscription(
+                        eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(TrackLikesAdapter.this, trackPresenter)),
+                        eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(TrackLikesAdapter.this)),
+                        eventBus.subscribe(EventQueue.RESOURCES_SYNCED, new ListContentSyncedSubscriber(TrackLikesAdapter.this))
+                );
+            }
 
-
-    @Override
-    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
-        // No-op
-    }
-
-    @Override
-    public void onStart(Fragment fragment) {
-        // No-op
-    }
-
-    @Override
-    public void onResume(Fragment fragment) {
-        // No-op
-    }
-
-    @Override
-    public void onPause(Fragment fragment) {
-        // No-op
-    }
-
-    @Override
-    public void onStop(Fragment fragment) {
-        // No-op
-    }
-
-    @Override
-    public void onSaveInstanceState(Fragment fragment, Bundle bundle) {
-        // No-op
-    }
-
-    @Override
-    public void onRestoreInstanceState(Fragment fragment, Bundle bundle) {
-        // No-op
-    }
-
-    @Override
-    public void onDestroy(Fragment fragment) {
-        // No-op
+            @Override
+            public void onDestroyView(Fragment fragment) {
+                eventSubscriptions.unsubscribe();
+            }
+        };
     }
 }
