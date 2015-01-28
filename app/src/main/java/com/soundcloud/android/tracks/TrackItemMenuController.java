@@ -172,7 +172,7 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
         private final Context context;
         private final boolean likeStatus;
 
-        private LikeToggleSubscriber(Context context, boolean likeStatus) {
+        LikeToggleSubscriber(Context context, boolean likeStatus) {
             this.context = context;
             this.likeStatus = likeStatus;
         }

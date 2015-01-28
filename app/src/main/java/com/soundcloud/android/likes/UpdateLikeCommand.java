@@ -22,7 +22,7 @@ import java.util.List;
 
 class UpdateLikeCommand extends Command<PropertySet, PropertySet, UpdateLikeCommand> {
 
-    private PropellerDatabase database;
+    private final PropellerDatabase database;
 
     @Inject
     UpdateLikeCommand(PropellerDatabase database) {
@@ -63,7 +63,7 @@ class UpdateLikeCommand extends Command<PropertySet, PropertySet, UpdateLikeComm
                 .select(TableColumns.SoundView._ID, TableColumns.SoundView.LIKES_COUNT)
                 .whereEq(TableColumns.SoundView._ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, getSoundType(targetUrn)))
-                .toList(new LikeStateMapper());
+                .toList(new LikeCountMapper());
 
         return result.iterator().next().get(PlayableProperty.LIKES_COUNT);
     }
@@ -88,7 +88,7 @@ class UpdateLikeCommand extends Command<PropertySet, PropertySet, UpdateLikeComm
         return targetUrn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST;
     }
 
-    private class LikeStateMapper extends RxResultMapper<PropertySet> {
+    private static class LikeCountMapper extends RxResultMapper<PropertySet> {
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
