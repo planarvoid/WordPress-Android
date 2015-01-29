@@ -24,7 +24,8 @@ import java.util.List;
 public class OfflineContentService extends Service {
 
     protected static final String TAG = "OfflineContent";
-    protected static final String ACTION_DOWNLOAD_TRACKS = "action_download_tracks";
+    @VisibleForTesting static final String ACTION_START_DOWNLOAD = "action_start_download";
+    @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
 
     @Inject DownloadOperations downloadOperations;
     @Inject DownloadNotificationController notificationController;
@@ -46,13 +47,17 @@ public class OfflineContentService extends Service {
                 }
             };
 
-    public static void syncOfflineContent(Context context) {
-        context.startService(getDownloadIntent(context));
+    public static void startSyncing(Context context) {
+        context.startService(createIntent(context, ACTION_START_DOWNLOAD));
     }
 
-    private static Intent getDownloadIntent(Context context) {
+    public static void stopSyncing(Context context) {
+        context.startService(createIntent(context, ACTION_STOP_DOWNLOAD));
+    }
+
+    private static Intent createIntent(Context context, String action) {
         final Intent intent = new Intent(context, OfflineContentService.class);
-        intent.setAction(ACTION_DOWNLOAD_TRACKS);
+        intent.setAction(action);
         return intent;
     }
 
@@ -71,7 +76,7 @@ public class OfflineContentService extends Service {
         final String action = intent.getAction();
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
-        if (ACTION_DOWNLOAD_TRACKS.equalsIgnoreCase(action)) {
+        if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
             subscription.unsubscribe();
             subscription = downloadOperations
                     .pendingDownloads()
@@ -79,6 +84,8 @@ public class OfflineContentService extends Service {
                     .flatMap(toDownloadResult)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DownloadResultSubscriber());
+        } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
+            stop();
         }
         return START_NOT_STICKY;
     }

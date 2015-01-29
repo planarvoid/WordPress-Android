@@ -90,11 +90,11 @@ public class OfflineContentControllerTest {
     }
 
     @Test
-    public void updatesOfflineLikesWhenOfflineLikesDisabled() {
+    public void doesNotUpdateOfflineLikesWhenOfflineLikesDisabled() {
         controller.subscribe();
         offlineLikesSyncObservable.onNext(false);
 
-        verify(operations).updateOfflineLikes();
+        verify(operations, never()).updateOfflineLikes();
     }
 
     @Test
@@ -115,24 +115,35 @@ public class OfflineContentControllerTest {
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, createLikeEvent());
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual("action_download_tracks");
+        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 
     @Test
-    public void startsOfflineContentServiceWhenLikeSyncedLikesWithChange() {
+    public void startsOfflineContentServiceWithDownloadActionWhenLikeSyncedLikesWithChange() {
         when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
 
         controller.subscribe();
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual("action_download_tracks");
+        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 
     @Test
-    public void doeNotStartOfflineContentServiceWhenLikeSyncedLikesWithoutChqnge() {
+    public void startsOfflineContentServiceWithCancelActionWhenTheFeatureIsToggledOff() {
+        controller.subscribe();
+
+        offlineLikesSyncObservable.onNext(false);
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_STOP_DOWNLOAD);
+        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+    }
+
+    @Test
+    public void doeNotStartOfflineContentServiceWhenLikeSyncedLikesWithoutChange() {
         when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
 
         controller.subscribe();
