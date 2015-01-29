@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
@@ -49,28 +50,35 @@ public class TrackLikesFragmentTest {
     @Mock private TrackLikesAdapter adapter;
     @Mock private ListViewController listViewController;
     @Mock private PullToRefreshController pullToRefreshController;
-    @Mock private ShuffleViewController shuffleViewController;
+    @Mock private TrackLikesHeaderController headerController;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private Subscription subscription;
-    @Mock private Subscription shuffleSubscription;
+    @Mock private Subscription allLikedTracksSubscription;
     @Mock private Pager<List<PropertySet>> pager;
+
+    private List<Urn> likedTrackUrns = Lists.newArrayList(Urn.forTrack(123L), Urn.forTrack(456L));
 
     @Before
     public void setUp() {
-        Observable<List<PropertySet>> likedTracks = withSubscription(subscription, just(PropertySet.create())).toList();
-        when(likeOperations.likedTracks()).thenReturn(likedTracks);
+        Observable<List<PropertySet>> likedTracksObservable = withSubscription(subscription, just(PropertySet.create())).toList();
+        when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(Robolectric.application));
         when(adapter.getLifeCycleHandler()).thenReturn(Mockito.mock(DefaultFragmentLightCycle.class));
 
-        Observable<List<Urn>> likedTrackUrns = withSubscription(shuffleSubscription, just(Urn.forTrack(123L))).toList();
-        when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
+        Observable<List<Urn>> likedTrackUrnsObservable = withSubscription(allLikedTracksSubscription, just(likedTrackUrns));
+        when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
 
-        fragment = new TrackLikesFragment(adapter, likeOperations, listViewController,
-                pullToRefreshController, shuffleViewController, playbackOperations,
-                offlineOperations, actionMenuController,
+        fragment = new TrackLikesFragment(adapter,
+                likeOperations,
+                listViewController,
+                pullToRefreshController,
+                headerController,
+                playbackOperations,
+                offlineOperations,
+                actionMenuController,
                 TestSubscribers.expandPlayerSubscriber());
     }
 
@@ -86,7 +94,7 @@ public class TrackLikesFragmentTest {
         fragment.onCreate(null);
         fragment.onViewCreated(mock(View.class), null);
         fragment.onDestroy();
-        verify(shuffleSubscription).unsubscribe();
+        verify(allLikedTracksSubscription).unsubscribe();
     }
 
     @Test
@@ -99,6 +107,13 @@ public class TrackLikesFragmentTest {
         fragment.onItemClick(adapterView, mock(View.class), 0, 0);
 
         expect(playbackObservable.subscribedTo()).toBeTrue();
+    }
+
+    @Test
+    public void setAllLikedTrackUrnsOnHeaderControllerAfterViewCreated() {
+        fragment.onCreate(null);
+        fragment.onViewCreated(mock(View.class), null);
+        verify(headerController).setLikedTrackUrns(likedTrackUrns);
     }
 
     private AdapterView setupAdapterView(PropertySet clickedTrack) {

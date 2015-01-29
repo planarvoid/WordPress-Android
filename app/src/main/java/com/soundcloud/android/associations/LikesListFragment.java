@@ -56,7 +56,7 @@ public class LikesListFragment extends ScListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        headerView = (ViewGroup) inflater.inflate(R.layout.likes_shuffle_header, null, false);
+        headerView = (ViewGroup) inflater.inflate(R.layout.track_likes_header, null, false);
 
         final ScListView listView = getScListView();
         if (listView != null) {
@@ -103,7 +103,7 @@ public class LikesListFragment extends ScListFragment {
             shuffleButton.setVisibility(View.VISIBLE);
         }
 
-        ((TextView) headerView.findViewById(R.id.shuffle_txt)).setText(getHeaderText(likedTracks.size()));
+        ((TextView) headerView.findViewById(R.id.header_text)).setText(getHeaderText(likedTracks.size()));
         headerView.findViewById(R.id.shuffle_btn).setEnabled(likedTracks.size() > 1);
 
         headerView.findViewById(R.id.shuffle_btn).setOnClickListener(

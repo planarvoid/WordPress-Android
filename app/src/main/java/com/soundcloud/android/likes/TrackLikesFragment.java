@@ -45,7 +45,7 @@ public class TrackLikesFragment extends LightCycleFragment
     @Inject TrackLikesAdapter adapter;
     @Inject LikeOperations likeOperations;
     @Inject PlaybackOperations playbackOperations;
-    @Inject ShuffleViewController shuffleViewController;
+    @Inject TrackLikesHeaderController headerController;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject OfflineContentOperations offlineOperations;
@@ -55,13 +55,13 @@ public class TrackLikesFragment extends LightCycleFragment
     private ConnectableObservable<List<PropertySet>> observable;
     private Observable<List<Urn>> trackUrnsObservable;
     private Subscription connectionSubscription = Subscriptions.empty();
-    private Subscription shuffleSubscription = Subscriptions.empty();
+    private Subscription allLikedTracksSubscription = Subscriptions.empty();
 
     private DefaultSubscriber<List<PropertySet>> refreshShuffleHeader = new DefaultSubscriber<List<PropertySet>>() {
         @Override
         public void onNext(List<PropertySet> args) {
             createShuffleObservable();
-            subscribeShuffleViewController();
+            loadAllLikedTracks();
         }
     };
 
@@ -77,7 +77,7 @@ public class TrackLikesFragment extends LightCycleFragment
                        LikeOperations likeOperations,
                        ListViewController listViewController,
                        PullToRefreshController pullToRefreshController,
-                       ShuffleViewController shuffleViewController,
+                       TrackLikesHeaderController headerController,
                        PlaybackOperations playbackOperations,
                        OfflineContentOperations offlineOperations,
                        TrackLikesActionMenuController actionMenuController,
@@ -86,7 +86,7 @@ public class TrackLikesFragment extends LightCycleFragment
         this.likeOperations = likeOperations;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
-        this.shuffleViewController = shuffleViewController;
+        this.headerController = headerController;
         this.playbackOperations = playbackOperations;
         this.offlineOperations = offlineOperations;
         this.actionMenuController = actionMenuController;
@@ -98,7 +98,7 @@ public class TrackLikesFragment extends LightCycleFragment
         listViewController.setAdapter(adapter, likeOperations.likedTracksPager());
         pullToRefreshController.setRefreshListener(this, adapter);
 
-        addLifeCycleComponent(shuffleViewController);
+        addLifeCycleComponent(headerController);
         addLifeCycleComponent(listViewController);
         addLifeCycleComponent(pullToRefreshController);
         addLifeCycleComponent(adapter.getLifeCycleHandler());
@@ -122,14 +122,14 @@ public class TrackLikesFragment extends LightCycleFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        listViewController.setHeaderViewController(shuffleViewController);
+        listViewController.setHeaderViewPresenter(headerController.getPresenter());
         listViewController.getEmptyView().setImage(R.drawable.empty_like);
         listViewController.getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
 
         listViewController.connect(this, observable);
         pullToRefreshController.connect(observable, adapter);
 
-        subscribeShuffleViewController();
+        loadAllLikedTracks();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public void onDestroy() {
         connectionSubscription.unsubscribe();
-        shuffleSubscription.unsubscribe();
+        allLikedTracksSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -210,7 +210,15 @@ public class TrackLikesFragment extends LightCycleFragment
         trackUrnsObservable = likeOperations.likedTrackUrns();
     }
 
-    private void subscribeShuffleViewController() {
-        shuffleSubscription = trackUrnsObservable.subscribe(shuffleViewController);
+    private void loadAllLikedTracks() {
+        allLikedTracksSubscription = trackUrnsObservable.subscribe(new AllLikedTrackUrnsSubscriber());
     }
+
+    private class AllLikedTrackUrnsSubscriber extends DefaultSubscriber<List<Urn>> {
+        @Override
+        public void onNext(List<Urn> likedTrackUrns) {
+            headerController.setLikedTrackUrns(likedTrackUrns);
+        }
+    }
+
 }

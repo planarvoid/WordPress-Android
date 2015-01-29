@@ -143,6 +143,7 @@
     <dimen name="list_item_image_dimension">60dp</dimen>
 
     <!-- Like -->
-    <dimen name="likes_shuffle_divider">1dp</dimen>
+    <dimen name="likes_header_divider">1dp</dimen>
+    <dimen name="likes_sync_state_margin_right">5dip</dimen>
 
 </resources>

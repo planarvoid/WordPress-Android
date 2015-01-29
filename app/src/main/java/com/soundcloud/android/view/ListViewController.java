@@ -31,7 +31,7 @@ public class ListViewController extends DefaultFragmentLightCycle {
     private final EmptyViewController emptyViewController;
     private final ImageOperations imageOperations;
 
-    private HeaderViewController headerViewController;
+    private HeaderViewPresenter headerViewPresenter;
 
     private AbsListView absListView;
     private ListAdapter adapter;
@@ -87,14 +87,14 @@ public class ListViewController extends DefaultFragmentLightCycle {
     }
 
     /**
-     * Use this method to set a {@link com.soundcloud.android.view.HeaderViewController}
+     * Use this method to set a {@link HeaderViewPresenter}
      * to a {@link android.widget.ListView}.
      */
-    public void setHeaderViewController(HeaderViewController headerViewController) {
-        Preconditions.checkNotNull(headerViewController, "Header view controller cannot be null");
-        this.headerViewController = headerViewController;
+    public void setHeaderViewPresenter(HeaderViewPresenter headerViewPresenter) {
+        Preconditions.checkNotNull(headerViewPresenter, "Header view controller cannot be null");
+        this.headerViewPresenter = headerViewPresenter;
         if (absListView instanceof ListView) {
-            final View view = this.headerViewController.getHeaderView();
+            final View view = this.headerViewPresenter.getHeaderView();
             if (adapter != null && view != null) {
                 final ListView listView = (ListView) absListView;
                 listView.addHeaderView(view, null, false);
@@ -155,7 +155,7 @@ public class ListViewController extends DefaultFragmentLightCycle {
 
     @VisibleForTesting
     View getHeaderView() {
-        return headerViewController.getHeaderView();
+        return headerViewPresenter.getHeaderView();
     }
 
     private static class PagingScrollListener implements AbsListView.OnScrollListener {

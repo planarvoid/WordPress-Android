@@ -4,6 +4,9 @@ import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -29,6 +32,7 @@ public class OfflineContentService extends Service {
 
     @Inject DownloadOperations downloadOperations;
     @Inject DownloadNotificationController notificationController;
+    @Inject EventBus eventBus;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -66,9 +70,12 @@ public class OfflineContentService extends Service {
     }
 
     @VisibleForTesting
-    OfflineContentService(DownloadOperations downloadOps, DownloadNotificationController notificationController) {
+    OfflineContentService(DownloadOperations downloadOps,
+                          DownloadNotificationController notificationController,
+                          EventBus eventBus) {
         this.downloadOperations = downloadOps;
         this.notificationController = notificationController;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -77,6 +84,7 @@ public class OfflineContentService extends Service {
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
         if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
+            eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.start());
             subscription.unsubscribe();
             subscription = downloadOperations
                     .pendingDownloads()
@@ -97,6 +105,7 @@ public class OfflineContentService extends Service {
 
     private void stop() {
         Log.d(TAG, "Stopping the service");
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.stop());
         stopForeground(true);
         subscription.unsubscribe();
         stopSelf();

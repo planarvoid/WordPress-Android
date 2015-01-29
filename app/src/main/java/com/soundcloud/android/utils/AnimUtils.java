@@ -52,6 +52,12 @@ public final class AnimUtils {
         return animation;
     }
 
+    public static Animation runSpinClockwiseAnimationOn(Context ctx, View target) {
+        Animation animation = AnimationUtils.loadAnimation(ctx, R.anim.spin_clockwise);
+        target.startAnimation(animation);
+        return animation;
+    }
+
     public static void hideViews(final View... views) {
         for (View view : views){
             hideView(view.getContext(), view, true);
