@@ -11,6 +11,7 @@ import static rx.Observable.just;
 
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -29,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.Pager;
@@ -61,6 +63,7 @@ public class TrackLikesFragmentTest {
         when(likeOperations.likedTracks()).thenReturn(likedTracks);
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(Robolectric.application));
+        when(adapter.getLifeCycleHandler()).thenReturn(Mockito.mock(DefaultFragmentLightCycle.class));
 
         Observable<List<Urn>> likedTrackUrns = withSubscription(shuffleSubscription, just(Urn.forTrack(123L))).toList();
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
