@@ -17,6 +17,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ public class LikeOperationsTest {
     @Mock private LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
     @Mock private UpdateLikeCommand storeLikeCommand;
     @Mock private SyncInitiator syncInitiator;
+    @Mock private NetworkConnectionHelper networkConnectionHelper;
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
@@ -56,7 +58,7 @@ public class LikeOperationsTest {
                 storeLikeCommand,
                 syncInitiator,
                 eventBus,
-                scheduler);
+                scheduler, networkConnectionHelper);
         when(storeLikeCommand.toObservable()).thenReturn(
                 Observable.just(TestPropertySets.likedTrack(Urn.forTrack(123))));
     }
@@ -78,10 +80,22 @@ public class LikeOperationsTest {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
+        when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
         operations.likedTracks().subscribe(observer);
 
         verify(syncInitiator).requestTracksSync(likedTracks);
+    }
+
+    @Test
+    public void likedTracksDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
+        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedTracks().subscribe(observer);
+
+        verify(syncInitiator, never()).requestTracksSync(likedTracks);
     }
 
     @Test
@@ -154,10 +168,22 @@ public class LikeOperationsTest {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
         when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+        when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
         operations.likedPlaylists().subscribe(observer);
 
         verify(syncInitiator).requestPlaylistSync(likedPlaylists);
+    }
+
+    @Test
+    public void likedPlaylistsDoesNotRequestUpdatesFromSyncerWhenOffWifi() {
+        List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+
+        operations.likedPlaylists().subscribe(observer);
+
+        verify(syncInitiator, never()).requestPlaylistSync(likedPlaylists);
     }
 
     @Test

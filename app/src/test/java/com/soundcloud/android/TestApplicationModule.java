@@ -31,6 +31,7 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.likes.LikesSyncer;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
@@ -243,6 +244,11 @@ public class TestApplicationModule {
     @Named("PlaylistsSyncJob")
     EntitySyncJob providePlaylistsSyncJob() {
         return mock(EntitySyncJob.class);
+    }
+
+    @Provides
+    public NetworkConnectionHelper provideNetworkConnectionHelper() {
+        return mock(NetworkConnectionHelper.class);
     }
 
 }
