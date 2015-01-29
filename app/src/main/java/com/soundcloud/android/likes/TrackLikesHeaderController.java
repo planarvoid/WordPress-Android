@@ -74,6 +74,7 @@ public class TrackLikesHeaderController extends DefaultFragmentLightCycle implem
     public void setLikedTrackUrns(List<Urn> likedTracks) {
         this.likedTracks.clear();
         this.likedTracks.addAll(likedTracks);
+        headerPresenter.updateTrackCount(likedTracks.size());
     }
 
     @Override
