@@ -5,7 +5,7 @@ import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.HackyErrorSuppressingAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
 import com.soundcloud.android.view.adapters.ListContentSyncedSubscriber;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
@@ -21,7 +21,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
+public class TrackLikesAdapter extends HackyErrorSuppressingAdapter<PropertySet>
         implements ReactiveAdapter<Iterable<PropertySet>> {
 
     private final TrackItemPresenter trackPresenter;
