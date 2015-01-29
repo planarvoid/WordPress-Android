@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class EntitySyncRequest implements SyncRequest {
+class EntitySyncRequest implements SyncRequest {
 
     private final EntitySyncJob entitySyncJob;
     private final EventBus eventBus;
