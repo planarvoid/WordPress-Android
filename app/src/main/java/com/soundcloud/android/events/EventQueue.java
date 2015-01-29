@@ -18,7 +18,7 @@ public final class EventQueue {
     public static final Queue<CurrentPlayQueueTrackEvent> PLAY_QUEUE_TRACK = Queue.of(CurrentPlayQueueTrackEvent.class).replay().get();
     public static final Queue<AdOverlayEvent> AD_OVERLAY = Queue.of(AdOverlayEvent.class).replay().get();
     public static final Queue<SyncResult> SYNC_RESULT = Queue.of(SyncResult.class).replay().get();
-    public static final Queue<EntitySyncedEvent> RESOURCES_SYNCED = Queue.of(EntitySyncedEvent.class).get();
+    public static final Queue<EntityUpdatedEvent> ENTITY_UPDATED = Queue.of(EntityUpdatedEvent.class).get();
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).get();

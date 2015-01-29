@@ -234,14 +234,14 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named("TracksSyncer")
-    EntitySyncJob provideTracksSynce() {
+    @Named("TracksSyncJob")
+    EntitySyncJob provideTracksSyncJob() {
         return mock(EntitySyncJob.class);
     }
 
     @Provides
-    @Named("PlaylistsSyncer")
-    EntitySyncJob providePlaylistsSyncer() {
+    @Named("PlaylistsSyncJob")
+    EntitySyncJob providePlaylistsSyncJob() {
         return mock(EntitySyncJob.class);
     }
 

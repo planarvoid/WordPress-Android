@@ -91,13 +91,13 @@ public class SyncInitiator {
     public void requestTracksSync(List<PropertySet> tracks) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_TRACKS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromPlayables(tracks)));
+                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(tracks)));
     }
 
     public void requestPlaylistSync(List<PropertySet> playlists) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_PLAYLISTS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromPlayables(playlists)));
+                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(playlists)));
     }
 
     private Observable<SyncResult> requestSyncObservable(final String syncAction) {

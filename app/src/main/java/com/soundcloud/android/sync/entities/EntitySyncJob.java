@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.entities;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.ApiResourceCommand;
@@ -8,7 +7,8 @@ import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJob;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.GuavaFunctions;
 import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
@@ -22,12 +22,6 @@ public class EntitySyncJob implements SyncJob {
 
     private final ApiResourceCommand<List<Urn>, ModelCollection<PropertySetSource>> fetchResources;
     private final StoreCommand storeResources;
-    private final Function<PropertySetSource, PropertySet> apiModelCollectionToPropSet = new Function<PropertySetSource, PropertySet>() {
-        @Override
-        public PropertySet apply(PropertySetSource propertySetSource) {
-            return propertySetSource.toPropertySet();
-        }
-    };
 
     private List<Urn> urns = Collections.emptyList();
     private Collection<PropertySet> updatedPropertySets = Collections.emptyList();
@@ -52,10 +46,10 @@ public class EntitySyncJob implements SyncJob {
             if (!urns.isEmpty()) {
                 ModelCollection<PropertySetSource> collection = fetchResources.with(urns).call();
                 storeResources.with(collection).call();
-                updatedPropertySets = Collections2.transform(collection.getCollection(), apiModelCollectionToPropSet);
+                updatedPropertySets = Collections2.transform(collection.getCollection(), GuavaFunctions.PROP_SET_SOURCE_TO_PROP_SET);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error updating resources ", e);
+            ErrorUtils.handleThrowable(e, this.getClass());
         }
     }
 

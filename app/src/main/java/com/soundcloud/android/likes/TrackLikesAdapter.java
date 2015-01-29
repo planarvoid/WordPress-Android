@@ -51,7 +51,7 @@ public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
                 eventSubscriptions = new CompositeSubscription(
                         eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(TrackLikesAdapter.this, trackPresenter)),
                         eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(TrackLikesAdapter.this)),
-                        eventBus.subscribe(EventQueue.RESOURCES_SYNCED, new ListContentSyncedSubscriber(TrackLikesAdapter.this))
+                        eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(TrackLikesAdapter.this))
                 );
             }
 

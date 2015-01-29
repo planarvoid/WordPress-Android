@@ -12,7 +12,7 @@ import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 
-public class SyncRequestFactory {
+class SyncRequestFactory {
 
     private final LegacySyncRequest.Factory syncIntentFactory;
     private final Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob;
@@ -21,7 +21,7 @@ public class SyncRequestFactory {
     private final EventBus eventBus;
 
     @Inject
-    public SyncRequestFactory(LegacySyncRequest.Factory syncIntentFactory,
+    SyncRequestFactory(LegacySyncRequest.Factory syncIntentFactory,
                               Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
                               Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob,
                               EntitySyncRequestFactory entitySyncRequestFactory,

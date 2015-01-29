@@ -36,7 +36,7 @@ public class PlaylistLikesAdapter extends EndlessAdapter<PropertySet>
             @Override
             public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
                 eventSubscriptions = new CompositeSubscription(
-                        eventBus.subscribe(EventQueue.RESOURCES_SYNCED, new ListContentSyncedSubscriber(PlaylistLikesAdapter.this))
+                        eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(PlaylistLikesAdapter.this))
                 );
             }
 

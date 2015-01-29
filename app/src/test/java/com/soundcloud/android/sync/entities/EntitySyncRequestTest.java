@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.events.EntitySyncedEvent;
+import com.soundcloud.android.events.EntityUpdatedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -97,8 +97,8 @@ public class EntitySyncRequestTest {
 
         entitySyncRequest.finish();
 
-        final EntitySyncedEvent entitySyncedEvent = eventBus.lastEventOn(EventQueue.RESOURCES_SYNCED);
-        final Map<Urn, PropertySet> changeSet = entitySyncedEvent.getChangeSet();
+        final EntityUpdatedEvent entityUpdatedEvent = eventBus.lastEventOn(EventQueue.ENTITY_UPDATED);
+        final Map<Urn, PropertySet> changeSet = entityUpdatedEvent.getChangeMap();
         expect(changeSet.values()).toContainExactly(propertySet1, propertySet2);
     }
 }

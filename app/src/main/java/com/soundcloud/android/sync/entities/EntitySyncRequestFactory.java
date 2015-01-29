@@ -10,20 +10,21 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class EntitySyncRequestFactory {
-    private final Lazy<EntitySyncJob> tracksSyncer;
-    private final Lazy<EntitySyncJob> playlistSyncer;
+    private final Lazy<EntitySyncJob> tracksSyncJob;
+    private final Lazy<EntitySyncJob> playlistSyncJob;
     private final EventBus eventBus;
 
     @Inject
-    public EntitySyncRequestFactory(@Named("TracksSyncer") Lazy<EntitySyncJob> tracksSyncer, @Named("PlaylistsSyncer") Lazy<EntitySyncJob> playlistSyncer, EventBus eventBus) {
-        this.tracksSyncer = tracksSyncer;
-        this.playlistSyncer = playlistSyncer;
+    public EntitySyncRequestFactory(@Named("TracksSyncJob") Lazy<EntitySyncJob> trackSyncJob,
+                                    @Named("PlaylistsSyncJob") Lazy<EntitySyncJob> playlistSyncJob, EventBus eventBus) {
+        this.tracksSyncJob = trackSyncJob;
+        this.playlistSyncJob = playlistSyncJob;
         this.eventBus = eventBus;
     }
 
     public EntitySyncRequest create(Intent intent){
         return SyncActions.SYNC_TRACKS.equals(intent.getAction())
-                ? new EntitySyncRequest(tracksSyncer.get(), intent, eventBus)
-                : new EntitySyncRequest(playlistSyncer.get(), intent, eventBus);
+                ? new EntitySyncRequest(tracksSyncJob.get(), intent, eventBus)
+                : new EntitySyncRequest(playlistSyncJob.get(), intent, eventBus);
     }
 }

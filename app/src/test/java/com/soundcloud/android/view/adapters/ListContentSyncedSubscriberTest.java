@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.EntitySyncedEvent;
+import com.soundcloud.android.events.EntityUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -45,7 +45,7 @@ public class ListContentSyncedSubscriberTest {
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntitySyncedEvent event = new EntitySyncedEvent(Arrays.asList(updated));
+        final EntityUpdatedEvent event = new EntityUpdatedEvent(Arrays.asList(updated));
         listContentSyncedSubscriber.onNext(event);
 
         expect(track1.get(PlayableProperty.CREATOR_NAME)).toEqual(UPDATED_CREATOR);
@@ -63,7 +63,7 @@ public class ListContentSyncedSubscriberTest {
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntitySyncedEvent event = new EntitySyncedEvent(Arrays.asList(updated));
+        final EntityUpdatedEvent event = new EntityUpdatedEvent(Arrays.asList(updated));
         listContentSyncedSubscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();

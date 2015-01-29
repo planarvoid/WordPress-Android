@@ -34,7 +34,7 @@ public class EntitySyncJobTest {
     }
 
     @Test
-    public void resolvedUrnsToFullTracksAndStoresThemLocally() throws Exception {
+    public void resolvesUrnsToFullTracksAndStoresThemLocally() throws Exception {
         final ApiTrackCollection tracks = new ApiTrackCollection();
         final List<ApiTrack> collection = ModelFixtures.create(ApiTrack.class, 2);
         tracks.setCollection(collection);
@@ -48,7 +48,7 @@ public class EntitySyncJobTest {
     }
 
     @Test
-    public void resolvedUrnsToFullTracksAndReturnsThemAsUpdated() throws Exception {
+    public void resolvesUrnsToFullTracksAndReturnsThemAsUpdated() throws Exception {
         final ApiTrackCollection tracks = new ApiTrackCollection();
         final List<ApiTrack> collection = ModelFixtures.create(ApiTrack.class, 2);
         tracks.setCollection(collection);

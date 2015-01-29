@@ -13,14 +13,14 @@ import javax.inject.Named;
 public class EntitySyncModule {
 
     @Provides
-    @Named("TracksSyncer")
-    EntitySyncJob provideTrackSyncer(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks) {
+    @Named("TracksSyncJob")
+    EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks) {
         return new EntitySyncJob(fetchTracks, storeTracks);
     }
 
     @Provides
-    @Named("PlaylistsSyncer")
-    EntitySyncJob providePlaylistSyncer(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists) {
+    @Named("PlaylistsSyncJob")
+    EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists) {
         return new EntitySyncJob(fetchPlaylists, storePlaylists);
     }
 }
