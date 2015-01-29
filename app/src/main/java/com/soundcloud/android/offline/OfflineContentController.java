@@ -22,13 +22,33 @@ public class OfflineContentController {
     private final EventBus eventBus;
     private final Context context;
     private final OfflineContentOperations operations;
-    private final Observable<Boolean> settingsStatusObservable;
+
     private CompositeSubscription subscription = new CompositeSubscription();
+
+    private static final Func1<Boolean, Boolean> IS_TOGGLED_OFF = new Func1<Boolean, Boolean>() {
+        @Override public Boolean call(Boolean isEnabled) {
+            return !isEnabled;
+        }
+    };
+
+    private static final Func1<Boolean, Boolean> IS_TOGGLE_ON = new Func1<Boolean, Boolean>() {
+        @Override public Boolean call(Boolean isEnabled) {
+            return isEnabled;
+        }
+    };
 
     private static final Func1<PlayableUpdatedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<PlayableUpdatedEvent, Boolean>() {
         @Override
         public Boolean call(PlayableUpdatedEvent event) {
             return event.getUrn().isTrack() && event.isFromLike();
+        }
+    };
+
+    public static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return syncResult.wasChanged()
+                    && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
         }
     };
 
@@ -46,25 +66,23 @@ public class OfflineContentController {
         }
     };
 
-    public static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
-        @Override
-        public Boolean call(SyncResult syncResult) {
-            return syncResult.wasChanged()
-                    && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
-        }
-    };
-
     @Inject
     public OfflineContentController(EventBus eventBus, OfflineContentOperations operations, Context context) {
         this.eventBus = eventBus;
         this.operations = operations;
         this.context = context;
-        this.settingsStatusObservable = operations.getSettingsStatus();
     }
 
     public void subscribe() {
         subscription = new CompositeSubscription(
-                settingsStatusObservable
+                operations
+                        .getSettingsStatus()
+                        .filter(IS_TOGGLED_OFF)
+                        .subscribe(new StopOfflineContentServiceSubscriber()),
+
+                operations
+                        .getSettingsStatus()
+                        .filter(IS_TOGGLE_ON)
                         .flatMap(updateOfflineLikes)
                         .subscribe(new StartOfflineContentServiceSubscriber()),
 
@@ -90,7 +108,13 @@ public class OfflineContentController {
 
         @Override
         public void onNext(Object ignored) {
-            OfflineContentService.syncOfflineContent(context);
+            OfflineContentService.startSyncing(context);
+        }
+    }
+
+    private class StopOfflineContentServiceSubscriber extends DefaultSubscriber<Object> {
+        @Override public void onNext(Object args) {
+            OfflineContentService.stopSyncing(context);
         }
     }
 }

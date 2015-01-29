@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Intent;
+import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,37 +42,49 @@ public class OfflineContentServiceTest {
     }
 
     @Test
-    public void startServiceGetsPendingDownloadsFromDownloadOperations() {
-        service.onStartCommand(createDownloadTracksIntent(), 0, 0);
+    public void startServiceWithDownloadActionGetsPendingDownloadsFromDownloadOperations() {
+        service.onStartCommand(createStartDownloadIntent(), 0, 0);
 
         verify(downloadOperations).pendingDownloads();
     }
 
     @Test
-    public void startServiceUpdatesNotificationAfterRequestsAdded() {
+    public void startServiceWithDownloadActionUpdatesNotificationAfterRequestsAdded() {
         final List<DownloadRequest> requests = listOfPendingDownloads();
         when(downloadOperations.pendingDownloads()).thenReturn(Observable.just(requests));
 
-        service.onStartCommand(createDownloadTracksIntent(), 0, 0);
+        service.onStartCommand(createStartDownloadIntent(), 0, 0);
         verify(notificationController).onNewPendingRequests(requests.size());
     }
 
     @Test
-    public void startServiceDoesNotCreateNotificationWhenNoPendingDownloadsExists() {
+    public void startServiceWithDownloadActionDoesNotCreateNotificationWhenNoPendingDownloadsExists() {
         when(downloadOperations.pendingDownloads()).thenReturn(Observable.<List<DownloadRequest>>empty());
 
-        service.onStartCommand(createDownloadTracksIntent(), 0, 0);
+        service.onStartCommand(createStartDownloadIntent(), 0, 0);
         verify(notificationController, never()).onNewPendingRequests(anyInt());
     }
 
     @Test
-    public void startServiceProcessesRequestWhenPending() {
+    public void startServiceWithDownloadActionProcessesRequestWhenPending() {
         final List<DownloadRequest> requests = Arrays.asList(downloadRequest1);
         when(downloadOperations.pendingDownloads()).thenReturn(Observable.just(requests));
         when(downloadOperations.processDownloadRequests(requests)).thenReturn(Observable.just(downloadResult1));
 
-        service.onStartCommand(createDownloadTracksIntent(), 0, 0);
+        service.onStartCommand(createStartDownloadIntent(), 0, 0);
         verify(downloadOperations).processDownloadRequests(requests);
+    }
+
+    @Test
+    public void startServiceWithCancelDownloadActionStopRequestProcessing() {
+        PublishSubject<List<DownloadRequest>> pendingRequestsSubject = PublishSubject.create();
+        when(downloadOperations.pendingDownloads()).thenReturn(pendingRequestsSubject);
+
+        service.onStartCommand(createStartDownloadIntent(), 0, 0);
+        service.onStartCommand(createCancelDownloadIntent(), 0, 0);
+
+        pendingRequestsSubject.onNext(Arrays.asList(downloadRequest1, downloadRequest2));
+        verify(notificationController, never()).onNewPendingRequests(anyInt());
     }
 
     private List<DownloadRequest> listOfPendingDownloads() {
@@ -82,10 +95,15 @@ public class OfflineContentServiceTest {
         return new DownloadRequest(Urn.forTrack(id), "http://" + id);
     }
 
-    private Intent createDownloadTracksIntent() {
+    private Intent createStartDownloadIntent() {
         Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
-        intent.setAction(OfflineContentService.ACTION_DOWNLOAD_TRACKS);
+        intent.setAction(OfflineContentService.ACTION_START_DOWNLOAD);
         return intent;
     }
 
+    private Intent createCancelDownloadIntent() {
+        Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
+        intent.setAction(OfflineContentService.ACTION_STOP_DOWNLOAD);
+        return intent;
+    }
 }
