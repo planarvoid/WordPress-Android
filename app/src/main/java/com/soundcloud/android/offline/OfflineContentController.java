@@ -25,13 +25,13 @@ public class OfflineContentController {
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
-    private static final Func1<Boolean, Boolean> IS_TOGGLED_OFF = new Func1<Boolean, Boolean>() {
+    private static final Func1<Boolean, Boolean> IS_DISABLED = new Func1<Boolean, Boolean>() {
         @Override public Boolean call(Boolean isEnabled) {
             return !isEnabled;
         }
     };
 
-    private static final Func1<Boolean, Boolean> IS_TOGGLE_ON = new Func1<Boolean, Boolean>() {
+    private static final Func1<Boolean, Boolean> IS_ENABLED = new Func1<Boolean, Boolean>() {
         @Override public Boolean call(Boolean isEnabled) {
             return isEnabled;
         }
@@ -75,14 +75,10 @@ public class OfflineContentController {
 
     public void subscribe() {
         subscription = new CompositeSubscription(
-                operations
-                        .getSettingsStatus()
-                        .filter(IS_TOGGLED_OFF)
+                getOfflineSyncEnabled()
                         .subscribe(new StopOfflineContentServiceSubscriber()),
 
-                operations
-                        .getSettingsStatus()
-                        .filter(IS_TOGGLE_ON)
+                getOfflineSyncDisabled()
                         .flatMap(updateOfflineLikes)
                         .subscribe(new StartOfflineContentServiceSubscriber()),
 
@@ -98,6 +94,18 @@ public class OfflineContentController {
                         .flatMap(updateOfflineLikes)
                         .subscribe(new StartOfflineContentServiceSubscriber())
         );
+    }
+
+    private Observable<Boolean> getOfflineSyncDisabled() {
+        return operations
+                .getSettingsStatus()
+                .filter(IS_ENABLED);
+    }
+
+    private Observable<Boolean> getOfflineSyncEnabled() {
+        return operations
+                .getSettingsStatus()
+                .filter(IS_DISABLED);
     }
 
     public void unsubscribe() {
