@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.EntityUpdatedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -99,6 +100,8 @@ public class EntitySyncRequestTest {
 
         final EntityUpdatedEvent entityUpdatedEvent = eventBus.lastEventOn(EventQueue.ENTITY_UPDATED);
         final Map<Urn, PropertySet> changeSet = entityUpdatedEvent.getChangeMap();
-        expect(changeSet.values()).toContainExactly(propertySet1, propertySet2);
+        expect(changeSet.size()).toEqual(2);
+        expect(changeSet.get(propertySet1.get(EntityProperty.URN))).toBe(propertySet1);
+        expect(changeSet.get(propertySet2.get(EntityProperty.URN))).toBe(propertySet2);
     }
 }
