@@ -148,6 +148,10 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
+    public static PropertySet fromApiTrack(){
+        return fromApiTrack(ModelFixtures.create(ApiTrack.class));
+    }
+
     public static PropertySet fromApiTrack(ApiTrack apiTrack){
         return fromApiTrack(apiTrack, false, false, false);
     }

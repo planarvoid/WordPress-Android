@@ -101,7 +101,7 @@ public class TrackLikesFragment extends LightCycleFragment
         addLifeCycleComponent(shuffleViewController);
         addLifeCycleComponent(listViewController);
         addLifeCycleComponent(pullToRefreshController);
-        addLifeCycleComponent(adapter);
+        addLifeCycleComponent(adapter.getLifeCycleHandler());
     }
 
     @Override

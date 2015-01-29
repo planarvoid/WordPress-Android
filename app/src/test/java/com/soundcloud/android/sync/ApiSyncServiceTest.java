@@ -10,6 +10,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.likes.LikesSyncer;
@@ -45,6 +46,7 @@ public class ApiSyncServiceTest {
     @Mock private ApiSyncerFactory apiSyncerFactory;
     @Mock private LikesSyncer trackLikesSyncer;
     @Mock private LikesSyncer playlistLikesSyncer;
+    @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
@@ -55,7 +57,7 @@ public class ApiSyncServiceTest {
         syncRequestFactory = new SyncRequestFactory(
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
                 lazyOf(new SyncTrackLikesJob(lazyOf(trackLikesSyncer))),
-                lazyOf(new SyncPlaylistLikesJob(lazyOf(playlistLikesSyncer))), new TestEventBus());
+                lazyOf(new SyncPlaylistLikesJob(lazyOf(playlistLikesSyncer))), entitySyncRequestFactory, new TestEventBus());
     }
 
     @After public void after() {
@@ -140,7 +142,7 @@ public class ApiSyncServiceTest {
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
 
-        SyncRequestFactory syncRequestFactory = new SyncRequestFactory(new LegacySyncRequest.Factory(collectionSyncRequestFactory), null, null, new TestEventBus());
+        SyncRequestFactory syncRequestFactory = new SyncRequestFactory(new LegacySyncRequest.Factory(collectionSyncRequestFactory), null, null, entitySyncRequestFactory, new TestEventBus());
         SyncRequest request1 = syncRequestFactory.create(intent);
         SyncRequest request2 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         SyncRequest request3 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
@@ -176,7 +178,7 @@ public class ApiSyncServiceTest {
         ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
-        svc.onSyncItemCompleted(new LegacySyncJob(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
+        svc.onSyncJobCompleted(new LegacySyncJob(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
         expect(svc.runningJobs.size()).toBe(1);
     }
 

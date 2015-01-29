@@ -10,7 +10,6 @@ import com.soundcloud.android.sync.SyncResult;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -24,7 +23,6 @@ public class SingleJobRequest implements SyncRequest {
 
     private SyncResult resultEvent;
 
-    @Inject
     public SingleJobRequest(DefaultSyncJob syncJob, String action, boolean isHighPriority, ResultReceiver resultReceiver, EventBus eventBus) {
         this.syncJob = syncJob;
         this.action = action;

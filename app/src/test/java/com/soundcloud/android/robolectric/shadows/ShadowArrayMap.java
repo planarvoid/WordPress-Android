@@ -5,6 +5,7 @@ import com.xtremelabs.robolectric.internal.Implements;
 
 import android.support.v4.util.SimpleArrayMap;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,11 @@ public class ShadowArrayMap {
     @Implementation
     public Set<Map.Entry> entrySet() {
         return map.entrySet();
+    }
+
+    @Implementation
+    public Collection values() {
+        return map.values();
     }
 
     @Implementation

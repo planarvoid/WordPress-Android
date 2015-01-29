@@ -11,11 +11,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.android.Pager;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -35,6 +37,7 @@ public class LikeOperations {
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
+    private final NetworkConnectionHelper networkConnectionHelper;
 
     private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
         @Override
@@ -75,6 +78,25 @@ public class LikeOperations {
         }
     };
 
+    private final Action1<List<PropertySet>> requestTracksSyncAction = new Action1<List<PropertySet>>() {
+        @Override
+        public void call(List<PropertySet> propertySets) {
+            if (networkConnectionHelper.isWifiConnected() && !propertySets.isEmpty()) {
+                syncInitiator.requestTracksSync(propertySets);
+            }
+        }
+    };
+
+
+    private final Action1<List<PropertySet>> requestPlaylistsSyncAction = new Action1<List<PropertySet>>() {
+        @Override
+        public void call(List<PropertySet> propertySets) {
+            if (networkConnectionHelper.isWifiConnected() && !propertySets.isEmpty()) {
+                syncInitiator.requestPlaylistSync(propertySets);
+            }
+        }
+    };
+
     @Inject
     public LikeOperations(LoadLikedTracksCommand loadLikedTracksCommand,
                           LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
@@ -82,7 +104,8 @@ public class LikeOperations {
                           UpdateLikeCommand storeLikeCommand,
                           SyncInitiator syncInitiator,
                           EventBus eventBus,
-                          @Named("Storage") Scheduler scheduler) {
+                          @Named("Storage") Scheduler scheduler,
+                          NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.loadLikedPlaylistsCommand = loadLikedPlaylistsCommand;
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
@@ -90,6 +113,7 @@ public class LikeOperations {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
+        this.networkConnectionHelper = networkConnectionHelper;
     }
 
     public Observable<List<PropertySet>> likedTracks() {
@@ -100,6 +124,7 @@ public class LikeOperations {
         return loadLikedTracksCommand
                 .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
                 .toObservable()
+                .doOnNext(requestTracksSyncAction)
                 .flatMap(returnIfNonEmptyOr(updatedLikedTracks()));
     }
 
@@ -114,7 +139,9 @@ public class LikeOperations {
     public Observable<List<PropertySet>> likedPlaylists(long beforeTime) {
         return loadLikedPlaylistsCommand
                 .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
-                .toObservable().subscribeOn(scheduler)
+                .toObservable()
+                .doOnNext(requestPlaylistsSyncAction)
+                .subscribeOn(scheduler)
                 .flatMap(returnIfNonEmptyOr(updatedLikedPlaylists()));
     }
 

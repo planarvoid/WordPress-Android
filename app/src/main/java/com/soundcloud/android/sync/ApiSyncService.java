@@ -84,11 +84,8 @@ public class ApiSyncService extends Service {
     void enqueueRequest(SyncRequest syncRequest) {
 
         syncRequests.add(syncRequest);
-
         for (SyncJob syncJob : syncRequest.getPendingJobs()) {
-
             if (!runningJobs.contains(syncJob)) {
-
                 if (!pendingJobs.contains(syncJob)) {
                     addItemToPendingRequests(syncRequest, syncJob);
                     syncJob.onQueued();
@@ -120,7 +117,7 @@ public class ApiSyncService extends Service {
         pendingJobs.addFirst(existing);
     }
 
-    /* package */ void onSyncItemCompleted(SyncJob syncJob){
+    /* package */ void onSyncJobCompleted(SyncJob syncJob){
 
         for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
 
@@ -177,7 +174,7 @@ public class ApiSyncService extends Service {
         @Override
         protected void onProgressUpdate(SyncJob... progress) {
             for (SyncJob syncJob : progress) {
-                onSyncItemCompleted(syncJob);
+                onSyncJobCompleted(syncJob);
             }
         }
 

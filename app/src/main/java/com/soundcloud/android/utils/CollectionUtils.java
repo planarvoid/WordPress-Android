@@ -2,10 +2,13 @@ package com.soundcloud.android.utils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +29,14 @@ public final class CollectionUtils {
 
     public static <T extends PropertySetSource> List<PropertySet> toPropertySets(T... items) {
         return toPropertySets(Arrays.asList(items));
+    }
+
+    public static ArrayList<Urn> extractUrnsFromEntities(List<PropertySet> entities) {
+        ArrayList<Urn> urns = new ArrayList<>(entities.size());
+        for (PropertySet propertySet : entities){
+            urns.add(propertySet.get(EntityProperty.URN));
+        }
+        return urns;
     }
 
     private CollectionUtils() {
