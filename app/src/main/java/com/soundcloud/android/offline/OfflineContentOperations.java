@@ -10,6 +10,7 @@ import rx.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -18,18 +19,18 @@ public class OfflineContentOperations {
     private final static long REMOVAL_DELAY = TimeUnit.MINUTES.toMillis(3);
 
     private final LikeOperations likeOperations;
-    private final StoreTrackDownloadsCommand storeTrackDownloads;
+    private final Provider<StoreTrackDownloadsCommand> storeTrackDownloadsProvider;
     private final LoadDownloadsPendingRemovalCommand pendingRemoval;
     private final OfflineSettingsStorage settingsStorage;
     private final Scheduler scheduler;
 
     @Inject
-    public OfflineContentOperations(StoreTrackDownloadsCommand storeTrackDownloads,
+    public OfflineContentOperations(Provider<StoreTrackDownloadsCommand> storeTrackDownloadsProvider,
                                     LoadDownloadsPendingRemovalCommand pendingRemoval,
                                     LikeOperations operations,
                                     OfflineSettingsStorage settingsStorage,
                                     @Named("Storage") Scheduler scheduler) {
-        this.storeTrackDownloads = storeTrackDownloads;
+        this.storeTrackDownloadsProvider = storeTrackDownloadsProvider;
         this.pendingRemoval = pendingRemoval;
         this.likeOperations = operations;
         this.settingsStorage = settingsStorage;
@@ -37,10 +38,17 @@ public class OfflineContentOperations {
     }
 
     public Observable<WriteResult> updateOfflineLikes() {
-        return likeOperations
-                .likedTrackUrns()
-                .flatMap(storeTrackDownloads)
-                .subscribeOn(scheduler);
+        if (isLikesOfflineSyncEnabled()){
+            return likeOperations
+                    .likedTrackUrns()
+                    .flatMap(storeTrackDownloadsProvider.get())
+                    .subscribeOn(scheduler);
+        } else {
+            return storeTrackDownloadsProvider.get()
+                    .toObservable()
+                    .subscribeOn(scheduler);
+        }
+
     }
 
     public Observable<List<Urn>> pendingRemovals() {

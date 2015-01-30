@@ -32,6 +32,7 @@ public class LoadLikedTracksCommand extends PagedQueryCommand<ChronologicalQuery
                         TableColumns.Sounds.LIKES_COUNT,
                         TableColumns.Sounds.SHARING,
                         TableColumns.TrackDownloads.DOWNLOADED_AT,
+                        field(Table.TrackDownloads + "." + TableColumns.TrackDownloads.REMOVED_AT).as(TableColumns.TrackDownloads.REMOVED_AT),
                         field(Table.Likes + "." + TableColumns.Likes.CREATED_AT).as(TableColumns.Likes.CREATED_AT))
                 .leftJoin(Table.TrackDownloads.name(), fullSoundIdColumn, Table.TrackDownloads + "." + TableColumns.TrackDownloads._ID)
                 .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)

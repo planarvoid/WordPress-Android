@@ -36,8 +36,10 @@ public class StoreTrackDownloadsCommand extends StoreCommand<List<Urn>> {
             }
 
             private void markAllInputAsDownloads(PropellerDatabase database) {
-                for (ContentValues cv : buildContentValuesFromUrns(input)) {
-                    step(database.upsert(TrackDownloads, cv));
+                if (input != null){
+                    for (ContentValues cv : buildContentValuesFromUrns(input)) {
+                        step(database.upsert(TrackDownloads, cv));
+                    }
                 }
             }
 

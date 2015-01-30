@@ -52,4 +52,13 @@ public class StoreTrackDownloadsCommandTest extends StorageIntegrationTest {
 
         databaseAssertions().assertDownloadPendingRemoval(TRACK_URN1);
     }
+
+    @Test
+    public void updatesToPendingRemovalWhenNoLikesProvided() throws PropellerWriteException {
+        testFixtures().insertRequestedTrackDownload(TRACK_URN1, 100);
+
+        command.call();
+
+        databaseAssertions().assertDownloadPendingRemoval(TRACK_URN1);
+    }
 }

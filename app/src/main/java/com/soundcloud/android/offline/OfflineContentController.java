@@ -75,10 +75,11 @@ public class OfflineContentController {
 
     public void subscribe() {
         subscription = new CompositeSubscription(
-                getOfflineSyncEnabled()
+                getOfflineSyncDisabled()
+                        .flatMap(updateOfflineLikes)
                         .subscribe(new StopOfflineContentServiceSubscriber()),
 
-                getOfflineSyncDisabled()
+                getOfflineSyncEnabled()
                         .flatMap(updateOfflineLikes)
                         .subscribe(new StartOfflineContentServiceSubscriber()),
 
@@ -96,13 +97,13 @@ public class OfflineContentController {
         );
     }
 
-    private Observable<Boolean> getOfflineSyncDisabled() {
+    private Observable<Boolean> getOfflineSyncEnabled() {
         return operations
                 .getSettingsStatus()
                 .filter(IS_ENABLED);
     }
 
-    private Observable<Boolean> getOfflineSyncEnabled() {
+    private Observable<Boolean> getOfflineSyncDisabled() {
         return operations
                 .getSettingsStatus()
                 .filter(IS_DISABLED);

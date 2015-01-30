@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import com.soundcloud.android.offline.commands.LoadDownloadsPendingRemovalComman
 import com.soundcloud.android.offline.commands.StoreTrackDownloadsCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropellerWriteException;
+import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +39,7 @@ public class OfflineContentOperationsTest {
     @Before
     public void setUp() throws Exception {
         offlineOperations = new OfflineContentOperations(
-                storeTrackDownloads,
+                providerOf(storeTrackDownloads),
                 downloadsPendingRemoval,
                 likeOperations,
                 settingsStorage,
@@ -45,6 +47,7 @@ public class OfflineContentOperationsTest {
 
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(LIKED_TRACKS));
         when(downloadsPendingRemoval.toObservable()).thenReturn(Observable.<List<Urn>>empty());
+        when(storeTrackDownloads.toObservable()).thenReturn(Observable.<WriteResult>empty());
     }
 
     @Test
@@ -55,17 +58,20 @@ public class OfflineContentOperationsTest {
     }
 
     @Test
-    public void updateFromLikesCallsLikesOperations() {
-        offlineOperations.updateOfflineLikes().subscribe();
-
-        verify(likeOperations).likedTrackUrns();
-    }
-
-    @Test
     public void updateFromLikesCallsStoreTrackDownloadsWithGivenLikes() throws PropellerWriteException {
+        when(settingsStorage.isLikesOfflineSyncEnabled()).thenReturn(true);
         offlineOperations.updateOfflineLikes().subscribe();
 
         verify(storeTrackDownloads).toObservable();
         expect(storeTrackDownloads.getInput()).toContainExactly(TRACK_URN);
+    }
+
+    @Test
+    public void updateFromLikesCallsStoreTrackDownloadsWithNoInputWhenLikesSyncNotEnabled() throws PropellerWriteException {
+        offlineOperations.updateOfflineLikes().subscribe();
+
+        verify(storeTrackDownloads).toObservable();
+        expect(storeTrackDownloads.getInput()).toBeNull();
+
     }
 }

@@ -26,14 +26,17 @@ public class LikedTrackMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.Sounds.LIKES_COUNT));
         propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
         propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.Sounds.SHARING)));
-        addOptionalDownloadDate(cursorReader, propertySet);
+        addOptionalOfflineSyncDates(cursorReader, propertySet);
 
         return propertySet;
     }
 
-    private void addOptionalDownloadDate(CursorReader cursorReader, PropertySet propertySet) {
+    private void addOptionalOfflineSyncDates(CursorReader cursorReader, PropertySet propertySet) {
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)){
             propertySet.put(TrackProperty.OFFLINE_DOWNLOADED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.DOWNLOADED_AT));
+        }
+        if (cursorReader.isNotNull(TableColumns.TrackDownloads.REMOVED_AT)){
+            propertySet.put(TrackProperty.OFFLINE_REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
         }
     }
 

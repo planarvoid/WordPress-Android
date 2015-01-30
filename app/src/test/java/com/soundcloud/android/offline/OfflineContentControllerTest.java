@@ -90,11 +90,11 @@ public class OfflineContentControllerTest {
     }
 
     @Test
-    public void doesNotUpdateOfflineLikesWhenOfflineLikesDisabled() {
+    public void updatesOfflineLikesWhenOfflineLikesDisabled() {
         controller.subscribe();
         offlineLikesSyncObservable.onNext(false);
 
-        verify(operations, never()).updateOfflineLikes();
+        verify(operations).updateOfflineLikes();
     }
 
     @Test
@@ -133,6 +133,8 @@ public class OfflineContentControllerTest {
 
     @Test
     public void startsOfflineContentServiceWithCancelActionWhenTheFeatureIsToggledOff() {
+        when(operations.updateOfflineLikes()).thenReturn(Observable.just((WriteResult)new TxnResult()));
+
         controller.subscribe();
 
         offlineLikesSyncObservable.onNext(false);

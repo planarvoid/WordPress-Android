@@ -141,6 +141,7 @@
 
     <!-- new list item -->
     <dimen name="list_item_image_dimension">60dp</dimen>
+    <dimen name="download_progress_indicator_margin">-6dp</dimen>
 
     <!-- Like -->
     <dimen name="likes_header_divider">1dp</dimen>

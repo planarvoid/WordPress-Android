@@ -3,6 +3,7 @@ package com.soundcloud.android.likes;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.SyncableTrackItemPresenter;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.HackyErrorSuppressingAdapter;
@@ -24,13 +25,13 @@ import javax.inject.Inject;
 public class TrackLikesAdapter extends HackyErrorSuppressingAdapter<PropertySet>
         implements ReactiveAdapter<Iterable<PropertySet>> {
 
-    private final TrackItemPresenter trackPresenter;
+    private final SyncableTrackItemPresenter trackPresenter;
     private final DefaultFragmentLightCycle lifeCycleHandler;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
-    public TrackLikesAdapter(final TrackItemPresenter trackPresenter, final EventBus eventBus) {
+    public TrackLikesAdapter(final SyncableTrackItemPresenter trackPresenter, final EventBus eventBus) {
         super(trackPresenter);
         this.trackPresenter = trackPresenter;
         lifeCycleHandler = createLifeCycleHandler(trackPresenter, eventBus);
