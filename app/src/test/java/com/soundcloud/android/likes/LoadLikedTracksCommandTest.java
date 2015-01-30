@@ -19,6 +19,8 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
     private static final Date LIKED_DATE_1 = new Date(100);
     private static final Date LIKED_DATE_2 = new Date(200);
 
+    private static final Date DOWNLOADED_DATE_1 = new Date();
+
     private LoadLikedTracksCommand command;
     private PropertySet track1;
     private PropertySet track2;
@@ -29,13 +31,17 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
 
         track1 = testFixtures().insertLikedTrack(LIKED_DATE_1).toPropertySet();
         track2 = testFixtures().insertLikedTrack(LIKED_DATE_2).toPropertySet();
+
+        testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), DOWNLOADED_DATE_1.getTime());
     }
 
     @Test
     public void shouldLoadAllTrackLikes() throws Exception {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(2, Long.MAX_VALUE)).call();
 
-        expect(result).toContainExactly(expectedLikedTrackFor(track2, LIKED_DATE_2), expectedLikedTrackFor(track1, LIKED_DATE_1));
+        expect(result).toContainExactly(
+                expectedLikedTrackFor(track2, LIKED_DATE_2),
+                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, DOWNLOADED_DATE_1));
     }
 
     @Test
@@ -50,6 +56,10 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(2, LIKED_DATE_2.getTime())).call();
 
         expect(result).toContainExactly(expectedLikedTrackFor(track1, LIKED_DATE_1));
+    }
+
+    private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt, Date downloadedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.OFFLINE_DOWNLOADED_AT, downloadedAt);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {

@@ -21,21 +21,24 @@ public class LoadLikedTracksCommand extends PagedQueryCommand<ChronologicalQuery
 
     @Override
     protected Query buildQuery(ChronologicalQueryParams input) {
+        final String fullSoundIdColumn = Table.Sounds + "." + TableColumns.Sounds._ID;
         return Query.from(Table.Likes.name(), Table.Sounds.name(), Table.Users.name())
                 .select(
-                        field(Table.Sounds + "." + TableColumns.Sounds._ID).as(BaseColumns._ID),
+                        field(fullSoundIdColumn).as(BaseColumns._ID),
                         TableColumns.Sounds.TITLE,
                         TableColumns.Users.USERNAME,
                         TableColumns.Sounds.DURATION,
                         TableColumns.Sounds.PLAYBACK_COUNT,
                         TableColumns.Sounds.LIKES_COUNT,
                         TableColumns.Sounds.SHARING,
+                        TableColumns.TrackDownloads.DOWNLOADED_AT,
                         field(Table.Likes + "." + TableColumns.Likes.CREATED_AT).as(TableColumns.Likes.CREATED_AT))
+                .leftJoin(Table.TrackDownloads.name(), fullSoundIdColumn, Table.TrackDownloads + "." + TableColumns.TrackDownloads._ID)
                 .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereLt(Table.Likes + "." + TableColumns.Likes.CREATED_AT, input.getTimestamp())
-                .joinOn(Table.Likes + "." + TableColumns.Likes._ID, Table.Sounds + "." + TableColumns.Sounds._ID)
+                .joinOn(Table.Likes + "." + TableColumns.Likes._ID, fullSoundIdColumn)
                 .joinOn(Table.Sounds + "." + TableColumns.Sounds.USER_ID, Table.Users + "." + TableColumns.Users._ID)
                 .order(Table.Likes + "." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC)
-                .whereNull(TableColumns.Likes.REMOVED_AT);
+                .whereNull(Table.Likes + "." + TableColumns.Likes.REMOVED_AT);
     }
 }
