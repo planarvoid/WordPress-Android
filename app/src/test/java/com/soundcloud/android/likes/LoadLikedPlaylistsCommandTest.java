@@ -61,6 +61,7 @@ public class LoadLikedPlaylistsCommandTest extends StorageIntegrationTest {
                 PlaylistProperty.TRACK_COUNT.bind(playlist.get(PlaylistProperty.TRACK_COUNT)),
                 PlaylistProperty.LIKES_COUNT.bind(playlist.get(PlaylistProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
-                PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)));
+                PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)),
+                PlaylistProperty.IS_LIKED.bind(true));
     }
 }

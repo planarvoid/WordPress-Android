@@ -92,15 +92,14 @@ public class LegacySoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldIncludeLikesStateForPlaylistAndUser() throws CreateModelException {
-        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        final ApiPlaylist playlist = testFixtures().insertLikedPlaylist(new Date());
         testFixtures().insertLegacyPlaylistPost(playlist, TIMESTAMP);
         final int currentUserId = 123;
-        testFixtures().insertLegacyPlaylistLike(playlist.getId(), currentUserId);
+
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(currentUserId), 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
                 .put(PlayableProperty.IS_LIKED, true);
-
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
     }
@@ -200,7 +199,7 @@ public class LegacySoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertLegacyTrackRepost(trackTwo, testFixtures().insertUser(), TIMESTAMP - 1);
         testFixtures().insertLegacyPlaylistPost(testFixtures().insertPlaylist(), TIMESTAMP - 2);
 
-        TestObserver<Urn> observer = new TestObserver<Urn>();
+        TestObserver<Urn> observer = new TestObserver<>();
         storage.trackUrns().subscribe(observer);
         expect(observer.getOnNextEvents()).toContainExactly(trackOne.getUrn(), trackTwo.getUrn());
     }

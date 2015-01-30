@@ -53,7 +53,7 @@ public class AccountCleanupActionTest {
 
     @Before
     public void setup() {
-        action = new AccountCleanupAction(context, syncStateManager,
+        action = new AccountCleanupAction(syncStateManager,
                 collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes);
 

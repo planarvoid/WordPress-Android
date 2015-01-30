@@ -9,6 +9,7 @@ import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.collections.ScListView;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -35,7 +36,7 @@ public class LikesListFragment extends ScListFragment {
 
     @Inject EventBus eventBus;
     @Inject PlaybackOperations playbackOperations;
-    @Inject SoundAssociationOperations soundAssociationOperations;
+    @Inject LikeOperations likeOperations;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ViewGroup headerView;
@@ -90,8 +91,8 @@ public class LikesListFragment extends ScListFragment {
     }
 
     private void refreshLikeIds() {
-        fetchIdsSubscription = soundAssociationOperations
-                .getLikedTracks()
+        fetchIdsSubscription = likeOperations
+                .likedTrackUrns()
                 .observeOn(mainThread()).subscribe(new LikedIdsSubscriber());
     }
 

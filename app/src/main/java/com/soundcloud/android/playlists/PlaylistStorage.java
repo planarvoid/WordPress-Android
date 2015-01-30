@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes;
-import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
@@ -68,10 +66,10 @@ public class PlaylistStorage {
     }
 
     private Query forLikes(List<PropertySet> input) {
-        final Query isLiked = Query.from(Table.CollectionItems.name())
-                .joinOn(Table.SoundView + "." + SoundView._ID, CollectionItems.ITEM_ID)
-                .joinOn(SoundView._TYPE, CollectionItems.RESOURCE_TYPE)
-                .whereEq(CollectionItems.COLLECTION_TYPE, CollectionItemTypes.LIKE);
+        final Query isLiked = Query.from(Table.Likes.name())
+                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
+                .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereNull(TableColumns.Likes.REMOVED_AT);
 
         return Query.from(Table.SoundView.name())
                 .select(SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))

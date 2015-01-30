@@ -90,6 +90,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ScShadowParcel.class);
         Robolectric.bindShadowClass(ShadowArrayMap.class);
         Robolectric.bindShadowClass(ShadowBaseBundle.class);
+        Robolectric.bindShadowClass(ScShadowSQLiteDatabase.class);
     }
 
     public static class FileDatabaseMap extends SQLiteMap {

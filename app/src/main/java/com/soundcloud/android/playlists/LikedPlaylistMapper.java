@@ -24,7 +24,7 @@ public class LikedPlaylistMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
         propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
         propertySet.put(PlaylistProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-
+        propertySet.put(PlaylistProperty.IS_LIKED, true);
         return propertySet;
     }
 

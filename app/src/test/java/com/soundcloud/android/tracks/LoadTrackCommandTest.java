@@ -3,6 +3,7 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -66,4 +67,21 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         command.with(apiTrack.getUrn()).call();
     }
 
+    @Test
+    public void loadLikedTrack() throws Exception {
+        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date());
+
+        PropertySet track = command.with(apiTrack.getUrn()).call();
+
+        expect(track.get(PlayableProperty.IS_LIKED)).toBeTrue();
+    }
+
+    @Test
+    public void loadUnlikedTrack() throws Exception {
+        ApiTrack apiTrack = testFixtures().insertTrack();
+
+        PropertySet track = command.with(apiTrack.getUrn()).call();
+
+        expect(track.get(PlayableProperty.IS_LIKED)).toBeFalse();
+    }
 }

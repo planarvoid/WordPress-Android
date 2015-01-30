@@ -16,15 +16,12 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
 
-import android.content.Context;
-
 import javax.inject.Inject;
 
 class AccountCleanupAction implements Action0 {
 
     private static final String TAG = "AccountCleanup";
 
-    private final Context context;
     private final CollectionStorage collectionStorage;
     private final ActivitiesStorage activitiesStorage;
     private final UserAssociationStorage userAssociationStorage;
@@ -38,13 +35,12 @@ class AccountCleanupAction implements Action0 {
     private final RemoveAllLikesCommand removeAllLikesCommand;
 
     @Inject
-    AccountCleanupAction(Context context, SyncStateManager syncStateManager,
-                         CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage,
-                         UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
-                         SoundRecorder soundRecorder, FeatureStorage featureStorage,
+    AccountCleanupAction(SyncStateManager syncStateManager, CollectionStorage collectionStorage,
+                         ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
+                         PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage, RemoveAllLikesCommand removeAllLikesCommand) {
-        this.context = context;
+                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage,
+                         RemoveAllLikesCommand removeAllLikesCommand) {
         this.syncStateManager = syncStateManager;
         this.collectionStorage = collectionStorage;
         this.activitiesStorage = activitiesStorage;

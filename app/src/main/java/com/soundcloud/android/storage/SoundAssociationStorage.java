@@ -1,19 +1,15 @@
 package com.soundcloud.android.storage;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.provider.Content;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -188,36 +184,8 @@ public class SoundAssociationStorage extends ScheduledOperations {
         return allSoundAssocsDAO.queryAllByUri(Content.ME_SOUNDS.uri);
     }
 
-    public List<SoundAssociation> getLikesForCurrentUser() {
-        return allSoundAssocsDAO.queryAllByUri(Content.ME_LIKES.uri);
-    }
-
     public List<SoundAssociation> getPlaylistCreationsForCurrentUser() {
         return allSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
-    }
-
-    @VisibleForTesting
-    List<Long> getTrackLikesAsIds() {
-        return likesDAO.buildQuery()
-                .select(TableColumns.SoundAssociationView._ID)
-                .where(TableColumns.SoundAssociationView._TYPE + " = ?", String.valueOf(PublicApiTrack.DB_TYPE_TRACK))
-                .queryIds();
-    }
-
-    public Observable<List<Urn>> getLikesTrackUrnsAsync(){
-        return schedule(Observable.create(new Observable.OnSubscribe<List<Urn>>() {
-            @Override
-            public void call(Subscriber<? super List<Urn>> observer) {
-                observer.onNext(Lists.transform(getTrackLikesAsIds(), new Function<Long, Urn>() {
-                    @Nullable
-                    @Override
-                    public Urn apply(@Nullable Long id) {
-                        return Urn.forTrack(id);
-                    }
-                }));
-                observer.onCompleted();
-            }
-        }));
     }
 
     private int getUpdatedCountForAddition(int originalCount){

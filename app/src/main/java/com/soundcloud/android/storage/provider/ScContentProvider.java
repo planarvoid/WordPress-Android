@@ -2,8 +2,8 @@ package com.soundcloud.android.storage.provider;
 
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.FOLLOWER;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -31,22 +31,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.List;
 
 @SuppressWarnings({"PMD.ExcessiveClassLength"})
 public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
-    public static final int PLAYABLE_CACHE_CEILING = 5000;
     private static final String TAG = ScContentProvider.class.getSimpleName();
-    private static String selectAssociationsAndActivities =
-            "SELECT 1 FROM CollectionItems WHERE "
-                    + TableColumns.CollectionItems.COLLECTION_TYPE + " IN (%s,"
-                    + CollectionStorage.CollectionItemTypes.LIKE + " ," + CollectionStorage.CollectionItemTypes.REPOST + ") "
-                    + " AND " + TableColumns.CollectionItems.USER_ID + " = %s"
-                    + " AND  " + TableColumns.CollectionItems.ITEM_ID + " =  " + TableColumns.Sounds._ID
-                    + " AND  " + TableColumns.CollectionItems.RESOURCE_TYPE + " =  %s"
-                    + ")"
-                    + " UNION SELECT DISTINCT " + TableColumns.Activities.SOUND_ID + " FROM " + Table.Activities.name()
-                    + " WHERE " + TableColumns.Activities.SOUND_TYPE + " = %s";
     private DatabaseManager databaseManager;
 
     public ScContentProvider() {
@@ -109,7 +99,8 @@ public class ScContentProvider extends ContentProvider {
         }, 0);
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Override
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public int bulkInsert(Uri uri, ContentValues[] values) {
         if (values == null || values.length == 0) {
             return 0;
@@ -148,7 +139,6 @@ public class ScContentProvider extends ContentProvider {
                 extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
                 break;
 
-            case ME_LIKES:
             case ME_REPOSTS:
                 table = Table.CollectionItems;
                 extraCV = new String[]{TableColumns.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
@@ -343,6 +333,24 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_LIKES:
+                qb.setTables(Table.SoundView.name() + " INNER JOIN " + Table.Likes.name()
+                        + " ON " + Table.SoundView + "." + TableColumns.SoundView._ID + " = " + Table.Likes.name() + "." + TableColumns.Likes._ID);
+                if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
+                    _columns = new String[]{Table.Likes + "." + TableColumns.Likes._TYPE, Table.Likes + "." + TableColumns.Likes._ID};
+                } else if (_columns == null) {
+                    _columns = formatWithUser(addFakeAssociationColumns(getSoundViewColumns(Table.SoundView), userId), userId);
+                }
+
+                _sortOrder = Table.Likes + "." + TableColumns.Likes.CREATED_AT + " DESC";
+
+                qb.appendWhere(Table.Likes + "." + TableColumns.Likes._TYPE + " = " + Table.SoundView + "." + TableColumns.SoundView._TYPE);
+                qb.appendWhere(" AND " + TableColumns.Likes.REMOVED_AT + " IS NULL");
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
+                    qb.appendWhere(" AND " + TableColumns.SoundView.CACHED + "= 1");
+                }
+
+                break;
+
             case ME_REPOSTS:
                 qb.setTables(Table.SoundAssociationView.name());
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
@@ -706,14 +714,12 @@ public class ScContentProvider extends ContentProvider {
                 where = TextUtils.isEmpty(where) ? whereAppend : where + " AND " + whereAppend;
                 break;
 
-            case ME_LIKES:
             case ME_PLAYLISTS:
             case ME_REPOSTS:
                 whereAppend = Table.CollectionItems.name() + "." + TableColumns.CollectionItems.USER_ID + " = " + userId
                         + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
-
                 break;
 
             case ME_FOLLOWINGS:
@@ -829,6 +835,18 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
+    private static String[] addFakeAssociationColumns(String[] columns, long userId) {
+        String[] arr = new String[columns.length + 3];
+        List<String> cols = Lists.newArrayList(columns);
+
+        cols.add(userId + " AS " + TableColumns.AssociationView.ASSOCIATION_OWNER_ID);
+        cols.add(Table.Likes + "." + TableColumns.Likes.CREATED_AT + " AS " + TableColumns.AssociationView.ASSOCIATION_TIMESTAMP);
+        cols.add(CollectionStorage.CollectionItemTypes.LIKE + " AS " + TableColumns.AssociationView.ASSOCIATION_TYPE);
+        cols.toArray(arr);
+
+        return arr;
+    }
+
     private static String[] getSoundViewColumns(Table table) {
         return getSoundViewColumns(table, table.id, table.type);
     }
@@ -836,11 +854,10 @@ public class ScContentProvider extends ContentProvider {
     private static String[] getSoundViewColumns(Table table, String idCol, String typeCol) {
         return new String[]{
                 table.name() + ".*",
-                "EXISTS (SELECT 1 FROM " + Table.CollectionItems + ", " + Table.Sounds.name()
-                        + " WHERE " + idCol + " = " + TableColumns.CollectionItems.ITEM_ID
-                        + " AND " + typeCol + " = " + TableColumns.CollectionItems.RESOURCE_TYPE
-                        + " AND " + TableColumns.CollectionItems.COLLECTION_TYPE + " = " + LIKE
-                        + " AND " + Table.CollectionItems.name() + "." + TableColumns.CollectionItems.USER_ID + " = $$$)"
+                "EXISTS (SELECT 1 FROM " + Table.Likes + ", " + Table.Sounds.name()
+                        + " WHERE " + idCol + " = " + Table.Likes.name() + "." + TableColumns.Likes._ID
+                        + " AND " + typeCol + " = " + Table.Likes.name() + "." + TableColumns.Likes._TYPE
+                        + " AND " + TableColumns.Likes.REMOVED_AT + " IS NULL)"
                         + " AS " + TableColumns.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.CollectionItems + ", " + Table.Sounds.name()

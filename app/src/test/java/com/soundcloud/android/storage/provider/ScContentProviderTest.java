@@ -16,12 +16,15 @@ import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.TrackHolder;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,11 +37,13 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -46,12 +51,16 @@ public class ScContentProviderTest {
     static final long USER_ID = 100L;
     ContentResolver resolver;
     ActivitiesStorage activitiesStorage;
+    private DatabaseFixtures testFixtures;
+    private SQLiteDatabase writableDatabase;
 
     @Before
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         activitiesStorage = new ActivitiesStorage(Robolectric.application);
+        writableDatabase = DatabaseManager.getInstance(Robolectric.application).getWritableDatabase();
+        testFixtures = new DatabaseFixtures(writableDatabase);
     }
 
     @Test
@@ -207,14 +216,10 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        List<PublicApiTrack> tracks = TestHelper.readResourceList("/com/soundcloud/android/storage/provider/user_favorites.json");
-        for (PublicApiTrack t : tracks) {
-            expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
-        }
+        ApiTrack track = testFixtures.insertLikedTrack(new Date());
 
         ContentValues cv = new ContentValues();
-        final long cachedId = 27583938l;
-        cv.put(TableColumns.TrackMetadata._ID, cachedId);
+        cv.put(TableColumns.TrackMetadata._ID, track.getUrn().getNumericId());
         cv.put(TableColumns.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
@@ -222,28 +227,24 @@ public class ScContentProviderTest {
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(cachedId);
+        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(track.getUrn().getNumericId());
     }
 
     @Test
-    public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
+    public void shouldQueryLikesWithDescendingOrder() throws Exception {
+        ApiTrack track1 = testFixtures.insertLikedTrack(new Date(1000));
+        ApiTrack track2 = testFixtures.insertLikedTrack(new Date(2000));
 
-        for (PublicApiTrack t : tracks) {
-            expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
-        }
+        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(2);
 
-        Uri uri = Content.ME_LIKES.withQuery(RANDOM, "1", LIMIT, "5");
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(5);
-
-        long[] sorted = new long[]{13403434, 18071729, 18213041, 18571159, 19658312};
-        long[] result = new long[sorted.length];
+        long[] result = new long[2];
         int i = 0;
         while (c.moveToNext()) {
             result[i++] = c.getLong(c.getColumnIndex(TableColumns.SoundView._ID));
         }
-        expect(Arrays.equals(result, sorted)).toBeFalse();
+        expect(result[0]).toEqual(track2.getId());
+        expect(result[1]).toEqual(track1.getId());
     }
 
     @Test

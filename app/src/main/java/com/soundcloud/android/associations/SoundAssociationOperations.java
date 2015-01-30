@@ -27,7 +27,6 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Provides operations for toggling like and repost status based on track/playlist URN and returns changes
@@ -65,10 +64,6 @@ public class SoundAssociationOperations {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // LIKING / UN-LIKING
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public Observable<List<Urn>> getLikedTracks() {
-        return soundAssocStorage.getLikesTrackUrnsAsync();
-    }
 
     public Observable<PropertySet> toggleLike(final Urn soundUrn, final boolean addLike) {
         return resolveLegacyModel(soundUrn)

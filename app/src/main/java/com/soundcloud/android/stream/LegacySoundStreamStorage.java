@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.android.storage.TableColumns.ActivityView;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
@@ -12,6 +11,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -75,8 +75,8 @@ class LegacySoundStreamStorage implements ISoundStreamStorage {
                     ActivityView.CREATED_AT,
                     ActivityView.TYPE,
                     ActivityView.USER_USERNAME,
-                    exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
-                    exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)};
+                    exists(likeQuery()).as(SoundView.USER_LIKE),
+                    exists(repostQuery(userUrn.getNumericId())).as(SoundView.USER_REPOST)};
     }
 
     public Observable<Urn> trackUrns() {
@@ -87,11 +87,18 @@ class LegacySoundStreamStorage implements ISoundStreamStorage {
         return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
     }
 
-    private Query soundAssociationQuery(int collectionType, long userId) {
+    private Query likeQuery() {
+        return Query.from(Table.Likes.name(), Table.Sounds.name())
+                .joinOn(ActivityView.SOUND_ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
+                .joinOn(ActivityView.SOUND_TYPE, Table.Likes.name() + "." + TableColumns.Likes._TYPE)
+                .whereNull(TableColumns.Likes.REMOVED_AT);
+    }
+
+    private Query repostQuery(long userId) {
         return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
                 .joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID)
                 .joinOn(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE)
-                .whereEq(CollectionItems.COLLECTION_TYPE, collectionType)
+                .whereEq(CollectionItems.COLLECTION_TYPE, REPOST)
                 .whereEq(Table.CollectionItems.name() + "." + CollectionItems.USER_ID, userId);
     }
 

@@ -81,11 +81,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldIncludeLikesStateForPlaylistAndUser() throws CreateModelException {
-        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        final ApiPlaylist playlist = testFixtures().insertLikedPlaylist(new Date());
         testFixtures().insertPlaylistPost(playlist.getId(), TIMESTAMP);
-        final int currentUserId = 123;
-        testFixtures().insertLegacyPlaylistLike(playlist.getId(), currentUserId);
-        storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(currentUserId), 50).subscribe(observer);
+        storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
                 .put(PlayableProperty.IS_LIKED, true);
@@ -100,7 +98,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackPost(firstTrack.getId(), TIMESTAMP);
         testFixtures().insertTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP - 1);
 
-        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 1).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -138,7 +136,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
         propeller().delete(Table.Sounds, new WhereBuilder().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
 
-        TestObserver<PropertySet> observer = new TestObserver<PropertySet>();
+        TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
@@ -153,7 +151,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackRepost(trackTwo.getId(), TIMESTAMP - 1, testFixtures().insertUser().getId());
         testFixtures().insertPlaylistPost(testFixtures().insertPlaylist().getId(), TIMESTAMP - 2);
 
-        TestObserver<Urn> observer = new TestObserver<Urn>();
+        TestObserver<Urn> observer = new TestObserver<>();
         storage.trackUrns().subscribe(observer);
         expect(observer.getOnNextEvents()).toContainExactly(trackOne.getUrn(), trackTwo.getUrn());
     }

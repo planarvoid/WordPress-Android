@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
@@ -71,8 +70,8 @@ class SoundStreamStorage implements ISoundStreamStorage {
                 SoundView.LIKES_COUNT,
                 SoundStreamView.CREATED_AT,
                 SoundStreamView.REPOSTER_USERNAME,
-                exists(soundAssociationQuery(LIKE, userUrn.getNumericId())).as(SoundView.USER_LIKE),
-                exists(soundAssociationQuery(REPOST, userUrn.getNumericId())).as(SoundView.USER_REPOST)};
+                exists(likeQuery()).as(SoundView.USER_LIKE),
+                exists(repostQuery(userUrn.getNumericId())).as(SoundView.USER_REPOST)};
     }
 
     public Observable<Urn> trackUrns() {
@@ -82,11 +81,18 @@ class SoundStreamStorage implements ISoundStreamStorage {
         return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
     }
 
-    private Query soundAssociationQuery(int collectionType, long userId) {
+    private Query likeQuery() {
+        return Query.from(Table.Likes.name(), Table.Sounds.name())
+                .joinOn(TableColumns.SoundStreamView.SOUND_ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
+                .joinOn(TableColumns.SoundStreamView.SOUND_TYPE, Table.Likes.name() + "." + TableColumns.Likes._TYPE)
+                .whereNull(TableColumns.Likes.REMOVED_AT);
+    }
+
+    private Query repostQuery(long userId) {
         return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
                 .joinOn(TableColumns.SoundStreamView.SOUND_ID, TableColumns.CollectionItems.ITEM_ID)
                 .joinOn(TableColumns.SoundStreamView.SOUND_TYPE, TableColumns.CollectionItems.RESOURCE_TYPE)
-                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, collectionType)
+                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, REPOST)
                 .whereEq(Table.CollectionItems.name() + "." + TableColumns.CollectionItems.USER_ID, userId);
     }
 

@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
@@ -42,19 +41,25 @@ public class LoadTrackCommand extends SingleResourceQueryCommand<Urn> {
                         TableColumns.SoundView.CREATED_AT,
                         TableColumns.SoundView.OFFLINE_DOWNLOADED_AT,
                         TableColumns.SoundView.OFFLINE_REMOVED_AT,
-                        exists(soundAssociationQuery(LIKE)).as(TableColumns.SoundView.USER_LIKE),
-                        exists(soundAssociationQuery(REPOST)).as(TableColumns.SoundView.USER_REPOST)
+                        exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),
+                        exists(repostQuery()).as(TableColumns.SoundView.USER_REPOST)
                 )
                 .whereEq(TableColumns.SoundView._ID, input.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
+    private Query likeQuery() {
+        return Query.from(Table.Likes.name(), Table.Sounds.name())
+                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
+                .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereNull(TableColumns.Likes.REMOVED_AT);
+    }
 
-    private Query soundAssociationQuery(int collectionType) {
+    private Query repostQuery() {
         return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
                 .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, TableColumns.CollectionItems.ITEM_ID)
                 .joinOn(TableColumns.SoundView._TYPE, TableColumns.CollectionItems.RESOURCE_TYPE)
-                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, collectionType)
+                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, REPOST)
                 .whereEq(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 }

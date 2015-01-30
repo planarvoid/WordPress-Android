@@ -2,7 +2,6 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
-import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -27,7 +26,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -38,8 +36,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SoundAssociationOperationsTest {
@@ -96,20 +92,6 @@ public class SoundAssociationOperationsTest {
         unposted.user_repost = false;
         trackUnpost = new SoundAssociation(unposted);
     }
-
-    @Test
-    public void shouldObtainIdsOfLikedTracksFromLocalStorage() {
-        final List<Urn> idsListFromStorage = TestHelper.createTracksUrn(1L, 2L, 3L);
-        when(storage.getLikesTrackUrnsAsync()).thenReturn(Observable.just(idsListFromStorage));
-
-        operations.getLikedTracks().subscribe(observer);
-
-        verify(observer).onNext(createTracksUrn(1L, 2L, 3L));
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // LIKING / UN-LIKING
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     public void likingTrackAddsLikeAndSendsPUTRequestToApi() {

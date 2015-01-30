@@ -17,6 +17,7 @@ import rx.Observer;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -33,10 +34,9 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
     @Test
     public void playlistLikesReturnChangeSetsWithLikeStatus() {
-        ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
+        ApiPlaylist apiPlaylist1 = testFixtures().insertLikedPlaylist(new Date());
         ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
         List<PropertySet> input = Arrays.asList(apiPlaylist1.toPropertySet(), apiPlaylist2.toPropertySet());
-        testFixtures().insertLegacyPlaylistLike(apiPlaylist1.getId(), 123L);
 
         final List<PropertySet> changeSet = storage.playlistLikes(input);
 
@@ -48,11 +48,10 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void playlistLikesDoesNotReturnsOnlyChangeSetsForPlaylists() {
-        final ApiPlaylist likedPlaylist = testFixtures().insertPlaylist();
+    public void playlistLikesOnlyReturnsChangeSetsForPlaylists() {
+        final ApiPlaylist likedPlaylist = testFixtures().insertLikedPlaylist(new Date());
         final ApiPlaylist unlikedPlaylist = testFixtures().insertPlaylist();
         final ApiTrack track = testFixtures().insertTrack();
-        testFixtures().insertLegacyPlaylistLike(likedPlaylist.getId(), 123L);
 
         List<PropertySet> input = Arrays.asList(
                 likedPlaylist.toPropertySet(), unlikedPlaylist.toPropertySet(), track.toPropertySet());
