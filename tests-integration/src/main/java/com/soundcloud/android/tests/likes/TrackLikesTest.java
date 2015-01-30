@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.LikesScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -22,7 +21,6 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.NEW_LIKES_END_TO_END);
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
     }

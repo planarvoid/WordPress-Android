@@ -21,7 +21,6 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
-        setDependsOn(Flag.NEW_LIKES_END_TO_END);
         super.setUp();
     }
 

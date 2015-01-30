@@ -4,7 +4,6 @@ import static com.soundcloud.android.framework.TestUser.emptyUser;
 
 import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -19,7 +18,6 @@ public class EmptyPlaylistLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.NEW_LIKES_END_TO_END);
         emptyUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
     }
