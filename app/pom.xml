@@ -247,13 +247,13 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
-            <version>2.0.1</version>
+            <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-            <version>2.0.1</version>
+            <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -671,7 +671,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>2.5.1</version>
+                        <version>3.0.0</version>
                         <configuration>
                             <failOnError>false</failOnError>
                             <onlyAnalyze>com.soundcloud.android.-,com.soundcloud.api.-</onlyAnalyze>
